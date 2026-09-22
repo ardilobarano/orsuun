@@ -34,21 +34,26 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   HUD, Forge / Gear / Zones panels, push and boss replays from server seeds, LOCAL MODE fallback.
 - `tools/Orsuun.Sim`: Monte Carlo balance report. `tools/ClientCheck`: compiles Unity scripts with dotnet.
 
-## Next steps, in the owner's chosen order
+## Done since the first handoff (same day)
 
-1. Korshards and sockets: sockets by rarity (1/2/2/3/3), 70% insertion, failure leaves a Dead Shard removed for
-   sorn, shard bonuses in `HeroFactory`, a Socket panel. Shards already drop by Field tier into `Inventory.Korshards`.
-2. Evening Bells (server-time event windows 21:00-23:30 that raise Korstone chests, XP, materials, damage) and Bulk
-   Turn (up to 50 Turnstones with a stop rule; 10 free, 50 with the subscription). GDD section 12.
-3. Hosted server + mobile build so other people can playtest: Dockerfile + Compose (server, PostgreSQL, Caddy for
-   HTTPS), EF Core migrations instead of `EnsureCreated`, a `-server https://...` default in the client, Android APK.
-   Open questions for the owner: which host (Hetzner VPS was recommended), and Android and/or iOS (a Mac is available).
-4. Art: do NOT implement. Present style directions (reference boards) for the owner to choose from, then URP.
-5. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12).
+- Korshards and sockets (rules, server endpoints, SHARDS panel). Evening Bells and Bulk Turn.
+- EF migrations (`Migrations/Initial`), Docker + Caddy deployment stack in `deploy/`, configurable server URL,
+  `ProjectSetup.BuildAndroid` (needs the Android module; the Windows PC does not have it, the Mac should).
+- Four art direction boards in GDD section 14 and `docs/art-options/`; recommendation B (modernized classic), D as
+  the alternative. Waiting for the owner's pick.
+
+## Next steps, waiting on the owner
+
+1. Pick the host (Hetzner VPS recommended) and follow `deploy/README.md`; then build the APK on the Mac with
+   `ORSUUN_SERVER_URL=https://<domain>` and hand it to testers. iOS needs a Mac and an Apple developer account.
+2. Pick an art direction (GDD section 14), then: character sheet and Korstone sheet in that style, URP switch with a
+   matching shader, first real hero model.
+3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
+   real shared boss HP pools, Hunt Marks and the Hearthfire subscription (Bulk Turn's 10/50 split depends on it).
 
 ## Known gaps
 
-- `EnsureCreated` instead of migrations; `ORSUUN_RESET_DB=1` wipes the schema on a Development start.
+- `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Manual skill timing does not earn the active-play bonus server-side yet (needs an input log the server replays).
 - Boss damage ranks are against simulated rivals. One account per device is not enforced yet.
