@@ -1,0 +1,22 @@
+# Local PostgreSQL for development on any OS with Docker:  docker compose -f deploy/docker-compose.dev.yml up -d
+# Matches appsettings.Development.json (orsuun / orsuun-dev on localhost:5432).
+services:
+  postgres:
+    image: postgres:16
+    container_name: orsuun-postgres
+    environment:
+      POSTGRES_USER: orsuun
+      POSTGRES_PASSWORD: orsuun-dev
+      POSTGRES_DB: orsuun
+    ports:
+      - "5432:5432"
+    volumes:
+      - orsuun-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orsuun -d orsuun"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  orsuun-pgdata:
