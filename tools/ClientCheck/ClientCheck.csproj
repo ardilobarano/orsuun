@@ -8,6 +8,8 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <!-- Override with -p:UnityVersion=... or -p:UnityManaged=... when the editor lives elsewhere. -->
     <UnityVersion Condition="'$(UnityVersion)' == ''">6000.0.32f1</UnityVersion>
+    <!-- macOS: 6000.0 keeps the assemblies under Contents/Managed, 6000.6+ under Contents/Resources/Scripting/Managed. -->
+    <UnityManaged Condition="'$(UnityManaged)' == '' And $([MSBuild]::IsOSPlatform('OSX')) And Exists('/Applications/Unity/Hub/Editor/$(UnityVersion)/Unity.app/Contents/Managed/UnityEngine')">/Applications/Unity/Hub/Editor/$(UnityVersion)/Unity.app/Contents/Managed/UnityEngine</UnityManaged>
     <UnityManaged Condition="'$(UnityManaged)' == '' And $([MSBuild]::IsOSPlatform('OSX'))">/Applications/Unity/Hub/Editor/$(UnityVersion)/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine</UnityManaged>
     <UnityManaged Condition="'$(UnityManaged)' == ''">C:\Program Files\Unity\Hub\Editor\$(UnityVersion)\Editor\Data\Managed\UnityEngine</UnityManaged>
     <!-- UnityEngine.UI.dll is generated once the editor has opened client/; point UnityUI elsewhere before that. -->
