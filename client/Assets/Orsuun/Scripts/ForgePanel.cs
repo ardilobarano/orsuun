@@ -59,9 +59,15 @@ namespace Orsuun.Client
             _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.815f, 0.95f, 0.90f, "", 72, TextAnchor.MiddleCenter, Color.white);
             _stats = Ui.Label("Stats", canvas, 0.05f, 0.765f, 0.95f, 0.81f, "", 30, TextAnchor.MiddleCenter, Palette.Muted);
 
-            Ui.Panel("EtchingsBack", canvas, 0.06f, 0.545f, 0.94f, 0.755f, Palette.PanelDark);
-            _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.55f, 0.91f, 0.75f, "", 30, TextAnchor.MiddleLeft, Color.white);
-            _turnButton = Ui.Button("Turn", canvas, 0.06f, 0.475f, 0.94f, 0.535f, "", 30, Palette.ButtonIdle, Turn, out _turnLabel);
+            Ui.Panel("EtchingsBack", canvas, 0.06f, 0.575f, 0.94f, 0.755f, Palette.PanelDark);
+            _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.58f, 0.91f, 0.75f, "", 28, TextAnchor.MiddleLeft, Color.white);
+
+            // Turnstones: one turn, or a Bulk Turn of 10 / 50 that stops when the chosen etching reaches the chosen tier.
+            _turnButton = Ui.Button("Turn", canvas, 0.06f, 0.515f, 0.34f, 0.57f, "", 24, Palette.ButtonIdle, () => Turn(1), out _turnLabel);
+            Ui.Button("Turn10", canvas, 0.35f, 0.515f, 0.58f, 0.57f, "TURN x10", 24, Palette.ButtonIdle, () => Turn(10), out _);
+            Ui.Button("Turn50", canvas, 0.59f, 0.515f, 0.94f, 0.57f, "TURN x50", 24, Palette.ButtonIdle, () => Turn(50), out _);
+            Ui.Button("StopEntry", canvas, 0.06f, 0.475f, 0.66f, 0.51f, "", 20, Palette.PanelDark, () => _stopEntry = (_stopEntry + 2) % 17 - 1, out _stopEntryLabel);
+            Ui.Button("StopTier", canvas, 0.67f, 0.475f, 0.94f, 0.51f, "", 20, Palette.PanelDark, () => _stopTier = _stopTier % 5 + 1, out _stopTierLabel);
 
             _attemptInfo = Ui.Label("AttemptInfo", canvas, 0.05f, 0.385f, 0.95f, 0.465f, "", 32, TextAnchor.MiddleCenter, Color.white);
 
@@ -169,7 +175,12 @@ namespace Orsuun.Client
             Busy = false;
         }
 
-        private void Turn()
+        private int _stopEntry = -1;
+        private int _stopTier = 3;
+        private Text _stopEntryLabel;
+        private Text _stopTierLabel;
+
+        private void Turn(int count)
         {
             if (Busy) return;
             string blocker = _root.Session.TurnBlocker();
@@ -178,8 +189,27 @@ namespace Orsuun.Client
                 ShowResult(blocker, Palette.Muted);
                 return;
             }
-            if (_root.Server.Online) StartCoroutine(_root.Server.Turn(error => { if (error != null) ShowResult(error, Palette.Muted); }));
-            else _root.Session.Turn();
+
+            int stopEntry = count > 1 ? _stopEntry : -1;
+            if (_root.Server.Online)
+            {
+                Busy = true;
+                StartCoroutine(_root.Server.Turn(count, stopEntry, _stopTier, (turns, stopped, error) =>
+                {
+                    Busy = false;
+                    if (error != null) ShowResult(error, Palette.Muted);
+                    else if (count > 1) ShowResult(stopped ? $"Stopped after {turns} turn{(turns == 1 ? "" : "s")}: the rule hit." : $"{turns} turns, no match.", stopped ? Palette.Good : Palette.Warn);
+                }));
+            }
+            else if (count == 1)
+            {
+                _root.Session.Turn();
+            }
+            else
+            {
+                int turns = _root.Session.TurnBulk(count, stopEntry >= 0 ? stopEntry : (int?)null, _stopTier, out bool stopped);
+                ShowResult(stopped ? $"Stopped after {turns} turn{(turns == 1 ? "" : "s")}: the rule hit." : $"{turns} turns, no match.", stopped ? Palette.Good : Palette.Warn);
+            }
         }
 
         private void ShowResult(string message, Color color)
@@ -210,8 +240,10 @@ namespace Orsuun.Client
             foreach (Etching e in weapon.Etchings)
                 sb.Append("T").Append(e.Tier).Append("   ").Append(session.Pool.Entries[e.EntryId].Name).Append("  +").Append(e.Value).Append('\n');
             _etchings.text = sb.ToString().TrimEnd();
-            _turnLabel.text = $"TURN ALL ETCHINGS  ·  1 Turnstone  (have {inv.Turnstones})";
+            _turnLabel.text = $"TURN x1\n(have {inv.Turnstones})";
             _turnButton.interactable = !Busy;
+            _stopEntryLabel.text = _stopEntry < 0 ? "Stop rule: none (bulk turns run to the end)" : "Stop when: " + session.Pool.Entries[_stopEntry].Name;
+            _stopTierLabel.text = _stopEntry < 0 ? "" : "at T" + _stopTier + "+";
 
             bool maxed = weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel;
             if (maxed)

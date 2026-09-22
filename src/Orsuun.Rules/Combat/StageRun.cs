@@ -1,6 +1,7 @@
 #nullable enable
 namespace Orsuun.Rules.Combat
 {
+    // Callers pass a StageConfig; apply EveningBells.Apply(...) before calling so client and server replay the same bell.
     public readonly struct StageRunResult
     {
         public StageRunResult(bool cleared, int ticks, int deaths)

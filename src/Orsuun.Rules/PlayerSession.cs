@@ -231,6 +231,25 @@ namespace Orsuun.Rules
             Lane.SetHero(Hero);
         }
 
+        /// <summary>Bulk Turn with an optional stop rule. Returns turns made; stopped says whether the rule hit.</summary>
+        public int TurnBulk(int maxTurns, int? stopEntryId, int minTier, out bool stopped)
+        {
+            string? blocker = TurnBlocker();
+            if (blocker != null) throw new InvalidOperationException(blocker);
+
+            _etchings.TurnUntil(Weapon, Pool, Inventory, _rng, maxTurns, stopEntryId, minTier, out int turns, out stopped);
+            Lane.SetHero(Hero);
+            return turns;
+        }
+
+        /// <summary>Re-reads the farm lane's configuration with the current bell applied (call when a bell changes).</summary>
+        public void ApplyBell(Bell bell)
+        {
+            int parked = ParkedStage;
+            Lane = new LaneSim(EveningBells.Apply(Content.Stage(parked), bell), Hero, SkillDef.VanguardWrath(), Inventory, _rng);
+            Lane.AutoCast[1] = true;
+        }
+
         public string? SocketBlocker(ItemState item, int socketIndex, ShardType type, int rank) =>
             _sockets.InsertBlocker(item, socketIndex, type, rank, Inventory);
 

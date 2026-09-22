@@ -117,6 +117,11 @@ namespace Orsuun.Rules.Combat
         public int DeathTicks { get; set; } = 60;
         public long SornPerMob { get; set; } = 150;
         public long XpPerMob { get; set; } = 10;
+        /// <summary>Evening Bells and events: 100 = normal.</summary>
+        public int KorstoneChestPercent { get; set; } = 100;
+        public int XpPercent { get; set; } = 100;
+        public int MaterialPercent { get; set; } = 100;
+        public int DamagePercent { get; set; } = 100;
     }
 
     public enum EnemyKind
@@ -480,7 +485,7 @@ namespace Orsuun.Rules.Combat
             }
 
             bool crit = _rng.RollBp(_hero.CritChanceBp);
-            long damage = _hero.Attack * powerPercent / 100;
+            long damage = _hero.Attack * powerPercent / 100 * _stage.DamagePercent / 100;
             if (crit) damage = damage * _hero.CritMultiplierPercent / 100;
             if (!enemy.IsBoss && _hero.BeastDamagePercent > 0) damage = damage * (100 + _hero.BeastDamagePercent) / 100;
             damage = Math.Max(1, damage * (90 + _rng.NextInt(21)) / 100);

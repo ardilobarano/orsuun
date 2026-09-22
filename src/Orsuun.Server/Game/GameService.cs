@@ -25,14 +25,16 @@ public sealed class GameService
 
     private readonly GameDb _db;
     private readonly IRandom _rng;
+    private readonly BellClock _bells;
     private readonly ForgeService _forge = new();
     private readonly EtchingService _etchings = new();
     private readonly SocketService _sockets = new();
 
-    public GameService(GameDb db, IRandom rng)
+    public GameService(GameDb db, IRandom rng, BellClock bells)
     {
         _db = db;
         _rng = rng;
+        _bells = bells;
     }
 
     public async Task<GuestLoginResponse> GuestLoginAsync(string deviceToken, CancellationToken ct)
@@ -125,6 +127,7 @@ public sealed class GameService
         return ToState(account, forge: new ForgeResultDto(result.Outcome, result.ChanceBp, result.LevelBefore, result.LevelAfter));
     }
 
+    /// <summary>One turn, or a Bulk Turn with a stop rule. The free cap is 10; 50 needs Hearthfire Blessing (not yet modelled, so 50 is open).</summary>
     public async Task<StateDto> TurnAsync(Account account, TurnRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
@@ -132,12 +135,17 @@ public sealed class GameService
         ItemState state = weapon.ToState();
         int cost = state.LockedEtchingIndex >= 0 ? 2 : 1;
         if (account.Turnstones < cost) throw new GameException("no_turnstones", "Not enough Turnstones.");
+        if (request.Count < 1 || request.Count > EtchingService.BulkTurnMax) throw new GameException("bad_count", "Count must be 1 to 50.");
+        if (request.StopEntryId.HasValue && (request.StopEntryId < 0 || request.StopEntryId >= EtchingPool.For(state.Slot).Entries.Count))
+            throw new GameException("bad_stop_rule", "Unknown etching in the stop rule.");
 
-        account.Turnstones -= _etchings.Turn(state, EtchingPool.For(state.Slot), _rng);
+        var inventory = Snapshot(account);
+        int spent = _etchings.TurnUntil(state, EtchingPool.For(state.Slot), inventory, _rng, request.Count, request.StopEntryId, Math.Clamp(request.MinTier, 1, 5), out int turns, out bool stopped);
+        Apply(account, inventory);
         weapon.ApplyState(state);
-        _db.Ledger.Add(Entry(account.Id, weapon.Id, "turn", "etchings=" + weapon.Etchings, 0, request.RequestId));
+        _db.Ledger.Add(Entry(account.Id, weapon.Id, "turn", $"turns={turns} spent={spent} stopped={stopped} etchings={weapon.Etchings}", 0, request.RequestId));
         await SaveAsync(ct);
-        return ToState(account);
+        return ToState(account, turn: new TurnResultDto(turns, spent, stopped));
     }
 
     /// <summary>Sets a Korshard on an owned item: the shard is spent, 70% it takes, 30% a Dead Shard blocks the socket.</summary>
@@ -225,13 +233,13 @@ public sealed class GameService
         ulong seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
         int potionsAtStart = account.Potions;
         var inventory = Snapshot(account);
-        StageRunResult run = StageRun.Simulate(Content.Stage(target), Hero(account), inventory, seed);
+        StageRunResult run = StageRun.Simulate(EveningBells.Apply(Content.Stage(target), _bells.Active), Hero(account), inventory, seed);
         Apply(account, inventory);
         if (run.Cleared) account.HighestStageCleared = target;
 
         _db.Ledger.Add(Entry(account.Id, null, "push", $"stage={target} seed={seed} cleared={run.Cleared} ticks={run.Ticks}", 0, request.RequestId));
         await SaveAsync(ct);
-        return ToState(account, push: new PushResultDto(target, run.Cleared, seed, run.Ticks, account.HighestStageCleared, potionsAtStart));
+        return ToState(account, push: new PushResultDto(target, run.Cleared, seed, run.Ticks, account.HighestStageCleared, potionsAtStart, _bells.Active));
     }
 
     /// <summary>
@@ -256,15 +264,16 @@ public sealed class GameService
 
         ulong seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
         int potionsAtStart = account.Potions;
+        Bell bell = _bells.Active;
         var inventory = Snapshot(account);
-        BossRunResult run = BossRun.Simulate(boss, Hero(account), inventory, seed);
+        BossRunResult run = BossRun.Simulate(boss, Hero(account), inventory, seed, bell);
         int rank = BossRun.Rank(run.Damage, boss, _rng);
         string chest = HuntYield.LootCommander(boss, rank, inventory, _rng);
         Apply(account, inventory);
 
-        _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} chest={chest}", 0, request.RequestId));
+        _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} bell={bell} chest={chest}", 0, request.RequestId));
         await SaveAsync(ct);
-        return ToState(account, bossFight: new BossFightResultDto(boss.Id, seed, run.Damage, run.Killed, rank, chest, potionsAtStart));
+        return ToState(account, bossFight: new BossFightResultDto(boss.Id, seed, run.Damage, run.Killed, rank, chest, potionsAtStart, bell));
     }
 
     /// <summary>Playtest only; disabled outside Development.</summary>
@@ -338,6 +347,8 @@ public sealed class GameService
         // Fields IV-V and Commander Grounds need presence: nothing settles for them offline.
         if (offline && zone != null && !zone.OfflineAllowed) seconds = 0;
         if (stage.GearRarityCap > Rarity.Rare && offline) stage.GearRarityCap = Rarity.Rare;
+        // Bells reward presence: they apply to live settlement only.
+        if (!offline) EveningBells.Apply(stage, _bells.Active);
         var inventory = Snapshot(account);
         HuntSettlement s = HuntYield.Settle(stage, Hero(account), seconds, cap, efficiency, inventory, _rng);
         Apply(account, inventory);
@@ -405,7 +416,7 @@ public sealed class GameService
         return state with { Bosses = BossStatuses(clocks, fought, now) };
     }
 
-    private static StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null, SocketResultDto? socket = null)
+    private StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null, SocketResultDto? socket = null, TurnResultDto? turn = null)
     {
         Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
@@ -430,12 +441,14 @@ public sealed class GameService
             account.HighestStageCleared,
             account.ParkedStage,
             Array.Empty<BossStatusDto>(),
+            _bells.Dto(),
             DateTime.UtcNow,
             settlement,
             forge,
             push,
             bossFight,
-            socket);
+            socket,
+            turn);
     }
 
     private static ItemDto ToDto(Item item)

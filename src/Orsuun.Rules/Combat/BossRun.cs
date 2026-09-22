@@ -26,16 +26,16 @@ namespace Orsuun.Rules.Combat
         public const int MaxTicks = 3 * 60 * LaneSim.TicksPerSecond;
         public const int SimulatedRivals = 19;
 
-        public static LaneSim Create(BossDef boss, HeroStats hero, Inventory inventory, ulong seed)
+        public static LaneSim Create(BossDef boss, HeroStats hero, Inventory inventory, ulong seed, Bell bell = Bell.None)
         {
-            var lane = new LaneSim(Content.BossStage(boss), hero, SkillDef.VanguardWrath(), inventory, new XorShiftRandom(seed));
+            var lane = new LaneSim(EveningBells.Apply(Content.BossStage(boss), bell), hero, SkillDef.VanguardWrath(), inventory, new XorShiftRandom(seed));
             for (int i = 0; i < lane.AutoCast.Length; i++) lane.AutoCast[i] = true;
             return lane;
         }
 
-        public static BossRunResult Simulate(BossDef boss, HeroStats hero, Inventory inventory, ulong seed)
+        public static BossRunResult Simulate(BossDef boss, HeroStats hero, Inventory inventory, ulong seed, Bell bell = Bell.None)
         {
-            LaneSim lane = Create(boss, hero, inventory, seed);
+            LaneSim lane = Create(boss, hero, inventory, seed, bell);
             int ticks = 0;
             while (ticks < MaxTicks && lane.BossesKilled == 0 && lane.Deaths == 0)
             {

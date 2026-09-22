@@ -90,12 +90,23 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
-        public IEnumerator Turn(Action<string> done)
+        /// <summary>One turn or a Bulk Turn. stopEntryId -1 means no stop rule. Completes with (turns, stopped, error).</summary>
+        public IEnumerator Turn(int count, int stopEntryId, int minTier, Action<int, bool, string> done)
         {
             string failure = null;
-            yield return Post("/v1/turn", JsonUtility.ToJson(new TurnRequest { requestId = Guid.NewGuid().ToString("N") }), true,
-                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
-            done(failure);
+            int turns = 0;
+            bool stopped = false;
+            var req = new TurnRequest { requestId = Guid.NewGuid().ToString("N"), count = count, stopEntryId = stopEntryId, minTier = minTier };
+            // JsonUtility cannot omit a field: send -1 and let the server read it as "no rule" via stopEntryId >= 0.
+            string body = JsonUtility.ToJson(req);
+            if (stopEntryId < 0) body = body.Replace("\"stopEntryId\":-1", "\"stopEntryId\":null");
+            yield return Post("/v1/turn", body, true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                Apply(state);
+                if (state.lastTurn != null) { turns = state.lastTurn.turns; stopped = state.lastTurn.stopped; }
+            }, error => failure = error);
+            done(turns, stopped, failure);
         }
 
         public IEnumerator Equip(string itemId, Action<string> done)
@@ -184,6 +195,10 @@ namespace Orsuun.Client.Net
         /// <summary>Commander statuses from the last /me or heartbeat; empty until the first one lands.</summary>
         public BossStatusDto[] Bosses { get; private set; } = new BossStatusDto[0];
         public float BossesReceivedAt { get; private set; }
+        /// <summary>The server's Evening Bell state from the last response.</summary>
+        public BellDto Bell { get; private set; }
+        private Bell _appliedBell = Rules.Bell.None;
+        public Bell ActiveBell => _appliedBell;
 
         private void Apply(StateDto s)
         {
@@ -200,6 +215,16 @@ namespace Orsuun.Client.Net
             {
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
+            }
+            if (s.bell != null)
+            {
+                Bell = s.bell;
+                var active = (Bell)Enum.Parse(typeof(Bell), s.bell.active);
+                if (active != _appliedBell)
+                {
+                    _appliedBell = active;
+                    _player.ApplyBell(active);
+                }
             }
 
             ItemIds.Clear();
@@ -263,7 +288,9 @@ namespace Orsuun.Client.Net
         [Serializable] public class GuestLoginRequest { public string deviceToken; }
         [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; }
         [Serializable] public class ForgeRequest { public string requestId; public string method; }
-        [Serializable] public class TurnRequest { public string requestId; }
+        [Serializable] public class TurnRequest { public string requestId; public int count; public int stopEntryId; public int minTier; }
+        [Serializable] public class TurnResultDto { public int turns; public int turnstonesSpent; public bool stopped; }
+        [Serializable] public class BellDto { public string active; public string activeName; public string next; public int minutesUntilNext; public string serverLocalTime; }
         [Serializable] public class EquipRequest { public string requestId; public string itemId; }
         [Serializable] public class ParkRequest { public int stage; }
         [Serializable] public class PushRequest { public string requestId; }
@@ -277,10 +304,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; }
         [Serializable] public class BossFightRequest { public string requestId; public int bossId; }
         [Serializable] public class BossStatusDto { public int bossId; public string name; public string mechanic; public bool up; public long secondsLeft; public bool foughtThisSpawn; }
-        [Serializable] public class BossFightResultDto { public int bossId; public ulong seed; public long damage; public bool killed; public int rank; public string chest; public int potionsAtStart; }
+        [Serializable] public class BossFightResultDto { public int bossId; public ulong seed; public long damage; public bool killed; public int rank; public string chest; public int potionsAtStart; public string bell; }
         [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
-        [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; }
+        [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; }
     }
 }

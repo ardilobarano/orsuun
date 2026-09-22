@@ -9,6 +9,7 @@ string connection = builder.Configuration.GetConnectionString("Game")
     ?? throw new InvalidOperationException("ConnectionStrings:Game is not configured.");
 builder.Services.AddDbContext<GameDb>(o => o.UseNpgsql(connection));
 builder.Services.AddSingleton<IRandom>(CryptoRandom.Instance);
+builder.Services.AddSingleton<BellClock>();
 builder.Services.AddScoped<GameService>();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 

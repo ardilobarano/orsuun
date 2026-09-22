@@ -23,14 +23,14 @@ namespace Orsuun.Rules.Combat
         public static void LootMob(StageConfig stage, Inventory inventory, IRandom rng, out string? drop)
         {
             inventory.Sorn += stage.SornPerMob * (80 + rng.NextInt(41)) / 100;
-            inventory.Xp += stage.XpPerMob;
+            inventory.Xp += stage.XpPerMob * stage.XpPercent / 100;
             drop = null;
             if (rng.RollBp(PotionDropBp))
             {
                 inventory.Potions++;
                 drop = "+1 Bloodroot Draught";
             }
-            if (rng.RollBp(MaterialDropBp * stage.MaterialYieldPercent / 100))
+            if (rng.RollBp(MaterialDropBp * stage.MaterialYieldPercent / 100 * stage.MaterialPercent / 100))
             {
                 inventory.Materials++;
                 drop = "+1 " + stage.MaterialName;
@@ -41,10 +41,12 @@ namespace Orsuun.Rules.Combat
 
         public static string LootKorstone(StageConfig stage, Inventory inventory, IRandom rng, bool elder = false)
         {
-            int yield = stage.MaterialYieldPercent;
-            long sorn = stage.SornPerMob * KorstoneSornPacks * (elder ? 3 : 1);
-            int turnstones = (1 + rng.NextInt(3)) * yield / 100 * (elder ? 3 : 1);
-            int materials = (1 + rng.NextInt(2)) * yield / 100 * (elder ? 3 : 1);
+            // Field tier, Elder status and the Korstone Bell all scale the chest; the Material Bell scales materials again.
+            int yield = stage.MaterialYieldPercent * stage.KorstoneChestPercent / 100;
+            int mult = elder ? 3 : 1;
+            long sorn = stage.SornPerMob * KorstoneSornPacks * mult * stage.KorstoneChestPercent / 100;
+            int turnstones = (1 + rng.NextInt(3)) * yield / 100 * mult;
+            int materials = (1 + rng.NextInt(2)) * yield / 100 * mult * stage.MaterialPercent / 100;
             inventory.Sorn += sorn;
             inventory.Turnstones += turnstones;
             inventory.Materials += materials;

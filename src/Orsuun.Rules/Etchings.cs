@@ -218,6 +218,42 @@ namespace Orsuun.Rules
             return hasLock ? 2 : 1;
         }
 
+        public const int BulkTurnFree = 10;
+        public const int BulkTurnMax = 50;
+
+        /// <summary>
+        /// Bulk Turn (GDD section 12): turns up to maxTurns times, stopping early when an etching with entry
+        /// stopEntryId at tier >= minTier appears, or when Turnstones run out. Returns the Turnstones spent.
+        /// </summary>
+        public int TurnUntil(ItemState item, EtchingPool pool, Inventory inventory, IRandom rng, int maxTurns, int? stopEntryId, int minTier, out int turns, out bool stopped)
+        {
+            turns = 0;
+            stopped = false;
+            int spent = 0;
+            int limit = Math.Max(1, Math.Min(BulkTurnMax, maxTurns));
+            while (turns < limit)
+            {
+                int cost = item.LockedEtchingIndex >= 0 ? 2 : 1;
+                if (inventory.Turnstones < cost) break;
+                inventory.Turnstones -= Turn(item, pool, rng);
+                spent += cost;
+                turns++;
+                if (stopEntryId.HasValue && Matches(item, stopEntryId.Value, minTier))
+                {
+                    stopped = true;
+                    break;
+                }
+            }
+            return spent;
+        }
+
+        public static bool Matches(ItemState item, int entryId, int minTier)
+        {
+            foreach (Etching e in item.Etchings)
+                if (e.EntryId == entryId && e.Tier >= minTier) return true;
+            return false;
+        }
+
         private static Etching RollOne(Rarity rarity, EtchingEntry entry, IRandom rng)
         {
             int tier = EtchingRules.RollTier(rarity, rng);

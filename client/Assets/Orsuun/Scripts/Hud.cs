@@ -123,8 +123,13 @@ namespace Orsuun.Client
                 : lane.Stage.FinalEncounter == FinalEncounter.None ? "Pack" : $"Pack {lane.EncounterIndex + 1}/{lane.Stage.PacksBeforeKorstone}";
             _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {lane.KorstonesDestroyed}  ·  Deaths {lane.Deaths}";
             _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Color.white;
-            _link.text = _root.Server.Status;
-            _link.color = _root.Server.Online ? Palette.Good : Palette.Warn;
+            Bell bell = _root.LocalBell;
+            string bellText;
+            if (bell != Bell.None) bellText = "  ·  " + EveningBells.Name(bell).ToUpperInvariant();
+            else if (_root.Server.Online && _root.Server.Bell != null) bellText = $"  ·  next bell in {_root.Server.Bell.minutesUntilNext / 60}h {_root.Server.Bell.minutesUntilNext % 60:00}m";
+            else { EveningBells.Next(System.DateTime.Now, out int mins); bellText = $"  ·  next bell in {mins / 60}h {mins % 60:00}m"; }
+            _link.text = _root.Server.Status + bellText;
+            _link.color = bell != Bell.None ? Palette.Sorn : _root.Server.Online ? Palette.Good : Palette.Warn;
             _banner.text = _root.ReplayBanner;
             _banner.color = _root.ReplayBanner.StartsWith("CLEARED") ? Palette.Good : _root.ReplayBanner.StartsWith("FAILED") ? Palette.Bad : Palette.Warn;
 

@@ -28,6 +28,9 @@ namespace Orsuun.Client
         public Net.ServerLink Server { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
+        /// <summary>The bell in force: the server's when online, else the local clock's (the local session uses it too).</summary>
+        public Bell LocalBell => Server.Online ? Server.ActiveBell : EveningBells.Active(DateTime.Now);
+
         /// <summary>The lane on screen: the parked farm lane, or a push replay while one runs.</summary>
         public LaneSim ActiveLane => _replay ?? Session.Lane;
         public bool Replaying => _replay != null;
@@ -72,8 +75,17 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-forge") >= 0) Forge.Open();
         }
 
+        private Bell _localBellApplied = Bell.None;
+
         private void Update()
         {
+            // Local mode rings the bells from the PC clock; online the server's state applies them.
+            if (!Server.Online && !Replaying)
+            {
+                Bell now = EveningBells.Active(DateTime.Now);
+                if (now != _localBellApplied) { _localBellApplied = now; Session.ApplyBell(now); }
+            }
+
             LaneSim lane = ActiveLane;
             if (Lane.Sim != lane) Lane.Bind(lane);
 
@@ -119,6 +131,7 @@ namespace Orsuun.Client
             int rank;
             string chest;
             int potions = Session.Inventory.Potions;
+            Bell bell = LocalBell;
 
             if (Server.Online)
             {
@@ -135,13 +148,14 @@ namespace Orsuun.Client
                 rank = result.rank;
                 chest = result.chest;
                 potions = result.potionsAtStart;
+                bell = (Bell)Enum.Parse(typeof(Bell), result.bell);
             }
             else
             {
                 Session.FightBoss(boss, out seed, out rank, out chest);
             }
 
-            _replay = BossRun.Create(boss, hero, new Inventory { Potions = potions }, seed);
+            _replay = BossRun.Create(boss, hero, new Inventory { Potions = potions }, seed, bell);
             ReplayBanner = boss.Name.ToUpperInvariant();
             int guard = BossRun.MaxTicks;
             while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
@@ -170,6 +184,7 @@ namespace Orsuun.Client
             ulong seed;
             bool cleared;
             int potions = Session.Inventory.Potions;
+            Bell bell = LocalBell;
 
             if (Server.Online)
             {
@@ -186,6 +201,7 @@ namespace Orsuun.Client
                 seed = result.seed;
                 cleared = result.cleared;
                 potions = result.potionsAtStart;
+                bell = (Bell)Enum.Parse(typeof(Bell), result.bell);
             }
             else
             {
@@ -193,7 +209,7 @@ namespace Orsuun.Client
             }
 
             // The replay lane loots into a scratch inventory: the real one already holds the server's answer.
-            _replay = StageRun.Create(Content.Stage(stage), hero, new Inventory { Potions = potions }, seed);
+            _replay = StageRun.Create(EveningBells.Apply(Content.Stage(stage), bell), hero, new Inventory { Potions = potions }, seed);
             ReplayBanner = "PUSH  ·  " + Content.StageName(stage);
             int guard = StageRun.MaxTicks;
             while (_replay.Clears == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;

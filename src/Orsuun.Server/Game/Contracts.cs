@@ -6,7 +6,12 @@ public sealed record GuestLoginRequest(string DeviceToken);
 public sealed record GuestLoginResponse(Guid AccountId, string SessionToken, bool Created);
 
 public sealed record ForgeRequest(string RequestId, ForgeMethod Method);
-public sealed record TurnRequest(string RequestId);
+/// <summary>Count 1..50 (10 without Hearthfire Blessing); StopEntryId/MinTier form the optional stop rule.</summary>
+public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1);
+public sealed record TurnResultDto(int Turns, int TurnstonesSpent, bool Stopped);
+
+/// <summary>Active Evening Bell and the next one, in server-local time.</summary>
+public sealed record BellDto(Bell Active, string ActiveName, Bell Next, int MinutesUntilNext, string ServerLocalTime);
 
 public sealed record EtchingDto(int EntryId, string Name, int Tier, int Value);
 
@@ -25,7 +30,8 @@ public sealed record ParkRequest(int Stage);
 public sealed record PushRequest(string RequestId);
 
 /// <summary>The server's verdict on a push plus the seed the client replays to show it.</summary>
-public sealed record PushResultDto(int Stage, bool Cleared, ulong Seed, int Ticks, int NewHighestStageCleared, int PotionsAtStart);
+/// <summary>Bell is the bell that was active when the run was scored; the replay must apply the same one.</summary>
+public sealed record PushResultDto(int Stage, bool Cleared, ulong Seed, int Ticks, int NewHighestStageCleared, int PotionsAtStart, Bell Bell);
 
 public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChanceBp);
 
@@ -37,7 +43,7 @@ public sealed record BossFightRequest(string RequestId, int BossId);
 /// <summary>One Commander's state for the panel: up now with seconds left, or next spawn in N seconds.</summary>
 public sealed record BossStatusDto(int BossId, string Name, string Mechanic, bool Up, long SecondsLeft, bool FoughtThisSpawn);
 
-public sealed record BossFightResultDto(int BossId, ulong Seed, long Damage, bool Killed, int Rank, string Chest, int PotionsAtStart);
+public sealed record BossFightResultDto(int BossId, ulong Seed, long Damage, bool Killed, int Rank, string Chest, int PotionsAtStart, Bell Bell);
 
 public sealed record ForgePreviewDto(long Cost, int Materials, int ChanceAloneBp, int ChanceAlloyBp, bool OathbreakPossible);
 
@@ -55,12 +61,14 @@ public sealed record StateDto(
     int HighestStageCleared,
     int ParkedStage,
     BossStatusDto[] Bosses,
+    BellDto Bell,
     DateTime ServerUtc,
     SettlementDto? Settlement,
     ForgeResultDto? LastForge,
     PushResultDto? LastPush,
     BossFightResultDto? LastBossFight,
-    SocketResultDto? LastSocket);
+    SocketResultDto? LastSocket,
+    TurnResultDto? LastTurn);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 
