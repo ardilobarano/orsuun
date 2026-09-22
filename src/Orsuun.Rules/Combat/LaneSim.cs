@@ -8,6 +8,8 @@ namespace Orsuun.Rules.Combat
     {
         public long MaxHp { get; set; } = 2000;
         public long Attack { get; set; } = 80;
+        /// <summary>Flat reduction of every enemy hit, never below 1 damage.</summary>
+        public long Defense { get; set; }
         public int AttackIntervalTicks { get; set; } = 12;
         public int CritChanceBp { get; set; } = 500;
         public int CritMultiplierPercent { get; set; } = 200;
@@ -49,8 +51,23 @@ namespace Orsuun.Rules.Combat
         };
     }
 
+    public enum FinalEncounter
+    {
+        Korstone,
+        Boss,
+    }
+
     public sealed class StageConfig
     {
+        public int StageNumber { get; set; } = 1;
+        public FinalEncounter FinalEncounter { get; set; } = FinalEncounter.Korstone;
+        public long BossHp { get; set; } = 9000;
+        public long BossAttack { get; set; } = 110;
+        public string BossName { get; set; } = "Old Greyjaw";
+        public string MaterialName { get; set; } = "Wolf Sinew";
+        public int GearItemLevel { get; set; } = 1;
+        /// <summary>Highest rarity this run may drop: Rare offline, Epic online.</summary>
+        public Rarity GearRarityCap { get; set; } = Rarity.Epic;
         public int PacksBeforeKorstone { get; set; } = 5;
         public int PackSizeMin { get; set; } = 4;
         public int PackSizeMax { get; set; } = 8;
@@ -66,10 +83,11 @@ namespace Orsuun.Rules.Combat
 
     public sealed class Enemy
     {
-        internal Enemy(int id, bool isKorstone, long hp, long attack)
+        internal Enemy(int id, bool isKorstone, long hp, long attack, bool isBoss = false)
         {
             Id = id;
             IsKorstone = isKorstone;
+            IsBoss = isBoss;
             MaxHp = hp;
             Hp = hp;
             Attack = attack;
@@ -77,6 +95,7 @@ namespace Orsuun.Rules.Combat
 
         public int Id { get; }
         public bool IsKorstone { get; }
+        public bool IsBoss { get; }
         public long MaxHp { get; }
         public long Hp { get; internal set; }
         public long Attack { get; }
@@ -175,8 +194,14 @@ namespace Orsuun.Rules.Combat
         public int EncounterIndex { get; private set; }
         public bool IsKorstoneEncounter => EncounterIndex == _stage.PacksBeforeKorstone;
         public int KorstonesDestroyed { get; private set; }
+        public int BossesKilled { get; private set; }
         public int MobsKilled { get; private set; }
         public int Deaths { get; private set; }
+        public StageConfig Stage => _stage;
+        /// <summary>Completed loops of the stage (final encounter cleared).</summary>
+        public int Clears { get; private set; }
+        /// <summary>True when the current final encounter is the stage boss rather than a Korstone.</summary>
+        public bool IsBossEncounter => IsKorstoneEncounter && _stage.FinalEncounter == FinalEncounter.Boss;
         public bool HasteActive => _tick < _hasteUntilTick;
 
         /// <summary>Swaps in new stats after a Forge attempt or a turn, keeping the HP ratio.</summary>
@@ -272,8 +297,9 @@ namespace Orsuun.Rules.Combat
             {
                 if (e.IsKorstone || _tick < e.NextAttackTick) continue;
                 e.NextAttackTick = _tick + _stage.MobAttackIntervalTicks;
-                HeroHp -= e.Attack;
-                _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, e.Id, e.Attack));
+                long damage = Math.Max(1, e.Attack - _hero.Defense);
+                HeroHp -= damage;
+                _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, e.Id, damage));
                 if (HeroHp <= 0) break;
             }
 
@@ -300,6 +326,7 @@ namespace Orsuun.Rules.Combat
             if (_enemies.Count == 0)
             {
                 _events.Add(new LaneEvent(LaneEventKind.EncounterCleared));
+                if (IsKorstoneEncounter) Clears++;
                 EncounterIndex = (EncounterIndex + 1) % (_stage.PacksBeforeKorstone + 1);
                 StartRunning();
             }
@@ -315,6 +342,14 @@ namespace Orsuun.Rules.Combat
         {
             Phase = LanePhase.Fighting;
             _heroNextAttackTick = _tick + 4;
+
+            if (IsBossEncounter)
+            {
+                var boss = new Enemy(_nextEnemyId++, false, _stage.BossHp, _stage.BossAttack, isBoss: true);
+                boss.NextAttackTick = _tick + 15;
+                Spawn(boss);
+                return;
+            }
 
             if (IsKorstoneEncounter)
             {
@@ -354,7 +389,9 @@ namespace Orsuun.Rules.Combat
             {
                 _enemies.Remove(enemy);
                 _events.Add(new LaneEvent(LaneEventKind.EnemyDied, enemy.Id));
-                if (enemy.IsKorstone) LootKorstone(); else LootMob();
+                if (enemy.IsKorstone) LootKorstone();
+                else if (enemy.IsBoss) LootBoss();
+                else LootMob();
                 return;
             }
 
@@ -379,6 +416,12 @@ namespace Orsuun.Rules.Combat
         {
             KorstonesDestroyed++;
             _events.Add(new LaneEvent(LaneEventKind.Loot, text: HuntYield.LootKorstone(_stage, _inventory, _rng)));
+        }
+
+        private void LootBoss()
+        {
+            BossesKilled++;
+            _events.Add(new LaneEvent(LaneEventKind.Loot, text: HuntYield.LootBoss(_stage, _inventory, _rng)));
         }
     }
 }

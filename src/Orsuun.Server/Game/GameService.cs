@@ -20,9 +20,8 @@ public sealed class GameService
 {
     /// <summary>Gaps longer than this count as offline time at the offline rate.</summary>
     public static readonly TimeSpan OnlineGrace = TimeSpan.FromMinutes(3);
-
-    private static readonly StageConfig Stage = new();
-    private static readonly EtchingPool Pool = EtchingPool.Weapon();
+    /// <summary>Loot list cap; the oldest common pieces are dropped past it.</summary>
+    public const int MaxLoot = 60;
 
     private readonly GameDb _db;
     private readonly IRandom _rng;
@@ -56,10 +55,8 @@ public sealed class GameService
                 ScrollsOfMercy = 2,
                 Turnstones = 5,
             };
+            account.Items.Add(Item.From(NewWeapon(), account.Id, equipped: true));
             _db.Accounts.Add(account);
-            Item weapon = NewWeapon(account.Id);
-            _db.Items.Add(weapon);
-            account.EquippedWeapon = weapon;
             _db.Ledger.Add(Entry(account.Id, null, "account-created", "starter kit", account.Sorn, Guid.NewGuid().ToString("N")));
         }
 
@@ -71,7 +68,7 @@ public sealed class GameService
     public async Task<Account?> AuthenticateAsync(string? sessionToken, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(sessionToken)) return null;
-        return await _db.Accounts.Include(a => a.EquippedWeapon).SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
+        return await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
     }
 
     /// <summary>Credits hunting time since the last heartbeat and moves the heartbeat forward.</summary>
@@ -80,11 +77,11 @@ public sealed class GameService
         DateTime now = DateTime.UtcNow;
         SettlementDto settlement = Settle(account, now);
         account.LastHeartbeatUtc = now;
-        await _db.SaveChangesAsync(ct);
-        return ToState(account, settlement, null);
+        await SaveAsync(ct);
+        return ToState(account, settlement: settlement);
     }
 
-    public StateDto GetState(Account account) => ToState(account, null, null);
+    public StateDto GetState(Account account) => ToState(account);
 
     public async Task<StateDto> ForgeAsync(Account account, ForgeRequest request, CancellationToken ct)
     {
@@ -92,7 +89,7 @@ public sealed class GameService
         if (request.Method == ForgeMethod.ChainedSmith || request.Method == ForgeMethod.AnvilWard && account.AnvilWards <= 0)
             throw new GameException("method_unavailable", "That method is not available here.");
 
-        Item weapon = account.EquippedWeapon ?? throw new GameException("no_weapon", "No weapon equipped.");
+        Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
         if (state.UpgradeLevel >= ItemState.MaxUpgradeLevel) throw new GameException("already_max", "The blade is already +9.");
 
@@ -116,31 +113,80 @@ public sealed class GameService
         weapon.ApplyState(state);
         if (result.Outcome == ForgeOutcome.Oathbreak)
         {
+            weapon.Equipped = false;
             account.WeaponsBroken++;
-            Item fresh = NewWeapon(account.Id);
-            _db.Items.Add(fresh);
-            account.EquippedWeapon = fresh;
+            account.Items.Add(Item.From(NewWeapon(), account.Id, equipped: true));
         }
 
         _db.Ledger.Add(Entry(account.Id, weapon.Id, "forge",
             $"{request.Method} +{result.LevelBefore}->+{result.LevelAfter} chance={result.ChanceBp} outcome={result.Outcome}", -cost, request.RequestId));
         await SaveAsync(ct);
-        return ToState(account, null, new ForgeResultDto(result.Outcome, result.ChanceBp, result.LevelBefore, result.LevelAfter));
+        return ToState(account, forge: new ForgeResultDto(result.Outcome, result.ChanceBp, result.LevelBefore, result.LevelAfter));
     }
 
     public async Task<StateDto> TurnAsync(Account account, TurnRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item weapon = account.EquippedWeapon ?? throw new GameException("no_weapon", "No weapon equipped.");
+        Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
         int cost = state.LockedEtchingIndex >= 0 ? 2 : 1;
         if (account.Turnstones < cost) throw new GameException("no_turnstones", "Not enough Turnstones.");
 
-        account.Turnstones -= _etchings.Turn(state, Pool, _rng);
+        account.Turnstones -= _etchings.Turn(state, EtchingPool.For(state.Slot), _rng);
         weapon.ApplyState(state);
         _db.Ledger.Add(Entry(account.Id, weapon.Id, "turn", "etchings=" + weapon.Etchings, 0, request.RequestId));
         await SaveAsync(ct);
-        return ToState(account, null, null);
+        return ToState(account);
+    }
+
+    /// <summary>Equips an owned, unequipped piece; the previous piece in that slot goes back to the loot list.</summary>
+    public async Task<StateDto> EquipAsync(Account account, EquipRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed)
+            ?? throw new GameException("no_item", "You do not own that item.");
+        if (item.Equipped) throw new GameException("already_equipped", "That piece is already equipped.");
+
+        foreach (Item worn in account.Items.Where(i => i.Equipped && i.Slot == item.Slot)) worn.Equipped = false;
+        item.Equipped = true;
+        _db.Ledger.Add(Entry(account.Id, item.Id, "equip", item.Slot.ToString(), 0, request.RequestId));
+        await SaveAsync(ct);
+        return ToState(account);
+    }
+
+    public async Task<StateDto> ParkAsync(Account account, ParkRequest request, CancellationToken ct)
+    {
+        if (request.Stage < 1 || request.Stage > Content.TotalStages || request.Stage > account.HighestStageCleared + 1)
+            throw new GameException("stage_locked", "That stage is not unlocked.");
+        // Settle the time spent on the old stage before the rate changes.
+        DateTime now = DateTime.UtcNow;
+        SettlementDto settlement = Settle(account, now);
+        account.LastHeartbeatUtc = now;
+        account.ParkedStage = request.Stage;
+        await SaveAsync(ct);
+        return ToState(account, settlement: settlement);
+    }
+
+    /// <summary>
+    /// Decides the next stage with a fresh seed. The client replays the same seed with the same hero, so the
+    /// fight it shows is the fight that was scored here.
+    /// </summary>
+    public async Task<StateDto> PushAsync(Account account, PushRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        int target = Math.Min(Content.TotalStages, account.HighestStageCleared + 1);
+        if (account.HighestStageCleared >= Content.TotalStages) throw new GameException("no_more_stages", "Every stage is cleared.");
+
+        ulong seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
+        int potionsAtStart = account.Potions;
+        var inventory = Snapshot(account);
+        StageRunResult run = StageRun.Simulate(Content.Stage(target), Hero(account), inventory, seed);
+        Apply(account, inventory);
+        if (run.Cleared) account.HighestStageCleared = target;
+
+        _db.Ledger.Add(Entry(account.Id, null, "push", $"stage={target} seed={seed} cleared={run.Cleared} ticks={run.Ticks}", 0, request.RequestId));
+        await SaveAsync(ct);
+        return ToState(account, push: new PushResultDto(target, run.Cleared, seed, run.Ticks, account.HighestStageCleared, potionsAtStart));
     }
 
     /// <summary>Playtest only; disabled outside Development.</summary>
@@ -153,7 +199,7 @@ public sealed class GameService
         account.Turnstones += 20;
         _db.Ledger.Add(Entry(account.Id, null, "dev-grant", "playtest grant", 500_000, Guid.NewGuid().ToString("N")));
         await SaveAsync(ct);
-        return ToState(account, null, null);
+        return ToState(account);
     }
 
     private SettlementDto Settle(Account account, DateTime now)
@@ -164,14 +210,15 @@ public sealed class GameService
         long cap = offline ? OfflineRewards.FreeCapSeconds : (long)OnlineGrace.TotalSeconds;
         int efficiency = offline ? OfflineRewards.OfflineEfficiencyBp : RandomExtensions.FullBp;
 
+        StageConfig stage = Content.Stage(account.ParkedStage);
+        stage.GearRarityCap = offline ? Rarity.Rare : Rarity.Epic;
         var inventory = Snapshot(account);
-        HeroStats hero = HeroFactory.FromWeapon(account.EquippedWeapon!.ToState());
-        HuntSettlement s = HuntYield.Settle(Stage, hero, seconds, cap, efficiency, inventory, _rng);
+        HuntSettlement s = HuntYield.Settle(stage, Hero(account), seconds, cap, efficiency, inventory, _rng);
         Apply(account, inventory);
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
-                $"seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones}", s.SornEarned, Guid.NewGuid().ToString("N")));
+                $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones}", s.SornEarned, Guid.NewGuid().ToString("N")));
 
         return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned, offline);
     }
@@ -190,37 +237,41 @@ public sealed class GameService
         {
             await _db.SaveChangesAsync(ct);
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException ex)
         {
-            throw new GameException("conflict", "Another request changed this account. Refresh and retry.");
+            string entries = string.Join(", ", ex.Entries.Select(e => e.Metadata.ClrType.Name + ":" + e.State));
+            throw new GameException("conflict", "Another request changed this account. Refresh and retry. [" + entries + "]");
         }
     }
 
-    private Item NewWeapon(Guid ownerId)
+    private ItemState NewWeapon()
     {
         var state = new ItemState(PlayerSession.StarterItemLevel, Rarity.Rare);
+        EtchingPool pool = EtchingPool.For(EquipSlot.Weapon);
         while (state.Etchings.Count < ItemState.MaxEtchings)
         {
             NeedleKind needle = state.Etchings.Count == ItemState.MaxEtchings - 1 ? NeedleKind.MastersNeedle : NeedleKind.EtchingNeedle;
-            _etchings.TryAdd(state, Pool, needle, _rng);
+            _etchings.TryAdd(state, pool, needle, _rng);
         }
-        var item = new Item { Id = Guid.NewGuid(), OwnerId = ownerId, ItemLevel = state.ItemLevel, Rarity = state.Rarity, CreatedUtc = DateTime.UtcNow };
-        item.ApplyState(state);
-        return item;
+        return state;
     }
 
-    private static StateDto ToState(Account account, SettlementDto? settlement, ForgeResultDto? forge)
+    private static HeroStats Hero(Account a) => HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()));
+
+    private static StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null)
     {
-        Item weapon = account.EquippedWeapon!;
+        Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
         var forgeService = new ForgeService();
         bool maxed = state.UpgradeLevel >= ItemState.MaxUpgradeLevel;
+        HeroStats hero = Hero(account);
 
         return new StateDto(
             account.Id,
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones),
-            new WeaponDto(weapon.Id, state.ItemLevel, state.Rarity, state.UpgradeLevel, state.PatienceBp, state.LockedEtchingIndex,
-                state.Etchings.Select(e => new EtchingDto(e.EntryId, Pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray()),
+            ToDto(weapon),
+            account.Items.Where(i => !i.Destroyed).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
+            new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
             new ForgePreviewDto(
                 maxed ? 0 : ForgeRules.Cost(state.ItemLevel, state.UpgradeLevel),
                 maxed ? 0 : ForgeRules.MaterialsNeeded(state.UpgradeLevel + 1),
@@ -228,9 +279,20 @@ public sealed class GameService
                 maxed ? 0 : forgeService.ChanceBp(state, ForgeMethod.KhansAlloy),
                 !maxed && state.UpgradeLevel + 1 >= ForgeRules.FirstOathbreakTarget),
             account.WeaponsBroken,
+            account.HighestStageCleared,
+            account.ParkedStage,
             DateTime.UtcNow,
             settlement,
-            forge);
+            forge,
+            push);
+    }
+
+    private static ItemDto ToDto(Item item)
+    {
+        ItemState s = item.ToState();
+        EtchingPool pool = EtchingPool.For(s.Slot);
+        return new ItemDto(item.Id, s.Slot, item.Equipped, s.DisplayName, s.ItemLevel, s.Rarity, s.UpgradeLevel, s.PatienceBp, s.LockedEtchingIndex,
+            s.Etchings.Select(e => new EtchingDto(e.EntryId, pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray());
     }
 
     private static Inventory Snapshot(Account a) => new()
@@ -239,10 +301,29 @@ public sealed class GameService
         KhansAlloys = a.KhansAlloys, AnvilWards = a.AnvilWards, Turnstones = a.Turnstones,
     };
 
-    private static void Apply(Account a, Inventory i)
+    /// <summary>Writes settled currency back and turns dropped gear into item rows, trimming the loot list.</summary>
+    private void Apply(Account a, Inventory i)
     {
         a.Sorn = i.Sorn; a.Potions = i.Potions; a.Materials = i.Materials; a.ScrollsOfMercy = i.ScrollsOfMercy;
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
+
+        if (i.Loot.Count == 0) return;
+
+        // Keep the best MaxLoot loose pieces: new drops compete with what is already stored by rarity, then age.
+        var stored = a.Items.Where(x => !x.Equipped && !x.Destroyed).ToList();
+        var keptDrops = new List<ItemState>();
+        var candidates = stored.Select(x => (Rarity: x.Rarity, Stored: (Item?)x, Drop: (ItemState?)null))
+            .Concat(i.Loot.Select(d => (Rarity: d.Rarity, Stored: (Item?)null, Drop: (ItemState?)d)))
+            .OrderByDescending(c => (int)c.Rarity).ThenBy(c => c.Stored == null ? 0 : 1)
+            .ToList();
+
+        foreach (var c in candidates.Take(MaxLoot))
+            if (c.Drop != null) keptDrops.Add(c.Drop);
+        foreach (var c in candidates.Skip(MaxLoot))
+            if (c.Stored != null) { _db.Items.Remove(c.Stored); a.Items.Remove(c.Stored); }
+
+        foreach (ItemState drop in keptDrops) a.Items.Add(Item.From(drop, a.Id, equipped: false));
+        i.Loot.Clear();
     }
 
     private static LedgerEntry Entry(Guid accountId, Guid? itemId, string kind, string detail, long sornDelta, string requestId) => new()

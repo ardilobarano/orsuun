@@ -40,7 +40,21 @@ namespace Orsuun.Client
 
         private static readonly Color HeroColor = new Color(0.25f, 0.55f, 0.95f);
         private static readonly Color MobColor = new Color(0.75f, 0.25f, 0.22f);
+        private static readonly Color BossColor = new Color(0.55f, 0.12f, 0.35f);
         private static readonly Color KorstoneColor = new Color(0.12f, 0.10f, 0.12f);
+
+        public LaneSim Sim => _sim;
+
+        /// <summary>Switches to another lane (park or push replay), clearing every enemy view.</summary>
+        public void Bind(LaneSim sim)
+        {
+            foreach (EnemyView view in _views.Values) Destroy(view.Root.gameObject);
+            _views.Clear();
+            _sim = sim;
+            _hero.rotation = Quaternion.identity;
+            _hero.position = new Vector3(HeroX, 1f, 0f);
+            foreach (Enemy enemy in sim.Enemies) SpawnView(enemy.Id);
+        }
 
         public void Init(LaneSim sim)
         {
@@ -145,6 +159,10 @@ namespace Orsuun.Client
                 {
                     target = new Vector3(3.4f, 1.3f, 2.2f);
                 }
+                else if (enemy.IsBoss)
+                {
+                    target = new Vector3(1.2f, 1.2f, 0f);
+                }
                 else
                 {
                     int row = mobIndex / MobsPerRow;
@@ -154,7 +172,7 @@ namespace Orsuun.Client
 
                 view.Root.position = Vector3.Lerp(view.Root.position, target, 1f - Mathf.Exp(-9f * dt));
                 view.Punch = Mathf.MoveTowards(view.Punch, 0f, dt * 6f);
-                view.Root.localScale = BaseScale(enemy.IsKorstone) * (1f + view.Punch * 0.18f);
+                view.Root.localScale = BaseScale(enemy.IsKorstone, enemy.IsBoss) * (1f + view.Punch * 0.18f);
 
                 float ratio = Mathf.Clamp01(enemy.Hp / (float)enemy.MaxHp);
                 view.HpFill.localScale = new Vector3(ratio, 1f, 1f);
@@ -184,31 +202,33 @@ namespace Orsuun.Client
             }
         }
 
-        private static Vector3 BaseScale(bool korstone) => korstone ? new Vector3(1.3f, 2.6f, 1.3f) : new Vector3(0.6f, 0.7f, 0.6f);
+        private static Vector3 BaseScale(bool korstone, bool boss = false) =>
+            korstone ? new Vector3(1.3f, 2.6f, 1.3f) : boss ? new Vector3(1.2f, 1.2f, 1.2f) : new Vector3(0.6f, 0.7f, 0.6f);
 
         private void SpawnView(int enemyId)
         {
-            bool korstone = false;
+            bool korstone = false, boss = false;
             foreach (Enemy enemy in _sim.Enemies)
-                if (enemy.Id == enemyId) korstone = enemy.IsKorstone;
+                if (enemy.Id == enemyId) { korstone = enemy.IsKorstone; boss = enemy.IsBoss; }
 
-            Transform root = Primitive(PrimitiveType.Cube, korstone ? "Korstone" : "Mob", korstone ? KorstoneColor : MobColor);
+            Transform root = Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, korstone ? "Korstone" : boss ? "Boss" : "Mob",
+                korstone ? KorstoneColor : boss ? BossColor : MobColor);
             root.SetParent(transform, false);
-            root.position = new Vector3(SpawnX, korstone ? 1.3f : 0.35f, korstone ? 2.2f : 0f);
-            root.localScale = BaseScale(korstone);
+            root.position = new Vector3(SpawnX, korstone ? 1.3f : boss ? 1.2f : 0.35f, korstone ? 2.2f : 0f);
+            root.localScale = BaseScale(korstone, boss);
             if (korstone) root.rotation = Quaternion.Euler(0f, 25f, 4f);
 
             // Bars are parented to a holder that cancels the body's scale, so they keep a fixed size.
             var holder = new GameObject("HpBar").transform;
             holder.SetParent(root, false);
             holder.localPosition = new Vector3(0f, 0.75f, 0f);
-            Vector3 s = BaseScale(korstone);
-            holder.localScale = new Vector3((korstone ? 1.6f : 0.7f) / s.x, 0.09f / s.y, 0.05f / s.z);
+            Vector3 s = BaseScale(korstone, boss);
+            holder.localScale = new Vector3((korstone || boss ? 1.6f : 0.7f) / s.x, 0.09f / s.y, 0.05f / s.z);
             holder.rotation = Quaternion.identity;
 
             Transform back = Primitive(PrimitiveType.Cube, "Back", new Color(0.05f, 0.05f, 0.05f));
             back.SetParent(holder, false);
-            Transform fill = Primitive(PrimitiveType.Cube, "Fill", korstone ? Palette.Warn : Palette.Good);
+            Transform fill = Primitive(PrimitiveType.Cube, "Fill", korstone ? Palette.Warn : boss ? Palette.Bad : Palette.Good);
             fill.SetParent(holder, false);
             fill.localPosition = new Vector3(0f, 0f, -0.01f);
 

@@ -17,7 +17,11 @@ var app = builder.Build();
 using (IServiceScope scope = app.Services.CreateScope())
 {
     // Schema from the model. Replace with EF migrations before the first data-preserving deploy.
-    await scope.ServiceProvider.GetRequiredService<GameDb>().Database.EnsureCreatedAsync();
+    // ORSUUN_RESET_DB=1 drops and recreates it; dev only, the model still changes between commits.
+    GameDb db = scope.ServiceProvider.GetRequiredService<GameDb>();
+    if (app.Environment.IsDevelopment() && Environment.GetEnvironmentVariable("ORSUUN_RESET_DB") == "1")
+        await db.Database.ExecuteSqlRawAsync("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
+    await db.Database.EnsureCreatedAsync();
 }
 
 app.Use(async (ctx, next) =>
@@ -57,6 +61,9 @@ v1.MapGet("/me", (HttpContext ctx, GameService game) => game.GetState(Me(ctx)));
 v1.MapPost("/heartbeat", (HttpContext ctx, GameService game, CancellationToken ct) => game.HeartbeatAsync(Me(ctx), ct));
 v1.MapPost("/forge", (HttpContext ctx, ForgeRequest req, GameService game, CancellationToken ct) => game.ForgeAsync(Me(ctx), req, ct));
 v1.MapPost("/turn", (HttpContext ctx, TurnRequest req, GameService game, CancellationToken ct) => game.TurnAsync(Me(ctx), req, ct));
+v1.MapPost("/equip", (HttpContext ctx, EquipRequest req, GameService game, CancellationToken ct) => game.EquipAsync(Me(ctx), req, ct));
+v1.MapPost("/park", (HttpContext ctx, ParkRequest req, GameService game, CancellationToken ct) => game.ParkAsync(Me(ctx), req, ct));
+v1.MapPost("/push", (HttpContext ctx, PushRequest req, GameService game, CancellationToken ct) => game.PushAsync(Me(ctx), req, ct));
 
 if (app.Environment.IsDevelopment())
     v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));

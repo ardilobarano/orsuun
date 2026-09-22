@@ -12,6 +12,18 @@ namespace Orsuun.Rules
         Legendary = 4,
     }
 
+    public enum EquipSlot
+    {
+        Weapon = 0,
+        Armor = 1,
+        Helmet = 2,
+        Shield = 3,
+        Bracelet = 4,
+        Necklace = 5,
+        Earrings = 6,
+        Shoes = 7,
+    }
+
     /// <summary>One rolled etching on an item. Tier is 1 to 5.</summary>
     public readonly struct Etching
     {
@@ -33,14 +45,19 @@ namespace Orsuun.Rules
         public const int MaxUpgradeLevel = 9;
         public const int MaxEtchings = 5;
 
-        public ItemState(int itemLevel, Rarity rarity)
+        public ItemState(int itemLevel, Rarity rarity, EquipSlot slot = EquipSlot.Weapon)
         {
             ItemLevel = itemLevel;
             Rarity = rarity;
+            Slot = slot;
         }
 
         public int ItemLevel { get; }
         public Rarity Rarity { get; }
+        public EquipSlot Slot { get; }
+
+        /// <summary>Rarity name plus the slot's base name for the item's level band, e.g. "Rare Rider's Glaive".</summary>
+        public string DisplayName => Content.ItemName(this);
         public int UpgradeLevel { get; set; }
 
         /// <summary>Forgemaster's Patience: bonus chance earned by failures at +7 and above, in basis points.</summary>

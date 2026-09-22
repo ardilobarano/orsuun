@@ -55,10 +55,66 @@ namespace Orsuun.Rules
                 ("Attack value", new[] { 10, 20, 30, 40, 50 }),
             };
 
+            return Build(names);
+        }
+
+        /// <summary>The armor-side pool from GDD section 5, in ArmorEtchingIds order.</summary>
+        public static EtchingPool Armor()
+        {
+            int[] pct15 = { 3, 6, 9, 12, 15 };
+            int[] pct20 = { 4, 8, 12, 16, 20 };
+            int[] stat = { 2, 4, 6, 9, 12 };
+            var names = new (string Name, int[] Values)[]
+            {
+                ("Max HP", new[] { 200, 500, 900, 1400, 2000 }),
+                ("Defense", new[] { 5, 10, 16, 24, 35 }),
+                ("Resistance to Vanguard", pct15),
+                ("Resistance to Kestrel", pct15),
+                ("Resistance to Wraithsworn", pct15),
+                ("Resistance to Drumcaller", pct15),
+                ("HP regeneration", pct20),
+                ("Block chance", pct15),
+                ("Reflect", pct15),
+                ("Sorn drop", pct20),
+                ("Item drop", pct20),
+                ("STR", stat), ("DEX", stat), ("INT", stat), ("VIT", stat),
+                ("Evasion", pct15),
+            };
+            return Build(names);
+        }
+
+        private static readonly EtchingPool WeaponPool = Weapon();
+        private static readonly EtchingPool ArmorPool = Armor();
+
+        public static EtchingPool For(EquipSlot slot) => slot == EquipSlot.Weapon ? WeaponPool : ArmorPool;
+
+        private static EtchingPool Build((string Name, int[] Values)[] names)
+        {
             var entries = new List<EtchingEntry>(names.Length);
             for (int i = 0; i < names.Length; i++) entries.Add(new EtchingEntry(i, names[i].Name, names[i].Values));
             return new EtchingPool(entries);
         }
+    }
+
+    /// <summary>Armor, helmet, shield, shoes and accessories share this 16-entry pool for now.</summary>
+    public static class ArmorEtchingIds
+    {
+        public const int MaxHp = 0;
+        public const int Defense = 1;
+        public const int ResistVanguard = 2;
+        public const int ResistKestrel = 3;
+        public const int ResistWraithsworn = 4;
+        public const int ResistDrumcaller = 5;
+        public const int HpRegen = 6;
+        public const int Block = 7;
+        public const int Reflect = 8;
+        public const int SornDrop = 9;
+        public const int ItemDrop = 10;
+        public const int Str = 11;
+        public const int Dex = 12;
+        public const int Int = 13;
+        public const int Vit = 14;
+        public const int Evasion = 15;
     }
 
     public static class WeaponEtchingIds

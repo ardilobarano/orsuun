@@ -1,4 +1,7 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
+
 namespace Orsuun.Rules.Combat
 {
     /// <summary>
@@ -14,6 +17,8 @@ namespace Orsuun.Rules.Combat
         public const int KorstoneAlloyBp = 1000;
         public const int AutoCastMultiplierPercent = 150;
 
+        public const int GearDropBp = 400;
+
         public static void LootMob(StageConfig stage, Inventory inventory, IRandom rng, out string? drop)
         {
             inventory.Sorn += stage.SornPerMob * (80 + rng.NextInt(41)) / 100;
@@ -26,8 +31,48 @@ namespace Orsuun.Rules.Combat
             if (rng.RollBp(MaterialDropBp))
             {
                 inventory.Materials++;
-                drop = "+1 Wolf Sinew";
+                drop = "+1 " + stage.MaterialName;
             }
+            if (rng.RollBp(GearDropBp))
+                drop = DropGear(stage, inventory, rng, stage.GearRarityCap).DisplayName;
+        }
+
+        public static string LootBoss(StageConfig stage, Inventory inventory, IRandom rng)
+        {
+            long sorn = stage.SornPerMob * KorstoneSornPacks * 2;
+            inventory.Sorn += sorn;
+            inventory.Materials += 3;
+            ItemState gear = DropGear(stage, inventory, rng, Rarity.Legendary, minimum: Rarity.Rare);
+            string text = stage.BossName + " falls: +" + sorn + " sorn, +3 " + stage.MaterialName + ", " + gear.DisplayName;
+            if (rng.RollBp(KorstoneAlloyBp * 3))
+            {
+                inventory.KhansAlloys++;
+                text += ", +1 Khan's Alloy";
+            }
+            return text;
+        }
+
+        /// <summary>Rolls one piece of gear for the stage's level band and adds it to the loot list.</summary>
+        public static ItemState DropGear(StageConfig stage, Inventory inventory, IRandom rng, Rarity cap, Rarity minimum = Rarity.Common)
+        {
+            Rarity rarity = Content.RollRarity(rng, cap);
+            if (rarity < minimum) rarity = minimum;
+            var slot = (EquipSlot)rng.NextInt(8);
+            var item = new ItemState(Math.Max(1, stage.GearItemLevel), rarity, slot);
+
+            EtchingPool pool = EtchingPool.For(slot);
+            int count = Content.EtchingsAtDrop(rarity, rng);
+            var taken = new HashSet<int>();
+            for (int i = 0; i < count; i++)
+            {
+                int entry;
+                do entry = rng.NextInt(pool.Entries.Count); while (!taken.Add(entry));
+                int tier = EtchingRules.RollTier(rarity, rng);
+                item.Etchings.Add(new Etching(entry, tier, pool.Entries[entry].TierValues[tier - 1]));
+            }
+
+            inventory.Loot.Add(item);
+            return item;
         }
 
         public static string LootKorstone(StageConfig stage, Inventory inventory, IRandom rng)
@@ -76,7 +121,10 @@ namespace Orsuun.Rules.Combat
                 for (long m = 0; m < avgPack; m++)
                     LootMob(stage, inventory, rng, out _);
             for (long k = 0; k < korstones; k++)
-                LootKorstone(stage, inventory, rng);
+            {
+                if (stage.FinalEncounter == FinalEncounter.Boss) LootBoss(stage, inventory, rng);
+                else LootKorstone(stage, inventory, rng);
+            }
 
             return new HuntSettlement(counted, packs, korstones, inventory.Sorn - sornBefore);
         }

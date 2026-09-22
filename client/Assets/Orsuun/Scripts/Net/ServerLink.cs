@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using Orsuun.Rules;
 using UnityEngine;
@@ -8,8 +9,8 @@ using UnityEngine.Networking;
 namespace Orsuun.Client.Net
 {
     /// <summary>
-    /// Talks to Orsuun.Server. When the server is reachable, every Forge and Turnstone roll comes from it and
-    /// heartbeats settle hunting time; when it is not, the game runs in local mode with a visible banner.
+    /// Talks to Orsuun.Server. When the server is reachable, every roll comes from it and heartbeats settle
+    /// hunting time; when it is not, the game runs in local mode with a visible banner.
     /// </summary>
     public sealed class ServerLink : MonoBehaviour
     {
@@ -24,6 +25,8 @@ namespace Orsuun.Client.Net
         public bool Online { get; private set; }
         public string Status { get; private set; } = "connecting";
         public SettlementDto LastSettlement { get; private set; }
+        /// <summary>Server item ids for the ItemState instances currently in the session, needed by Equip.</summary>
+        public Dictionary<ItemState, string> ItemIds { get; } = new Dictionary<ItemState, string>();
 
         public void MarkLocal() => Status = "LOCAL MODE (-local)";
 
@@ -95,6 +98,36 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        public IEnumerator Equip(string itemId, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/equip", JsonUtility.ToJson(new EquipRequest { requestId = Guid.NewGuid().ToString("N"), itemId = itemId }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        public IEnumerator Park(int stage, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/park", JsonUtility.ToJson(new ParkRequest { stage = stage }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Server push. The result carries the seed the client replays.</summary>
+        public IEnumerator Push(Action<PushResultDto, string> done)
+        {
+            PushResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/push", JsonUtility.ToJson(new PushRequest { requestId = Guid.NewGuid().ToString("N") }), true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                result = state.lastPush;
+                Apply(state);
+            }, error => failure = error);
+            done(result, failure);
+        }
+
         public IEnumerator DevGrant()
         {
             yield return Post("/v1/dev/grant", "{}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), _ => { });
@@ -108,14 +141,29 @@ namespace Orsuun.Client.Net
                 ScrollsOfMercy = s.inventory.scrollsOfMercy, KhansAlloys = s.inventory.khansAlloys,
                 AnvilWards = s.inventory.anvilWards, Turnstones = s.inventory.turnstones,
             };
-            var weapon = new ItemState(s.weapon.itemLevel, (Rarity)Enum.Parse(typeof(Rarity), s.weapon.rarity))
+
+            ItemIds.Clear();
+            var equipped = new List<ItemState>();
+            foreach (ItemDto dto in s.items)
             {
-                UpgradeLevel = s.weapon.upgradeLevel, PatienceBp = s.weapon.patienceBp, LockedEtchingIndex = s.weapon.lockedEtchingIndex,
-            };
-            foreach (EtchingDto e in s.weapon.etchings) weapon.Etchings.Add(new Etching(e.entryId, e.tier, e.value));
-            _player.ApplyRemote(inventory, weapon, s.weaponsBroken);
+                ItemState item = ToState(dto);
+                ItemIds[item] = dto.id;
+                if (dto.equipped) equipped.Add(item); else inventory.Loot.Add(item);
+            }
+
+            _player.ApplyRemote(inventory, equipped, s.weaponsBroken, s.highestStageCleared, s.parkedStage);
             Online = true;
             Status = "server: " + _baseUrl;
+        }
+
+        private static ItemState ToState(ItemDto dto)
+        {
+            var item = new ItemState(dto.itemLevel, (Rarity)Enum.Parse(typeof(Rarity), dto.rarity), (EquipSlot)Enum.Parse(typeof(EquipSlot), dto.slot))
+            {
+                UpgradeLevel = dto.upgradeLevel, PatienceBp = dto.patienceBp, LockedEtchingIndex = dto.lockedEtchingIndex,
+            };
+            foreach (EtchingDto e in dto.etchings) item.Etchings.Add(new Etching(e.entryId, e.tier, e.value));
+            return item;
         }
 
         private IEnumerator Post(string path, string body, bool auth, Action<string> ok, Action<string> fail)
@@ -134,10 +182,11 @@ namespace Orsuun.Client.Net
                 yield break;
             }
 
-            Online = false;
             string message = req.responseCode >= 400 && req.downloadHandler.text.Length > 0
                 ? JsonUtility.FromJson<ErrorDto>(req.downloadHandler.text).message
                 : req.error;
+            // A rule refusal (400/409) is an answer, not an outage; only transport failures drop to local mode.
+            if (req.responseCode < 400) Online = false;
             fail(message);
         }
 
@@ -146,12 +195,16 @@ namespace Orsuun.Client.Net
         [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; }
         [Serializable] public class ForgeRequest { public string requestId; public string method; }
         [Serializable] public class TurnRequest { public string requestId; }
+        [Serializable] public class EquipRequest { public string requestId; public string itemId; }
+        [Serializable] public class ParkRequest { public int stage; }
+        [Serializable] public class PushRequest { public string requestId; }
         [Serializable] public class ErrorDto { public string code; public string message; }
         [Serializable] public class EtchingDto { public int entryId; public string name; public int tier; public int value; }
-        [Serializable] public class WeaponDto { public string id; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; }
+        [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; }
         [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; }
         [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public WeaponDto weapon; public int weaponsBroken; public SettlementDto settlement; public ForgeResultDto lastForge; }
+        [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; }
     }
 }

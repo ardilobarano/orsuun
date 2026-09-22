@@ -21,8 +21,13 @@ public sealed class Account
     public int AnvilWards { get; set; }
     public int Turnstones { get; set; }
 
-    public Guid? EquippedWeaponId { get; set; }
-    public Item? EquippedWeapon { get; set; }
+    public int HighestStageCleared { get; set; }
+    public int ParkedStage { get; set; } = 1;
+
+    /// <summary>All items the account owns, equipped or in the loot list. Loaded with the account.</summary>
+    public List<Item> Items { get; set; } = new();
+
+    public Item Weapon => Items.Single(i => i.Equipped && i.Slot == EquipSlot.Weapon && !i.Destroyed);
 
     /// <summary>Mapped to PostgreSQL's xmin by IsRowVersion(); never set by hand.</summary>
     public uint Version { get; set; }
@@ -32,6 +37,8 @@ public sealed class Item
 {
     public Guid Id { get; set; }
     public Guid OwnerId { get; set; }
+    public EquipSlot Slot { get; set; }
+    public bool Equipped { get; set; }
     public int ItemLevel { get; set; }
     public Rarity Rarity { get; set; }
     public int UpgradeLevel { get; set; }
@@ -44,7 +51,7 @@ public sealed class Item
 
     public ItemState ToState()
     {
-        var state = new ItemState(ItemLevel, Rarity)
+        var state = new ItemState(ItemLevel, Rarity, Slot)
         {
             UpgradeLevel = UpgradeLevel,
             PatienceBp = PatienceBp,
@@ -57,6 +64,13 @@ public sealed class Item
             state.Etchings.Add(new Etching(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2])));
         }
         return state;
+    }
+
+    public static Item From(ItemState state, Guid ownerId, bool equipped)
+    {
+        var item = new Item { Id = Guid.NewGuid(), OwnerId = ownerId, Slot = state.Slot, Equipped = equipped, ItemLevel = state.ItemLevel, Rarity = state.Rarity, CreatedUtc = DateTime.UtcNow };
+        item.ApplyState(state);
+        return item;
     }
 
     public void ApplyState(ItemState state)

@@ -48,7 +48,14 @@ $env:ASPNETCORE_ENVIRONMENT = 'Development'
 | `POST /v1/heartbeat` | Settles hunting time since the last heartbeat: live rate up to 3 min, offline rate (60%) up to 12 h beyond that |
 | `POST /v1/forge {requestId, method}` | One Forge attempt. `requestId` makes retries safe; a repeat returns 409 |
 | `POST /v1/turn {requestId}` | Turnstone reroll |
+| `POST /v1/equip {requestId, itemId}` | Equips an owned piece; the old one returns to the loot list (capped at 60 loose pieces, best kept) |
+| `POST /v1/park {stage}` | Moves the farm lane to a cleared stage; settles time on the old stage first |
+| `POST /v1/push {requestId}` | Scores the next stage with a fresh seed and returns it; the client replays the seed so it shows the fight that was scored |
 | `POST /v1/dev/grant` | Playtest grant, Development environment only |
+
+Content (maps, stages, item names, drop weights) lives in `Orsuun.Rules/Content.cs`, compiled into both sides. `ORSUUN_RESET_DB=1` on a Development start drops and recreates the schema; use it after model changes until migrations exist.
+
+`dotnet build tools/ClientCheck` compiles the Unity scripts against the editor's assemblies, a type check that works while the editor holds the project lock.
 
 Every roll and currency change lands in the `Ledger` table with the chance rolled against and the outcome. Concurrency is optimistic via PostgreSQL's `xmin`; a clash returns 409 and the client refreshes.
 
@@ -59,7 +66,7 @@ Known gaps before alpha: `EnsureCreated` instead of EF migrations; the live lane
 ## Playing the grey-box
 
 - Double-click `client\Builds\Windows\Orsuun.exe` (not in git; rebuild with the command below), or open `client/` in Unity Hub and press Play in `Assets/Orsuun/Scenes/Main.unity`.
-- Skills are the three big buttons, each with its own AUTO toggle. FORGE opens the Forge while the hunt continues behind it. SPEED cycles x1, x3, x8. DEV grants sorn and consumables so a tester can reach +7 to +9 in one sitting.
+- Skills are the three big buttons, each with its own AUTO toggle. FORGE opens the Forge while the hunt continues behind it; GEAR shows the 8 slots and the best loose drops with EQUIP buttons. PUSH scores the next stage on the server and replays the fight; `<` `>` park the farm lane on any cleared stage. SPEED cycles x1, x3, x8. DEV grants sorn and consumables so a tester can reach +7 to +9 in one sitting.
 - `Orsuun.exe -forge` starts with the Forge open.
 
 ```powershell

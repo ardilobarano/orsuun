@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Text;
 using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,6 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class ForgePanel : MonoBehaviour
     {
-        public const string WeaponName = "Rider's Glaive";
         private const float LongSequence = 2.5f;
         private const float ShortSequence = 0.8f;
 
@@ -200,10 +200,10 @@ namespace Orsuun.Client
             ItemState weapon = session.Weapon;
             Inventory inv = session.Inventory;
 
-            _weapon.text = $"{WeaponName} +{weapon.UpgradeLevel}";
+            _weapon.text = $"{weapon.DisplayName} +{weapon.UpgradeLevel}";
             _weapon.color = LevelColor(weapon.UpgradeLevel);
 
-            var hero = HeroFactory.FromWeapon(weapon);
+            HeroStats hero = session.Hero;
             _stats.text = $"Attack {hero.Attack}  ·  Crit {hero.CritChanceBp / 100}%  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%  ·  Blades lost {session.WeaponsBroken}";
 
             var sb = new StringBuilder();
@@ -222,7 +222,7 @@ namespace Orsuun.Client
             {
                 int target = weapon.UpgradeLevel + 1;
                 string patience = weapon.PatienceBp > 0 ? $"  (includes +{weapon.PatienceBp / 100}% Forgemaster's Patience)" : "";
-                string materials = session.ForgeMaterials > 0 ? $"  ·  {session.ForgeMaterials} Wolf Sinew" : "";
+                string materials = session.ForgeMaterials > 0 ? $"  ·  {session.ForgeMaterials} {session.Lane.Stage.MaterialName}" : "";
                 _attemptInfo.text = $"Attempt +{target}:  {session.ForgeChanceBp(ForgeMethod.ForgeAlone) / 100}% success{patience}\nCost {session.ForgeCost:N0} sorn{materials}";
             }
 

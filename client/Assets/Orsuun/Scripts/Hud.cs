@@ -12,10 +12,15 @@ namespace Orsuun.Client
         private Text _resources;
         private Text _stage;
         private Text _link;
-        private Net.ServerLink.SettlementDto _shownSettlement;
+        private Text _banner;
         private Text _weapon;
         private Text _log;
         private Text _speedLabel;
+        private Text _stageLabel;
+        private Text _pushLabel;
+        private Button _pushButton;
+        private Button _prevButton;
+        private Button _nextButton;
         private RectTransform _hpFill;
         private Text _hpText;
         private Button[] _skillButtons;
@@ -23,11 +28,11 @@ namespace Orsuun.Client
         private Image[] _autoImages;
         private Text[] _autoLabels;
         private float _logAge;
+        private Net.ServerLink.SettlementDto _shownSettlement;
 
         public void Init(GameRoot root)
         {
             _root = root;
-            LaneSim lane = root.Session.Lane;
             Transform canvas = Ui.Canvas("HudCanvas", 0).transform;
             transform.SetParent(canvas, false);
 
@@ -35,16 +40,17 @@ namespace Orsuun.Client
             _resources = Ui.Label("Resources", canvas, 0.02f, 0.948f, 0.98f, 0.997f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
             _stage = Ui.Label("Stage", canvas, 0.03f, 0.905f, 0.97f, 0.943f, "", 30, TextAnchor.MiddleLeft, Color.white);
             _link = Ui.Label("Link", canvas, 0.03f, 0.875f, 0.97f, 0.905f, "", 22, TextAnchor.MiddleLeft, Palette.Warn);
+            _banner = Ui.Label("Banner", canvas, 0.05f, 0.80f, 0.95f, 0.87f, "", 56, TextAnchor.MiddleCenter, Palette.Warn);
 
             Ui.Panel("HpBack", canvas, 0.04f, 0.458f, 0.96f, 0.482f, Color.black);
             _hpFill = Ui.Panel("HpFill", canvas, 0.04f, 0.458f, 0.96f, 0.482f, Palette.Bad).rectTransform;
             _hpText = Ui.Label("HpText", canvas, 0.04f, 0.458f, 0.96f, 0.482f, "", 24, TextAnchor.MiddleCenter, Color.white);
 
             Ui.Panel("BottomPanel", canvas, 0f, 0f, 1f, GameRoot.LaneViewportBottom, Palette.PanelDark);
-            _weapon = Ui.Label("Weapon", canvas, 0.04f, 0.395f, 0.96f, 0.445f, "", 34, TextAnchor.MiddleLeft, Color.white);
-            _log = Ui.Label("Log", canvas, 0.04f, 0.355f, 0.96f, 0.395f, "", 26, TextAnchor.MiddleLeft, Palette.Sorn);
+            _weapon = Ui.Label("Weapon", canvas, 0.04f, 0.405f, 0.96f, 0.445f, "", 32, TextAnchor.MiddleLeft, Color.white);
+            _log = Ui.Label("Log", canvas, 0.04f, 0.365f, 0.96f, 0.405f, "", 26, TextAnchor.MiddleLeft, Palette.Sorn);
 
-            int count = lane.Skills.Length;
+            int count = root.Session.Lane.Skills.Length;
             _skillButtons = new Button[count];
             _skillLabels = new Text[count];
             _autoImages = new Image[count];
@@ -53,23 +59,35 @@ namespace Orsuun.Client
             {
                 int index = i;
                 float x0 = 0.04f + i * 0.31f;
-                _skillButtons[i] = Ui.Button("Skill" + i, canvas, x0, 0.20f, x0 + 0.30f, 0.345f, lane.Skills[i].Name, 32,
-                    Palette.ButtonIdle, () => lane.TryCast(index), out _skillLabels[i]);
+                _skillButtons[i] = Ui.Button("Skill" + i, canvas, x0, 0.215f, x0 + 0.30f, 0.355f, root.Session.Lane.Skills[i].Name, 32,
+                    Palette.ButtonIdle, () => { if (!_root.Replaying) _root.ActiveLane.TryCast(index); }, out _skillLabels[i]);
 
-                Button auto = Ui.Button("Auto" + i, canvas, x0, 0.15f, x0 + 0.30f, 0.193f, "", 24,
-                    Palette.ButtonIdle, () => lane.AutoCast[index] = !lane.AutoCast[index], out _autoLabels[i]);
+                Button auto = Ui.Button("Auto" + i, canvas, x0, 0.165f, x0 + 0.30f, 0.208f, "", 24,
+                    Palette.ButtonIdle, () => { LaneSim l = _root.Session.Lane; l.AutoCast[index] = !l.AutoCast[index]; }, out _autoLabels[i]);
                 _autoImages[i] = auto.GetComponent<Image>();
             }
 
-            Ui.Button("Forge", canvas, 0.04f, 0.03f, 0.50f, 0.13f, "FORGE", 44, Palette.ButtonForge, () => root.Forge.Open(), out _);
-            Ui.Button("Speed", canvas, 0.52f, 0.03f, 0.73f, 0.13f, "", 32, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
-            Ui.Button("Dev", canvas, 0.75f, 0.03f, 0.96f, 0.13f, "DEV\n+sorn +scrolls", 24, new Color(0.2f, 0.2f, 0.2f), DevGrant, out _);
+            Ui.Button("Forge", canvas, 0.04f, 0.09f, 0.34f, 0.155f, "FORGE", 36, Palette.ButtonForge, () => root.Forge.Open(), out _);
+            Ui.Button("Gear", canvas, 0.35f, 0.09f, 0.65f, 0.155f, "GEAR", 36, Palette.ButtonIdle, () => root.Gear.Open(), out _);
+            _pushButton = Ui.Button("Push", canvas, 0.66f, 0.09f, 0.96f, 0.155f, "", 28, Palette.Danger, root.Push, out _pushLabel);
+
+            _prevButton = Ui.Button("Prev", canvas, 0.04f, 0.02f, 0.14f, 0.08f, "<", 36, Palette.ButtonIdle, () => root.Park(root.Session.ParkedStage - 1), out _);
+            Ui.Panel("StageBack", canvas, 0.15f, 0.02f, 0.44f, 0.08f, Color.black);
+            _stageLabel = Ui.Label("StageLabel", canvas, 0.15f, 0.02f, 0.44f, 0.08f, "", 24, TextAnchor.MiddleCenter, Color.white);
+            _nextButton = Ui.Button("Next", canvas, 0.45f, 0.02f, 0.55f, 0.08f, ">", 36, Palette.ButtonIdle, () => root.Park(root.Session.ParkedStage + 1), out _);
+            Ui.Button("Speed", canvas, 0.57f, 0.02f, 0.75f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
+            Ui.Button("Dev", canvas, 0.77f, 0.02f, 0.96f, 0.08f, "DEV", 24, new Color(0.2f, 0.2f, 0.2f), DevGrant, out _);
         }
 
         public void Handle(LaneEvent e)
         {
             if (e.Kind != LaneEventKind.Loot) return;
-            _log.text = e.Text;
+            Log(e.Text);
+        }
+
+        public void Log(string text)
+        {
+            _log.text = text;
             _logAge = 0f;
         }
 
@@ -98,31 +116,32 @@ namespace Orsuun.Client
         {
             if (_root == null) return;
             PlayerSession session = _root.Session;
-            LaneSim lane = session.Lane;
+            LaneSim lane = _root.ActiveLane;
             Inventory inv = session.Inventory;
 
             _resources.text = $"{inv.Sorn:N0} sorn   Draughts {inv.Potions}   Sinew {inv.Materials}   Mercy {inv.ScrollsOfMercy}   Alloy {inv.KhansAlloys}   Turn {inv.Turnstones}";
 
-            string encounter = lane.IsKorstoneEncounter ? "KORSTONE" : $"Pack {lane.EncounterIndex + 1}/5";
-            _stage.text = $"The Oathfields  ·  {encounter}  ·  Korstones broken {lane.KorstonesDestroyed}  ·  Deaths {lane.Deaths}";
+            string encounter = lane.IsBossEncounter ? lane.Stage.BossName.ToUpperInvariant() : lane.IsKorstoneEncounter ? "KORSTONE" : $"Pack {lane.EncounterIndex + 1}/5";
+            _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {lane.KorstonesDestroyed}  ·  Deaths {lane.Deaths}";
             _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Color.white;
             _link.text = _root.Server.Status;
             _link.color = _root.Server.Online ? Palette.Good : Palette.Warn;
+            _banner.text = _root.ReplayBanner;
+            _banner.color = _root.ReplayBanner.StartsWith("CLEARED") ? Palette.Good : _root.ReplayBanner.StartsWith("FAILED") ? Palette.Bad : Palette.Warn;
 
             Net.ServerLink.SettlementDto settled = _root.Server.LastSettlement;
             if (settled != null && settled != _shownSettlement && settled.offline)
             {
                 _shownSettlement = settled;
-                _log.text = $"Welcome back: {settled.countedSeconds / 3600f:0.0} h away, {settled.korstones} Korstones, +{settled.sornEarned:N0} sorn";
-                _logAge = 0f;
+                Log($"Welcome back: {settled.countedSeconds / 3600f:0.0} h away, {settled.korstones} Korstones, +{settled.sornEarned:N0} sorn");
             }
 
             float hp = Mathf.Clamp01(lane.HeroHp / (float)lane.HeroMaxHp);
             _hpFill.anchorMax = new Vector2(0.04f + 0.92f * hp, _hpFill.anchorMax.y);
             _hpText.text = lane.Phase == LanePhase.Dead ? "DEFEATED — respawning" : $"{lane.HeroHp} / {lane.HeroMaxHp}";
 
-            HeroStats stats = HeroFactory.FromWeapon(session.Weapon);
-            _weapon.text = $"{ForgePanel.WeaponName} +{session.Weapon.UpgradeLevel}   ·   Attack {stats.Attack}   ·   Crit {stats.CritChanceBp / 100}%";
+            HeroStats stats = session.Hero;
+            _weapon.text = $"{session.Weapon.DisplayName} +{session.Weapon.UpgradeLevel}   ·   Atk {stats.Attack}   Def {stats.Defense}   Crit {stats.CritChanceBp / 100}%";
             _weapon.color = ForgePanel.LevelColor(session.Weapon.UpgradeLevel);
 
             _logAge += Time.deltaTime;
@@ -133,7 +152,7 @@ namespace Orsuun.Client
             for (int i = 0; i < _skillButtons.Length; i++)
             {
                 int ticksLeft = lane.CooldownTicksLeft(i);
-                _skillButtons[i].interactable = ticksLeft == 0 && lane.Phase == LanePhase.Fighting;
+                _skillButtons[i].interactable = !_root.Replaying && ticksLeft == 0 && lane.Phase == LanePhase.Fighting;
                 _skillLabels[i].text = ticksLeft == 0
                     ? lane.Skills[i].Name
                     : $"{lane.Skills[i].Name}\n{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}s";
@@ -141,7 +160,13 @@ namespace Orsuun.Client
                 _autoImages[i].color = lane.AutoCast[i] ? Palette.Safe : Palette.ButtonIdle;
             }
 
-            _speedLabel.text = $"SPEED\nx{_root.SpeedMultiplier}";
+            bool allCleared = session.HighestStageCleared >= Content.TotalStages;
+            _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n{Content.StageName(session.PushTarget)}";
+            _pushButton.interactable = !_root.Replaying && !_root.PushBusy && !allCleared;
+            _stageLabel.text = $"Farm: {Content.StageName(session.ParkedStage)}";
+            _prevButton.interactable = !_root.Replaying && session.ParkedStage > 1;
+            _nextButton.interactable = !_root.Replaying && session.ParkedStage < System.Math.Min(Content.TotalStages, session.HighestStageCleared + 1);
+            _speedLabel.text = $"SPEED x{_root.SpeedMultiplier}";
         }
     }
 }

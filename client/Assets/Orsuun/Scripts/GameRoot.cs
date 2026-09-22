@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Orsuun.Rules;
 using Orsuun.Rules.Combat;
 using UnityEngine;
@@ -15,13 +16,21 @@ namespace Orsuun.Client
         public const float LaneViewportBottom = 0.45f;
 
         private float _accumulator;
+        private LaneSim _replay;
 
         public PlayerSession Session { get; private set; }
         public LaneView Lane { get; private set; }
         public Hud Hud { get; private set; }
         public ForgePanel Forge { get; private set; }
+        public GearPanel Gear { get; private set; }
         public Net.ServerLink Server { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
+
+        /// <summary>The lane on screen: the parked farm lane, or a push replay while one runs.</summary>
+        public LaneSim ActiveLane => _replay ?? Session.Lane;
+        public bool Replaying => _replay != null;
+        public string ReplayBanner { get; private set; } = "";
+        public bool PushBusy { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot()
@@ -48,6 +57,8 @@ namespace Orsuun.Client
 
             Forge = new GameObject("ForgePanel").AddComponent<ForgePanel>();
             Forge.Init(this);
+            Gear = new GameObject("GearPanel").AddComponent<GearPanel>();
+            Gear.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
 
@@ -57,17 +68,84 @@ namespace Orsuun.Client
 
         private void Update()
         {
+            LaneSim lane = ActiveLane;
+            if (Lane.Sim != lane) Lane.Bind(lane);
+
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);
             while (_accumulator >= 1f)
             {
                 _accumulator -= 1f;
-                Session.Lane.Tick();
-                foreach (LaneEvent e in Session.Lane.DrainEvents())
+                lane.Tick();
+                foreach (LaneEvent e in lane.DrainEvents())
                 {
                     Lane.Handle(e);
                     Hud.Handle(e);
                 }
+                if (_replay != null && (_replay.Clears > 0 || _replay.Deaths > 0)) break;
             }
+        }
+
+        /// <summary>Moves the farm lane to a cleared stage, on the server when connected.</summary>
+        public void Park(int stage)
+        {
+            if (Replaying || PushBusy) return;
+            if (Server.Online) StartCoroutine(Server.Park(stage, error => { if (error != null) Hud.Log(error); }));
+            else
+            {
+                try { Session.Park(stage); }
+                catch (InvalidOperationException ex) { Hud.Log(ex.Message); }
+            }
+        }
+
+        /// <summary>Asks for the next stage's verdict, then replays the scored fight seed for seed.</summary>
+        public void Push()
+        {
+            if (Replaying || PushBusy) return;
+            StartCoroutine(PushSequence());
+        }
+
+        private IEnumerator PushSequence()
+        {
+            PushBusy = true;
+            int stage = Session.PushTarget;
+            HeroStats hero = Session.Hero;
+            ulong seed;
+            bool cleared;
+            int potions = Session.Inventory.Potions;
+
+            if (Server.Online)
+            {
+                Net.ServerLink.PushResultDto result = null;
+                string failure = null;
+                yield return Server.Push((r, e) => { result = r; failure = e; });
+                if (result == null)
+                {
+                    Hud.Log(failure ?? "No answer from the server.");
+                    PushBusy = false;
+                    yield break;
+                }
+                stage = result.stage;
+                seed = result.seed;
+                cleared = result.cleared;
+                potions = result.potionsAtStart;
+            }
+            else
+            {
+                cleared = Session.Push(out seed).Cleared;
+            }
+
+            // The replay lane loots into a scratch inventory: the real one already holds the server's answer.
+            _replay = StageRun.Create(Content.Stage(stage), hero, new Inventory { Potions = potions }, seed);
+            ReplayBanner = "PUSH  ·  " + Content.StageName(stage);
+            int guard = StageRun.MaxTicks;
+            while (_replay.Clears == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+
+            ReplayBanner = (cleared ? "CLEARED  ·  " : "FAILED  ·  ") + Content.StageName(stage);
+            yield return new WaitForSecondsRealtime(2f);
+
+            _replay = null;
+            ReplayBanner = "";
+            PushBusy = false;
         }
 
         private static void BuildCameras()
