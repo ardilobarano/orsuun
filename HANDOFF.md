@@ -44,8 +44,10 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 ## Next steps, waiting on the owner
 
-1. Pick the host (Hetzner VPS recommended) and follow `deploy/README.md`; then build the APK on the Mac with
-   `ORSUUN_SERVER_URL=https://<domain>` and hand it to testers. iOS needs a Mac and an Apple developer account.
+1. Pick the host (Hetzner VPS recommended) and follow `deploy/README.md`; then on the Mac
+   `ORSUUN_SERVER_URL=https://<domain> tools/build-mobile.sh both` (decided: Android and iOS). Install the Android
+   and iOS modules in Unity Hub first. TestFlight needs the paid Apple Developer Program; a free Apple ID runs on
+   the owner's own iPhone from Xcode.
 2. Pick an art direction (GDD section 14), then: character sheet and Korstone sheet in that style, URP switch with a
    matching shader, first real hero model.
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),

@@ -30,7 +30,11 @@ cd /opt/orsuun && git pull && docker compose -f deploy/docker-compose.yml --env-
 - Unity editor / Windows: `-server https://<DOMAIN>` on the command line, or put the URL in
   `client/Assets/Orsuun/Resources/server-url.txt` before building (the Android build script does this from
   `ORSUUN_SERVER_URL`).
-- Android APK: `ORSUUN_SERVER_URL=https://<DOMAIN> Unity -batchmode -quit -projectPath client -executeMethod Orsuun.Client.EditorTools.ProjectSetup.BuildAndroid`.
+- Mobile builds from the Mac: `ORSUUN_SERVER_URL=https://<DOMAIN> tools/build-mobile.sh android|ios|both`.
+  Android gives a sideloadable APK. iOS exports an Xcode project; with `ORSUUN_APPLE_TEAM_ID` set it also archives
+  and exports an .ipa (`ORSUUN_IOS_METHOD=development` for registered devices, `app-store-connect` for TestFlight).
+  A free Apple ID can run on your own iPhone from Xcode for 7 days at a time; TestFlight for other testers needs the
+  paid Apple Developer Program.
 
 ## Operations
 

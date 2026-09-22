@@ -77,6 +77,41 @@ namespace Orsuun.Client.EditorTools
             if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
         }
 
+        /// <summary>
+        /// iOS build: exports an Xcode project to Builds/iOS; tools/build-mobile.sh then archives it with xcodebuild.
+        /// Needs the iOS module and a Mac. Signing is done in Xcode / by the script, not here.
+        /// </summary>
+        public static void BuildIos()
+        {
+            Run();
+            WriteServerUrl();
+
+            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS, "com.orsuun.warofbanners");
+            PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
+            PlayerSettings.iOS.targetOSVersionString = "15.0";
+            PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneAndiPad;
+            PlayerSettings.iOS.appleEnableAutomaticSigning = true;
+            string team = System.Environment.GetEnvironmentVariable("ORSUUN_APPLE_TEAM_ID");
+            if (!string.IsNullOrEmpty(team)) PlayerSettings.iOS.appleDeveloperTeamID = team;
+            PlayerSettings.SetManagedStrippingLevel(UnityEditor.Build.NamedBuildTarget.iOS, ManagedStrippingLevel.Low);
+            PlayerSettings.bundleVersion = "0.1." + System.DateTime.UtcNow.ToString("yyMMdd");
+            PlayerSettings.iOS.buildNumber = System.DateTime.UtcNow.ToString("yyMMddHH");
+            PlayerSettings.allowedAutorotateToPortrait = true;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = false;
+            PlayerSettings.allowedAutorotateToLandscapeRight = false;
+
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = new[] { ScenePath },
+                locationPathName = "Builds/iOS",
+                target = BuildTarget.iOS,
+                options = BuildOptions.None,
+            });
+            Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
+            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
+        }
+
         /// <summary>Bakes ORSUUN_SERVER_URL into Resources/server-url.txt so the player knows its server without arguments.</summary>
         private static void WriteServerUrl()
         {
