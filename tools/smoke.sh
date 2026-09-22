@@ -22,7 +22,8 @@ done
 r=$(rid)
 f=$(post /v1/forge "{\"requestId\":\"$r\",\"method\":\"ScrollOfMercy\"}")
 echo "forge: $(echo "$f" | jq -r '.lastForge | "\(.outcome) +\(.levelBefore)->+\(.levelAfter)"')"
-echo "forge replay: $(post /v1/forge "{\"requestId\":\"$r\",\"method\":\"ScrollOfMercy\"}" | jq -c .)"
+fr=$(post /v1/forge "{\"requestId\":\"$r\",\"method\":\"ScrollOfMercy\"}")
+echo "forge replay: $(echo "$fr" | jq -c .)"
 echo "turn: turnstones=$(post /v1/turn "{\"requestId\":\"$(rid)\"}" | jq .inventory.turnstones)"
 echo "park hunting ground: parked=$(post /v1/park '{"stage":101}' | jq .parkedStage)"
 echo "park field I: parked=$(post /v1/park '{"stage":111}' | jq .parkedStage)"
@@ -31,4 +32,5 @@ for id in 1 2 3; do
   bf=$(post /v1/boss/fight "{\"requestId\":\"$(rid)\",\"bossId\":$id}")
   echo "fight $id: $(echo "$bf" | jq -r '.lastBossFight | "damage=\(.damage) killed=\(.killed) rank=\(.rank)\n  \(.chest)"')"
 done
-echo "fight again: $(post /v1/boss/fight "{\"requestId\":\"$(rid)\",\"bossId\":1}" | jq -c .)"
+fa=$(post /v1/boss/fight "{\"requestId\":\"$(rid)\",\"bossId\":1}")
+echo "fight again: $(echo "$fa" | jq -c .)"

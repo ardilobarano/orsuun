@@ -6,7 +6,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>9.0</LangVersion>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <UnityManaged>C:\Program Files\Unity\Hub\Editor\6000.0.32f1\Editor\Data\Managed\UnityEngine</UnityManaged>
+    <!-- Override with -p:UnityVersion=... or -p:UnityManaged=... when the editor lives elsewhere. -->
+    <UnityVersion Condition="'$(UnityVersion)' == ''">6000.0.32f1</UnityVersion>
+    <UnityManaged Condition="'$(UnityManaged)' == '' And $([MSBuild]::IsOSPlatform('OSX'))">/Applications/Unity/Hub/Editor/$(UnityVersion)/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine</UnityManaged>
+    <UnityManaged Condition="'$(UnityManaged)' == ''">C:\Program Files\Unity\Hub\Editor\$(UnityVersion)\Editor\Data\Managed\UnityEngine</UnityManaged>
+    <!-- UnityEngine.UI.dll is generated once the editor has opened client/; point UnityUI elsewhere before that. -->
+    <UnityUI Condition="'$(UnityUI)' == ''">..\..\client\Library\ScriptAssemblies\UnityEngine.UI.dll</UnityUI>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -22,7 +27,8 @@
     <Reference Include="$(UnityManaged)\UnityEngine.PhysicsModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.IMGUIModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.JSONSerializeModule.dll" />
-    <Reference Include="..\..\client\Library\ScriptAssemblies\UnityEngine.UI.dll" />
+    <Reference Include="$(UnityManaged)\UnityEngine.ScriptingModule.dll" Condition="Exists('$(UnityManaged)\UnityEngine.ScriptingModule.dll')" />
+    <Reference Include="$(UnityUI)" />
   </ItemGroup>
 
 </Project>

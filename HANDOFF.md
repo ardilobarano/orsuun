@@ -26,7 +26,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 ## What exists and works
 
 - `src/Orsuun.Rules`: engine-free rules (Forge, etchings/Turnstone, offline settlement, lane combat, zones, bosses,
-  gear, XP/levels). 52 xUnit tests in `tests/`. Numbers pinned to the GDD (52.6 scrolls to +9, Turnstone odds, and so on).
+  gear, XP/levels). 71 xUnit tests in `tests/`. Numbers pinned to the GDD (52.6 scrolls to +9, Turnstone odds, and so on).
 - `src/Orsuun.Server`: ASP.NET Core 8 + PostgreSQL 16. Guest login, heartbeat settlement (live and offline), Forge,
   Turn, equip, park, push, boss fights with damage brackets, append-only ledger, idempotent request ids.
   `tools/smoke.ps1` walks every endpoint.
