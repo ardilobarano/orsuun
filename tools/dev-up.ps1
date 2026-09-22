@@ -30,8 +30,9 @@ if ($Status) { exit 0 }
 if (-not $pgOk) {
     # The service form is registered only if the user ran tools\pg-service.ps1 as admin; otherwise a user process.
     $svc = Get-Service postgresql-orsuun -ErrorAction SilentlyContinue
-    if ($svc) { Start-Service postgresql-orsuun }
-    else { Start-Process -FilePath "$pgBin\pg_ctl.exe" -ArgumentList "-D `"$pgData`" -l `"$pgLog`" -w start" -WindowStyle Hidden -Wait }
+    if ($svc) { try { Start-Service postgresql-orsuun -ErrorAction Stop } catch { "service refused to start ($($_.Exception.Message.Trim())); falling back to a user process" } }
+    Start-Sleep 2
+    if (-not (Test-Pg)) { Start-Process -FilePath "$pgBin\pg_ctl.exe" -ArgumentList "-D `"$pgData`" -l `"$pgLog`" -w start" -WindowStyle Hidden -Wait }
     for ($i = 0; $i -lt 20 -and -not (Test-Pg); $i++) { Start-Sleep 1 }
     "postgres: " + $(if (Test-Pg) { "started" } else { "FAILED to start, see $pgLog" })
 }

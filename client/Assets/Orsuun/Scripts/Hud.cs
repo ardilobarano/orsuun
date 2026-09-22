@@ -65,9 +65,10 @@ namespace Orsuun.Client
                 _autoImages[i] = auto.GetComponent<Image>();
             }
 
-            Ui.Button("Forge", canvas, 0.04f, 0.09f, 0.34f, 0.155f, "FORGE", 36, Palette.ButtonForge, () => root.Forge.Open(), out _);
-            Ui.Button("Gear", canvas, 0.35f, 0.09f, 0.65f, 0.155f, "GEAR", 36, Palette.ButtonIdle, () => root.Gear.Open(), out _);
-            _pushButton = Ui.Button("Push", canvas, 0.66f, 0.09f, 0.96f, 0.155f, "", 28, Palette.Danger, root.Push, out _pushLabel);
+            Ui.Button("Forge", canvas, 0.04f, 0.09f, 0.27f, 0.155f, "FORGE", 30, Palette.ButtonForge, () => root.Forge.Open(), out _);
+            Ui.Button("Gear", canvas, 0.28f, 0.09f, 0.50f, 0.155f, "GEAR", 30, Palette.ButtonIdle, () => root.Gear.Open(), out _);
+            Ui.Button("Shards", canvas, 0.51f, 0.09f, 0.73f, 0.155f, "SHARDS", 30, Palette.Alloy, () => root.Sockets.Open(), out _);
+            _pushButton = Ui.Button("Push", canvas, 0.74f, 0.09f, 0.96f, 0.155f, "", 22, Palette.Danger, root.Push, out _pushLabel);
 
             Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.55f, 0.08f, "", 24, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
             Ui.Button("Speed", canvas, 0.57f, 0.02f, 0.75f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
@@ -105,6 +106,7 @@ namespace Orsuun.Client
             inv.ScrollsOfMercy += 5;
             inv.KhansAlloys += 1;
             inv.Turnstones += 20;
+            for (int r = 0; r < inv.Korshards.Length; r++) inv.Korshards[r] += 3;
         }
 
         private void Update()

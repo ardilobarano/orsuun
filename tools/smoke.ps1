@@ -61,3 +61,16 @@ foreach ($id in 1, 2, 3) {
 }
 "fight again same spawn:"; Fail { Invoke-RestMethod "$BaseUrl/v1/boss/fight" -Method Post -Headers $h -Body (@{ requestId = (Rid); bossId = 1 } | ConvertTo-Json) }
 $me = Invoke-RestMethod "$BaseUrl/v1/me" -Headers $h; "after: shards=$($me.inventory.korshards -join ',') skins=$($me.inventory.skins -join ',') fought=" + (($me.bosses | ForEach-Object { $_.foughtThisSpawn }) -join ',')
+
+# Sockets: the dev grant gave 3 shards of every rank; set one on the weapon, try a wrong-slot shard, clear a Dead Shard if one appears.
+$weapon = $me.weapon
+"weapon sockets: " + (($weapon.sockets | ForEach-Object { $_.text }) -join ' | ')
+"armor shard on weapon:"; Fail { Invoke-RestMethod "$BaseUrl/v1/socket/insert" -Method Post -Headers $h -Body (@{ requestId = (Rid); itemId = $weapon.id; socketIndex = 0; type = 'Vigor'; rank = 0 } | ConvertTo-Json) }
+$dead = $null
+for ($i = 0; $i -lt $weapon.sockets.Count; $i++) {
+    $si = Invoke-RestMethod "$BaseUrl/v1/socket/insert" -Method Post -Headers $h -Body (@{ requestId = (Rid); itemId = $weapon.id; socketIndex = $i; type = 'Piercer'; rank = 2 } | ConvertTo-Json)
+    "socket $i`: success=$($si.lastSocket.success)  $($si.lastSocket.text)  atk=$($si.hero.attack)"
+    if (-not $si.lastSocket.success) { $dead = $i }
+}
+if ($dead -ne $null) { $sc = Invoke-RestMethod "$BaseUrl/v1/socket/clear" -Method Post -Headers $h -Body (@{ requestId = (Rid); itemId = $weapon.id; socketIndex = $dead } | ConvertTo-Json); "clear: $($sc.lastSocket.text)" }
+"taken socket:"; Fail { Invoke-RestMethod "$BaseUrl/v1/socket/insert" -Method Post -Headers $h -Body (@{ requestId = (Rid); itemId = $weapon.id; socketIndex = 0; type = 'Piercer'; rank = 2 } | ConvertTo-Json) }

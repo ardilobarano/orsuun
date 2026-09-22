@@ -106,6 +106,35 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>Server shard insert. Completes with the result text, or an error message.</summary>
+        public IEnumerator SocketInsert(string itemId, int socketIndex, ShardType type, int rank, Action<bool, string> done)
+        {
+            bool ok = false;
+            string text = null;
+            var req = new SocketInsertRequest { requestId = Guid.NewGuid().ToString("N"), itemId = itemId, socketIndex = socketIndex, type = type.ToString(), rank = rank };
+            yield return Post("/v1/socket/insert", JsonUtility.ToJson(req), true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                Apply(state);
+                ok = state.lastSocket != null && state.lastSocket.success;
+                text = state.lastSocket?.text;
+            }, error => text = error);
+            done(ok, text);
+        }
+
+        public IEnumerator SocketClear(string itemId, int socketIndex, Action<string> done)
+        {
+            string text = null;
+            var req = new SocketClearRequest { requestId = Guid.NewGuid().ToString("N"), itemId = itemId, socketIndex = socketIndex };
+            yield return Post("/v1/socket/clear", JsonUtility.ToJson(req), true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                Apply(state);
+                text = state.lastSocket?.text;
+            }, error => text = error);
+            done(text);
+        }
+
         public IEnumerator Park(int stage, Action<string> done)
         {
             string failure = null;
@@ -194,6 +223,15 @@ namespace Orsuun.Client.Net
                 UpgradeLevel = dto.upgradeLevel, PatienceBp = dto.patienceBp, LockedEtchingIndex = dto.lockedEtchingIndex,
             };
             foreach (EtchingDto e in dto.etchings) item.Etchings.Add(new Etching(e.entryId, e.tier, e.value));
+            if (dto.sockets != null)
+            {
+                for (int i = 0; i < dto.sockets.Length && i < item.Sockets.Length; i++)
+                {
+                    SocketDto s = dto.sockets[i];
+                    if (s.dead) item.Sockets[i] = Socket.DeadShard;
+                    else if (!string.IsNullOrEmpty(s.type)) item.Sockets[i] = new Socket((ShardType)Enum.Parse(typeof(ShardType), s.type), s.rank);
+                }
+            }
             return item;
         }
 
@@ -231,7 +269,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class PushRequest { public string requestId; }
         [Serializable] public class ErrorDto { public string code; public string message; }
         [Serializable] public class EtchingDto { public int entryId; public string name; public int tier; public int value; }
-        [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; }
+        [Serializable] public class SocketDto { public bool dead; public string type; public int rank; public string text; }
+        [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; public SocketDto[] sockets; }
+        [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
+        [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
+        [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }
         [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; }
         [Serializable] public class BossFightRequest { public string requestId; public int bossId; }
         [Serializable] public class BossStatusDto { public int bossId; public string name; public string mechanic; public bool up; public long secondsLeft; public bool foughtThisSpawn; }
@@ -239,6 +281,6 @@ namespace Orsuun.Client.Net
         [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; }
     }
 }

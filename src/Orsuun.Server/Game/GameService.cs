@@ -27,6 +27,7 @@ public sealed class GameService
     private readonly IRandom _rng;
     private readonly ForgeService _forge = new();
     private readonly EtchingService _etchings = new();
+    private readonly SocketService _sockets = new();
 
     public GameService(GameDb db, IRandom rng)
     {
@@ -139,6 +140,50 @@ public sealed class GameService
         return ToState(account);
     }
 
+    /// <summary>Sets a Korshard on an owned item: the shard is spent, 70% it takes, 30% a Dead Shard blocks the socket.</summary>
+    public async Task<StateDto> SocketInsertAsync(Account account, SocketInsertRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed)
+            ?? throw new GameException("no_item", "You do not own that item.");
+        ItemState state = item.ToState();
+        var inventory = Snapshot(account);
+
+        string? blocker = _sockets.InsertBlocker(state, request.SocketIndex, request.Type, request.Rank, inventory);
+        if (blocker != null) throw new GameException("socket_blocked", blocker);
+
+        bool ok = _sockets.TryInsert(state, request.SocketIndex, request.Type, request.Rank, inventory, _rng);
+        item.ApplyState(state);
+        Apply(account, inventory);
+
+        string text = ok
+            ? SocketRules.Name(request.Type) + " " + Content.KorshardRanks[request.Rank] + " shard set: " + SocketRules.Describe(request.Type, request.Rank)
+            : "The shard shattered. A Dead Shard blocks socket " + (request.SocketIndex + 1) + ".";
+        _db.Ledger.Add(Entry(account.Id, item.Id, "socket", $"insert {request.Type} rank={request.Rank} socket={request.SocketIndex} ok={ok}", 0, request.RequestId));
+        await SaveAsync(ct);
+        return ToState(account, socket: new SocketResultDto(ok, request.SocketIndex, text));
+    }
+
+    public async Task<StateDto> SocketClearAsync(Account account, SocketClearRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed)
+            ?? throw new GameException("no_item", "You do not own that item.");
+        ItemState state = item.ToState();
+        var inventory = Snapshot(account);
+
+        string? blocker = _sockets.ClearBlocker(state, request.SocketIndex, inventory);
+        if (blocker != null) throw new GameException("socket_blocked", blocker);
+
+        long cost = SocketRules.ClearCost(state);
+        _sockets.Clear(state, request.SocketIndex, inventory);
+        item.ApplyState(state);
+        Apply(account, inventory);
+        _db.Ledger.Add(Entry(account.Id, item.Id, "socket", $"clear socket={request.SocketIndex}", -cost, request.RequestId));
+        await SaveAsync(ct);
+        return ToState(account, socket: new SocketResultDto(true, request.SocketIndex, "Dead Shard removed for " + cost + " sorn."));
+    }
+
     /// <summary>Equips an owned, unequipped piece; the previous piece in that slot goes back to the loot list.</summary>
     public async Task<StateDto> EquipAsync(Account account, EquipRequest request, CancellationToken ct)
     {
@@ -230,6 +275,9 @@ public sealed class GameService
         account.ScrollsOfMercy += 5;
         account.KhansAlloys += 1;
         account.Turnstones += 20;
+        int[] shards = ParseShards(account.Korshards);
+        for (int i = 0; i < shards.Length; i++) shards[i] += 3;
+        account.Korshards = string.Join(';', shards);
         _db.Ledger.Add(Entry(account.Id, null, "dev-grant", "playtest grant", 500_000, Guid.NewGuid().ToString("N")));
         await SaveAsync(ct);
         return ToState(account);
@@ -357,7 +405,7 @@ public sealed class GameService
         return state with { Bosses = BossStatuses(clocks, fought, now) };
     }
 
-    private static StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null)
+    private static StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null, SocketResultDto? socket = null)
     {
         Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
@@ -386,7 +434,8 @@ public sealed class GameService
             settlement,
             forge,
             push,
-            bossFight);
+            bossFight,
+            socket);
     }
 
     private static ItemDto ToDto(Item item)
@@ -394,7 +443,9 @@ public sealed class GameService
         ItemState s = item.ToState();
         EtchingPool pool = EtchingPool.For(s.Slot);
         return new ItemDto(item.Id, s.Slot, item.Equipped, s.DisplayName, s.ItemLevel, s.Rarity, s.UpgradeLevel, s.PatienceBp, s.LockedEtchingIndex,
-            s.Etchings.Select(e => new EtchingDto(e.EntryId, pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray());
+            s.Etchings.Select(e => new EtchingDto(e.EntryId, pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray(),
+            s.Sockets.Select(k => new SocketDto(k.Dead, k.Type?.ToString(), k.Rank,
+                k.Dead ? "Dead Shard" : k.Type == null ? "empty" : SocketRules.Name(k.Type.Value) + " " + Content.KorshardRanks[k.Rank] + ": " + SocketRules.Describe(k.Type.Value, k.Rank))).ToArray());
     }
 
     private static Inventory Snapshot(Account a)

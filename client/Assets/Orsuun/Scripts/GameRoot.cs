@@ -24,6 +24,7 @@ namespace Orsuun.Client
         public ForgePanel Forge { get; private set; }
         public GearPanel Gear { get; private set; }
         public ZonePanel Zones { get; private set; }
+        public SocketPanel Sockets { get; private set; }
         public Net.ServerLink Server { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
@@ -62,6 +63,8 @@ namespace Orsuun.Client
             Gear.Init(this);
             Zones = new GameObject("ZonePanel").AddComponent<ZonePanel>();
             Zones.Init(this);
+            Sockets = new GameObject("SocketPanel").AddComponent<SocketPanel>();
+            Sockets.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
 

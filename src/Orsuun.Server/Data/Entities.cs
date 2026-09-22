@@ -54,6 +54,8 @@ public sealed class Item
     public int LockedEtchingIndex { get; set; } = -1;
     /// <summary>Etchings as "entryId:tier:value" triples, in slot order.</summary>
     [MaxLength(256)] public string Etchings { get; set; } = "";
+    /// <summary>Sockets as "-" (empty), "x" (Dead Shard) or "type:rank", semicolon separated, in socket order.</summary>
+    [MaxLength(64)] public string Sockets { get; set; } = "";
     public bool Destroyed { get; set; }
     public DateTime CreatedUtc { get; set; }
 
@@ -70,6 +72,16 @@ public sealed class Item
         {
             string[] parts = triple.Split(':');
             state.Etchings.Add(new Etching(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2])));
+        }
+        string[] sockets = Sockets.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < sockets.Length && i < state.Sockets.Length; i++)
+        {
+            if (sockets[i] == "x") state.Sockets[i] = Socket.DeadShard;
+            else if (sockets[i] != "-")
+            {
+                string[] parts = sockets[i].Split(':');
+                state.Sockets[i] = new Socket((ShardType)int.Parse(parts[0]), int.Parse(parts[1]));
+            }
         }
         return state;
     }
@@ -88,6 +100,7 @@ public sealed class Item
         LockedEtchingIndex = state.LockedEtchingIndex;
         Destroyed = state.Destroyed;
         Etchings = string.Join(';', state.Etchings.Select(e => $"{e.EntryId}:{e.Tier}:{e.Value}"));
+        Sockets = string.Join(';', state.Sockets.Select(s => s.Dead ? "x" : s.Type == null ? "-" : $"{(int)s.Type.Value}:{s.Rank}"));
     }
 }
 

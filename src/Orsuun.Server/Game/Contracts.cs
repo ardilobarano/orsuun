@@ -10,8 +10,15 @@ public sealed record TurnRequest(string RequestId);
 
 public sealed record EtchingDto(int EntryId, string Name, int Tier, int Value);
 
+public sealed record SocketDto(bool Dead, string? Type, int Rank, string Text);
+
 public sealed record ItemDto(
-    Guid Id, EquipSlot Slot, bool Equipped, string Name, int ItemLevel, Rarity Rarity, int UpgradeLevel, int PatienceBp, int LockedEtchingIndex, EtchingDto[] Etchings);
+    Guid Id, EquipSlot Slot, bool Equipped, string Name, int ItemLevel, Rarity Rarity, int UpgradeLevel, int PatienceBp, int LockedEtchingIndex,
+    EtchingDto[] Etchings, SocketDto[] Sockets);
+
+public sealed record SocketInsertRequest(string RequestId, Guid ItemId, int SocketIndex, ShardType Type, int Rank);
+public sealed record SocketClearRequest(string RequestId, Guid ItemId, int SocketIndex);
+public sealed record SocketResultDto(bool Success, int SocketIndex, string Text);
 
 public sealed record EquipRequest(string RequestId, Guid ItemId);
 public sealed record ParkRequest(int Stage);
@@ -52,7 +59,8 @@ public sealed record StateDto(
     SettlementDto? Settlement,
     ForgeResultDto? LastForge,
     PushResultDto? LastPush,
-    BossFightResultDto? LastBossFight);
+    BossFightResultDto? LastBossFight,
+    SocketResultDto? LastSocket);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

@@ -50,7 +50,11 @@ namespace Orsuun.Rules
             ItemLevel = itemLevel;
             Rarity = rarity;
             Slot = slot;
+            Sockets = new Socket[SocketRules.SocketCount(rarity)];
         }
+
+        /// <summary>Korshard sockets, count fixed by rarity.</summary>
+        public Socket[] Sockets { get; }
 
         public int ItemLevel { get; }
         public Rarity Rarity { get; }

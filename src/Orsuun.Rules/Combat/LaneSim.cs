@@ -13,6 +13,12 @@ namespace Orsuun.Rules.Combat
         public int AttackIntervalTicks { get; set; } = 12;
         public int CritChanceBp { get; set; } = 500;
         public int CritMultiplierPercent { get; set; } = 200;
+        /// <summary>Extra damage against everything that is not a Commander (Beast-Slayer shards).</summary>
+        public int BeastDamagePercent { get; set; }
+        /// <summary>Chance to take nothing from a hit (Evasion shards).</summary>
+        public int EvasionBp { get; set; }
+        /// <summary>Damage from Commanders and their images is scaled by this (Warding shards). 100 = full.</summary>
+        public int CommanderDamageTakenPercent { get; set; } = 100;
     }
 
     public enum SkillKind
@@ -356,7 +362,14 @@ namespace Orsuun.Rules.Combat
                 if (e.IsBoss) boss = e;
                 if (e.IsKorstone || _tick < e.NextAttackTick) continue;
                 e.NextAttackTick = _tick + _stage.MobAttackIntervalTicks;
+                if (_hero.EvasionBp > 0 && _rng.RollBp(_hero.EvasionBp))
+                {
+                    _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, e.Id, 0, text: "evaded"));
+                    continue;
+                }
                 long damage = Math.Max(1, e.Attack - _hero.Defense);
+                if (e.IsBoss || e.Kind == EnemyKind.Image || e.Kind == EnemyKind.Captain)
+                    damage = Math.Max(1, damage * _hero.CommanderDamageTakenPercent / 100);
                 HeroHp -= damage;
                 _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, e.Id, damage));
                 if (HeroHp <= 0) break;
@@ -469,6 +482,7 @@ namespace Orsuun.Rules.Combat
             bool crit = _rng.RollBp(_hero.CritChanceBp);
             long damage = _hero.Attack * powerPercent / 100;
             if (crit) damage = damage * _hero.CritMultiplierPercent / 100;
+            if (!enemy.IsBoss && _hero.BeastDamagePercent > 0) damage = damage * (100 + _hero.BeastDamagePercent) / 100;
             damage = Math.Max(1, damage * (90 + _rng.NextInt(21)) / 100);
             damage = Math.Min(damage, enemy.Hp);
 
@@ -478,7 +492,7 @@ namespace Orsuun.Rules.Combat
 
             if (enemy.Kind == EnemyKind.Image)
             {
-                long reflected = Math.Max(1, damage * ImageReflectPercent / 100);
+                long reflected = Math.Max(1, damage * ImageReflectPercent / 100 * _hero.CommanderDamageTakenPercent / 100);
                 HeroHp -= reflected;
                 _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, enemy.Id, reflected));
             }

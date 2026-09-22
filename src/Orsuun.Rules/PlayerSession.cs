@@ -49,11 +49,28 @@ namespace Orsuun.Rules
         public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level)
         {
             long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
-            int critBp = 500;
+            int critBp = 500, critMult = 200, beast = 0, evasionBp = 0, haste = 0, warding = 0;
 
             foreach (ItemState item in equipped)
             {
                 if (item.Destroyed) continue;
+
+                foreach (Socket socket in item.Sockets)
+                {
+                    if (socket.Type == null) continue;
+                    int v = SocketRules.Value(socket.Type.Value, socket.Rank);
+                    switch (socket.Type.Value)
+                    {
+                        case ShardType.BeastSlayer: beast += v; break;
+                        case ShardType.Piercer: attack += v; break;
+                        case ShardType.Deathdealer: critMult += v; break;
+                        case ShardType.Bulwark: defense += v; break;
+                        case ShardType.Vigor: maxHp += v; break;
+                        case ShardType.Evasion: evasionBp += v; break;
+                        case ShardType.Haste: haste += v; break;
+                        case ShardType.Warding: warding += v; break;
+                    }
+                }
                 long scale = ForgeRules.StatPercent(item.UpgradeLevel) * RarityPercent(item.Rarity);
                 switch (item.Slot)
                 {
@@ -88,7 +105,18 @@ namespace Orsuun.Rules
                 }
             }
 
-            return new HeroStats { Attack = attack, Defense = defense, MaxHp = maxHp, CritChanceBp = critBp };
+            return new HeroStats
+            {
+                Attack = attack,
+                Defense = defense,
+                MaxHp = maxHp,
+                CritChanceBp = critBp,
+                CritMultiplierPercent = critMult,
+                BeastDamagePercent = beast,
+                EvasionBp = Math.Min(evasionBp, 5000),
+                AttackIntervalTicks = Math.Max(6, 12 * 100 / (100 + haste)),
+                CommanderDamageTakenPercent = Math.Max(40, 100 - warding),
+            };
         }
 
         private static int RarityPercent(Rarity rarity)
@@ -115,6 +143,7 @@ namespace Orsuun.Rules
         private readonly IRandom _rng;
         private readonly ForgeService _forge = new ForgeService();
         private readonly EtchingService _etchings = new EtchingService();
+        private readonly SocketService _sockets = new SocketService();
         private readonly ItemState?[] _equipped = new ItemState?[8];
 
         public PlayerSession(IRandom rng, StageConfig? stage = null)
@@ -200,6 +229,24 @@ namespace Orsuun.Rules
 
             Inventory.Turnstones -= _etchings.Turn(Weapon, Pool, _rng);
             Lane.SetHero(Hero);
+        }
+
+        public string? SocketBlocker(ItemState item, int socketIndex, ShardType type, int rank) =>
+            _sockets.InsertBlocker(item, socketIndex, type, rank, Inventory);
+
+        /// <summary>Sets a shard on an equipped item; 30% of the time it dies in the socket.</summary>
+        public bool SetShard(ItemState item, int socketIndex, ShardType type, int rank)
+        {
+            bool ok = _sockets.TryInsert(item, socketIndex, type, rank, Inventory, _rng);
+            Lane.SetHero(Hero);
+            return ok;
+        }
+
+        public string? ClearSocketBlocker(ItemState item, int socketIndex) => _sockets.ClearBlocker(item, socketIndex, Inventory);
+
+        public void ClearSocket(ItemState item, int socketIndex)
+        {
+            _sockets.Clear(item, socketIndex, Inventory);
         }
 
         /// <summary>Equips a piece from the loot list; the previous piece in that slot goes back to loot.</summary>
