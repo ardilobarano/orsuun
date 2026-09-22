@@ -11,6 +11,8 @@ namespace Orsuun.Client
         private GameRoot _root;
         private Text _resources;
         private Text _stage;
+        private Text _link;
+        private Net.ServerLink.SettlementDto _shownSettlement;
         private Text _weapon;
         private Text _log;
         private Text _speedLabel;
@@ -32,6 +34,7 @@ namespace Orsuun.Client
             Ui.Panel("TopBar", canvas, 0f, 0.945f, 1f, 1f, Palette.PanelDark);
             _resources = Ui.Label("Resources", canvas, 0.02f, 0.948f, 0.98f, 0.997f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
             _stage = Ui.Label("Stage", canvas, 0.03f, 0.905f, 0.97f, 0.943f, "", 30, TextAnchor.MiddleLeft, Color.white);
+            _link = Ui.Label("Link", canvas, 0.03f, 0.875f, 0.97f, 0.905f, "", 22, TextAnchor.MiddleLeft, Palette.Warn);
 
             Ui.Panel("HpBack", canvas, 0.04f, 0.458f, 0.96f, 0.482f, Color.black);
             _hpFill = Ui.Panel("HpFill", canvas, 0.04f, 0.458f, 0.96f, 0.482f, Palette.Bad).rectTransform;
@@ -78,6 +81,11 @@ namespace Orsuun.Client
         /// <summary>Playtest shortcut so testers can reach the high Forge levels within one sitting.</summary>
         private void DevGrant()
         {
+            if (_root.Server.Online)
+            {
+                StartCoroutine(_root.Server.DevGrant());
+                return;
+            }
             Inventory inv = _root.Session.Inventory;
             inv.Sorn += 500_000;
             inv.Materials += 10;
@@ -98,6 +106,16 @@ namespace Orsuun.Client
             string encounter = lane.IsKorstoneEncounter ? "KORSTONE" : $"Pack {lane.EncounterIndex + 1}/5";
             _stage.text = $"The Oathfields  ·  {encounter}  ·  Korstones broken {lane.KorstonesDestroyed}  ·  Deaths {lane.Deaths}";
             _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Color.white;
+            _link.text = _root.Server.Status;
+            _link.color = _root.Server.Online ? Palette.Good : Palette.Warn;
+
+            Net.ServerLink.SettlementDto settled = _root.Server.LastSettlement;
+            if (settled != null && settled != _shownSettlement && settled.offline)
+            {
+                _shownSettlement = settled;
+                _log.text = $"Welcome back: {settled.countedSeconds / 3600f:0.0} h away, {settled.korstones} Korstones, +{settled.sornEarned:N0} sorn";
+                _logAge = 0f;
+            }
 
             float hp = Mathf.Clamp01(lane.HeroHp / (float)lane.HeroMaxHp);
             _hpFill.anchorMax = new Vector2(0.04f + 0.92f * hp, _hpFill.anchorMax.y);

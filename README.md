@@ -9,6 +9,7 @@ Side-scrolling idle auto-battler with a risky upgrade economy. Design lives in t
 | `src/Orsuun.Rules` | Engine-free game rules: Forge, etchings and Turnstones, offline rewards. `netstandard2.1`, C# 9, no Unity or server dependencies. Also a Unity local package (`package.json` + `.asmdef`). |
 | `tests/Orsuun.Rules.Tests` | xUnit tests. They pin the numbers the GDD publishes to players. |
 | `tools/Orsuun.Sim` | Monte Carlo balance simulator. Run it after every rate change. |
+| `src/Orsuun.Server` | ASP.NET Core 8 game API on PostgreSQL 16. Owns accounts, inventory, the weapon and an append-only ledger; runs the same rules library with a cryptographic RNG. |
 | `client/` | Unity 6 (6000.0.32f1) grey-box: one lane, a Vanguard, mob packs, a Korstone with waves, and the Forge screen. Everything is built in code by `GameRoot`; the scene is empty on purpose. |
 | `tools/screenshot.ps1` | Launches the Windows build and saves a PNG of its window. |
 
@@ -29,6 +30,31 @@ $dotnet = "$env:LOCALAPPDATA\Microsoft\dotnet\dotnet.exe"
 & $dotnet run --project tools/Orsuun.Sim -c Release            # 200,000 runs, fixed seed
 & $dotnet run --project tools/Orsuun.Sim -c Release 50000 42   # runs, seed
 ```
+
+## Server
+
+PostgreSQL 16 runs as a user process (no Windows service, no admin): `tools\pg.ps1 start|stop|status|psql`. Data lives in `%LOCALAPPDATA%\Orsuun\pgdata`; the dev database is `orsuun` / user `orsuun` / password `orsuun-dev` (local only, see `appsettings.Development.json`).
+
+```powershell
+tools\pg.ps1 start
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
+& $dotnet run --project src/Orsuun.Server          # http://localhost:5080
+```
+
+| Endpoint | What it does |
+| --- | --- |
+| `POST /v1/auth/guest {deviceToken}` | Creates or finds the account, returns a session token for the `X-Session` header |
+| `GET /v1/me` | Full state: inventory, weapon, Forge preview |
+| `POST /v1/heartbeat` | Settles hunting time since the last heartbeat: live rate up to 3 min, offline rate (60%) up to 12 h beyond that |
+| `POST /v1/forge {requestId, method}` | One Forge attempt. `requestId` makes retries safe; a repeat returns 409 |
+| `POST /v1/turn {requestId}` | Turnstone reroll |
+| `POST /v1/dev/grant` | Playtest grant, Development environment only |
+
+Every roll and currency change lands in the `Ledger` table with the chance rolled against and the outcome. Concurrency is optimistic via PostgreSQL's `xmin`; a clash returns 409 and the client refreshes.
+
+The client connects to `http://localhost:5080` by default (`-server http://host:port` to override, `-local` to skip). When the server is unreachable the HUD shows LOCAL MODE and rolls locally.
+
+Known gaps before alpha: `EnsureCreated` instead of EF migrations; the live lane's loot is display-only and gets replaced by the server's settlement on each heartbeat; manual skill timing does not yet earn the active-play bonus server-side (needs an input log the server can replay).
 
 ## Playing the grey-box
 

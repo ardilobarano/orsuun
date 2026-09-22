@@ -124,23 +124,45 @@ namespace Orsuun.Client
             }
             SetAnvil(0f);
 
-            ForgeResult result = _root.Session.Forge(method);
+            ForgeResult? result = null;
+            if (_root.Server.Online)
+            {
+                // The server rolled; the anvil sequence above only hid the round trip.
+                string failure = null;
+                yield return _root.Server.Forge(method, (dto, error) =>
+                {
+                    failure = error;
+                    if (dto != null)
+                        result = new ForgeResult((ForgeOutcome)System.Enum.Parse(typeof(ForgeOutcome), dto.outcome), dto.chanceBp, dto.levelBefore, dto.levelAfter);
+                });
+                if (result == null)
+                {
+                    ShowResult(failure ?? "No answer from the server.", Palette.Muted);
+                    Busy = false;
+                    yield break;
+                }
+            }
+            else
+            {
+                result = _root.Session.Forge(method);
+            }
+
             LastResult = result;
-            switch (result.Outcome)
+            switch (result.Value.Outcome)
             {
                 case ForgeOutcome.Success:
-                    ShowResult(result.LevelAfter == ItemState.MaxUpgradeLevel
+                    ShowResult(result.Value.LevelAfter == ItemState.MaxUpgradeLevel
                         ? "+9!  The whole server hears the hammer."
-                        : $"SUCCESS  ·  +{result.LevelAfter}", Palette.Good);
+                        : $"SUCCESS  ·  +{result.Value.LevelAfter}", Palette.Good);
                     break;
                 case ForgeOutcome.LevelLost:
-                    ShowResult($"The metal sulks.  Back to +{result.LevelAfter}", Palette.Warn);
+                    ShowResult($"The metal sulks.  Back to +{result.Value.LevelAfter}", Palette.Warn);
                     break;
                 case ForgeOutcome.LevelKept:
                     ShowResult("The ward holds.  Level kept.", Palette.Warn);
                     break;
                 case ForgeOutcome.Oathbreak:
-                    ShowResult($"OATHBREAK.  Your +{result.LevelBefore} blade is gone.", Palette.Bad);
+                    ShowResult($"OATHBREAK.  Your +{result.Value.LevelBefore} blade is gone.", Palette.Bad);
                     break;
             }
 
@@ -156,7 +178,8 @@ namespace Orsuun.Client
                 ShowResult(blocker, Palette.Muted);
                 return;
             }
-            _root.Session.Turn();
+            if (_root.Server.Online) StartCoroutine(_root.Server.Turn(error => { if (error != null) ShowResult(error, Palette.Muted); }));
+            else _root.Session.Turn();
         }
 
         private void ShowResult(string message, Color color)

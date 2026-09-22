@@ -127,6 +127,24 @@ namespace Orsuun.Rules
             Lane.SetHero(HeroFactory.FromWeapon(Weapon));
         }
 
+        /// <summary>
+        /// Adopts authoritative state from the server. The local lane keeps its own loot between heartbeats
+        /// purely for display; whatever the server says replaces it.
+        /// </summary>
+        public void ApplyRemote(Inventory inventory, ItemState weapon, int weaponsBroken)
+        {
+            Inventory.Sorn = inventory.Sorn;
+            Inventory.Potions = inventory.Potions;
+            Inventory.Materials = inventory.Materials;
+            Inventory.ScrollsOfMercy = inventory.ScrollsOfMercy;
+            Inventory.KhansAlloys = inventory.KhansAlloys;
+            Inventory.AnvilWards = inventory.AnvilWards;
+            Inventory.Turnstones = inventory.Turnstones;
+            Weapon = weapon;
+            WeaponsBroken = weaponsBroken;
+            Lane.SetHero(HeroFactory.FromWeapon(Weapon));
+        }
+
         /// <summary>Grey-box shortcut: a fresh Rare weapon arrives with 5 etchings so the Turnstone is usable at once.</summary>
         private ItemState NewWeapon()
         {

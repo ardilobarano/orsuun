@@ -13,6 +13,8 @@ namespace Orsuun.Client.Tests
         {
             var root = Object.FindFirstObjectByType<GameRoot>();
             Assert.NotNull(root, "GameRoot did not boot.");
+            // Tests exercise the local rules path; the server path is covered by the HTTP smoke script.
+            root.Server.Disconnect();
             return root;
         }
 

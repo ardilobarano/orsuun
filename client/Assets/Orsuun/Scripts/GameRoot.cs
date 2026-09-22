@@ -20,6 +20,7 @@ namespace Orsuun.Client
         public LaneView Lane { get; private set; }
         public Hud Hud { get; private set; }
         public ForgePanel Forge { get; private set; }
+        public Net.ServerLink Server { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -40,6 +41,10 @@ namespace Orsuun.Client
             BuildCameras();
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
             Lane.Init(Session.Lane);
+
+            Server = new GameObject("ServerLink").AddComponent<Net.ServerLink>();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-local") < 0) Server.Init(Session);
+            else Server.MarkLocal();
 
             Forge = new GameObject("ForgePanel").AddComponent<ForgePanel>();
             Forge.Init(this);

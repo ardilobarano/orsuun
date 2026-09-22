@@ -371,41 +371,14 @@ namespace Orsuun.Rules.Combat
         private void LootMob()
         {
             MobsKilled++;
-            _inventory.Sorn += _stage.SornPerMob * (80 + _rng.NextInt(41)) / 100;
-            if (_rng.RollBp(800))
-            {
-                _inventory.Potions++;
-                _events.Add(new LaneEvent(LaneEventKind.Loot, text: "+1 Bloodroot Draught"));
-            }
-            if (_rng.RollBp(300))
-            {
-                _inventory.Materials++;
-                _events.Add(new LaneEvent(LaneEventKind.Loot, text: "+1 Wolf Sinew"));
-            }
+            HuntYield.LootMob(_stage, _inventory, _rng, out string? drop);
+            if (drop != null) _events.Add(new LaneEvent(LaneEventKind.Loot, text: drop));
         }
 
         private void LootKorstone()
         {
             KorstonesDestroyed++;
-            long sorn = _stage.SornPerMob * 20;
-            int turnstones = 1 + _rng.NextInt(3);
-            int materials = 1 + _rng.NextInt(2);
-            _inventory.Sorn += sorn;
-            _inventory.Turnstones += turnstones;
-            _inventory.Materials += materials;
-
-            string text = "Korstone chest: +" + sorn + " sorn, +" + turnstones + " Turnstone, +" + materials + " Wolf Sinew";
-            if (_rng.RollBp(5000))
-            {
-                _inventory.ScrollsOfMercy++;
-                text += ", +1 Scroll of Mercy";
-            }
-            if (_rng.RollBp(1000))
-            {
-                _inventory.KhansAlloys++;
-                text += ", +1 Khan's Alloy";
-            }
-            _events.Add(new LaneEvent(LaneEventKind.Loot, text: text));
+            _events.Add(new LaneEvent(LaneEventKind.Loot, text: HuntYield.LootKorstone(_stage, _inventory, _rng)));
         }
     }
 }
