@@ -156,8 +156,8 @@ public sealed class GameService
 
     public async Task<StateDto> ParkAsync(Account account, ParkRequest request, CancellationToken ct)
     {
-        if (request.Stage < 1 || request.Stage > Content.TotalStages || request.Stage > account.HighestStageCleared + 1)
-            throw new GameException("stage_locked", "That stage is not unlocked.");
+        if (!Content.IsUnlocked(request.Stage, account.HighestStageCleared))
+            throw new GameException("stage_locked", "That stage or zone is not unlocked.");
         // Settle the time spent on the old stage before the rate changes.
         DateTime now = DateTime.UtcNow;
         SettlementDto settlement = Settle(account, now);
@@ -189,6 +189,39 @@ public sealed class GameService
         return ToState(account, push: new PushResultDto(target, run.Cleared, seed, run.Ticks, account.HighestStageCleared, potionsAtStart));
     }
 
+    /// <summary>
+    /// One Commander fight. The boss must be up (server-wide clock) and this account may fight it once per spawn.
+    /// The fight is scored here with a seed the client replays; the chest follows the damage bracket.
+    /// </summary>
+    public async Task<StateDto> FightBossAsync(Account account, BossFightRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        BossDef boss = Content.Boss(request.BossId) ?? throw new GameException("no_boss", "Unknown Commander.");
+        if (!Content.IsUnlocked(boss.ZoneId, account.HighestStageCleared))
+            throw new GameException("stage_locked", "That Commander Ground is not unlocked.");
+
+        DateTime now = DateTime.UtcNow;
+        BossClock clock = await ClockAsync(boss, now, ct);
+        if (now >= clock.SpawnUtc.AddSeconds(BossDef.WindowSeconds) || now < clock.SpawnUtc)
+            throw new GameException("boss_down", boss.Name + " is not up.");
+
+        string spawnKey = "boss:" + boss.Id + ":" + clock.SpawnUtc.Ticks;
+        if (await _db.Ledger.AnyAsync(l => l.AccountId == account.Id && l.Kind == spawnKey, ct))
+            throw new GameException("already_fought", "You already fought " + boss.Name + " this spawn.");
+
+        ulong seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
+        int potionsAtStart = account.Potions;
+        var inventory = Snapshot(account);
+        BossRunResult run = BossRun.Simulate(boss, Hero(account), inventory, seed);
+        int rank = BossRun.Rank(run.Damage, boss, _rng);
+        string chest = HuntYield.LootCommander(boss, rank, inventory, _rng);
+        Apply(account, inventory);
+
+        _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} chest={chest}", 0, request.RequestId));
+        await SaveAsync(ct);
+        return ToState(account, bossFight: new BossFightResultDto(boss.Id, seed, run.Damage, run.Killed, rank, chest, potionsAtStart));
+    }
+
     /// <summary>Playtest only; disabled outside Development.</summary>
     public async Task<StateDto> DevGrantAsync(Account account, CancellationToken ct)
     {
@@ -202,6 +235,48 @@ public sealed class GameService
         return ToState(account);
     }
 
+    /// <summary>Playtest only: every Commander spawns now, so testers need not wait 45 minutes.</summary>
+    public async Task<StateDto> DevBossesUpAsync(Account account, CancellationToken ct)
+    {
+        DateTime now = DateTime.UtcNow;
+        foreach (BossDef boss in Content.Bosses)
+        {
+            BossClock clock = await ClockAsync(boss, now, ct);
+            clock.SpawnUtc = now;
+        }
+        await SaveAsync(ct);
+        return ToState(account);
+    }
+
+    /// <summary>Loads or creates a boss clock and rolls it forward to the current spawn cycle.</summary>
+    private async Task<BossClock> ClockAsync(BossDef boss, DateTime now, CancellationToken ct)
+    {
+        BossClock? clock = await _db.BossClocks.FindAsync(new object[] { boss.Id }, ct);
+        if (clock == null)
+        {
+            // A fresh server: the first spawn is on the next respawn boundary from a fixed epoch.
+            clock = new BossClock { BossId = boss.Id, SpawnUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+            _db.BossClocks.Add(clock);
+        }
+        while (now >= clock.SpawnUtc.AddSeconds(boss.RespawnSeconds))
+            clock.SpawnUtc = clock.SpawnUtc.AddSeconds(boss.RespawnSeconds);
+        return clock;
+    }
+
+    private static BossStatusDto[] BossStatuses(IReadOnlyDictionary<int, BossClock> clocks, ISet<int> foughtIds, DateTime now)
+    {
+        var list = new List<BossStatusDto>();
+        foreach (BossDef boss in Content.Bosses)
+        {
+            if (!clocks.TryGetValue(boss.Id, out BossClock? clock)) continue;
+            DateTime windowEnd = clock.SpawnUtc.AddSeconds(BossDef.WindowSeconds);
+            bool up = now >= clock.SpawnUtc && now < windowEnd;
+            long secondsLeft = up ? (long)(windowEnd - now).TotalSeconds : (long)(clock.SpawnUtc.AddSeconds(boss.RespawnSeconds) - now).TotalSeconds;
+            list.Add(new BossStatusDto(boss.Id, boss.Name, boss.Mechanic.ToString(), up, Math.Max(0, secondsLeft), foughtIds.Contains(boss.Id)));
+        }
+        return list.ToArray();
+    }
+
     private SettlementDto Settle(Account account, DateTime now)
     {
         TimeSpan gap = now - account.LastHeartbeatUtc;
@@ -211,7 +286,10 @@ public sealed class GameService
         int efficiency = offline ? OfflineRewards.OfflineEfficiencyBp : RandomExtensions.FullBp;
 
         StageConfig stage = Content.Stage(account.ParkedStage);
-        stage.GearRarityCap = offline ? Rarity.Rare : Rarity.Epic;
+        ZoneDef? zone = Content.Zone(account.ParkedStage);
+        // Fields IV-V and Commander Grounds need presence: nothing settles for them offline.
+        if (offline && zone != null && !zone.OfflineAllowed) seconds = 0;
+        if (stage.GearRarityCap > Rarity.Rare && offline) stage.GearRarityCap = Rarity.Rare;
         var inventory = Snapshot(account);
         HuntSettlement s = HuntYield.Settle(stage, Hero(account), seconds, cap, efficiency, inventory, _rng);
         Apply(account, inventory);
@@ -256,9 +334,30 @@ public sealed class GameService
         return state;
     }
 
-    private static HeroStats Hero(Account a) => HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()));
+    private static HeroStats Hero(Account a) =>
+        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp));
 
-    private static StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null)
+    private static int[] ParseShards(string s) => s.Split(';').Select(int.Parse).ToArray();
+    private static string[] ParseSkins(string s) => s.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+    /// <summary>Boss statuses need the clocks and this account's fights this spawn; loaded per request by the endpoints.</summary>
+    public async Task<StateDto> WithBossesAsync(Account account, StateDto state, CancellationToken ct)
+    {
+        DateTime now = DateTime.UtcNow;
+        var clocks = new Dictionary<int, BossClock>();
+        var fought = new HashSet<int>();
+        foreach (BossDef boss in Content.Bosses)
+        {
+            BossClock clock = await ClockAsync(boss, now, ct);
+            clocks[boss.Id] = clock;
+            string spawnKey = "boss:" + boss.Id + ":" + clock.SpawnUtc.Ticks;
+            if (await _db.Ledger.AnyAsync(l => l.AccountId == account.Id && l.Kind == spawnKey, ct)) fought.Add(boss.Id);
+        }
+        await _db.SaveChangesAsync(ct);
+        return state with { Bosses = BossStatuses(clocks, fought, now) };
+    }
+
+    private static StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null)
     {
         Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
@@ -268,7 +367,8 @@ public sealed class GameService
 
         return new StateDto(
             account.Id,
-            new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones),
+            new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
+                account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins)),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -281,10 +381,12 @@ public sealed class GameService
             account.WeaponsBroken,
             account.HighestStageCleared,
             account.ParkedStage,
+            Array.Empty<BossStatusDto>(),
             DateTime.UtcNow,
             settlement,
             forge,
-            push);
+            push,
+            bossFight);
     }
 
     private static ItemDto ToDto(Item item)
@@ -295,17 +397,28 @@ public sealed class GameService
             s.Etchings.Select(e => new EtchingDto(e.EntryId, pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray());
     }
 
-    private static Inventory Snapshot(Account a) => new()
+    private static Inventory Snapshot(Account a)
     {
-        Sorn = a.Sorn, Potions = a.Potions, Materials = a.Materials, ScrollsOfMercy = a.ScrollsOfMercy,
-        KhansAlloys = a.KhansAlloys, AnvilWards = a.AnvilWards, Turnstones = a.Turnstones,
-    };
+        var inventory = new Inventory
+        {
+            Sorn = a.Sorn, Potions = a.Potions, Materials = a.Materials, ScrollsOfMercy = a.ScrollsOfMercy,
+            KhansAlloys = a.KhansAlloys, AnvilWards = a.AnvilWards, Turnstones = a.Turnstones,
+            EtchingNeedles = a.EtchingNeedles, SummoningMarkers = a.SummoningMarkers, Xp = a.Xp,
+        };
+        int[] shards = ParseShards(a.Korshards);
+        Array.Copy(shards, inventory.Korshards, Math.Min(shards.Length, inventory.Korshards.Length));
+        inventory.Skins.AddRange(ParseSkins(a.Skins));
+        return inventory;
+    }
 
     /// <summary>Writes settled currency back and turns dropped gear into item rows, trimming the loot list.</summary>
     private void Apply(Account a, Inventory i)
     {
         a.Sorn = i.Sorn; a.Potions = i.Potions; a.Materials = i.Materials; a.ScrollsOfMercy = i.ScrollsOfMercy;
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
+        a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;
+        a.Korshards = string.Join(';', i.Korshards);
+        a.Skins = string.Join(';', i.Skins);
 
         if (i.Loot.Count == 0) return;
 

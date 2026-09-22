@@ -20,8 +20,16 @@ public sealed class Account
     public int KhansAlloys { get; set; }
     public int AnvilWards { get; set; }
     public int Turnstones { get; set; }
+    public int EtchingNeedles { get; set; }
+    public int SummoningMarkers { get; set; }
+    public long Xp { get; set; }
+    /// <summary>Korshards by rank as "n;n;n;n;n" (Trooper .. Guard of the Khan).</summary>
+    [MaxLength(64)] public string Korshards { get; set; } = "0;0;0;0;0";
+    /// <summary>Owned skins, semicolon separated.</summary>
+    [MaxLength(2048)] public string Skins { get; set; } = "";
 
     public int HighestStageCleared { get; set; }
+    /// <summary>Campaign stage number or zone id (100+) the farm lane is parked in.</summary>
     public int ParkedStage { get; set; } = 1;
 
     /// <summary>All items the account owns, equipped or in the loot list. Loaded with the account.</summary>
@@ -81,6 +89,13 @@ public sealed class Item
         Destroyed = state.Destroyed;
         Etchings = string.Join(';', state.Etchings.Select(e => $"{e.EntryId}:{e.Tier}:{e.Value}"));
     }
+}
+
+/// <summary>Server-wide spawn clock of one Commander. A boss is up from SpawnUtc for BossDef.WindowSeconds.</summary>
+public sealed class BossClock
+{
+    public int BossId { get; set; }
+    public DateTime SpawnUtc { get; set; }
 }
 
 /// <summary>Append-only record of every roll and every currency change. Support and rate audits read this.</summary>

@@ -48,7 +48,7 @@ public class StageAndGearTests
     public void A_full_plus6_set_clears_the_boss_stage()
     {
         var set = Enumerable.Range(0, 8).Select(s => new ItemState(10, Rarity.Rare, (EquipSlot)s) { UpgradeLevel = 6 }).ToList();
-        HeroStats hero = HeroFactory.FromEquipment(set);
+        HeroStats hero = HeroFactory.FromEquipment(set, 1);
         int clears = 0;
         for (ulong seed = 1; seed <= 20; seed++)
             if (StageRun.Simulate(Content.Stage(10), hero, new Inventory(), seed).Cleared) clears++;

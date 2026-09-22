@@ -133,6 +133,29 @@ namespace Orsuun.Client.Net
             yield return Post("/v1/dev/grant", "{}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), _ => { });
         }
 
+        public IEnumerator DevBossesUp()
+        {
+            yield return Post("/v1/dev/bosses-up", "{}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), _ => { });
+        }
+
+        /// <summary>Server Commander fight. The result carries the seed the client replays.</summary>
+        public IEnumerator FightBoss(int bossId, Action<BossFightResultDto, string> done)
+        {
+            BossFightResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/boss/fight", JsonUtility.ToJson(new BossFightRequest { requestId = Guid.NewGuid().ToString("N"), bossId = bossId }), true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                result = state.lastBossFight;
+                Apply(state);
+            }, error => failure = error);
+            done(result, failure);
+        }
+
+        /// <summary>Commander statuses from the last /me or heartbeat; empty until the first one lands.</summary>
+        public BossStatusDto[] Bosses { get; private set; } = new BossStatusDto[0];
+        public float BossesReceivedAt { get; private set; }
+
         private void Apply(StateDto s)
         {
             var inventory = new Inventory
@@ -140,7 +163,15 @@ namespace Orsuun.Client.Net
                 Sorn = s.inventory.sorn, Potions = s.inventory.potions, Materials = s.inventory.materials,
                 ScrollsOfMercy = s.inventory.scrollsOfMercy, KhansAlloys = s.inventory.khansAlloys,
                 AnvilWards = s.inventory.anvilWards, Turnstones = s.inventory.turnstones,
+                EtchingNeedles = s.inventory.etchingNeedles, SummoningMarkers = s.inventory.summoningMarkers, Xp = s.inventory.xp,
             };
+            if (s.inventory.korshards != null) Array.Copy(s.inventory.korshards, inventory.Korshards, Math.Min(5, s.inventory.korshards.Length));
+            if (s.inventory.skins != null) inventory.Skins.AddRange(s.inventory.skins);
+            if (s.bosses != null && s.bosses.Length > 0)
+            {
+                Bosses = s.bosses;
+                BossesReceivedAt = Time.realtimeSinceStartup;
+            }
 
             ItemIds.Clear();
             var equipped = new List<ItemState>();
@@ -201,10 +232,13 @@ namespace Orsuun.Client.Net
         [Serializable] public class ErrorDto { public string code; public string message; }
         [Serializable] public class EtchingDto { public int entryId; public string name; public int tier; public int value; }
         [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; }
-        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; }
+        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; }
+        [Serializable] public class BossFightRequest { public string requestId; public int bossId; }
+        [Serializable] public class BossStatusDto { public int bossId; public string name; public string mechanic; public bool up; public long secondsLeft; public bool foughtThisSpawn; }
+        [Serializable] public class BossFightResultDto { public int bossId; public ulong seed; public long damage; public bool killed; public int rank; public string chest; public int potionsAtStart; }
         [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; }
     }
 }

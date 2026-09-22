@@ -51,7 +51,10 @@ $env:ASPNETCORE_ENVIRONMENT = 'Development'
 | `POST /v1/equip {requestId, itemId}` | Equips an owned piece; the old one returns to the loot list (capped at 60 loose pieces, best kept) |
 | `POST /v1/park {stage}` | Moves the farm lane to a cleared stage; settles time on the old stage first |
 | `POST /v1/push {requestId}` | Scores the next stage with a fresh seed and returns it; the client replays the seed so it shows the fight that was scored |
-| `POST /v1/dev/grant` | Playtest grant, Development environment only |
+| `POST /v1/boss/fight {requestId, bossId}` | One Commander fight per spawn: scored with a seed, ranked against simulated rivals, chest by damage bracket. `/me` and `/heartbeat` carry the boss clocks |
+| `POST /v1/dev/grant`, `/v1/dev/bosses-up` | Playtest grant and instant boss spawns, Development environment only |
+
+Zones (GDD section 13) are park ids 100+: Hunting Grounds 101-103, Korstone Fields 111-115, Gorak War Camp 121. Campaign stages are 1-10. Fields IV-V and Commander Grounds never settle offline.
 
 Content (maps, stages, item names, drop weights) lives in `Orsuun.Rules/Content.cs`, compiled into both sides. `ORSUUN_RESET_DB=1` on a Development start drops and recreates the schema; use it after model changes until migrations exist.
 

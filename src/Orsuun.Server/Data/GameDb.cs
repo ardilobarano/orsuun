@@ -9,6 +9,7 @@ public sealed class GameDb : DbContext
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Item> Items => Set<Item>();
     public DbSet<LedgerEntry> Ledger => Set<LedgerEntry>();
+    public DbSet<BossClock> BossClocks => Set<BossClock>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -31,6 +32,12 @@ public sealed class GameDb : DbContext
             e.HasIndex(i => i.OwnerId);
             e.Property(i => i.Rarity).HasConversion<int>();
             e.Property(i => i.Slot).HasConversion<int>();
+        });
+
+        b.Entity<BossClock>(e =>
+        {
+            e.HasKey(c => c.BossId);
+            e.Property(c => c.BossId).ValueGeneratedNever();
         });
 
         b.Entity<LedgerEntry>(e =>

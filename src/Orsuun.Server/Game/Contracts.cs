@@ -22,7 +22,15 @@ public sealed record PushResultDto(int Stage, bool Cleared, ulong Seed, int Tick
 
 public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChanceBp);
 
-public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones);
+public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
+    int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins);
+
+public sealed record BossFightRequest(string RequestId, int BossId);
+
+/// <summary>One Commander's state for the panel: up now with seconds left, or next spawn in N seconds.</summary>
+public sealed record BossStatusDto(int BossId, string Name, string Mechanic, bool Up, long SecondsLeft, bool FoughtThisSpawn);
+
+public sealed record BossFightResultDto(int BossId, ulong Seed, long Damage, bool Killed, int Rank, string Chest, int PotionsAtStart);
 
 public sealed record ForgePreviewDto(long Cost, int Materials, int ChanceAloneBp, int ChanceAlloyBp, bool OathbreakPossible);
 
@@ -39,10 +47,12 @@ public sealed record StateDto(
     int WeaponsBroken,
     int HighestStageCleared,
     int ParkedStage,
+    BossStatusDto[] Bosses,
     DateTime ServerUtc,
     SettlementDto? Settlement,
     ForgeResultDto? LastForge,
-    PushResultDto? LastPush);
+    PushResultDto? LastPush,
+    BossFightResultDto? LastBossFight);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

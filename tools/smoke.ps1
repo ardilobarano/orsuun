@@ -41,4 +41,23 @@ if ($env:PGPASSWORD) {
         "equip again:"; Fail { Invoke-RestMethod "$BaseUrl/v1/equip" -Method Post -Headers $h -Body (@{ requestId = (Rid); itemId = $loose.id } | ConvertTo-Json) }
     }
 }
-$g = Invoke-RestMethod "$BaseUrl/v1/dev/grant" -Method Post -Headers $h; "grant: sorn=$($g.inventory.sorn)"
+$g = Invoke-RestMethod "$BaseUrl/v1/dev/grant" -Method Post -Headers $h; "grant: sorn=$($g.inventory.sorn) level=$($g.inventory.level)"
+
+# Zones: push to stage 5 so Gorak War Camp opens, park in a Hunting Ground and a Field, then fight a Commander.
+while (($me = Invoke-RestMethod "$BaseUrl/v1/me" -Headers $h).highestStageCleared -lt 5) {
+    $pu = Invoke-RestMethod "$BaseUrl/v1/push" -Method Post -Headers $h -Body (@{ requestId = (Rid) } | ConvertTo-Json)
+    if (-not $pu.lastPush.cleared) { "push to $($pu.lastPush.stage) failed, granting"; Invoke-RestMethod "$BaseUrl/v1/dev/grant" -Method Post -Headers $h | Out-Null; $f2 = Invoke-RestMethod "$BaseUrl/v1/forge" -Method Post -Headers $h -Body (@{ requestId = (Rid); method = 'ScrollOfMercy' } | ConvertTo-Json) }
+}
+"campaign: highest=$($me.highestStageCleared)"
+"park hunting ground:"; $pk = Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 101 } | ConvertTo-Json); "  parked=$($pk.parkedStage)"
+"park field IV while locked:"; Fail { Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 114 } | ConvertTo-Json) }
+$pk = Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 111 } | ConvertTo-Json); "park field I: parked=$($pk.parkedStage)"
+"bosses:"; $me.bosses | ForEach-Object { "  $($_.name)  up=$($_.up)  secondsLeft=$($_.secondsLeft)  mechanic=$($_.mechanic)" }
+"boss fight while down:"; Fail { Invoke-RestMethod "$BaseUrl/v1/boss/fight" -Method Post -Headers $h -Body (@{ requestId = (Rid); bossId = 1 } | ConvertTo-Json) }
+$up = Invoke-RestMethod "$BaseUrl/v1/dev/bosses-up" -Method Post -Headers $h
+foreach ($id in 1, 2, 3) {
+    $bf = Invoke-RestMethod "$BaseUrl/v1/boss/fight" -Method Post -Headers $h -Body (@{ requestId = (Rid); bossId = $id } | ConvertTo-Json)
+    "fight $($bf.lastBossFight.bossId): damage=$($bf.lastBossFight.damage) killed=$($bf.lastBossFight.killed) rank=$($bf.lastBossFight.rank)`n  $($bf.lastBossFight.chest)"
+}
+"fight again same spawn:"; Fail { Invoke-RestMethod "$BaseUrl/v1/boss/fight" -Method Post -Headers $h -Body (@{ requestId = (Rid); bossId = 1 } | ConvertTo-Json) }
+$me = Invoke-RestMethod "$BaseUrl/v1/me" -Headers $h; "after: shards=$($me.inventory.korshards -join ',') skins=$($me.inventory.skins -join ',') fought=" + (($me.bosses | ForEach-Object { $_.foughtThisSpawn }) -join ',')

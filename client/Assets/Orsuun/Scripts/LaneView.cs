@@ -106,6 +106,15 @@ namespace Orsuun.Client
                     Float("WAVE " + e.Amount, new Vector3(3.4f, 3.4f, 0f), Palette.Bad, 1.8f);
                     break;
 
+                case LaneEventKind.Shielded:
+                    if (_views.TryGetValue(e.EnemyId, out EnemyView shielded))
+                        Float("SHIELDED", shielded.Root.position + Vector3.up * 1.2f, Palette.Muted, 1f);
+                    break;
+
+                case LaneEventKind.BossMechanic:
+                    Float(e.Text, new Vector3(1.5f, 3.6f, 0f), Palette.Warn, 1.6f);
+                    break;
+
                 case LaneEventKind.HeroDamaged:
                     _heroHurt = 1f;
                     break;
@@ -208,11 +217,15 @@ namespace Orsuun.Client
         private void SpawnView(int enemyId)
         {
             bool korstone = false, boss = false;
+            EnemyKind kind = EnemyKind.Mob;
             foreach (Enemy enemy in _sim.Enemies)
-                if (enemy.Id == enemyId) { korstone = enemy.IsKorstone; boss = enemy.IsBoss; }
+                if (enemy.Id == enemyId) { korstone = enemy.IsKorstone; boss = enemy.IsBoss; kind = enemy.Kind; }
 
-            Transform root = Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, korstone ? "Korstone" : boss ? "Boss" : "Mob",
-                korstone ? KorstoneColor : boss ? BossColor : MobColor);
+            Color color = korstone ? KorstoneColor : boss ? BossColor
+                : kind == EnemyKind.Captain ? new Color(0.85f, 0.55f, 0.15f)
+                : kind == EnemyKind.Image ? new Color(0.6f, 0.4f, 0.9f, 0.6f) : MobColor;
+            Transform root = Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, kind.ToString(), color);
+            if (kind == EnemyKind.ElderKorstone) root.localScale *= 1.3f;
             root.SetParent(transform, false);
             root.position = new Vector3(SpawnX, korstone ? 1.3f : boss ? 1.2f : 0.35f, korstone ? 2.2f : 0f);
             root.localScale = BaseScale(korstone, boss);

@@ -12,29 +12,70 @@ namespace Orsuun.Rules.Combat
     {
         public const int PotionDropBp = 800;
         public const int MaterialDropBp = 300;
+        public const int GearDropBp = 400;
         public const int KorstoneSornPacks = 20;
         public const int KorstoneScrollBp = 5000;
         public const int KorstoneAlloyBp = 1000;
+        public const int KorstoneNeedleBp = 2500;
+        public const int ElderMarkerBp = 200;
         public const int AutoCastMultiplierPercent = 150;
-
-        public const int GearDropBp = 400;
 
         public static void LootMob(StageConfig stage, Inventory inventory, IRandom rng, out string? drop)
         {
             inventory.Sorn += stage.SornPerMob * (80 + rng.NextInt(41)) / 100;
+            inventory.Xp += stage.XpPerMob;
             drop = null;
             if (rng.RollBp(PotionDropBp))
             {
                 inventory.Potions++;
                 drop = "+1 Bloodroot Draught";
             }
-            if (rng.RollBp(MaterialDropBp))
+            if (rng.RollBp(MaterialDropBp * stage.MaterialYieldPercent / 100))
             {
                 inventory.Materials++;
                 drop = "+1 " + stage.MaterialName;
             }
             if (rng.RollBp(GearDropBp))
                 drop = DropGear(stage, inventory, rng, stage.GearRarityCap).DisplayName;
+        }
+
+        public static string LootKorstone(StageConfig stage, Inventory inventory, IRandom rng, bool elder = false)
+        {
+            int yield = stage.MaterialYieldPercent;
+            long sorn = stage.SornPerMob * KorstoneSornPacks * (elder ? 3 : 1);
+            int turnstones = (1 + rng.NextInt(3)) * yield / 100 * (elder ? 3 : 1);
+            int materials = (1 + rng.NextInt(2)) * yield / 100 * (elder ? 3 : 1);
+            inventory.Sorn += sorn;
+            inventory.Turnstones += turnstones;
+            inventory.Materials += materials;
+
+            string text = (elder ? "Elder Korstone chest: +" : "Korstone chest: +") + sorn + " sorn, +" + turnstones + " Turnstone, +" + materials + " " + stage.MaterialName;
+            if (stage.Zone == ZoneType.KorstoneField)
+            {
+                inventory.Korshards[stage.KorshardRank]++;
+                text += ", +1 " + Content.KorshardRanks[stage.KorshardRank] + " shard";
+                if (rng.RollBp(KorstoneNeedleBp))
+                {
+                    inventory.EtchingNeedles++;
+                    text += ", +1 Etching Needle";
+                }
+            }
+            if (elder || rng.RollBp(KorstoneScrollBp * yield / 100))
+            {
+                inventory.ScrollsOfMercy++;
+                text += ", +1 Scroll of Mercy";
+            }
+            if (rng.RollBp(KorstoneAlloyBp * yield / 100))
+            {
+                inventory.KhansAlloys++;
+                text += ", +1 Khan's Alloy";
+            }
+            if (elder && rng.RollBp(ElderMarkerBp))
+            {
+                inventory.SummoningMarkers++;
+                text += ", +1 Summoning Marker";
+            }
+            return text;
         }
 
         public static string LootBoss(StageConfig stage, Inventory inventory, IRandom rng)
@@ -48,6 +89,42 @@ namespace Orsuun.Rules.Combat
             {
                 inventory.KhansAlloys++;
                 text += ", +1 Khan's Alloy";
+            }
+            return text;
+        }
+
+        /// <summary>
+        /// A Commander chest by damage rank (GDD section 13): rank 1 the Commander's chest, 2-5 an Officer's,
+        /// 6-20 a Trooper's, beyond that nothing. Skins come only from the first two.
+        /// </summary>
+        public static string LootCommander(BossDef boss, int rank, Inventory inventory, IRandom rng)
+        {
+            if (rank > 20) return "No chest: rank " + rank + " on " + boss.Name;
+
+            string chest = rank == 1 ? "Commander's chest" : rank <= 5 ? "Officer's chest" : "Trooper's chest";
+            int tierMult = boss.Tier;
+            long sorn = (rank == 1 ? 30_000L : rank <= 5 ? 15_000L : 6_000L) * tierMult;
+            int materials = (rank == 1 ? 6 : rank <= 5 ? 3 : 1) * tierMult;
+            inventory.Sorn += sorn;
+            inventory.Materials += materials;
+            string text = chest + " from " + boss.Name + ": +" + sorn + " sorn, +" + materials + " materials";
+
+            int legendaryBp = rank == 1 ? 1000 : rank <= 5 ? 300 : 0;
+            int alloyBp = rank == 1 ? 5000 : rank <= 5 ? 2500 : 1000;
+            int skinBp = rank == 1 ? 300 : rank <= 5 ? 100 : 0;
+
+            var stage = new StageConfig { GearItemLevel = Content.Zone(boss.ZoneId)!.LevelMin };
+            ItemState gear = DropGear(stage, inventory, rng, rng.RollBp(legendaryBp) ? Rarity.Legendary : Rarity.Epic, minimum: rank <= 5 ? Rarity.Epic : Rarity.Rare);
+            text += ", " + gear.DisplayName;
+            if (rng.RollBp(alloyBp))
+            {
+                inventory.KhansAlloys++;
+                text += ", +1 Khan's Alloy";
+            }
+            if (rng.RollBp(skinBp))
+            {
+                inventory.Skins.Add(boss.SkinName);
+                text += ", SKIN: " + boss.SkinName;
             }
             return text;
         }
@@ -75,29 +152,6 @@ namespace Orsuun.Rules.Combat
             return item;
         }
 
-        public static string LootKorstone(StageConfig stage, Inventory inventory, IRandom rng)
-        {
-            long sorn = stage.SornPerMob * KorstoneSornPacks;
-            int turnstones = 1 + rng.NextInt(3);
-            int materials = 1 + rng.NextInt(2);
-            inventory.Sorn += sorn;
-            inventory.Turnstones += turnstones;
-            inventory.Materials += materials;
-
-            string text = "Korstone chest: +" + sorn + " sorn, +" + turnstones + " Turnstone, +" + materials + " Wolf Sinew";
-            if (rng.RollBp(KorstoneScrollBp))
-            {
-                inventory.ScrollsOfMercy++;
-                text += ", +1 Scroll of Mercy";
-            }
-            if (rng.RollBp(KorstoneAlloyBp))
-            {
-                inventory.KhansAlloys++;
-                text += ", +1 Khan's Alloy";
-            }
-            return text;
-        }
-
         /// <summary>
         /// Credits a stretch of unobserved hunting: the hero kills what its DPS allows, at the given
         /// efficiency (10000 = live rate, 6000 = offline rate), for at most capSeconds.
@@ -113,20 +167,26 @@ namespace Orsuun.Rules.Combat
                 ? long.MaxValue
                 : packHp * hero.AttackIntervalTicks * 100 / (hero.Attack * AutoCastMultiplierPercent) + stage.RunTicks;
             long packs = ticksPerPack == long.MaxValue ? 0 : counted * LaneSim.TicksPerSecond * efficiencyBp / RandomExtensions.FullBp / ticksPerPack;
-            long korstones = packs / (stage.PacksBeforeKorstone + 1);
-            packs -= korstones;
+
+            long finals = 0;
+            if (stage.FinalEncounter != FinalEncounter.None)
+            {
+                // A Korstone costs about as much time as its waves: count it as one extra pack per loop.
+                finals = packs / (stage.PacksBeforeKorstone + 1);
+                packs -= finals;
+            }
 
             long sornBefore = inventory.Sorn;
             for (long p = 0; p < packs; p++)
                 for (long m = 0; m < avgPack; m++)
                     LootMob(stage, inventory, rng, out _);
-            for (long k = 0; k < korstones; k++)
+            for (long k = 0; k < finals; k++)
             {
                 if (stage.FinalEncounter == FinalEncounter.Boss) LootBoss(stage, inventory, rng);
-                else LootKorstone(stage, inventory, rng);
+                else LootKorstone(stage, inventory, rng, elder: stage.ElderEvery > 0 && (k + 1) % stage.ElderEvery == 0);
             }
 
-            return new HuntSettlement(counted, packs, korstones, inventory.Sorn - sornBefore);
+            return new HuntSettlement(counted, packs, finals, inventory.Sorn - sornBefore);
         }
     }
 

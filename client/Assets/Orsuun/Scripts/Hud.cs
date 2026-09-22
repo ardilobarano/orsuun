@@ -19,8 +19,6 @@ namespace Orsuun.Client
         private Text _stageLabel;
         private Text _pushLabel;
         private Button _pushButton;
-        private Button _prevButton;
-        private Button _nextButton;
         private RectTransform _hpFill;
         private Text _hpText;
         private Button[] _skillButtons;
@@ -71,10 +69,7 @@ namespace Orsuun.Client
             Ui.Button("Gear", canvas, 0.35f, 0.09f, 0.65f, 0.155f, "GEAR", 36, Palette.ButtonIdle, () => root.Gear.Open(), out _);
             _pushButton = Ui.Button("Push", canvas, 0.66f, 0.09f, 0.96f, 0.155f, "", 28, Palette.Danger, root.Push, out _pushLabel);
 
-            _prevButton = Ui.Button("Prev", canvas, 0.04f, 0.02f, 0.14f, 0.08f, "<", 36, Palette.ButtonIdle, () => root.Park(root.Session.ParkedStage - 1), out _);
-            Ui.Panel("StageBack", canvas, 0.15f, 0.02f, 0.44f, 0.08f, Color.black);
-            _stageLabel = Ui.Label("StageLabel", canvas, 0.15f, 0.02f, 0.44f, 0.08f, "", 24, TextAnchor.MiddleCenter, Color.white);
-            _nextButton = Ui.Button("Next", canvas, 0.45f, 0.02f, 0.55f, 0.08f, ">", 36, Palette.ButtonIdle, () => root.Park(root.Session.ParkedStage + 1), out _);
+            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.55f, 0.08f, "", 24, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
             Ui.Button("Speed", canvas, 0.57f, 0.02f, 0.75f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
             Ui.Button("Dev", canvas, 0.77f, 0.02f, 0.96f, 0.08f, "DEV", 24, new Color(0.2f, 0.2f, 0.2f), DevGrant, out _);
         }
@@ -119,9 +114,11 @@ namespace Orsuun.Client
             LaneSim lane = _root.ActiveLane;
             Inventory inv = session.Inventory;
 
-            _resources.text = $"{inv.Sorn:N0} sorn   Draughts {inv.Potions}   Sinew {inv.Materials}   Mercy {inv.ScrollsOfMercy}   Alloy {inv.KhansAlloys}   Turn {inv.Turnstones}";
+            _resources.text = $"Lv {inv.Level}   {inv.Sorn:N0} sorn   Draughts {inv.Potions}   Sinew {inv.Materials}   Mercy {inv.ScrollsOfMercy}   Alloy {inv.KhansAlloys}   Turn {inv.Turnstones}   Shards {inv.Korshards[0] + inv.Korshards[1] + inv.Korshards[2] + inv.Korshards[3] + inv.Korshards[4]}";
 
-            string encounter = lane.IsBossEncounter ? lane.Stage.BossName.ToUpperInvariant() : lane.IsKorstoneEncounter ? "KORSTONE" : $"Pack {lane.EncounterIndex + 1}/5";
+            string encounter = lane.IsBossEncounter ? lane.Stage.BossName.ToUpperInvariant()
+                : lane.IsKorstoneEncounter ? (lane.IsElderNext ? "ELDER KORSTONE" : "KORSTONE")
+                : lane.Stage.FinalEncounter == FinalEncounter.None ? "Pack" : $"Pack {lane.EncounterIndex + 1}/{lane.Stage.PacksBeforeKorstone}";
             _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {lane.KorstonesDestroyed}  ·  Deaths {lane.Deaths}";
             _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Color.white;
             _link.text = _root.Server.Status;
@@ -163,9 +160,7 @@ namespace Orsuun.Client
             bool allCleared = session.HighestStageCleared >= Content.TotalStages;
             _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n{Content.StageName(session.PushTarget)}";
             _pushButton.interactable = !_root.Replaying && !_root.PushBusy && !allCleared;
-            _stageLabel.text = $"Farm: {Content.StageName(session.ParkedStage)}";
-            _prevButton.interactable = !_root.Replaying && session.ParkedStage > 1;
-            _nextButton.interactable = !_root.Replaying && session.ParkedStage < System.Math.Min(Content.TotalStages, session.HighestStageCleared + 1);
+            _stageLabel.text = $"ZONES  ·  here: {Content.StageName(session.ParkedStage)}";
             _speedLabel.text = $"SPEED x{_root.SpeedMultiplier}";
         }
     }

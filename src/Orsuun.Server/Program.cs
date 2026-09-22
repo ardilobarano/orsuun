@@ -57,8 +57,10 @@ RouteGroupBuilder v1 = app.MapGroup("/v1").AddEndpointFilter(async (ctx, next) =
 
 static Account Me(HttpContext ctx) => (Account)ctx.Items["account"]!;
 
-v1.MapGet("/me", (HttpContext ctx, GameService game) => game.GetState(Me(ctx)));
-v1.MapPost("/heartbeat", (HttpContext ctx, GameService game, CancellationToken ct) => game.HeartbeatAsync(Me(ctx), ct));
+// /me and /heartbeat carry the Commander clocks; the mutating calls return state without them to stay light.
+v1.MapGet("/me", (HttpContext ctx, GameService game, CancellationToken ct) => game.WithBossesAsync(Me(ctx), game.GetState(Me(ctx)), ct));
+v1.MapPost("/heartbeat", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.HeartbeatAsync(Me(ctx), ct), ct));
+v1.MapPost("/boss/fight", async (HttpContext ctx, BossFightRequest req, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.FightBossAsync(Me(ctx), req, ct), ct));
 v1.MapPost("/forge", (HttpContext ctx, ForgeRequest req, GameService game, CancellationToken ct) => game.ForgeAsync(Me(ctx), req, ct));
 v1.MapPost("/turn", (HttpContext ctx, TurnRequest req, GameService game, CancellationToken ct) => game.TurnAsync(Me(ctx), req, ct));
 v1.MapPost("/equip", (HttpContext ctx, EquipRequest req, GameService game, CancellationToken ct) => game.EquipAsync(Me(ctx), req, ct));
@@ -66,6 +68,9 @@ v1.MapPost("/park", (HttpContext ctx, ParkRequest req, GameService game, Cancell
 v1.MapPost("/push", (HttpContext ctx, PushRequest req, GameService game, CancellationToken ct) => game.PushAsync(Me(ctx), req, ct));
 
 if (app.Environment.IsDevelopment())
+{
     v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
+    v1.MapPost("/dev/bosses-up", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.DevBossesUpAsync(Me(ctx), ct), ct));
+}
 
 app.Run();

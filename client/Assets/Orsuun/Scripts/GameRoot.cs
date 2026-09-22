@@ -23,6 +23,7 @@ namespace Orsuun.Client
         public Hud Hud { get; private set; }
         public ForgePanel Forge { get; private set; }
         public GearPanel Gear { get; private set; }
+        public ZonePanel Zones { get; private set; }
         public Net.ServerLink Server { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
@@ -59,6 +60,8 @@ namespace Orsuun.Client
             Forge.Init(this);
             Gear = new GameObject("GearPanel").AddComponent<GearPanel>();
             Gear.Init(this);
+            Zones = new GameObject("ZonePanel").AddComponent<ZonePanel>();
+            Zones.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
 
@@ -81,20 +84,72 @@ namespace Orsuun.Client
                     Lane.Handle(e);
                     Hud.Handle(e);
                 }
-                if (_replay != null && (_replay.Clears > 0 || _replay.Deaths > 0)) break;
+                if (_replay != null && (_replay.Clears > 0 || _replay.BossesKilled > 0 || _replay.Deaths > 0)) break;
             }
         }
 
-        /// <summary>Moves the farm lane to a cleared stage, on the server when connected.</summary>
-        public void Park(int stage)
+        /// <summary>Moves the farm lane to an unlocked stage or zone, on the server when connected.</summary>
+        public void Park(int parkId)
         {
             if (Replaying || PushBusy) return;
-            if (Server.Online) StartCoroutine(Server.Park(stage, error => { if (error != null) Hud.Log(error); }));
+            if (Server.Online) StartCoroutine(Server.Park(parkId, error => { if (error != null) Hud.Log(error); }));
             else
             {
-                try { Session.Park(stage); }
+                try { Session.Park(parkId); }
                 catch (InvalidOperationException ex) { Hud.Log(ex.Message); }
             }
+        }
+
+        /// <summary>Fights a Commander: the server (or the local session) scores it, then the lane replays the seed.</summary>
+        public void FightBoss(int bossId)
+        {
+            if (Replaying || PushBusy) return;
+            StartCoroutine(BossSequence(bossId));
+        }
+
+        private IEnumerator BossSequence(int bossId)
+        {
+            PushBusy = true;
+            BossDef boss = Content.Boss(bossId);
+            HeroStats hero = Session.Hero;
+            ulong seed;
+            int rank;
+            string chest;
+            int potions = Session.Inventory.Potions;
+
+            if (Server.Online)
+            {
+                Net.ServerLink.BossFightResultDto result = null;
+                string failure = null;
+                yield return Server.FightBoss(bossId, (r, e) => { result = r; failure = e; });
+                if (result == null)
+                {
+                    Hud.Log(failure ?? "No answer from the server.");
+                    PushBusy = false;
+                    yield break;
+                }
+                seed = result.seed;
+                rank = result.rank;
+                chest = result.chest;
+                potions = result.potionsAtStart;
+            }
+            else
+            {
+                Session.FightBoss(boss, out seed, out rank, out chest);
+            }
+
+            _replay = BossRun.Create(boss, hero, new Inventory { Potions = potions }, seed);
+            ReplayBanner = boss.Name.ToUpperInvariant();
+            int guard = BossRun.MaxTicks;
+            while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+
+            ReplayBanner = (_replay.BossesKilled > 0 ? "SLAIN  ·  " : "FLED  ·  ") + "rank " + rank + " of 20";
+            Hud.Log(chest);
+            yield return new WaitForSecondsRealtime(2.5f);
+
+            _replay = null;
+            ReplayBanner = "";
+            PushBusy = false;
         }
 
         /// <summary>Asks for the next stage's verdict, then replays the scored fight seed for seed.</summary>

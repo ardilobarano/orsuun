@@ -14,21 +14,41 @@ namespace Orsuun.Rules
         public int KhansAlloys { get; set; }
         public int AnvilWards { get; set; }
         public int Turnstones { get; set; }
+        public int EtchingNeedles { get; set; }
+        public int SummoningMarkers { get; set; }
+        public long Xp { get; set; }
+        /// <summary>Korshards held, by rank index (Trooper .. Guard of the Khan). Sockets come in the next step.</summary>
+        public int[] Korshards { get; } = new int[5];
+        /// <summary>Cosmetics owned; only Commanders drop them.</summary>
+        public List<string> Skins { get; } = new List<string>();
         /// <summary>Gear that dropped and has not been placed anywhere yet.</summary>
         public List<ItemState> Loot { get; } = new List<ItemState>();
+
+        public int Level => Content.LevelFor(Xp);
+
+        public void CopyCurrenciesFrom(Inventory other)
+        {
+            Sorn = other.Sorn; Potions = other.Potions; Materials = other.Materials; ScrollsOfMercy = other.ScrollsOfMercy;
+            KhansAlloys = other.KhansAlloys; AnvilWards = other.AnvilWards; Turnstones = other.Turnstones;
+            EtchingNeedles = other.EtchingNeedles; SummoningMarkers = other.SummoningMarkers; Xp = other.Xp;
+            Array.Copy(other.Korshards, Korshards, Korshards.Length);
+            Skins.Clear();
+            Skins.AddRange(other.Skins);
+        }
     }
 
     public static class HeroFactory
     {
-        public static HeroStats FromWeapon(ItemState weapon) => FromEquipment(new[] { weapon });
+        public static HeroStats FromWeapon(ItemState weapon) => FromEquipment(new[] { weapon }, 1);
 
         /// <summary>
         /// Stat model: the weapon sets attack, body pieces set defense and HP, accessories add a little of both.
-        /// Every piece scales with its upgrade level and rarity; etchings add on top.
+        /// Every piece scales with its upgrade level and rarity; etchings add on top; each character level adds
+        /// +2 attack and +40 HP so Hunting Grounds pay off in power, not only in sorn.
         /// </summary>
-        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped)
+        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level)
         {
-            long attack = 20, defense = 0, maxHp = 2000;
+            long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
             int critBp = 500;
 
             foreach (ItemState item in equipped)
@@ -110,14 +130,16 @@ namespace Orsuun.Rules
         public int WeaponsBroken { get; private set; }
         /// <summary>Highest stage cleared by a push; the next one is the push target.</summary>
         public int HighestStageCleared { get; private set; }
+        /// <summary>Campaign stage number or zone id the farm lane is parked in.</summary>
         public int ParkedStage => Lane.Stage.StageNumber;
         public int PushTarget => Math.Min(Content.TotalStages, HighestStageCleared + 1);
+        public int Level => Inventory.Level;
 
         /// <summary>The equipped weapon. The Forge and the Turnstone act on it; an Oathbreak replaces it.</summary>
         public ItemState Weapon => _equipped[(int)EquipSlot.Weapon]!;
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
-        public HeroStats Hero => HeroFactory.FromEquipment(Equipment);
+        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level);
         public EtchingPool Pool => EtchingPool.For(EquipSlot.Weapon);
 
         public long ForgeCost => Weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel ? 0 : ForgeRules.Cost(Weapon.ItemLevel, Weapon.UpgradeLevel);
@@ -190,13 +212,23 @@ namespace Orsuun.Rules
             Lane.SetHero(Hero);
         }
 
-        /// <summary>Moves the live lane to a cleared stage (or stage 1).</summary>
-        public void Park(int stage)
+        /// <summary>Moves the live lane to an unlocked campaign stage or zone.</summary>
+        public void Park(int parkId)
         {
-            if (stage < 1 || stage > HighestStageCleared + 1 || stage > Content.TotalStages)
-                throw new InvalidOperationException("Stage not unlocked.");
-            Lane = new LaneSim(Content.Stage(stage), Hero, SkillDef.VanguardWrath(), Inventory, _rng);
+            if (!Content.IsUnlocked(parkId, HighestStageCleared)) throw new InvalidOperationException("Not unlocked yet.");
+            Lane = new LaneSim(Content.Stage(parkId), Hero, SkillDef.VanguardWrath(), Inventory, _rng);
             Lane.AutoCast[1] = true;
+        }
+
+        /// <summary>Local Commander fight: damage, rank among simulated rivals and the chest. The server does the same.</summary>
+        public BossRunResult FightBoss(BossDef boss, out ulong seed, out int rank, out string chest)
+        {
+            seed = ((ulong)_rng.NextInt(int.MaxValue) << 31) ^ (ulong)_rng.NextInt(int.MaxValue);
+            BossRunResult result = BossRun.Simulate(boss, Hero, Inventory, seed);
+            rank = BossRun.Rank(result.Damage, boss, _rng);
+            chest = HuntYield.LootCommander(boss, rank, Inventory, _rng);
+            Lane.SetHero(Hero);
+            return result;
         }
 
         /// <summary>Local push: decides the next stage with a seed drawn here. The server does the same with its own seed.</summary>
@@ -214,20 +246,14 @@ namespace Orsuun.Rules
         /// </summary>
         public void ApplyRemote(Inventory inventory, IEnumerable<ItemState> equipped, int weaponsBroken, int highestStageCleared, int parkedStage)
         {
-            Inventory.Sorn = inventory.Sorn;
-            Inventory.Potions = inventory.Potions;
-            Inventory.Materials = inventory.Materials;
-            Inventory.ScrollsOfMercy = inventory.ScrollsOfMercy;
-            Inventory.KhansAlloys = inventory.KhansAlloys;
-            Inventory.AnvilWards = inventory.AnvilWards;
-            Inventory.Turnstones = inventory.Turnstones;
+            Inventory.CopyCurrenciesFrom(inventory);
             Inventory.Loot.Clear();
             Inventory.Loot.AddRange(inventory.Loot);
             Array.Clear(_equipped, 0, _equipped.Length);
             foreach (ItemState item in equipped) _equipped[(int)item.Slot] = item;
             WeaponsBroken = weaponsBroken;
             HighestStageCleared = highestStageCleared;
-            if (parkedStage != ParkedStage) Park(parkedStage);
+            if (parkedStage != ParkedStage && Content.IsUnlocked(parkedStage, HighestStageCleared)) Park(parkedStage);
             Lane.SetHero(Hero);
         }
 
