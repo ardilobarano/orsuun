@@ -1,0 +1,6 @@
+{
+  "name": "Orsuun.Rules",
+  "rootNamespace": "Orsuun.Rules",
+  "noEngineReferences": true,
+  "autoReferenced": true
+}

@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Build output goes to /artifacts so the Rules folder stays clean enough to be consumed by Unity as a local package. -->
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,15 @@
+# .NET
+artifacts/
+bin/
+obj/
+*.user
+.vs/
+
+# Unity (for the client project added later under /client)
+[Ll]ibrary/
+[Tt]emp/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Bb]uild/
+[Bb]uilds/
+*.csproj.meta

@@ -1,0 +1,9 @@
+{
+  "name": "Orsuun.Client",
+  "rootNamespace": "Orsuun.Client",
+  "references": [
+    "Orsuun.Rules",
+    "UnityEngine.UI"
+  ],
+  "autoReferenced": true
+}

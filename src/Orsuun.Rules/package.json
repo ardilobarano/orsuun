@@ -1,0 +1,7 @@
+{
+  "name": "com.orsuun.rules",
+  "version": "0.1.0",
+  "displayName": "Orsuun Rules",
+  "description": "Shared, engine-free game rules: Forge, etchings, offline rewards. Compiled by both the server and the Unity client.",
+  "unity": "6000.0"
+}

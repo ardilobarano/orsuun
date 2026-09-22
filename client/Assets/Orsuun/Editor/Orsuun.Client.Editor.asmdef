@@ -1,0 +1,11 @@
+{
+  "name": "Orsuun.Client.Editor",
+  "rootNamespace": "Orsuun.Client.EditorTools",
+  "references": [
+    "Orsuun.Client"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false
+}
