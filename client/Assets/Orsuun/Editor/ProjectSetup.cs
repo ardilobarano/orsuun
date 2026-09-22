@@ -46,10 +46,59 @@ namespace Orsuun.Client.EditorTools
             Debug.Log("Orsuun project setup complete.");
         }
 
+        /// <summary>
+        /// Android playtest build: ORSUUN_SERVER_URL=https://host Unity -batchmode -quit -projectPath client
+        /// -executeMethod Orsuun.Client.EditorTools.ProjectSetup.BuildAndroid. Needs the Android module installed.
+        /// </summary>
+        public static void BuildAndroid()
+        {
+            Run();
+            WriteServerUrl();
+
+            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android, "com.orsuun.warofbanners");
+            PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+            PlayerSettings.SetManagedStrippingLevel(UnityEditor.Build.NamedBuildTarget.Android, ManagedStrippingLevel.Low);
+            PlayerSettings.bundleVersion = "0.1." + System.DateTime.UtcNow.ToString("yyMMdd");
+            PlayerSettings.Android.bundleVersionCode = int.Parse(System.DateTime.UtcNow.ToString("yyMMddHH"));
+            // Debug-signed APK for sideloading; a release keystore comes with the store build.
+            PlayerSettings.Android.useCustomKeystore = false;
+            EditorUserBuildSettings.buildAppBundle = false;
+
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = new[] { ScenePath },
+                locationPathName = "Builds/Android/Orsuun.apk",
+                target = BuildTarget.Android,
+                options = BuildOptions.None,
+            });
+            Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
+            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
+        }
+
+        /// <summary>Bakes ORSUUN_SERVER_URL into Resources/server-url.txt so the player knows its server without arguments.</summary>
+        private static void WriteServerUrl()
+        {
+            string url = System.Environment.GetEnvironmentVariable("ORSUUN_SERVER_URL");
+            const string path = "Assets/Orsuun/Resources/server-url.txt";
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                if (File.Exists(path)) Debug.Log("Using existing " + path + ": " + File.ReadAllText(path).Trim());
+                else Debug.LogWarning("ORSUUN_SERVER_URL not set and no " + path + "; the build will talk to localhost.");
+                return;
+            }
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            File.WriteAllText(path, url.Trim());
+            AssetDatabase.ImportAsset(path);
+            Debug.Log("Server URL baked: " + url);
+        }
+
         /// <summary>Windows playtest build: -executeMethod Orsuun.Client.EditorTools.ProjectSetup.BuildWindows</summary>
         public static void BuildWindows()
         {
             Run();
+            WriteServerUrl();
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
                 scenes = new[] { ScenePath },

@@ -17,12 +17,11 @@ var app = builder.Build();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    // Schema from the model. Replace with EF migrations before the first data-preserving deploy.
-    // ORSUUN_RESET_DB=1 drops and recreates it; dev only, the model still changes between commits.
+    // Schema via EF migrations (src/Orsuun.Server/Migrations). ORSUUN_RESET_DB=1 wipes the schema first; dev only.
     GameDb db = scope.ServiceProvider.GetRequiredService<GameDb>();
     if (app.Environment.IsDevelopment() && Environment.GetEnvironmentVariable("ORSUUN_RESET_DB") == "1")
         await db.Database.ExecuteSqlRawAsync("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
-    await db.Database.EnsureCreatedAsync();
+    await db.Database.MigrateAsync();
 }
 
 app.Use(async (ctx, next) =>

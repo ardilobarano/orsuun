@@ -64,7 +64,9 @@ Every roll and currency change lands in the `Ledger` table with the chance rolle
 
 The client connects to `http://localhost:5080` by default (`-server http://host:port` to override, `-local` to skip). When the server is unreachable the HUD shows LOCAL MODE and rolls locally.
 
-Known gaps before alpha: `EnsureCreated` instead of EF migrations; the live lane's loot is display-only and gets replaced by the server's settlement on each heartbeat; manual skill timing does not yet earn the active-play bonus server-side (needs an input log the server can replay).
+Schema changes: edit the entities, then `dotnet ef migrations add <Name> --project src/Orsuun.Server --startup-project src/Orsuun.Server --output-dir Migrations --msbuildprojectextensionspath artifacts/obj/Orsuun.Server` (dotnet-ef is a local tool, `dotnet tool restore` once). The server applies pending migrations on start. Hosting: see `deploy/README.md`.
+
+Known gaps before alpha: the live lane's loot is display-only and gets replaced by the server's settlement on each heartbeat; manual skill timing does not yet earn the active-play bonus server-side (needs an input log the server can replay).
 
 ## Playing the grey-box
 

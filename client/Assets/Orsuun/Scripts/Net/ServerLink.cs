@@ -42,10 +42,21 @@ namespace Orsuun.Client.Net
         public void Init(PlayerSession player)
         {
             _player = player;
+            _baseUrl = ResolveBaseUrl();
+            StartCoroutine(Run());
+        }
+
+        /// <summary>-server on the command line, else Resources/server-url.txt (written by the build script), else localhost.</summary>
+        public static string ResolveBaseUrl()
+        {
             string[] args = Environment.GetCommandLineArgs();
             int i = Array.IndexOf(args, "-server");
-            if (i >= 0 && i + 1 < args.Length) _baseUrl = args[i + 1];
-            StartCoroutine(Run());
+            if (i >= 0 && i + 1 < args.Length) return args[i + 1].TrimEnd('/');
+
+            var asset = Resources.Load<TextAsset>("server-url");
+            if (asset != null && !string.IsNullOrWhiteSpace(asset.text)) return asset.text.Trim().TrimEnd('/');
+
+            return DefaultBaseUrl;
         }
 
         private IEnumerator Run()

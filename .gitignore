@@ -5,6 +5,9 @@ obj/
 *.user
 .vs/
 
+# Deployment secrets
+deploy/.env
+
 # Unity (for the client project added later under /client)
 [Ll]ibrary/
 [Tt]emp/
@@ -13,3 +16,5 @@ obj/
 [Bb]uild/
 [Bb]uilds/
 *.csproj.meta
+client/Assets/Orsuun/Resources/server-url.txt
+client/Assets/Orsuun/Resources/server-url.txt.meta
