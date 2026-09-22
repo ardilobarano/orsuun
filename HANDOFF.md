@@ -22,6 +22,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
 | Boss brackets | Simulated rivals until the multiplayer milestone; real shared HP pools later. |
 | Playtest | Phase 0 grey-box playtest done, owner reported it fine. |
+| Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
 
 ## What exists and works
 
@@ -40,7 +41,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - EF migrations (`Migrations/Initial`), Docker + Caddy deployment stack in `deploy/`, configurable server URL,
   `ProjectSetup.BuildAndroid` (needs the Android module; the Windows PC does not have it, the Mac should).
 - Four art direction boards in GDD section 14 and `docs/art-options/`; recommendation B (modernized classic), D as
-  the alternative. Waiting for the owner's pick.
+  the alternative. Owner picked B on 23 Sep 2026.
 
 ## Next steps, waiting on the owner
 
@@ -48,7 +49,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
    `ORSUUN_SERVER_URL=https://<domain> tools/build-mobile.sh both` (decided: Android and iOS). Install the Android
    and iOS modules in Unity Hub first. TestFlight needs the paid Apple Developer Program; a free Apple ID runs on
    the owner's own iPhone from Xcode.
-2. Pick an art direction (GDD section 14), then: character sheet and Korstone sheet in that style, URP switch with a
+2. Art direction is B: character sheet and Korstone sheet in that style, URP switch with a
    matching shader, first real hero model.
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
    real shared boss HP pools, Hunt Marks and the Hearthfire subscription (Bulk Turn's 10/50 split depends on it).
