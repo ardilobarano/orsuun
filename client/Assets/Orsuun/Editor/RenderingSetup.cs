@@ -39,6 +39,9 @@ namespace Orsuun.Client.EditorTools
             korstone.SetFloat("_CrackFadeTop", 2.4f);
             korstone.SetFloat("_Roughness", 0.3f);
             EditorUtility.SetDirty(korstone);
+            Material vanguard = EnsureGlowMaterial("VanguardEmber", Color.white, crackScale: 5f, crackWidth: 0.025f, intensity: 1.5f, rim: 3f);
+            vanguard.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(Res + "Models/VanguardBaseColor.png"));
+            EditorUtility.SetDirty(vanguard);
             EnsurePostFx();
             EnsureBackdrops();
             EnsureKorstoneImport();
@@ -166,7 +169,12 @@ namespace Orsuun.Client.EditorTools
 
         private static void EnsureKorstoneImport()
         {
-            const string path = Res + "Models/Korstone.fbx";
+            EnsureModelImport(Res + "Models/Korstone.fbx");
+            EnsureModelImport(Res + "Models/Vanguard.fbx");
+        }
+
+        private static void EnsureModelImport(string path)
+        {
             if (!(AssetImporter.GetAtPath(path) is ModelImporter importer)) return;
             bool changed = importer.materialImportMode != ModelImporterMaterialImportMode.None || importer.importAnimation;
             importer.materialImportMode = ModelImporterMaterialImportMode.None;
@@ -305,6 +313,8 @@ namespace Orsuun.Client.EditorTools
                 view.SetZone((Orsuun.Rules.Combat.ZoneType)System.Enum.Parse(typeof(Orsuun.Rules.Combat.ZoneType), zone));
                 Capture(cam, "../artifacts/lane-" + zone + ".png", 1080, 1056);
             }
+            view.SetGear(1f, 1f);
+            Capture(cam, "../artifacts/lane-glow9.png", 1080, 1056);
             Object.DestroyImmediate(root);
         }
 

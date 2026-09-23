@@ -39,6 +39,9 @@ namespace Orsuun.Client
         private Transform _hero;
         private Renderer _heroRenderer;
         private Renderer _weaponRenderer;
+        /// <summary>Hero root height: the capsule is centred at 1, the Vanguard model stands on 0.</summary>
+        private float _heroY = 1f;
+        private Color _heroTint = HeroColor;
         private float _armorGlow = -1f;
         private float _weaponGlow = -1f;
         private float _heroPunch;
@@ -68,7 +71,7 @@ namespace Orsuun.Client
             _sim = sim;
             SetZone(sim.Stage.Zone);
             _hero.rotation = Quaternion.identity;
-            _hero.position = new Vector3(HeroX, 1f, 0f);
+            _hero.position = new Vector3(HeroX, _heroY, 0f);
             foreach (Enemy enemy in sim.Enemies) SpawnView(enemy.Id);
         }
 
@@ -132,6 +135,27 @@ namespace Orsuun.Client
 
         public void BuildHero()
         {
+            // The Vanguard from Rodin (art/blender/vanguard.blend, 12k tris), on the ember shader with its own texture.
+            var model = Resources.Load<GameObject>("Models/Vanguard");
+            var skin = Resources.Load<Material>("VanguardEmber");
+            if (model != null && skin != null)
+            {
+                _hero = new GameObject("Hero").transform;
+                _hero.SetParent(transform, false);
+                Transform body = Instantiate(model, _hero).transform;
+                body.localRotation = Quaternion.Euler(0f, 125f, 0f); // model front is +Z: this faces the enemies (+X), three-quarter to the camera
+                _heroRenderer = body.GetComponentInChildren<Renderer>();
+                _heroRenderer.sharedMaterial = skin;
+                Bounds b = _heroRenderer.bounds;
+                // Shift relative to where the file put it (the FBX root carries its own offset): feet on 0, centred.
+                body.localPosition -= new Vector3(b.center.x, b.min.y, b.center.z);
+                _heroY = 0f;
+                _heroTint = Color.white;
+                _hero.position = new Vector3(HeroX, _heroY, 0f);
+                _heroRenderer.material.color = _heroTint;
+                return;
+            }
+
             _hero = Primitive(PrimitiveType.Capsule, "Hero", HeroColor);
             _hero.SetParent(transform, false);
             _hero.position = new Vector3(HeroX, 1f, 0f);
@@ -151,7 +175,14 @@ namespace Orsuun.Client
         /// <summary>Upgrade glow for the hero: armor = average of the non-weapon slots, weapon on its own.</summary>
         public void SetGear(float armorGlow, float weaponGlow)
         {
-            if (!Mathf.Approximately(armorGlow, _armorGlow)) { _armorGlow = armorGlow; _heroRenderer.material.SetFloat(UpgradeGlow.GlowId, armorGlow); }
+            if (_weaponRenderer != null && !Mathf.Approximately(armorGlow, _armorGlow)) { _armorGlow = armorGlow; _heroRenderer.material.SetFloat(UpgradeGlow.GlowId, armorGlow); }
+            if (_weaponRenderer == null)
+            {
+                // One-mesh model: the body carries whichever glows brighter, so a +9 weapon still shows.
+                float body = Mathf.Max(armorGlow, weaponGlow);
+                if (!Mathf.Approximately(body, _armorGlow)) { _armorGlow = body; _heroRenderer.material.SetFloat(UpgradeGlow.GlowId, body); }
+                return;
+            }
             if (!Mathf.Approximately(weaponGlow, _weaponGlow)) { _weaponGlow = weaponGlow; _weaponRenderer.material.SetFloat(UpgradeGlow.GlowId, weaponGlow); }
         }
 
@@ -205,13 +236,13 @@ namespace Orsuun.Client
                     foreach (EnemyView view in _views.Values) Destroy(view.Root.gameObject);
                     _views.Clear();
                     _hero.rotation = Quaternion.Euler(0f, 0f, 90f);
-                    _hero.position = new Vector3(HeroX, 0.5f, 0f);
+                    _hero.position = new Vector3(HeroX, _heroY < 0.5f ? 0.3f : 0.5f, 0f);
                     Float("DEFEATED", _hero.position + Vector3.up * 2f, Palette.Bad, 2f);
                     break;
 
                 case LaneEventKind.HeroRespawned:
                     _hero.rotation = Quaternion.identity;
-                    _hero.position = new Vector3(HeroX, 1f, 0f);
+                    _hero.position = new Vector3(HeroX, _heroY, 0f);
                     break;
 
                 case LaneEventKind.SkillCast:
@@ -270,8 +301,8 @@ namespace Orsuun.Client
             _heroPunch = Mathf.MoveTowards(_heroPunch, 0f, dt * 8f);
             _heroHurt = Mathf.MoveTowards(_heroHurt, 0f, dt * 5f);
             if (_sim.Phase != LanePhase.Dead)
-                _hero.position = new Vector3(HeroX + _heroPunch * 0.35f, 1f + (_sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 9f)) * 0.12f : 0f), 0f);
-            Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : HeroColor;
+                _hero.position = new Vector3(HeroX + _heroPunch * 0.35f, _heroY + (_sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 9f)) * 0.12f : 0f), 0f);
+            Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : _heroTint;
             _heroRenderer.material.color = Color.Lerp(heroBase, Color.red, _heroHurt * 0.7f);
 
             for (int i = _texts.Count - 1; i >= 0; i--)
