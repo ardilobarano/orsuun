@@ -18,3 +18,9 @@ deploy/.env
 *.csproj.meta
 client/Assets/Orsuun/Resources/server-url.txt
 client/Assets/Orsuun/Resources/server-url.txt.meta
+
+# Unity 6 editor temp
+client/.utmp/
+
+# Playtest builds served by Caddy on the VM
+downloads/

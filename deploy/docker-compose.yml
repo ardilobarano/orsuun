@@ -49,6 +49,7 @@ services:
       DOMAIN: ${DOMAIN:?set DOMAIN in deploy/.env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../downloads:/srv/downloads:ro
       - caddy_data:/data
       - caddy_config:/config
 

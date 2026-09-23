@@ -23,6 +23,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Boss brackets | Simulated rivals until the multiplayer milestone; real shared HP pools later. |
 | Playtest | Phase 0 grey-box playtest done, owner reported it fine. |
 | Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
+| Reference sheets | `docs/concept/vanguard-1-sheet.jpg` and `docs/concept/korstone-1-sheet.jpg` are the chosen references (owner, 23 Sep 2026); the `-2` files are the rejected variants, kept for comparison. |
 
 ## What exists and works
 
@@ -50,9 +51,12 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
    playtest). Update with `ssh root@65.108.221.210 'cd /opt/orsuun && git pull && docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build'`
    (the box has a read-only deploy key on the repo). Mobile builds: on the Mac (Unity 6000.0.32f1 + Android/iOS
    modules installed) `ORSUUN_SERVER_URL=https://65.108.221.210.sslip.io tools/build-mobile.sh both`. TestFlight needs
-   the paid Apple Developer Program; a free Apple ID runs on the owner's own iPhone from Xcode.
-2. Art direction is B: character sheet and Korstone sheet in that style, URP switch with a
-   matching shader, first real hero model.
+   the paid Apple Developer Program; a free Apple ID runs on the owner's own iPhone from Xcode. First builds done 23 Sep 2026:
+   Android APK served to testers at https://65.108.221.210.sslip.io/downloads/Orsuun.apk (Caddy file_server over
+   `/opt/orsuun/downloads`, copy a new APK there after each build); iOS Xcode project at `client/Builds/iOS/Unity-iPhone.xcodeproj`.
+2. Art direction is B; Vanguard turnaround and Korstone sheets are done (`docs/concept/`). Next: sheets for Kestrel, Wraithsworn,
+   Drumcaller and a Hollowed wolf, a glaive upgrade-tier sheet (+7 and up glow), URP switch with a matching shader, first real
+   hero model.
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
    real shared boss HP pools, Hunt Marks and the Hearthfire subscription (Bulk Turn's 10/50 split depends on it).
 
