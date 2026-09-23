@@ -21,6 +21,7 @@ namespace Orsuun.Client
         private readonly Text[] _rowLabels = new Text[LooseRows];
         private readonly Button[] _rowButtons = new Button[LooseRows];
         private readonly ItemState[] _rowItems = new ItemState[LooseRows];
+        private readonly UnityEngine.UI.RawImage[] _rowIcons = new UnityEngine.UI.RawImage[LooseRows];
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -45,7 +46,8 @@ namespace Orsuun.Client
                 float y1 = 0.55f - i * 0.057f;
                 float y0 = y1 - 0.052f;
                 Ui.Panel("RowBack" + i, canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
-                _rowLabels[i] = Ui.Label("Row" + i, canvas, 0.06f, y0, 0.73f, y1, "", 24, TextAnchor.MiddleLeft, Color.white);
+                _rowIcons[i] = Ui.Icon("RowIcon" + i, canvas, 0.045f, y0 + 0.003f, 0.135f, y1 - 0.003f, "Weapon");
+                _rowLabels[i] = Ui.Label("Row" + i, canvas, 0.145f, y0, 0.73f, y1, "", 24, TextAnchor.MiddleLeft, Color.white);
                 _rowButtons[i] = Ui.Button("Equip" + i, canvas, 0.76f, y0, 0.96f, y1, "EQUIP", 24, Palette.Safe, () => Equip(row), out _);
             }
 
@@ -101,6 +103,8 @@ namespace Orsuun.Client
                 _rowItems[i] = has ? loose[i] : null;
                 _rowLabels[i].text = has ? Describe(loose[i]) : "";
                 _rowButtons[i].gameObject.SetActive(has);
+                _rowIcons[i].enabled = has;
+                if (has) _rowIcons[i].texture = Resources.Load<Texture2D>("Icons/" + loose[i].Slot);
             }
         }
 

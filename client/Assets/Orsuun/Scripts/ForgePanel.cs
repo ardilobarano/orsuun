@@ -69,10 +69,13 @@ namespace Orsuun.Client
             {
                 EquipSlot slot = (EquipSlot)i;
                 float x0 = 0.02f + i * 0.12f;
-                _slotButtons[i] = Ui.Button("Slot" + i, canvas, x0, 0.87f, x0 + 0.115f, 0.925f, "", 18, Palette.PanelDark, () => PutOnAnvil(slot), out _slotLabels[i]);
+                _slotButtons[i] = Ui.Button("Slot" + i, canvas, x0, 0.855f, x0 + 0.115f, 0.925f, "", 18, Palette.PanelDark, () => PutOnAnvil(slot), out _slotLabels[i]);
+                Ui.Icon("Icon", _slotButtons[i].transform, 0.12f, 0.30f, 0.88f, 0.98f, slot.ToString());
+                RectTransform label = _slotLabels[i].rectTransform;
+                label.anchorMin = new Vector2(0f, 0f); label.anchorMax = new Vector2(1f, 0.32f);
             }
 
-            _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.80f, 0.95f, 0.865f, "", 60, TextAnchor.MiddleCenter, Color.white);
+            _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.795f, 0.95f, 0.85f, "", 56, TextAnchor.MiddleCenter, Color.white);
             _stats = Ui.Label("Stats", canvas, 0.05f, 0.765f, 0.95f, 0.81f, "", 30, TextAnchor.MiddleCenter, Palette.Muted);
 
             Ui.Panel("EtchingsBack", canvas, 0.06f, 0.575f, 0.94f, 0.755f, Palette.PanelDark);
@@ -258,7 +261,7 @@ namespace Orsuun.Client
             for (int i = 0; i < _slotButtons.Length; i++)
             {
                 ItemState piece = session.Equipped((EquipSlot)i);
-                _slotLabels[i].text = SlotNames[i] + "\n" + (piece == null ? "-" : "+" + piece.UpgradeLevel);
+                _slotLabels[i].text = piece == null ? "-" : "+" + piece.UpgradeLevel;
                 _slotLabels[i].color = piece == null ? Palette.Muted : LevelColor(piece.UpgradeLevel);
                 _slotButtons[i].interactable = piece != null && !Busy;
                 _slotButtons[i].GetComponent<Image>().color = (EquipSlot)i == session.AnvilSlot ? Palette.Warn * 0.55f : Palette.PanelDark;

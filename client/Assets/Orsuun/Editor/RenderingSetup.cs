@@ -172,6 +172,9 @@ namespace Orsuun.Client.EditorTools
             EnsureModelImport(Res + "Models/Korstone.fbx");
             EnsureModelImport(Res + "Models/Vanguard.fbx");
             EnsureModelImport(Res + "Models/VanguardModular.fbx");
+            EnsureModelImport(Res + "Models/Kestrel.fbx");
+            EnsureModelImport(Res + "Models/Wraithsworn.fbx");
+            EnsureModelImport(Res + "Models/Drumcaller.fbx");
         }
 
         private static void EnsureModelImport(string path)

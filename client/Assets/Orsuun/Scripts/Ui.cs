@@ -67,6 +67,21 @@ namespace Orsuun.Client
             return text;
         }
 
+        /// <summary>An icon from Resources/Icons (docs/concept icon sheets, sliced to 256 px). Null texture if missing.</summary>
+        public static RawImage Icon(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, string icon)
+        {
+            RectTransform rect = Rect(name, parent, xMin, yMin, xMax, yMax);
+            var image = rect.gameObject.AddComponent<RawImage>();
+            image.texture = Resources.Load<Texture2D>("Icons/" + icon);
+            image.raycastTarget = false;
+            image.enabled = image.texture != null;
+            // Icons are square: keep them square inside whatever box they are given.
+            var fit = rect.gameObject.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            fit.aspectRatio = 1f;
+            return image;
+        }
+
         public static Button Button(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
             string label, int size, Color background, Action onClick, out Text labelText)
         {
