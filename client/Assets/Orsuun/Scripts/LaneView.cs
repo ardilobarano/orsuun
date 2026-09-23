@@ -44,6 +44,10 @@ namespace Orsuun.Client
         private float _heroPunch;
         private float _heroHurt;
 
+        private Renderer _ground;
+        private Renderer _backdrop;
+        private ZoneType? _zone;
+
         private static Material _greyBox;
         private static Material _korstoneMaterial;
         private static GameObject _korstoneModel;
@@ -62,6 +66,7 @@ namespace Orsuun.Client
             foreach (EnemyView view in _views.Values) Destroy(view.Root.gameObject);
             _views.Clear();
             _sim = sim;
+            SetZone(sim.Stage.Zone);
             _hero.rotation = Quaternion.identity;
             _hero.position = new Vector3(HeroX, 1f, 0f);
             foreach (Enemy enemy in sim.Enemies) SpawnView(enemy.Id);
@@ -70,20 +75,65 @@ namespace Orsuun.Client
         public void Init(LaneSim sim)
         {
             _sim = sim;
+            BuildScenery();
+            BuildHero();
+            SetZone(sim.Stage.Zone);
+        }
 
+        /// <summary>Ground, scrolling stripes and the zone backdrop. Public so the editor preview can frame it.</summary>
+        public void BuildScenery()
+        {
             Transform ground = Primitive(PrimitiveType.Cube, "Ground", new Color(0.30f, 0.34f, 0.26f));
-            ground.position = new Vector3(3f, -0.25f, 1f);
-            ground.localScale = new Vector3(40f, 0.5f, 8f);
+            ground.SetParent(transform, false);
+            // Runs from z=-12 (below the bottom of the view) to z=5, so the lane band has no empty strip under it.
+            ground.position = new Vector3(3f, -0.25f, -3.5f);
+            ground.localScale = new Vector3(40f, 0.5f, 17f);
+            _ground = ground.GetComponent<Renderer>();
 
             for (int i = 0; i < 10; i++)
             {
                 Transform stripe = Primitive(PrimitiveType.Cube, "Stripe", new Color(0.36f, 0.40f, 0.30f));
-                stripe.localScale = new Vector3(0.25f, 0.02f, 8f);
-                stripe.position = new Vector3(-8f + i * 2.4f, 0.01f, 1f);
+                stripe.SetParent(transform, false);
+                stripe.localScale = new Vector3(0.25f, 0.02f, 17f);
+                stripe.position = new Vector3(-8f + i * 2.4f, 0.01f, -3.5f);
                 _stripes.Add(stripe);
             }
 
+            // Environment key far behind the lane. The ground's far edge meets the view centre, so only the painting's
+            // upper three quarters (grass band, hills, sky) show above it.
+            Transform backdrop = Primitive(PrimitiveType.Quad, "Backdrop", Color.white);
+            backdrop.SetParent(transform, false);
+            backdrop.position = new Vector3(1.5f, -2f, 40f);
+            backdrop.localScale = new Vector3(32.7f, 18.4f, 1f);
+            _backdrop = backdrop.GetComponent<Renderer>();
+            _backdrop.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            _backdrop.receiveShadows = false;
+        }
+
+        /// <summary>Backdrop and ground tint for the zone type. Campaign stages use the Hunting Grounds key for now.</summary>
+        public void SetZone(ZoneType zone)
+        {
+            if (_zone == zone) return;
+            _zone = zone;
+            ZoneType key = zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone;
+            var mat = Resources.Load<Material>("Backdrops/Backdrop" + key);
+            if (mat != null) _backdrop.sharedMaterial = mat;
+            _backdrop.enabled = mat != null;
+
+            (Color ground, Color stripe) = key switch
+            {
+                ZoneType.KorstoneField => (new Color(0.50f, 0.38f, 0.20f), new Color(0.56f, 0.43f, 0.24f)),
+                ZoneType.CommanderGround => (new Color(0.30f, 0.21f, 0.15f), new Color(0.35f, 0.25f, 0.18f)),
+                _ => (new Color(0.52f, 0.48f, 0.22f), new Color(0.58f, 0.54f, 0.27f)),
+            };
+            _ground.material.color = ground;
+            foreach (Transform s in _stripes) s.GetComponent<Renderer>().material.color = stripe;
+        }
+
+        public void BuildHero()
+        {
             _hero = Primitive(PrimitiveType.Capsule, "Hero", HeroColor);
+            _hero.SetParent(transform, false);
             _hero.position = new Vector3(HeroX, 1f, 0f);
             _heroRenderer = _hero.GetComponent<Renderer>();
             UseMaterial(_heroRenderer, "EmberGear", HeroColor);
@@ -327,7 +377,8 @@ namespace Orsuun.Client
         {
             GameObject go = GameObject.CreatePrimitive(type);
             go.name = name;
-            Destroy(go.GetComponent<Collider>());
+            if (Application.isPlaying) Destroy(go.GetComponent<Collider>());
+            else DestroyImmediate(go.GetComponent<Collider>());
 
             var renderer = go.GetComponent<Renderer>();
             _greyBox ??= Resources.Load<Material>("GreyBox");

@@ -40,6 +40,7 @@ namespace Orsuun.Client.EditorTools
             korstone.SetFloat("_Roughness", 0.3f);
             EditorUtility.SetDirty(korstone);
             EnsurePostFx();
+            EnsureBackdrops();
             EnsureKorstoneImport();
             AssetDatabase.SaveAssets();
             Debug.Log("Orsuun rendering setup complete (URP " + (GraphicsSettings.defaultRenderPipeline != null) + ").");
@@ -117,6 +118,31 @@ namespace Orsuun.Client.EditorTools
             return mat;
         }
 
+        /// <summary>Unlit materials for the zone environment keys behind the lane (docs/concept/env-*.jpg, variant 1 of each).</summary>
+        private static void EnsureBackdrops()
+        {
+            Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround" })
+            {
+                string texPath = Res + "Backdrops/" + zone + ".jpg";
+                if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))
+                {
+                    ti.wrapMode = TextureWrapMode.Clamp;
+                    ti.maxTextureSize = 2048;
+                    ti.SaveAndReimport();
+                }
+                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+                if (tex == null) { Debug.LogWarning("Backdrop texture missing: " + texPath); continue; }
+                string matPath = Res + "Backdrops/Backdrop" + zone + ".mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+                if (mat == null) { mat = new Material(unlit); AssetDatabase.CreateAsset(mat, matPath); }
+                mat.shader = unlit;
+                mat.SetTexture("_BaseMap", tex);
+                mat.SetColor("_BaseColor", Color.white);
+                EditorUtility.SetDirty(mat);
+            }
+        }
+
         private static void EnsurePostFx()
         {
             string path = Res + "PostFX.asset";
@@ -155,6 +181,7 @@ namespace Orsuun.Client.EditorTools
             // a one-shot headless render must wait for them instead.
             ShaderUtil.allowAsyncCompilation = false;
             Ensure();
+            RenderLanePreview();
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -234,9 +261,56 @@ namespace Orsuun.Client.EditorTools
             AssetDatabase.SaveAssets();
         }
 
-        private static void Capture(Camera cam, string path)
+        /// <summary>The lane as the phone frames it (same camera as GameRoot), one shot per zone backdrop.</summary>
+        private static void RenderLanePreview()
         {
-            var rt = new RenderTexture(1600, 800, 24, RenderTextureFormat.ARGB32) { antiAliasing = 2 };
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var root = new GameObject("LanePreview");
+            var sun = new GameObject("Sun").AddComponent<Light>();
+            sun.transform.SetParent(root.transform);
+            sun.type = LightType.Directional;
+            sun.intensity = 1.1f;
+            sun.transform.rotation = Quaternion.Euler(40f, -30f, 0f);
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.45f, 0.45f, 0.5f);
+            var sh = new SphericalHarmonicsL2(); sh.AddAmbientLight(RenderSettings.ambientLight);
+            RenderSettings.ambientProbe = sh;
+            var volume = new GameObject("PostFX").AddComponent<Volume>();
+            volume.transform.SetParent(root.transform);
+            volume.isGlobal = true;
+            volume.sharedProfile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(Res + "PostFX.asset");
+            var cam = new GameObject("LaneCamera").AddComponent<Camera>();
+            cam.transform.SetParent(root.transform);
+            cam.fieldOfView = 25f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.16f, 0.19f, 0.24f);
+            cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);
+            cam.transform.LookAt(new Vector3(1.5f, 1.1f, 0f));
+            cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+            var rig = new GameObject("Lane"); rig.transform.SetParent(root.transform);
+            var view = rig.AddComponent<Orsuun.Client.LaneView>();
+            view.BuildScenery();
+            view.BuildHero();
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(Res + "Models/Korstone.fbx");
+            if (model != null)
+            {
+                var kor = (GameObject)Object.Instantiate(model, root.transform);
+                kor.transform.position = new Vector3(3.4f, 0f, 2.2f);
+                kor.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
+                var km = AssetDatabase.LoadAssetAtPath<Material>(Res + "KorstoneEmber.mat");
+                foreach (Renderer r in kor.GetComponentsInChildren<Renderer>()) r.sharedMaterial = km;
+            }
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround" })
+            {
+                view.SetZone((Orsuun.Rules.Combat.ZoneType)System.Enum.Parse(typeof(Orsuun.Rules.Combat.ZoneType), zone));
+                Capture(cam, "../artifacts/lane-" + zone + ".png", 1080, 1056);
+            }
+            Object.DestroyImmediate(root);
+        }
+
+        private static void Capture(Camera cam, string path, int width = 1600, int height = 800)
+        {
+            var rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32) { antiAliasing = 2 };
             cam.targetTexture = rt;
             var request = new UniversalRenderPipeline.SingleCameraRequest { destination = rt };
             bool viaRequest = RenderPipeline.SupportsRenderRequest(cam, request);

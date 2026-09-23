@@ -3,6 +3,7 @@
   "rootNamespace": "Orsuun.Client.EditorTools",
   "references": [
     "Orsuun.Client",
+    "Orsuun.Rules",
     "Unity.RenderPipelines.Core.Runtime",
     "Unity.RenderPipelines.Universal.Runtime"
   ],
