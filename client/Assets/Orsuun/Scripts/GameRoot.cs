@@ -3,6 +3,8 @@ using System.Collections;
 using Orsuun.Rules;
 using Orsuun.Rules.Combat;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace Orsuun.Client
 {
@@ -88,6 +90,7 @@ namespace Orsuun.Client
 
             LaneSim lane = ActiveLane;
             if (Lane.Sim != lane) Lane.Bind(lane);
+            Lane.SetGear(UpgradeGlow.Armor(Session), UpgradeGlow.Weapon(Session));
 
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);
             while (_accumulator >= 1f)
@@ -246,7 +249,21 @@ namespace Orsuun.Client
             sun.type = LightType.Directional;
             sun.intensity = 1.1f;
             sun.transform.rotation = Quaternion.Euler(40f, -30f, 0f);
+            RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.45f, 0.45f, 0.5f);
+            var ambient = new SphericalHarmonicsL2();
+            ambient.AddAmbientLight(RenderSettings.ambientLight);
+            RenderSettings.ambientProbe = ambient;
+
+            // Bloom makes the ember glow read as light rather than orange paint (URP; profile in Resources/PostFX).
+            cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+            var profile = Resources.Load<VolumeProfile>("PostFX");
+            if (profile != null)
+            {
+                var volume = new GameObject("PostFX").AddComponent<Volume>();
+                volume.isGlobal = true;
+                volume.sharedProfile = profile;
+            }
         }
     }
 }

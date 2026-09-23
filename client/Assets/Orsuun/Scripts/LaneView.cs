@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace Orsuun.Client
 {
-    /// <summary>Grey-box presentation of the lane: capsule hero, cube mobs, a tall dark Korstone.</summary>
+    /// <summary>
+    /// Lane presentation: capsule hero with a glaive on the ember-glow material, cube mobs, and the Korstone model
+    /// from Blender (Resources/Models/Korstone) with lit cracks. Falls back to a dark box if the model is missing.
+    /// </summary>
     public sealed class LaneView : MonoBehaviour
     {
         private const float HeroX = -1.6f;
@@ -18,6 +21,8 @@ namespace Orsuun.Client
             public Transform Root;
             public Transform HpFill;
             public float Punch;
+            public Vector3 Scale;
+            public bool IsModel;
         }
 
         private sealed class FloatingText
@@ -33,10 +38,16 @@ namespace Orsuun.Client
         private LaneSim _sim;
         private Transform _hero;
         private Renderer _heroRenderer;
+        private Renderer _weaponRenderer;
+        private float _armorGlow = -1f;
+        private float _weaponGlow = -1f;
         private float _heroPunch;
         private float _heroHurt;
 
         private static Material _greyBox;
+        private static Material _korstoneMaterial;
+        private static GameObject _korstoneModel;
+        private static bool _korstoneLoaded;
 
         private static readonly Color HeroColor = new Color(0.25f, 0.55f, 0.95f);
         private static readonly Color MobColor = new Color(0.75f, 0.25f, 0.22f);
@@ -75,6 +86,23 @@ namespace Orsuun.Client
             _hero = Primitive(PrimitiveType.Capsule, "Hero", HeroColor);
             _hero.position = new Vector3(HeroX, 1f, 0f);
             _heroRenderer = _hero.GetComponent<Renderer>();
+            UseMaterial(_heroRenderer, "EmberGear", HeroColor);
+
+            // Glaive: a pole and blade in the right hand, glowing on its own (hotter) material.
+            Transform glaive = Primitive(PrimitiveType.Cube, "Glaive", new Color(0.62f, 0.62f, 0.66f));
+            glaive.SetParent(_hero, false);
+            glaive.localPosition = new Vector3(0.62f, 0.35f, -0.25f);
+            glaive.localScale = new Vector3(0.07f, 2.1f, 0.07f);
+            glaive.localRotation = Quaternion.Euler(0f, 0f, -8f);
+            _weaponRenderer = glaive.GetComponent<Renderer>();
+            UseMaterial(_weaponRenderer, "EmberWeapon", new Color(0.62f, 0.62f, 0.66f));
+        }
+
+        /// <summary>Upgrade glow for the hero: armor = average of the non-weapon slots, weapon on its own.</summary>
+        public void SetGear(float armorGlow, float weaponGlow)
+        {
+            if (!Mathf.Approximately(armorGlow, _armorGlow)) { _armorGlow = armorGlow; _heroRenderer.material.SetFloat(UpgradeGlow.GlowId, armorGlow); }
+            if (!Mathf.Approximately(weaponGlow, _weaponGlow)) { _weaponGlow = weaponGlow; _weaponRenderer.material.SetFloat(UpgradeGlow.GlowId, weaponGlow); }
         }
 
         public void Handle(LaneEvent e)
@@ -166,7 +194,8 @@ namespace Orsuun.Client
                 Vector3 target;
                 if (enemy.IsKorstone)
                 {
-                    target = new Vector3(3.4f, 1.3f, 2.2f);
+                    // The model stands on its base; the box fallback is centred.
+                    target = new Vector3(3.4f, view.IsModel ? 0f : 1.3f, 2.2f);
                 }
                 else if (enemy.IsBoss)
                 {
@@ -181,7 +210,7 @@ namespace Orsuun.Client
 
                 view.Root.position = Vector3.Lerp(view.Root.position, target, 1f - Mathf.Exp(-9f * dt));
                 view.Punch = Mathf.MoveTowards(view.Punch, 0f, dt * 6f);
-                view.Root.localScale = BaseScale(enemy.IsKorstone, enemy.IsBoss) * (1f + view.Punch * 0.18f);
+                view.Root.localScale = view.Scale * (1f + view.Punch * 0.18f);
 
                 float ratio = Mathf.Clamp01(enemy.Hp / (float)enemy.MaxHp);
                 view.HpFill.localScale = new Vector3(ratio, 1f, 1f);
@@ -224,18 +253,22 @@ namespace Orsuun.Client
             Color color = korstone ? KorstoneColor : boss ? BossColor
                 : kind == EnemyKind.Captain ? new Color(0.85f, 0.55f, 0.15f)
                 : kind == EnemyKind.Image ? new Color(0.6f, 0.4f, 0.9f, 0.6f) : MobColor;
-            Transform root = Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, kind.ToString(), color);
-            if (kind == EnemyKind.ElderKorstone) root.localScale *= 1.3f;
+            GameObject model = korstone ? KorstoneModel() : null;
+            Transform root = model != null ? Instantiate(model).transform : Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, kind.ToString(), color);
+            root.name = kind.ToString();
+            if (model != null)
+                foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) r.sharedMaterial = _korstoneMaterial;
+            Vector3 s = model != null ? Vector3.one : BaseScale(korstone, boss);
+            if (kind == EnemyKind.ElderKorstone) s *= 1.3f;
             root.SetParent(transform, false);
-            root.position = new Vector3(SpawnX, korstone ? 1.3f : boss ? 1.2f : 0.35f, korstone ? 2.2f : 0f);
-            root.localScale = BaseScale(korstone, boss);
-            if (korstone) root.rotation = Quaternion.Euler(0f, 25f, 4f);
+            root.position = new Vector3(SpawnX, korstone ? (model != null ? 0f : 1.3f) : boss ? 1.2f : 0.35f, korstone ? 2.2f : 0f);
+            root.localScale = s;
+            if (korstone) root.rotation = Quaternion.Euler(0f, 25f, model != null ? 0f : 4f);
 
             // Bars are parented to a holder that cancels the body's scale, so they keep a fixed size.
             var holder = new GameObject("HpBar").transform;
             holder.SetParent(root, false);
-            holder.localPosition = new Vector3(0f, 0.75f, 0f);
-            Vector3 s = BaseScale(korstone, boss);
+            holder.localPosition = new Vector3(0f, model != null ? 2.9f : 0.75f, 0f);
             holder.localScale = new Vector3((korstone || boss ? 1.6f : 0.7f) / s.x, 0.09f / s.y, 0.05f / s.z);
             holder.rotation = Quaternion.identity;
 
@@ -245,7 +278,7 @@ namespace Orsuun.Client
             fill.SetParent(holder, false);
             fill.localPosition = new Vector3(0f, 0f, -0.01f);
 
-            _views[enemyId] = new EnemyView { Root = root, HpFill = fill };
+            _views[enemyId] = new EnemyView { Root = root, HpFill = fill, Scale = s, IsModel = model != null };
         }
 
         private void Float(string content, Vector3 position, Color color, float scale)
@@ -267,6 +300,27 @@ namespace Orsuun.Client
             mesh.color = color;
 
             _texts.Add(new FloatingText { Mesh = mesh });
+        }
+
+        private static GameObject KorstoneModel()
+        {
+            if (!_korstoneLoaded)
+            {
+                _korstoneLoaded = true;
+                _korstoneModel = Resources.Load<GameObject>("Models/Korstone");
+                _korstoneMaterial = Resources.Load<Material>("KorstoneEmber");
+                if (_korstoneModel == null || _korstoneMaterial == null) _korstoneModel = null;
+            }
+            return _korstoneModel;
+        }
+
+        /// <summary>Swaps a renderer onto an instance of a Resources material, keeping the tint.</summary>
+        private static void UseMaterial(Renderer renderer, string resource, Color color)
+        {
+            var shared = Resources.Load<Material>(resource);
+            if (shared == null) return;
+            renderer.sharedMaterial = shared;
+            renderer.material.color = color;
         }
 
         private static Transform Primitive(PrimitiveType type, string name, Color color)

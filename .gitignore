@@ -24,3 +24,6 @@ client/.utmp/
 
 # Playtest builds served by Caddy on the VM
 downloads/
+
+# Blender backups
+*.blend1

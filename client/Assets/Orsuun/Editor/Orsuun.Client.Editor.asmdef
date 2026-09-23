@@ -2,7 +2,9 @@
   "name": "Orsuun.Client.Editor",
   "rootNamespace": "Orsuun.Client.EditorTools",
   "references": [
-    "Orsuun.Client"
+    "Orsuun.Client",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
   ],
   "includePlatforms": [
     "Editor"

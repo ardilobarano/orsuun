@@ -31,6 +31,9 @@
     <Reference Include="$(UnityManaged)\UnityEngine.JSONSerializeModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.ScriptingModule.dll" Condition="Exists('$(UnityManaged)\UnityEngine.ScriptingModule.dll')" />
     <Reference Include="$(UnityUI)" />
+    <!-- URP (since 23 Sep 2026): generated into Library/ScriptAssemblies once the editor has compiled the project. -->
+    <Reference Include="..\..\client\Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll" Condition="Exists('..\..\client\Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll')" />
+    <Reference Include="..\..\client\Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Runtime.dll" Condition="Exists('..\..\client\Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Runtime.dll')" />
   </ItemGroup>
 
 </Project>

@@ -12,7 +12,6 @@ namespace Orsuun.Client.EditorTools
     public static class ProjectSetup
     {
         private const string ScenePath = "Assets/Orsuun/Scenes/Main.unity";
-        private const string MaterialPath = "Assets/Orsuun/Resources/GreyBox.mat";
 
         [MenuItem("Orsuun/Run Project Setup")]
         public static void Run()
@@ -33,13 +32,9 @@ namespace Orsuun.Client.EditorTools
                 EditorSceneManager.SaveScene(scene, ScenePath);
             }
 
-            // Runtime-only primitives reference no material asset, so the build would strip their shader
-            // and draw them magenta. A material in Resources keeps the shader in the player.
-            if (!File.Exists(MaterialPath))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(MaterialPath));
-                AssetDatabase.CreateAsset(new Material(Shader.Find("Standard")), MaterialPath);
-            }
+            // URP pipeline, bloom and the Resources materials. Runtime-only primitives reference no material asset,
+            // so the build would strip their shaders; the materials in Resources keep them in the player.
+            RenderingSetup.Ensure();
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
