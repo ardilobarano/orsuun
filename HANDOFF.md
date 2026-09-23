@@ -24,7 +24,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Boss brackets | Simulated rivals until the multiplayer milestone; real shared HP pools later. |
 | Playtest | Phase 0 grey-box playtest done, owner reported it fine. First on-device playtest against the live server on the owner's iPhone, 23 Sep 2026: owner reported it good. |
 | Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
-| Upgrade glow | Every equipped item glows from +7 upward, not only the weapon (owner, 23 Sep 2026). Weapon brightest; intensity steps at +8 and +9. Drives the glow shader in the URP switch. |
+| Upgrade glow and looks | Owner, 23 Sep 2026: only the weapon and the body armour are visible on the character and glow, each by its own level from +7 up, in classic MMO upgrade shine (aura, flowing light, sweep; pale gold +7, gold +8, ember-gold +9). Helmet, shield, bracelet, necklace, earrings and shoes are stats only: forged like the weapon, no look, no glow. |
 | Reference sheets | Chosen by the owner on 23 Sep 2026, all in `docs/concept/`: `vanguard-1`, `korstone-1`, `kestrel-1`, `wraithsworn-2`, `drumcaller-2`, `wolf-2`, `glow-1` (`-sheet.jpg`). The other variant of each is kept for comparison only. Every sheet after the Vanguard was generated with `vanguard-1` as the style reference; keep doing that for new sheets. |
 
 ## What exists and works

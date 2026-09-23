@@ -130,18 +130,17 @@ namespace Orsuun.Client
             foreach (Transform s in _stripes) s.GetComponent<Renderer>().material.color = stripe;
         }
 
-        /// <summary>A piece of the hero and what drives its glow: an EquipSlot index, NoSlot, or AverageOfArmor.</summary>
+        /// <summary>A piece of the hero and what drives its glow: an EquipSlot index (weapon or armour) or NoSlot.</summary>
         private readonly List<(Renderer renderer, int slot)> _heroParts = new List<(Renderer, int)>();
         private readonly float[] _partGlow = new float[16];
         private const int NoSlot = -1;
-        private const int AverageOfArmor = -2;
 
         public void BuildHero()
         {
             var skin = Resources.Load<Material>("VanguardEmber");
-            // Modular Vanguard (art/blender/vanguard.blend): the Rodin model cut into one mesh per equipment slot, so
-            // every item glows at its own upgrade level. Jewellery has no mesh yet. Falls back to the one-piece model,
-            // then to the capsule.
+            // Modular Vanguard (art/blender/vanguard.blend): the Rodin model cut into Weapon, Armor (the whole outfit)
+            // and Body (face, banner). Only the weapon and the armour show and glow, each at its own level (owner,
+            // 23 Sep 2026). Falls back to the one-piece model, then to the capsule.
             GameObject model = Resources.Load<GameObject>("Models/VanguardModular");
             bool modular = model != null;
             if (!modular) model = Resources.Load<GameObject>("Models/Vanguard");
@@ -156,7 +155,7 @@ namespace Orsuun.Client
                 foreach (Renderer r in body.GetComponentsInChildren<Renderer>())
                 {
                     r.sharedMaterial = skin;
-                    _heroParts.Add((r, modular ? SlotOf(r.name) : AverageOfArmor));
+                    _heroParts.Add((r, modular ? SlotOf(r.name) : (int)EquipSlot.Armor));
                     if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
                 }
                 // Shift relative to where the file put it (the FBX root carries its own offset): feet on 0, centred.
@@ -172,7 +171,7 @@ namespace Orsuun.Client
             _hero.position = new Vector3(HeroX, 1f, 0f);
             Renderer capsule = _hero.GetComponent<Renderer>();
             UseMaterial(capsule, "EmberGear", HeroColor);
-            _heroParts.Add((capsule, AverageOfArmor));
+            _heroParts.Add((capsule, (int)EquipSlot.Armor));
 
             // Glaive: a pole and blade in the right hand, glowing on its own (hotter) material.
             Transform glaive = Primitive(PrimitiveType.Cube, "Glaive", new Color(0.62f, 0.62f, 0.66f));
@@ -185,7 +184,7 @@ namespace Orsuun.Client
             _heroParts.Add((blade, (int)EquipSlot.Weapon));
         }
 
-        /// <summary>Vanguard_Helmet -> EquipSlot.Helmet; anything unrecognised (the body) has no slot.</summary>
+        /// <summary>Vanguard_Weapon -> EquipSlot.Weapon, Vanguard_Armor -> EquipSlot.Armor; anything else has no slot.</summary>
         private static int SlotOf(string partName)
         {
             string suffix = partName.Substring(partName.LastIndexOf('_') + 1);
@@ -195,13 +194,10 @@ namespace Orsuun.Client
         /// <summary>Upgrade glow per equipment slot (UpgradeGlow.PerSlot); each hero piece shows its own item's level.</summary>
         public void SetGear(float[] glowBySlot)
         {
-            float armorSum = 0f; int armorCount = 0;
-            for (int i = 0; i < glowBySlot.Length; i++)
-                if (i != (int)EquipSlot.Weapon) { armorSum += glowBySlot[i]; armorCount++; }
             for (int p = 0; p < _heroParts.Count; p++)
             {
                 (Renderer r, int slot) = _heroParts[p];
-                float glow = slot >= 0 ? glowBySlot[slot] : slot == AverageOfArmor ? armorSum / Mathf.Max(1, armorCount) : 0f;
+                float glow = slot >= 0 && UpgradeGlow.IsVisible((EquipSlot)slot) ? glowBySlot[slot] : 0f;
                 if (Mathf.Approximately(glow, _partGlow[p]) && _partGlow[p] >= 0f) continue;
                 _partGlow[p] = glow;
                 r.material.SetFloat(UpgradeGlow.GlowId, glow);

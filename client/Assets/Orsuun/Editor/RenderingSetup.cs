@@ -320,8 +320,8 @@ namespace Orsuun.Client.EditorTools
             }
             view.SetGear(new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f });
             Capture(cam, "../artifacts/lane-glow9.png", 1080, 1056);
-            // Each piece at its own level: weapon +9, helmet +8, shield +7, the rest below +7.
-            view.SetGear(new[] { 1f, 0f, 0.65f, 0.35f, 0f, 0f, 0f, 0f });
+            // Each piece at its own level: weapon +9, armour +7; the stat-only slots at +9 must not glow.
+            view.SetGear(new[] { 1f, 0.35f, 1f, 1f, 1f, 1f, 1f, 1f });
             Capture(cam, "../artifacts/lane-glow-mixed.png", 1080, 1056);
 
             // Close-ups of the hero for judging the upgrade glow: plain, each piece at its own level, full +9.
@@ -330,7 +330,7 @@ namespace Orsuun.Client.EditorTools
             var steps = new (string name, float[] glow)[]
             {
                 ("plain", new float[8]),
-                ("mixed", new[] { 1f, 0f, 0.65f, 0.35f, 0f, 0f, 0f, 0f }),
+                ("mixed", new[] { 1f, 0f, 1f, 1f, 1f, 1f, 1f, 1f }),
                 ("plus7", new[] { 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f }),
                 ("plus9", new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f }),
             };
