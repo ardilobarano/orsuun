@@ -132,6 +132,25 @@ namespace Orsuun.Rules
         }
     }
 
+    /// <summary>One finished online farm loop, as the heartbeat reports it (ActivePlay.Verify replays it).</summary>
+    public sealed class LoopReport
+    {
+        public LoopReport(int loop, int ticks, int potions, bool[] autoCast, List<CastInput> casts)
+        {
+            Loop = loop;
+            Ticks = ticks;
+            Potions = potions;
+            AutoCast = autoCast;
+            Casts = casts;
+        }
+
+        public int Loop { get; }
+        public int Ticks { get; }
+        public int Potions { get; }
+        public bool[] AutoCast { get; }
+        public List<CastInput> Casts { get; }
+    }
+
     /// <summary>
     /// One player's state: inventory, equipment, stage progress and the live lane. It owns the payments the
     /// rule services leave to the caller, so the same checks run on the server.
@@ -231,7 +250,7 @@ namespace Orsuun.Rules
                 _equipped[(int)item.Slot] = NewStarter(item.Slot);
             }
 
-            Lane.SetHero(Hero);
+            RefreshHero();
             return result;
         }
 
@@ -248,7 +267,7 @@ namespace Orsuun.Rules
             if (blocker != null) throw new InvalidOperationException(blocker);
 
             Inventory.Turnstones -= _etchings.Turn(OnAnvil, Pool, _rng);
-            Lane.SetHero(Hero);
+            RefreshHero();
         }
 
         /// <summary>Bulk Turn with an optional stop rule. Returns turns made; stopped says whether the rule hit.</summary>
@@ -258,16 +277,15 @@ namespace Orsuun.Rules
             if (blocker != null) throw new InvalidOperationException(blocker);
 
             _etchings.TurnUntil(OnAnvil, Pool, Inventory, _rng, maxTurns, stopEntryId, minTier, out int turns, out stopped);
-            Lane.SetHero(Hero);
+            RefreshHero();
             return turns;
         }
 
         /// <summary>Re-reads the farm lane's configuration with the current bell applied (call when a bell changes).</summary>
         public void ApplyBell(Bell bell)
         {
-            int parked = ParkedStage;
-            Lane = new LaneSim(EveningBells.Apply(Content.Stage(parked), bell), Hero, SkillDef.VanguardWrath(), Inventory, _rng);
-            Lane.AutoCast[1] = true;
+            _bell = bell;
+            NewFarmLane(ParkedStage);
         }
 
         public string? SocketBlocker(ItemState item, int socketIndex, ShardType type, int rank) =>
@@ -277,7 +295,7 @@ namespace Orsuun.Rules
         public bool SetShard(ItemState item, int socketIndex, ShardType type, int rank)
         {
             bool ok = _sockets.TryInsert(item, socketIndex, type, rank, Inventory, _rng);
-            Lane.SetHero(Hero);
+            RefreshHero();
             return ok;
         }
 
@@ -295,16 +313,136 @@ namespace Orsuun.Rules
             ItemState? previous = _equipped[(int)item.Slot];
             _equipped[(int)item.Slot] = item;
             if (previous != null) Inventory.Loot.Add(previous);
-            Lane.SetHero(Hero);
+            RefreshHero();
         }
 
         /// <summary>Moves the live lane to an unlocked campaign stage or zone.</summary>
         public void Park(int parkId)
         {
             if (!Content.IsUnlocked(parkId, HighestStageCleared)) throw new InvalidOperationException("Not unlocked yet.");
-            Lane = new LaneSim(Content.Stage(parkId), Hero, SkillDef.VanguardWrath(), Inventory, _rng);
-            Lane.AutoCast[1] = true;
+            NewFarmLane(parkId);
         }
+
+        private Bell _bell = Bell.None;
+
+        /// <summary>
+        /// The farm lane for a stage with the bell in force, keeping the player's auto-cast switches. Online (a lane
+        /// seed is set) it restarts the current loop from the seed, so the server can replay it.
+        /// </summary>
+        private void NewFarmLane(int parkId)
+        {
+            StageConfig stage = EveningBells.Apply(Content.Stage(parkId), _bell);
+            if (_laneSeed.HasValue)
+            {
+                StartLoop(stage, LaneLoop);
+                return;
+            }
+            bool[] auto = (bool[])Lane.AutoCast.Clone();
+            Lane = new LaneSim(stage, Hero, SkillDef.VanguardWrath(), Inventory, _rng);
+            Array.Copy(auto, Lane.AutoCast, Math.Min(auto.Length, Lane.AutoCast.Length));
+        }
+
+        // ---- Active play (online): the farm lane runs one seeded loop at a time, see Rules.Combat.ActivePlay ----
+
+        /// <summary>Loop reports kept for the next heartbeat; older ones are dropped past this.</summary>
+        public const int MaxQueuedReports = 20;
+
+        private ulong? _laneSeed;
+        private bool[] _loopAuto = new bool[0];
+        private int _loopPotions;
+        private string _loopHero = "";
+        private bool _loopDirty;
+        private List<CastInput> _loopCasts = new List<CastInput>();
+        private readonly List<LoopReport> _reports = new List<LoopReport>();
+
+        /// <summary>Loop number the farm lane is playing (online only).</summary>
+        public int LaneLoop { get; private set; }
+        public bool LaneSeeded => _laneSeed.HasValue;
+        public IReadOnlyList<LoopReport> PendingReports => _reports;
+
+        /// <summary>
+        /// The server's lane seed and the next loop it expects. A new seed (first login, a park) restarts the lane on
+        /// that loop; the same seed again changes nothing, the client keeps counting its own loops.
+        /// </summary>
+        public void SetLaneSeed(ulong seed, int loop)
+        {
+            if (_laneSeed == seed) return;
+            _laneSeed = seed;
+            _reports.Clear();
+            StartLoop(Lane.Stage, loop);
+        }
+
+        private void StartLoop(StageConfig stage, int loop)
+        {
+            bool[] auto = (bool[])Lane.AutoCast.Clone();
+            HeroStats hero = Hero;
+            Lane = ActivePlay.NewLoop(stage, hero, SkillDef.VanguardWrath(), Inventory, _laneSeed!.Value, loop);
+            Array.Copy(auto, Lane.AutoCast, Math.Min(auto.Length, Lane.AutoCast.Length));
+            LaneLoop = loop;
+            _loopAuto = (bool[])Lane.AutoCast.Clone();
+            _loopPotions = Inventory.Potions;
+            _loopHero = Fingerprint(hero);
+            _loopDirty = false;
+            _loopCasts = new List<CastInput>();
+        }
+
+        /// <summary>A tapped skill: aimed, and recorded with its tick for the loop report.</summary>
+        public bool Cast(int skill)
+        {
+            if (!Lane.TryCast(skill)) return false;
+            if (_laneSeed.HasValue) _loopCasts.Add(new CastInput(Lane.CurrentTick, skill));
+            return true;
+        }
+
+        /// <summary>Flips a skill's auto-cast. Mid-loop the replay cannot follow it, so that loop is not reported.</summary>
+        public void ToggleAutoCast(int skill)
+        {
+            Lane.AutoCast[skill] = !Lane.AutoCast[skill];
+            _loopDirty = true;
+        }
+
+        /// <summary>
+        /// Call after every farm-lane tick. Online, when the lane finishes an encounter cycle the loop is queued for the
+        /// next heartbeat (unless something the replay cannot see changed mid-loop) and the next loop starts. Returns
+        /// true when Lane was replaced.
+        /// </summary>
+        public bool CloseLoopIfDone()
+        {
+            if (!_laneSeed.HasValue || Lane.Cycles == 0) return false;
+            if (!_loopDirty && Lane.CurrentTick <= ActivePlay.MaxLoopTicks)
+            {
+                _reports.Add(new LoopReport(LaneLoop, Lane.CurrentTick, _loopPotions, _loopAuto, _loopCasts));
+                if (_reports.Count > MaxQueuedReports) _reports.RemoveAt(0);
+            }
+            StartLoop(Lane.Stage, LaneLoop + 1);
+            return true;
+        }
+
+        /// <summary>Hands the queued loop reports to the heartbeat. Put them back with RequeueReports if it fails.</summary>
+        public List<LoopReport> TakeReports()
+        {
+            var taken = new List<LoopReport>(_reports);
+            _reports.Clear();
+            return taken;
+        }
+
+        public void RequeueReports(List<LoopReport> reports)
+        {
+            _reports.InsertRange(0, reports);
+            while (_reports.Count > MaxQueuedReports) _reports.RemoveAt(0);
+        }
+
+        /// <summary>Pushes the current hero into the lane; a real change mid-loop means the replay would differ.</summary>
+        private void RefreshHero()
+        {
+            HeroStats hero = Hero;
+            if (_laneSeed.HasValue && Fingerprint(hero) != _loopHero) _loopDirty = true;
+            Lane.SetHero(hero);
+        }
+
+        private static string Fingerprint(HeroStats h) =>
+            h.MaxHp + "/" + h.Attack + "/" + h.Defense + "/" + h.AttackIntervalTicks + "/" + h.CritChanceBp + "/" + h.CritMultiplierPercent
+            + "/" + h.BeastDamagePercent + "/" + h.EvasionBp + "/" + h.CommanderDamageTakenPercent;
 
         /// <summary>Local Commander fight: damage, rank among simulated rivals and the chest. The server does the same.</summary>
         public BossRunResult FightBoss(BossDef boss, out ulong seed, out int rank, out string chest)
@@ -313,7 +451,7 @@ namespace Orsuun.Rules
             BossRunResult result = BossRun.Simulate(boss, Hero, Inventory, seed);
             rank = BossRun.Rank(result.Damage, boss, _rng);
             chest = HuntYield.LootCommander(boss, rank, Inventory, _rng);
-            Lane.SetHero(Hero);
+            RefreshHero();
             return result;
         }
 
@@ -341,7 +479,7 @@ namespace Orsuun.Rules
             WeaponsBroken = weaponsBroken;
             HighestStageCleared = highestStageCleared;
             if (parkedStage != ParkedStage && Content.IsUnlocked(parkedStage, HighestStageCleared)) Park(parkedStage);
-            Lane.SetHero(Hero);
+            RefreshHero();
         }
 
         private ItemState NewWeapon() => NewStarter(EquipSlot.Weapon);

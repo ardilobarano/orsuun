@@ -42,6 +42,7 @@ namespace Orsuun.Client.EditorTools
             EnsurePostFx();
             EnsureBackdrops();
             EnsureLooks();
+            EnsureMobs();
             EnsureKorstoneImport();
             AssetDatabase.SaveAssets();
             Debug.Log("Orsuun rendering setup complete (URP " + (GraphicsSettings.defaultRenderPipeline != null) + ").");
@@ -132,14 +133,56 @@ namespace Orsuun.Client.EditorTools
             foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
             {
                 string id = Path.GetFileNameWithoutExtension(fbx);
-                EnsureModelImport(models + id + ".fbx");
                 bool weapon = id.StartsWith("Weapon");
+                if (weapon) EnsureModelImport(models + id + ".fbx");
+                else EnsureAnimatedImport(models + id + ".fbx");
                 Material mat = EnsureGlowMaterial("Looks/" + id, Color.white, crackScale: 5f, crackWidth: 0.025f,
                     intensity: weapon ? 2.0f : 1.15f, rim: weapon ? 2f : 2.5f);
                 mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png"));
                 mat.SetFloat("_BodyGlow", weapon ? 1f : 0f);
                 // Armour meshes are many small fragments: a wide aura hull splits into shards, so armour keeps it thin.
                 mat.SetFloat("_AuraWidth", weapon ? 0.035f : 0.01f);
+                EditorUtility.SetDirty(mat);
+            }
+        }
+
+        /// <summary>
+        /// One URP Lit material per enemy model (Resources/Models/Mobs/*.fbx from looks.py mob_model) in Resources/Mobs.
+        /// The Hollowed are ember-corrupted: their base colour doubles as a faint emission, so the bright orange veins
+        /// cross the bloom threshold while dark fur barely lifts. Deserters are plain men and get none.
+        /// </summary>
+        private static void EnsureMobs()
+        {
+            const string models = Res + "Models/Mobs/";
+            if (!Directory.Exists(models)) return;
+            Directory.CreateDirectory(Res + "Mobs");
+            Shader lit = Shader.Find("Universal Render Pipeline/Lit");
+            foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
+            {
+                string id = Path.GetFileNameWithoutExtension(fbx);
+                EnsureModelImport(models + id + ".fbx");
+                string matPath = Res + "Mobs/" + id + ".mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+                if (mat == null) { mat = new Material(lit); AssetDatabase.CreateAsset(mat, matPath); }
+                mat.shader = lit;
+                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png");
+                mat.SetTexture("_BaseMap", tex);
+                bool ember = id != "Deserter";
+                // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
+                mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
+                mat.SetFloat("_Smoothness", 0.2f);
+                if (ember)
+                {
+                    mat.EnableKeyword("_EMISSION");
+                    mat.SetTexture("_EmissionMap", tex);
+                    mat.SetColor("_EmissionColor", new Color(0.32f, 0.26f, 0.2f));
+                }
+                else
+                {
+                    mat.DisableKeyword("_EMISSION");
+                    mat.SetColor("_EmissionColor", Color.black);
+                }
+                mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                 EditorUtility.SetDirty(mat);
             }
         }
@@ -197,6 +240,57 @@ namespace Orsuun.Client.EditorTools
             EnsureModelImport("Assets/Orsuun/Models/Classes/Kestrel.fbx");
             EnsureModelImport("Assets/Orsuun/Models/Classes/Wraithsworn.fbx");
             EnsureModelImport("Assets/Orsuun/Models/Classes/Drumcaller.fbx");
+        }
+
+        /// <summary>Clip names from art/blender/rig.py and how each one wraps.</summary>
+        private static readonly (string name, WrapMode wrap)[] HeroClips =
+        {
+            ("Idle", WrapMode.Loop), ("Run", WrapMode.Loop), ("Attack", WrapMode.Once), ("Hit", WrapMode.Once), ("Death", WrapMode.ClampForever),
+        };
+
+        /// <summary>
+        /// Rigged armour looks: legacy clips (LaneView plays them by name on the Animation component), one per Blender
+        /// action. The FBX takes are called "Armature|Idle" and so on; they are renamed to the bare action name.
+        /// </summary>
+        private static void EnsureAnimatedImport(string path)
+        {
+            if (!(AssetImporter.GetAtPath(path) is ModelImporter importer)) return;
+            if (importer.animationType != ModelImporterAnimationType.Legacy || !importer.importAnimation
+                || importer.materialImportMode != ModelImporterMaterialImportMode.None)
+            {
+                // The takes are only listed once the file has been imported with animation on.
+                importer.materialImportMode = ModelImporterMaterialImportMode.None;
+                importer.animationType = ModelImporterAnimationType.Legacy;
+                importer.importAnimation = true;
+                importer.SaveAndReimport();
+            }
+            var clips = new System.Collections.Generic.List<ModelImporterClipAnimation>();
+            foreach (ModelImporterClipAnimation take in importer.defaultClipAnimations)
+            {
+                string bare = take.takeName.Substring(take.takeName.LastIndexOf('|') + 1);
+                foreach ((string name, WrapMode wrap) in HeroClips)
+                {
+                    if (bare != name) continue;
+                    take.name = name;
+                    take.wrapMode = wrap;
+                    take.loopTime = wrap == WrapMode.Loop;
+                    clips.Add(take);
+                }
+            }
+            if (clips.Count == 0)
+            {
+                var takes = new System.Collections.Generic.List<string>();
+                foreach (ModelImporterClipAnimation take in importer.defaultClipAnimations) takes.Add(take.takeName);
+                Debug.LogWarning("No hero clips found in " + path + " (takes: " + string.Join(", ", takes) + ")");
+                return;
+            }
+            bool same = importer.clipAnimations.Length == clips.Count;
+            for (int i = 0; same && i < clips.Count; i++)
+                same = importer.clipAnimations[i].name == clips[i].name && importer.clipAnimations[i].wrapMode == clips[i].wrapMode;
+            if (same && importer.animationType == ModelImporterAnimationType.Legacy && importer.importAnimation
+                && importer.materialImportMode == ModelImporterMaterialImportMode.None) return;
+            importer.clipAnimations = clips.ToArray();
+            importer.SaveAndReimport();
         }
 
         private static void EnsureModelImport(string path)
@@ -365,7 +459,69 @@ namespace Orsuun.Client.EditorTools
                 view.SetGear(glow);
                 Capture(cam, "../artifacts/hero-" + name + ".png", 700, 1000);
             }
+            // The new bands, 30 to 59: armour and weapon of the same band.
+            for (int t = 3; t <= 5; t++)
+            {
+                view.SetLooks("Armor_T" + t, "Weapon_T" + t);
+                view.SetGear(none);
+                Capture(cam, "../artifacts/hero-T" + t + ".png", 700, 1000);
+            }
+
+            // Animation poses on the rigged T1 look (legacy clips sampled directly; the editor runs no Animation update).
+            view.SetLooks("Armor_T1", "Weapon_T1");
+            view.SetGear(none);
+            foreach ((string clip, float at) in new[] { ("Attack", 0.30f), ("Attack", 0.57f), ("Run", 0.0f), ("Run", 0.5f), ("Hit", 0.33f), ("Death", 1f) })
+            {
+                if (!view.PoseHero(clip, at)) { Debug.LogWarning("No clip " + clip + " on the hero look"); break; }
+                CaptureSkinned(cam, "../artifacts/pose-" + clip + "-" + (int)(at * 100) + ".png", view.transform);
+            }
+            view.PoseHero("Idle", 0f);
+
+            // Enemies from a live lane: a stage-1 pack, then each Commander (the boss stage has no packs).
+            cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);
+            cam.transform.LookAt(new Vector3(1.5f, 1.1f, 0f));
+            view.SetLooks("Armor_T1", "Weapon_T1");
+            var heroStats = Orsuun.Rules.HeroFactory.FromWeapon(new Orsuun.Rules.ItemState(10, Orsuun.Rules.Rarity.Rare));
+            var skills = Orsuun.Rules.Combat.SkillDef.VanguardWrath();
+            var pack = Orsuun.Rules.Combat.ActivePlay.NewLoop(Orsuun.Rules.Content.Stage(1), heroStats, skills, new Orsuun.Rules.Inventory { Potions = 5 }, 7UL, 0);
+            for (int i = 0; i < 4000 && !(pack.Phase == Orsuun.Rules.Combat.LanePhase.Fighting && pack.Enemies.Count >= 6); i++) { pack.Tick(); pack.DrainEvents(); }
+            view.Bind(pack);
+            view.PlaceEnemies(1f);
+            Capture(cam, "../artifacts/lane-mobs.png", 1080, 1056);
+            foreach (Orsuun.Rules.BossDef boss in Orsuun.Rules.Content.Bosses)
+            {
+                var fight = Orsuun.Rules.Combat.ActivePlay.NewLoop(Orsuun.Rules.Content.BossStage(boss), heroStats, skills, new Orsuun.Rules.Inventory { Potions = 5 }, 7UL, 0);
+                for (int i = 0; i < 4000 && fight.Phase != Orsuun.Rules.Combat.LanePhase.Fighting; i++) { fight.Tick(); fight.DrainEvents(); }
+                view.Bind(fight);
+                view.PlaceEnemies(1f);
+                Capture(cam, "../artifacts/lane-boss-" + boss.Id + ".png", 1080, 1056);
+            }
             Object.DestroyImmediate(root);
+        }
+
+        /// <summary>
+        /// Skinned meshes deform in the player loop, which a one-shot editor render never runs: bake each one at the
+        /// sampled pose into a stand-in mesh for the capture, then put the skinned renderers back.
+        /// </summary>
+        private static void CaptureSkinned(Camera cam, string path, Transform root)
+        {
+            var standIns = new System.Collections.Generic.List<GameObject>();
+            var hidden = new System.Collections.Generic.List<SkinnedMeshRenderer>();
+            foreach (SkinnedMeshRenderer smr in root.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                var baked = new Mesh();
+                smr.BakeMesh(baked, true);
+                var go = new GameObject(smr.name + "Posed");
+                go.transform.SetPositionAndRotation(smr.transform.position, smr.transform.rotation);
+                go.AddComponent<MeshFilter>().sharedMesh = baked;
+                go.AddComponent<MeshRenderer>().sharedMaterials = smr.sharedMaterials;
+                smr.enabled = false;
+                hidden.Add(smr);
+                standIns.Add(go);
+            }
+            Capture(cam, path, 700, 1000);
+            foreach (GameObject go in standIns) Object.DestroyImmediate(go);
+            foreach (SkinnedMeshRenderer smr in hidden) smr.enabled = true;
         }
 
         private static void Capture(Camera cam, string path, int width = 1600, int height = 800)

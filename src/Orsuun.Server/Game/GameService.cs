@@ -79,6 +79,7 @@ public sealed class GameService
             _db.Ledger.Add(Entry(account.Id, null, "account-created", "starter kit", account.Sorn, Guid.NewGuid().ToString("N")));
         }
 
+        if (account.LaneSeed == 0) NewLane(account);
         account.SessionToken = NewToken();
         await _db.SaveChangesAsync(ct);
         return new GuestLoginResponse(account.Id, account.SessionToken, created);
@@ -90,14 +91,73 @@ public sealed class GameService
         return await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
     }
 
-    /// <summary>Credits hunting time since the last heartbeat and moves the heartbeat forward.</summary>
-    public async Task<StateDto> HeartbeatAsync(Account account, CancellationToken ct)
+    /// <summary>At most this many loop reports are replayed per heartbeat.</summary>
+    public const int MaxLoopsPerHeartbeat = 20;
+
+    /// <summary>
+    /// Credits hunting time since the last heartbeat and moves the heartbeat forward. Online, the loops the client
+    /// reports are replayed (ActivePlay.Verify) and their pace is paid for the time they cover; the rest of the
+    /// interval pays the plain auto-cast rate. Offline time never earns the active bonus.
+    /// </summary>
+    public async Task<StateDto> HeartbeatAsync(Account account, HeartbeatRequest? request, CancellationToken ct)
     {
         DateTime now = DateTime.UtcNow;
-        SettlementDto settlement = Settle(account, now);
+        bool online = now - account.LastHeartbeatUtc <= OnlineGrace;
+        (int activeBp, int verified) = online ? VerifyLoops(account, request?.Loops, now) : (RandomExtensions.FullBp, 0);
+        SettlementDto settlement = Settle(account, now, activeBp, verified) with { ActiveBp = activeBp, LoopsVerified = verified };
         account.LastHeartbeatUtc = now;
         await SaveAsync(ct);
         return ToState(account, settlement: settlement);
+    }
+
+    /// <summary>
+    /// Replays the reported loops in order and returns the interval's hunting efficiency. A report must be for the
+    /// next expected loop or a later one (skipped loops, e.g. ones where the player changed gear, earn auto pace);
+    /// replays stop once the reported ticks exceed the wall-clock interval by more than one loop. The efficiency is
+    /// time-weighted: verified ticks, capped at the interval, pay their pace; the rest pays FullBp.
+    /// </summary>
+    private (int bp, int verified) VerifyLoops(Account account, LoopReportDto[]? loops, DateTime now)
+    {
+        if (loops == null || loops.Length == 0) return (RandomExtensions.FullBp, 0);
+        long elapsedTicks = Math.Max(1L, (long)((now - account.LastHeartbeatUtc).TotalSeconds * LaneSim.TicksPerSecond));
+        StageConfig stage = EveningBells.Apply(Content.Stage(account.ParkedStage), _bells.Active);
+        HeroStats hero = Hero(account);
+        SkillDef[] skills = SkillDef.VanguardWrath();
+        ulong seed = unchecked((ulong)account.LaneSeed);
+
+        long reported = 0, coveredTicks = 0, weighted = 0;
+        int verified = 0;
+        foreach (LoopReportDto loop in loops.Take(MaxLoopsPerHeartbeat))
+        {
+            if (loop.Loop < account.LaneLoop) continue;                       // already judged
+            if (loop.Ticks <= 0 || loop.Ticks > ActivePlay.MaxLoopTicks) break;
+            reported += loop.Ticks;
+            if (reported > elapsedTicks + ActivePlay.MaxLoopTicks) break;     // more lane than wall clock
+            account.LaneLoop = loop.Loop + 1;
+
+            var casts = (loop.Casts ?? Array.Empty<CastDto>()).Select(c => new CastInput(c.Tick, c.Skill)).ToList();
+            bool[] auto = loop.AutoCast ?? new bool[skills.Length];
+            int potions = Math.Max(0, Math.Min(loop.Potions, account.Potions));
+            LoopVerdict verdict = ActivePlay.Verify(stage, hero, skills, seed, loop.Loop, auto, casts, potions, loop.Ticks);
+            if (!verdict.Accepted) continue;
+            verified++;
+            coveredTicks += verdict.Ticks;
+            weighted += (long)verdict.Ticks * verdict.EfficiencyBp;
+        }
+        if (coveredTicks == 0) return (RandomExtensions.FullBp, verified);
+        long average = weighted / coveredTicks;
+        long covered = Math.Min(coveredTicks, elapsedTicks);
+        long bp = (covered * average + (elapsedTicks - covered) * RandomExtensions.FullBp) / elapsedTicks;
+        return ((int)Math.Max(RandomExtensions.FullBp, Math.Min(ActivePlay.MaxEfficiencyBp, bp)), verified);
+    }
+
+    /// <summary>A fresh lane seed and loop counter: on the first login and on every park.</summary>
+    private static void NewLane(Account account)
+    {
+        long seed;
+        do seed = BitConverter.ToInt64(RandomNumberGenerator.GetBytes(8)); while (seed == 0);
+        account.LaneSeed = seed;
+        account.LaneLoop = 0;
     }
 
     public StateDto GetState(Account account) => ToState(account);
@@ -233,6 +293,7 @@ public sealed class GameService
         SettlementDto settlement = Settle(account, now);
         account.LastHeartbeatUtc = now;
         account.ParkedStage = request.Stage;
+        NewLane(account);
         await SaveAsync(ct);
         return ToState(account, settlement: settlement);
     }
@@ -351,13 +412,13 @@ public sealed class GameService
         return list.ToArray();
     }
 
-    private SettlementDto Settle(Account account, DateTime now)
+    private SettlementDto Settle(Account account, DateTime now, int onlineEfficiencyBp = RandomExtensions.FullBp, int loopsVerified = 0)
     {
         TimeSpan gap = now - account.LastHeartbeatUtc;
         bool offline = gap > OnlineGrace;
         long seconds = (long)gap.TotalSeconds;
         long cap = offline ? OfflineRewards.FreeCapSeconds : (long)OnlineGrace.TotalSeconds;
-        int efficiency = offline ? OfflineRewards.OfflineEfficiencyBp : RandomExtensions.FullBp;
+        int efficiency = offline ? OfflineRewards.OfflineEfficiencyBp : onlineEfficiencyBp;
 
         StageConfig stage = Content.Stage(account.ParkedStage);
         ZoneDef? zone = Content.Zone(account.ParkedStage);
@@ -372,7 +433,7 @@ public sealed class GameService
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
-                $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones}", s.SornEarned, Guid.NewGuid().ToString("N")));
+                $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones} efficiencyBp={efficiency} loopsVerified={loopsVerified}", s.SornEarned, Guid.NewGuid().ToString("N")));
 
         return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned, offline);
     }
@@ -466,7 +527,8 @@ public sealed class GameService
             push,
             bossFight,
             socket,
-            turn);
+            turn,
+            new LaneDto(unchecked((ulong)account.LaneSeed).ToString(), account.LaneLoop));
     }
 
     private static ItemDto ToDto(Item item)

@@ -30,3 +30,6 @@ downloads/
 
 # Blender working file for item looks: rebuilt from the *-rodin.glb sources by art/blender/looks.py (270 MB)
 art/blender/looks.blend
+
+# Python bytecode from the Blender scripts
+__pycache__/

@@ -9,7 +9,10 @@ namespace Orsuun.Client
     public sealed class Hud : MonoBehaviour
     {
         private GameRoot _root;
-        private Text _resources;
+        private Text _level;
+        /// <summary>Currency slots on the top bar: icon (Resources/Icons) and count.</summary>
+        private static readonly string[] CurrencyIcons = { "Sorn", "Draught", "WolfSinew", "ScrollOfMercy", "KhansAlloy", "Turnstone", "Korshard" };
+        private Text[] _currencies;
         private Text _stage;
         private Text _link;
         private Text _banner;
@@ -35,17 +38,31 @@ namespace Orsuun.Client
             transform.SetParent(canvas, false);
 
             Ui.Panel("TopBar", canvas, 0f, 0.945f, 1f, 1f, Palette.PanelDark);
-            _resources = Ui.Label("Resources", canvas, 0.02f, 0.948f, 0.98f, 0.997f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
-            _stage = Ui.Label("Stage", canvas, 0.03f, 0.905f, 0.97f, 0.943f, "", 30, TextAnchor.MiddleLeft, Color.white);
+            Ui.Trim("TopTrim", canvas, 0f, 0.943f, 1f, 0.945f);
+            _level = Ui.Title("Level", canvas, 0.01f, 0.948f, 0.11f, 0.997f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
+            _currencies = new Text[CurrencyIcons.Length];
+            for (int i = 0; i < CurrencyIcons.Length; i++)
+            {
+                // Sorn gets a wider slot: it runs to seven figures.
+                float x0 = i == 0 ? 0.115f : 0.285f + (i - 1) * 0.118f;
+                float x1 = i == 0 ? 0.28f : x0 + 0.113f;
+                // Icon fits its parent, so it gets its own box.
+                RectTransform box = Ui.Rect("IconBox" + CurrencyIcons[i], canvas, x0, 0.951f, x0 + 0.045f, 0.994f);
+                Ui.Icon("Icon", box, 0f, 0f, 1f, 1f, CurrencyIcons[i]);
+                _currencies[i] = Ui.Label("Count" + CurrencyIcons[i], canvas, x0 + 0.047f, 0.948f, x1, 0.997f, "", 28, TextAnchor.MiddleLeft, Palette.Sorn);
+            }
+            _stage = Ui.Label("Stage", canvas, 0.03f, 0.905f, 0.97f, 0.943f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
             _link = Ui.Label("Link", canvas, 0.03f, 0.875f, 0.97f, 0.905f, "", 22, TextAnchor.MiddleLeft, Palette.Warn);
             _banner = Ui.Label("Banner", canvas, 0.05f, 0.80f, 0.95f, 0.87f, "", 56, TextAnchor.MiddleCenter, Palette.Warn);
 
-            Ui.Panel("HpBack", canvas, 0.04f, 0.458f, 0.96f, 0.482f, Color.black);
-            _hpFill = Ui.Panel("HpFill", canvas, 0.04f, 0.458f, 0.96f, 0.482f, Palette.Bad).rectTransform;
-            _hpText = Ui.Label("HpText", canvas, 0.04f, 0.458f, 0.96f, 0.482f, "", 24, TextAnchor.MiddleCenter, Color.white);
+            Ui.Trim("HpRim", canvas, 0.037f, 0.4565f, 0.963f, 0.4835f);
+            Ui.Panel("HpBack", canvas, 0.04f, 0.458f, 0.96f, 0.482f, new Color(0.08f, 0.03f, 0.04f));
+            _hpFill = Ui.Panel("HpFill", canvas, 0.04f, 0.458f, 0.96f, 0.482f, new Color(0.78f, 0.16f, 0.14f)).rectTransform;
+            _hpText = Ui.Label("HpText", canvas, 0.04f, 0.458f, 0.96f, 0.482f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
 
             Ui.Panel("BottomPanel", canvas, 0f, 0f, 1f, GameRoot.LaneViewportBottom, Palette.PanelDark);
-            _weapon = Ui.Label("Weapon", canvas, 0.04f, 0.405f, 0.96f, 0.445f, "", 32, TextAnchor.MiddleLeft, Color.white);
+            Ui.Trim("BottomTrim", canvas, 0f, GameRoot.LaneViewportBottom - 0.002f, 1f, GameRoot.LaneViewportBottom);
+            _weapon = Ui.Title("Weapon", canvas, 0.04f, 0.405f, 0.96f, 0.445f, "", 32, TextAnchor.MiddleLeft, Palette.Parchment);
             _log = Ui.Label("Log", canvas, 0.04f, 0.365f, 0.96f, 0.405f, "", 26, TextAnchor.MiddleLeft, Palette.Sorn);
 
             int count = root.Session.Lane.Skills.Length;
@@ -58,10 +75,10 @@ namespace Orsuun.Client
                 int index = i;
                 float x0 = 0.04f + i * 0.31f;
                 _skillButtons[i] = Ui.Button("Skill" + i, canvas, x0, 0.215f, x0 + 0.30f, 0.355f, root.Session.Lane.Skills[i].Name, 32,
-                    Palette.ButtonIdle, () => { if (!_root.Replaying) _root.ActiveLane.TryCast(index); }, out _skillLabels[i]);
+                    Palette.ButtonIdle, () => { if (!_root.Replaying) _root.Session.Cast(index); }, out _skillLabels[i]);
 
                 Button auto = Ui.Button("Auto" + i, canvas, x0, 0.165f, x0 + 0.30f, 0.208f, "", 24,
-                    Palette.ButtonIdle, () => { LaneSim l = _root.Session.Lane; l.AutoCast[index] = !l.AutoCast[index]; }, out _autoLabels[i]);
+                    Palette.ButtonIdle, () => _root.Session.ToggleAutoCast(index), out _autoLabels[i]);
                 _autoImages[i] = auto.GetComponent<Image>();
             }
 
@@ -72,7 +89,7 @@ namespace Orsuun.Client
 
             Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.55f, 0.08f, "", 24, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
             Ui.Button("Speed", canvas, 0.57f, 0.02f, 0.75f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
-            Ui.Button("Dev", canvas, 0.77f, 0.02f, 0.96f, 0.08f, "DEV", 24, new Color(0.2f, 0.2f, 0.2f), DevGrant, out _);
+            Ui.Button("Dev", canvas, 0.77f, 0.02f, 0.96f, 0.08f, "DEV", 24, Palette.DevGrey, DevGrant, out _);
         }
 
         public void Handle(LaneEvent e)
@@ -116,13 +133,20 @@ namespace Orsuun.Client
             LaneSim lane = _root.ActiveLane;
             Inventory inv = session.Inventory;
 
-            _resources.text = $"Lv {inv.Level}   {inv.Sorn:N0} sorn   Draughts {inv.Potions}   Sinew {inv.Materials}   Mercy {inv.ScrollsOfMercy}   Alloy {inv.KhansAlloys}   Turn {inv.Turnstones}   Shards {inv.Korshards[0] + inv.Korshards[1] + inv.Korshards[2] + inv.Korshards[3] + inv.Korshards[4]}";
+            _level.text = "Lv " + inv.Level;
+            _currencies[0].text = inv.Sorn.ToString("N0");
+            _currencies[1].text = inv.Potions.ToString();
+            _currencies[2].text = inv.Materials.ToString();
+            _currencies[3].text = inv.ScrollsOfMercy.ToString();
+            _currencies[4].text = inv.KhansAlloys.ToString();
+            _currencies[5].text = inv.Turnstones.ToString();
+            _currencies[6].text = (inv.Korshards[0] + inv.Korshards[1] + inv.Korshards[2] + inv.Korshards[3] + inv.Korshards[4]).ToString();
 
             string encounter = lane.IsBossEncounter ? lane.Stage.BossName.ToUpperInvariant()
                 : lane.IsKorstoneEncounter ? (lane.IsElderNext ? "ELDER KORSTONE" : "KORSTONE")
                 : lane.Stage.FinalEncounter == FinalEncounter.None ? "Pack" : $"Pack {lane.EncounterIndex + 1}/{lane.Stage.PacksBeforeKorstone}";
             _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {lane.KorstonesDestroyed}  ·  Deaths {lane.Deaths}";
-            _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Color.white;
+            _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Palette.Parchment;
             Bell bell = _root.LocalBell;
             string bellText;
             if (bell != Bell.None) bellText = "  ·  " + EveningBells.Name(bell).ToUpperInvariant();
@@ -138,6 +162,12 @@ namespace Orsuun.Client
             {
                 _shownSettlement = settled;
                 Log($"Welcome back: {settled.countedSeconds / 3600f:0.0} h away, {settled.korstones} Korstones, +{settled.sornEarned:N0} sorn");
+            }
+            else if (settled != null && settled != _shownSettlement && settled.loopsVerified > 0)
+            {
+                // Active play paid: the server replayed this interval's loops and credited their pace.
+                _shownSettlement = settled;
+                Log($"Hunting pace {settled.activeBp / 100}%  ·  {settled.loopsVerified} loop{(settled.loopsVerified == 1 ? "" : "s")} verified");
             }
 
             float hp = Mathf.Clamp01(lane.HeroHp / (float)lane.HeroMaxHp);

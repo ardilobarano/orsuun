@@ -27,7 +27,7 @@ public class ActivePlayTests
                 if (lane.TryCast(skill)) casts.Add(new CastInput(lane.CurrentTick, skill));
             lane.Tick();
             lane.DrainEvents();
-            if (lane.Clears > 0) return (lane.CurrentTick, casts);
+            if (lane.Cycles > 0) return (lane.CurrentTick, casts);
         }
         return (-1, casts);
     }

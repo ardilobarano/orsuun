@@ -1,4 +1,4 @@
-# Handoff: state of Orsuun on 22 Sep 2026
+# Handoff: state of Orsuun on 24 Sep 2026
 
 Read this first in a new session or on a new machine. The README covers commands; this file covers what has been
 decided, what exists, and what comes next.
@@ -25,18 +25,21 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Playtest | Phase 0 grey-box playtest done, owner reported it fine. First on-device playtest against the live server on the owner's iPhone, 23 Sep 2026: owner reported it good. |
 | Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
 | Upgrade glow and looks | Owner, 23 Sep 2026: only the weapon and the body armour are visible on the character and glow, each by its own level from +7 up, in classic MMO upgrade shine (aura, flowing light, sweep; pale gold +7, gold +8, ember-gold +9). Helmet, shield, bracelet, necklace, earrings and shoes are stats only: forged like the weapon, no look, no glow. |
-| Item looks | Owner, 23 Sep 2026: weapon and body armour looks change every 10 item levels (`ItemLooks`: 11 bands, Vanguard names from Herder's Glaive / Quilted Coat up to Glaive / Harness of the Nine Oaths). Art exists for bands 0-2 (levels 1-29); higher bands show the nearest existing look. No armour equipped shows the band-0 Quilted Coat. |
+| Item looks | Owner, 23 Sep 2026: weapon and body armour looks change every 10 item levels (`ItemLooks`: 11 bands, Vanguard names from Herder's Glaive / Quilted Coat up to Glaive / Harness of the Nine Oaths). Art exists for bands 0-5 (levels 1-59); higher bands show the nearest existing look. No armour equipped shows the band-0 Quilted Coat. |
+| Active play | "Do all of them", 23 Sep 2026 (after the skill-timing options): a tapped skill is aimed (Burst goes to the toughest enemy) while auto-cast has no target logic (GDD section 4), and aimed bursts hit the Korstone or a boss for 500% (`LaneSim.AimedWeakPointPercent`). Measured 128-132% of auto-cast pace for a present player; the server pays it only for loops it replays. |
 | Reference sheets | Chosen by the owner on 23 Sep 2026, all in `docs/concept/`: `vanguard-1`, `korstone-1`, `kestrel-1`, `wraithsworn-2`, `drumcaller-2`, `wolf-2`, `glow-1` (`-sheet.jpg`). The other variant of each is kept for comparison only. Every sheet after the Vanguard was generated with `vanguard-1` as the style reference; keep doing that for new sheets. |
 
 ## What exists and works
 
 - `src/Orsuun.Rules`: engine-free rules (Forge, etchings/Turnstone, offline settlement, lane combat, zones, bosses,
-  gear, XP/levels). 71 xUnit tests in `tests/`. Numbers pinned to the GDD (52.6 scrolls to +9, Turnstone odds, and so on).
+  gear, XP/levels, item looks, active-play replay). 92 xUnit tests in `tests/`. Numbers pinned to the GDD (52.6 scrolls to +9, Turnstone odds, and so on).
 - `src/Orsuun.Server`: ASP.NET Core 8 + PostgreSQL 16. Guest login, heartbeat settlement (live and offline), Forge,
   Turn, equip, park, push, boss fights with damage brackets, append-only ledger, idempotent request ids.
   `tools/smoke.ps1` walks every endpoint.
-- `client/`: Unity 6000.0.32f1 grey-box, built-in render pipeline, everything built in code by `GameRoot`. Lane view,
-  HUD, Forge / Gear / Zones panels, push and boss replays from server seeds, LOCAL MODE fallback.
+- `client/`: Unity 6000.0.32f1, URP 17 with the EmberGlow upgrade shader, everything built in code by `GameRoot`. Lane
+  with the rigged Vanguard (armour and weapon looks per level band, Idle/Run/Attack/Hit/Death clips), 3D mobs, the
+  Korstone model and zone backdrops; HUD, Forge / Gear / Zones / Shards screens in the direction-B palette with icons;
+  push and boss replays from server seeds; seeded farm loops reported for active play; LOCAL MODE fallback.
 - `tools/Orsuun.Sim`: Monte Carlo balance report. `tools/ClientCheck`: compiles Unity scripts with dotnet.
 
 ## Done since the first handoff (same day)
@@ -46,6 +49,17 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   `ProjectSetup.BuildAndroid` (needs the Android module; the Windows PC does not have it, the Mac should).
 - Four art direction boards in GDD section 14 and `docs/art-options/`; recommendation B (modernized classic), D as
   the alternative. Owner picked B on 23 Sep 2026.
+
+## Done 23-24 Sep 2026 (Mac)
+
+- Machine setup, Hetzner playtest server, Android APK and iPhone installs. URP with the EmberGlow shader (classic MMO
+  upgrade shine per piece). Item looks for bands 0-5, each armour rigged with five animations (`art/blender/rig.py`).
+- Enemies in 3D: Hollowed Wolf, Hollowed Boar and Deserter (the Oathfields' three mobs), Old Greyjaw as a great wolf,
+  Tul-Gorak and his captains as war-red deserters. Mobs bob while alive and keel over when slain.
+- Active play wired end to end (see Known gaps for the rules): verified on 24 Sep 2026 with the Mac player against a
+  local server, two loops reported and both replayed as exact matches.
+- UI colour pass in direction B: dusk-indigo panels, bronze rims, Philosopher Bold for buttons and headings, Cinzel for
+  screen titles (both SIL OFL, licences next to the fonts), currency icons on the top bar, item names in the glow colours.
 
 ## Next steps, waiting on the owner
 
@@ -66,8 +80,10 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 2. Art direction is B; turnaround sheets for all four classes, the Korstone and the Hollowed wolf are done and chosen
    (`docs/concept/`). The upgrade-glow progression sheet is done too. The full remaining art backlog (second-sex class variants, Forgemaster, more
    Hollowed mobs, Commander sheets, three environment keys, Oathfields backdrops, town vistas, gear and consumable and
-   Korshard icons, UI colour pass, Banner emblems, Forge VFX boards, app icon) is the checklist in GDD section 14.1.
-   Engineering next: URP switch with the glow shader, first real hero model from `vanguard-1`.
+   Korshard icons, Banner emblems, Forge VFX boards, app icon) is the checklist in GDD section 14.1. Done since: bands 3-5
+   of item looks, boar and deserter sheets and models, a first UI colour pass. Open: a Mirage Queen model (she and her
+   images are still grey-box capsules), mob rigs (mobs move procedurally), bands 6-10 of looks, the other three classes
+   in the lane.
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
    real shared boss HP pools, Hunt Marks and the Hearthfire subscription (Bulk Turn's 10/50 split depends on it).
 
@@ -75,14 +91,14 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 - `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
-- Active play: the server-side verifier exists in the rules (`Combat/ActivePlay.cs`, tests in `ActivePlayTests`): a loop
-  seeded from (lane seed, loop number) is replayed from the client's casts and compared with plain auto-cast; the speed-up
-  becomes live efficiency, clamped 100-135%, mismatch = 100%. Not wired into server/client yet, on purpose: measured on
-  23 Sep 2026, holding Burst and Haste for the Korstone runs at 83-93% of auto-cast pace on the grey-box kit, so timing
-  earns nothing to verify. The GDD's ~130% needs a skill-kit change first (owner decision). Options: a Korstone flare
-  window after each wave (tried: 250% for 3 s barely moved it and shifted balance tests, reverted), longer Burst
-  cooldowns with bigger hits, or a charge mechanic that grows a held Burst. Once one is picked, wire it: lane seed and
-  loop in StateDto, loop reports in the heartbeat, efficiency into HuntYield.Settle, client reseeds at each loop boundary.
+- Active play: the account holds a lane seed (new on first login and every park) and the next loop number; StateDto
+  carries both. Online, the client's farm lane runs one seeded loop per encounter cycle (`LaneSim.Cycles`; Hunting
+  Grounds count a round of packs), records taps with their tick and queues the finished loop (`PlayerSession`). The
+  heartbeat body carries the reports; the server replays each (`ActivePlay.Verify`, at most 20 per heartbeat, never more
+  lane time than wall clock plus one loop) and pays the time-weighted pace, 100-135%, into the live settlement. A loop
+  where auto-cast was toggled or the hero changed is not reported; a level-up between loop start and heartbeat makes that
+  loop miss (paid at 100%). Offline time never earns the bonus. The ledger's settle-online rows show `efficiencyBp` and
+  `loopsVerified`. Anyone who knows the rules can compute perfect play; that is capped at 135% by design.
 - Boss damage ranks are against simulated rivals. New guest accounts are capped at 10 per network per day
   (client IP via X-Forwarded-For from Caddy, loopback exempt); real one-account-per-device needs App Attest / Play Integrity.
 - Dev credentials (`orsuun` / `orsuun-dev`) are for local PostgreSQL only. The Hetzner box has its own random password in
@@ -104,7 +120,15 @@ Item looks (weapon and armour per level band) come from `art/blender/looks.py`: 
 the same man holding a glaive; the pipeline finds the glaive pole (RANSAC for the straight full-height line), cuts it out
 and stores WeaponBase/WeaponTip; weapons are Rodin glaives normalised to base-at-origin. Output in
 `Resources/Models/Looks` (FBX + texture) and `Resources/Looks` (materials). New band: sheet -> Rodin -> `armor_look` /
-`weapon_look` -> RenderPreview. Next: bands 3+ art, a rig and idle/attack/hit/death animations (static meshes today).
+`weapon_look` -> RenderPreview. `pole_axis` only looks on the glaive hand's side (the Banner Lamellar carries a second,
+straight banner pole on its back). `armor_look` also rigs each armour (`art/blender/rig.py`): one skeleton layout for the
+shared sheet pose, hands measured per look (right from the pole, left behind the shield), distance-based skin weights
+smoothed over the mesh, WeaponBase/WeaponTip parented to hand.R so the glaive follows the arm, and five actions keyed in
+code (Idle, Run, Attack, Hit, Death; a positive rotation about a bone's local X swings its tip forward). Unity imports
+them as legacy clips (`RenderingSetup.EnsureAnimatedImport`); RenderPreview writes `artifacts/pose-*.png`, baking the
+skinned meshes because a one-shot editor render never runs the skinning step. Mobs: `looks.mob_model(glb, name,
+height)` -> `Resources/Models/Mobs` (6k tris, facing -Y, feet on the ground). Every Vanguard armour look carries the
+round shield from the chosen sheet; it is part of the class silhouette, not the shield item.
 
 ## Running on macOS
 

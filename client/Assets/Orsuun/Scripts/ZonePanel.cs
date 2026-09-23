@@ -39,8 +39,8 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, new Color(0.04f, 0.04f, 0.05f, 0.94f));
-            Ui.Label("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "WHERE TO HUNT", 40, TextAnchor.MiddleCenter, Palette.Warn);
+            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "WHERE TO HUNT", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Label("ZonesTitle", canvas, 0.05f, 0.895f, 0.95f, 0.93f, "ZONES  ·  Hunting Grounds pay sorn and levels, Fields pay materials, Commander Grounds pay skins", 20, TextAnchor.MiddleLeft, Palette.Muted);
 
             for (int i = 0; i < ZoneRows; i++)
@@ -56,7 +56,7 @@ namespace Orsuun.Client
                 _bossRows[i] = MakeRow(canvas, "Boss" + i, y1 - 0.07f, y1, "FIGHT", Palette.Danger, i, row => { _canvas.SetActive(false); _root.FightBoss(_bossRows[row].Id); });
             }
 
-            Ui.Button("BossesUp", canvas, 0.04f, 0.085f, 0.30f, 0.135f, "DEV: bosses up", 20, new Color(0.2f, 0.2f, 0.2f), DevBossesUp, out _);
+            Ui.Button("BossesUp", canvas, 0.04f, 0.085f, 0.30f, 0.135f, "DEV: bosses up", 20, Palette.DevGrey, DevBossesUp, out _);
             _message = Ui.Label("Message", canvas, 0.32f, 0.085f, 0.96f, 0.135f, "", 22, TextAnchor.MiddleLeft, Palette.Muted);
             Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
             _canvas.SetActive(false);
@@ -65,8 +65,8 @@ namespace Orsuun.Client
         private Row MakeRow(Transform canvas, string name, float y0, float y1, string action, Color color, int index, System.Action<int> onClick)
         {
             var row = new Row();
-            row.Back = Ui.Panel(name + "Back", canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
-            row.Label = Ui.Label(name + "Label", canvas, 0.06f, y0, 0.73f, y1, "", 22, TextAnchor.MiddleLeft, Color.white);
+            row.Back = Ui.Framed(name + "Back", canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
+            row.Label = Ui.Label(name + "Label", canvas, 0.06f, y0, 0.73f, y1, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
             row.Button = Ui.Button(name + "Btn", canvas, 0.76f, y0, 0.96f, y1, action, 22, color, () => onClick(index), out row.ButtonLabel);
             return row;
         }
@@ -110,7 +110,7 @@ namespace Orsuun.Client
                 row.Id = entries[i].Id;
                 bool parked = session.ParkedStage == entries[i].Id;
                 row.Label.text = (parked ? "▶ " : "") + entries[i].Text;
-                row.Label.color = entries[i].Unlocked ? Color.white : Palette.Muted;
+                row.Label.color = entries[i].Unlocked ? Palette.Parchment : Palette.Muted;
                 row.Button.interactable = !parked && !_root.Replaying && !_root.PushBusy;
                 row.ButtonLabel.text = parked ? "HERE" : "PARK";
             }
@@ -140,7 +140,7 @@ namespace Orsuun.Client
                 else status = "up (local)";
 
                 row.Label.text = campOpen ? $"{boss.Name}\n{Mechanic(boss.Mechanic)}  ·  {status}" : $"{boss.Name}  ·  clear campaign stage 5";
-                row.Label.color = campOpen ? Color.white : Palette.Muted;
+                row.Label.color = campOpen ? Palette.Parchment : Palette.Muted;
                 row.Button.interactable = canFight && !_root.Replaying && !_root.PushBusy;
             }
         }

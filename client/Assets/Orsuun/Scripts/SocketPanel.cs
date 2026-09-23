@@ -42,13 +42,13 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, new Color(0.04f, 0.04f, 0.05f, 0.94f));
-            Ui.Label("Title", canvas, 0.05f, 0.925f, 0.95f, 0.975f, "KORSHARDS", 40, TextAnchor.MiddleCenter, Palette.Warn);
+            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Title("Title", canvas, 0.05f, 0.925f, 0.95f, 0.975f, "KORSHARDS", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Label("Hint", canvas, 0.05f, 0.885f, 0.95f, 0.925f, "A set shard takes 70% of the time. A failed one dies in the socket and costs sorn to remove.", 20, TextAnchor.MiddleCenter, Palette.Muted);
 
             Ui.Button("Prev", canvas, 0.04f, 0.80f, 0.14f, 0.87f, "<", 36, Palette.ButtonIdle, () => Step(-1), out _);
-            Ui.Panel("ItemBack", canvas, 0.15f, 0.80f, 0.85f, 0.87f, Palette.PanelDark);
-            _itemLabel = Ui.Label("Item", canvas, 0.16f, 0.80f, 0.84f, 0.87f, "", 24, TextAnchor.MiddleCenter, Color.white);
+            Ui.Framed("ItemBack", canvas, 0.15f, 0.80f, 0.85f, 0.87f, Palette.PanelDark);
+            _itemLabel = Ui.Label("Item", canvas, 0.16f, 0.80f, 0.84f, 0.87f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
             Ui.Button("Next", canvas, 0.86f, 0.80f, 0.96f, 0.87f, ">", 36, Palette.ButtonIdle, () => Step(1), out _);
 
             _shardsLabel = Ui.Label("Shards", canvas, 0.05f, 0.745f, 0.95f, 0.795f, "", 22, TextAnchor.MiddleCenter, Palette.Sorn);
@@ -57,8 +57,8 @@ namespace Orsuun.Client
             {
                 int index = i;
                 float y1 = 0.72f - i * 0.16f;
-                Ui.Panel("SocketBack" + i, canvas, 0.04f, y1 - 0.15f, 0.96f, y1, Palette.PanelDark);
-                _socketLabels[i] = Ui.Label("Socket" + i, canvas, 0.06f, y1 - 0.06f, 0.94f, y1, "", 24, TextAnchor.MiddleLeft, Color.white);
+                Ui.Framed("SocketBack" + i, canvas, 0.04f, y1 - 0.15f, 0.96f, y1, Palette.PanelDark);
+                _socketLabels[i] = Ui.Label("Socket" + i, canvas, 0.06f, y1 - 0.06f, 0.94f, y1, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
                 _typeButtons[i] = Ui.Button("Type" + i, canvas, 0.06f, y1 - 0.14f, 0.42f, y1 - 0.07f, "", 22, Palette.ButtonIdle, () => { _typeChoice[index] = (_typeChoice[index] + 1) % 8; }, out _typeLabels[i]);
                 _rankButtons[i] = Ui.Button("Rank" + i, canvas, 0.44f, y1 - 0.14f, 0.68f, y1 - 0.07f, "", 22, Palette.ButtonIdle, () => { _rankChoice[index] = (_rankChoice[index] + 1) % SocketRules.RankCount; }, out _rankLabels[i]);
                 _actButtons[i] = Ui.Button("Act" + i, canvas, 0.70f, y1 - 0.14f, 0.94f, y1 - 0.07f, "SET", 24, Palette.Safe, () => Act(index), out _actLabels[i]);

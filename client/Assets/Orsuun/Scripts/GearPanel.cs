@@ -32,12 +32,12 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, new Color(0.04f, 0.04f, 0.05f, 0.94f));
-            Ui.Label("Title", canvas, 0.05f, 0.925f, 0.95f, 0.975f, "GEAR", 40, TextAnchor.MiddleCenter, Palette.Warn);
+            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Title("Title", canvas, 0.05f, 0.925f, 0.95f, 0.975f, "GEAR", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _hero = Ui.Label("Hero", canvas, 0.05f, 0.885f, 0.95f, 0.925f, "", 28, TextAnchor.MiddleCenter, Palette.Muted);
 
-            Ui.Panel("EquippedBack", canvas, 0.04f, 0.60f, 0.96f, 0.88f, Palette.PanelDark);
-            _equipped = Ui.Label("Equipped", canvas, 0.06f, 0.605f, 0.94f, 0.875f, "", 26, TextAnchor.UpperLeft, Color.white);
+            Ui.Framed("EquippedBack", canvas, 0.04f, 0.60f, 0.96f, 0.88f, Palette.PanelDark);
+            _equipped = Ui.Label("Equipped", canvas, 0.06f, 0.605f, 0.94f, 0.875f, "", 26, TextAnchor.UpperLeft, Palette.Parchment);
 
             Ui.Label("LooseTitle", canvas, 0.05f, 0.555f, 0.95f, 0.595f, "LOOT  ·  best pieces first", 26, TextAnchor.MiddleLeft, Palette.Muted);
             for (int i = 0; i < LooseRows; i++)
@@ -45,9 +45,10 @@ namespace Orsuun.Client
                 int row = i;
                 float y1 = 0.55f - i * 0.057f;
                 float y0 = y1 - 0.052f;
-                Ui.Panel("RowBack" + i, canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
-                _rowIcons[i] = Ui.Icon("RowIcon" + i, canvas, 0.045f, y0 + 0.003f, 0.135f, y1 - 0.003f, "Weapon");
-                _rowLabels[i] = Ui.Label("Row" + i, canvas, 0.145f, y0, 0.73f, y1, "", 24, TextAnchor.MiddleLeft, Color.white);
+                Ui.Framed("RowBack" + i, canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
+                RectTransform iconBox = Ui.Rect("RowIconBox" + i, canvas, 0.045f, y0 + 0.003f, 0.135f, y1 - 0.003f);
+                _rowIcons[i] = Ui.Icon("RowIcon", iconBox, 0f, 0f, 1f, 1f, "Weapon");
+                _rowLabels[i] = Ui.Label("Row" + i, canvas, 0.145f, y0, 0.73f, y1, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
                 _rowButtons[i] = Ui.Button("Equip" + i, canvas, 0.76f, y0, 0.96f, y1, "EQUIP", 24, Palette.Safe, () => Equip(row), out _);
             }
 

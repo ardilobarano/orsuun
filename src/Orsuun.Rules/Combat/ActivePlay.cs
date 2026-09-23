@@ -69,7 +69,8 @@ namespace Orsuun.Rules.Combat
             new LaneSim(stage, hero, skills, inventory, new XorShiftRandom(LoopSeed(laneSeed, loop)));
 
         /// <summary>
-        /// Runs one loop to its first clear and returns its length in ticks, or -1 if it has not cleared by maxTicks.
+        /// Runs one loop to the end of its first encounter cycle (LaneSim.Cycles) and returns its length in ticks, or -1
+        /// if it has not finished by maxTicks.
         /// A cast at tick t is applied before the lane advances from t, which is when the client applies a tap.
         /// </summary>
         public static int RunLoop(StageConfig stage, HeroStats hero, SkillDef[] skills, ulong laneSeed, int loop,
@@ -87,7 +88,7 @@ namespace Orsuun.Rules.Combat
                     if (c.Tick == lane.CurrentTick && c.Skill >= 0 && c.Skill < skills.Length) lane.TryCast(c.Skill);
                 }
                 lane.Tick();
-                if (lane.Clears > 0) return lane.CurrentTick;
+                if (lane.Cycles > 0) return lane.CurrentTick;
                 if ((lane.CurrentTick & 255) == 0) lane.DrainEvents();
             }
             return -1;

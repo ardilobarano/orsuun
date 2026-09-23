@@ -6,6 +6,15 @@ public sealed record GuestLoginRequest(string DeviceToken);
 public sealed record GuestLoginResponse(Guid AccountId, string SessionToken, bool Created);
 
 /// <summary>Slot picks the equipped item on the anvil; every item follows the weapon's rules. Omitted = weapon.</summary>
+/// <summary>A tapped skill in a loop report: the lane tick (from the loop start) and the skill index.</summary>
+public sealed record CastDto(int Tick, int Skill);
+/// <summary>One finished lane loop, for the server to replay (Rules.Combat.ActivePlay).</summary>
+public sealed record LoopReportDto(int Loop, int Ticks, int Potions, bool[]? AutoCast, CastDto[]? Casts);
+/// <summary>Heartbeat body: the loops finished since the last one. Empty or missing = plain auto-cast pace.</summary>
+public sealed record HeartbeatRequest(LoopReportDto[]? Loops = null);
+/// <summary>The lane seed (decimal string, it is a ulong) and the next loop number the server expects.</summary>
+public sealed record LaneDto(string Seed, int Loop);
+
 public sealed record ForgeRequest(string RequestId, ForgeMethod Method, EquipSlot Slot = EquipSlot.Weapon);
 /// <summary>Count 1..50 (10 without Hearthfire Blessing); StopEntryId/MinTier form the optional stop rule.</summary>
 public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1, EquipSlot Slot = EquipSlot.Weapon);
@@ -48,7 +57,7 @@ public sealed record BossFightResultDto(int BossId, ulong Seed, long Damage, boo
 
 public sealed record ForgePreviewDto(long Cost, int Materials, int ChanceAloneBp, int ChanceAlloyBp, bool OathbreakPossible);
 
-public sealed record SettlementDto(long CountedSeconds, long Packs, long Korstones, long SornEarned, bool Offline);
+public sealed record SettlementDto(long CountedSeconds, long Packs, long Korstones, long SornEarned, bool Offline, int ActiveBp = 10000, int LoopsVerified = 0);
 
 /// <summary>Everything the client needs to draw the HUD and the Forge. Returned by every mutating call.</summary>
 public sealed record StateDto(
@@ -69,7 +78,8 @@ public sealed record StateDto(
     PushResultDto? LastPush,
     BossFightResultDto? LastBossFight,
     SocketResultDto? LastSocket,
-    TurnResultDto? LastTurn);
+    TurnResultDto? LastTurn,
+    LaneDto? Lane = null);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

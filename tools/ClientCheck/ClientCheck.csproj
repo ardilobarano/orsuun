@@ -30,6 +30,7 @@
     <Reference Include="$(UnityManaged)\UnityEngine.IMGUIModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.JSONSerializeModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.ScreenCaptureModule.dll" />
+    <Reference Include="$(UnityManaged)\UnityEngine.AnimationModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.ScriptingModule.dll" Condition="Exists('$(UnityManaged)\UnityEngine.ScriptingModule.dll')" />
     <Reference Include="$(UnityUI)" />
     <!-- URP (since 23 Sep 2026): generated into Library/ScriptAssemblies once the editor has compiled the project. -->

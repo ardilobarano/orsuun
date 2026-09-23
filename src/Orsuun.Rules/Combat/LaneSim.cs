@@ -274,6 +274,11 @@ namespace Orsuun.Rules.Combat
         public StageConfig Stage => _stage;
         /// <summary>Completed loops of the stage (final encounter cleared).</summary>
         public int Clears { get; private set; }
+        /// <summary>
+        /// Full encounter cycles finished: the packs and the final encounter, or only the packs where there is none
+        /// (Hunting Grounds). The unit of an active-play loop; equal to Clears on Korstone stages.
+        /// </summary>
+        public int Cycles { get; private set; }
         /// <summary>True when the current final encounter is the stage boss rather than a Korstone.</summary>
         public bool IsBossEncounter => IsKorstoneEncounter && _stage.FinalEncounter == FinalEncounter.Boss;
         public bool IsElderNext => _stage.ElderEvery > 0 && (KorstonesDestroyed + 1) % _stage.ElderEvery == 0;
@@ -441,6 +446,7 @@ namespace Orsuun.Rules.Combat
                 if (IsKorstoneEncounter) Clears++;
                 int loop = _stage.FinalEncounter == FinalEncounter.None ? _stage.PacksBeforeKorstone : _stage.PacksBeforeKorstone + 1;
                 EncounterIndex = (EncounterIndex + 1) % Math.Max(1, loop);
+                if (EncounterIndex == 0) Cycles++;
                 StartRunning();
             }
         }

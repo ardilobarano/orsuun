@@ -125,6 +125,13 @@ namespace Orsuun.Client
                     Hud.Handle(e);
                 }
                 if (_replay != null && (_replay.Clears > 0 || _replay.BossesKilled > 0 || _replay.Deaths > 0)) break;
+                // Online the farm lane runs one seeded loop per encounter cycle; a finished one is queued for the
+                // heartbeat and the next loop's lane takes over (its enemies are all down at that moment).
+                if (_replay == null && Session.CloseLoopIfDone())
+                {
+                    lane = Session.Lane;
+                    Lane.Bind(lane);
+                }
             }
         }
 

@@ -39,7 +39,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   looks change every 10 item levels (`ItemLooks`). Helmet, shield, jewellery, shoes are stats only.
 - Art: generate sheets with the chosen `docs/concept/vanguard-1-sheet.jpg` as the style reference. 3D via Hyper3D Rodin on
   fal.ai (key in `~/.config/fal/key`, never in chat or git); the Blender MCP tool's fal path is broken, call the fal queue
-  API directly. Item looks go through `art/blender/looks.py`.
+  API directly. Item looks go through `art/blender/looks.py` (armour looks are rigged there by `rig.py`); enemies through
+  `looks.mob_model`.
+- Active play: the farm lane online is one seeded loop per encounter cycle; anything that rebuilds `PlayerSession.Lane`
+  must go through `NewFarmLane`/`StartLoop`, and anything that changes the hero through `RefreshHero`, or loop reports
+  stop matching the server's replay (`SessionLoopTests` guards this).
 
 ## Gotchas
 
@@ -49,4 +53,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Blender suffixes duplicate names (`WeaponBase.001`); code that finds parts by name strips the suffix.
 - Unity rewrites `client/ProjectSettings/ProjectSettings.asset` icon slots on every build; revert unless intended.
 - New guest accounts are capped at 10 per network per day; loopback is exempt.
+- Skinned meshes only deform in the player loop: headless editor renders must bake them (`RenderingSetup.CaptureSkinned`).
+- `Ui.Icon` fits its parent; give each icon its own box rect, never the canvas.
+- Cinzel's 1 reads as a Roman I: use it only for screen titles without digits (`carved: true`); buttons use Philosopher.
 - The playtest server runs in Development mode (dev endpoints open): share the URL with trusted testers only.

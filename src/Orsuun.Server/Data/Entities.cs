@@ -34,6 +34,11 @@ public sealed class Account
     /// <summary>Campaign stage number or zone id (100+) the farm lane is parked in.</summary>
     public int ParkedStage { get; set; } = 1;
 
+    /// <summary>Seed of the online farm lane: loop n runs from ActivePlay.LoopSeed(LaneSeed, n). New on every park.</summary>
+    public long LaneSeed { get; set; }
+    /// <summary>Next loop number the server will accept a report for.</summary>
+    public int LaneLoop { get; set; }
+
     /// <summary>All items the account owns, equipped or in the loot list. Loaded with the account.</summary>
     public List<Item> Items { get; set; } = new();
 

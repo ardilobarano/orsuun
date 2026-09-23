@@ -7,6 +7,8 @@ weapon look, see src/Orsuun.Rules/ItemLooks.cs. This module turns Rodin models i
                                 Vanguard_Armor (glows with the armour) plus Vanguard_Body (face, banner; never glows);
                                 empties WeaponBase and WeaponTip mark where the hand holds the pole.
   weapon_look(glb, "Weapon_T0") a standing glaive -> base at the origin, pole along +Z, blade on top.
+  mob_model(glb, "Wolf", 1.1)   an enemy -> feet on the ground, centred, facing -Y like the Rodin output, scaled to
+                                the given height; exports to Resources/Models/Mobs/.
 
 Both export FBX + base-colour PNG into client/Assets/Orsuun/Resources/Models/Looks/. In Unity the weapon is scaled
 from WeaponBase to WeaponTip of whichever armour is worn, so any glaive fits any armour.
@@ -117,17 +119,22 @@ def find_pole(verts, height):
 
 def _clear():
     for o in list(bpy.data.objects):
-        if o.type in ('MESH', 'EMPTY'):
+        if o.type in ('MESH', 'EMPTY', 'ARMATURE'):
             bpy.data.objects.remove(o, do_unlink=True)
     for m in list(bpy.data.meshes):
         if m.users == 0:
             bpy.data.meshes.remove(m)
+    for a in list(bpy.data.armatures):
+        if a.users == 0:
+            bpy.data.armatures.remove(a)
 
 
-def pole_axis(verts, height, left=None, right=None, iters=1500, radius=0.03):
+def pole_axis(verts, height, left=None, right=None, iters=1500, radius=0.03, max_x=None):
     """The glaive pole: the only straight line with surface along the whole height. RANSAC over lines from a point near
     the feet to a point above the head, scored by how many height bins have surface within `radius` of the line;
-    the winner is refined by least squares on its inliers. Returns the line's points at z=0 and z=height."""
+    the winner is refined by least squares on its inliers. max_x keeps the search on the glaive hand's side (the
+    Banner Lamellar carries a second, straight banner pole on its back). Returns the line's points at z=0 and
+    z=height."""
     import random
     rng = random.Random(7)
     lows = [v for v in verts if v.z < 0.3 * height]
@@ -141,6 +148,8 @@ def pole_axis(verts, height, left=None, right=None, iters=1500, radius=0.03):
         d = b - a
         if d.z < 0.5 * height or (d.x * d.x + d.y * d.y) > 0.0625:
             continue                                   # near vertical: the glaive stands upright, the banner pole leans
+        if max_x is not None and (a.x + b.x) / 2 > max_x:
+            continue
         bins = set()
         for v in verts:
             t = (v.z - a.z) / d.z
@@ -176,7 +185,20 @@ def _distance_to_axis(p, a, b):
     return ((p.x - q.x) ** 2 + (p.y - q.y) ** 2) ** 0.5
 
 
-def armor_look(glb, look_id, pole=None):
+def _export_rigged(root, look_id):
+    """Armour look with its armature and actions: one FBX take per action (Idle, Run, Attack, Hit, Death)."""
+    os.makedirs(OUT, exist_ok=True)
+    sel = [root] + list(root.children_recursive)
+    with bpy.context.temp_override(selected_objects=sel, active_object=root, object=root):
+        bpy.ops.export_scene.fbx(filepath=OUT + look_id + ".fbx", use_selection=True, apply_scale_options='FBX_SCALE_ALL',
+                                 bake_space_transform=True, mesh_smooth_type='FACE', path_mode='STRIP',
+                                 embed_textures=False, object_types={'EMPTY', 'MESH', 'ARMATURE'},
+                                 add_leaf_bones=False, use_armature_deform_only=False,
+                                 bake_anim=True, bake_anim_use_all_actions=True, bake_anim_use_nla_strips=False,
+                                 bake_anim_force_startend_keying=True, bake_anim_simplify_factor=0.0)
+
+
+def armor_look(glb, look_id, pole=None, rig=True):
     _clear()
     mesh = _import(glb)
     t0 = _bake(mesh)
@@ -187,7 +209,8 @@ def armor_look(glb, look_id, pole=None):
     mesh.data.transform(Matrix.Translation(Vector((0, 0, -minz))))
     vs = [v.co.copy() for v in mesh.data.vertices]
     left, right = pole or find_pole(vs, ARMOR_HEIGHT)
-    a, b = pole_axis(vs, ARMOR_HEIGHT, left, right)
+    mid_x = sorted(v.x for v in vs)[len(vs) // 2]
+    a, b = pole_axis(vs, ARMOR_HEIGHT, left, right, max_x=mid_x - 0.2)
     body_x = [v.x for v in vs if 0.45 * ARMOR_HEIGHT < v.z < 0.6 * ARMOR_HEIGHT and v.x > right + 0.05]
     cx = (min(body_x) + max(body_x)) / 2
     cy = sum(v.y for v in vs) / len(vs)
@@ -217,10 +240,21 @@ def armor_look(glb, look_id, pole=None):
         e.location = p
         e.parent = root
     objs["Weapon"].data.transform(Matrix.Translation(shift))
-    _export([objs["Vanguard_Armor"], objs["Vanguard_Body"]] + [c for c in root.children if c.type == 'EMPTY'], root, look_id)
+    hands = None
+    if rig:
+        import importlib
+        import rig as rigging
+        importlib.reload(rigging)
+        for a in list(bpy.data.actions):
+            bpy.data.actions.remove(a)
+        _arm, hand_r, hand_l = rigging.rig_vanguard([objs["Vanguard_Armor"]], root, base + shift, tip + shift, body=objs["Vanguard_Body"])
+        hands = (tuple(round(c, 3) for c in hand_r), tuple(round(c, 3) for c in hand_l))
+        _export_rigged(root, look_id)
+    else:
+        _export([objs["Vanguard_Armor"], objs["Vanguard_Body"]] + [c for c in root.children if c.type == 'EMPTY'], root, look_id)
     faces = {n: len(o.data.polygons) for n, o in objs.items()}
     return dict(look=look_id, tris_in=t0, faces=faces, pole=(round(left, 3), round(right, 3)),
-                base=tuple(round(c, 3) for c in base + shift), tip=tuple(round(c, 3) for c in tip + shift), texture=size,
+                base=tuple(round(c, 3) for c in base + shift), tip=tuple(round(c, 3) for c in tip + shift), texture=size, hands=hands,
                 cut_weapon=objs["Weapon"])
 
 
@@ -254,3 +288,40 @@ def weapon_look(glb, look_id):
     info = normalise_weapon(mesh, look_id)
     info["texture"] = size
     return info
+
+
+MOBS = HOME + "/client/Assets/Orsuun/Resources/Models/Mobs/"
+MOB_TRIS = 6000       # up to 16 on screen at once
+
+
+def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0):
+    """Enemy model: decimated, rotated by yaw_degrees about Z so it faces -Y, centred on X/Y with its lowest point on
+    the ground, scaled so it stands `height` metres tall. Exports <name>.fbx and <name>BaseColor.png to MOBS."""
+    import math
+    global OUT
+    _clear()
+    mesh = _import(glb)
+    t0 = _bake(mesh, tris=tris)
+    if yaw_degrees:
+        mesh.data.transform(Matrix.Rotation(math.radians(yaw_degrees), 4, 'Z'))
+    vs = [v.co for v in mesh.data.vertices]
+    zs = [v.z for v in vs]
+    mesh.data.transform(Matrix.Scale(height / (max(zs) - min(zs)), 4))
+    vs = [v.co for v in mesh.data.vertices]
+    cx = (max(v.x for v in vs) + min(v.x for v in vs)) / 2
+    cy = (max(v.y for v in vs) + min(v.y for v in vs)) / 2
+    mesh.data.transform(Matrix.Translation(Vector((-cx, -cy, -min(v.z for v in vs)))))
+    mesh.name = name + "_Body"
+    mesh.data.name = mesh.name
+    looks_out, OUT = OUT, MOBS
+    try:
+        os.makedirs(MOBS, exist_ok=True)
+        size = _texture(mesh, name)
+        root = bpy.data.objects.new(name, None)
+        bpy.context.scene.collection.objects.link(root)
+        mesh.parent = root
+        _export([mesh], root, name)
+    finally:
+        OUT = looks_out
+    return dict(mob=name, tris_in=t0, faces=len(mesh.data.polygons), size=[round(c, 2) for c in mesh.dimensions],
+                texture=size)

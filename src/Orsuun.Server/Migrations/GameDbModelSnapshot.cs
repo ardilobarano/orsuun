@@ -56,6 +56,12 @@ namespace Orsuun.Server.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<int>("LaneLoop")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("LaneSeed")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("LastHeartbeatUtc")
                         .HasColumnType("timestamp with time zone");
 

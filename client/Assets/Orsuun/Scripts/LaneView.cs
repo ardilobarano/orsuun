@@ -6,8 +6,9 @@ using UnityEngine;
 namespace Orsuun.Client
 {
     /// <summary>
-    /// Lane presentation: capsule hero with a glaive on the ember-glow material, cube mobs, and the Korstone model
-    /// from Blender (Resources/Models/Korstone) with lit cracks. Falls back to a dark box if the model is missing.
+    /// Lane presentation: the hero rig with its armour and weapon looks, 3D enemies from Resources/Models/Mobs (the
+    /// Oathfields' Hollowed Wolf, Hollowed Boar and Deserter; Old Greyjaw is a great wolf) and the Korstone model with
+    /// lit cracks. Anything without a model falls back to a grey box.
     /// </summary>
     public sealed class LaneView : MonoBehaviour
     {
@@ -24,7 +25,26 @@ namespace Orsuun.Client
             public float Punch;
             public Vector3 Scale;
             public bool IsModel;
+            /// <summary>Resting height of the root: models stand on the ground, boxes are centred.</summary>
+            public float Y;
+            /// <summary>A 3D wolf, boar or deserter (not the Korstone, not a grey box).</summary>
+            public bool IsMob;
         }
+
+        /// <summary>A 3D enemy: model and material under Resources (art/blender/looks.py mob_model), and its lane scale.</summary>
+        private sealed class MobArt
+        {
+            public GameObject Model;
+            public Material Material;
+            public float Height;
+        }
+
+        private static readonly Dictionary<string, MobArt> MobArts = new Dictionary<string, MobArt>();
+        /// <summary>Mob models in the order of the Oathfields' mob names (Content map 1): enemy id picks one.</summary>
+        private static readonly string[] MobModels = { "Wolf", "Boar", "Deserter" };
+        /// <summary>Models face +Z; this turns them toward the hero, three-quarter to the camera (the hero uses 125).</summary>
+        private const float EnemyYaw = -125f;
+        private const float MobScale = 0.85f;
 
         private sealed class FloatingText
         {
@@ -34,6 +54,9 @@ namespace Orsuun.Client
 
         private readonly Dictionary<int, EnemyView> _views = new Dictionary<int, EnemyView>();
         private readonly List<FloatingText> _texts = new List<FloatingText>();
+        /// <summary>Slain enemies tipping over and sinking before they are removed.</summary>
+        private readonly List<(Transform root, float age, float side)> _falling = new List<(Transform, float, float)>();
+        private const float FallSeconds = 0.5f;
         private readonly List<Transform> _stripes = new List<Transform>();
 
         private LaneSim _sim;
@@ -42,6 +65,9 @@ namespace Orsuun.Client
         private float _heroY = 1f;
         private Color _heroTint = HeroColor;
         private float _heroPunch;
+        /// <summary>The rigged armour look's legacy clips (Idle, Run, Attack, Hit, Death); null on the grey-box hero.</summary>
+        private Animation _anim;
+        private bool _heroDown;
         private float _heroHurt;
 
         private Renderer _ground;
@@ -63,12 +89,13 @@ namespace Orsuun.Client
         /// <summary>Switches to another lane (park or push replay), clearing every enemy view.</summary>
         public void Bind(LaneSim sim)
         {
-            foreach (EnemyView view in _views.Values) Destroy(view.Root.gameObject);
+            foreach (EnemyView view in _views.Values) Kill(view.Root.gameObject);   // the editor preview rebinds too
             _views.Clear();
             _sim = sim;
             SetZone(sim.Stage.Zone);
             _hero.rotation = Quaternion.identity;
             _hero.position = new Vector3(HeroX, _heroY, 0f);
+            if (_heroDown) { _heroDown = false; Play("Idle", 0f); }
             foreach (Enemy enemy in sim.Enemies) SpawnView(enemy.Id);
         }
 
@@ -190,7 +217,7 @@ namespace Orsuun.Client
             if (_rig == null) return false;
             armorLookId ??= BareArmorLook;
             if (armorLookId == _armorLookId && weaponLookId == _weaponLookId) return true;
-            if (_hero.rotation != Quaternion.identity) return true; // lying down: swap once back on his feet
+            if (_heroDown) return true; // lying down: swap once back on his feet
 
             GameObject armorPrefab = LoadLook(armorLookId, out string armorUsed);
             if (armorPrefab == null) return false;
@@ -203,6 +230,9 @@ namespace Orsuun.Client
             for (int i = 0; i < _partGlow.Length; i++) _partGlow[i] = -1f;
 
             _armorLook = Instantiate(armorPrefab, _rig);
+            // Measured below at the bind pose: the clips only start sampling on the next frame.
+            _anim = _armorLook.GetComponent<Animation>();
+            if (_anim != null && _anim.GetClip("Idle") == null) _anim = null;
             Material armorMat = Resources.Load<Material>("Looks/" + armorUsed);
             Bounds b = default;
             bool first = true;
@@ -241,8 +271,11 @@ namespace Orsuun.Client
                     // Stretch along the pole only: Rodin makes thin objects chunky, so girth stays as modelled.
                     w.localScale = new Vector3(1f, length > 0.01f ? axis.magnitude / length : 1f, 1f);
                     w.position = grip.position;
+                    // The grip rides the hand bone on rigged looks, so the glaive swings with the arm.
+                    if (_anim != null) w.SetParent(grip, true);
                 }
             }
+            Play("Idle", 0f);
 
             _armorLookId = armorLookId;
             _weaponLookId = weaponLookId;
@@ -316,6 +349,7 @@ namespace Orsuun.Client
 
                 case LaneEventKind.EnemyDamaged:
                     _heroPunch = 1f;
+                    Strike();
                     if (_views.TryGetValue(e.EnemyId, out EnemyView hit))
                     {
                         hit.Punch = 1f;
@@ -326,8 +360,15 @@ namespace Orsuun.Client
                 case LaneEventKind.EnemyDied:
                     if (_views.TryGetValue(e.EnemyId, out EnemyView dead))
                     {
-                        Destroy(dead.Root.gameObject);
                         _views.Remove(e.EnemyId);
+                        if (dead.IsMob && _falling.Count < 24)
+                        {
+                            // Models keel over and sink into the grass; the HP bar goes at once.
+                            Transform bar = dead.Root.Find("HpBar");
+                            if (bar != null) Destroy(bar.gameObject);
+                            _falling.Add((dead.Root, 0f, (e.EnemyId & 1) == 0 ? 1f : -1f));
+                        }
+                        else Destroy(dead.Root.gameObject);
                     }
                     break;
 
@@ -346,6 +387,7 @@ namespace Orsuun.Client
 
                 case LaneEventKind.HeroDamaged:
                     _heroHurt = 1f;
+                    Flinch();
                     break;
 
                 case LaneEventKind.HeroHealed:
@@ -355,12 +397,19 @@ namespace Orsuun.Client
                 case LaneEventKind.HeroDied:
                     foreach (EnemyView view in _views.Values) Destroy(view.Root.gameObject);
                     _views.Clear();
-                    _hero.rotation = Quaternion.Euler(0f, 0f, 90f);
-                    _hero.position = new Vector3(HeroX, _heroY < 0.5f ? 0.3f : 0.5f, 0f);
+                    _heroDown = true;
+                    if (_anim != null) Play("Death", 0.1f);
+                    else
+                    {
+                        _hero.rotation = Quaternion.Euler(0f, 0f, 90f);
+                        _hero.position = new Vector3(HeroX, _heroY < 0.5f ? 0.3f : 0.5f, 0f);
+                    }
                     Float("DEFEATED", _hero.position + Vector3.up * 2f, Palette.Bad, 2f);
                     break;
 
                 case LaneEventKind.HeroRespawned:
+                    _heroDown = false;
+                    Play("Idle", 0f);
                     _hero.rotation = Quaternion.identity;
                     _hero.position = new Vector3(HeroX, _heroY, 0f);
                     break;
@@ -387,43 +436,40 @@ namespace Orsuun.Client
                 }
             }
 
-            int mobIndex = 0;
-            foreach (Enemy enemy in _sim.Enemies)
+            PlaceEnemies(1f - Mathf.Exp(-9f * dt), dt);
+
+            for (int i = _falling.Count - 1; i >= 0; i--)
             {
-                if (!_views.TryGetValue(enemy.Id, out EnemyView view)) continue;
-
-                Vector3 target;
-                if (enemy.IsKorstone)
-                {
-                    // The model stands on its base; the box fallback is centred.
-                    target = new Vector3(3.4f, view.IsModel ? 0f : 1.3f, 2.2f);
-                }
-                else if (enemy.IsBoss)
-                {
-                    target = new Vector3(1.2f, 1.2f, 0f);
-                }
-                else
-                {
-                    int row = mobIndex / MobsPerRow;
-                    target = new Vector3(-0.4f + (mobIndex % MobsPerRow) * MobSpacing, 0.35f, row * 0.9f);
-                    mobIndex++;
-                }
-
-                view.Root.position = Vector3.Lerp(view.Root.position, target, 1f - Mathf.Exp(-9f * dt));
-                view.Punch = Mathf.MoveTowards(view.Punch, 0f, dt * 6f);
-                view.Root.localScale = view.Scale * (1f + view.Punch * 0.18f);
-
-                float ratio = Mathf.Clamp01(enemy.Hp / (float)enemy.MaxHp);
-                view.HpFill.localScale = new Vector3(ratio, 1f, 1f);
-                view.HpFill.localPosition = new Vector3(-(1f - ratio) * 0.5f, 0f, -0.01f);
+                (Transform root, float age, float side) = _falling[i];
+                if (root == null) { _falling.RemoveAt(i); continue; }
+                age += dt;
+                float t = Mathf.Clamp01(age / FallSeconds);
+                // Roll onto the side over the first half, then sink below the ground.
+                root.rotation = Quaternion.Euler(0f, EnemyYaw, side * 85f * Mathf.SmoothStep(0f, 1f, Mathf.Min(1f, t * 1.6f)));
+                Vector3 p = root.position;
+                p.y = -Mathf.Max(0f, t - 0.55f) * 1.4f;
+                root.position = p;
+                if (t >= 1f) { Destroy(root.gameObject); _falling.RemoveAt(i); }
+                else _falling[i] = (root, age, side);
             }
 
             _heroPunch = Mathf.MoveTowards(_heroPunch, 0f, dt * 8f);
             _heroHurt = Mathf.MoveTowards(_heroHurt, 0f, dt * 5f);
-            if (_sim.Phase != LanePhase.Dead)
+            if (_anim != null)
+            {
+                // Legs carry him on the run; otherwise he stands and breathes between blows.
+                if (!_heroDown)
+                {
+                    string loop = _sim.Phase == LanePhase.Running ? "Run" : "Idle";
+                    if (!_anim.IsPlaying("Attack") && !_anim.IsPlaying("Hit") && !_anim.IsPlaying(loop)) Play(loop, 0.15f);
+                    _hero.position = new Vector3(HeroX + _heroPunch * 0.12f, _heroY, 0f);
+                }
+            }
+            else if (_sim.Phase != LanePhase.Dead)
                 _hero.position = new Vector3(HeroX + _heroPunch * 0.35f, _heroY + (_sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 9f)) * 0.12f : 0f), 0f);
             Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : _heroTint;
-            Color tint = Color.Lerp(heroBase, Color.red, _heroHurt * 0.7f);
+            // Textured looks only flush a little when struck; the grey-box capsule flashes hard.
+            Color tint = Color.Lerp(heroBase, Color.red, _heroHurt * (_anim != null ? 0.3f : 0.7f));
             foreach ((Renderer r, int _) in _heroParts) r.material.color = tint;
 
             for (int i = _texts.Count - 1; i >= 0; i--)
@@ -442,6 +488,78 @@ namespace Orsuun.Client
             }
         }
 
+        /// <summary>Moves every enemy toward its lane spot; follow = 1 snaps (the editor preview has no frames).</summary>
+        public void PlaceEnemies(float follow, float dt = 0f)
+        {
+            if (_sim == null) return;
+            int mobIndex = 0;
+            foreach (Enemy enemy in _sim.Enemies)
+            {
+                if (!_views.TryGetValue(enemy.Id, out EnemyView view)) continue;
+
+                Vector3 target;
+                if (enemy.IsKorstone)
+                {
+                    // The model stands on its base; the box fallback is centred.
+                    target = new Vector3(3.4f, view.IsModel ? 0f : 1.3f, 2.2f);
+                }
+                else if (enemy.IsBoss)
+                {
+                    target = new Vector3(view.IsModel ? 1.6f : 1.2f, view.Y, 0.3f);
+                }
+                else
+                {
+                    // Every other mob a step back, so long bodies (wolves, boars) do not sit inside each other.
+                    int row = mobIndex / MobsPerRow;
+                    target = new Vector3(-0.4f + (mobIndex % MobsPerRow) * MobSpacing, view.Y, row * 1.1f + (mobIndex % 2) * 0.5f);
+                    mobIndex++;
+                }
+
+                if (view.IsMob)
+                    target.y += Mathf.Abs(Mathf.Sin(Time.time * 5f + enemy.Id * 1.7f)) * 0.04f;   // restless on their feet
+                view.Root.position = Vector3.Lerp(view.Root.position, target, follow);
+                view.Punch = Mathf.MoveTowards(view.Punch, 0f, dt * 6f);
+                view.Root.localScale = view.Scale * (1f + view.Punch * 0.18f);
+
+                float ratio = Mathf.Clamp01(enemy.Hp / (float)enemy.MaxHp);
+                view.HpFill.localScale = new Vector3(ratio, 1f, 1f);
+                view.HpFill.localPosition = new Vector3(-(1f - ratio) * 0.5f, 0f, -0.01f);
+            }
+        }
+
+        private void Play(string clip, float fade)
+        {
+            if (_anim == null || _anim.GetClip(clip) == null) return;
+            if (fade <= 0f) _anim.Play(clip);
+            else _anim.CrossFade(clip, fade);
+        }
+
+        /// <summary>A glaive chop per landed hit; a new one waits until the last is past its strike frame.</summary>
+        private void Strike()
+        {
+            if (_anim == null || _heroDown) return;
+            AnimationState attack = _anim["Attack"];
+            if (attack != null && _anim.IsPlaying("Attack") && attack.normalizedTime < 0.6f) return;
+            _anim.CrossFade("Attack", 0.05f);
+            _anim["Attack"].time = 0f;
+        }
+
+        private void Flinch()
+        {
+            if (_anim == null || _heroDown || _anim.IsPlaying("Attack")) return;
+            _anim.CrossFade("Hit", 0.05f);
+        }
+
+        /// <summary>Editor preview: poses the hero at a clip's normalised time (no Play mode, so no Animation update).</summary>
+        public bool PoseHero(string clip, float normalizedTime)
+        {
+            if (_anim == null) return false;
+            AnimationClip c = _anim.GetClip(clip);
+            if (c == null) return false;
+            c.SampleAnimation(_armorLook, normalizedTime * c.length);
+            return true;
+        }
+
         private static Vector3 BaseScale(bool korstone, bool boss = false) =>
             korstone ? new Vector3(1.3f, 2.6f, 1.3f) : boss ? new Vector3(1.2f, 1.2f, 1.2f) : new Vector3(0.6f, 0.7f, 0.6f);
 
@@ -456,21 +574,52 @@ namespace Orsuun.Client
                 : kind == EnemyKind.Captain ? new Color(0.85f, 0.55f, 0.15f)
                 : kind == EnemyKind.Image ? new Color(0.6f, 0.4f, 0.9f, 0.6f) : MobColor;
             GameObject model = korstone ? KorstoneModel() : null;
-            Transform root = model != null ? Instantiate(model).transform : Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, kind.ToString(), color);
+            float artScale = 1f;
+            Color? artTint = null;
+            MobArt art = korstone ? null : ArtFor(enemyId, kind, out artScale, out artTint);
+            Transform root;
+            float barHeight;
+            Vector3 s;
+            if (art != null)
+            {
+                root = Instantiate(art.Model).transform;
+                if (art.Height < 0f)
+                {
+                    // Measured once, unscaled at the origin: the model's own height, for the HP bar.
+                    float top = 0.5f;
+                    foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) top = Mathf.Max(top, r.bounds.max.y);
+                    art.Height = top;
+                }
+                foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
+                {
+                    r.sharedMaterial = art.Material;
+                    if (artTint.HasValue) r.material.color = artTint.Value;
+                }
+                s = Vector3.one * artScale;
+                barHeight = art.Height + 0.3f / artScale;
+                root.rotation = Quaternion.Euler(0f, EnemyYaw, 0f);
+            }
+            else
+            {
+                root = model != null ? Instantiate(model).transform : Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, kind.ToString(), color);
+                if (model != null)
+                    foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) r.sharedMaterial = _korstoneMaterial;
+                s = model != null ? Vector3.one : BaseScale(korstone, boss);
+                barHeight = model != null ? 2.9f : 0.75f;
+                if (korstone) root.rotation = Quaternion.Euler(0f, 25f, model != null ? 0f : 4f);
+            }
             root.name = kind.ToString();
-            if (model != null)
-                foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) r.sharedMaterial = _korstoneMaterial;
-            Vector3 s = model != null ? Vector3.one : BaseScale(korstone, boss);
             if (kind == EnemyKind.ElderKorstone) s *= 1.3f;
+            bool standing = model != null || art != null;
+            float y = standing ? 0f : korstone ? 1.3f : boss ? 1.2f : 0.35f;
             root.SetParent(transform, false);
-            root.position = new Vector3(SpawnX, korstone ? (model != null ? 0f : 1.3f) : boss ? 1.2f : 0.35f, korstone ? 2.2f : 0f);
+            root.position = new Vector3(SpawnX, y, korstone ? 2.2f : 0f);
             root.localScale = s;
-            if (korstone) root.rotation = Quaternion.Euler(0f, 25f, model != null ? 0f : 4f);
 
             // Bars are parented to a holder that cancels the body's scale, so they keep a fixed size.
             var holder = new GameObject("HpBar").transform;
             holder.SetParent(root, false);
-            holder.localPosition = new Vector3(0f, model != null ? 2.9f : 0.75f, 0f);
+            holder.localPosition = new Vector3(0f, barHeight, 0f);
             holder.localScale = new Vector3((korstone || boss ? 1.6f : 0.7f) / s.x, 0.09f / s.y, 0.05f / s.z);
             holder.rotation = Quaternion.identity;
 
@@ -480,7 +629,44 @@ namespace Orsuun.Client
             fill.SetParent(holder, false);
             fill.localPosition = new Vector3(0f, 0f, -0.01f);
 
-            _views[enemyId] = new EnemyView { Root = root, HpFill = fill, Scale = s, IsModel = model != null };
+            _views[enemyId] = new EnemyView { Root = root, HpFill = fill, Scale = s, IsModel = standing, Y = y, IsMob = art != null };
+        }
+
+        /// <summary>
+        /// The model for an enemy: mobs cycle the map's three kinds by id; Old Greyjaw is a great wolf; Tul-Gorak and his
+        /// captains are deserters in war-red. The Mirage Queen and her images have no model yet (grey box).
+        /// </summary>
+        private MobArt ArtFor(int enemyId, EnemyKind kind, out float scale, out Color? tint)
+        {
+            scale = MobScale;
+            tint = null;
+            switch (kind)
+            {
+                case EnemyKind.Mob:
+                    return LoadMob(MobModels[enemyId % MobModels.Length]);
+                case EnemyKind.Captain:
+                    scale = 1f;
+                    tint = new Color(1f, 0.72f, 0.55f);
+                    return LoadMob("Deserter");
+                case EnemyKind.Boss:
+                    string boss = _sim.Stage.BossName ?? "";
+                    if (boss.Contains("Greyjaw")) { scale = 1.8f; return LoadMob("Wolf"); }
+                    if (boss.Contains("Gorak")) { scale = 1.25f; tint = new Color(1f, 0.6f, 0.5f); return LoadMob("Deserter"); }
+                    return null;
+                default:
+                    return null;
+            }
+        }
+
+        private static MobArt LoadMob(string name)
+        {
+            if (MobArts.TryGetValue(name, out MobArt art)) return art;
+            var model = Resources.Load<GameObject>("Models/Mobs/" + name);
+            var material = Resources.Load<Material>("Mobs/" + name);
+            art = null;
+            if (model != null && material != null) art = new MobArt { Model = model, Material = material, Height = -1f };
+            MobArts[name] = art;
+            return art;
         }
 
         private void Float(string content, Vector3 position, Color color, float scale)

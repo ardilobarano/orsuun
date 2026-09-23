@@ -71,7 +71,17 @@ static Account Me(HttpContext ctx) => (Account)ctx.Items["account"]!;
 
 // /me and /heartbeat carry the Commander clocks; the mutating calls return state without them to stay light.
 v1.MapGet("/me", (HttpContext ctx, GameService game, CancellationToken ct) => game.WithBossesAsync(Me(ctx), game.GetState(Me(ctx)), ct));
-v1.MapPost("/heartbeat", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.HeartbeatAsync(Me(ctx), ct), ct));
+v1.MapPost("/heartbeat", async (HttpContext ctx, GameService game, CancellationToken ct) =>
+{
+    // The body is optional (older clients post "{}" or nothing): loop reports for active play.
+    HeartbeatRequest? req = null;
+    if (ctx.Request.ContentLength is > 0)
+    {
+        try { req = await ctx.Request.ReadFromJsonAsync<HeartbeatRequest>(ct); }
+        catch (System.Text.Json.JsonException) { req = null; }    // a garbled report only costs the bonus
+    }
+    return await game.WithBossesAsync(Me(ctx), await game.HeartbeatAsync(Me(ctx), req, ct), ct);
+});
 v1.MapPost("/boss/fight", async (HttpContext ctx, BossFightRequest req, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.FightBossAsync(Me(ctx), req, ct), ct));
 v1.MapPost("/forge", (HttpContext ctx, ForgeRequest req, GameService game, CancellationToken ct) => game.ForgeAsync(Me(ctx), req, ct));
 v1.MapPost("/turn", (HttpContext ctx, TurnRequest req, GameService game, CancellationToken ct) => game.TurnAsync(Me(ctx), req, ct));

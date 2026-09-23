@@ -49,8 +49,9 @@ namespace Orsuun.Client
         public bool IsOpen => _canvas.activeSelf;
         public ForgeResult? LastResult { get; private set; }
 
+        /// <summary>Item-name colour by upgrade level, the same steps as the glow: +7 pale gold, +8 gold, +9 ember-gold.</summary>
         public static Color LevelColor(int level) =>
-            level >= 9 ? new Color(1f, 0.45f, 0.2f) : level >= 7 ? Palette.Warn : Color.white;
+            level >= 9 ? new Color(1f, 0.55f, 0.2f) : level >= 8 ? new Color(1f, 0.80f, 0.30f) : level >= 7 ? new Color(1f, 0.92f, 0.62f) : Palette.Parchment;
 
         public void Init(GameRoot root)
         {
@@ -59,8 +60,8 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, new Color(0.04f, 0.04f, 0.05f, 0.94f));
-            Ui.Label("Title", canvas, 0.05f, 0.93f, 0.95f, 0.975f, "THE FORGE  ·  Forgemaster Dorun", 40, TextAnchor.MiddleCenter, Palette.Warn);
+            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Title("Title", canvas, 0.05f, 0.93f, 0.95f, 0.975f, "THE FORGE  ·  Forgemaster Dorun", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
 
             // What goes on the anvil: one button per equipment slot, empty slots disabled.
             _slotButtons = new Button[SlotNames.Length];
@@ -75,11 +76,11 @@ namespace Orsuun.Client
                 label.anchorMin = new Vector2(0f, 0f); label.anchorMax = new Vector2(1f, 0.32f);
             }
 
-            _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.795f, 0.95f, 0.85f, "", 56, TextAnchor.MiddleCenter, Color.white);
+            _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.795f, 0.95f, 0.85f, "", 56, TextAnchor.MiddleCenter, Palette.Parchment);
             _stats = Ui.Label("Stats", canvas, 0.05f, 0.765f, 0.95f, 0.81f, "", 30, TextAnchor.MiddleCenter, Palette.Muted);
 
-            Ui.Panel("EtchingsBack", canvas, 0.06f, 0.575f, 0.94f, 0.755f, Palette.PanelDark);
-            _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.58f, 0.91f, 0.75f, "", 28, TextAnchor.MiddleLeft, Color.white);
+            Ui.Framed("EtchingsBack", canvas, 0.06f, 0.575f, 0.94f, 0.755f, Palette.PanelDark);
+            _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.58f, 0.91f, 0.75f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
 
             // Turnstones: one turn, or a Bulk Turn of 10 / 50 that stops when the chosen etching reaches the chosen tier.
             _turnButton = Ui.Button("Turn", canvas, 0.06f, 0.515f, 0.34f, 0.57f, "", 24, Palette.ButtonIdle, () => Turn(1), out _turnLabel);
@@ -88,7 +89,7 @@ namespace Orsuun.Client
             Ui.Button("StopEntry", canvas, 0.06f, 0.475f, 0.66f, 0.51f, "", 20, Palette.PanelDark, () => _stopEntry = (_stopEntry + 2) % 17 - 1, out _stopEntryLabel);
             Ui.Button("StopTier", canvas, 0.67f, 0.475f, 0.94f, 0.51f, "", 20, Palette.PanelDark, () => _stopTier = _stopTier % 5 + 1, out _stopTierLabel);
 
-            _attemptInfo = Ui.Label("AttemptInfo", canvas, 0.05f, 0.385f, 0.95f, 0.465f, "", 32, TextAnchor.MiddleCenter, Color.white);
+            _attemptInfo = Ui.Label("AttemptInfo", canvas, 0.05f, 0.385f, 0.95f, 0.465f, "", 32, TextAnchor.MiddleCenter, Palette.Parchment);
 
             Color[] colors = { Palette.Danger, Palette.Safe, Palette.Alloy };
             _methodButtons = new Button[Methods.Length];
@@ -101,9 +102,9 @@ namespace Orsuun.Client
                     () => StartAttempt(method), out _methodLabels[i]);
             }
 
-            Ui.Panel("AnvilBack", canvas, 0.06f, 0.20f, 0.94f, 0.235f, Color.black);
+            Ui.Framed("AnvilBack", canvas, 0.06f, 0.20f, 0.94f, 0.235f, new Color(0.07f, 0.04f, 0.04f));
             _anvilFill = Ui.Panel("AnvilFill", canvas, 0.06f, 0.20f, 0.06f, 0.235f, Palette.Warn).rectTransform;
-            _result = Ui.Label("Result", canvas, 0.04f, 0.085f, 0.96f, 0.19f, "", 52, TextAnchor.MiddleCenter, Color.white);
+            _result = Ui.Label("Result", canvas, 0.04f, 0.085f, 0.96f, 0.19f, "", 52, TextAnchor.MiddleCenter, Palette.Parchment);
             _closeButton = Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
 
             _canvas.SetActive(false);
