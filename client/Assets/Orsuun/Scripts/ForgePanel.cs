@@ -38,6 +38,8 @@ namespace Orsuun.Client
         private Button _turnButton;
         private Button _closeButton;
         private ForgeFx _fx;
+        private ConfirmDialog _confirm;
+        private Text _closeLabel;
         private Button[] _slotButtons;
         private Text[] _slotLabels;
 
@@ -103,18 +105,22 @@ namespace Orsuun.Client
             }
 
             _result = Ui.Label("Result", canvas, 0.04f, 0.09f, 0.96f, 0.235f, "", 52, TextAnchor.MiddleCenter, Palette.Parchment);
-            _closeButton = Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
+            _closeButton = Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _closeLabel);
 
             _canvas.SetActive(false);
 
             // The anvil moment plays on its own layer above this screen.
             _fx = new GameObject("ForgeFx").AddComponent<ForgeFx>();
             _fx.Init();
+            _confirm = new GameObject("ConfirmDialog").AddComponent<ConfirmDialog>();
+            _confirm.Init();
         }
 
-        public void Open()
+        /// <summary>Opens the Forge on whatever is on the anvil; from the Gear screen, closing goes back there.</summary>
+        public void Open(bool fromGear = false)
         {
             _result.text = "";
+            _closeLabel.text = fromGear ? "BACK TO GEAR" : "BACK TO THE HUNT";
             _canvas.SetActive(true);
         }
 
@@ -141,7 +147,33 @@ namespace Orsuun.Client
                 return;
             }
 
-            StartCoroutine(AttemptSequence(method));
+            AskFirst(method);
+        }
+
+        /// <summary>Owner, 24 Sep 2026: every attempt asks first, with the chance, the full cost and what a failure costs.</summary>
+        private void AskFirst(ForgeMethod method)
+        {
+            PlayerSession s = _root.Session;
+            ItemState item = s.OnAnvil;
+            int target = item.UpgradeLevel + 1;
+            int chance = s.ForgeChanceBp(method) / 100;
+            string cost = $"{s.ForgeCost:N0} sorn";
+            if (s.ForgeMaterials > 0) cost += $"  ·  {s.ForgeMaterials} {s.Lane.Stage.MaterialName}";
+            if (method == ForgeMethod.ScrollOfMercy) cost += "  ·  1 Scroll of Mercy";
+            if (method == ForgeMethod.KhansAlloy) cost += "  ·  1 Khan's Alloy";
+
+            bool breaks = method == ForgeMethod.ForgeAlone && target >= ForgeRules.FirstOathbreakTarget;
+            string failure = breaks
+                ? ConfirmDialog.Tint($"If it fails, your +{item.UpgradeLevel} {item.DisplayName} is destroyed.", Palette.Bad)
+                  + (s.AnvilWorn ? "\nA plain starter piece takes its place." : "")
+                : ConfirmDialog.Tint(item.UpgradeLevel == 0 ? "If it fails, it stays at +0." : $"If it fails, it drops to +{item.UpgradeLevel - 1}.", Palette.Warn);
+
+            string where = s.AnvilWorn ? "" : "\n" + ConfirmDialog.Tint("from your bag", Palette.Muted);
+            string body = ConfirmDialog.Tint($"{item.DisplayName} +{item.UpgradeLevel}", LevelColor(item.UpgradeLevel)) + where
+                + $"\n\nSuccess chance {ConfirmDialog.Tint(chance + "%", Palette.Good)}\nCost {cost}\n\n{failure}";
+            (string label, Color color) = method == ForgeMethod.ScrollOfMercy ? ("USE SCROLL", Palette.Safe)
+                : method == ForgeMethod.KhansAlloy ? ("USE ALLOY", Palette.Alloy) : ("FORGE", Palette.Danger);
+            _confirm.Show($"Forge to +{target}?", body, label, color, () => { if (!Busy) StartCoroutine(AttemptSequence(method)); });
         }
 
         private IEnumerator AttemptSequence(ForgeMethod method)
@@ -149,6 +181,7 @@ namespace Orsuun.Client
             Busy = true;
             int target = _root.Session.OnAnvil.UpgradeLevel + 1;
             EquipSlot anvilSlot = _root.Session.AnvilSlot;
+            string anvilId = _root.Server.IdOf(_root.Session.OnAnvil);
             string pieceName = _root.Session.OnAnvil.DisplayName;
             float duration = target >= ForgeRules.PatienceFromTarget ? LongSequence : ShortSequence;
             string line = DorunLines[Random.Range(0, DorunLines.Length)];
@@ -163,7 +196,7 @@ namespace Orsuun.Client
             {
                 // The server rolled; the anvil sequence above only hid the round trip.
                 string failure = null;
-                yield return _root.Server.Forge(method, anvilSlot, (dto, error) =>
+                yield return _root.Server.Forge(method, anvilSlot, anvilId, (dto, error) =>
                 {
                     failure = error;
                     if (dto != null)
@@ -241,7 +274,7 @@ namespace Orsuun.Client
             if (_root.Server.Online)
             {
                 Busy = true;
-                StartCoroutine(_root.Server.Turn(count, stopEntry, _stopTier, _root.Session.AnvilSlot, (turns, stopped, error) =>
+                StartCoroutine(_root.Server.Turn(count, stopEntry, _stopTier, _root.Session.AnvilSlot, _root.Server.IdOf(_root.Session.OnAnvil), (turns, stopped, error) =>
                 {
                     Busy = false;
                     if (error != null) ShowResult(error, Palette.Muted);
@@ -278,14 +311,17 @@ namespace Orsuun.Client
                 _slotLabels[i].text = piece == null ? "-" : "+" + piece.UpgradeLevel;
                 _slotLabels[i].color = piece == null ? Palette.Muted : LevelColor(piece.UpgradeLevel);
                 _slotButtons[i].interactable = piece != null && !Busy;
-                _slotButtons[i].GetComponent<Image>().color = (EquipSlot)i == session.AnvilSlot ? Palette.Warn * 0.55f : Palette.PanelDark;
+                bool onAnvil = session.AnvilWorn && (EquipSlot)i == session.AnvilSlot;
+                _slotButtons[i].GetComponent<Image>().color = onAnvil ? Palette.Warn * 0.55f : Palette.PanelDark;
             }
 
             _weapon.text = $"{weapon.DisplayName} +{weapon.UpgradeLevel}";
             _weapon.color = LevelColor(weapon.UpgradeLevel);
 
             HeroStats hero = session.Hero;
-            _stats.text = $"Attack {hero.Attack}  ·  Crit {hero.CritChanceBp / 100}%  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%  ·  Blades lost {session.WeaponsBroken}";
+            _stats.text = session.AnvilWorn
+                ? $"Attack {hero.Attack}  ·  Crit {hero.CritChanceBp / 100}%  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%  ·  Blades lost {session.WeaponsBroken}"
+                : $"From your bag, not worn  ·  Item level {weapon.ItemLevel}  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%";
 
             var sb = new StringBuilder();
             foreach (Etching e in weapon.Etchings)

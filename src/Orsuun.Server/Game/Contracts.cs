@@ -15,9 +15,10 @@ public sealed record HeartbeatRequest(LoopReportDto[]? Loops = null);
 /// <summary>The lane seed (decimal string, it is a ulong) and the next loop number the server expects.</summary>
 public sealed record LaneDto(string Seed, int Loop);
 
-public sealed record ForgeRequest(string RequestId, ForgeMethod Method, EquipSlot Slot = EquipSlot.Weapon);
+/// <summary>ItemId picks any owned piece, worn or in the bag; without it the piece worn in Slot is used.</summary>
+public sealed record ForgeRequest(string RequestId, ForgeMethod Method, EquipSlot Slot = EquipSlot.Weapon, Guid? ItemId = null);
 /// <summary>Count 1..50 (10 without Hearthfire Blessing); StopEntryId/MinTier form the optional stop rule.</summary>
-public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1, EquipSlot Slot = EquipSlot.Weapon);
+public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1, EquipSlot Slot = EquipSlot.Weapon, Guid? ItemId = null);
 public sealed record TurnResultDto(int Turns, int TurnstonesSpent, bool Stopped);
 
 /// <summary>Active Evening Bell and the next one, in server-local time.</summary>

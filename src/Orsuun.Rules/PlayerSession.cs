@@ -190,17 +190,31 @@ namespace Orsuun.Rules
 
         /// <summary>
         /// Every item follows the weapon's rules (owner decision, 23 Sep 2026): the Forge and the Turnstone act on the
-        /// item on the anvil, whichever slot it is, and an Oathbreak replaces it with a starter piece for that slot.
+        /// item on the anvil, whichever slot it is. Since 24 Sep 2026 (owner) that can be any owned piece, worn or in
+        /// the bag. An Oathbreak on a worn piece replaces it with a starter for that slot; a bag piece is simply gone.
         /// </summary>
-        public EquipSlot AnvilSlot { get; private set; } = EquipSlot.Weapon;
-        public ItemState OnAnvil => _equipped[(int)AnvilSlot] ?? Weapon;
+        public ItemState OnAnvil => _anvilItem != null && Owns(_anvilItem) ? _anvilItem : Weapon;
+        /// <summary>Slot type of the piece on the anvil.</summary>
+        public EquipSlot AnvilSlot => OnAnvil.Slot;
+        /// <summary>True when the piece on the anvil is worn (its Oathbreak leaves a starter behind).</summary>
+        public bool AnvilWorn => _equipped[(int)OnAnvil.Slot] == OnAnvil;
+
+        private ItemState? _anvilItem;
 
         /// <summary>Puts the equipped item in <paramref name="slot"/> on the anvil.</summary>
         public void PutOnAnvil(EquipSlot slot)
         {
-            if (_equipped[(int)slot] == null) throw new InvalidOperationException("Nothing is equipped in that slot.");
-            AnvilSlot = slot;
+            _anvilItem = _equipped[(int)slot] ?? throw new InvalidOperationException("Nothing is equipped in that slot.");
         }
+
+        /// <summary>Puts any owned piece on the anvil, worn or from the loot bag.</summary>
+        public void PutOnAnvil(ItemState item)
+        {
+            if (!Owns(item)) throw new InvalidOperationException("You do not own that item.");
+            _anvilItem = item;
+        }
+
+        private bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
         public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level);
@@ -247,7 +261,9 @@ namespace Orsuun.Rules
             {
                 ItemsBroken++;
                 if (item.Slot == EquipSlot.Weapon) WeaponsBroken++;
-                _equipped[(int)item.Slot] = NewStarter(item.Slot);
+                if (_equipped[(int)item.Slot] == item) _equipped[(int)item.Slot] = NewStarter(item.Slot);
+                else Inventory.Loot.Remove(item);
+                _anvilItem = _equipped[(int)item.Slot];
             }
 
             RefreshHero();
@@ -475,7 +491,8 @@ namespace Orsuun.Rules
             Inventory.Loot.AddRange(inventory.Loot);
             Array.Clear(_equipped, 0, _equipped.Length);
             foreach (ItemState item in equipped) _equipped[(int)item.Slot] = item;
-            if (_equipped[(int)AnvilSlot] == null) AnvilSlot = EquipSlot.Weapon;
+            // Every item object is new: the caller re-anchors the anvil (ServerLink matches it by server id).
+            _anvilItem = null;
             WeaponsBroken = weaponsBroken;
             HighestStageCleared = highestStageCleared;
             if (parkedStage != ParkedStage && Content.IsUnlocked(parkedStage, HighestStageCleared)) Park(parkedStage);

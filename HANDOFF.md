@@ -18,6 +18,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Names | World Orsuun; Metin stones = Korstones; yang = sorn; classes Vanguard / Kestrel / Wraithsworn / Drumcaller; three Banners instead of empires. Full glossary in the GDD's "World and naming bible" tab. |
 | Forge burn rule | Items can be destroyed (Oathbreak) only from the +4 attempt upward; +1..+3 failures drop one level. |
 | Every item like the weapon | Owner, 23 Sep 2026: any equipped item can be forged and turned with the weapon's costs, chances and methods; an Oathbreak replaces it with a starter piece for its slot. The Forge screen picks the item with a slot row. |
+| Forge from the bag, and asking first | Owner, 24 Sep 2026: every Forge attempt asks for confirmation first (chance, full cost, what a failure costs), and pieces can be forged and turned from the Gear screen without equipping them. Assumption (not stated by the owner): an Oathbreak on a bag piece just destroys it; only a worn piece is replaced by a starter, so breaking junk cannot mint starters. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -58,6 +59,11 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   Tul-Gorak and his captains as war-red deserters. Mobs bob while alive and keel over when slain.
 - Active play wired end to end (see Known gaps for the rules): verified on 24 Sep 2026 with the Mac player against a
   local server, two loops reported and both replayed as exact matches.
+- Gear screen rebuilt: worn pieces as tiles with rarity rims and +level badges, a detail card (own stats, what wearing
+  it would change, etchings, sockets), the bag as a scrolling grid with a slot filter, and EQUIP / FORGE / TURN for any
+  piece. Forge and Turn requests carry the item id (`ForgeRequest.ItemId`, `TurnRequest.ItemId`); upgraded bag pieces are
+  never pushed out by the loot cap. Every Forge attempt asks first (`ConfirmDialog`). Dev switches for screenshots:
+  `-sampleloot`, `-gear`, `-anvilbag`, `-confirm`.
 - Forge outcome moment (`ForgeFx`): every attempt plays on its own layer over the Forge. The item sits in a bronze slot,
   the hammer falls two times (five from +7), then success flashes with rays in the new level's glow colour (+9 bigger),
   a lost level dulls and shakes the piece, the Anvil Ward rings blue, and an Oathbreak splits the icon into flying

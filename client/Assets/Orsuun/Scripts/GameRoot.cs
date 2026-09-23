@@ -76,6 +76,12 @@ namespace Orsuun.Client
             // Dev switch for screenshots and demos: Orsuun.exe -forge
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-forge") >= 0) Forge.Open();
 
+            // Dev switches for screenshots: -sampleloot fills a local bag; -gear opens the Gear screen; -confirm asks to forge.
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-sampleloot") >= 0 && !Server.Online) SampleLoot();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }
+
             // Dev switch: -fxdemo <outcome> plays the Forge's anvil moment with a made-up result (screenshots).
             string fxDemo = Arg("-fxdemo");
             if (fxDemo != null) StartCoroutine(Forge.Demo(fxDemo));
@@ -83,6 +89,20 @@ namespace Orsuun.Client
             // Dev switch: -shot <png> [-shotAfter seconds] saves the screen and quits (tools/screenshot-mac.sh).
             string shot = Arg("-shot");
             if (shot != null) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), out float after) ? after : 8f));
+        }
+
+        /// <summary>Local-only demo bag: a spread of slots and rarities, some with etchings and levels.</summary>
+        private void SampleLoot()
+        {
+            var rng = new XorShiftRandom(11);
+            var etch = new EtchingService();
+            for (int i = 0; i < 14; i++)
+            {
+                var slot = (EquipSlot)(i % 8);
+                var item = new ItemState(10 + i * 3, (Rarity)(i % 5), slot) { UpgradeLevel = i % 4 == 0 ? i % 7 : 0 };
+                for (int e = 0; e < (int)item.Rarity; e++) etch.TryAdd(item, EtchingPool.For(slot), NeedleKind.EtchingNeedle, rng);
+                Session.Inventory.Loot.Add(item);
+            }
         }
 
         private static string Arg(string name)

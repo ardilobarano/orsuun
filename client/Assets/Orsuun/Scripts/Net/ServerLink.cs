@@ -105,12 +105,19 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>Server Forge. Completes with the result, or with null and an error message.</summary>
-        public IEnumerator Forge(ForgeMethod method, EquipSlot slot, Action<ForgeResultDto, string> done)
+        /// <summary>Server id of an item in the session (worn or in the bag), or null.</summary>
+        public string IdOf(ItemState item) => item != null && ItemIds.TryGetValue(item, out string id) ? id : null;
+
+        /// <summary>
+        /// Server Forge on the piece on the anvil: by item id when known (bag pieces need it), else the piece worn in
+        /// the slot. JsonUtility writes a null string as "", which the server cannot read as an id, so it is dropped.
+        /// </summary>
+        public IEnumerator Forge(ForgeMethod method, EquipSlot slot, string itemId, Action<ForgeResultDto, string> done)
         {
-            var req = new ForgeRequest { requestId = Guid.NewGuid().ToString("N"), method = method.ToString(), slot = slot.ToString() };
+            var req = new ForgeRequest { requestId = Guid.NewGuid().ToString("N"), method = method.ToString(), slot = slot.ToString(), itemId = itemId };
             ForgeResultDto result = null;
             string failure = null;
-            yield return Post("/v1/forge", JsonUtility.ToJson(req), true, json =>
+            yield return Post("/v1/forge", WithoutEmptyItemId(JsonUtility.ToJson(req)), true, json =>
             {
                 StateDto state = JsonUtility.FromJson<StateDto>(json);
                 Apply(state);
@@ -120,14 +127,14 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>One turn or a Bulk Turn. stopEntryId -1 means no stop rule. Completes with (turns, stopped, error).</summary>
-        public IEnumerator Turn(int count, int stopEntryId, int minTier, EquipSlot slot, Action<int, bool, string> done)
+        public IEnumerator Turn(int count, int stopEntryId, int minTier, EquipSlot slot, string itemId, Action<int, bool, string> done)
         {
             string failure = null;
             int turns = 0;
             bool stopped = false;
-            var req = new TurnRequest { requestId = Guid.NewGuid().ToString("N"), count = count, stopEntryId = stopEntryId, minTier = minTier, slot = slot.ToString() };
+            var req = new TurnRequest { requestId = Guid.NewGuid().ToString("N"), count = count, stopEntryId = stopEntryId, minTier = minTier, slot = slot.ToString(), itemId = itemId };
             // JsonUtility cannot omit a field: send -1 and let the server read it as "no rule" via stopEntryId >= 0.
-            string body = JsonUtility.ToJson(req);
+            string body = WithoutEmptyItemId(JsonUtility.ToJson(req));
             if (stopEntryId < 0) body = body.Replace("\"stopEntryId\":-1", "\"stopEntryId\":null");
             yield return Post("/v1/turn", body, true, json =>
             {
@@ -137,6 +144,8 @@ namespace Orsuun.Client.Net
             }, error => failure = error);
             done(turns, stopped, failure);
         }
+
+        private static string WithoutEmptyItemId(string json) => json.Replace(",\"itemId\":\"\"", "");
 
         public IEnumerator Equip(string itemId, Action<string> done)
         {
@@ -256,6 +265,8 @@ namespace Orsuun.Client.Net
                 }
             }
 
+            // Every ItemState is rebuilt below: remember which piece is on the anvil by its server id.
+            string anvilId = IdOf(_player.OnAnvil);
             ItemIds.Clear();
             var equipped = new List<ItemState>();
             foreach (ItemDto dto in s.items)
@@ -266,6 +277,9 @@ namespace Orsuun.Client.Net
             }
 
             _player.ApplyRemote(inventory, equipped, s.weaponsBroken, s.highestStageCleared, s.parkedStage);
+            if (anvilId != null)
+                foreach (KeyValuePair<ItemState, string> pair in ItemIds)
+                    if (pair.Value == anvilId) { _player.PutOnAnvil(pair.Key); break; }
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
             Online = true;
@@ -318,8 +332,8 @@ namespace Orsuun.Client.Net
         // JsonUtility mirrors of the server contracts. Enums travel as strings.
         [Serializable] public class GuestLoginRequest { public string deviceToken; }
         [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; }
-        [Serializable] public class ForgeRequest { public string requestId; public string method; public string slot; }
-        [Serializable] public class TurnRequest { public string requestId; public int count; public int stopEntryId; public int minTier; public string slot; }
+        [Serializable] public class ForgeRequest { public string requestId; public string method; public string slot; public string itemId; }
+        [Serializable] public class TurnRequest { public string requestId; public int count; public int stopEntryId; public int minTier; public string slot; public string itemId; }
         [Serializable] public class TurnResultDto { public int turns; public int turnstonesSpent; public bool stopped; }
         [Serializable] public class BellDto { public string active; public string activeName; public string next; public int minutesUntilNext; public string serverLocalTime; }
         [Serializable] public class EquipRequest { public string requestId; public string itemId; }

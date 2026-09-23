@@ -168,7 +168,7 @@ public sealed class GameService
         if (request.Method == ForgeMethod.ChainedSmith || request.Method == ForgeMethod.AnvilWard && account.AnvilWards <= 0)
             throw new GameException("method_unavailable", "That method is not available here.");
 
-        Item item = account.EquippedIn(request.Slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
+        Item item = AnvilItem(account, request.ItemId, request.Slot);
         ItemState state = item.ToState();
         if (state.UpgradeLevel >= ItemState.MaxUpgradeLevel) throw new GameException("already_max", "That item is already +9.");
 
@@ -192,9 +192,11 @@ public sealed class GameService
         item.ApplyState(state);
         if (result.Outcome == ForgeOutcome.Oathbreak)
         {
+            // A worn piece is replaced by a starter so the slot is never bare; a piece from the bag is simply gone.
+            bool worn = item.Equipped;
             item.Equipped = false;
             if (item.Slot == EquipSlot.Weapon) account.WeaponsBroken++;
-            account.Items.Add(Item.From(NewStarter(item.Slot), account.Id, equipped: true));
+            if (worn) account.Items.Add(Item.From(NewStarter(item.Slot), account.Id, equipped: true));
         }
 
         _db.Ledger.Add(Entry(account.Id, item.Id, "forge",
@@ -207,7 +209,7 @@ public sealed class GameService
     public async Task<StateDto> TurnAsync(Account account, TurnRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.EquippedIn(request.Slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
+        Item item = AnvilItem(account, request.ItemId, request.Slot);
         ItemState state = item.ToState();
         if (state.Etchings.Count == 0) throw new GameException("no_etchings", "That item has no etchings to turn yet.");
         int cost = state.LockedEtchingIndex >= 0 ? 2 : 1;
@@ -223,6 +225,15 @@ public sealed class GameService
         _db.Ledger.Add(Entry(account.Id, item.Id, "turn", $"turns={turns} spent={spent} stopped={stopped} etchings={item.Etchings}", 0, request.RequestId));
         await SaveAsync(ct);
         return ToState(account, turn: new TurnResultDto(turns, spent, stopped));
+    }
+
+    /// <summary>The piece a Forge or Turn acts on: any owned item by id (worn or in the bag), else the one worn in the slot.</summary>
+    private static Item AnvilItem(Account account, Guid? itemId, EquipSlot slot)
+    {
+        if (itemId is Guid id)
+            return account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed)
+                ?? throw new GameException("no_item", "You do not own that item.");
+        return account.EquippedIn(slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
     }
 
     /// <summary>Sets a Korshard on an owned item: the shard is spent, 70% it takes, 30% a Dead Shard blocks the socket.</summary>
@@ -567,11 +578,12 @@ public sealed class GameService
         if (i.Loot.Count == 0) return;
 
         // Keep the best MaxLoot loose pieces: new drops compete with what is already stored by rarity, then age.
+        // Pieces the player has forged up are never pushed out (bag items can be forged since 24 Sep 2026).
         var stored = a.Items.Where(x => !x.Equipped && !x.Destroyed).ToList();
         var keptDrops = new List<ItemState>();
-        var candidates = stored.Select(x => (Rarity: x.Rarity, Stored: (Item?)x, Drop: (ItemState?)null))
-            .Concat(i.Loot.Select(d => (Rarity: d.Rarity, Stored: (Item?)null, Drop: (ItemState?)d)))
-            .OrderByDescending(c => (int)c.Rarity).ThenBy(c => c.Stored == null ? 0 : 1)
+        var candidates = stored.Select(x => (Rarity: x.Rarity, Worked: x.UpgradeLevel > 0 || x.PatienceBp > 0, Stored: (Item?)x, Drop: (ItemState?)null))
+            .Concat(i.Loot.Select(d => (Rarity: d.Rarity, Worked: false, Stored: (Item?)null, Drop: (ItemState?)d)))
+            .OrderByDescending(c => c.Worked).ThenByDescending(c => (int)c.Rarity).ThenBy(c => c.Stored == null ? 0 : 1)
             .ToList();
 
         foreach (var c in candidates.Take(MaxLoot))
