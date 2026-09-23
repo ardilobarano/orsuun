@@ -30,8 +30,8 @@ namespace Orsuun.Client.EditorTools
             Directory.CreateDirectory(Dir);
             EnsurePipeline();
             EnsureGreyBox();
-            EnsureGlowMaterial("EmberGear", HeroColor, crackScale: 5f, crackWidth: 0.025f, intensity: 1.5f, rim: 3f);
-            Material weapon = EnsureGlowMaterial("EmberWeapon", SteelColor, crackScale: 7f, crackWidth: 0.04f, intensity: 2.6f, rim: 2f);
+            EnsureGlowMaterial("EmberGear", HeroColor, crackScale: 5f, crackWidth: 0.025f, intensity: 1.3f, rim: 2.5f);
+            Material weapon = EnsureGlowMaterial("EmberWeapon", SteelColor, crackScale: 7f, crackWidth: 0.04f, intensity: 2.0f, rim: 2f);
             weapon.SetFloat("_BodyGlow", 1f);
             EditorUtility.SetDirty(weapon);
             Material korstone = EnsureGlowMaterial("KorstoneEmber", new Color(0.035f, 0.03f, 0.03f), crackScale: 2.4f, crackWidth: 0.02f, intensity: 2.2f, rim: 3f);
@@ -39,7 +39,7 @@ namespace Orsuun.Client.EditorTools
             korstone.SetFloat("_CrackFadeTop", 2.4f);
             korstone.SetFloat("_Roughness", 0.3f);
             EditorUtility.SetDirty(korstone);
-            Material vanguard = EnsureGlowMaterial("VanguardEmber", Color.white, crackScale: 5f, crackWidth: 0.025f, intensity: 1.5f, rim: 3f);
+            Material vanguard = EnsureGlowMaterial("VanguardEmber", Color.white, crackScale: 5f, crackWidth: 0.025f, intensity: 1.15f, rim: 2.5f);
             vanguard.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(Res + "Models/VanguardBaseColor.png"));
             EditorUtility.SetDirty(vanguard);
             EnsurePostFx();
@@ -117,6 +117,7 @@ namespace Orsuun.Client.EditorTools
             mat.SetFloat("_Intensity", intensity);
             mat.SetFloat("_RimPower", rim);
             mat.SetFloat("_Debug", 0f);
+            mat.SetFloat("_CrackAlways", 0f);
             EditorUtility.SetDirty(mat);
             return mat;
         }
@@ -322,6 +323,22 @@ namespace Orsuun.Client.EditorTools
             // Each piece at its own level: weapon +9, helmet +8, shield +7, the rest below +7.
             view.SetGear(new[] { 1f, 0f, 0.65f, 0.35f, 0f, 0f, 0f, 0f });
             Capture(cam, "../artifacts/lane-glow-mixed.png", 1080, 1056);
+
+            // Close-ups of the hero for judging the upgrade glow: plain, each piece at its own level, full +9.
+            cam.transform.position = new Vector3(-0.2f, 1.6f, -5.2f);
+            cam.transform.LookAt(new Vector3(-1.6f, 1.05f, 0f));
+            var steps = new (string name, float[] glow)[]
+            {
+                ("plain", new float[8]),
+                ("mixed", new[] { 1f, 0f, 0.65f, 0.35f, 0f, 0f, 0f, 0f }),
+                ("plus7", new[] { 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f }),
+                ("plus9", new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f }),
+            };
+            foreach (var (name, glow) in steps)
+            {
+                view.SetGear(glow);
+                Capture(cam, "../artifacts/hero-" + name + ".png", 700, 1000);
+            }
             Object.DestroyImmediate(root);
         }
 

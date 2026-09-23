@@ -29,17 +29,24 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AuraStrength: 1.2
+    - _AuraWidth: 0.035
     - _BodyGlow: 0
     - _CrackAlways: 0
     - _CrackFadeTop: 0
     - _CrackScale: 5
     - _CrackWidth: 0.025
     - _Debug: 0
+    - _FlowScale: 3.5
+    - _FlowSpeed: 0.6
     - _Glow: 0
-    - _Intensity: 1.5
-    - _RimPower: 3
+    - _Intensity: 1.15
+    - _RimPower: 2.5
     - _Roughness: 0.5
     m_Colors:
+    - _Color7: {r: 1, g: 0.92, b: 0.72, a: 1}
+    - _Color8: {r: 1, g: 0.72, b: 0.28, a: 1}
+    - _Color9: {r: 1, g: 0.46, b: 0.1, a: 1}
     - _GlowColor: {r: 1, g: 0.36, b: 0.06, a: 1}
     - _HotColor: {r: 1, g: 0.86, b: 0.55, a: 1}
     - _Tint: {r: 1, g: 1, b: 1, a: 1}

@@ -1,9 +1,9 @@
-// Korstone ember for Orsuun (art direction B, glow sheet 1).
-// One shader for two jobs:
-//   Gear upgrade glow: _Glow 0 = off (+0..+6), 0.35 = +7, 0.65 = +8, 1 = +9. Thin ember lines in the seams plus an
-//   edge rim; at +9 the lines run white-gold. The weapon uses a hotter material than the armor.
-//   Korstone: _CrackAlways = 1 lights the cracks regardless of _Glow and fades them toward the top.
-// Cracks are a warped 3D Voronoi edge in object space, so any mesh gets them without authored masks.
+// Orsuun gear and Korstone shader (art direction B).
+// Gear upgrade glow, in the manner of classic MMO upgrade shine (owner, 23 Sep 2026): every piece glows by its own
+//   level. _Glow 0 = off (+0..+6), 0.35 = +7, 0.65 = +8, 1 = +9. Three layers, all scaled by the level: a soft aura
+//   around the silhouette (second pass), light that flows up over the surface, and a sweep of shine running up the
+//   piece. Colour steps from pale gold (+7) to gold (+8) to hot ember-gold (+9). The weapon material is hotter.
+// Korstone: _CrackAlways = 1 lights warped 3D Voronoi cracks in object space and fades them toward the top.
 Shader "Orsuun/EmberGlow"
 {
     Properties
@@ -21,6 +21,13 @@ Shader "Orsuun/EmberGlow"
         _RimPower ("Rim Power", Float) = 3
         _Roughness ("Diffuse Softness", Range(0, 1)) = 0.5
         _BodyGlow ("Whole-Surface Glow Share (weapon)", Range(0, 1)) = 0
+        [HDR] _Color7 ("+7 Colour", Color) = (1.0, 0.92, 0.72, 1)
+        [HDR] _Color8 ("+8 Colour", Color) = (1.0, 0.72, 0.28, 1)
+        [HDR] _Color9 ("+9 Colour", Color) = (1.0, 0.46, 0.10, 1)
+        _FlowScale ("Flow Scale", Float) = 3.5
+        _FlowSpeed ("Flow Speed", Float) = 0.6
+        _AuraWidth ("Aura Width (object units at +9)", Float) = 0.035
+        _AuraStrength ("Aura Strength", Float) = 1.2
         [HideInInspector] _Debug ("Debug output (0 off)", Float) = 0
     }
 
@@ -51,7 +58,39 @@ Shader "Orsuun/EmberGlow"
             float _Roughness;
             float _Debug;
             float _BodyGlow;
+            float4 _Color7;
+            float4 _Color8;
+            float4 _Color9;
+            float _FlowScale;
+            float _FlowSpeed;
+            float _AuraWidth;
+            float _AuraStrength;
         CBUFFER_END
+
+        // Level colour: pale gold at +7, gold at +8, hot ember-gold at +9.
+        float3 LevelColor(float glow)
+        {
+            return glow < 0.65 ? lerp(_Color7.rgb, _Color8.rgb, saturate((glow - 0.35) / 0.30))
+                               : lerp(_Color8.rgb, _Color9.rgb, saturate((glow - 0.65) / 0.35));
+        }
+
+        float Hash31(float3 p)
+        {
+            p = frac(p * 0.3183099 + 0.1);
+            p *= 17.0;
+            return frac(p.x * p.y * p.z * (p.x + p.y + p.z));
+        }
+
+        // Smooth 3D value noise, 0..1.
+        float Noise3(float3 x)
+        {
+            float3 i = floor(x), f = frac(x);
+            f = f * f * (3.0 - 2.0 * f);
+            return lerp(lerp(lerp(Hash31(i), Hash31(i + float3(1, 0, 0)), f.x),
+                             lerp(Hash31(i + float3(0, 1, 0)), Hash31(i + float3(1, 1, 0)), f.x), f.y),
+                        lerp(lerp(Hash31(i + float3(0, 0, 1)), Hash31(i + float3(1, 0, 1)), f.x),
+                             lerp(Hash31(i + float3(0, 1, 1)), Hash31(i + float3(1, 1, 1)), f.x), f.y), f.z);
+        }
 
         struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
         struct Varyings
@@ -139,33 +178,81 @@ Shader "Orsuun/EmberGlow"
                 half wrap = saturate((ndl + _Roughness * 0.5) / (1 + _Roughness * 0.5));
                 half3 lit = albedo.rgb * (mainLight.color * wrap * mainLight.shadowAttenuation * mainLight.distanceAttenuation + SampleSH(N));
 
-                // Cracks: warped object-space Voronoi borders; thicker as the glow climbs.
-                float3 p = i.positionOS * _CrackScale;
-                p += 0.35 * sin(p.yzx * 1.7 + 1.3);
-                float edge = VoronoiEdge(p);
-                half glow = saturate(_Glow);
-                half width = _CrackWidth * lerp(1.0, 2.2, glow);
-                half crack = 1 - smoothstep(width * 0.4, width, edge);
-                half fade = _CrackFadeTop > 0 ? saturate(1.15 - i.positionOS.y / _CrackFadeTop) : 1;
-                half crackAmount = crack * max(_CrackAlways * fade, glow);
-
-                // Rim hugs the silhouette of upgraded gear (not the Korstone).
-                half rim = pow(saturate(1 - dot(N, V)), _RimPower) * glow * 0.8;
-
-                // Gentle ember breathing, offset along the height so it rolls upward.
+                // Korstone cracks: warped object-space Voronoi borders, lit only when _CrackAlways is on.
+                half crackAmount = 0;
+                if (_CrackAlways > 0.01)
+                {
+                    float3 p = i.positionOS * _CrackScale;
+                    p += 0.35 * sin(p.yzx * 1.7 + 1.3);
+                    float edge = VoronoiEdge(p);
+                    half crack = 1 - smoothstep(_CrackWidth * 0.4, _CrackWidth, edge);
+                    half fade = _CrackFadeTop > 0 ? saturate(1.15 - i.positionOS.y / _CrackFadeTop) : 1;
+                    crackAmount = crack * _CrackAlways * fade;
+                }
                 half flicker = 0.86 + 0.14 * sin(_Time.y * 5.0 - i.positionOS.y * 3.0);
+                half3 crackLight = lerp(_GlowColor.rgb, _HotColor.rgb, 0.2) * _Intensity * flicker;
 
-                // +9 lines run gold, never white: the hot mix stops short of the full hot colour.
-                half hot = saturate((glow - 0.75) * 3.0) * 0.75;
-                half3 lineColor = lerp(_GlowColor.rgb, _HotColor.rgb, hot);
-                // Weapon: part of the glow covers the whole surface so the blade is the brightest piece.
-                half body = glow * _BodyGlow;
-                half3 emission = (_GlowColor.rgb * (rim + body * 0.6)) * _Intensity * flicker;
+                // Gear shine by level: rim light, energy flowing up the surface, and a sweep of shine running upward.
+                half glow = saturate(_Glow);
+                half3 emission = 0;
+                if (glow > 0.001)
+                {
+                    half3 levelColor = LevelColor(glow);
+                    half rim = pow(saturate(1 - dot(N, V)), _RimPower);
+                    float3 q = i.positionOS * _FlowScale + float3(0, -_Time.y * _FlowSpeed * (0.6 + glow), 0);
+                    half flow = Noise3(q) * 0.65 + Noise3(q * 2.3 + 7.1) * 0.35;
+                    half streak = smoothstep(0.52, 0.9, flow);
+                    half sweep = pow(saturate(sin(i.positionOS.y * 2.6 - _Time.y * (1.4 + glow * 1.6)) * 0.5 + 0.5), 10);
+                    half pulse = 0.9 + 0.1 * sin(_Time.y * 3.0);
+                    half body = glow * _BodyGlow;
+                    // Kept below full cover so the piece's own detail reads through the shine even at +9.
+                    half strength = rim * 1.0 + streak * (0.2 + 0.45 * glow) + sweep * 0.75 * glow + 0.04 + body * 0.5;
+                    emission = levelColor * _Intensity * glow * strength * pulse;
+                }
 
-                // Crack pixels become ember light (replace, not add), so lines stay orange on any base colour.
-                half3 color = lerp(lit + emission, lineColor * _Intensity * flicker, crackAmount);
+                half3 color = lerp(lit + emission, crackLight, crackAmount);
                 color = MixFog(color, i.fog);
                 return half4(color, 1);
+            }
+            ENDHLSL
+        }
+
+        // Upgrade aura: the piece's hull pushed out along its normals, drawn additively from the inside, so a soft glow
+        // hugs the silhouette. Collapsed to nothing below +7.
+        Pass
+        {
+            Name "UpgradeAura"
+            Tags { "LightMode" = "SRPDefaultUnlit" }
+            Blend One One
+            ZWrite Off
+            Cull Front
+
+            HLSLPROGRAM
+            #pragma vertex AuraVert
+            #pragma fragment AuraFrag
+
+            struct AuraV { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; float3 positionWS : TEXCOORD1; float3 positionOS : TEXCOORD2; };
+
+            AuraV AuraVert(Attributes v)
+            {
+                AuraV o;
+                half glow = saturate(_Glow);
+                float3 pos = v.positionOS.xyz + normalize(v.normalOS) * _AuraWidth * (0.4 + 0.6 * glow);
+                o.positionWS = TransformObjectToWorld(pos);
+                o.positionCS = glow > 0.001 ? TransformWorldToHClip(o.positionWS) : float4(0, 0, 0, 1);
+                o.normalWS = TransformObjectToWorldNormal(v.normalOS);
+                o.positionOS = v.positionOS.xyz;
+                return o;
+            }
+
+            half4 AuraFrag(AuraV i) : SV_Target
+            {
+                half glow = saturate(_Glow);
+                float3 N = normalize(i.normalWS);
+                float3 V = GetWorldSpaceNormalizeViewDir(i.positionWS);
+                half edge = pow(saturate(1 - abs(dot(N, V))), 1.5);
+                half flicker = 0.85 + 0.15 * sin(_Time.y * 4.0 + i.positionOS.y * 6.0);
+                return half4(LevelColor(glow) * edge * glow * glow * _AuraStrength * flicker, 0);
             }
             ENDHLSL
         }
