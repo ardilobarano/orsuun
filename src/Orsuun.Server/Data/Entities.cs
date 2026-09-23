@@ -39,6 +39,9 @@ public sealed class Account
 
     public Item Weapon => Items.Single(i => i.Equipped && i.Slot == EquipSlot.Weapon && !i.Destroyed);
 
+    /// <summary>The equipped, intact item in a slot, or null.</summary>
+    public Item? EquippedIn(EquipSlot slot) => Items.SingleOrDefault(i => i.Equipped && i.Slot == slot && !i.Destroyed);
+
     /// <summary>Mapped to PostgreSQL's xmin by IsRowVersion(); never set by hand.</summary>
     public uint Version { get; set; }
 }

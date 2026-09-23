@@ -74,7 +74,7 @@ public sealed class GameService
                 ScrollsOfMercy = 2,
                 Turnstones = 5,
             };
-            account.Items.Add(Item.From(NewWeapon(), account.Id, equipped: true));
+            account.Items.Add(Item.From(NewStarter(EquipSlot.Weapon), account.Id, equipped: true));
             _db.Accounts.Add(account);
             _db.Ledger.Add(Entry(account.Id, null, "account-created", "starter kit", account.Sorn, Guid.NewGuid().ToString("N")));
         }
@@ -108,9 +108,9 @@ public sealed class GameService
         if (request.Method == ForgeMethod.ChainedSmith || request.Method == ForgeMethod.AnvilWard && account.AnvilWards <= 0)
             throw new GameException("method_unavailable", "That method is not available here.");
 
-        Item weapon = account.Weapon;
-        ItemState state = weapon.ToState();
-        if (state.UpgradeLevel >= ItemState.MaxUpgradeLevel) throw new GameException("already_max", "The blade is already +9.");
+        Item item = account.EquippedIn(request.Slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
+        ItemState state = item.ToState();
+        if (state.UpgradeLevel >= ItemState.MaxUpgradeLevel) throw new GameException("already_max", "That item is already +9.");
 
         long cost = ForgeRules.Cost(state.ItemLevel, state.UpgradeLevel);
         int materials = ForgeRules.MaterialsNeeded(state.UpgradeLevel + 1);
@@ -129,15 +129,15 @@ public sealed class GameService
         if (request.Method == ForgeMethod.AnvilWard) account.AnvilWards--;
 
         ForgeResult result = _forge.Attempt(state, request.Method, _rng);
-        weapon.ApplyState(state);
+        item.ApplyState(state);
         if (result.Outcome == ForgeOutcome.Oathbreak)
         {
-            weapon.Equipped = false;
-            account.WeaponsBroken++;
-            account.Items.Add(Item.From(NewWeapon(), account.Id, equipped: true));
+            item.Equipped = false;
+            if (item.Slot == EquipSlot.Weapon) account.WeaponsBroken++;
+            account.Items.Add(Item.From(NewStarter(item.Slot), account.Id, equipped: true));
         }
 
-        _db.Ledger.Add(Entry(account.Id, weapon.Id, "forge",
+        _db.Ledger.Add(Entry(account.Id, item.Id, "forge",
             $"{request.Method} +{result.LevelBefore}->+{result.LevelAfter} chance={result.ChanceBp} outcome={result.Outcome}", -cost, request.RequestId));
         await SaveAsync(ct);
         return ToState(account, forge: new ForgeResultDto(result.Outcome, result.ChanceBp, result.LevelBefore, result.LevelAfter));
@@ -147,8 +147,9 @@ public sealed class GameService
     public async Task<StateDto> TurnAsync(Account account, TurnRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item weapon = account.Weapon;
-        ItemState state = weapon.ToState();
+        Item item = account.EquippedIn(request.Slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
+        ItemState state = item.ToState();
+        if (state.Etchings.Count == 0) throw new GameException("no_etchings", "That item has no etchings to turn yet.");
         int cost = state.LockedEtchingIndex >= 0 ? 2 : 1;
         if (account.Turnstones < cost) throw new GameException("no_turnstones", "Not enough Turnstones.");
         if (request.Count < 1 || request.Count > EtchingService.BulkTurnMax) throw new GameException("bad_count", "Count must be 1 to 50.");
@@ -158,8 +159,8 @@ public sealed class GameService
         var inventory = Snapshot(account);
         int spent = _etchings.TurnUntil(state, EtchingPool.For(state.Slot), inventory, _rng, request.Count, request.StopEntryId, Math.Clamp(request.MinTier, 1, 5), out int turns, out bool stopped);
         Apply(account, inventory);
-        weapon.ApplyState(state);
-        _db.Ledger.Add(Entry(account.Id, weapon.Id, "turn", $"turns={turns} spent={spent} stopped={stopped} etchings={weapon.Etchings}", 0, request.RequestId));
+        item.ApplyState(state);
+        _db.Ledger.Add(Entry(account.Id, item.Id, "turn", $"turns={turns} spent={spent} stopped={stopped} etchings={item.Etchings}", 0, request.RequestId));
         await SaveAsync(ct);
         return ToState(account, turn: new TurnResultDto(turns, spent, stopped));
     }
@@ -397,10 +398,11 @@ public sealed class GameService
         }
     }
 
-    private ItemState NewWeapon()
+    /// <summary>A fresh Rare piece for the slot with 5 etchings: the starter kit, and what an Oathbreak leaves behind.</summary>
+    private ItemState NewStarter(EquipSlot slot)
     {
-        var state = new ItemState(PlayerSession.StarterItemLevel, Rarity.Rare);
-        EtchingPool pool = EtchingPool.For(EquipSlot.Weapon);
+        var state = new ItemState(PlayerSession.StarterItemLevel, Rarity.Rare, slot);
+        EtchingPool pool = EtchingPool.For(slot);
         while (state.Etchings.Count < ItemState.MaxEtchings)
         {
             NeedleKind needle = state.Etchings.Count == ItemState.MaxEtchings - 1 ? NeedleKind.MastersNeedle : NeedleKind.EtchingNeedle;

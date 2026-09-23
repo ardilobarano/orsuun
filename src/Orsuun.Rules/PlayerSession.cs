@@ -157,6 +157,8 @@ namespace Orsuun.Rules
         public Inventory Inventory { get; }
         public LaneSim Lane { get; private set; }
         public int WeaponsBroken { get; private set; }
+        /// <summary>Every item lost to an Oathbreak, weapons included.</summary>
+        public int ItemsBroken { get; private set; }
         /// <summary>Highest stage cleared by a push; the next one is the push target.</summary>
         public int HighestStageCleared { get; private set; }
         /// <summary>Campaign stage number or zone id the farm lane is parked in.</summary>
@@ -164,21 +166,36 @@ namespace Orsuun.Rules
         public int PushTarget => Math.Min(Content.TotalStages, HighestStageCleared + 1);
         public int Level => Inventory.Level;
 
-        /// <summary>The equipped weapon. The Forge and the Turnstone act on it; an Oathbreak replaces it.</summary>
+        /// <summary>The equipped weapon.</summary>
         public ItemState Weapon => _equipped[(int)EquipSlot.Weapon]!;
+
+        /// <summary>
+        /// Every item follows the weapon's rules (owner decision, 23 Sep 2026): the Forge and the Turnstone act on the
+        /// item on the anvil, whichever slot it is, and an Oathbreak replaces it with a starter piece for that slot.
+        /// </summary>
+        public EquipSlot AnvilSlot { get; private set; } = EquipSlot.Weapon;
+        public ItemState OnAnvil => _equipped[(int)AnvilSlot] ?? Weapon;
+
+        /// <summary>Puts the equipped item in <paramref name="slot"/> on the anvil.</summary>
+        public void PutOnAnvil(EquipSlot slot)
+        {
+            if (_equipped[(int)slot] == null) throw new InvalidOperationException("Nothing is equipped in that slot.");
+            AnvilSlot = slot;
+        }
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
         public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level);
-        public EtchingPool Pool => EtchingPool.For(EquipSlot.Weapon);
+        /// <summary>Etching pool of the item on the anvil (weapons and armour roll from different pools).</summary>
+        public EtchingPool Pool => EtchingPool.For(OnAnvil.Slot);
 
-        public long ForgeCost => Weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel ? 0 : ForgeRules.Cost(Weapon.ItemLevel, Weapon.UpgradeLevel);
-        public int ForgeMaterials => Weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel ? 0 : ForgeRules.MaterialsNeeded(Weapon.UpgradeLevel + 1);
-        public int ForgeChanceBp(ForgeMethod method) => _forge.ChanceBp(Weapon, method);
+        public long ForgeCost => OnAnvil.UpgradeLevel >= ItemState.MaxUpgradeLevel ? 0 : ForgeRules.Cost(OnAnvil.ItemLevel, OnAnvil.UpgradeLevel);
+        public int ForgeMaterials => OnAnvil.UpgradeLevel >= ItemState.MaxUpgradeLevel ? 0 : ForgeRules.MaterialsNeeded(OnAnvil.UpgradeLevel + 1);
+        public int ForgeChanceBp(ForgeMethod method) => _forge.ChanceBp(OnAnvil, method);
 
         /// <summary>Null when the attempt may run, otherwise the reason to show the player.</summary>
         public string? ForgeBlocker(ForgeMethod method)
         {
-            if (Weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel) return "Already +9";
+            if (OnAnvil.UpgradeLevel >= ItemState.MaxUpgradeLevel) return "Already +9";
             if (Inventory.Sorn < ForgeCost) return "Not enough sorn";
             if (Inventory.Materials < ForgeMaterials) return "Not enough " + Lane.Stage.MaterialName;
             switch (method)
@@ -205,11 +222,13 @@ namespace Orsuun.Rules
                 case ForgeMethod.AnvilWard: Inventory.AnvilWards--; break;
             }
 
-            ForgeResult result = _forge.Attempt(Weapon, method, _rng);
+            ItemState item = OnAnvil;
+            ForgeResult result = _forge.Attempt(item, method, _rng);
             if (result.Outcome == ForgeOutcome.Oathbreak)
             {
-                WeaponsBroken++;
-                _equipped[(int)EquipSlot.Weapon] = NewWeapon();
+                ItemsBroken++;
+                if (item.Slot == EquipSlot.Weapon) WeaponsBroken++;
+                _equipped[(int)item.Slot] = NewStarter(item.Slot);
             }
 
             Lane.SetHero(Hero);
@@ -218,7 +237,8 @@ namespace Orsuun.Rules
 
         public string? TurnBlocker()
         {
-            int cost = Weapon.LockedEtchingIndex >= 0 ? 2 : 1;
+            if (OnAnvil.Etchings.Count == 0) return "No etchings to turn yet";
+            int cost = OnAnvil.LockedEtchingIndex >= 0 ? 2 : 1;
             return Inventory.Turnstones >= cost ? null : "Not enough Turnstones";
         }
 
@@ -227,7 +247,7 @@ namespace Orsuun.Rules
             string? blocker = TurnBlocker();
             if (blocker != null) throw new InvalidOperationException(blocker);
 
-            Inventory.Turnstones -= _etchings.Turn(Weapon, Pool, _rng);
+            Inventory.Turnstones -= _etchings.Turn(OnAnvil, Pool, _rng);
             Lane.SetHero(Hero);
         }
 
@@ -237,7 +257,7 @@ namespace Orsuun.Rules
             string? blocker = TurnBlocker();
             if (blocker != null) throw new InvalidOperationException(blocker);
 
-            _etchings.TurnUntil(Weapon, Pool, Inventory, _rng, maxTurns, stopEntryId, minTier, out int turns, out stopped);
+            _etchings.TurnUntil(OnAnvil, Pool, Inventory, _rng, maxTurns, stopEntryId, minTier, out int turns, out stopped);
             Lane.SetHero(Hero);
             return turns;
         }
@@ -317,22 +337,26 @@ namespace Orsuun.Rules
             Inventory.Loot.AddRange(inventory.Loot);
             Array.Clear(_equipped, 0, _equipped.Length);
             foreach (ItemState item in equipped) _equipped[(int)item.Slot] = item;
+            if (_equipped[(int)AnvilSlot] == null) AnvilSlot = EquipSlot.Weapon;
             WeaponsBroken = weaponsBroken;
             HighestStageCleared = highestStageCleared;
             if (parkedStage != ParkedStage && Content.IsUnlocked(parkedStage, HighestStageCleared)) Park(parkedStage);
             Lane.SetHero(Hero);
         }
 
-        /// <summary>Grey-box shortcut: a fresh Rare weapon arrives with 5 etchings so the Turnstone is usable at once.</summary>
-        private ItemState NewWeapon()
+        private ItemState NewWeapon() => NewStarter(EquipSlot.Weapon);
+
+        /// <summary>Grey-box shortcut: a fresh Rare piece arrives with 5 etchings so the Turnstone is usable at once.</summary>
+        private ItemState NewStarter(EquipSlot slot)
         {
-            var weapon = new ItemState(StarterItemLevel, Rarity.Rare);
-            while (weapon.Etchings.Count < ItemState.MaxEtchings)
+            var item = new ItemState(StarterItemLevel, Rarity.Rare, slot);
+            EtchingPool pool = EtchingPool.For(slot);
+            while (item.Etchings.Count < ItemState.MaxEtchings)
             {
-                NeedleKind needle = weapon.Etchings.Count == ItemState.MaxEtchings - 1 ? NeedleKind.MastersNeedle : NeedleKind.EtchingNeedle;
-                _etchings.TryAdd(weapon, Pool, needle, _rng);
+                NeedleKind needle = item.Etchings.Count == ItemState.MaxEtchings - 1 ? NeedleKind.MastersNeedle : NeedleKind.EtchingNeedle;
+                _etchings.TryAdd(item, pool, needle, _rng);
             }
-            return weapon;
+            return item;
         }
     }
 }

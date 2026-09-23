@@ -87,9 +87,9 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>Server Forge. Completes with the result, or with null and an error message.</summary>
-        public IEnumerator Forge(ForgeMethod method, Action<ForgeResultDto, string> done)
+        public IEnumerator Forge(ForgeMethod method, EquipSlot slot, Action<ForgeResultDto, string> done)
         {
-            var req = new ForgeRequest { requestId = Guid.NewGuid().ToString("N"), method = method.ToString() };
+            var req = new ForgeRequest { requestId = Guid.NewGuid().ToString("N"), method = method.ToString(), slot = slot.ToString() };
             ForgeResultDto result = null;
             string failure = null;
             yield return Post("/v1/forge", JsonUtility.ToJson(req), true, json =>
@@ -102,12 +102,12 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>One turn or a Bulk Turn. stopEntryId -1 means no stop rule. Completes with (turns, stopped, error).</summary>
-        public IEnumerator Turn(int count, int stopEntryId, int minTier, Action<int, bool, string> done)
+        public IEnumerator Turn(int count, int stopEntryId, int minTier, EquipSlot slot, Action<int, bool, string> done)
         {
             string failure = null;
             int turns = 0;
             bool stopped = false;
-            var req = new TurnRequest { requestId = Guid.NewGuid().ToString("N"), count = count, stopEntryId = stopEntryId, minTier = minTier };
+            var req = new TurnRequest { requestId = Guid.NewGuid().ToString("N"), count = count, stopEntryId = stopEntryId, minTier = minTier, slot = slot.ToString() };
             // JsonUtility cannot omit a field: send -1 and let the server read it as "no rule" via stopEntryId >= 0.
             string body = JsonUtility.ToJson(req);
             if (stopEntryId < 0) body = body.Replace("\"stopEntryId\":-1", "\"stopEntryId\":null");
@@ -298,8 +298,8 @@ namespace Orsuun.Client.Net
         // JsonUtility mirrors of the server contracts. Enums travel as strings.
         [Serializable] public class GuestLoginRequest { public string deviceToken; }
         [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; }
-        [Serializable] public class ForgeRequest { public string requestId; public string method; }
-        [Serializable] public class TurnRequest { public string requestId; public int count; public int stopEntryId; public int minTier; }
+        [Serializable] public class ForgeRequest { public string requestId; public string method; public string slot; }
+        [Serializable] public class TurnRequest { public string requestId; public int count; public int stopEntryId; public int minTier; public string slot; }
         [Serializable] public class TurnResultDto { public int turns; public int turnstonesSpent; public bool stopped; }
         [Serializable] public class BellDto { public string active; public string activeName; public string next; public int minutesUntilNext; public string serverLocalTime; }
         [Serializable] public class EquipRequest { public string requestId; public string itemId; }

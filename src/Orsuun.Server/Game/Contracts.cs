@@ -5,9 +5,10 @@ namespace Orsuun.Server.Game;
 public sealed record GuestLoginRequest(string DeviceToken);
 public sealed record GuestLoginResponse(Guid AccountId, string SessionToken, bool Created);
 
-public sealed record ForgeRequest(string RequestId, ForgeMethod Method);
+/// <summary>Slot picks the equipped item on the anvil; every item follows the weapon's rules. Omitted = weapon.</summary>
+public sealed record ForgeRequest(string RequestId, ForgeMethod Method, EquipSlot Slot = EquipSlot.Weapon);
 /// <summary>Count 1..50 (10 without Hearthfire Blessing); StopEntryId/MinTier form the optional stop rule.</summary>
-public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1);
+public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1, EquipSlot Slot = EquipSlot.Weapon);
 public sealed record TurnResultDto(int Turns, int TurnstonesSpent, bool Stopped);
 
 /// <summary>Active Evening Bell and the next one, in server-local time.</summary>

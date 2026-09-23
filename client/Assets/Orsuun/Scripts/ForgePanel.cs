@@ -10,6 +10,7 @@ namespace Orsuun.Client
     /// <summary>
     /// The Forge screen. The lane keeps running behind it. Attempts to +7 and above play the
     /// 2.5 second anvil sequence that cannot be skipped (GDD section 6, Presentation).
+    /// Any equipped item can go on the anvil (the slot row at the top); every item follows the weapon's rules.
     /// </summary>
     public sealed class ForgePanel : MonoBehaviour
     {
@@ -37,6 +38,10 @@ namespace Orsuun.Client
         private Button _turnButton;
         private Button _closeButton;
         private RectTransform _anvilFill;
+        private Button[] _slotButtons;
+        private Text[] _slotLabels;
+
+        private static readonly string[] SlotNames = { "WEAPON", "ARMOR", "HELM", "SHIELD", "BRACER", "NECK", "EARS", "BOOTS" };
 
         private static readonly ForgeMethod[] Methods = { ForgeMethod.ForgeAlone, ForgeMethod.ScrollOfMercy, ForgeMethod.KhansAlloy };
 
@@ -55,8 +60,19 @@ namespace Orsuun.Client
             transform.SetParent(canvas, false);
 
             Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, new Color(0.04f, 0.04f, 0.05f, 0.94f));
-            Ui.Label("Title", canvas, 0.05f, 0.905f, 0.95f, 0.965f, "THE FORGE  ·  Forgemaster Dorun", 40, TextAnchor.MiddleCenter, Palette.Warn);
-            _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.815f, 0.95f, 0.90f, "", 72, TextAnchor.MiddleCenter, Color.white);
+            Ui.Label("Title", canvas, 0.05f, 0.93f, 0.95f, 0.975f, "THE FORGE  ·  Forgemaster Dorun", 40, TextAnchor.MiddleCenter, Palette.Warn);
+
+            // What goes on the anvil: one button per equipment slot, empty slots disabled.
+            _slotButtons = new Button[SlotNames.Length];
+            _slotLabels = new Text[SlotNames.Length];
+            for (int i = 0; i < SlotNames.Length; i++)
+            {
+                EquipSlot slot = (EquipSlot)i;
+                float x0 = 0.02f + i * 0.12f;
+                _slotButtons[i] = Ui.Button("Slot" + i, canvas, x0, 0.87f, x0 + 0.115f, 0.925f, "", 18, Palette.PanelDark, () => PutOnAnvil(slot), out _slotLabels[i]);
+            }
+
+            _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.80f, 0.95f, 0.865f, "", 60, TextAnchor.MiddleCenter, Color.white);
             _stats = Ui.Label("Stats", canvas, 0.05f, 0.765f, 0.95f, 0.81f, "", 30, TextAnchor.MiddleCenter, Palette.Muted);
 
             Ui.Panel("EtchingsBack", canvas, 0.06f, 0.575f, 0.94f, 0.755f, Palette.PanelDark);
@@ -101,6 +117,13 @@ namespace Orsuun.Client
             if (!Busy) _canvas.SetActive(false);
         }
 
+        private void PutOnAnvil(EquipSlot slot)
+        {
+            if (Busy || _root.Session.Equipped(slot) == null) return;
+            _root.Session.PutOnAnvil(slot);
+            _result.text = "";
+        }
+
         public void StartAttempt(ForgeMethod method)
         {
             if (Busy) return;
@@ -118,7 +141,9 @@ namespace Orsuun.Client
         private IEnumerator AttemptSequence(ForgeMethod method)
         {
             Busy = true;
-            int target = _root.Session.Weapon.UpgradeLevel + 1;
+            int target = _root.Session.OnAnvil.UpgradeLevel + 1;
+            EquipSlot anvilSlot = _root.Session.AnvilSlot;
+            string pieceName = _root.Session.OnAnvil.DisplayName;
             float duration = target >= ForgeRules.PatienceFromTarget ? LongSequence : ShortSequence;
             ShowResult(DorunLines[Random.Range(0, DorunLines.Length)], Palette.Muted);
 
@@ -135,7 +160,7 @@ namespace Orsuun.Client
             {
                 // The server rolled; the anvil sequence above only hid the round trip.
                 string failure = null;
-                yield return _root.Server.Forge(method, (dto, error) =>
+                yield return _root.Server.Forge(method, anvilSlot, (dto, error) =>
                 {
                     failure = error;
                     if (dto != null)
@@ -168,7 +193,7 @@ namespace Orsuun.Client
                     ShowResult("The ward holds.  Level kept.", Palette.Warn);
                     break;
                 case ForgeOutcome.Oathbreak:
-                    ShowResult($"OATHBREAK.  Your +{result.Value.LevelBefore} blade is gone.", Palette.Bad);
+                    ShowResult($"OATHBREAK.  Your +{result.Value.LevelBefore} {pieceName} is gone.", Palette.Bad);
                     break;
             }
 
@@ -194,7 +219,7 @@ namespace Orsuun.Client
             if (_root.Server.Online)
             {
                 Busy = true;
-                StartCoroutine(_root.Server.Turn(count, stopEntry, _stopTier, (turns, stopped, error) =>
+                StartCoroutine(_root.Server.Turn(count, stopEntry, _stopTier, _root.Session.AnvilSlot, (turns, stopped, error) =>
                 {
                     Busy = false;
                     if (error != null) ShowResult(error, Palette.Muted);
@@ -227,8 +252,17 @@ namespace Orsuun.Client
         {
             if (_root == null || !_canvas.activeSelf) return;
             PlayerSession session = _root.Session;
-            ItemState weapon = session.Weapon;
+            ItemState weapon = session.OnAnvil;
             Inventory inv = session.Inventory;
+
+            for (int i = 0; i < _slotButtons.Length; i++)
+            {
+                ItemState piece = session.Equipped((EquipSlot)i);
+                _slotLabels[i].text = SlotNames[i] + "\n" + (piece == null ? "-" : "+" + piece.UpgradeLevel);
+                _slotLabels[i].color = piece == null ? Palette.Muted : LevelColor(piece.UpgradeLevel);
+                _slotButtons[i].interactable = piece != null && !Busy;
+                _slotButtons[i].GetComponent<Image>().color = (EquipSlot)i == session.AnvilSlot ? Palette.Warn * 0.55f : Palette.PanelDark;
+            }
 
             _weapon.text = $"{weapon.DisplayName} +{weapon.UpgradeLevel}";
             _weapon.color = LevelColor(weapon.UpgradeLevel);
@@ -248,7 +282,7 @@ namespace Orsuun.Client
             bool maxed = weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel;
             if (maxed)
             {
-                _attemptInfo.text = "This blade has sworn all nine oaths.";
+                _attemptInfo.text = "This piece has sworn all nine oaths.";
             }
             else
             {
