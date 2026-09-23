@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ namespace Orsuun.Client.EditorTools
     public static class ProjectSetup
     {
         private const string ScenePath = "Assets/Orsuun/Scenes/Main.unity";
+        /// <summary>The app icon: the blood-moon Korstone (24 Sep 2026; alternatives in docs/concept/app-icon-*.jpg).</summary>
+        private const string IconPath = "Assets/Orsuun/Art/AppIcon.png";
 
         [MenuItem("Orsuun/Run Project Setup")]
         public static void Run()
@@ -35,10 +38,36 @@ namespace Orsuun.Client.EditorTools
             // URP pipeline, bloom and the Resources materials. Runtime-only primitives reference no material asset,
             // so the build would strip their shaders; the materials in Resources keep them in the player.
             RenderingSetup.Ensure();
+            EnsureAppIcon();
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
             Debug.Log("Orsuun project setup complete.");
+        }
+
+        /// <summary>
+        /// One 1024 px opaque square as the default icon; Unity scales it to every iOS and Android size (the App Store
+        /// icon must have no alpha). Android gets it as the legacy and round icon; no adaptive layers yet.
+        /// </summary>
+        private static void EnsureAppIcon()
+        {
+            if (AssetImporter.GetAtPath(IconPath) is TextureImporter importer)
+            {
+                bool changed = importer.mipmapEnabled || importer.textureCompression != TextureImporterCompression.Uncompressed
+                    || importer.maxTextureSize != 1024 || importer.alphaSource != TextureImporterAlphaSource.None;
+                importer.mipmapEnabled = false;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.maxTextureSize = 1024;
+                importer.alphaSource = TextureImporterAlphaSource.None;
+                if (changed) importer.SaveAndReimport();
+            }
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(IconPath);
+            if (icon == null)
+            {
+                Debug.LogWarning("App icon missing: " + IconPath);
+                return;
+            }
+            PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
         }
 
         /// <summary>

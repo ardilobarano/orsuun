@@ -51,7 +51,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - URP SRP Batcher is deliberately off (it crossed EmberGlow material colours on Metal).
 - The editor compiles shaders asynchronously; headless renders set `ShaderUtil.allowAsyncCompilation = false`.
 - Blender suffixes duplicate names (`WeaponBase.001`); code that finds parts by name strips the suffix.
-- Unity rewrites `client/ProjectSettings/ProjectSettings.asset` icon slots on every build; revert unless intended.
+- Unity rewrites `client/ProjectSettings/ProjectSettings.asset` on builds (BuildMac flips `runInBackground`); revert
+  that churn. The default icon slot (`m_BuildTargetIcons`) is set on purpose by `ProjectSetup.EnsureAppIcon`.
 - New guest accounts are capped at 10 per network per day; loopback is exempt.
 - Skinned meshes only deform in the player loop: headless editor renders must bake them (`RenderingSetup.CaptureSkinned`).
 - `Ui.Icon` fits its parent; give each icon its own box rect, never the canvas.

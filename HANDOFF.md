@@ -58,6 +58,8 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   Tul-Gorak and his captains as war-red deserters. Mobs bob while alive and keel over when slain.
 - Active play wired end to end (see Known gaps for the rules): verified on 24 Sep 2026 with the Mac player against a
   local server, two loops reported and both replayed as exact matches.
+- App icon: the blood-moon Korstone (`client/Assets/Orsuun/Art/AppIcon.png`, applied by `ProjectSetup.EnsureAppIcon`);
+  the other three options are in `docs/concept/app-icon-*.jpg`. Android uses it as a legacy icon, no adaptive layers yet.
 - UI colour pass in direction B: dusk-indigo panels, bronze rims, Philosopher Bold for buttons and headings, Cinzel for
   screen titles (both SIL OFL, licences next to the fonts), currency icons on the top bar, item names in the glow colours.
 
@@ -80,7 +82,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 2. Art direction is B; turnaround sheets for all four classes, the Korstone and the Hollowed wolf are done and chosen
    (`docs/concept/`). The upgrade-glow progression sheet is done too. The full remaining art backlog (second-sex class variants, Forgemaster, more
    Hollowed mobs, Commander sheets, three environment keys, Oathfields backdrops, town vistas, gear and consumable and
-   Korshard icons, Banner emblems, Forge VFX boards, app icon) is the checklist in GDD section 14.1. Done since: bands 3-5
+   Korshard icons, Banner emblems, Forge VFX boards, store screenshots) is the checklist in GDD section 14.1. Done since: bands 3-5
    of item looks, boar and deserter sheets and models, a first UI colour pass. Open: a Mirage Queen model (she and her
    images are still grey-box capsules), mob rigs (mobs move procedurally), bands 6-10 of looks, the other three classes
    in the lane.
