@@ -73,7 +73,14 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 - `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
-- Manual skill timing does not earn the active-play bonus server-side yet (needs an input log the server replays).
+- Active play: the server-side verifier exists in the rules (`Combat/ActivePlay.cs`, tests in `ActivePlayTests`): a loop
+  seeded from (lane seed, loop number) is replayed from the client's casts and compared with plain auto-cast; the speed-up
+  becomes live efficiency, clamped 100-135%, mismatch = 100%. Not wired into server/client yet, on purpose: measured on
+  23 Sep 2026, holding Burst and Haste for the Korstone runs at 83-93% of auto-cast pace on the grey-box kit, so timing
+  earns nothing to verify. The GDD's ~130% needs a skill-kit change first (owner decision). Options: a Korstone flare
+  window after each wave (tried: 250% for 3 s barely moved it and shifted balance tests, reverted), longer Burst
+  cooldowns with bigger hits, or a charge mechanic that grows a held Burst. Once one is picked, wire it: lane seed and
+  loop in StateDto, loop reports in the heartbeat, efficiency into HuntYield.Settle, client reseeds at each loop boundary.
 - Boss damage ranks are against simulated rivals. New guest accounts are capped at 10 per network per day
   (client IP via X-Forwarded-For from Caddy, loopback exempt); real one-account-per-device needs App Attest / Play Integrity.
 - Dev credentials (`orsuun` / `orsuun-dev`) are for local PostgreSQL only. The Hetzner box has its own random password in

@@ -248,6 +248,9 @@ namespace Orsuun.Rules.Combat
             _phaseTicksLeft = stage.RunTicks;
         }
 
+        /// <summary>Ticks since this lane was created. Online, one lane is one loop, so this is the tick within the loop.</summary>
+        public int CurrentTick => _tick;
+
         public SkillDef[] Skills { get; }
         public bool[] AutoCast { get; }
         public LanePhase Phase { get; private set; }
