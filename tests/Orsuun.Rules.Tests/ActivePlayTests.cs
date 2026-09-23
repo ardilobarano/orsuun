@@ -40,6 +40,15 @@ public class ActivePlayTests
         if (lane.IsKorstoneEncounter) { yield return 2; yield return 0; }
     }
 
+    /// <summary>A present player: aimed Burst on cooldown, Iron Whirl into groups, Blood Fury saved for the Korstone.</summary>
+    private static IEnumerable<int> AimedPlay(LaneSim lane)
+    {
+        if (lane.Phase != LanePhase.Fighting) yield break;
+        yield return 0;
+        if (lane.Enemies.Count >= 3 || lane.IsKorstoneEncounter) yield return 1;
+        if (lane.IsKorstoneEncounter) yield return 2;
+    }
+
     private static readonly bool[] NoAuto = { false, false, false };
     private static readonly bool[] AllAuto = { true, true, true };
 
@@ -86,9 +95,8 @@ public class ActivePlayTests
     }
 
     /// <summary>
-    /// Measurement, not a balance gate. On the grey-box kit (23 Sep 2026) held-burst play runs at 83-89% of auto-cast
-    /// pace, so the GDD's ~130% for timing does not exist yet; that is a skill-kit design task (HANDOFF). The
-    /// verification itself is gated: whatever the credit, it stays between the base rate and the cap.
+    /// GDD: active play reaches about 130% through manual timing. With aimed casts (auto-cast has no target logic) and
+    /// the aimed weak point, a present player's loops must credit 120-135% on the early stages.
     /// </summary>
     [Fact]
     public void Credited_efficiency_stays_between_the_base_rate_and_the_cap()
@@ -99,14 +107,15 @@ public class ActivePlayTests
             long sum = 0; int loops = 0; double rawSum = 0;
             for (int loop = 0; loop < 20; loop++)
             {
-                (int ticks, List<CastInput> casts) = PlayLoop(stage, 2026, loop, NoAuto, HoldBurstsForKorstone);
+                (int ticks, List<CastInput> casts) = PlayLoop(stage, 2026, loop, NoAuto, AimedPlay);
                 LoopVerdict v = Verify(stage, 2026, loop, NoAuto, casts, ticks);
                 Assert.True(v.Accepted, v.Reason);
                 Assert.InRange(v.EfficiencyBp, RandomExtensions.FullBp, ActivePlay.MaxEfficiencyBp);
                 sum += v.EfficiencyBp; loops++;
                 rawSum += (double)v.BaselineTicks / v.Ticks;
             }
-            _out.WriteLine($"stage {stageNumber}: held-burst play {rawSum / loops * 100:F1}% of auto-cast pace, credited {sum / loops / 100.0:F1}%");
+            _out.WriteLine($"stage {stageNumber}: aimed play {rawSum / loops * 100:F1}% of auto-cast pace, credited {sum / loops / 100.0:F1}%");
+            Assert.InRange(sum / loops, 12000, 13500);
         }
     }
 }

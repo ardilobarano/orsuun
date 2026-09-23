@@ -217,6 +217,13 @@ namespace Orsuun.Rules.Combat
         private const int ImageReflectPercent = 20;
         private const int PackCallTicks = 15 * TicksPerSecond;
 
+        /// <summary>
+        /// Weak point (24 Sep 2026): an aimed Rending Arc on a Korstone or boss strikes its crack for 5x its power.
+        /// Auto-cast never aims, so only a present player gets it. Measured (ActivePlayTests): aimed play runs at
+        /// 100/112/120/126/130/137% of auto-cast pace for 100/200/300/400/500/700%; 500 gives the GDD's ~130%.
+        /// </summary>
+        public const int AimedWeakPointPercent = 500;
+
         private readonly StageConfig _stage;
         private readonly Inventory _inventory;
         private readonly IRandom _rng;
@@ -283,7 +290,14 @@ namespace Orsuun.Rules.Combat
 
         public int CooldownTicksLeft(int skillIndex) => Math.Max(0, _readyAtTick[skillIndex] - _tick);
 
-        public bool TryCast(int skillIndex)
+        /// <summary>A cast the player taps: aimed, so a Burst goes to the toughest enemy (usually the Korstone or boss).</summary>
+        public bool TryCast(int skillIndex) => Cast(skillIndex, aimed: true);
+
+        /// <summary>
+        /// GDD section 4: auto-cast fires on cooldown with no target logic, so an auto Burst lands on whatever plain
+        /// attacks are hitting (the first thing in the way). Holding bursts for the Korstone is the active-play edge.
+        /// </summary>
+        private bool Cast(int skillIndex, bool aimed)
         {
             if (Phase != LanePhase.Fighting || CooldownTicksLeft(skillIndex) > 0) return false;
 
@@ -294,10 +308,9 @@ namespace Orsuun.Rules.Combat
             switch (skill.Kind)
             {
                 case SkillKind.Burst:
-                    Enemy? toughest = null;
-                    foreach (Enemy e in _enemies)
-                        if (toughest == null || e.Hp > toughest.Hp) toughest = e;
-                    if (toughest != null) Hit(toughest, skill.PowerPercent);
+                    Enemy? target = aimed ? Toughest() : FrontTarget();
+                    if (target != null)
+                        Hit(target, aimed && (target.IsKorstone || target.IsBoss) ? skill.PowerPercent * AimedWeakPointPercent / 100 : skill.PowerPercent);
                     break;
 
                 case SkillKind.Area:
@@ -311,6 +324,23 @@ namespace Orsuun.Rules.Combat
             }
 
             return true;
+        }
+
+        /// <summary>The first thing in the way: plain attacks and auto-cast hit it. Images and captains sit in front of their boss.</summary>
+        private Enemy? FrontTarget()
+        {
+            if (_enemies.Count == 0) return null;
+            foreach (Enemy e in _enemies)
+                if (!e.IsKorstone) return e;
+            return _enemies[0];
+        }
+
+        private Enemy? Toughest()
+        {
+            Enemy? toughest = null;
+            foreach (Enemy e in _enemies)
+                if (toughest == null || e.Hp > toughest.Hp) toughest = e;
+            return toughest;
         }
 
         public void Tick()
@@ -350,16 +380,11 @@ namespace Orsuun.Rules.Combat
         private void FightTick()
         {
             for (int i = 0; i < Skills.Length; i++)
-                if (AutoCast[i]) TryCast(i);
+                if (AutoCast[i]) Cast(i, aimed: false);
 
             if (_tick >= _heroNextAttackTick && _enemies.Count > 0)
             {
-                // Plain attacks take the first thing in the way: images and captains sit in front of their boss.
-                Enemy target = _enemies[0];
-                foreach (Enemy e in _enemies)
-                    if (!e.IsKorstone) { target = e; break; }
-
-                Hit(target, 100);
+                Hit(FrontTarget()!, 100);
                 int interval = HasteActive ? Math.Max(1, _hero.AttackIntervalTicks / 2) : _hero.AttackIntervalTicks;
                 _heroNextAttackTick = _tick + interval;
             }
