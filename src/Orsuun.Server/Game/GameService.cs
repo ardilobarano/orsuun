@@ -37,7 +37,14 @@ public sealed class GameService
         _bells = bells;
     }
 
-    public async Task<GuestLoginResponse> GuestLoginAsync(string deviceToken, CancellationToken ct)
+    /// <summary>
+    /// Device tokens are minted by the client, so a script could farm starter kits and boss-bracket entries.
+    /// Until platform attestation (App Attest, Play Integrity) arrives, cap new accounts per network per day.
+    /// Loopback is exempt so local dev and the smoke test keep working.
+    /// </summary>
+    public const int MaxNewAccountsPerIpPerDay = 10;
+
+    public async Task<GuestLoginResponse> GuestLoginAsync(string deviceToken, string? clientIp, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(deviceToken) || deviceToken.Length > 128)
             throw new GameException("bad_device_token", "Device token missing or too long.");
@@ -47,11 +54,20 @@ public sealed class GameService
         if (account == null)
         {
             DateTime now = DateTime.UtcNow;
+            bool loopback = clientIp == null || System.Net.IPAddress.TryParse(clientIp, out var ip) && System.Net.IPAddress.IsLoopback(ip);
+            if (!loopback)
+            {
+                DateTime since = now.AddDays(-1);
+                int recent = await _db.Accounts.CountAsync(a => a.CreatedIp == clientIp && a.CreatedUtc > since, ct);
+                if (recent >= MaxNewAccountsPerIpPerDay)
+                    throw new GameException("too_many_accounts", "Too many new accounts from this network today. Try again tomorrow.");
+            }
             account = new Account
             {
                 Id = Guid.NewGuid(),
                 DeviceToken = deviceToken,
                 CreatedUtc = now,
+                CreatedIp = clientIp,
                 LastHeartbeatUtc = now,
                 Sorn = 20_000,
                 Potions = 30,

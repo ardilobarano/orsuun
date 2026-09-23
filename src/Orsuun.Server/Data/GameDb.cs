@@ -18,6 +18,7 @@ public sealed class GameDb : DbContext
             e.Property(a => a.Id).ValueGeneratedNever();
             e.HasIndex(a => a.DeviceToken).IsUnique();
             e.HasIndex(a => a.SessionToken);
+            e.HasIndex(a => new { a.CreatedIp, a.CreatedUtc });
             // Optimistic concurrency on PostgreSQL's xmin system column: two requests for one account never both win.
             e.Property(a => a.Version).IsRowVersion();
             e.HasMany(a => a.Items).WithOne().HasForeignKey(i => i.OwnerId);

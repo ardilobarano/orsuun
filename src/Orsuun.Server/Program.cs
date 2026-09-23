@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Orsuun.Rules;
 using Orsuun.Server.Data;
@@ -13,7 +14,17 @@ builder.Services.AddSingleton<BellClock>();
 builder.Services.AddScoped<GameService>();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
+// Behind Caddy the peer is the proxy; take the client IP from X-Forwarded-For. Safe because the server port is only
+// reachable from the Docker network, and Caddy overwrites any X-Forwarded-For the client sends.
+builder.Services.Configure<ForwardedHeadersOptions>(o =>
+{
+    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    o.KnownNetworks.Clear();
+    o.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+app.UseForwardedHeaders();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
@@ -44,7 +55,8 @@ app.Use(async (ctx, next) =>
 
 app.MapGet("/health", () => Results.Ok(new { ok = true, utc = DateTime.UtcNow }));
 
-app.MapPost("/v1/auth/guest", (GuestLoginRequest req, GameService game, CancellationToken ct) => game.GuestLoginAsync(req.DeviceToken, ct));
+app.MapPost("/v1/auth/guest", (GuestLoginRequest req, HttpContext http, GameService game, CancellationToken ct) =>
+    game.GuestLoginAsync(req.DeviceToken, http.Connection.RemoteIpAddress?.ToString(), ct));
 
 RouteGroupBuilder v1 = app.MapGroup("/v1").AddEndpointFilter(async (ctx, next) =>
 {

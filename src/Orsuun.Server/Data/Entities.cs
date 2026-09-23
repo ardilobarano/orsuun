@@ -10,6 +10,8 @@ public sealed class Account
     [MaxLength(128)] public string DeviceToken { get; set; } = "";
     [MaxLength(64)] public string? SessionToken { get; set; }
     public DateTime CreatedUtc { get; set; }
+    /// <summary>Client IP at account creation, for the new-accounts-per-network cap. Guest login only; null for old rows.</summary>
+    [MaxLength(64)] public string? CreatedIp { get; set; }
     public int WeaponsBroken { get; set; }
     public DateTime LastHeartbeatUtc { get; set; }
 

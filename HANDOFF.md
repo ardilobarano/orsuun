@@ -74,7 +74,8 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Manual skill timing does not earn the active-play bonus server-side yet (needs an input log the server replays).
-- Boss damage ranks are against simulated rivals. One account per device is not enforced yet.
+- Boss damage ranks are against simulated rivals. New guest accounts are capped at 10 per network per day
+  (client IP via X-Forwarded-For from Caddy, loopback exempt); real one-account-per-device needs App Attest / Play Integrity.
 - Dev credentials (`orsuun` / `orsuun-dev`) are for local PostgreSQL only. The Hetzner box has its own random password in
   `/opt/orsuun/deploy/.env` (git-ignored).
 - `appsettings.json` pins `Urls` to localhost:5080; in the container only the unprefixed `URLS` env var overrides it
