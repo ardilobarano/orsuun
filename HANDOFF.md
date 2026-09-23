@@ -21,7 +21,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
 | Boss brackets | Simulated rivals until the multiplayer milestone; real shared HP pools later. |
-| Playtest | Phase 0 grey-box playtest done, owner reported it fine. |
+| Playtest | Phase 0 grey-box playtest done, owner reported it fine. First on-device playtest against the live server on the owner's iPhone, 23 Sep 2026: owner reported it good. |
 | Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
 | Upgrade glow | Every equipped item glows from +7 upward, not only the weapon (owner, 23 Sep 2026). Weapon brightest; intensity steps at +8 and +9. Drives the glow shader in the URP switch. |
 | Reference sheets | Chosen by the owner on 23 Sep 2026, all in `docs/concept/`: `vanguard-1`, `korstone-1`, `kestrel-1`, `wraithsworn-2`, `drumcaller-2`, `wolf-2`, `glow-1` (`-sheet.jpg`). The other variant of each is kept for comparison only. Every sheet after the Vanguard was generated with `vanguard-1` as the style reference; keep doing that for new sheets. |
@@ -54,7 +54,13 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
    modules installed) `ORSUUN_SERVER_URL=https://65.108.221.210.sslip.io tools/build-mobile.sh both`. TestFlight needs
    the paid Apple Developer Program; a free Apple ID runs on the owner's own iPhone from Xcode. First builds done 23 Sep 2026:
    Android APK served to testers at https://65.108.221.210.sslip.io/downloads/Orsuun.apk (Caddy file_server over
-   `/opt/orsuun/downloads`, copy a new APK there after each build); iOS Xcode project at `client/Builds/iOS/Unity-iPhone.xcodeproj`.
+   `/opt/orsuun/downloads`, copy a new APK there after each build); iOS Xcode project at `client/Builds/iOS/Unity-iPhone.xcodeproj`. Installed on the owner's iPhone 15 Pro Max on
+   23 Sep 2026 with the free personal team (`DEVELOPMENT_TEAM=KCT3PJSUP2`, cert on the Mac keychain). Signing lasts 7 days;
+   to reinstall, plug the phone in and run from `client/Builds/iOS`:
+   `xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release -sdk iphoneos -destination 'id=00008130-00026DA40CC1001C' -derivedDataPath ../iOS-derived build DEVELOPMENT_TEAM=KCT3PJSUP2 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates -allowProvisioningDeviceRegistration -quiet`
+   then `xcrun devicectl device install app --device 00008130-00026DA40CC1001C ../iOS-derived/Build/Products/Release-iphoneos/OrsuunWarofBanners.app`.
+   Developer Mode must be on (Settings, Privacy & Security). `tools/build-mobile.sh ios` with `ORSUUN_APPLE_TEAM_ID=KCT3PJSUP2`
+   also works but a free team cannot export an .ipa, so the xcodebuild + devicectl route above is the one to use.
 2. Art direction is B; turnaround sheets for all four classes, the Korstone and the Hollowed wolf are done and chosen
    (`docs/concept/`). The upgrade-glow progression sheet is done too. The full remaining art backlog (second-sex class variants, Forgemaster, more
    Hollowed mobs, Commander sheets, three environment keys, Oathfields backdrops, town vistas, gear and consumable and
