@@ -171,6 +171,7 @@ namespace Orsuun.Client.EditorTools
         {
             EnsureModelImport(Res + "Models/Korstone.fbx");
             EnsureModelImport(Res + "Models/Vanguard.fbx");
+            EnsureModelImport(Res + "Models/VanguardModular.fbx");
         }
 
         private static void EnsureModelImport(string path)
@@ -313,8 +314,11 @@ namespace Orsuun.Client.EditorTools
                 view.SetZone((Orsuun.Rules.Combat.ZoneType)System.Enum.Parse(typeof(Orsuun.Rules.Combat.ZoneType), zone));
                 Capture(cam, "../artifacts/lane-" + zone + ".png", 1080, 1056);
             }
-            view.SetGear(1f, 1f);
+            view.SetGear(new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f });
             Capture(cam, "../artifacts/lane-glow9.png", 1080, 1056);
+            // Each piece at its own level: weapon +9, helmet +8, shield +7, the rest below +7.
+            view.SetGear(new[] { 1f, 0f, 0.65f, 0.35f, 0f, 0f, 0f, 0f });
+            Capture(cam, "../artifacts/lane-glow-mixed.png", 1080, 1056);
             Object.DestroyImmediate(root);
         }
 

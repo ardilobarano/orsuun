@@ -97,6 +97,7 @@ namespace Orsuun.Client
             Application.Quit();
         }
 
+        private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
 
         private void Update()
@@ -110,7 +111,7 @@ namespace Orsuun.Client
 
             LaneSim lane = ActiveLane;
             if (Lane.Sim != lane) Lane.Bind(lane);
-            Lane.SetGear(UpgradeGlow.Armor(Session), UpgradeGlow.Weapon(Session));
+            Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);
             while (_accumulator >= 1f)

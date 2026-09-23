@@ -15,20 +15,12 @@ namespace Orsuun.Client
         public static float ForLevel(int upgradeLevel) =>
             upgradeLevel < FirstGlowLevel ? 0f : upgradeLevel == 7 ? 0.35f : upgradeLevel == 8 ? 0.65f : 1f;
 
-        /// <summary>
-        /// The grey-box hero is one body, so it shows the average glow of every equipped non-weapon item:
-        /// a full +9 set blazes, a single +9 ring barely warms it. Real models give each slot its own renderer.
-        /// </summary>
-        public static float Armor(PlayerSession session)
+        /// <summary>Glow for each EquipSlot index (0 for an empty slot), written into <paramref name="buffer"/>.</summary>
+        public static float[] PerSlot(PlayerSession session, float[] buffer)
         {
-            float sum = 0f; int count = 0;
-            foreach (ItemState item in session.Equipment)
-            {
-                if (item.Slot == EquipSlot.Weapon) continue;
-                sum += ForLevel(item.UpgradeLevel);
-                count++;
-            }
-            return count == 0 ? 0f : sum / count;
+            for (int i = 0; i < buffer.Length; i++)
+                buffer[i] = session.Equipped((EquipSlot)i) is ItemState item ? ForLevel(item.UpgradeLevel) : 0f;
+            return buffer;
         }
 
         public static float Weapon(PlayerSession session) => ForLevel(session.Weapon.UpgradeLevel);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Orsuun.Rules;
 using Orsuun.Rules.Combat;
 using UnityEngine;
 
@@ -37,13 +38,9 @@ namespace Orsuun.Client
 
         private LaneSim _sim;
         private Transform _hero;
-        private Renderer _heroRenderer;
-        private Renderer _weaponRenderer;
         /// <summary>Hero root height: the capsule is centred at 1, the Vanguard model stands on 0.</summary>
         private float _heroY = 1f;
         private Color _heroTint = HeroColor;
-        private float _armorGlow = -1f;
-        private float _weaponGlow = -1f;
         private float _heroPunch;
         private float _heroHurt;
 
@@ -133,34 +130,49 @@ namespace Orsuun.Client
             foreach (Transform s in _stripes) s.GetComponent<Renderer>().material.color = stripe;
         }
 
+        /// <summary>A piece of the hero and what drives its glow: an EquipSlot index, NoSlot, or AverageOfArmor.</summary>
+        private readonly List<(Renderer renderer, int slot)> _heroParts = new List<(Renderer, int)>();
+        private readonly float[] _partGlow = new float[16];
+        private const int NoSlot = -1;
+        private const int AverageOfArmor = -2;
+
         public void BuildHero()
         {
-            // The Vanguard from Rodin (art/blender/vanguard.blend, 12k tris), on the ember shader with its own texture.
-            var model = Resources.Load<GameObject>("Models/Vanguard");
             var skin = Resources.Load<Material>("VanguardEmber");
+            // Modular Vanguard (art/blender/vanguard.blend): the Rodin model cut into one mesh per equipment slot, so
+            // every item glows at its own upgrade level. Jewellery has no mesh yet. Falls back to the one-piece model,
+            // then to the capsule.
+            GameObject model = Resources.Load<GameObject>("Models/VanguardModular");
+            bool modular = model != null;
+            if (!modular) model = Resources.Load<GameObject>("Models/Vanguard");
             if (model != null && skin != null)
             {
                 _hero = new GameObject("Hero").transform;
                 _hero.SetParent(transform, false);
                 Transform body = Instantiate(model, _hero).transform;
                 body.localRotation = Quaternion.Euler(0f, 125f, 0f); // model front is +Z: this faces the enemies (+X), three-quarter to the camera
-                _heroRenderer = body.GetComponentInChildren<Renderer>();
-                _heroRenderer.sharedMaterial = skin;
-                Bounds b = _heroRenderer.bounds;
+                Bounds b = default;
+                bool first = true;
+                foreach (Renderer r in body.GetComponentsInChildren<Renderer>())
+                {
+                    r.sharedMaterial = skin;
+                    _heroParts.Add((r, modular ? SlotOf(r.name) : AverageOfArmor));
+                    if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
+                }
                 // Shift relative to where the file put it (the FBX root carries its own offset): feet on 0, centred.
                 body.localPosition -= new Vector3(b.center.x, b.min.y, b.center.z);
                 _heroY = 0f;
                 _heroTint = Color.white;
                 _hero.position = new Vector3(HeroX, _heroY, 0f);
-                _heroRenderer.material.color = _heroTint;
                 return;
             }
 
             _hero = Primitive(PrimitiveType.Capsule, "Hero", HeroColor);
             _hero.SetParent(transform, false);
             _hero.position = new Vector3(HeroX, 1f, 0f);
-            _heroRenderer = _hero.GetComponent<Renderer>();
-            UseMaterial(_heroRenderer, "EmberGear", HeroColor);
+            Renderer capsule = _hero.GetComponent<Renderer>();
+            UseMaterial(capsule, "EmberGear", HeroColor);
+            _heroParts.Add((capsule, AverageOfArmor));
 
             // Glaive: a pole and blade in the right hand, glowing on its own (hotter) material.
             Transform glaive = Primitive(PrimitiveType.Cube, "Glaive", new Color(0.62f, 0.62f, 0.66f));
@@ -168,22 +180,32 @@ namespace Orsuun.Client
             glaive.localPosition = new Vector3(0.62f, 0.35f, -0.25f);
             glaive.localScale = new Vector3(0.07f, 2.1f, 0.07f);
             glaive.localRotation = Quaternion.Euler(0f, 0f, -8f);
-            _weaponRenderer = glaive.GetComponent<Renderer>();
-            UseMaterial(_weaponRenderer, "EmberWeapon", new Color(0.62f, 0.62f, 0.66f));
+            Renderer blade = glaive.GetComponent<Renderer>();
+            UseMaterial(blade, "EmberWeapon", new Color(0.62f, 0.62f, 0.66f));
+            _heroParts.Add((blade, (int)EquipSlot.Weapon));
         }
 
-        /// <summary>Upgrade glow for the hero: armor = average of the non-weapon slots, weapon on its own.</summary>
-        public void SetGear(float armorGlow, float weaponGlow)
+        /// <summary>Vanguard_Helmet -> EquipSlot.Helmet; anything unrecognised (the body) has no slot.</summary>
+        private static int SlotOf(string partName)
         {
-            if (_weaponRenderer != null && !Mathf.Approximately(armorGlow, _armorGlow)) { _armorGlow = armorGlow; _heroRenderer.material.SetFloat(UpgradeGlow.GlowId, armorGlow); }
-            if (_weaponRenderer == null)
+            string suffix = partName.Substring(partName.LastIndexOf('_') + 1);
+            return System.Enum.TryParse(suffix, out EquipSlot slot) ? (int)slot : NoSlot;
+        }
+
+        /// <summary>Upgrade glow per equipment slot (UpgradeGlow.PerSlot); each hero piece shows its own item's level.</summary>
+        public void SetGear(float[] glowBySlot)
+        {
+            float armorSum = 0f; int armorCount = 0;
+            for (int i = 0; i < glowBySlot.Length; i++)
+                if (i != (int)EquipSlot.Weapon) { armorSum += glowBySlot[i]; armorCount++; }
+            for (int p = 0; p < _heroParts.Count; p++)
             {
-                // One-mesh model: the body carries whichever glows brighter, so a +9 weapon still shows.
-                float body = Mathf.Max(armorGlow, weaponGlow);
-                if (!Mathf.Approximately(body, _armorGlow)) { _armorGlow = body; _heroRenderer.material.SetFloat(UpgradeGlow.GlowId, body); }
-                return;
+                (Renderer r, int slot) = _heroParts[p];
+                float glow = slot >= 0 ? glowBySlot[slot] : slot == AverageOfArmor ? armorSum / Mathf.Max(1, armorCount) : 0f;
+                if (Mathf.Approximately(glow, _partGlow[p]) && _partGlow[p] >= 0f) continue;
+                _partGlow[p] = glow;
+                r.material.SetFloat(UpgradeGlow.GlowId, glow);
             }
-            if (!Mathf.Approximately(weaponGlow, _weaponGlow)) { _weaponGlow = weaponGlow; _weaponRenderer.material.SetFloat(UpgradeGlow.GlowId, weaponGlow); }
         }
 
         public void Handle(LaneEvent e)
@@ -303,7 +325,8 @@ namespace Orsuun.Client
             if (_sim.Phase != LanePhase.Dead)
                 _hero.position = new Vector3(HeroX + _heroPunch * 0.35f, _heroY + (_sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 9f)) * 0.12f : 0f), 0f);
             Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : _heroTint;
-            _heroRenderer.material.color = Color.Lerp(heroBase, Color.red, _heroHurt * 0.7f);
+            Color tint = Color.Lerp(heroBase, Color.red, _heroHurt * 0.7f);
+            foreach ((Renderer r, int _) in _heroParts) r.material.color = tint;
 
             for (int i = _texts.Count - 1; i >= 0; i--)
             {
