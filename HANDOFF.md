@@ -74,6 +74,14 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - `appsettings.json` pins `Urls` to localhost:5080; in the container only the unprefixed `URLS` env var overrides it
   (`ASPNETCORE_URLS` loses to the JSON file). `deploy/docker-compose.yml` sets it.
 
+## Blender pipeline (Mac, since 23 Sep 2026)
+
+Blender 5.2 LTS is installed with the MCP for Blender addon (user config `~/.claude.json`, server `uvx mcp-for-blender`).
+Start Blender, press N, BlenderMCP tab, Start MCP Server; Claude can then build and edit the open scene. First asset:
+`art/blender/korstone-blockout.blend` (procedural Korstone with an emissive ember-crack material) exported to
+`client/Assets/Orsuun/Models/Korstone_blockout.fbx`. Hyper3D Rodin and Hunyuan3D image-to-3D are available in the
+addon panel but not enabled; the reference sheets in `docs/concept/` are the inputs for them.
+
 ## Running on macOS
 
 ```bash
