@@ -135,45 +135,42 @@ namespace Orsuun.Client
         private readonly float[] _partGlow = new float[16];
         private const int NoSlot = -1;
 
+        private Transform _rig;
+        private GameObject _armorLook;
+        private GameObject _weaponLook;
+        private string _armorLookId;
+        private string _weaponLookId;
+
+        /// <summary>Look shown when no body armour is equipped: the plain quilted coat of the first band.</summary>
+        public const string BareArmorLook = "Armor_T0";
+
         public void BuildHero()
         {
-            var skin = Resources.Load<Material>("VanguardEmber");
-            // Modular Vanguard (art/blender/vanguard.blend): the Rodin model cut into Weapon, Armor (the whole outfit)
-            // and Body (face, banner). Only the weapon and the armour show and glow, each at its own level (owner,
-            // 23 Sep 2026). Falls back to the one-piece model, then to the capsule.
-            GameObject model = Resources.Load<GameObject>("Models/VanguardModular");
-            bool modular = model != null;
-            if (!modular) model = Resources.Load<GameObject>("Models/Vanguard");
-            if (model != null && skin != null)
-            {
-                _hero = new GameObject("Hero").transform;
-                _hero.SetParent(transform, false);
-                Transform body = Instantiate(model, _hero).transform;
-                body.localRotation = Quaternion.Euler(0f, 125f, 0f); // model front is +Z: this faces the enemies (+X), three-quarter to the camera
-                Bounds b = default;
-                bool first = true;
-                foreach (Renderer r in body.GetComponentsInChildren<Renderer>())
-                {
-                    r.sharedMaterial = skin;
-                    _heroParts.Add((r, modular ? SlotOf(r.name) : (int)EquipSlot.Armor));
-                    if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
-                }
-                // Shift relative to where the file put it (the FBX root carries its own offset): feet on 0, centred.
-                body.localPosition -= new Vector3(b.center.x, b.min.y, b.center.z);
-                _heroY = 0f;
-                _heroTint = Color.white;
-                _hero.position = new Vector3(HeroX, _heroY, 0f);
-                return;
-            }
-
-            _hero = Primitive(PrimitiveType.Capsule, "Hero", HeroColor);
+            // Looks (owner, 23 Sep 2026): the weapon and the body armour are the visible items, and their models change
+            // with the item's level band (ItemLooks). The hero is a rig holding one armour look and one weapon look;
+            // the weapon is placed between the armour's WeaponBase and WeaponTip, so any glaive fits any armour.
+            _hero = new GameObject("Hero").transform;
             _hero.SetParent(transform, false);
-            _hero.position = new Vector3(HeroX, 1f, 0f);
-            Renderer capsule = _hero.GetComponent<Renderer>();
-            UseMaterial(capsule, "EmberGear", HeroColor);
-            _heroParts.Add((capsule, (int)EquipSlot.Armor));
+            _rig = new GameObject("Rig").transform;
+            _rig.SetParent(_hero, false);
+            _rig.localRotation = Quaternion.Euler(0f, 125f, 0f); // models face +Z: this faces the enemies, three-quarter to the camera
+            _heroY = 0f;
+            _heroTint = Color.white;
+            _hero.position = new Vector3(HeroX, _heroY, 0f);
+            if (SetLooks(BareArmorLook, "Weapon_T1")) return;
 
-            // Glaive: a pole and blade in the right hand, glowing on its own (hotter) material.
+            // No looks in the build: the grey-box capsule and glaive.
+            Kill(_rig.gameObject);
+            _rig = null;
+            _heroY = 1f;
+            _heroTint = HeroColor;
+            Transform capsule = Primitive(PrimitiveType.Capsule, "Body", HeroColor);
+            capsule.SetParent(_hero, false);
+            _hero.position = new Vector3(HeroX, 1f, 0f);
+            Renderer body = capsule.GetComponent<Renderer>();
+            UseMaterial(body, "EmberGear", HeroColor);
+            _heroParts.Add((body, (int)EquipSlot.Armor));
+
             Transform glaive = Primitive(PrimitiveType.Cube, "Glaive", new Color(0.62f, 0.62f, 0.66f));
             glaive.SetParent(_hero, false);
             glaive.localPosition = new Vector3(0.62f, 0.35f, -0.25f);
@@ -184,9 +181,114 @@ namespace Orsuun.Client
             _heroParts.Add((blade, (int)EquipSlot.Weapon));
         }
 
+        /// <summary>
+        /// Shows the armour and weapon looks (ItemState.LookId; null armour = the bare coat). Missing art falls back to the
+        /// nearest band below, then above. Returns false when no look models exist at all.
+        /// </summary>
+        public bool SetLooks(string armorLookId, string weaponLookId)
+        {
+            if (_rig == null) return false;
+            armorLookId ??= BareArmorLook;
+            if (armorLookId == _armorLookId && weaponLookId == _weaponLookId) return true;
+            if (_hero.rotation != Quaternion.identity) return true; // lying down: swap once back on his feet
+
+            GameObject armorPrefab = LoadLook(armorLookId, out string armorUsed);
+            if (armorPrefab == null) return false;
+            string weaponUsed = null;
+            GameObject weaponPrefab = weaponLookId != null ? LoadLook(weaponLookId, out weaponUsed) : null;
+
+            if (_armorLook != null) Kill(_armorLook);
+            if (_weaponLook != null) Kill(_weaponLook);
+            _heroParts.Clear();
+            for (int i = 0; i < _partGlow.Length; i++) _partGlow[i] = -1f;
+
+            _armorLook = Instantiate(armorPrefab, _rig);
+            Material armorMat = Resources.Load<Material>("Looks/" + armorUsed);
+            Bounds b = default;
+            bool first = true;
+            foreach (Renderer r in _armorLook.GetComponentsInChildren<Renderer>())
+            {
+                if (armorMat != null) r.sharedMaterial = armorMat;
+                _heroParts.Add((r, SlotOf(r.name)));
+                if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
+            }
+            // Feet on the ground, centred on the hero.
+            Vector3 origin = _rig.position;
+            _armorLook.transform.position -= new Vector3(b.center.x - origin.x, b.min.y - origin.y, b.center.z - origin.z);
+
+            if (weaponPrefab != null)
+            {
+                _weaponLook = Instantiate(weaponPrefab, _rig);
+                Transform grip = FindDeep(_armorLook.transform, "WeaponBase");
+                Transform tip = FindDeep(_armorLook.transform, "WeaponTip");
+                Material weaponMat = Resources.Load<Material>("Looks/" + weaponUsed);
+                Renderer[] renderers = _weaponLook.GetComponentsInChildren<Renderer>();
+                foreach (Renderer r in renderers)
+                {
+                    if (weaponMat != null) r.sharedMaterial = weaponMat;
+                    _heroParts.Add((r, (int)EquipSlot.Weapon));
+                }
+                if (grip != null && tip != null && renderers.Length > 0)
+                {
+                    // Measure the glaive standing upright, then lay it from the grip to the tip of this armour's pole.
+                    Transform w = _weaponLook.transform;
+                    w.rotation = Quaternion.identity;
+                    w.localScale = Vector3.one;
+                    w.position = Vector3.zero;
+                    float length = renderers[0].bounds.size.y;
+                    Vector3 axis = tip.position - grip.position;
+                    w.rotation = Quaternion.FromToRotation(Vector3.up, axis.normalized) * _rig.rotation;
+                    // Stretch along the pole only: Rodin makes thin objects chunky, so girth stays as modelled.
+                    w.localScale = new Vector3(1f, length > 0.01f ? axis.magnitude / length : 1f, 1f);
+                    w.position = grip.position;
+                }
+            }
+
+            _armorLookId = armorLookId;
+            _weaponLookId = weaponLookId;
+            return true;
+        }
+
+        private static GameObject LoadLook(string lookId, out string used)
+        {
+            used = lookId;
+            var model = Resources.Load<GameObject>("Models/Looks/" + lookId);
+            if (model != null) return model;
+            int split = lookId.LastIndexOf("_T", System.StringComparison.Ordinal);
+            if (split < 0 || !int.TryParse(lookId.Substring(split + 2), out int tier)) return null;
+            string kind = lookId.Substring(0, split);
+            for (int step = 1; step <= ItemLooks.MaxTier; step++)
+                foreach (int t in new[] { tier - step, tier + step })
+                {
+                    if (t < 0 || t > ItemLooks.MaxTier) continue;
+                    model = Resources.Load<GameObject>("Models/Looks/" + kind + "_T" + t);
+                    if (model != null) { used = kind + "_T" + t; return model; }
+                }
+            return null;
+        }
+
+        private static Transform FindDeep(Transform parent, string name)
+        {
+            if (parent.name == name || parent.name.StartsWith(name + ".")) return parent;   // Blender suffixes duplicates
+            foreach (Transform child in parent)
+            {
+                Transform found = FindDeep(child, name);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        private static void Kill(GameObject go)
+        {
+            if (Application.isPlaying) Destroy(go);
+            else DestroyImmediate(go);
+        }
+
         /// <summary>Vanguard_Weapon -> EquipSlot.Weapon, Vanguard_Armor -> EquipSlot.Armor; anything else has no slot.</summary>
         private static int SlotOf(string partName)
         {
+            int dot = partName.IndexOf('.');
+            if (dot >= 0) partName = partName.Substring(0, dot);   // Blender's "Vanguard_Armor.001"
             string suffix = partName.Substring(partName.LastIndexOf('_') + 1);
             return System.Enum.TryParse(suffix, out EquipSlot slot) ? (int)slot : NoSlot;
         }

@@ -39,11 +39,9 @@ namespace Orsuun.Client.EditorTools
             korstone.SetFloat("_CrackFadeTop", 2.4f);
             korstone.SetFloat("_Roughness", 0.3f);
             EditorUtility.SetDirty(korstone);
-            Material vanguard = EnsureGlowMaterial("VanguardEmber", Color.white, crackScale: 5f, crackWidth: 0.025f, intensity: 1.15f, rim: 2.5f);
-            vanguard.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(Res + "Models/VanguardBaseColor.png"));
-            EditorUtility.SetDirty(vanguard);
             EnsurePostFx();
             EnsureBackdrops();
+            EnsureLooks();
             EnsureKorstoneImport();
             AssetDatabase.SaveAssets();
             Debug.Log("Orsuun rendering setup complete (URP " + (GraphicsSettings.defaultRenderPipeline != null) + ").");
@@ -122,6 +120,30 @@ namespace Orsuun.Client.EditorTools
             return mat;
         }
 
+        /// <summary>
+        /// One glow material per item look (Resources/Models/Looks/*.fbx from art/blender/looks.py) in Resources/Looks,
+        /// carrying that look's base-colour texture. Weapons run hotter and carry a whole-surface glow share.
+        /// </summary>
+        private static void EnsureLooks()
+        {
+            const string models = Res + "Models/Looks/";
+            if (!Directory.Exists(models)) return;
+            Directory.CreateDirectory(Res + "Looks");
+            foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
+            {
+                string id = Path.GetFileNameWithoutExtension(fbx);
+                EnsureModelImport(models + id + ".fbx");
+                bool weapon = id.StartsWith("Weapon");
+                Material mat = EnsureGlowMaterial("Looks/" + id, Color.white, crackScale: 5f, crackWidth: 0.025f,
+                    intensity: weapon ? 2.0f : 1.15f, rim: weapon ? 2f : 2.5f);
+                mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png"));
+                mat.SetFloat("_BodyGlow", weapon ? 1f : 0f);
+                // Armour meshes are many small fragments: a wide aura hull splits into shards, so armour keeps it thin.
+                mat.SetFloat("_AuraWidth", weapon ? 0.035f : 0.01f);
+                EditorUtility.SetDirty(mat);
+            }
+        }
+
         /// <summary>Unlit materials for the zone environment keys behind the lane (docs/concept/env-*.jpg, variant 1 of each).</summary>
         private static void EnsureBackdrops()
         {
@@ -171,11 +193,10 @@ namespace Orsuun.Client.EditorTools
         private static void EnsureKorstoneImport()
         {
             EnsureModelImport(Res + "Models/Korstone.fbx");
-            EnsureModelImport(Res + "Models/Vanguard.fbx");
-            EnsureModelImport(Res + "Models/VanguardModular.fbx");
-            EnsureModelImport(Res + "Models/Kestrel.fbx");
-            EnsureModelImport(Res + "Models/Wraithsworn.fbx");
-            EnsureModelImport(Res + "Models/Drumcaller.fbx");
+            // Class models for later (Kestrel, Wraithsworn, Drumcaller) live in Assets/Orsuun/Models/Classes, outside the build.
+            EnsureModelImport("Assets/Orsuun/Models/Classes/Kestrel.fbx");
+            EnsureModelImport("Assets/Orsuun/Models/Classes/Wraithsworn.fbx");
+            EnsureModelImport("Assets/Orsuun/Models/Classes/Drumcaller.fbx");
         }
 
         private static void EnsureModelImport(string path)
@@ -327,15 +348,20 @@ namespace Orsuun.Client.EditorTools
             // Close-ups of the hero for judging the upgrade glow: plain, each piece at its own level, full +9.
             cam.transform.position = new Vector3(-0.2f, 1.6f, -5.2f);
             cam.transform.LookAt(new Vector3(-1.6f, 1.05f, 0f));
-            var steps = new (string name, float[] glow)[]
+            float[] none = new float[8];
+            float[] nine = { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f };
+            var steps = new (string name, string armor, string weapon, float[] glow)[]
             {
-                ("plain", new float[8]),
-                ("mixed", new[] { 1f, 0f, 1f, 1f, 1f, 1f, 1f, 1f }),
-                ("plus7", new[] { 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f, 0.35f }),
-                ("plus9", new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f }),
+                ("T0", "Armor_T0", "Weapon_T0", none),
+                ("T1", "Armor_T1", "Weapon_T1", none),
+                ("T2", "Armor_T2", "Weapon_T2", none),
+                ("mixed", "Armor_T2", "Weapon_T0", none),
+                ("T2-plus9", "Armor_T2", "Weapon_T2", nine),
+                ("T0-weapon9", "Armor_T0", "Weapon_T2", new[] { 1f, 0f, 0f, 0f, 0f, 0f, 0f, 0f }),
             };
-            foreach (var (name, glow) in steps)
+            foreach (var (name, armor, weapon, glow) in steps)
             {
+                view.SetLooks(armor, weapon);
                 view.SetGear(glow);
                 Capture(cam, "../artifacts/hero-" + name + ".png", 700, 1000);
             }

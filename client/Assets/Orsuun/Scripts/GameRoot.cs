@@ -111,6 +111,7 @@ namespace Orsuun.Client
 
             LaneSim lane = ActiveLane;
             if (Lane.Sim != lane) Lane.Bind(lane);
+            Lane.SetLooks(Session.Equipped(EquipSlot.Armor)?.LookId, Session.Weapon.LookId);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);

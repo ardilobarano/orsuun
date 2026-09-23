@@ -25,6 +25,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Playtest | Phase 0 grey-box playtest done, owner reported it fine. First on-device playtest against the live server on the owner's iPhone, 23 Sep 2026: owner reported it good. |
 | Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
 | Upgrade glow and looks | Owner, 23 Sep 2026: only the weapon and the body armour are visible on the character and glow, each by its own level from +7 up, in classic MMO upgrade shine (aura, flowing light, sweep; pale gold +7, gold +8, ember-gold +9). Helmet, shield, bracelet, necklace, earrings and shoes are stats only: forged like the weapon, no look, no glow. |
+| Item looks | Owner, 23 Sep 2026: weapon and body armour looks change every 10 item levels (`ItemLooks`: 11 bands, Vanguard names from Herder's Glaive / Quilted Coat up to Glaive / Harness of the Nine Oaths). Art exists for bands 0-2 (levels 1-29); higher bands show the nearest existing look. No armour equipped shows the band-0 Quilted Coat. |
 | Reference sheets | Chosen by the owner on 23 Sep 2026, all in `docs/concept/`: `vanguard-1`, `korstone-1`, `kestrel-1`, `wraithsworn-2`, `drumcaller-2`, `wolf-2`, `glow-1` (`-sheet.jpg`). The other variant of each is kept for comparison only. Every sheet after the Vanguard was generated with `vanguard-1` as the style reference; keep doing that for new sheets. |
 
 ## What exists and works
@@ -99,7 +100,11 @@ addon panel; Rodin is enabled in fal.ai mode (key in `~/.config/fal/key`, about 
 crashes before sending (it iterates the file-path list when given URLs), so submit to `https://queue.fal.run/fal-ai/hyper3d/rodin`
 directly with front/side/back crops hosted under `/downloads`, `condition_mode: concat`, `tier: Regular`, `material: PBR`.
 First result: the Vanguard (`art/blender/vanguard.blend`), decimated to 12k tris, in the lane as `Resources/Models/Vanguard.fbx`.
-Next for it: a rig (shared humanoid rig per sex, GDD) and idle/attack/hit/death animations; it is a static mesh today.
+Item looks (weapon and armour per level band) come from `art/blender/looks.py`: armour models are Rodin turnarounds of
+the same man holding a glaive; the pipeline finds the glaive pole (RANSAC for the straight full-height line), cuts it out
+and stores WeaponBase/WeaponTip; weapons are Rodin glaives normalised to base-at-origin. Output in
+`Resources/Models/Looks` (FBX + texture) and `Resources/Looks` (materials). New band: sheet -> Rodin -> `armor_look` /
+`weapon_look` -> RenderPreview. Next: bands 3+ art, a rig and idle/attack/hit/death animations (static meshes today).
 
 ## Running on macOS
 

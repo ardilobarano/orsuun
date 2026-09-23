@@ -27,3 +27,6 @@ downloads/
 
 # Blender backups
 *.blend1
+
+# Blender working file for item looks: rebuilt from the *-rodin.glb sources by art/blender/looks.py (270 MB)
+art/blender/looks.blend

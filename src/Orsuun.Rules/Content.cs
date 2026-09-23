@@ -119,6 +119,7 @@ namespace Orsuun.Rules
             new BossDef(3, 121, "Old Greyjaw", 1, 45_000, 60, BossMechanic.PackCaller, 45 * 60, "Greyjaw Pelt Cloak"),
         };
 
+        /// <summary>Base names of the stat-only slots; weapon and armour names come from ItemLooks by level band.</summary>
         public static readonly string[] SlotBaseNames =
         {
             "Rider's Glaive", "Lamellar Coat", "Steppe Helm", "Round Shield", "Bone Bracelet", "Tamga Necklace", "Iron Earrings", "Felt Boots",
@@ -264,7 +265,7 @@ namespace Orsuun.Rules
             return config;
         }
 
-        public static string ItemName(ItemState item) => item.Rarity + " " + SlotBaseNames[(int)item.Slot];
+        public static string ItemName(ItemState item) => item.Rarity + " " + ItemLooks.BaseName(item.Slot, item.ItemLevel);
 
         /// <summary>Gear rarity weights from GDD section 5, in basis points: Common..Legendary.</summary>
         public static readonly int[] RarityWeightsBp = { 6200, 2500, 1000, 270, 30 };

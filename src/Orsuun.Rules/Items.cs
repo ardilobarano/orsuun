@@ -62,6 +62,9 @@ namespace Orsuun.Rules
 
         /// <summary>Rarity name plus the slot's base name for the item's level band, e.g. "Rare Rider's Glaive".</summary>
         public string DisplayName => Content.ItemName(this);
+
+        /// <summary>Model the client shows for this item (weapon and armour only), e.g. "Armor_T1"; null otherwise.</summary>
+        public string? LookId => ItemLooks.LookId(this);
         public int UpgradeLevel { get; set; }
 
         /// <summary>Forgemaster's Patience: bonus chance earned by failures at +7 and above, in basis points.</summary>
