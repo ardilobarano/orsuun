@@ -58,6 +58,12 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   Tul-Gorak and his captains as war-red deserters. Mobs bob while alive and keel over when slain.
 - Active play wired end to end (see Known gaps for the rules): verified on 24 Sep 2026 with the Mac player against a
   local server, two loops reported and both replayed as exact matches.
+- Forge outcome moment (`ForgeFx`): every attempt plays on its own layer over the Forge. The item sits in a bronze slot,
+  the hammer falls two times (five from +7), then success flashes with rays in the new level's glow colour (+9 bigger),
+  a lost level dulls and shakes the piece, the Anvil Ward rings blue, and an Oathbreak splits the icon into flying
+  shards. Six sounds in `Resources/Audio/Forge*.wav`, generated with Mirelo (Higgsfield), trimmed to the hit and
+  normalised; nobody has listened to them on a device yet. `-fxdemo Success|Nine|LevelLost|LevelKept|Oathbreak`
+  plays the moment with a made-up result for screenshots.
 - App icon: the blood-moon Korstone (`client/Assets/Orsuun/Art/AppIcon.png`, applied by `ProjectSetup.EnsureAppIcon`);
   the other three options are in `docs/concept/app-icon-*.jpg`. Android uses it as a legacy icon, no adaptive layers yet.
 - UI colour pass in direction B: dusk-indigo panels, bronze rims, Philosopher Bold for buttons and headings, Cinzel for

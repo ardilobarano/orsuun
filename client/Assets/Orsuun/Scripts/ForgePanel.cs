@@ -37,7 +37,7 @@ namespace Orsuun.Client
         private Button[] _methodButtons;
         private Button _turnButton;
         private Button _closeButton;
-        private RectTransform _anvilFill;
+        private ForgeFx _fx;
         private Button[] _slotButtons;
         private Text[] _slotLabels;
 
@@ -102,12 +102,14 @@ namespace Orsuun.Client
                     () => StartAttempt(method), out _methodLabels[i]);
             }
 
-            Ui.Framed("AnvilBack", canvas, 0.06f, 0.20f, 0.94f, 0.235f, new Color(0.07f, 0.04f, 0.04f));
-            _anvilFill = Ui.Panel("AnvilFill", canvas, 0.06f, 0.20f, 0.06f, 0.235f, Palette.Warn).rectTransform;
-            _result = Ui.Label("Result", canvas, 0.04f, 0.085f, 0.96f, 0.19f, "", 52, TextAnchor.MiddleCenter, Palette.Parchment);
+            _result = Ui.Label("Result", canvas, 0.04f, 0.09f, 0.96f, 0.235f, "", 52, TextAnchor.MiddleCenter, Palette.Parchment);
             _closeButton = Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
 
             _canvas.SetActive(false);
+
+            // The anvil moment plays on its own layer above this screen.
+            _fx = new GameObject("ForgeFx").AddComponent<ForgeFx>();
+            _fx.Init();
         }
 
         public void Open()
@@ -149,15 +151,12 @@ namespace Orsuun.Client
             EquipSlot anvilSlot = _root.Session.AnvilSlot;
             string pieceName = _root.Session.OnAnvil.DisplayName;
             float duration = target >= ForgeRules.PatienceFromTarget ? LongSequence : ShortSequence;
-            ShowResult(DorunLines[Random.Range(0, DorunLines.Length)], Palette.Muted);
+            string line = DorunLines[Random.Range(0, DorunLines.Length)];
+            ShowResult("", Palette.Muted);
 
-            // Unscaled time: the speed button must never shorten the wait.
-            for (float t = 0f; t < duration; t += Time.unscaledDeltaTime)
-            {
-                SetAnvil(t / duration);
-                yield return null;
-            }
-            SetAnvil(0f);
+            // The hammer beats run on unscaled time: the speed button must never shorten the wait.
+            yield return _fx.Beats(anvilSlot, target - 1, duration, line);
+            _fx.Hold();
 
             ForgeResult? result = null;
             if (_root.Server.Online)
@@ -172,6 +171,7 @@ namespace Orsuun.Client
                 });
                 if (result == null)
                 {
+                    yield return _fx.Cancel();
                     ShowResult(failure ?? "No answer from the server.", Palette.Muted);
                     Busy = false;
                     yield break;
@@ -201,6 +201,24 @@ namespace Orsuun.Client
                     break;
             }
 
+            yield return _fx.Reveal(result.Value, pieceName);
+            Busy = false;
+        }
+
+        /// <summary>
+        /// Dev switch for screenshots (-fxdemo Success|Nine|LevelLost|LevelKept|Oathbreak): plays the anvil moment with
+        /// a made-up result on the weapon slot. Touches no item and no currency.
+        /// </summary>
+        public IEnumerator Demo(string outcome)
+        {
+            Open();
+            Busy = true;
+            bool nine = outcome == "Nine";
+            ForgeOutcome kind = nine ? ForgeOutcome.Success : (ForgeOutcome)System.Enum.Parse(typeof(ForgeOutcome), outcome);
+            int before = nine ? 8 : 6;
+            int after = kind == ForgeOutcome.Success ? before + 1 : kind == ForgeOutcome.LevelLost ? before - 1 : kind == ForgeOutcome.LevelKept ? before : 0;
+            yield return _fx.Beats(EquipSlot.Weapon, before, LongSequence, DorunLines[0]);
+            yield return _fx.Reveal(new ForgeResult(kind, 5000, before, after), "Rider's Glaive");
             Busy = false;
         }
 
@@ -245,11 +263,6 @@ namespace Orsuun.Client
         {
             _result.text = message;
             _result.color = color;
-        }
-
-        private void SetAnvil(float progress)
-        {
-            _anvilFill.anchorMax = new Vector2(0.06f + 0.88f * Mathf.Clamp01(progress), _anvilFill.anchorMax.y);
         }
 
         private void Update()

@@ -76,6 +76,10 @@ namespace Orsuun.Client
             // Dev switch for screenshots and demos: Orsuun.exe -forge
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-forge") >= 0) Forge.Open();
 
+            // Dev switch: -fxdemo <outcome> plays the Forge's anvil moment with a made-up result (screenshots).
+            string fxDemo = Arg("-fxdemo");
+            if (fxDemo != null) StartCoroutine(Forge.Demo(fxDemo));
+
             // Dev switch: -shot <png> [-shotAfter seconds] saves the screen and quits (tools/screenshot-mac.sh).
             string shot = Arg("-shot");
             if (shot != null) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), out float after) ? after : 8f));
