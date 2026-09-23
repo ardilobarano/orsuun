@@ -28,9 +28,10 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      # appsettings.Development.json pins Urls to localhost:5080 for the local run; inside the container we must
-      # listen on all interfaces on the port Caddy and the healthcheck expect.
-      ASPNETCORE_URLS: http://0.0.0.0:8080
+      # appsettings.json pins Urls to localhost:5080 for the local run and appsettings.*.json is layered after the
+      # ASPNETCORE_-prefixed host config, so ASPNETCORE_URLS loses. The unprefixed env var is read after the JSON
+      # files and wins; the container must listen on all interfaces on the port Caddy and the healthcheck expect.
+      URLS: http://0.0.0.0:8080
       ConnectionStrings__Game: "Host=postgres;Port=5432;Database=orsuun;Username=orsuun;Password=${POSTGRES_PASSWORD}"
       Bells__TimeZone: ${BELLS_TIMEZONE:-Europe/Istanbul}
     expose:
