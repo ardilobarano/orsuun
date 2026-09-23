@@ -45,10 +45,12 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 ## Next steps, waiting on the owner
 
-1. Pick the host (Hetzner VPS recommended) and follow `deploy/README.md`; then on the Mac
-   `ORSUUN_SERVER_URL=https://<domain> tools/build-mobile.sh both` (decided: Android and iOS). Install the Android
-   and iOS modules in Unity Hub first. TestFlight needs the paid Apple Developer Program; a free Apple ID runs on
-   the owner's own iPhone from Xcode.
+1. Playtest server is live since 23 Sep 2026: https://65.108.221.210.sslip.io (Hetzner CPX12, Helsinki, Ubuntu 26.04,
+   2 GB RAM + 2 GB swap, `/opt/orsuun`, Docker stack from `deploy/`, `ASPNETCORE_ENVIRONMENT=Development` for the
+   playtest). Update with `ssh root@65.108.221.210 'cd /opt/orsuun && git pull && docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build'`
+   (the box has a read-only deploy key on the repo). Mobile builds: on the Mac (Unity 6000.0.32f1 + Android/iOS
+   modules installed) `ORSUUN_SERVER_URL=https://65.108.221.210.sslip.io tools/build-mobile.sh both`. TestFlight needs
+   the paid Apple Developer Program; a free Apple ID runs on the owner's own iPhone from Xcode.
 2. Art direction is B: character sheet and Korstone sheet in that style, URP switch with a
    matching shader, first real hero model.
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
@@ -60,7 +62,10 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Manual skill timing does not earn the active-play bonus server-side yet (needs an input log the server replays).
 - Boss damage ranks are against simulated rivals. One account per device is not enforced yet.
-- Dev credentials (`orsuun` / `orsuun-dev`) are for local PostgreSQL only.
+- Dev credentials (`orsuun` / `orsuun-dev`) are for local PostgreSQL only. The Hetzner box has its own random password in
+  `/opt/orsuun/deploy/.env` (git-ignored).
+- `appsettings.json` pins `Urls` to localhost:5080; in the container only the unprefixed `URLS` env var overrides it
+  (`ASPNETCORE_URLS` loses to the JSON file). `deploy/docker-compose.yml` sets it.
 
 ## Running on macOS
 
