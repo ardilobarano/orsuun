@@ -94,7 +94,11 @@ Blender 5.2 LTS is installed with the MCP for Blender addon (user config `~/.cla
 Start Blender, press N, BlenderMCP tab, Start MCP Server; Claude can then build and edit the open scene. First asset:
 `art/blender/korstone-blockout.blend` (procedural Korstone with an emissive ember-crack material) exported to
 `client/Assets/Orsuun/Models/Korstone_blockout.fbx`. Hyper3D Rodin and Hunyuan3D image-to-3D are available in the
-addon panel but not enabled; the reference sheets in `docs/concept/` are the inputs for them.
+addon panel; Rodin is enabled in fal.ai mode (key in `~/.config/fal/key`, about $0.40 per model). The MCP tool's fal.ai path
+crashes before sending (it iterates the file-path list when given URLs), so submit to `https://queue.fal.run/fal-ai/hyper3d/rodin`
+directly with front/side/back crops hosted under `/downloads`, `condition_mode: concat`, `tier: Regular`, `material: PBR`.
+First result: the Vanguard (`art/blender/vanguard.blend`), decimated to 12k tris, in the lane as `Resources/Models/Vanguard.fbx`.
+Next for it: a rig (shared humanoid rig per sex, GDD) and idle/attack/hit/death animations; it is a static mesh today.
 
 ## Running on macOS
 
