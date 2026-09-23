@@ -124,6 +124,24 @@ namespace Orsuun.Client.EditorTools
             Debug.Log("Server URL baked: " + url);
         }
 
+        /// <summary>Mac player for screenshots and desk tests: -executeMethod Orsuun.Client.EditorTools.ProjectSetup.BuildMac</summary>
+        public static void BuildMac()
+        {
+            Run();
+            WriteServerUrl();
+            // Keep ticking when the window is not frontmost, so unattended screenshots do not stall.
+            PlayerSettings.runInBackground = true;
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = new[] { ScenePath },
+                locationPathName = "Builds/Mac/Orsuun.app",
+                target = BuildTarget.StandaloneOSX,
+                options = BuildOptions.None,
+            });
+            Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
+            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
+        }
+
         /// <summary>Windows playtest build: -executeMethod Orsuun.Client.EditorTools.ProjectSetup.BuildWindows</summary>
         public static void BuildWindows()
         {

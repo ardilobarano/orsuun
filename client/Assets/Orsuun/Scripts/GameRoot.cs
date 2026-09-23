@@ -75,6 +75,26 @@ namespace Orsuun.Client
 
             // Dev switch for screenshots and demos: Orsuun.exe -forge
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-forge") >= 0) Forge.Open();
+
+            // Dev switch: -shot <png> [-shotAfter seconds] saves the screen and quits (tools/screenshot-mac.sh).
+            string shot = Arg("-shot");
+            if (shot != null) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), out float after) ? after : 8f));
+        }
+
+        private static string Arg(string name)
+        {
+            string[] args = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(args, name);
+            return i >= 0 && i + 1 < args.Length ? args[i + 1] : null;
+        }
+
+        private static IEnumerator ShotAndQuit(string path, float after)
+        {
+            yield return new WaitForSecondsRealtime(after);
+            yield return new WaitForEndOfFrame();
+            ScreenCapture.CaptureScreenshot(path);
+            yield return new WaitForSecondsRealtime(1.5f);
+            Application.Quit();
         }
 
         private Bell _localBellApplied = Bell.None;
