@@ -23,7 +23,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Boss brackets | Simulated rivals until the multiplayer milestone; real shared HP pools later. |
 | Playtest | Phase 0 grey-box playtest done, owner reported it fine. |
 | Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
-| Reference sheets | `docs/concept/vanguard-1-sheet.jpg` and `docs/concept/korstone-1-sheet.jpg` are the chosen references (owner, 23 Sep 2026); the `-2` files are the rejected variants, kept for comparison. |
+| Reference sheets | Chosen by the owner on 23 Sep 2026, all in `docs/concept/`: `vanguard-1`, `korstone-1`, `kestrel-1`, `wraithsworn-2`, `drumcaller-2`, `wolf-2` (`-sheet.jpg`). The other variant of each is kept for comparison only. Every sheet after the Vanguard was generated with `vanguard-1` as the style reference; keep doing that for new sheets. |
 
 ## What exists and works
 
@@ -54,9 +54,9 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
    the paid Apple Developer Program; a free Apple ID runs on the owner's own iPhone from Xcode. First builds done 23 Sep 2026:
    Android APK served to testers at https://65.108.221.210.sslip.io/downloads/Orsuun.apk (Caddy file_server over
    `/opt/orsuun/downloads`, copy a new APK there after each build); iOS Xcode project at `client/Builds/iOS/Unity-iPhone.xcodeproj`.
-2. Art direction is B; Vanguard turnaround and Korstone sheets are done (`docs/concept/`). Next: sheets for Kestrel, Wraithsworn,
-   Drumcaller and a Hollowed wolf, a glaive upgrade-tier sheet (+7 and up glow), URP switch with a matching shader, first real
-   hero model.
+2. Art direction is B; turnaround sheets for all four classes, the Korstone and the Hollowed wolf are done and chosen
+   (`docs/concept/`). Next: a glaive upgrade-tier sheet (+7 and up glow), a Korstone Fields environment key, a UI colour
+   pass, URP switch with a matching shader, first real hero model from `vanguard-1`.
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
    real shared boss HP pools, Hunt Marks and the Hearthfire subscription (Bulk Turn's 10/50 split depends on it).
 
