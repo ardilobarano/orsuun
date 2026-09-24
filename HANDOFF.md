@@ -93,8 +93,11 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   shards. Six sounds in `Resources/Audio/Forge*.wav`, generated with Mirelo (Higgsfield), trimmed to the hit and
   normalised; nobody has listened to them on a device yet. `-fxdemo Success|Nine|LevelLost|LevelKept|Oathbreak`
   plays the moment with a made-up result for screenshots.
-- App icon: the blood-moon Korstone (`client/Assets/Orsuun/Art/AppIcon.png`, applied by `ProjectSetup.EnsureAppIcon`);
-  the other three options are in `docs/concept/app-icon-*.jpg`. Android uses it as a legacy icon, no adaptive layers yet.
+- App icon: owner's pick 24 Sep 2026 is "Shatter", the Korstone bursting apart in white-gold light
+  (`client/Assets/Orsuun/Art/AppIcon.png`, applied by `ProjectSetup.EnsureAppIcon`; source
+  `docs/concept/app-icon-v2-shatter.jpg`). Keep the other options: the first blood-moon icon and three more in
+  `docs/concept/app-icon-*.jpg`, ten Korstone palettes in `app-icon-v2-*.jpg` (sheet: `app-icon-v2-options.jpg`).
+  Android uses it as a legacy icon, no adaptive layers yet.
 - UI colour pass in direction B: dusk-indigo panels, bronze rims, Philosopher Bold for buttons and headings, Cinzel for
   screen titles (both SIL OFL, licences next to the fonts), currency icons on the top bar, item names in the glow colours.
 
