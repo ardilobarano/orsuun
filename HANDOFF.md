@@ -280,6 +280,21 @@ picture on the Forge, shard art); guild war and fortress bids; password reset by
   while playing flashes GOAL MET with the level-up sound. Assumption (not stated by the owner): guidance only, no
   rewards; a reward per goal would need the server to count them.
 
+- The rest of the mockup look (`docs/concept/screens/mockup-*.jpg`). Hunt: FORGE / GEAR / SHARDS / PUSH are square
+  lacquer tiles with big icons (`Ui.Tile`), skills stand in a framed panel with AUTO lamps, the hero plate shows the
+  weapon in a gold slot, the bottom bar is six framed tiles (`Ui.SlotTile`), the loot log floats over the lane.
+  Forge: framed slot row (the piece on the anvil lit gold), a big picture of the piece (`ItemPreview`: an offscreen
+  camera at y = -400 renders the real weapon or armour look for its band, glowing by its level; the Vanguard's glaive
+  lies across it, other classes show their whole model with only that piece glowing; stat-only slots show their
+  painted icon), a name plate, an ETCHINGS card with tier colours, the attempt in a pill, method tiles with icons.
+  Korshards (`SocketPanel`, rebuilt): the piece in a card with its sockets as gem slots, SHARDS rows per rank with
+  painted gems (`Icons/Shard<Rank>.png`, sheet `docs/concept/icons/korshards-ranks.png`, GPT Image 2.5 on Higgsfield
+  with a transparent background, cut by `tools/ui/cut_icons.py`), a trait picker and one SET / CLEAR button; `-shards`
+  opens it. Gear: a big framed picture in the detail card. Zones: a scrolling list of big cards with HUNT HERE /
+  HUNTING NOW / LOCKED (the Gorak War Camp row was missing before: 9 rows for 10 entries). War: three Banner columns
+  lacquered in their colours with big flags, three tall fortress tiles with their paintings. Turning helper: slot
+  tiles with rarity glow, the piece's picture, the goals in a card with numbered rings and red X buttons.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in

@@ -46,6 +46,9 @@ namespace Orsuun.Client
         private Text _closeLabel;
         private Button[] _slotButtons;
         private Text[] _slotLabels;
+        private Image[] _slotTiles;
+        private RawImage[] _slotIcons;
+        private ItemPreview _preview;
 
         private static readonly string[] SlotNames = { "WEAPON", "ARMOR", "HELM", "SHIELD", "BRACER", "NECK", "EARS", "BOOTS" };
 
@@ -54,6 +57,16 @@ namespace Orsuun.Client
         public bool Busy { get; private set; }
         public bool IsOpen => _canvas.activeSelf;
         public ForgeResult? LastResult { get; private set; }
+
+        /// <summary>Etching tier colours, T1 to T5: grey, green, blue, violet, gold.</summary>
+        public static Color TierColor(int tier) => tier switch
+        {
+            1 => new Color(0.78f, 0.76f, 0.72f),
+            2 => new Color(0.5f, 0.86f, 0.48f),
+            3 => new Color(0.45f, 0.7f, 1f),
+            4 => new Color(0.78f, 0.55f, 1f),
+            _ => new Color(1f, 0.8f, 0.32f),
+        };
 
         /// <summary>Item-name colour by upgrade level, the same steps as the glow: +7 pale gold, +8 gold, +9 ember-gold.</summary>
         public static Color LevelColor(int level) =>
@@ -67,57 +80,91 @@ namespace Orsuun.Client
             transform.SetParent(canvas, false);
 
             Ui.Backdrop(canvas, "Forge");
-            Ui.Title("Title", canvas, 0.05f, 0.93f, 0.95f, 0.975f, "THE FORGE  ·  Forgemaster Dorun", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
+            Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.978f, "THE FORGE  ·  Forgemaster Dorun", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
 
-            // What goes on the anvil: one button per equipment slot, empty slots disabled.
+            // What goes on the anvil: one framed slot per equipment slot (forge mockup), empty slots disabled.
             _slotButtons = new Button[SlotNames.Length];
             _slotLabels = new Text[SlotNames.Length];
+            _slotTiles = new Image[SlotNames.Length];
+            _slotIcons = new RawImage[SlotNames.Length];
             for (int i = 0; i < SlotNames.Length; i++)
             {
                 EquipSlot slot = (EquipSlot)i;
-                float x0 = 0.02f + i * 0.12f;
-                _slotButtons[i] = Ui.Button("Slot" + i, canvas, x0, 0.855f, x0 + 0.115f, 0.925f, "", 18, Palette.PanelDark, () => PutOnAnvil(slot), out _slotLabels[i]);
-                Ui.Icon("Icon", _slotButtons[i].transform, 0.12f, 0.30f, 0.88f, 0.98f, slot.ToString());
-                RectTransform label = _slotLabels[i].rectTransform;
-                label.anchorMin = new Vector2(0f, 0f); label.anchorMax = new Vector2(1f, 0.32f);
+                float x0 = 0.025f + i * 0.119f;
+                _slotTiles[i] = Ui.SlotTile("SlotTile" + i, canvas, x0, 0.862f, x0 + 0.112f, 0.93f, Palette.PanelDark);
+                Image hit = Ui.Panel("Slot" + i, canvas, x0, 0.862f, x0 + 0.112f, 0.93f, Color.clear);
+                _slotButtons[i] = hit.gameObject.AddComponent<Button>();
+                _slotButtons[i].targetGraphic = _slotTiles[i];
+                _slotButtons[i].onClick.AddListener(() => PutOnAnvil(slot));
+                hit.gameObject.AddComponent<Press>();
+                _slotIcons[i] = Ui.Icon("Icon", hit.transform, 0.14f, 0.26f, 0.86f, 0.9f, slot.ToString());
+                _slotLabels[i] = Ui.Title("Level", hit.transform, 0.1f, 0.02f, 0.92f, 0.34f, "", 20, TextAnchor.MiddleRight, Palette.Parchment);
             }
 
-            _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.795f, 0.95f, 0.85f, "", 56, TextAnchor.MiddleCenter, Palette.Parchment);
-            _stats = Ui.Label("Stats", canvas, 0.05f, 0.765f, 0.95f, 0.81f, "", 30, TextAnchor.MiddleCenter, Palette.Muted);
+            // The piece itself, big: its real look turning in the forge light (ItemPreview), or its painted icon.
+            Image stage = Ui.Framed("PreviewCard", canvas, 0.04f, 0.668f, 0.96f, 0.855f, new Color(0.05f, 0.045f, 0.09f, 0.95f));
+            RectTransform previewBox = Ui.Rect("PreviewBox", stage.transform, 0.018f, 0.05f, 0.982f, 0.95f);
+            _preview = new GameObject("ItemPreview").AddComponent<ItemPreview>();
+            _preview.Init(previewBox);
+            _preview.gameObject.SetActive(false);
 
-            // Etchings: each line is tappable to pin or unpin it (Pinning Wax); ETCH adds the next one (Etching Needle).
-            Ui.Framed("EtchingsBack", canvas, 0.06f, 0.575f, 0.74f, 0.755f, Palette.PanelDark);
-            _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.58f, 0.73f, 0.75f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Framed("NamePlate", canvas, 0.1f, 0.606f, 0.9f, 0.664f, new Color(0.07f, 0.08f, 0.16f, 0.96f));
+            _weapon = Ui.Title("Weapon", canvas, 0.13f, 0.629f, 0.87f, 0.66f, "", 40, TextAnchor.MiddleCenter, Palette.Parchment);
+            _stats = Ui.Label("Stats", canvas, 0.13f, 0.609f, 0.87f, 0.631f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
+
+            // Etchings in their own card: each line is tappable to pin or unpin it (Pinning Wax); ETCH adds the next one
+            // (Etching Needle).
+            Ui.Framed("EtchingsBack", canvas, 0.04f, 0.404f, 0.96f, 0.6f, new Color(0.06f, 0.06f, 0.12f, 0.93f));
+            Ui.Sliced("EtchRuleL", canvas, 0.07f, 0.573f, 0.33f, 0.585f, "Rule", Color.white).raycastTarget = false;
+            Ui.Title("EtchingsHead", canvas, 0.33f, 0.562f, 0.67f, 0.596f, "ETCHINGS", 28, TextAnchor.MiddleCenter, Palette.Sorn);
+            Ui.Sliced("EtchRuleR", canvas, 0.67f, 0.573f, 0.93f, 0.585f, "Rule", Color.white).raycastTarget = false;
+            _etchings = Ui.Label("Etchings", canvas, 0.08f, 0.42f, 0.76f, 0.555f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
             for (int i = 0; i < _etchRows.Length; i++)
             {
                 int index = i;
-                float y1 = 0.752f - i * 0.0352f;
-                _etchRows[i] = Ui.Button("Etch" + i, canvas, 0.065f, y1 - 0.034f, 0.735f, y1, "", 24, Palette.PanelDark, () => AskPin(index), out _etchRowLabels[i]);
-                _etchRowLabels[i].alignment = TextAnchor.MiddleLeft;
-                _etchRowLabels[i].font = Ui.Font;
-                _etchRowLabels[i].fontStyle = FontStyle.Normal;
+                float y1 = 0.557f - i * 0.0298f;
+                Image row = Ui.Sliced("Etch" + i, canvas, 0.065f, y1 - 0.027f, 0.765f, y1, "CardFill", new Color(0.11f, 0.11f, 0.19f, 0.95f));
+                _etchRows[i] = row.gameObject.AddComponent<Button>();
+                _etchRows[i].targetGraphic = row;
+                _etchRows[i].onClick.AddListener(() => AskPin(index));
+                row.gameObject.AddComponent<Press>();
+                _etchRowLabels[i] = Ui.Label("Label", row.transform, 0.04f, 0.05f, 0.97f, 0.95f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
+                _etchRowLabels[i].supportRichText = true;
             }
-            _etchButton = Ui.Button("EtchAdd", canvas, 0.75f, 0.575f, 0.94f, 0.755f, "", 22, Palette.Alloy, AskEtch, out _etchLabel);
+            _etchButton = Ui.Button("EtchAdd", canvas, 0.78f, 0.414f, 0.945f, 0.557f, "", 22, Palette.Alloy, AskEtch, out _etchLabel);
 
-            // Turnstones: one turn here; the turning helper keeps turning until up to five chosen etchings are there.
-            _turnButton = Ui.Button("Turn", canvas, 0.06f, 0.48f, 0.34f, 0.57f, "", 26, Palette.ButtonIdle, Turn, out _turnLabel);
-            Ui.Button("TurnHelper", canvas, 0.36f, 0.48f, 0.94f, 0.57f, "TURNING HELPER\npick up to 5 etchings", 28, Palette.Alloy,
-                () => { if (!Busy) _root.TurnHelper.Open(); }, out _);
+            // The attempt in a framed pill, under the anvil sign.
+            Ui.Framed("AttemptBack", canvas, 0.04f, 0.352f, 0.96f, 0.398f, new Color(0.07f, 0.07f, 0.14f, 0.95f));
+            RectTransform anvil = Ui.Rect("AttemptIconBox", canvas, 0.06f, 0.356f, 0.13f, 0.394f);
+            Ui.Icon("AttemptIcon", anvil, 0f, 0f, 1f, 1f, "NavForge");
+            _attemptInfo = Ui.Label("AttemptInfo", canvas, 0.14f, 0.354f, 0.94f, 0.396f, "", 28, TextAnchor.MiddleCenter, Palette.Parchment);
+            _attemptInfo.supportRichText = true;
 
-            _attemptInfo = Ui.Label("AttemptInfo", canvas, 0.05f, 0.385f, 0.95f, 0.465f, "", 32, TextAnchor.MiddleCenter, Palette.Parchment);
-
+            // The three ways to strike, as tiles with their own icons.
             Color[] colors = { Palette.Danger, Palette.Safe, Palette.Alloy };
+            string[] icons = { "NavForge", "ScrollOfMercy", "KhansAlloy" };
             _methodButtons = new Button[Methods.Length];
             _methodLabels = new Text[Methods.Length];
             for (int i = 0; i < Methods.Length; i++)
             {
                 ForgeMethod method = Methods[i];
                 float x0 = 0.04f + i * 0.31f;
-                _methodButtons[i] = Ui.Button("Method" + i, canvas, x0, 0.25f, x0 + 0.30f, 0.375f, "", 28, colors[i],
+                _methodButtons[i] = Ui.Tile("Method" + i, canvas, x0, 0.243f, x0 + 0.30f, 0.345f, "", 24, colors[i], icons[i],
                     () => StartAttempt(method), out _methodLabels[i]);
+                RectTransform label = _methodLabels[i].rectTransform;
+                label.anchorMin = new Vector2(0.06f, 0.08f);
+                label.anchorMax = new Vector2(0.94f, 0.46f);
+                RectTransform icon = (RectTransform)_methodButtons[i].transform.Find("IconBox");
+                icon.anchorMin = new Vector2(0.3f, 0.46f);
+                icon.anchorMax = new Vector2(0.7f, 0.92f);
             }
 
-            _result = Ui.Label("Result", canvas, 0.04f, 0.09f, 0.96f, 0.235f, "", 52, TextAnchor.MiddleCenter, Palette.Parchment);
+            // Turnstones: one turn here; the turning helper keeps turning until up to five chosen etchings are there.
+            _turnButton = Ui.IconButton("Turn", canvas, 0.06f, 0.183f, 0.37f, 0.236f, "", 24, Palette.ButtonIdle, "Turnstone", Turn, out _turnLabel);
+            Ui.IconButton("TurnHelper", canvas, 0.39f, 0.183f, 0.94f, 0.236f, "TURNING HELPER", 26, Palette.Alloy, "EtchingNeedle",
+                () => { if (!Busy) _root.TurnHelper.Open(); }, out _);
+
+            _result = Ui.Label("Result", canvas, 0.04f, 0.083f, 0.96f, 0.178f, "", 48, TextAnchor.MiddleCenter, Palette.Parchment);
             _closeButton = Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _closeLabel);
 
             _canvas.SetActive(false);
@@ -135,11 +182,28 @@ namespace Orsuun.Client
             _result.text = "";
             _closeLabel.text = fromGear ? "BACK TO GEAR" : "BACK TO THE HUNT";
             _canvas.SetActive(true);
+            _preview.gameObject.SetActive(true);
         }
 
         public void Close()
         {
-            if (!Busy) _canvas.SetActive(false);
+            if (Busy) return;
+            _canvas.SetActive(false);
+            _preview.gameObject.SetActive(false);
+        }
+
+        /// <summary>The screen area (canvas anchors) covering the named Forge elements, for the tutorial's highlight.</summary>
+        public Rect Area(params string[] names)
+        {
+            Vector2 min = Vector2.one, max = Vector2.zero;
+            foreach (string n in names)
+            {
+                var rect = (RectTransform)_canvas.transform.Find(n);
+                if (rect == null) continue;
+                min = Vector2.Min(min, rect.anchorMin);
+                max = Vector2.Max(max, rect.anchorMax);
+            }
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
 
         private void PutOnAnvil(EquipSlot slot)
@@ -376,12 +440,14 @@ namespace Orsuun.Client
             for (int i = 0; i < _slotButtons.Length; i++)
             {
                 ItemState piece = session.Equipped((EquipSlot)i);
-                _slotLabels[i].text = piece == null ? "-" : "+" + piece.UpgradeLevel;
+                _slotLabels[i].text = piece == null ? "" : "+" + piece.UpgradeLevel;
                 _slotLabels[i].color = piece == null ? Palette.Muted : LevelColor(piece.UpgradeLevel);
                 _slotButtons[i].interactable = piece != null && !Busy;
                 bool onAnvil = session.AnvilWorn && (EquipSlot)i == session.AnvilSlot;
-                _slotButtons[i].GetComponent<Image>().color = onAnvil ? Palette.Warn * 0.55f : Palette.PanelDark;
+                _slotTiles[i].color = onAnvil ? new Color(0.85f, 0.62f, 0.2f) : piece == null ? new Color(0.06f, 0.06f, 0.09f) : Palette.PanelDark;
+                _slotIcons[i].color = piece == null ? new Color(1f, 1f, 1f, 0.22f) : Color.white;
             }
+            _preview.Show(weapon, session.Class);
 
             _weapon.text = $"{weapon.DisplayName} +{weapon.UpgradeLevel}";
             _weapon.color = LevelColor(weapon.UpgradeLevel);
@@ -399,7 +465,7 @@ namespace Orsuun.Client
                 if (!has) continue;
                 Etching e = weapon.Etchings[i];
                 bool pinned = weapon.LockedEtchingIndex == i;
-                _etchRowLabels[i].text = $"T{e.Tier}   {session.Pool.Entries[e.EntryId].Name}  +{e.Value}" + (pinned ? "   ◆ PINNED" : "");
+                _etchRowLabels[i].text = ConfirmDialog.Tint("T" + e.Tier, TierColor(e.Tier)) + $"   {session.Pool.Entries[e.EntryId].Name}  +{e.Value}" + (pinned ? "   ◆ PINNED" : "");
                 _etchRowLabels[i].color = pinned ? Palette.Sorn : Palette.Parchment;
                 _etchRows[i].interactable = !Busy;
             }
@@ -407,7 +473,7 @@ namespace Orsuun.Client
             _etchLabel.text = weapon.Etchings.Count >= ItemState.MaxEtchings - 1 ? $"ETCH\n<size=16>5th needs a\nMaster's Needle</size>"
                 : $"ETCH\n<size=16>{etchChance}% chance\n{inv.EtchingNeedles} needles\n{inv.PinningWax} wax</size>";
             _etchButton.interactable = !Busy && EtchingActions.EtchBlocker(weapon, inv) == null;
-            _turnLabel.text = $"TURN x1\n(have {inv.Turnstones})";
+            _turnLabel.text = $"TURN  <size=18>({inv.Turnstones})</size>";
             _turnButton.interactable = !Busy;
 
             bool maxed = weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel;
@@ -420,13 +486,13 @@ namespace Orsuun.Client
                 int target = weapon.UpgradeLevel + 1;
                 string patience = weapon.PatienceBp > 0 ? $"  (includes +{weapon.PatienceBp / 100}% Forgemaster's Patience)" : "";
                 string materials = session.ForgeMaterials > 0 ? $"  ·  {session.ForgeMaterials} {session.Lane.Stage.MaterialName}" : "";
-                _attemptInfo.text = $"Attempt +{target}:  {session.ForgeChanceBp(ForgeMethod.ForgeAlone) / 100}% success{patience}\nCost {session.ForgeCost:N0} sorn{materials}";
+                _attemptInfo.text = $"Attempt +{target}:  {ConfirmDialog.Tint(session.ForgeChanceBp(ForgeMethod.ForgeAlone) / 100 + "%", Palette.Good)} success{patience}  ·  Cost {session.ForgeCost:N0} sorn{materials}";
             }
 
             bool breaks = weapon.UpgradeLevel + 1 >= ForgeRules.FirstOathbreakTarget;
-            _methodLabels[0].text = "FORGE ALONE\n" + (breaks ? "fail: OATHBREAK" : "fail: -1 level");
-            _methodLabels[1].text = $"SCROLL OF MERCY ({inv.ScrollsOfMercy})\nfail: -1 level";
-            _methodLabels[2].text = $"KHAN'S ALLOY ({inv.KhansAlloys})\n+10%, fail: -1 level";
+            _methodLabels[0].text = "FORGE ALONE\n<size=17>" + (breaks ? "fail: OATHBREAK" : "fail: -1 level") + "</size>";
+            _methodLabels[1].text = $"SCROLL OF MERCY ({inv.ScrollsOfMercy})\n<size=17>fail: -1 level</size>";
+            _methodLabels[2].text = $"KHAN'S ALLOY ({inv.KhansAlloys})\n<size=17>+10%, fail: -1 level</size>";
             for (int i = 0; i < _methodButtons.Length; i++) _methodButtons[i].interactable = !Busy && !maxed;
             _closeButton.interactable = !Busy;
         }

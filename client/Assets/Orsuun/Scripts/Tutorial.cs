@@ -117,11 +117,11 @@ namespace Orsuun.Client
                 new Step { Title = "THE FORGE", Text = "The Forge raises your gear's level and its power. Tap FORGE.",
                            Frame = () => _root.Hud.Area("Forge"), BoxY = BoxOverLane, Done = () => _root.Forge.IsOpen, AllowNext = false },
                 new Step { Title = "FIRST STRIKE", Text = "Every try shows its chance and cost and asks first. Up to +3 a failure costs a level; from +4 a failed FORGE ALONE destroys the piece, and a Scroll of Mercy keeps it safe. Try once.",
-                           Frame = () => Fixed(0.04f, 0.25f, 0.97f, 0.375f), BoxY = 0.56f, OnForge = true,
+                           Frame = () => _root.Forge.Area("AttemptBack", "Method0", "Method2"), BoxY = 0.56f, OnForge = true,
                            // Done after one attempt, or when the Forge is closed without one (the next step then passes too).
                            Done = () => { _sawForgeBusy |= _root.Forge.Busy; return (_sawForgeBusy && !_root.Forge.Busy) || !_root.Forge.IsOpen; } },
                 new Step { Title = "WELL STRUCK", Text = "Win or lose, the Forge is always there. Tap BACK TO THE HUNT.",
-                           Frame = () => Fixed(0.25f, 0.015f, 0.75f, 0.075f), BoxY = 0.56f, OnForge = true,
+                           Frame = () => _root.Forge.Area("Close"), BoxY = 0.56f, OnForge = true,
                            Done = () => !_root.Forge.IsOpen, AllowNext = false },
                 new Step { Title = "GEAR", Text = "New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.",
                            Frame = () => _root.Hud.Area("Gear"), BoxY = BoxOverLane },

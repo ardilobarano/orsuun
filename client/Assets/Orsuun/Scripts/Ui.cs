@@ -193,6 +193,14 @@ namespace Orsuun.Client
             return image;
         }
 
+        /// <summary>Points an Icon at another Resources/Icons texture (loads only when it changes).</summary>
+        public static void SetIcon(RawImage image, string icon)
+        {
+            if (image.texture != null && image.texture.name == icon) return;
+            image.texture = Resources.Load<Texture2D>("Icons/" + icon);
+            image.enabled = image.texture != null;
+        }
+
         /// <summary>A one-line text field (the phone's keyboard opens on tap) with a muted placeholder.</summary>
         public static InputField Input(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
             string placeholder, int size, int limit)
@@ -275,6 +283,31 @@ namespace Orsuun.Client
             RectTransform text = labelText.rectTransform;
             text.anchorMin = new Vector2(0.3f, text.anchorMin.y);
             return button;
+        }
+
+        /// <summary>
+        /// A square-ish action tile from the hunt mockup (FORGE, GEAR, SHARDS, PUSH): the tinted lacquer plate under its
+        /// gold frame, a big painted icon on top and the label under it.
+        /// </summary>
+        public static Button Tile(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
+            string label, int size, Color background, string icon, Action onClick, out Text labelText)
+        {
+            Button button = Button(name, parent, xMin, yMin, xMax, yMax, label, size, background, onClick, out labelText);
+            RectTransform box = Rect("IconBox", button.transform, 0.2f, 0.36f, 0.8f, 0.9f);
+            Icon("Icon", box, 0f, 0f, 1f, 1f, icon);
+            RectTransform text = labelText.rectTransform;
+            text.anchorMin = new Vector2(0.08f, 0.1f);
+            text.anchorMax = new Vector2(0.92f, 0.4f);
+            return button;
+        }
+
+        /// <summary>A dark tile under the gold slot frame: the bottom bar's buttons and other framed cells stand on it.</summary>
+        public static Image SlotTile(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, Color fill)
+        {
+            Image tile = Sliced(name, parent, xMin, yMin, xMax, yMax, "CardFill", fill);
+            tile.raycastTarget = false;
+            Sliced("Rim", tile.transform, 0f, 0f, 1f, 1f, "SlotRim", Color.white).raycastTarget = false;
+            return tile;
         }
 
         /// <summary>

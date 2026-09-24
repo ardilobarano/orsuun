@@ -130,9 +130,10 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-war") >= 0) War.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-bounties") >= 0) Bounties.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-guild") >= 0) Guild.Open();
-            // -chat, -market (-sell, -mylistings) and -account open those screens for screenshots.
+            // -chat, -zones, -shards, -market (-sell, -mylistings) and -account open those screens for screenshots.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-chat") >= 0) Chat.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-zones") >= 0) Zones.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-shards") >= 0) Sockets.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-market") >= 0) Market.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-account") >= 0) _accountAsked = true;
             // -turnhelper [pick|add|demo|run] opens the turning helper over the Forge (with the etching list or the piece

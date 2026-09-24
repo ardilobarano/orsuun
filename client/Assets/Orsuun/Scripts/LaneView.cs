@@ -325,7 +325,7 @@ namespace Orsuun.Client
             return true;
         }
 
-        private static GameObject LoadLook(string lookId, out string used)
+        internal static GameObject LoadLook(string lookId, out string used)
         {
             used = lookId;
             var model = Resources.Load<GameObject>("Models/Looks/" + lookId);
@@ -361,7 +361,7 @@ namespace Orsuun.Client
         }
 
         /// <summary>Vanguard_Weapon -> EquipSlot.Weapon, Vanguard_Armor -> EquipSlot.Armor; anything else has no slot.</summary>
-        private static int SlotOf(string partName)
+        internal static int SlotOf(string partName)
         {
             int dot = partName.IndexOf('.');
             if (dot >= 0) partName = partName.Substring(0, dot);   // Blender's "Vanguard_Armor.001"
@@ -693,7 +693,7 @@ namespace Orsuun.Client
         }
 
         /// <summary>The class model for a band, or the nearest band drawn so far.</summary>
-        private static string ClassLookName(HeroClass cls, int band)
+        internal static string ClassLookName(HeroClass cls, int band)
         {
             for (int step = 0; step <= ItemLooks.MaxTier; step++)
                 foreach (int t in new[] { band - step, band + step })

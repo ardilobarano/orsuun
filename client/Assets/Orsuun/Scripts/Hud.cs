@@ -38,6 +38,7 @@ namespace Orsuun.Client
         private string[] _skillShown;
         private Image[] _navBadges;
         private Text[] _autoLabels;
+        private Image[] _autoLamps;
         private float _logAge;
         private Net.ServerLink.SettlementDto _shownSettlement;
         private Image _goalPlate;
@@ -123,13 +124,18 @@ namespace Orsuun.Client
             // The command deck under the lane.
             Ui.Sliced("BottomPanel", canvas, 0f, 0f, 1f, GameRoot.LaneViewportBottom, "Backdrop", Color.white).raycastTarget = false;
             Ui.Sliced("BottomTrim", canvas, 0f, GameRoot.LaneViewportBottom - 0.012f, 1f, GameRoot.LaneViewportBottom + 0.002f, "TopBar", Color.white).raycastTarget = false;
-            Image plate = Ui.Framed("HeroPlate", canvas, 0.03f, 0.382f, 0.97f, 0.438f, new Color(0.13f, 0.12f, 0.2f));
-            RectTransform weaponBox = Ui.Rect("WeaponIconBox", plate.transform, 0.01f, 0.08f, 0.1f, 0.92f);
+            // The hero plate (hunt mockup): the weapon in a gold slot on the left, its name and the hero's numbers beside it.
+            Image plate = Ui.Framed("HeroPlate", canvas, 0.03f, 0.386f, 0.97f, 0.444f, new Color(0.13f, 0.12f, 0.2f));
+            Ui.SlotTile("WeaponSlot", plate.transform, 0.012f, 0.06f, 0.16f, 0.94f, new Color(0.08f, 0.08f, 0.14f));
+            RectTransform weaponBox = Ui.Rect("WeaponIconBox", plate.transform, 0.025f, 0.12f, 0.147f, 0.88f);
             Ui.Icon("WeaponIcon", weaponBox, 0f, 0f, 1f, 1f, "Weapon");
-            _weapon = Ui.Title("Weapon", plate.transform, 0.11f, 0.05f, 0.98f, 0.95f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
-            _log = Ui.Title("Log", canvas, 0.04f, 0.345f, 0.96f, 0.378f, "", 24, TextAnchor.MiddleCenter, Palette.Sorn);
+            _weapon = Ui.Title("Weapon", plate.transform, 0.18f, 0.05f, 0.98f, 0.95f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
+            // Loot and news float over the ground of the lane, above the chat line.
+            _log = Ui.Title("Log", canvas, 0.04f, 0.528f, 0.96f, 0.562f, "", 26, TextAnchor.MiddleCenter, Palette.Sorn);
 
-            // Skills: round, with a painted icon, a cooldown sweep and the seconds left; their name and AUTO switch below.
+            // Skills stand in a framed panel: round, with a painted icon, a cooldown sweep and the seconds left; their name
+            // and AUTO switch (a lamp that glows green while on) below.
+            Ui.Framed("SkillPanel", canvas, 0.02f, 0.169f, 0.98f, 0.381f, new Color(0.07f, 0.07f, 0.12f, 0.85f)).raycastTarget = false;
             int count = root.Session.Lane.Skills.Length;
             _skillButtons = new Button[count];
             _skillLabels = new Text[count];
@@ -139,30 +145,41 @@ namespace Orsuun.Client
             _skillShown = new string[count];
             _autoImages = new Image[count];
             _autoLabels = new Text[count];
+            _autoLamps = new Image[count];
             for (int i = 0; i < count; i++)
             {
                 int index = i;
                 float cx = 0.2f + i * 0.3f;
-                _skillButtons[i] = Ui.RoundButton("Skill" + i, canvas, cx - 0.12f, 0.2f, cx + 0.12f, 0.338f, "", new Color(0.2f, 0.2f, 0.3f),
+                _skillButtons[i] = Ui.RoundButton("Skill" + i, canvas, cx - 0.12f, 0.236f, cx + 0.12f, 0.374f, "", new Color(0.2f, 0.2f, 0.3f),
                     () => { if (!_root.Replaying) _root.Session.Cast(index); }, out _skillSweeps[i], out _skillLabels[i]);
                 _skillArt[i] = _skillButtons[i].transform.Find("Art").GetComponent<RawImage>();
-                _skillNames[i] = Ui.Title("SkillName" + i, canvas, cx - 0.15f, 0.176f, cx + 0.15f, 0.2f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
-                Button auto = Ui.Button("Auto" + i, canvas, cx - 0.1f, 0.142f, cx + 0.1f, 0.174f, "", 18,
+                _skillNames[i] = Ui.Title("SkillName" + i, canvas, cx - 0.15f, 0.212f, cx + 0.15f, 0.236f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
+                Button auto = Ui.Button("Auto" + i, canvas, cx - 0.11f, 0.177f, cx + 0.11f, 0.21f, "", 18,
                     Palette.ButtonIdle, () => _root.Session.ToggleAutoCast(index), out _autoLabels[i]);
                 _autoImages[i] = auto.GetComponent<Image>();
+                RectTransform lampBox = Ui.Rect("LampBox", auto.transform, 0.1f, 0.22f, 0.24f, 0.78f);
+                _autoLamps[i] = Ui.Sliced("Lamp", lampBox, 0f, 0f, 1f, 1f, "Badge", Color.white);
+                _autoLamps[i].raycastTarget = false;
+                var lampFit = _autoLamps[i].gameObject.AddComponent<AspectRatioFitter>();
+                lampFit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+                lampFit.aspectRatio = 1f;
+                RectTransform autoText = _autoLabels[i].rectTransform;
+                autoText.anchorMin = new Vector2(0.26f, autoText.anchorMin.y);
             }
 
-            Ui.IconButton("Forge", canvas, 0.03f, 0.078f, 0.265f, 0.136f, "FORGE", 26, Palette.ButtonForge, "NavForge", () => root.Forge.Open(), out _);
-            Ui.IconButton("Gear", canvas, 0.27f, 0.078f, 0.5f, 0.136f, "GEAR", 26, Palette.ButtonIdle, "NavGear", () => root.Gear.Open(), out _);
-            Ui.IconButton("Shards", canvas, 0.505f, 0.078f, 0.735f, 0.136f, "SHARDS", 24, Palette.Alloy, "NavShards", () => root.Sockets.Open(), out _);
-            // A push goal tapped on the goal line lights the PUSH button for a moment.
-            _pushGlow = Ui.Sliced("PushGlow", canvas, 0.71f, 0.05f, 1f, 0.164f, "Glow", Palette.Sorn);
+            // The four actions as square lacquer tiles with big painted icons (hunt mockup).
+            Ui.Tile("Forge", canvas, 0.025f, 0.077f, 0.25f, 0.164f, "FORGE", 26, Palette.ButtonForge, "NavForge", () => root.Forge.Open(), out _);
+            Ui.Tile("Gear", canvas, 0.265f, 0.077f, 0.49f, 0.164f, "GEAR", 26, new Color(0.2f, 0.3f, 0.55f), "NavGear", () => root.Gear.Open(), out _);
+            Ui.Tile("Shards", canvas, 0.505f, 0.077f, 0.73f, 0.164f, "SHARDS", 26, Palette.Alloy, "NavShards", () => root.Sockets.Open(), out _);
+            // A push goal tapped on the goal line lights the PUSH tile for a moment.
+            _pushGlow = Ui.Sliced("PushGlow", canvas, 0.71f, 0.05f, 1f, 0.19f, "Glow", Palette.Sorn);
             _pushGlow.raycastTarget = false;
             _pushGlow.color = Color.clear;
-            _pushButton = Ui.IconButton("Push", canvas, 0.74f, 0.078f, 0.97f, 0.136f, "", 20, Palette.Danger, "NavPush", root.Push, out _pushLabel);
+            _pushButton = Ui.Tile("Push", canvas, 0.745f, 0.077f, 0.97f, 0.164f, "", 22, Palette.Danger, "NavPush", root.Push, out _pushLabel);
 
             // Bottom bar (24 Sep 2026): the War of Banners, the bounty board, the guild and the Salt Exchange joined; SOUND
-            // and SPEED moved into the MENU. Painted icons over small labels; a red badge marks something waiting.
+            // and SPEED moved into the MENU. Each is a framed tile with a painted icon over its label; a red badge marks
+            // something waiting.
             Ui.Sliced("NavBar", canvas, 0f, 0f, 1f, 0.072f, "NavBar", Color.white);
             string[] icons = { "Zones", "War", "Bounties", "Guild", "Trade", "Menu" };
             string[] labels = { "ZONES", "WAR", "BOUNTIES", "GUILD", "TRADE", "MENU" };
@@ -171,8 +188,10 @@ namespace Orsuun.Client
             _navBadges = new Image[icons.Length];
             for (int i = 0; i < icons.Length; i++)
             {
-                float x0 = 0.01f + i * (0.98f / icons.Length);
-                Ui.NavButton(icons[i], canvas, x0 + 0.01f, 0.004f, x0 + 0.98f / icons.Length - 0.01f, 0.068f, icons[i], labels[i], actions[i],
+                float x0 = 0.005f + i * (0.99f / icons.Length);
+                float x1 = x0 + 0.99f / icons.Length;
+                Ui.SlotTile("NavTile" + icons[i], canvas, x0 + 0.003f, 0.004f, x1 - 0.003f, 0.07f, new Color(0.09f, 0.09f, 0.16f));
+                Ui.NavButton(icons[i], canvas, x0 + 0.012f, 0.008f, x1 - 0.012f, 0.066f, icons[i], labels[i], actions[i],
                     out Text label, out _navBadges[i]);
                 if (i == 0) _stageLabel = label;
                 if (i == 2) _bountyLabel = label;
@@ -296,6 +315,7 @@ namespace Orsuun.Client
                 _skillLabels[i].text = ticksLeft == 0 ? "" : $"{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}";
                 _autoLabels[i].text = lane.AutoCast[i] ? "AUTO ON" : "AUTO OFF";
                 _autoImages[i].color = lane.AutoCast[i] ? Palette.Safe : Palette.ButtonIdle;
+                _autoLamps[i].color = lane.AutoCast[i] ? new Color(0.45f, 1f, 0.4f) : new Color(0.35f, 0.33f, 0.36f);
             }
 
             bool allCleared = session.HighestStageCleared >= Content.TotalStages;

@@ -12,15 +12,18 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class ZonePanel : MonoBehaviour
     {
-        private const int ZoneRows = 9;
+        /// <summary>The campaign's farm spot and every zone in Content.Zones.</summary>
+        private static readonly int ZoneRows = 1 + Content.Zones.Length;
         private const int BossRows = 3;
 
         private sealed class Row
         {
             public Image Back;
             public RawImage Picture;
+            public Text Name;
             public Text Label;
             public Button Button;
+            public Image ButtonImage;
             public Text ButtonLabel;
             public int Id;
         }
@@ -28,7 +31,7 @@ namespace Orsuun.Client
         private GameRoot _root;
         private GameObject _canvas;
         private Text _message;
-        private readonly Row[] _zoneRows = new Row[ZoneRows];
+        private Row[] _zoneRows;
         private readonly Row[] _bossRows = new Row[BossRows];
 
         public bool IsOpen => _canvas.activeSelf;
@@ -42,19 +45,28 @@ namespace Orsuun.Client
 
             Ui.Backdrop(canvas, "Zones");
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "WHERE TO HUNT", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
-            Ui.Label("ZonesTitle", canvas, 0.05f, 0.895f, 0.95f, 0.93f, "ZONES  ·  Hunting Grounds pay sorn and levels, Fields pay materials, Commander Grounds pay skins", 20, TextAnchor.MiddleLeft, Palette.Muted);
+            Ui.Label("ZonesTitle", canvas, 0.05f, 0.9f, 0.95f, 0.93f, "Hunting Grounds pay sorn and levels, Fields pay materials, Commander Grounds pay skins", 20, TextAnchor.MiddleCenter, Palette.Muted);
 
+            // Zone cards (zones mockup): the painting, the name, what it is, and HUNT HERE; the list scrolls.
+            Ui.Scroll("ZoneList", canvas, 0.03f, 0.462f, 0.97f, 0.895f, out RectTransform content);
+            _zoneRows = new Row[ZoneRows];
             for (int i = 0; i < ZoneRows; i++)
             {
-                float y1 = 0.89f - i * 0.052f;
-                _zoneRows[i] = MakeRow(canvas, "Zone" + i, y1 - 0.048f, y1, "PARK", Palette.Safe, i, row => _root.Park(_zoneRows[row].Id));
+                RectTransform card = new GameObject("Zone" + i, typeof(RectTransform)).GetComponent<RectTransform>();
+                card.SetParent(content, false);
+                card.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
+                int index = i;
+                _zoneRows[i] = MakeCard(card, "Zone", 1.45f, Palette.Safe, () => _root.Park(_zoneRows[index].Id));
             }
 
-            Ui.Section("BossTitle", canvas, 0.1f, 0.378f, 0.9f, 0.41f, "COMMANDERS", 24);
+            Ui.Section("BossTitle", canvas, 0.1f, 0.418f, 0.9f, 0.455f, "COMMANDERS", 28);
             for (int i = 0; i < BossRows; i++)
             {
-                float y1 = 0.37f - i * 0.075f;
-                _bossRows[i] = MakeRow(canvas, "Boss" + i, y1 - 0.07f, y1, "FIGHT", Palette.Danger, i, row => { _canvas.SetActive(false); _root.FightBoss(_bossRows[row].Id); });
+                float y1 = 0.41f - i * 0.083f;
+                RectTransform card = Ui.Rect("Boss" + i, canvas, 0.03f, y1 - 0.078f, 0.97f, y1);
+                int index = i;
+                _bossRows[i] = MakeCard(card, "Boss", 1f, Palette.Danger, () => { _canvas.SetActive(false); _root.FightBoss(_bossRows[index].Id); });
+                _bossRows[i].ButtonLabel.text = "FIGHT";
             }
 
             Ui.Button("BossesUp", canvas, 0.04f, 0.085f, 0.30f, 0.135f, "DEV: bosses up", 20, Palette.DevGrey, DevBossesUp, out _);
@@ -63,15 +75,25 @@ namespace Orsuun.Client
             _canvas.SetActive(false);
         }
 
-        private Row MakeRow(Transform canvas, string name, float y0, float y1, string action, Color color, int index, System.Action<int> onClick)
+        /// <summary>A card filling <paramref name="card"/>: a framed picture (width = pictureAspect x its height), the name
+        /// and a line under it, and the action button on the right.</summary>
+        private static Row MakeCard(RectTransform card, string name, float pictureAspect, Color color, System.Action onClick)
         {
             var row = new Row();
-            row.Back = Ui.Framed(name + "Back", canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
-            // A painted thumbnail of the zone, or the Commander's portrait, in a gold slot frame at the row's left.
-            float picture = (y1 - y0) * 1920f / 1080f * (action == "FIGHT" ? 1f : 1.3f);
-            row.Picture = Ui.Picture(name + "Picture", canvas, 0.045f, y0 + 0.003f, 0.045f + picture, y1 - 0.003f, null);
-            row.Label = Ui.Label(name + "Label", canvas, 0.06f + picture, y0, 0.73f, y1, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
-            row.Button = Ui.Button(name + "Btn", canvas, 0.76f, y0, 0.96f, y1, action, 22, color, () => onClick(index), out row.ButtonLabel);
+            row.Back = Ui.Framed(name + "Back", card, 0f, 0f, 1f, 1f, new Color(0.06f, 0.06f, 0.12f, 0.93f));
+            // The picture keeps its shape: a fitter sizes its box from the card's height.
+            RectTransform box = Ui.Rect(name + "PictureBox", card, 0.012f, 0.07f, 0.5f, 0.93f);
+            var fit = box.gameObject.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
+            fit.aspectRatio = pictureAspect;
+            box.pivot = new Vector2(0f, 0.5f);
+            row.Picture = Ui.Picture("Picture", box, 0f, 0f, 1f, 1f, null);
+            float textX = pictureAspect > 1.2f ? 0.27f : 0.2f;
+            row.Name = Ui.Title(name + "Name", card, textX, 0.5f, 0.7f, 0.92f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
+            row.Label = Ui.Label(name + "Label", card, textX, 0.06f, 0.7f, 0.52f, "", 20, TextAnchor.UpperLeft, Palette.Muted);
+            row.Label.supportRichText = true;
+            row.Button = Ui.Button(name + "Btn", card, 0.715f, 0.16f, 0.985f, 0.84f, "", 24, color, onClick, out row.ButtonLabel);
+            row.ButtonImage = row.Button.GetComponent<Image>();
             return row;
         }
 
@@ -93,31 +115,34 @@ namespace Orsuun.Client
             PlayerSession session = _root.Session;
 
             // Zones: campaign farm spot first, then every zone in content order.
-            var entries = new List<(int Id, string Text, bool Unlocked)>();
-            entries.Add((session.HighestStageCleared > 0 ? session.HighestStageCleared : 1, $"Campaign  ·  {Content.StageName(session.HighestStageCleared > 0 ? session.HighestStageCleared : 1)}  ·  balanced drops", true));
+            var entries = new List<(int Id, string Name, string Text, bool Unlocked)>();
+            int campaign = session.HighestStageCleared > 0 ? session.HighestStageCleared : 1;
+            entries.Add((campaign, Content.StageName(campaign), $"Campaign  ·  stages 1-{Content.TotalStages}  ·  balanced drops", true));
             foreach (ZoneDef z in Content.Zones)
             {
                 bool unlocked = Content.IsUnlocked(z.Id, session.HighestStageCleared);
                 string kind = z.Type == ZoneType.HuntingGround ? "Hunting Ground" : z.Type == ZoneType.KorstoneField ? "Korstone Field" : "Commander Ground";
-                string flags = (z.Pvp ? "  PvP" : "") + (z.OfflineAllowed ? "" : "  no offline");
-                string text = unlocked ? $"{z.Name}  ·  {kind} T{z.Tier}  ·  Lv {z.LevelMin}-{z.LevelMax}{flags}" : $"{z.Name}  ·  clear campaign stage {z.UnlockStage}";
-                entries.Add((z.Id, text, unlocked));
+                string flags = (z.Pvp ? "  ·  PvP" : "") + (z.OfflineAllowed ? "" : "  ·  no offline");
+                string text = unlocked ? $"{kind} T{z.Tier}  ·  Lv {z.LevelMin}-{z.LevelMax}{flags}" : $"Clear campaign stage {z.UnlockStage} to open";
+                entries.Add((z.Id, z.Name, text, unlocked));
             }
             for (int i = 0; i < ZoneRows; i++)
             {
                 bool has = i < entries.Count;
                 Row row = _zoneRows[i];
-                row.Back.gameObject.SetActive(has);
-                row.Label.gameObject.SetActive(has);
-                row.Button.gameObject.SetActive(has && entries[i].Unlocked);
+                row.Back.transform.parent.gameObject.SetActive(has);
                 if (!has) continue;
-                row.Id = entries[i].Id;
-                Ui.SetPicture(row.Picture, "Thumbs/" + ZoneThumb(entries[i].Id));
-                bool parked = session.ParkedStage == entries[i].Id;
-                row.Label.text = (parked ? "▶ " : "") + entries[i].Text;
-                row.Label.color = entries[i].Unlocked ? Palette.Parchment : Palette.Muted;
-                row.Button.interactable = !parked && !_root.Replaying && !_root.PushBusy;
-                row.ButtonLabel.text = parked ? "HERE" : "PARK";
+                (int id, string name, string text, bool unlocked) = entries[i];
+                row.Id = id;
+                Ui.SetPicture(row.Picture, "Thumbs/" + ZoneThumb(id));
+                row.Picture.color = unlocked ? Color.white : new Color(0.45f, 0.45f, 0.5f);
+                bool parked = session.ParkedStage == id;
+                row.Name.text = name;
+                row.Name.color = parked ? Palette.Sorn : unlocked ? Palette.Parchment : Palette.Muted;
+                row.Label.text = text;
+                row.Button.interactable = unlocked && !parked && !_root.Replaying && !_root.PushBusy;
+                row.ButtonLabel.text = parked ? "HUNTING NOW" : unlocked ? "HUNT HERE" : "LOCKED";
+                row.ButtonImage.color = parked ? new Color(0.55f, 0.42f, 0.12f) : unlocked ? Palette.Safe : Palette.ButtonIdle;
             }
 
             // Commanders: from the server when online, otherwise always up in local mode.
@@ -155,8 +180,9 @@ namespace Orsuun.Client
                 }
                 else status = "up (local)";
 
-                row.Label.text = campOpen ? $"{boss.Name}  ·  {status}\n{Mechanic(boss.Mechanic)}{pool}" : $"{boss.Name}  ·  clear campaign stage 5";
-                row.Label.color = campOpen ? Palette.Parchment : Palette.Muted;
+                row.Name.text = boss.Name;
+                row.Name.color = campOpen ? Palette.Parchment : Palette.Muted;
+                row.Label.text = campOpen ? $"{ConfirmDialog.Tint(status, canFight ? Palette.Good : Palette.Muted)}  ·  {Mechanic(boss.Mechanic)}{pool}" : "Clear campaign stage 5 to open";
                 row.Button.interactable = canFight && !_root.Replaying && !_root.PushBusy;
             }
         }

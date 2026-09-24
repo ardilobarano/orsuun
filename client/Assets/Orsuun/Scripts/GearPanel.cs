@@ -58,6 +58,9 @@ namespace Orsuun.Client
         private Text _classLabel;
         private ItemState _selected;
         private string _selectedId;
+        private RawImage _picture;
+        private Image _pictureGlow;
+        private Text _pictureLevel;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -102,10 +105,17 @@ namespace Orsuun.Client
             // Detail card of the selected piece.
             Image card = Ui.Framed("Card", canvas, 0.04f, 0.46f, 0.96f, 0.735f, Palette.PanelDark);
             Transform c = card.transform;
-            _name = Ui.Title("Name", c, 0.04f, 0.84f, 0.96f, 0.98f, "", 40, TextAnchor.MiddleLeft, Palette.Parchment);
-            _info = Ui.Label("Info", c, 0.04f, 0.75f, 0.96f, 0.84f, "", 26, TextAnchor.MiddleLeft, Palette.Muted);
-            _stats = Ui.Label("Stats", c, 0.04f, 0.64f, 0.96f, 0.75f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
-            _compare = Ui.Label("Compare", c, 0.04f, 0.54f, 0.96f, 0.64f, "", 26, TextAnchor.MiddleLeft, Palette.Parchment);
+            // The piece's picture, big, in a gold slot with its rarity glowing behind it (gear mockup).
+            Ui.SlotTile("PictureSlot", c, 0.025f, 0.53f, 0.27f, 0.965f, new Color(0.05f, 0.05f, 0.09f));
+            _pictureGlow = Ui.Sliced("PictureGlow", c, 0.035f, 0.55f, 0.26f, 0.945f, "Glow", Color.clear);
+            _pictureGlow.raycastTarget = false;
+            RectTransform pictureBox = Ui.Rect("PictureBox", c, 0.05f, 0.575f, 0.245f, 0.92f);
+            _picture = Ui.Icon("Picture", pictureBox, 0f, 0f, 1f, 1f, "Weapon");
+            _pictureLevel = Ui.Title("PictureLevel", c, 0.03f, 0.54f, 0.255f, 0.63f, "", 30, TextAnchor.LowerRight, Palette.Parchment);
+            _name = Ui.Title("Name", c, 0.3f, 0.84f, 0.97f, 0.98f, "", 40, TextAnchor.MiddleLeft, Palette.Parchment);
+            _info = Ui.Label("Info", c, 0.3f, 0.75f, 0.97f, 0.84f, "", 26, TextAnchor.MiddleLeft, Palette.Muted);
+            _stats = Ui.Label("Stats", c, 0.3f, 0.64f, 0.97f, 0.75f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
+            _compare = Ui.Label("Compare", c, 0.3f, 0.54f, 0.97f, 0.64f, "", 26, TextAnchor.MiddleLeft, Palette.Parchment);
             _etchings = Ui.Label("Etchings", c, 0.04f, 0.13f, 0.96f, 0.53f, "", 24, TextAnchor.UpperLeft, Palette.Parchment);
             _sockets = Ui.Label("Sockets", c, 0.04f, 0.02f, 0.96f, 0.13f, "", 22, TextAnchor.MiddleLeft, Palette.Muted);
             foreach (Text t in new[] { _stats, _compare, _etchings, _sockets }) t.supportRichText = true;
@@ -296,6 +306,12 @@ namespace Orsuun.Client
             bool worn = session.Equipped(item.Slot) == item;
             _name.text = $"{item.DisplayName} +{item.UpgradeLevel}";
             _name.color = RarityColor(item.Rarity);
+            Ui.SetIcon(_picture, item.Slot.ToString());
+            Color glow = RarityColor(item.Rarity);
+            glow.a = item.Rarity == Rarity.Common ? 0.15f : 0.55f;
+            _pictureGlow.color = glow;
+            _pictureLevel.text = item.UpgradeLevel == 0 ? "" : "+" + item.UpgradeLevel;
+            _pictureLevel.color = ForgePanel.LevelColor(item.UpgradeLevel);
             _info.text = $"{SlotNames[(int)item.Slot]}  ·  Item level {item.ItemLevel}  ·  {item.Rarity}  ·  " + (worn ? "worn" : "in your bag");
 
             HeroStats bare = HeroFactory.FromEquipment(Array.Empty<ItemState>(), session.Level);

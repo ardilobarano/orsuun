@@ -1,36 +1,41 @@
-using System.Text;
 using Orsuun.Rules;
-using Orsuun.Rules.Combat;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Orsuun.Client
 {
     /// <summary>
-    /// Korshards: pick an equipped item, pick a shard trait and rank for an empty socket, SET it (70%), or
-    /// knock a Dead Shard out for sorn.
+    /// Korshards (laid out after docs/concept/screens/mockup-korshards.jpg): the worn piece in a framed card with its
+    /// sockets as gem slots, the shards held by rank, a trait for the chosen rank, and SET (70%) for the chosen socket, or
+    /// CLEAR to knock a Dead Shard out for sorn.
     /// </summary>
     public sealed class SocketPanel : MonoBehaviour
     {
         private const int MaxSockets = 3;
+        /// <summary>Painted gems per rank (docs/concept/icons/korshards-ranks.png, cut by tools/ui/cut_icons.py).</summary>
+        public static readonly string[] RankIcons = { "ShardTrooper", "ShardRider", "ShardCaptain", "ShardCommander", "ShardGuard" };
 
         private GameRoot _root;
         private GameObject _canvas;
+        private RawImage _itemIcon;
         private Text _itemLabel;
-        private Text _shardsLabel;
-        private Text _message;
+        private readonly Image[] _socketTiles = new Image[MaxSockets];
+        private readonly RawImage[] _socketGems = new RawImage[MaxSockets];
         private readonly Text[] _socketLabels = new Text[MaxSockets];
-        private readonly Button[] _typeButtons = new Button[MaxSockets];
-        private readonly Text[] _typeLabels = new Text[MaxSockets];
-        private readonly Button[] _rankButtons = new Button[MaxSockets];
-        private readonly Text[] _rankLabels = new Text[MaxSockets];
-        private readonly Button[] _actButtons = new Button[MaxSockets];
-        private readonly Text[] _actLabels = new Text[MaxSockets];
-        private readonly Image[] _actImages = new Image[MaxSockets];
-        private readonly int[] _typeChoice = new int[MaxSockets];
-        private readonly int[] _rankChoice = new int[MaxSockets];
+        private readonly Image[] _rankRows = new Image[SocketRules.RankCount];
+        private readonly Text[] _rankNames = new Text[SocketRules.RankCount];
+        private readonly Text[] _rankCounts = new Text[SocketRules.RankCount];
+        private Text _trait;
+        private Button _act;
+        private Image _actImage;
+        private Text _actLabel;
+        private Text _note;
+        private Text _message;
 
         private int _slotIndex;
+        private int _socket;
+        private int _rank;
+        private int _traitIndex;
         private bool _busy;
 
         public bool IsOpen => _canvas.activeSelf;
@@ -44,27 +49,55 @@ namespace Orsuun.Client
 
             Ui.Backdrop(canvas, "Shards");
             Ui.Title("Title", canvas, 0.05f, 0.925f, 0.95f, 0.975f, "KORSHARDS", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
-            Ui.Label("Hint", canvas, 0.05f, 0.885f, 0.95f, 0.925f, "A set shard takes 70% of the time. A failed one dies in the socket and costs sorn to remove.", 20, TextAnchor.MiddleCenter, Palette.Muted);
 
-            Ui.Button("Prev", canvas, 0.04f, 0.80f, 0.14f, 0.87f, "<", 36, Palette.ButtonIdle, () => Step(-1), out _);
-            Ui.Framed("ItemBack", canvas, 0.15f, 0.80f, 0.85f, 0.87f, Palette.PanelDark);
-            _itemLabel = Ui.Label("Item", canvas, 0.16f, 0.80f, 0.84f, 0.87f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
-            Ui.Button("Next", canvas, 0.86f, 0.80f, 0.96f, 0.87f, ">", 36, Palette.ButtonIdle, () => Step(1), out _);
-
-            _shardsLabel = Ui.Label("Shards", canvas, 0.05f, 0.745f, 0.95f, 0.795f, "", 22, TextAnchor.MiddleCenter, Palette.Sorn);
-
+            // The piece: its picture in a gold slot, its name, and its sockets as gem slots (tap one to choose it).
+            Ui.Framed("ItemCard", canvas, 0.04f, 0.70f, 0.96f, 0.905f, new Color(0.06f, 0.06f, 0.12f, 0.92f));
+            Ui.Button("Prev", canvas, 0.055f, 0.765f, 0.135f, 0.84f, "<", 36, Palette.ButtonIdle, () => Step(-1), out _);
+            Ui.SlotTile("ItemSlot", canvas, 0.15f, 0.72f, 0.40f, 0.885f, new Color(0.1f, 0.1f, 0.18f));
+            RectTransform iconBox = Ui.Rect("ItemIconBox", canvas, 0.165f, 0.73f, 0.385f, 0.875f);
+            _itemIcon = Ui.Icon("ItemIcon", iconBox, 0f, 0f, 1f, 1f, "Weapon");
+            _itemLabel = Ui.Title("Item", canvas, 0.42f, 0.83f, 0.84f, 0.89f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
             for (int i = 0; i < MaxSockets; i++)
             {
                 int index = i;
-                float y1 = 0.72f - i * 0.16f;
-                Ui.Framed("SocketBack" + i, canvas, 0.04f, y1 - 0.15f, 0.96f, y1, Palette.PanelDark);
-                _socketLabels[i] = Ui.Label("Socket" + i, canvas, 0.06f, y1 - 0.06f, 0.94f, y1, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
-                _typeButtons[i] = Ui.Button("Type" + i, canvas, 0.06f, y1 - 0.14f, 0.42f, y1 - 0.07f, "", 22, Palette.ButtonIdle, () => { _typeChoice[index] = (_typeChoice[index] + 1) % 8; }, out _typeLabels[i]);
-                _rankButtons[i] = Ui.Button("Rank" + i, canvas, 0.44f, y1 - 0.14f, 0.68f, y1 - 0.07f, "", 22, Palette.ButtonIdle, () => { _rankChoice[index] = (_rankChoice[index] + 1) % SocketRules.RankCount; }, out _rankLabels[i]);
-                _actButtons[i] = Ui.Button("Act" + i, canvas, 0.70f, y1 - 0.14f, 0.94f, y1 - 0.07f, "SET", 24, Palette.Safe, () => Act(index), out _actLabels[i]);
-                _actImages[i] = _actButtons[i].GetComponent<Image>();
+                float x0 = 0.42f + i * 0.14f;
+                _socketTiles[i] = Ui.SlotTile("SocketTile" + i, canvas, x0, 0.735f, x0 + 0.125f, 0.815f, new Color(0.04f, 0.04f, 0.08f));
+                var tap = _socketTiles[i].gameObject.AddComponent<Button>();
+                _socketTiles[i].raycastTarget = true;
+                tap.onClick.AddListener(() => _socket = index);
+                RectTransform gemBox = Ui.Rect("GemBox", _socketTiles[i].transform, 0.15f, 0.15f, 0.85f, 0.85f);
+                _socketGems[i] = Ui.Icon("Gem", gemBox, 0f, 0f, 1f, 1f, RankIcons[0]);
+                _socketLabels[i] = Ui.Title("Label", _socketTiles[i].transform, 0f, 0f, 1f, 1f, "", 20, TextAnchor.MiddleCenter, Palette.Muted);
+            }
+            Ui.Button("Next", canvas, 0.865f, 0.765f, 0.945f, 0.84f, ">", 36, Palette.ButtonIdle, () => Step(1), out _);
+
+            // The shards held, one row per rank (tap one to choose it).
+            Ui.Section("ShardsHead", canvas, 0.1f, 0.652f, 0.9f, 0.69f, "SHARDS", 30);
+            for (int r = 0; r < SocketRules.RankCount; r++)
+            {
+                int rank = r;
+                float y1 = 0.645f - r * 0.058f;
+                _rankRows[r] = Ui.Framed("Rank" + r, canvas, 0.06f, y1 - 0.054f, 0.94f, y1, new Color(0.07f, 0.07f, 0.13f, 0.95f));
+                _rankRows[r].gameObject.AddComponent<Button>().onClick.AddListener(() => _rank = rank);
+                _rankRows[r].gameObject.AddComponent<Press>();
+                Transform row = _rankRows[r].transform;
+                Ui.SlotTile("GemSlot", row, 0.015f, 0.08f, 0.13f, 0.92f, new Color(0.04f, 0.04f, 0.08f));
+                RectTransform gemBox = Ui.Rect("GemBox", row, 0.025f, 0.14f, 0.12f, 0.86f);
+                Ui.Icon("Gem", gemBox, 0f, 0f, 1f, 1f, RankIcons[r]);
+                _rankNames[r] = Ui.Title("Name", row, 0.16f, 0.1f, 0.78f, 0.9f, "", 26, TextAnchor.MiddleLeft, Palette.Parchment);
+                _rankNames[r].supportRichText = true;
+                _rankCounts[r] = Ui.Title("Count", row, 0.78f, 0.1f, 0.97f, 0.9f, "", 32, TextAnchor.MiddleRight, Palette.Sorn);
             }
 
+            // The trait the shard carries (weapons and armour have their own), then SET or CLEAR.
+            Ui.Button("TraitPrev", canvas, 0.06f, 0.294f, 0.16f, 0.35f, "<", 32, Palette.ButtonIdle, () => _traitIndex--, out _);
+            Ui.Framed("TraitBack", canvas, 0.17f, 0.294f, 0.83f, 0.35f, new Color(0.07f, 0.07f, 0.13f, 0.95f));
+            _trait = Ui.Title("Trait", canvas, 0.19f, 0.297f, 0.81f, 0.347f, "", 26, TextAnchor.MiddleCenter, Palette.Parchment);
+            Ui.Button("TraitNext", canvas, 0.84f, 0.294f, 0.94f, 0.35f, ">", 32, Palette.ButtonIdle, () => _traitIndex++, out _);
+
+            _act = Ui.Button("Act", canvas, 0.08f, 0.205f, 0.92f, 0.283f, "", 32, Palette.Alloy, Act, out _actLabel);
+            _actImage = _act.GetComponent<Image>();
+            _note = Ui.Label("Note", canvas, 0.08f, 0.168f, 0.92f, 0.2f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
             _message = Ui.Label("Message", canvas, 0.05f, 0.09f, 0.95f, 0.16f, "", 26, TextAnchor.MiddleCenter, Palette.Sorn);
             Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
             _canvas.SetActive(false);
@@ -81,57 +114,69 @@ namespace Orsuun.Client
             for (int i = 0; i < 8; i++)
             {
                 _slotIndex = (_slotIndex + delta + 8) % 8;
-                if (_root.Session.Equipped((EquipSlot)_slotIndex) != null) return;
+                if (_root.Session.Equipped((EquipSlot)_slotIndex) != null) break;
             }
+            _socket = 0;
         }
 
         private ItemState Current => _root.Session.Equipped((EquipSlot)_slotIndex);
 
-        private void Act(int socketIndex)
+        private ShardType ChosenTrait(ItemState item)
+        {
+            ShardType[] options = SocketRules.ShardsFor(item.Slot);
+            return options[((_traitIndex % options.Length) + options.Length) % options.Length];
+        }
+
+        private void Act()
         {
             ItemState item = Current;
-            if (item == null || _busy || socketIndex >= item.Sockets.Length) return;
+            if (item == null || _busy || _socket >= item.Sockets.Length) return;
+            int socketIndex = _socket;
             Socket socket = item.Sockets[socketIndex];
 
             if (socket.Dead)
             {
                 string blocker = _root.Session.ClearSocketBlocker(item, socketIndex);
-                if (blocker != null) { _message.text = blocker; return; }
+                if (blocker != null) { Say(blocker, Palette.Muted); return; }
                 if (_root.Server.Online)
                 {
                     _busy = true;
-                    StartCoroutine(_root.Server.SocketClear(_root.Server.ItemIds[item], socketIndex, text => { _message.text = text; _busy = false; }));
+                    StartCoroutine(_root.Server.SocketClear(_root.Server.ItemIds[item], socketIndex, text => { Say(text, Palette.Sorn); _busy = false; }));
                 }
                 else
                 {
                     _root.Session.ClearSocket(item, socketIndex);
-                    _message.text = "Dead Shard removed.";
+                    Say("Dead Shard removed.", Palette.Sorn);
                 }
                 return;
             }
 
             if (!socket.IsEmpty) return;
-            ShardType type = SocketRules.ShardsFor(item.Slot)[_typeChoice[socketIndex] % SocketRules.ShardsFor(item.Slot).Length];
-            int rank = _rankChoice[socketIndex];
+            ShardType type = ChosenTrait(item);
+            int rank = _rank;
             string insertBlocker = _root.Session.SocketBlocker(item, socketIndex, type, rank);
-            if (insertBlocker != null) { _message.text = insertBlocker; return; }
+            if (insertBlocker != null) { Say(insertBlocker, Palette.Muted); return; }
 
             if (_root.Server.Online)
             {
                 _busy = true;
                 StartCoroutine(_root.Server.SocketInsert(_root.Server.ItemIds[item], socketIndex, type, rank, (ok, text) =>
                 {
-                    _message.text = text;
-                    _message.color = ok ? Palette.Good : Palette.Bad;
+                    Say(text, ok ? Palette.Good : Palette.Bad);
                     _busy = false;
                 }));
             }
             else
             {
                 bool ok = _root.Session.SetShard(item, socketIndex, type, rank);
-                _message.text = ok ? "Shard set: " + SocketRules.Describe(type, rank) : "The shard shattered. A Dead Shard blocks the socket.";
-                _message.color = ok ? Palette.Good : Palette.Bad;
+                Say(ok ? "Shard set: " + SocketRules.Describe(type, rank) : "The shard shattered. A Dead Shard blocks the socket.", ok ? Palette.Good : Palette.Bad);
             }
+        }
+
+        private void Say(string text, Color color)
+        {
+            _message.text = text;
+            _message.color = color;
         }
 
         private void Update()
@@ -142,40 +187,61 @@ namespace Orsuun.Client
             if (item == null) { Step(1); item = Current; }
             if (item == null) return;
 
-            HeroStats hero = session.Hero;
-            _itemLabel.text = $"{item.DisplayName} +{item.UpgradeLevel}  ·  {item.Sockets.Length} socket{(item.Sockets.Length == 1 ? "" : "s")}";
-            var sb = new StringBuilder("Shards held:  ");
-            for (int r = 0; r < SocketRules.RankCount; r++) sb.Append(Content.KorshardRanks[r]).Append(' ').Append(session.Inventory.Korshards[r]).Append(r < 4 ? "   " : "");
-            _shardsLabel.text = sb.ToString();
+            Ui.SetIcon(_itemIcon, item.Slot.ToString());
+            _itemLabel.text = $"{item.DisplayName} +{item.UpgradeLevel}";
+            _itemLabel.color = ForgePanel.LevelColor(item.UpgradeLevel);
+            if (_socket >= item.Sockets.Length) _socket = 0;
 
-            ShardType[] options = SocketRules.ShardsFor(item.Slot);
             for (int i = 0; i < MaxSockets; i++)
             {
                 bool has = i < item.Sockets.Length;
-                _socketLabels[i].gameObject.SetActive(has);
-                _typeButtons[i].gameObject.SetActive(has);
-                _rankButtons[i].gameObject.SetActive(has);
-                _actButtons[i].gameObject.SetActive(has);
+                _socketTiles[i].gameObject.SetActive(has);
                 if (!has) continue;
-
                 Socket s = item.Sockets[i];
-                ShardType type = options[_typeChoice[i] % options.Length];
-                int rank = _rankChoice[i];
-                _socketLabels[i].text = s.Dead ? $"Socket {i + 1}:  DEAD SHARD  ·  clear for {SocketRules.ClearCost(item):N0} sorn"
-                    : s.Type == null ? $"Socket {i + 1}:  empty"
-                    : $"Socket {i + 1}:  {SocketRules.Name(s.Type.Value)} {Content.KorshardRanks[s.Rank]}  ·  {SocketRules.Describe(s.Type.Value, s.Rank)}";
-                _socketLabels[i].color = s.Dead ? Palette.Bad : s.Type == null ? Palette.Muted : Palette.Good;
-
-                bool empty = s.IsEmpty;
-                _typeButtons[i].gameObject.SetActive(empty);
-                _rankButtons[i].gameObject.SetActive(empty);
-                _typeLabels[i].text = SocketRules.Name(type) + "\n" + SocketRules.Describe(type, rank);
-                _rankLabels[i].text = Content.KorshardRanks[rank] + $"\n(have {session.Inventory.Korshards[rank]})";
-                _actLabels[i].text = s.Dead ? "CLEAR" : empty ? "SET  70%" : "SET";
-                _actImages[i].color = s.Dead ? Palette.Danger : Palette.Safe;
-                _actButtons[i].gameObject.SetActive(empty || s.Dead);
-                _actButtons[i].interactable = !_busy;
+                string gem = s.Dead ? "DeadShard" : s.Type == null ? null : RankIcons[s.Rank];
+                _socketGems[i].enabled = gem != null;
+                if (gem != null) Ui.SetIcon(_socketGems[i], gem);
+                _socketLabels[i].text = s.Dead || s.Type != null ? "" : "EMPTY";
+                _socketTiles[i].color = i == _socket ? new Color(0.45f, 0.34f, 0.1f) : new Color(0.04f, 0.04f, 0.08f);
             }
+
+            Socket chosen = item.Sockets.Length > 0 ? item.Sockets[_socket] : Socket.DeadShard;
+            ShardType type = ChosenTrait(item);
+            for (int r = 0; r < SocketRules.RankCount; r++)
+            {
+                _rankNames[r].text = Content.KorshardRanks[r] + "\n<size=19><color=#C2BAAD>" + SocketRules.Describe(type, r) + "</color></size>";
+                _rankCounts[r].text = "×" + session.Inventory.Korshards[r];
+                _rankRows[r].color = r == _rank ? new Color(0.36f, 0.27f, 0.08f, 0.95f) : new Color(0.07f, 0.07f, 0.13f, 0.95f);
+            }
+            _trait.text = SocketRules.Name(type) + "  ·  " + SocketRules.Describe(type, _rank);
+
+            if (item.Sockets.Length == 0)
+            {
+                _actLabel.text = "NO SOCKETS ON THIS PIECE";
+                _actImage.color = Palette.ButtonIdle;
+                _act.interactable = false;
+                _note.text = "Rarer pieces carry more sockets.";
+                return;
+            }
+            if (chosen.Dead)
+            {
+                _actLabel.text = $"CLEAR DEAD SHARD  ·  {SocketRules.ClearCost(item):N0} sorn";
+                _actImage.color = Palette.Danger;
+                _note.text = "A Dead Shard blocks the socket until it is knocked out.";
+            }
+            else if (chosen.IsEmpty)
+            {
+                _actLabel.text = $"SET {Content.KorshardRanks[_rank].ToUpperInvariant()}  ·  {SocketRules.InsertSuccessBp / 100}% chance";
+                _actImage.color = Palette.Alloy;
+                _note.text = "A failed set leaves a Dead Shard in the socket.";
+            }
+            else
+            {
+                _actLabel.text = $"SOCKET {_socket + 1} HOLDS {SocketRules.Name(chosen.Type.Value).ToUpperInvariant()} {Content.KorshardRanks[chosen.Rank].ToUpperInvariant()}";
+                _actImage.color = Palette.ButtonIdle;
+                _note.text = SocketRules.Describe(chosen.Type.Value, chosen.Rank);
+            }
+            _act.interactable = !_busy && (chosen.Dead || chosen.IsEmpty);
         }
     }
 }

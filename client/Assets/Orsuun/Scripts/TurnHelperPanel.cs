@@ -44,6 +44,7 @@ namespace Orsuun.Client
             public RectTransform Rect;
             public Button Button;
             public Image Rim;
+            public Image Glow;
             public Outline Selected;
             public RawImage Icon;
             public Text Badge;
@@ -60,6 +61,7 @@ namespace Orsuun.Client
         private Text _name;
         private Text _info;
         private Text _current;
+        private RawImage _picture;
         private Button _onOff;
         private Text _onOffLabel;
         private Button _remove;
@@ -133,19 +135,33 @@ namespace Orsuun.Client
             _remove = Ui.Button("Remove", canvas, 0.79f, 0.747f, 0.96f, 0.787f, "REMOVE", 24, Palette.PanelDark, RemoveSelected, out _);
             _info = Ui.Label("Info", canvas, 0.04f, 0.72f, 0.96f, 0.744f, "", 22, TextAnchor.MiddleLeft, Palette.Muted);
 
-            Ui.Framed("CurrentBack", canvas, 0.04f, 0.595f, 0.96f, 0.716f, Palette.PanelDark);
-            _current = Ui.Label("Current", canvas, 0.07f, 0.598f, 0.93f, 0.713f, "", 26, TextAnchor.MiddleLeft, Palette.Parchment);
+            Ui.Framed("CurrentBack", canvas, 0.04f, 0.595f, 0.96f, 0.716f, new Color(0.06f, 0.06f, 0.12f, 0.93f));
+            Ui.SlotTile("PictureSlot", canvas, 0.055f, 0.603f, 0.22f, 0.708f, new Color(0.05f, 0.05f, 0.09f));
+            RectTransform pictureBox = Ui.Rect("PictureBox", canvas, 0.07f, 0.612f, 0.205f, 0.699f);
+            _picture = Ui.Icon("Picture", pictureBox, 0f, 0f, 1f, 1f, "Weapon");
+            _current = Ui.Label("Current", canvas, 0.24f, 0.598f, 0.94f, 0.713f, "", 26, TextAnchor.MiddleLeft, Palette.Parchment);
 
-            Ui.Title("GoalTitle", canvas, 0.04f, 0.556f, 0.96f, 0.59f, "STOP WHEN ALL OF THESE ARE ON IT", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            // The goal rows in their own card under a ruled header (turning mockup): a numbered ring, the etching, the
+            // lowest tier accepted, and a red X to clear the row.
+            Ui.Framed("GoalBack", canvas, 0.02f, 0.268f, 0.98f, 0.592f, new Color(0.06f, 0.06f, 0.12f, 0.9f));
+            Ui.Sliced("GoalRuleL", canvas, 0.05f, 0.566f, 0.14f, 0.578f, "Rule", Color.white).raycastTarget = false;
+            Ui.Title("GoalTitle", canvas, 0.14f, 0.555f, 0.86f, 0.589f, "STOP WHEN ALL OF THESE ARE ON IT", 26, TextAnchor.MiddleCenter, Palette.Sorn);
+            Ui.Sliced("GoalRuleR", canvas, 0.86f, 0.566f, 0.95f, 0.578f, "Rule", Color.white).raycastTarget = false;
             for (int i = 0; i < Rows; i++)
             {
                 int row = i;
-                float y1 = 0.552f - i * 0.057f;
-                float y0 = y1 - 0.05f;
-                Ui.Label("Num" + i, canvas, 0.03f, y0, 0.09f, y1, (i + 1).ToString(), 28, TextAnchor.MiddleCenter, Palette.Muted);
-                _entryButtons[i] = Ui.Button("Entry" + i, canvas, 0.09f, y0, 0.64f, y1, "", 26, Palette.ButtonIdle, () => OpenPicker(row), out _entryLabels[i]);
+                float y1 = 0.55f - i * 0.055f;
+                float y0 = y1 - 0.048f;
+                RectTransform ringBox = Ui.Rect("NumBox" + i, canvas, 0.03f, y0 + 0.004f, 0.095f, y1 - 0.004f);
+                Image ring = Ui.Sliced("NumRing", ringBox, 0f, 0f, 1f, 1f, "RoundRim", Color.white);
+                ring.raycastTarget = false;
+                var ringFit = ring.gameObject.AddComponent<AspectRatioFitter>();
+                ringFit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+                ringFit.aspectRatio = 1f;
+                Ui.Title("Num", ring.transform, 0f, 0f, 1f, 1f, (i + 1).ToString(), 26, TextAnchor.MiddleCenter, Palette.Sorn);
+                _entryButtons[i] = Ui.Button("Entry" + i, canvas, 0.105f, y0, 0.64f, y1, "", 26, Palette.ButtonIdle, () => OpenPicker(row), out _entryLabels[i]);
                 _tierButtons[i] = Ui.Button("Tier" + i, canvas, 0.655f, y0, 0.815f, y1, "", 28, Palette.PanelDark, () => CycleTier(row), out _tierLabels[i]);
-                _clearButtons[i] = Ui.Button("Clear" + i, canvas, 0.83f, y0, 0.96f, y1, "X", 28, Palette.PanelDark, () => SetEntry(row, -1), out _);
+                _clearButtons[i] = Ui.Button("Clear" + i, canvas, 0.83f, y0, 0.96f, y1, "X", 28, Palette.Danger, () => SetEntry(row, -1), out _);
             }
 
             _odds = Ui.Label("Odds", canvas, 0.04f, 0.225f, 0.96f, 0.265f, "", 26, TextAnchor.MiddleCenter, Palette.Parchment);
@@ -163,7 +179,8 @@ namespace Orsuun.Client
 
         private static Tile MakeTile(Transform parent, string name)
         {
-            Image rim = Ui.Panel(name, parent, 0f, 0f, 1f, 1f, Palette.Trim);
+            // A dark slot with the piece's rarity glowing behind it, under the painted gold slot frame (as on Gear).
+            Image rim = Ui.Sliced(name, parent, 0f, 0f, 1f, 1f, "CardFill", new Color(0.07f, 0.07f, 0.11f));
             var t = new Tile { Rect = rim.rectTransform, Rim = rim };
             t.Button = rim.gameObject.AddComponent<Button>();
             t.Button.targetGraphic = rim;
@@ -171,12 +188,13 @@ namespace Orsuun.Client
             t.Selected.effectColor = Palette.Sorn;
             t.Selected.effectDistance = new Vector2(5f, -5f);
             t.Selected.enabled = false;
-            Image inner = Ui.Panel("Inner", rim.transform, 0.03f, 0.05f, 0.97f, 0.95f, new Color(0.07f, 0.07f, 0.11f));
-            inner.raycastTarget = false;
-            RectTransform iconBox = Ui.Rect("IconBox", inner.transform, 0.03f, 0.06f, 0.42f, 0.94f);
+            t.Glow = Ui.Sliced("Glow", rim.transform, 0.02f, 0.04f, 0.46f, 0.96f, "Glow", Color.clear);
+            t.Glow.raycastTarget = false;
+            RectTransform iconBox = Ui.Rect("IconBox", rim.transform, 0.05f, 0.1f, 0.43f, 0.9f);
             t.Icon = Ui.Icon("Icon", iconBox, 0f, 0f, 1f, 1f, "Weapon");
-            t.Badge = Ui.Title("Badge", inner.transform, 0.40f, 0.5f, 0.97f, 0.98f, "", 28, TextAnchor.UpperRight, Palette.Parchment);
-            t.Note = Ui.Label("Note", inner.transform, 0.40f, 0.04f, 0.97f, 0.5f, "", 22, TextAnchor.LowerRight, Palette.Muted);
+            t.Badge = Ui.Title("Badge", rim.transform, 0.40f, 0.5f, 0.94f, 0.94f, "", 28, TextAnchor.UpperRight, Palette.Parchment);
+            t.Note = Ui.Label("Note", rim.transform, 0.40f, 0.08f, 0.94f, 0.5f, "", 22, TextAnchor.LowerRight, Palette.Muted);
+            Ui.Sliced("Frame", rim.transform, 0f, 0f, 1f, 1f, "SlotRim", Color.white).raycastTarget = false;
             return t;
         }
 
@@ -185,7 +203,9 @@ namespace Orsuun.Client
             Texture2D icon = item == null ? null : Resources.Load<Texture2D>("Icons/" + item.Slot);
             if (t.Icon.texture != icon) t.Icon.texture = icon;
             t.Icon.enabled = icon != null;
-            t.Rim.color = item == null ? new Color(0.25f, 0.25f, 0.3f) : GearPanel.RarityColor(item.Rarity);
+            Color glow = item == null ? Color.clear : GearPanel.RarityColor(item.Rarity);
+            glow.a = item == null ? 0f : item.Rarity == Rarity.Common ? 0.15f : 0.5f;
+            t.Glow.color = glow;
             t.Badge.text = item == null || item.UpgradeLevel == 0 ? "" : "+" + item.UpgradeLevel;
             t.Badge.color = item == null ? Palette.Muted : ForgePanel.LevelColor(item.UpgradeLevel);
             t.Selected.enabled = selected;
@@ -647,6 +667,7 @@ namespace Orsuun.Client
                 _name.color = Palette.Muted;
                 _info.text = sel == null ? "Tap + to add pieces, worn or in the bag, and give each one its goal." : "It was destroyed or sold: REMOVE it.";
                 _current.text = "";
+                _picture.enabled = false;
                 _odds.text = "";
                 for (int i = 0; i < Rows; i++)
                 {
@@ -663,6 +684,7 @@ namespace Orsuun.Client
                 bool worn = s.Equipped(piece.Slot) == piece;
                 _name.text = $"{piece.DisplayName} +{piece.UpgradeLevel}";
                 _name.color = GearPanel.RarityColor(piece.Rarity);
+                Ui.SetIcon(_picture, piece.Slot.ToString());
                 _info.text = $"{piece.Rarity}  ·  {(worn ? "worn" : "in your bag")}  ·  up to T{cap}  ·  "
                              + $"{cost} Turnstone{(cost == 1 ? "" : "s")} a turn  ·  you have {s.Inventory.Turnstones:N0}";
 

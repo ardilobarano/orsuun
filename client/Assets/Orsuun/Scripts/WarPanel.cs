@@ -15,9 +15,10 @@ namespace Orsuun.Client
 
         private sealed class Standing
         {
+            public Image Back;
             public RawImage Flag;
+            public Text Name;
             public Text Label;
-            public RectTransform Fill;
         }
 
         private sealed class Fort
@@ -56,46 +57,46 @@ namespace Orsuun.Client
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "WAR OF BANNERS", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _season = Ui.Label("Season", canvas, 0.05f, 0.9f, 0.95f, 0.935f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
 
+            // The standings as three Banner columns (war mockup): the flag, the name and the points; yours is lit gold.
             for (int i = 0; i < 3; i++)
             {
-                float y1 = 0.895f - i * 0.058f;
-                float y0 = y1 - 0.052f;
-                Ui.Framed("StandBack" + i, canvas, 0.04f, y0, 0.96f, y1, Palette.PanelDark);
+                float x0 = 0.04f + i * 0.31f;
                 var s = new Standing();
-                s.Flag = BannerLook.FlagImage("StandFlag" + i, canvas, 0.045f, y0 + 0.002f, 0.1f, y1 - 0.002f);
-                Ui.Panel("StandBar" + i, canvas, 0.11f, y0 + 0.008f, 0.95f, y1 - 0.008f, new Color(0f, 0f, 0f, 0.35f)).raycastTarget = false;
-                s.Fill = Ui.Panel("StandFill" + i, canvas, 0.11f, y0 + 0.008f, 0.95f, y1 - 0.008f, Palette.Muted).rectTransform;
-                s.Label = Ui.Label("StandLabel" + i, canvas, 0.13f, y0, 0.94f, y1, "", 26, TextAnchor.MiddleLeft, Palette.Parchment);
+                s.Back = Ui.Framed("StandBack" + i, canvas, x0, 0.715f, x0 + 0.3f, 0.895f, new Color(0.06f, 0.06f, 0.12f, 0.93f));
+                Transform card = s.Back.transform;
+                s.Flag = BannerLook.FlagImage("StandFlag", card, 0.1f, 0.36f, 0.9f, 0.96f);
+                s.Name = Ui.Title("StandName", card, 0.05f, 0.2f, 0.95f, 0.37f, "", 26, TextAnchor.MiddleCenter, Palette.Parchment);
+                s.Label = Ui.Title("StandPoints", card, 0.05f, 0.04f, 0.95f, 0.21f, "", 26, TextAnchor.MiddleCenter, Palette.Sorn);
+                s.Label.supportRichText = true;
                 _standings[i] = s;
             }
 
-            _myFlag = BannerLook.FlagImage("MyFlag", canvas, 0.04f, 0.665f, 0.1f, 0.715f);
-            _mine = Ui.Label("Mine", canvas, 0.11f, 0.665f, 0.96f, 0.715f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
+            Ui.Framed("MineBack", canvas, 0.04f, 0.658f, 0.96f, 0.71f, new Color(0.07f, 0.07f, 0.14f, 0.95f));
+            _myFlag = BannerLook.FlagImage("MyFlag", canvas, 0.05f, 0.662f, 0.1f, 0.706f);
+            _mine = Ui.Label("Mine", canvas, 0.11f, 0.662f, 0.95f, 0.706f, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
 
-            Ui.Section("FortTitle", canvas, 0.08f, 0.626f, 0.92f, 0.66f, "FORTRESSES", 26);
+            // The three fortresses as tall tiles: the painting under a gold frame, the holder's flag, the wall under
+            // siege, the damage each Banner has done, and ATTACK or DEFEND.
+            Ui.Section("FortTitle", canvas, 0.08f, 0.617f, 0.92f, 0.653f, "FORTRESSES", 28);
             for (int i = 0; i < 3; i++)
             {
                 int index = i;
-                float y1 = 0.62f - i * 0.16f;
-                float y0 = y1 - 0.15f;
-                Transform card = Ui.Framed("Fort" + i, canvas, 0.04f, y0, 0.96f, y1, Palette.PanelDark).transform;
-                // The fortress's painting fills the card behind a shade, under the gold frame.
-                RawImage art = Ui.Picture("Art", card, 0.004f, 0.02f, 0.996f, 0.98f, "Thumbs/Fortress" + Fortresses.All[i].Name, frame: false);
-                art.color = new Color(0.55f, 0.55f, 0.6f, 1f);
-                art.transform.parent.SetSiblingIndex(0);
-                Ui.Panel("Shade", art.transform.parent, 0f, 0f, 0.75f, 1f, new Color(0.03f, 0.03f, 0.06f, 0.55f)).raycastTarget = false;
+                float x0 = 0.04f + i * 0.31f;
+                Transform card = Ui.Framed("Fort" + i, canvas, x0, 0.15f, x0 + 0.3f, 0.61f, new Color(0.06f, 0.06f, 0.12f, 0.93f)).transform;
+                Ui.Picture("Art", card, 0.05f, 0.57f, 0.95f, 0.975f, "Thumbs/Fortress" + Fortresses.All[i].Name);
                 var f = new Fort();
-                f.Flag = BannerLook.FlagImage("Flag", card, 0.01f, 0.05f, 0.1f, 0.95f);
-                f.Title = Ui.Title("Name", card, 0.12f, 0.72f, 0.7f, 0.97f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
-                f.Info = Ui.Label("Info", card, 0.12f, 0.52f, 0.97f, 0.72f, "", 20, TextAnchor.MiddleLeft, Palette.Muted);
-                f.Wall = Ui.Bar("Wall", card, 0.12f, 0.31f, 0.72f, 0.52f, new Color(0.72f, 0.56f, 0.3f), out _);
-                f.WallText = Ui.Label("WallText", card, 0.12f, 0.33f, 0.72f, 0.5f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
-                f.Siege = Ui.Label("Siege", card, 0.12f, 0.04f, 0.97f, 0.32f, "", 19, TextAnchor.MiddleLeft, Palette.Parchment);
-                f.Button = Ui.Button("Act", card, 0.74f, 0.33f, 0.98f, 0.97f, "", 26, Palette.Danger, () => Act(index), out f.ButtonLabel);
+                f.Flag = BannerLook.FlagImage("Flag", card, 0.07f, 0.7f, 0.25f, 0.96f);
+                f.Title = Ui.Title("Name", card, 0.04f, 0.5f, 0.96f, 0.57f, "", 28, TextAnchor.MiddleCenter, Palette.Parchment);
+                f.Info = Ui.Label("Info", card, 0.06f, 0.37f, 0.94f, 0.5f, "", 17, TextAnchor.UpperCenter, Palette.Muted);
+                f.Wall = Ui.Bar("Wall", card, 0.05f, 0.3f, 0.95f, 0.36f, new Color(0.72f, 0.56f, 0.3f), out _);
+                f.WallText = Ui.Title("WallText", card, 0.05f, 0.302f, 0.95f, 0.358f, "", 17, TextAnchor.MiddleCenter, Palette.Parchment);
+                f.Siege = Ui.Label("Siege", card, 0.08f, 0.15f, 0.92f, 0.295f, "", 18, TextAnchor.MiddleCenter, Palette.Parchment);
+                f.Siege.supportRichText = true;
+                f.Button = Ui.Button("Act", card, 0.06f, 0.025f, 0.94f, 0.145f, "", 26, Palette.Danger, () => Act(index), out f.ButtonLabel);
                 _forts[i] = f;
             }
 
-            _message = Ui.Label("Message", canvas, 0.05f, 0.085f, 0.95f, 0.14f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
+            _message = Ui.Label("Message", canvas, 0.05f, 0.085f, 0.95f, 0.145f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
             Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
             _canvas.SetActive(false);
         }
@@ -146,20 +147,23 @@ namespace Orsuun.Client
             }
 
             _season.text = "Season " + war.season.TrimStart('W') + "  ·  points from Korstones, Commanders, pushes and sieges";
-            long top = 1;
-            foreach (Net.ServerLink.BannerStandingDto s in war.standings) top = System.Math.Max(top, s.points);
+            // Offline at opening, online since: the note from Open no longer holds.
+            if (_message.text.StartsWith("Offline")) _message.text = "";
             for (int i = 0; i < _standings.Length; i++)
             {
                 bool has = i < war.standings.Length;
+                _standings[i].Back.gameObject.SetActive(has);
                 if (!has) continue;
                 Net.ServerLink.BannerStandingDto s = war.standings[i];
                 Banner b = BannerLook.Parse(s.banner);
                 BannerLook.Show(_standings[i].Flag, b);
-                Color c = BannerLook.Color(b);
-                c.a = 0.6f;
-                _standings[i].Fill.GetComponent<Image>().color = c;
-                _standings[i].Fill.anchorMax = new Vector2(0.11f + 0.84f * (s.points / (float)top), _standings[i].Fill.anchorMax.y);
-                _standings[i].Label.text = $"{s.name.ToUpperInvariant()}   {s.points:N0} pts   ·   {s.fortresses} fortress{(s.fortresses == 1 ? "" : "es")}" + (b == mine ? "   (yours)" : "");
+                _standings[i].Name.text = s.name.ToUpperInvariant();
+                _standings[i].Name.color = Palette.Parchment;
+                _standings[i].Label.text = $"{s.points:N0} pts\n<size=18>{s.fortresses} fortress{(s.fortresses == 1 ? "" : "es")}{(b == mine ? "  ·  yours" : "")}</size>";
+                // Each column is lacquered in its Banner's colour; yours stands out brighter.
+                Color lacquer = BannerLook.Color(b) * (b == mine ? 0.62f : 0.34f);
+                lacquer.a = 0.95f;
+                _standings[i].Back.color = lacquer;
             }
 
             Banner winner = BannerLook.Parse(war.lastWinner);
@@ -182,14 +186,15 @@ namespace Orsuun.Client
                 f.Title.color = BannerLook.Color(holder);
                 string flag = string.IsNullOrEmpty(d.flagGuild) ? "" : $"  ·  guild flag [{d.flagGuild}]";
                 f.Info.text = $"{d.region}  ·  the {d.phase} is under siege{flag}\n{d.lastEvent}";
+                f.Info.resizeTextMinSize = 10;
                 float wall = d.wallMax > 0 ? d.wall / (float)d.wallMax : 0f;
                 f.Wall.anchorMax = new Vector2(wall, 1f);
                 f.WallText.text = $"{d.phase.ToUpperInvariant()} WALL  {d.wall:N0} / {d.wallMax:N0}";
-                f.Siege.text = "Siege damage:  " + ConfirmDialog.Tint($"Ember {d.siegeEmber:N0}", BannerLook.Color(Banner.Ember)) + "   "
-                               + ConfirmDialog.Tint($"Sky {d.siegeSky:N0}", BannerLook.Color(Banner.Sky)) + "   "
+                f.Siege.text = ConfirmDialog.Tint($"Ember {d.siegeEmber:N0}", BannerLook.Color(Banner.Ember)) + "\n"
+                               + ConfirmDialog.Tint($"Sky {d.siegeSky:N0}", BannerLook.Color(Banner.Sky)) + "\n"
                                + ConfirmDialog.Tint($"Gold {d.siegeGold:N0}", BannerLook.Color(Banner.Gold));
                 bool defend = mine != Banner.None && mine == holder;
-                f.ButtonLabel.text = cooldown > 0 ? $"REGROUP\n{cooldown / 60}:{cooldown % 60:00}" : defend ? "DEFEND" : "ATTACK";
+                f.ButtonLabel.text = cooldown > 0 ? $"REGROUP {cooldown / 60}:{cooldown % 60:00}" : defend ? "DEFEND" : "ATTACK";
                 f.Button.GetComponent<Image>().color = defend ? Palette.Safe : Palette.Danger;
                 f.Button.interactable = cooldown == 0 && _root.Server.Online && !_root.Replaying && !_root.PushBusy;
             }
