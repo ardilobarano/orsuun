@@ -347,6 +347,14 @@ public sealed partial class GameService
         }
         Pay(ga, result == 1, result == 3);
         Pay(gb, result == 2, result == 3);
+        // Every member who fought gets Guild Tallies by their side's result (one UPDATE a side).
+        foreach ((Guid side, bool won) in new[] { (war.GuildA, result == 1), (war.GuildB, result == 2) })
+        {
+            int tallies = won ? GuildWars.WinTallies : result == 3 ? GuildWars.DrawTallies : GuildWars.LossTallies;
+            List<Guid> fought = await _db.GuildWarEntries.Where(e => e.WarId == war.Id && e.GuildId == side).Select(e => e.AccountId).ToListAsync(ct);
+            if (fought.Count > 0)
+                await _db.Accounts.Where(a => fought.Contains(a.Id)).ExecuteUpdateAsync(s => s.SetProperty(a => a.Tallies, a => a.Tallies + tallies), ct);
+        }
         string tagA = ga != null ? "[" + ga.Tag + "]" : "a scattered guild", tagB = gb != null ? "[" + gb.Tag + "]" : "a scattered guild";
         war.LastEvent = result == 3 ? $"{tagA} and {tagB} fought to a draw, {scoreA} to {scoreB}."
             : result == 1 ? $"{tagA} beat {tagB}, {scoreA} to {scoreB}." : $"{tagB} beat {tagA}, {scoreB} to {scoreA}.";

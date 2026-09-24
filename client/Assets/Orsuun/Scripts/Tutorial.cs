@@ -183,7 +183,7 @@ namespace Orsuun.Client
 
             // Hidden while another screen covers the hunt, unless the step is about that screen.
             bool covered = _root.Title.Showing || _root.Gear.IsOpen || _root.Zones.IsOpen || _root.Sockets.IsOpen || _root.Menu.IsOpen || _root.TurnHelper.IsOpen
-                           || _root.War.IsOpen || _root.Bounties.IsOpen || _root.Oath.Showing || _root.Guild.IsOpen || _root.GuildWar.IsOpen || _root.Smith.IsOpen || _root.Market.IsOpen
+                           || _root.War.IsOpen || _root.Bounties.IsOpen || _root.Oath.Showing || _root.Guild.IsOpen || _root.GuildWar.IsOpen || _root.Pits.IsOpen || _root.Smith.IsOpen || _root.Market.IsOpen
                            || _root.Chat.IsOpen || _root.Account.Showing
                            || (_root.Forge.IsOpen && !step.OnForge) || (!_root.Forge.IsOpen && step.OnForge);
             if (_canvas.activeSelf == covered) _canvas.SetActive(!covered);

@@ -38,6 +38,7 @@ public sealed class GameDb : DbContext
             e.HasIndex(a => a.SessionToken);
             e.HasIndex(a => new { a.CreatedIp, a.CreatedUtc });
             e.HasIndex(a => a.GuildId);
+            e.HasIndex(a => a.PitRating);
             e.HasIndex(a => a.Email).IsUnique();
             // Optimistic concurrency on PostgreSQL's xmin system column: two requests for one account never both win.
             e.Property(a => a.Version).IsRowVersion();

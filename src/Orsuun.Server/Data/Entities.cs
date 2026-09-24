@@ -41,6 +41,14 @@ public sealed class Account
     public int DungeonRuns { get; set; }
     /// <summary>The run waiting at the Chained Smith (DungeonRun.Id), 0 when none.</summary>
     public long DungeonRunAtSmith { get; set; }
+    /// <summary>The Pits (Rules.Pits): rating, record, Laurels, fights in the bounty day PitDay, and the challengers' roll.</summary>
+    public int PitRating { get; set; } = Rules.Pits.StartRating;
+    public int PitWins { get; set; }
+    public int PitLosses { get; set; }
+    public int Laurels { get; set; }
+    [MaxLength(16)] public string PitDay { get; set; } = "";
+    public int PitFights { get; set; }
+    public int PitRoll { get; set; }
 
     /// <summary>The guild this account belongs to, its rank there and when it joined.</summary>
     public Guid? GuildId { get; set; }

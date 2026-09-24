@@ -39,6 +39,10 @@ namespace Orsuun.Rules
         public const long LossXp = 30;
         public const int StartRating = 1000;
         public const int RatingK = 32;
+        /// <summary>Guild Tallies for every member who fought, by the war's result (GDD currency table: Tallies come from guild war).</summary>
+        public const int WinTallies = 10;
+        public const int DrawTallies = 5;
+        public const int LossTallies = 3;
         /// <summary>Pay per duel fought, like a siege fight (GDD: PvP pays currency, never upgrade protection).</summary>
         public const long FightSorn = 5_000;
         public const int FightMarks = 1;

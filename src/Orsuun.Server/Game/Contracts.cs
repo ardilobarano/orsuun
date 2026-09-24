@@ -209,6 +209,16 @@ public sealed record StateDto(
     int DungeonRunsLeft = 0,
     long DungeonRunAtSmith = 0);
 
+/// <summary>The Pits (Rules.Pits): the record, the three challengers, the board, the shop's currency.</summary>
+public sealed record PitsDto(int Rating, string League, int Wins, int Losses, int Laurels, int TicketsLeft, PitChallengerDto[] Challengers,
+    PitBoardDto[] Board, string Message = "");
+/// <summary>A challenger: Id is an account id, or "shade:-1|0|1" for a Pit shade cut from the attacker's own gear.</summary>
+public sealed record PitChallengerDto(string Id, string Name, string Tag, int Rating, string League, HeroClass Class, string Weapon, int WinChancePercent, bool Shade);
+public sealed record PitBoardDto(int Rank, string Name, string Tag, int Rating, string League, int Wins, int Losses, string Weapon, bool Me);
+public sealed record PitFightRequest(string RequestId, string OpponentId);
+public sealed record PitShopRequest(string RequestId, int ItemId);
+public sealed record PitFightDto(StateDto State, DuelResultDto Duel, PitsDto Pits, int RatingBefore, int RatingAfter, int LaurelsGained);
+
 /// <summary>Dungeons (Rules.Dungeons): enter a run, and answer the Chained Smith.</summary>
 public sealed record DungeonEnterRequest(string RequestId, int DungeonId);
 /// <summary>ItemId empty walks past the smith; otherwise that piece is forged with ForgeMethod.ChainedSmith (a string: Unity's

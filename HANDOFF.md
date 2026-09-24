@@ -57,26 +57,32 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   push and boss replays from server seeds; seeded farm loops reported for active play; LOCAL MODE fallback.
 - `tools/Orsuun.Sim`: Monte Carlo balance report. `tools/ClientCheck`: compiles Unity scripts with dotnet.
 
-## Where we left off (24 Sep 2026, desktop app session, late)
+## Where we left off (25 Sep 2026, desktop app session)
 
-The owner moved to the Claude desktop app (Code tab, `~/orsuun`) and picked all four offered next steps. All four are
-built and committed on `main` locally: the first ten minutes (spotlight tutorial, next-goal line), the rest of the
-mockup look, the Mirage Queen (she already had a real rigged model; only the notes were stale), and guild war with
-fortress bids (see the decision row and "Done ... desktop app session"). Pushed to GitHub; build 26092419 is installed
-on the owner's iPhone (24 Sep 2026, 22:34); the playtest server is deployed (22:50, migration `GuildWarKeeps` applied)
-with a home page at `/` (`deploy/site/index.html`, routed in the Caddyfile; a single-file bind mount keeps the old
-Caddyfile after `git pull`, so restart the caddy container after changing it). A copy of the playtest database from
-just before that deploy is on the Mac: `~/orsuun-backups/playtest-before-guildwar-2026-09-24.sql.gz`. Google sign-in is
-published (owner, 24 Sep 2026: "published"); its Branding page wants the home page `https://65.108.221.210.sslip.io/`.
-The Android APK of this session is on the download link (24 Sep 2026, 22:56); the previous one is kept beside it as
+The owner moved to the Claude desktop app (Code tab, `~/orsuun`). On 24 Sep they picked four next steps, all built,
+pushed and installed: the first ten minutes (spotlight tutorial, next-goal line), the rest of the mockup look, the
+Mirage Queen (she already had a real rigged model; only the notes were stale), and guild war with fortress bids (see
+the decision row and "Done ... desktop app session"). Build 26092419 is on the owner's iPhone (24 Sep 2026, 22:34); the
+playtest server is deployed (22:50, migration `GuildWarKeeps` applied) with a home page at `/`
+(`deploy/site/index.html`, routed in the Caddyfile; a single-file bind mount keeps the old Caddyfile after `git pull`,
+so restart the caddy container after changing it). A copy of the playtest database from just before that deploy is on
+the Mac: `~/orsuun-backups/playtest-before-guildwar-2026-09-24.sql.gz`. Google sign-in is published (owner, 24 Sep
+2026: "published"); its Branding page wants the home page `https://65.108.221.210.sslip.io/`. The Android APK of
+that build is on the download link (24 Sep 2026, 22:56); the previous one is kept beside it as
 `/opt/orsuun/downloads/Orsuun-prev.apk`.
 
-Waiting on the owner: database backups (yes/no, Storage Box or Mac); the
-paid Apple Developer Program (TestFlight, Sign in with Apple, no 7-day expiry); Google sign-in test users or "Publish
-app" in Google Cloud; the monetization plan; a real domain before release.
+On 25 Sep the owner picked more campaign maps, dungeons and the Pits: all three are built and committed on `main`
+locally, **not pushed, not deployed, not installed** (see "Done 25 Sep 2026"). Deploying needs the migrations
+`Dungeons` and `Pits` (take a database copy first, as on 24 Sep).
 
-Could come next: the Mirage Queen's presence (a mirage shimmer, ghostlier images, a little taller), Free Lances and the
-fortress aura for keeps, guild invites, password reset by email (needs a mail service), bands 6-10 of looks.
+Waiting on the owner: the Hetzner Storage Box for database backups (they will buy it later); the paid Apple Developer
+Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release; whether
+the Wraithsworn's gap at the higher map bosses should be closed (see "Done 25 Sep 2026").
+
+Could come next: the other dungeons (Silkmother's Warren needs spider art; the Carvers' Archive is the Master's Needle
+source), Pit seasons and the Pit shop's Technique Scrolls and frames, the Mirage Queen's presence (a mirage shimmer,
+ghostlier images, a little taller), Free Lances and the fortress aura for keeps, guild invites, password reset by email
+(needs a mail service), bands 6-10 of looks.
 
 ## Done since the first handoff (same day)
 
@@ -347,6 +353,22 @@ fortress aura for keeps, guild invites, password reset by email (needs a mail se
   Higgsfield, `docs/concept/env-hollowspire.jpg`) with the hollowed dead (greyed ghouls, deserters, wolves), the Warden
   a huge violet ice wight; `SmithPanel` asks at floor 6. Silkmother's Warren (needs spider art) and the Carvers' Archive
   (the Master's Needle source) are not built. Screenshot switches: `-dungeon` (online), `-smith`.
+- The Pits (`Rules/Pits.cs`, `PitsTests`; GDD section 7): a 1v1 duel (`Rules.Duels`, the neutral frame, no
+  compression) against another player's worn gear, with the attacker's edge (+0.1 on the duel's log-time scale, standing
+  in for the GDD's manual casting). Five tickets a bounty day; three challengers at a time, players within 250 rating
+  points who were about in the last two weeks, and where there are too few, Pit shades cut from the attacker's own gear
+  one forge level weaker, even and stronger (an even shade is about 60%). Elo K 32 from 1000; a real defender moves half
+  as far the other way (their snapshot fought without them), a shade not at all. Leagues Bronze, Iron 1100, Silver 1250,
+  Gold 1400, Jade 1600, Khagan 1800. Laurels: 10 a win, 2 a loss; the Pit shop sells Trooper, Rider and Captain
+  Korshards for 10, 25 and 60 (the GDD's Technique Scrolls and frames are not built). The board shows the top 20 with
+  their weapons (the GDD's gear inspection, in brief). Server: `GameService.Pits.cs`, migration `Pits` (PitRating
+  defaults to 1000), endpoints `GET /v1/pits`, `POST /v1/pits/fight|refresh|shop`, ledger kind `pit`;
+  `tools/smoke-pits.sh` (run it locally: its fights move other accounts' ratings a little). Client: THE PITS button on
+  the War screen, `PitsPanel` (record, challengers with odds, LOOK AGAIN, shop, board), the fight replays on the lane
+  like a war duel with the rival dressed in their class and band (VICTORY / DEFEAT and the rating move). Screenshot
+  switches: `-pits`, `-pitfight <n>` (online).
+- Guild war now pays Guild Tallies (GDD currency table) to every member who fought: 10 for a win, 5 a draw, 3 a loss
+  (`GuildWars.WinTallies`..., paid in `SettleWarAsync`, one UPDATE a side).
 - Found while tuning, for the owner: at the higher map bosses the Wraithsworn needs about two more forge levels than
   the Vanguard, Kestrel or Drumcaller (his low HP and defence tell in long boss fights; the Oathfields hides it). Not
   changed: class numbers were balanced at the owner's request (`ClassBalanceTests`).

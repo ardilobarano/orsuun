@@ -194,6 +194,10 @@ v1.MapGet("/guild/war", (HttpContext ctx, GameService game, CancellationToken ct
 v1.MapPost("/guild/war/signup", (HttpContext ctx, GuildWarSignupRequest req, GameService game, CancellationToken ct) => game.GuildWarSignupAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/war/flag", (HttpContext ctx, GuildWarFlagRequest req, GameService game, CancellationToken ct) => game.GuildWarFlagAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/war/fight", (HttpContext ctx, GuildWarFightRequest req, GameService game, CancellationToken ct) => game.GuildWarFightAsync(Me(ctx), req, ct));
+v1.MapGet("/pits", (HttpContext ctx, GameService game, CancellationToken ct) => game.PitsAsync(Me(ctx), "", ct));
+v1.MapPost("/pits/refresh", (HttpContext ctx, GameService game, CancellationToken ct) => game.PitRefreshAsync(Me(ctx), ct));
+v1.MapPost("/pits/fight", (HttpContext ctx, PitFightRequest req, GameService game, CancellationToken ct) => game.PitFightAsync(Me(ctx), req, ct));
+v1.MapPost("/pits/shop", (HttpContext ctx, PitShopRequest req, GameService game, CancellationToken ct) => game.PitShopAsync(Me(ctx), req, ct));
 v1.MapPost("/dungeon/enter", (HttpContext ctx, DungeonEnterRequest req, GameService game, CancellationToken ct) => game.EnterDungeonAsync(Me(ctx), req, ct));
 v1.MapPost("/dungeon/smith", (HttpContext ctx, DungeonSmithRequest req, GameService game, CancellationToken ct) => game.DungeonSmithAsync(Me(ctx), req, ct));
 v1.MapPost("/keep/bid", (HttpContext ctx, KeepBidRequest req, GameService game, CancellationToken ct) => game.KeepBidAsync(Me(ctx), req, ct));

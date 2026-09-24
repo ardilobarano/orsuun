@@ -100,7 +100,8 @@ namespace Orsuun.Client
             }
 
             _message = Ui.Label("Message", canvas, 0.05f, 0.085f, 0.95f, 0.145f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
+            Ui.Button("Pits", canvas, 0.05f, 0.015f, 0.48f, 0.075f, "THE PITS", 30, Palette.Danger, () => { _canvas.SetActive(false); _root.Pits.Open(); }, out _);
+            Ui.Button("Close", canvas, 0.52f, 0.015f, 0.95f, 0.075f, "BACK TO THE HUNT", 26, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
             BuildKeep(canvas);
             _confirm = new GameObject("KeepConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();

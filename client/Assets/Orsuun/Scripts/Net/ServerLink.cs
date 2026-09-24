@@ -539,6 +539,39 @@ namespace Orsuun.Client.Net
             done(failure == null ? War?.message : null, failure);
         }
 
+        /// <summary>The Pits (the PITS screen): record, challengers, board; from the last Pits call.</summary>
+        public PitsDto Pits { get; private set; }
+
+        public IEnumerator FetchPits(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/pits", null, true, json => Pits = JsonUtility.FromJson<PitsDto>(json), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>A Pits call under /v1/pits/ (refresh, shop); completes with (message, error).</summary>
+        public IEnumerator PitCall(string path, object request, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/pits/" + path, request == null ? "{}" : JsonUtility.ToJson(request), true,
+                json => Pits = JsonUtility.FromJson<PitsDto>(json), error => failure = error);
+            done(failure == null ? Pits?.message : null, failure);
+        }
+
+        /// <summary>One Pit fight against a challenger on offer; the result carries what the client replays.</summary>
+        public IEnumerator PitFight(string opponentId, Action<PitFightDto, string> done)
+        {
+            PitFightDto result = null;
+            string failure = null;
+            yield return Post("/v1/pits/fight", JsonUtility.ToJson(new PitFightRequest { requestId = NewRequestId(), opponentId = opponentId }), true, json =>
+            {
+                result = JsonUtility.FromJson<PitFightDto>(json);
+                Apply(result.state);
+                Pits = result.pits;
+            }, error => failure = error);
+            done(result, failure);
+        }
+
         /// <summary>Free dungeon runs left today, and the run waiting at the Chained Smith (0: none), from every state.</summary>
         public int DungeonRunsLeft { get; private set; }
         public long DungeonRunAtSmith { get; private set; }
@@ -897,6 +930,12 @@ namespace Orsuun.Client.Net
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
         [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; }
+        [Serializable] public class PitChallengerDto { public string id; public string name; public string tag; public int rating; public string league; public string @class; public string weapon; public int winChancePercent; public bool shade; }
+        [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; }
+        [Serializable] public class PitsDto { public int rating; public string league; public int wins; public int losses; public int laurels; public int ticketsLeft; public PitChallengerDto[] challengers; public PitBoardDto[] board; public string message; }
+        [Serializable] public class PitFightRequest { public string requestId; public string opponentId; }
+        [Serializable] public class PitShopRequest { public string requestId; public int itemId; }
+        [Serializable] public class PitFightDto { public StateDto state; public DuelResultDto duel; public PitsDto pits; public int ratingBefore; public int ratingAfter; public int laurelsGained; }
         [Serializable] public class DungeonEnterRequest { public string requestId; public int dungeonId; }
         [Serializable] public class DungeonSmithRequest { public string requestId; public long runId; public string itemId; }
         [Serializable] public class DungeonFloorDto { public int floor; public ulong seed; public int potionsAtStart; public bool cleared; }

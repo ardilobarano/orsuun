@@ -36,6 +36,7 @@ namespace Orsuun.Client
         public BountyPanel Bounties { get; private set; }
         public GuildPanel Guild { get; private set; }
         public GuildWarPanel GuildWar { get; private set; }
+        public PitsPanel Pits { get; private set; }
         public SmithPanel Smith { get; private set; }
         public ChatPanel Chat { get; private set; }
         public MarketPanel Market { get; private set; }
@@ -96,6 +97,8 @@ namespace Orsuun.Client
             Guild.Init(this);
             GuildWar = new GameObject("GuildWarPanel").AddComponent<GuildWarPanel>();
             GuildWar.Init(this);
+            Pits = new GameObject("PitsPanel").AddComponent<PitsPanel>();
+            Pits.Init(this);
             Smith = new GameObject("SmithPanel").AddComponent<SmithPanel>();
             Smith.Init(this);
             Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
@@ -165,6 +168,9 @@ namespace Orsuun.Client
             _openGuildWar = Array.IndexOf(Environment.GetCommandLineArgs(), "-guildwar") >= 0;
             _duelLane = int.TryParse(Arg("-duel"), out int duelLane) ? duelLane : -1;
             _keepIndex = int.TryParse(Arg("-keep"), out int keepIndex) ? keepIndex : -1;
+            // -pits opens THE PITS, -pitfight <n> fights its nth challenger.
+            _openPits = Array.IndexOf(Environment.GetCommandLineArgs(), "-pits") >= 0;
+            _pitFight = int.TryParse(Arg("-pitfight"), out int pitFight) ? pitFight : -1;
             // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
             _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
@@ -218,6 +224,8 @@ namespace Orsuun.Client
         private bool _openGuildWar;
         private int _duelLane = -1;
         private int _keepIndex = -1;
+        private bool _openPits;
+        private int _pitFight = -1;
         private bool _enterDungeon;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
@@ -270,6 +278,16 @@ namespace Orsuun.Client
             {
                 _enterDungeon = false;
                 EnterDungeon(Dungeons.All[0].Id);
+            }
+            if (Server.Online && _openPits)
+            {
+                _openPits = false;
+                Pits.Open();
+            }
+            if (Server.Online && _pitFight >= 0 && Server.Pits?.challengers != null && _pitFight < Server.Pits.challengers.Length)
+            {
+                FightPit(Server.Pits.challengers[_pitFight].id);
+                _pitFight = -1;
             }
             if (Server.Online && _keepIndex >= 0)
             {
@@ -542,6 +560,47 @@ namespace Orsuun.Client
             ReplayBanner = "";
             PushBusy = false;
             GuildWar.Open();
+        }
+
+        /// <summary>A Pit fight: the server decides it against a challenger's snapshot, the lane replays it, the Pits come back.</summary>
+        public void FightPit(string opponentId)
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(PitSequence(opponentId));
+        }
+
+        private IEnumerator PitSequence(string opponentId)
+        {
+            PushBusy = true;
+            HeroStats hero = Session.Hero;
+            Net.ServerLink.PitFightDto fight = null;
+            string failure = null;
+            yield return Server.PitFight(opponentId, (r, e) => { fight = r; failure = e; });
+            if (fight?.duel == null)
+            {
+                Pits.Say(failure ?? "No answer from the server.");
+                PushBusy = false;
+                yield break;
+            }
+            Pits.Close();
+            Net.ServerLink.DuelResultDto duel = fight.duel;
+            var champion = new BossDef(Duels.ChampionId, 121, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
+            Lane.SetRival(Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard, duel.defenderBand);
+            _replay = BossRun.Create(champion, hero, new Inventory(), duel.seed);
+            ReplayBanner = "THE PITS  ·  " + duel.champion;
+            int guard = BossRun.MaxTicks;
+            while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+
+            int moved = fight.ratingAfter - fight.ratingBefore;
+            ReplayBanner = (duel.won ? "VICTORY  ·  " : "DEFEAT  ·  ") + (moved >= 0 ? "+" : "") + moved;
+            GameAudio.Instance?.Play(duel.won ? "LaneLevelUp" : "LaneHeroHurt", 1f, 0.5f, 0f);
+            Hud.Log(duel.text);
+            yield return new WaitForSecondsRealtime(2.5f);
+
+            _replay = null;
+            ReplayBanner = "";
+            PushBusy = false;
+            Pits.Open();
         }
 
         private IEnumerator SiegeSequence(int fortressId, bool keep)
