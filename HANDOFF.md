@@ -62,11 +62,12 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 The owner moved to the Claude desktop app (Code tab, `~/orsuun`) and picked all four offered next steps. All four are
 built and committed on `main` locally: the first ten minutes (spotlight tutorial, next-goal line), the rest of the
 mockup look, the Mirage Queen (she already had a real rigged model; only the notes were stale), and guild war with
-fortress bids (see the decision row and "Done ... desktop app session"). **Nothing of this session is pushed, deployed
-or on the phones yet**: push, deploy (`ssh root@65.108.221.210 ...`, the migration `GuildWarKeeps` runs at startup) and
-new mobile builds wait for the owner's go.
+fortress bids (see the decision row and "Done ... desktop app session"). Pushed to GitHub, and build 26092419 is
+installed on the owner's iPhone (24 Sep 2026, 22:34). **The playtest server is not deployed yet**: the phone's GUILD WAR
+screen and keep bids need it (`ssh root@65.108.221.210 ...`, the migration `GuildWarKeeps` runs at startup); the rest
+of the new client works against the old server. No new Android APK yet.
 
-Waiting on the owner: push / deploy / phone builds of this session; database backups (yes/no, Storage Box or Mac); the
+Waiting on the owner: the server deploy and an Android build of this session; database backups (yes/no, Storage Box or Mac); the
 paid Apple Developer Program (TestFlight, Sign in with Apple, no 7-day expiry); Google sign-in test users or "Publish
 app" in Google Cloud; the monetization plan; a real domain before release.
 
