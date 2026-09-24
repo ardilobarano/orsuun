@@ -165,6 +165,11 @@ namespace Orsuun.Rules
         /// <summary>Display name for a campaign stage or a zone id.</summary>
         public static string StageName(int parkId)
         {
+            if (Dungeons.IsFloor(parkId))
+            {
+                DungeonDef? dungeon = Dungeons.Find((parkId - Dungeons.FloorStageBase) / 10);
+                return (dungeon?.Name ?? "A dungeon") + ", floor " + parkId % 10;
+            }
             if (IsZone(parkId)) return Zone(parkId)?.Name ?? "Unknown zone";
             return MapOfStage(parkId).Name + " " + StageInMap(parkId);
         }

@@ -205,7 +205,23 @@ public sealed record StateDto(
     EtchResultDto? LastEtch = null,
     GuildBriefDto? Guild = null,
     string? Email = null,
-    string[]? Logins = null);
+    string[]? Logins = null,
+    int DungeonRunsLeft = 0,
+    long DungeonRunAtSmith = 0);
+
+/// <summary>Dungeons (Rules.Dungeons): enter a run, and answer the Chained Smith.</summary>
+public sealed record DungeonEnterRequest(string RequestId, int DungeonId);
+/// <summary>ItemId empty walks past the smith; otherwise that piece is forged with ForgeMethod.ChainedSmith (a string: Unity's
+/// JSON writes a missing id as "").</summary>
+public sealed record DungeonSmithRequest(string RequestId, long RunId, string? ItemId);
+/// <summary>One fought floor: the client replays Dungeons.Floor(dungeon, floor, level) with the hero under Seed.</summary>
+public sealed record DungeonFloorDto(int Floor, ulong Seed, int PotionsAtStart, bool Cleared);
+/// <summary>
+/// A part of a run: the floors fought now, and whether it stopped at the smith (AtSmith), ended in a fall (FellOn, the
+/// floor) or cleared the dungeon (Cleared, with the Warden's Chest). Smith is the smith's forge when there was one.
+/// </summary>
+public sealed record DungeonResultDto(StateDto State, long RunId, int DungeonId, int Level, DungeonFloorDto[] Floors, bool AtSmith, bool Cleared,
+    int FellOn, string Chest, ForgeResultDto? Smith, string SmithItem, string Text);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

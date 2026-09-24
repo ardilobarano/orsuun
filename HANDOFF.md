@@ -333,6 +333,20 @@ fortress aura for keeps, guild invites, password reset by email (needs a mail se
   and deserter recoloured (`LaneView.GorakMobs`, "Model#RRGGBB" tints a set entry), the Salt Sea and Whitefang Range the
   Salt Flats' and Frost Pasture's sets and backdrops, Nine-Winters is a tall pale ice wight; Zones shows each map's
   picture; the goal chain names each map boss. `-stage <n>` parks local play at a stage for screenshots.
+- Dungeons: the Hollow Spire (`Rules/Dungeons.cs`, `DungeonTests`; world bible section 6). Nine floors pushed up from the
+  grave plain: floor 3 a Korstone rush (an Elder at once), floor 6 the Chained Smith (one forge of a worn piece at +10
+  points, `ForgeMethod.ChainedSmith`: the Forge's cost and failure rule), floor 9 the Spire Warden and his chest (Turnstones,
+  an Etching Needle, a Korshard of the level's rank, 3 Hunt Marks, 10% a Khan's Alloy). Opens after stage 10; two free
+  runs a bounty day (GDD: two keys a day); floors follow the highest cleared stage (+5% a floor, the Warden 115% of the
+  stage boss), drop up to Legendary (GDD) and take about 5 minutes a run (one pack and a 35% Korstone a floor). Simulated:
+  a hero geared for their stage clears it, one five levels and a forge level behind falls from level 20 on. Server:
+  `GameService.Dungeons.cs` (enter fights floors 1-5 and stops at the smith, `Account.DungeonRunAtSmith`; the smith's
+  answer fights 7-9 and pays the chest), migration `Dungeons`, endpoints `/v1/dungeon/enter|smith`, dev
+  `/v1/dev/stage?cleared=`; `tools/smoke-dungeon.sh`. Client: the Spire's card leads the Zones list (ENTER, CONTINUE at
+  the smith), floors replay in order on a new backdrop (`Resources/Backdrops/HollowSpire.jpg`, GPT Image 2.5 on
+  Higgsfield, `docs/concept/env-hollowspire.jpg`) with the hollowed dead (greyed ghouls, deserters, wolves), the Warden
+  a huge violet ice wight; `SmithPanel` asks at floor 6. Silkmother's Warren (needs spider art) and the Carvers' Archive
+  (the Master's Needle source) are not built. Screenshot switches: `-dungeon` (online), `-smith`.
 - Found while tuning, for the owner: at the higher map bosses the Wraithsworn needs about two more forge levels than
   the Vanguard, Kestrel or Drumcaller (his low HP and defence tell in long boss fights; the Oathfields hides it). Not
   changed: class numbers were balanced at the owner's request (`ClassBalanceTests`).
@@ -395,7 +409,8 @@ fortress aura for keeps, guild invites, password reset by email (needs a mail se
 - `tools/smoke.sh` against the live server swears a Banner, sieges Stagfort and scores points in the shared world.
   Reset after it: `DELETE FROM "BannerScores"; UPDATE "Fortresses" SET "Wall"="WallMax", "SiegeEmber"=0, "SiegeSky"=0, "SiegeGold"=0;`
   (through `docker compose -f deploy/docker-compose.yml --env-file deploy/.env exec -T postgres psql -U orsuun -d orsuun -c '...'`).
-- The fifth etching needs a Master's Needle, which nothing sells or drops yet (it is a Caravan item in the GDD).
+- The fifth etching needs a Master's Needle, which nothing sells or drops yet (a Caravan item in the GDD; the Carvers'
+  Archive dungeon is meant to be its main source).
 - Players are shown to each other by a generated name; custom names need moderation first. Guild names and tags go
   through a short word filter (`Guilds.Clean`) only; reports and a review queue are needed before a public launch.
 - Guilds: no invites. Guild war and fortress keeps are asynchronous first versions (no live 20v20 / 50v50, no Free

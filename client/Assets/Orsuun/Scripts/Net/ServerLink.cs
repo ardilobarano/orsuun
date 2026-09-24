@@ -539,6 +539,36 @@ namespace Orsuun.Client.Net
             done(failure == null ? War?.message : null, failure);
         }
 
+        /// <summary>Free dungeon runs left today, and the run waiting at the Chained Smith (0: none), from every state.</summary>
+        public int DungeonRunsLeft { get; private set; }
+        public long DungeonRunAtSmith { get; private set; }
+
+        /// <summary>Enters a dungeon: the floors up to the smith (or a fall) come back to be replayed.</summary>
+        public IEnumerator DungeonEnter(int dungeonId, Action<DungeonResultDto, string> done)
+        {
+            DungeonResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/dungeon/enter", JsonUtility.ToJson(new DungeonEnterRequest { requestId = NewRequestId(), dungeonId = dungeonId }), true, json =>
+            {
+                result = JsonUtility.FromJson<DungeonResultDto>(json);
+                Apply(result.state);
+            }, error => failure = error);
+            done(result, failure);
+        }
+
+        /// <summary>Answers the Chained Smith (itemId "" walks on); the rest of the run comes back to be replayed.</summary>
+        public IEnumerator DungeonSmith(long runId, string itemId, Action<DungeonResultDto, string> done)
+        {
+            DungeonResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/dungeon/smith", JsonUtility.ToJson(new DungeonSmithRequest { requestId = NewRequestId(), runId = runId, itemId = itemId ?? "" }), true, json =>
+            {
+                result = JsonUtility.FromJson<DungeonResultDto>(json);
+                Apply(result.state);
+            }, error => failure = error);
+            done(result, failure);
+        }
+
         /// <summary>The guild war view (the GUILD WAR screen), from the last war call.</summary>
         public GuildWarDto GuildWar { get; private set; }
         public float GuildWarReceivedAt { get; private set; }
@@ -699,6 +729,8 @@ namespace Orsuun.Client.Net
 
         private void Apply(StateDto s)
         {
+            DungeonRunsLeft = s.dungeonRunsLeft;
+            DungeonRunAtSmith = s.dungeonRunAtSmith;
             var inventory = new Inventory
             {
                 Sorn = s.inventory.sorn, Potions = s.inventory.potions, Materials = s.inventory.materials,
@@ -864,7 +896,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; }
+        [Serializable] public class DungeonEnterRequest { public string requestId; public int dungeonId; }
+        [Serializable] public class DungeonSmithRequest { public string requestId; public long runId; public string itemId; }
+        [Serializable] public class DungeonFloorDto { public int floor; public ulong seed; public int potionsAtStart; public bool cleared; }
+        [Serializable] public class DungeonResultDto { public StateDto state; public long runId; public int dungeonId; public int level; public DungeonFloorDto[] floors; public bool atSmith; public bool cleared; public int fellOn; public string chest; public ForgeResultDto smith; public string smithItem; public string text; }
         [Serializable] public class ProvidersDto { public string[] providers; }
         [Serializable] public class ExternalBeginRequest { public string provider; }
         [Serializable] public class ExternalBeginDto { public string url; }

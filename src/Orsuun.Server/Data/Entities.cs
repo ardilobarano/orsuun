@@ -36,6 +36,11 @@ public sealed class Account
     public DateTime? SwornUtc { get; set; }
     /// <summary>The last fortress siege fight, for the cooldown.</summary>
     public DateTime? LastSiegeUtc { get; set; }
+    /// <summary>Dungeon runs entered in the bounty day DungeonDay (Rules.Bounties.DayKey), against the free keys.</summary>
+    [MaxLength(16)] public string DungeonDay { get; set; } = "";
+    public int DungeonRuns { get; set; }
+    /// <summary>The run waiting at the Chained Smith (DungeonRun.Id), 0 when none.</summary>
+    public long DungeonRunAtSmith { get; set; }
 
     /// <summary>The guild this account belongs to, its rank there and when it joined.</summary>
     public Guid? GuildId { get; set; }
@@ -275,6 +280,22 @@ public sealed class GuildWarEntry
     public int Fights { get; set; }
     public int Wins { get; set; }
     public DateTime LastUtc { get; set; }
+}
+
+/// <summary>
+/// A dungeon run that stopped at the Chained Smith (State 0) waiting for the player's choice, or a finished one (1).
+/// Floors up to the smith are fought and paid on entering; the rest after the smith.
+/// </summary>
+public sealed class DungeonRun
+{
+    public long Id { get; set; }
+    public Guid AccountId { get; set; }
+    public int DungeonId { get; set; }
+    /// <summary>The campaign stage the run is scaled to (Rules.Dungeons.Level).</summary>
+    public int Level { get; set; }
+    public int FloorsCleared { get; set; }
+    public int State { get; set; }
+    public DateTime StartedUtc { get; set; }
 }
 
 /// <summary>A guild's bid on a fortress keep for a bounty week (one per guild a week), and its keep damage if it contends.</summary>

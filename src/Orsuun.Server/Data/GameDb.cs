@@ -27,6 +27,7 @@ public sealed class GameDb : DbContext
     public DbSet<GuildWar> GuildWars => Set<GuildWar>();
     public DbSet<GuildWarEntry> GuildWarEntries => Set<GuildWarEntry>();
     public DbSet<FortressBid> FortressBids => Set<FortressBid>();
+    public DbSet<DungeonRun> DungeonRuns => Set<DungeonRun>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -125,6 +126,8 @@ public sealed class GameDb : DbContext
             e.HasKey(x => new { x.Week, x.GuildId });
             e.HasIndex(x => new { x.Week, x.FortressId });
         });
+
+        b.Entity<DungeonRun>(e => e.HasIndex(r => new { r.AccountId, r.State }));
 
         b.Entity<LedgerEntry>(e =>
         {

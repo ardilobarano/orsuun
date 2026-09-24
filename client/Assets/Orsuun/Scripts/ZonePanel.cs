@@ -32,6 +32,7 @@ namespace Orsuun.Client
         private GameObject _canvas;
         private Text _message;
         private Row[] _zoneRows;
+        private Row _dungeonRow;
         private readonly Row[] _bossRows = new Row[BossRows];
 
         public bool IsOpen => _canvas.activeSelf;
@@ -47,8 +48,13 @@ namespace Orsuun.Client
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "WHERE TO HUNT", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Label("ZonesTitle", canvas, 0.05f, 0.9f, 0.95f, 0.93f, "Hunting Grounds pay sorn and levels, Fields pay materials, Commander Grounds pay skins", 20, TextAnchor.MiddleCenter, Palette.Muted);
 
-            // Zone cards (zones mockup): the painting, the name, what it is, and HUNT HERE; the list scrolls.
+            // Zone cards (zones mockup): the painting, the name, what it is, and HUNT HERE; the list scrolls. The dungeon
+            // leads it: ENTER spends one of the day's two keys.
             Ui.Scroll("ZoneList", canvas, 0.03f, 0.462f, 0.97f, 0.895f, out RectTransform content);
+            RectTransform dungeonCard = new GameObject("Dungeon", typeof(RectTransform)).GetComponent<RectTransform>();
+            dungeonCard.SetParent(content, false);
+            dungeonCard.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
+            _dungeonRow = MakeCard(dungeonCard, "Dungeon", 1.45f, Palette.Danger, EnterDungeon);
             _zoneRows = new Row[ZoneRows];
             for (int i = 0; i < ZoneRows; i++)
             {
@@ -97,6 +103,35 @@ namespace Orsuun.Client
             return row;
         }
 
+        private void EnterDungeon()
+        {
+            if (_root.Replaying || _root.PushBusy) return;
+            _canvas.SetActive(false);
+            if (_root.Server.DungeonRunAtSmith != 0) _root.ContinueDungeon();
+            else _root.EnterDungeon(Dungeons.All[0].Id);
+        }
+
+        /// <summary>The Hollow Spire's card: keys left, locked until its stage, or CONTINUE at the smith.</summary>
+        private void UpdateDungeon(PlayerSession session)
+        {
+            DungeonDef spire = Dungeons.All[0];
+            Row row = _dungeonRow;
+            Ui.SetPicture(row.Picture, "Thumbs/DungeonHollowSpire");
+            row.Name.text = spire.Name;
+            bool online = _root.Server.Online;
+            bool unlocked = session.HighestStageCleared >= spire.UnlockStage;
+            bool atSmith = online && _root.Server.DungeonRunAtSmith != 0;
+            int keys = _root.Server.DungeonRunsLeft;
+            row.Label.text = !online ? "Dungeons need the server."
+                : !unlocked ? $"Clear {Content.StageName(spire.UnlockStage)} to open"
+                : atSmith ? "The Chained Smith is waiting on floor 6."
+                : $"Dungeon  ·  9 floors  ·  keys today {keys}/{Dungeons.FreeRunsPerDay}  ·  the Chained Smith on floor 6";
+            row.Name.color = unlocked ? Palette.Parchment : Palette.Muted;
+            row.ButtonLabel.text = atSmith ? "CONTINUE" : !unlocked ? "LOCKED" : keys <= 0 ? "NO KEYS" : "ENTER";
+            row.ButtonImage.color = atSmith ? Palette.Alloy : unlocked && keys > 0 ? Palette.Danger : Palette.ButtonIdle;
+            row.Button.interactable = online && unlocked && (atSmith || keys > 0) && !_root.Replaying && !_root.PushBusy;
+        }
+
         public void Open()
         {
             _message.text = "";
@@ -113,6 +148,8 @@ namespace Orsuun.Client
         {
             if (_root == null || !_canvas.activeSelf) return;
             PlayerSession session = _root.Session;
+
+            UpdateDungeon(session);
 
             // Zones: campaign farm spot first, then every zone in content order.
             var entries = new List<(int Id, string Name, string Text, bool Unlocked)>();

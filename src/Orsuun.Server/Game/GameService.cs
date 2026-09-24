@@ -712,7 +712,9 @@ public sealed partial class GameService
             etch,
             Brief(account),
             account.Email,
-            LoginsOf(account));
+            LoginsOf(account),
+            DungeonRunsLeft(account),
+            account.DungeonRunAtSmith);
     }
 
     private static ItemDto ToDto(Item item)

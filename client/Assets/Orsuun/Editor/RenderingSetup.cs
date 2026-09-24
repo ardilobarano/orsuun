@@ -310,7 +310,7 @@ namespace Orsuun.Client.EditorTools
         private static void EnsureBackdrops()
         {
             Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
-            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture" })
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire" })
             {
                 string texPath = Res + "Backdrops/" + zone + ".jpg";
                 if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))

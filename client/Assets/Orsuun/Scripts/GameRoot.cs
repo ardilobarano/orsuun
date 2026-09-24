@@ -36,6 +36,7 @@ namespace Orsuun.Client
         public BountyPanel Bounties { get; private set; }
         public GuildPanel Guild { get; private set; }
         public GuildWarPanel GuildWar { get; private set; }
+        public SmithPanel Smith { get; private set; }
         public ChatPanel Chat { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
@@ -95,6 +96,8 @@ namespace Orsuun.Client
             Guild.Init(this);
             GuildWar = new GameObject("GuildWarPanel").AddComponent<GuildWarPanel>();
             GuildWar.Init(this);
+            Smith = new GameObject("SmithPanel").AddComponent<SmithPanel>();
+            Smith.Init(this);
             Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
             Market.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
@@ -162,6 +165,9 @@ namespace Orsuun.Client
             _openGuildWar = Array.IndexOf(Environment.GetCommandLineArgs(), "-guildwar") >= 0;
             _duelLane = int.TryParse(Arg("-duel"), out int duelLane) ? duelLane : -1;
             _keepIndex = int.TryParse(Arg("-keep"), out int keepIndex) ? keepIndex : -1;
+            // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
+            _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
 
             // Dev switch: -stage <n> parks local play at campaign stage n with the ones before it cleared (screenshots of the maps).
             if (int.TryParse(Arg("-stage"), out int parkAt) && !Server.Online && parkAt >= 1 && parkAt <= Content.TotalStages)
@@ -212,6 +218,7 @@ namespace Orsuun.Client
         private bool _openGuildWar;
         private int _duelLane = -1;
         private int _keepIndex = -1;
+        private bool _enterDungeon;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
         private bool _tutorialPending;
@@ -258,6 +265,11 @@ namespace Orsuun.Client
                 if (_duelLane >= 0) FightDuel(_duelLane);
                 _openGuildWar = false;
                 _duelLane = -1;
+            }
+            if (Server.Online && _enterDungeon && Server.DungeonRunsLeft > 0)
+            {
+                _enterDungeon = false;
+                EnterDungeon(Dungeons.All[0].Id);
             }
             if (Server.Online && _keepIndex >= 0)
             {
@@ -390,6 +402,106 @@ namespace Orsuun.Client
         {
             if (Replaying || PushBusy || !Server.Online) return;
             StartCoroutine(SiegeSequence(fortressId, keep: true));
+        }
+
+        /// <summary>Enters a dungeon: the server fights the floors, the lane replays them; the Chained Smith asks halfway.</summary>
+        public void EnterDungeon(int dungeonId)
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(DungeonSequence(dungeonId));
+        }
+
+        /// <summary>Goes back to a run left waiting at the Chained Smith.</summary>
+        public void ContinueDungeon()
+        {
+            if (Replaying || PushBusy || !Server.Online || Server.DungeonRunAtSmith == 0) return;
+            StartCoroutine(SmithSequence(Server.DungeonRunAtSmith));
+        }
+
+        private IEnumerator DungeonSequence(int dungeonId)
+        {
+            PushBusy = true;
+            Net.ServerLink.DungeonResultDto result = null;
+            string failure = null;
+            yield return Server.DungeonEnter(dungeonId, (r, e) => { result = r; failure = e; });
+            if (result == null)
+            {
+                Hud.Log(failure ?? "No answer from the server.");
+                PushBusy = false;
+                yield break;
+            }
+            yield return ReplayFloors(result);
+            if (result.atSmith) yield return AskSmith(result.runId);
+            else yield return EndRun(result);
+            PushBusy = false;
+        }
+
+        private IEnumerator SmithSequence(long runId)
+        {
+            PushBusy = true;
+            yield return AskSmith(runId);
+            PushBusy = false;
+        }
+
+        /// <summary>Each fought floor, in order, from the server's seeds; the hero starts every floor whole.</summary>
+        private IEnumerator ReplayFloors(Net.ServerLink.DungeonResultDto run)
+        {
+            DungeonDef dungeon = Dungeons.Find(run.dungeonId);
+            if (dungeon == null || run.floors == null) yield break;
+            HeroStats hero = Session.Hero;
+            foreach (Net.ServerLink.DungeonFloorDto floor in run.floors)
+            {
+                _replay = StageRun.Create(Dungeons.Floor(dungeon, floor.floor, run.level), hero, new Inventory { Potions = floor.potionsAtStart }, floor.seed);
+                ReplayBanner = dungeon.Name.ToUpperInvariant() + "  ·  FLOOR " + floor.floor;
+                int guard = StageRun.MaxTicks;
+                while (_replay.Clears == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+                ReplayBanner = floor.cleared ? $"FLOOR {floor.floor} CLEARED" : $"FELL ON FLOOR {floor.floor}";
+                yield return new WaitForSecondsRealtime(1.2f);
+            }
+            _replay = null;
+            ReplayBanner = "";
+        }
+
+        /// <summary>The Chained Smith: the player's choice goes to the server, then the rest of the run is replayed.</summary>
+        private IEnumerator AskSmith(long runId)
+        {
+            string answer = null;
+            ReplayBanner = "THE CHAINED SMITH";
+            Smith.Open(a => answer = a);
+            while (answer == null) yield return null;
+            ReplayBanner = "";
+
+            Net.ServerLink.DungeonResultDto result = null;
+            string failure = null;
+            yield return Server.DungeonSmith(runId, answer, (r, e) => { result = r; failure = e; });
+            if (result == null)
+            {
+                // The run stays at the smith; ZONES offers CONTINUE.
+                Hud.Log(failure ?? "No answer from the server.");
+                yield break;
+            }
+            if (result.smith != null && !string.IsNullOrEmpty(result.smithItem))
+            {
+                bool success = result.smith.outcome == ForgeOutcome.Success.ToString();
+                bool broke = result.smith.outcome == ForgeOutcome.Oathbreak.ToString();
+                ReplayBanner = success ? $"THE SMITH STRUCK TRUE  ·  +{result.smith.levelAfter}" : broke ? "THE PIECE BROKE" : $"THE SMITH FAILED  ·  +{result.smith.levelAfter}";
+                GameAudio.Instance?.Play(success ? "ForgeSuccess" : broke ? "ForgeShatter" : "ForgeLost", 1f, 0.5f, 0f);
+                Hud.Log(result.text);
+                yield return new WaitForSecondsRealtime(2.2f);
+            }
+            yield return ReplayFloors(result);
+            yield return EndRun(result);
+        }
+
+        private IEnumerator EndRun(Net.ServerLink.DungeonResultDto run)
+        {
+            DungeonDef dungeon = Dungeons.Find(run.dungeonId);
+            string name = dungeon != null ? dungeon.Name.ToUpperInvariant() : "THE DUNGEON";
+            ReplayBanner = run.cleared ? name + " CLEARED" : run.fellOn > 0 ? $"FELL ON FLOOR {run.fellOn}" : "";
+            if (run.cleared) GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.5f, 0f);
+            Hud.Log(run.text);
+            yield return new WaitForSecondsRealtime(2.5f);
+            ReplayBanner = "";
         }
 
         /// <summary>A guild war duel on a lane: the server decides it, the lane replays it, and the war screen comes back.</summary>

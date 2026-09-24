@@ -66,7 +66,10 @@ namespace Orsuun.Client
         /// </summary>
         private static readonly string[] GorakMobs = { "Wolf#7A5A48", "Deserter#E0876E", "Deserter#B9C2D6" };
 
-        /// <summary>The campaign map of a stage (1 the Oathfields .. 4 Whitefang Range), or 0 for a zone.</summary>
+        /// <summary>The Hollow Spire's floors: the hollowed dead of the grave plain, greyed and washed violet.</summary>
+        private static readonly string[] SpireMobs = { "Ghoul#9C94B0", "Deserter#8E8AA0", "Wolf#8A8298" };
+
+        /// <summary>The campaign map of a stage (1 the Oathfields .. 4 Whitefang Range), or 0 for a zone or a dungeon floor.</summary>
         private static int CampaignMap(int stageNumber) => Content.IsZone(stageNumber) ? 0 : Content.MapOfStage(stageNumber).Id;
 
         /// <summary>
@@ -76,7 +79,8 @@ namespace Orsuun.Client
         private static string[] MobSetFor(int stageNumber)
         {
             int map = CampaignMap(stageNumber);
-            string[] set = map == 2 ? GorakMobs
+            string[] set = Dungeons.IsFloor(stageNumber) ? SpireMobs
+                : map == 2 ? GorakMobs
                 : stageNumber == 102 || stageNumber == 113 || map == 3 ? SaltMobs
                 : stageNumber == 103 || stageNumber == 114 || stageNumber == 115 || map == 4 ? FrostMobs : MobModels;
             // Older builds without the new models keep the Oathfields set.
@@ -97,6 +101,7 @@ namespace Orsuun.Client
         /// </summary>
         private static string BackdropKey(ZoneType zone, int stageNumber)
         {
+            if (Dungeons.IsFloor(stageNumber) && Resources.Load<Material>("Backdrops/BackdropHollowSpire") != null) return "HollowSpire";
             int map = CampaignMap(stageNumber);
             if ((stageNumber == 102 || map == 3) && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
             if ((stageNumber == 103 || map == 4) && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
@@ -220,6 +225,7 @@ namespace Orsuun.Client
                 "CommanderGround" => (new Color(0.30f, 0.21f, 0.15f), new Color(0.35f, 0.25f, 0.18f)),
                 "SaltFlats" => (new Color(0.66f, 0.61f, 0.53f), new Color(0.72f, 0.67f, 0.58f)),
                 "FrostPasture" => (new Color(0.60f, 0.67f, 0.76f), new Color(0.68f, 0.75f, 0.83f)),
+                "HollowSpire" => (new Color(0.24f, 0.23f, 0.26f), new Color(0.29f, 0.27f, 0.31f)),
                 _ => (new Color(0.52f, 0.48f, 0.22f), new Color(0.58f, 0.54f, 0.27f)),
             };
             _ground.material.color = ground;
@@ -965,6 +971,8 @@ namespace Orsuun.Client
                         scale = 1.15f; name = "Deserter"; tint = new Color(0.72f, 0.78f, 0.92f);
                         return LoadMob(name);
                     }
+                    // The Spire Warden, the Hollow Spire's ninth floor: a hollowed wight grown huge in the dark.
+                    if (boss.StartsWith("The Spire Warden")) { scale = 1.5f; name = "IceWight"; tint = new Color(0.55f, 0.48f, 0.74f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     // Nine-Winters, Whitefang Range's map boss: the ice wight lord, an ice wight grown tall and pale.
                     if (boss.StartsWith("Nine-Winters")) { scale = 1.5f; name = "IceWight"; tint = new Color(0.78f, 0.9f, 1f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen" : null;

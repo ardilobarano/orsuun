@@ -194,6 +194,8 @@ v1.MapGet("/guild/war", (HttpContext ctx, GameService game, CancellationToken ct
 v1.MapPost("/guild/war/signup", (HttpContext ctx, GuildWarSignupRequest req, GameService game, CancellationToken ct) => game.GuildWarSignupAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/war/flag", (HttpContext ctx, GuildWarFlagRequest req, GameService game, CancellationToken ct) => game.GuildWarFlagAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/war/fight", (HttpContext ctx, GuildWarFightRequest req, GameService game, CancellationToken ct) => game.GuildWarFightAsync(Me(ctx), req, ct));
+v1.MapPost("/dungeon/enter", (HttpContext ctx, DungeonEnterRequest req, GameService game, CancellationToken ct) => game.EnterDungeonAsync(Me(ctx), req, ct));
+v1.MapPost("/dungeon/smith", (HttpContext ctx, DungeonSmithRequest req, GameService game, CancellationToken ct) => game.DungeonSmithAsync(Me(ctx), req, ct));
 v1.MapPost("/keep/bid", (HttpContext ctx, KeepBidRequest req, GameService game, CancellationToken ct) => game.KeepBidAsync(Me(ctx), req, ct));
 v1.MapPost("/keep/fight", (HttpContext ctx, KeepFightRequest req, GameService game, CancellationToken ct) => game.KeepFightAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/create", (HttpContext ctx, GuildCreateRequest req, GameService game, CancellationToken ct) => game.CreateGuildAsync(Me(ctx), req, ct));
@@ -314,6 +316,7 @@ mod.MapGet("/log", (GameService game, CancellationToken ct) => game.AdminLogAsyn
 if (app.Environment.IsDevelopment())
 {
     v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
+    v1.MapPost("/dev/stage", (HttpContext ctx, int cleared, GameService game, CancellationToken ct) => game.DevStageAsync(Me(ctx), cleared, ct));
     v1.MapPost("/dev/war-night", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevWarNightAsync(Me(ctx), minutes ?? 15, ct));
     v1.MapPost("/dev/war-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevWarEndAsync(Me(ctx), ct));
     v1.MapPost("/dev/keep-siege", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevKeepSiegeAsync(Me(ctx), minutes ?? 15, ct));
