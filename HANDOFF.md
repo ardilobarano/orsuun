@@ -157,8 +157,6 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 ## Known gaps
 
 - `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
-- The Wraithsworn's first band (the older Rodin model) carries two blades; bands 1-2 carry one sword and a void spell
-  in the left hand. All three use the sword attack.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Active play: the account holds a lane seed (new on first login and every park) and the next loop number; StateDto
   carries both. Online, the client's farm lane runs one seeded loop per encounter cycle (`LaneSim.Cycles`; Hunting
@@ -185,8 +183,10 @@ addon panel; Rodin is enabled in fal.ai mode (key in `~/.config/fal/key`, about 
 crashes before sending (it iterates the file-path list when given URLs), so submit to `https://queue.fal.run/fal-ai/hyper3d/rodin`
 directly with front/side/back crops hosted under `/downloads`, `condition_mode: concat`, `tier: Regular`, `material: PBR`.
 First result: the Vanguard (`art/blender/vanguard.blend`), decimated to 12k tris, in the lane as `Resources/Models/Vanguard.fbx`.
-fal.ai's balance ran out once on 24 Sep 2026 ("Exhausted balance" on every call); the owner topped it up the same
-day. The class bands and the Salt Flats / Frost Pasture mobs made in between come from Tripo H3.1 multiview through
+fal.ai's balance ran out on 24 Sep 2026 ("Exhausted balance" on every call); the owner's top-up that day covered one
+Regular Rodin job and it is empty again. Rodin in concat mode twice gave the Wraithsworn a second blade in his empty
+left hand (it seems to read the back view's sword as the other hand's); Tripo read the same three views correctly,
+so the Wraithsworn's bands all come from Tripo (sheets in `docs/concept/<class>-T<n>-sheet.jpg`). The class bands and the Salt Flats / Frost Pasture mobs made in between come from Tripo H3.1 multiview through
 Higgsfield (`tripo_h3_1_multiview_to_3d`, about 9 credits a model, `face_limit: 40000`, front/side/back views in that
 order as imported media), which held up as well as Rodin; either works. Tripo models face +X: pass
 `yaw_degrees=-90` to `class_look` / `mob_model`. Sources are kept as `art/blender/*-tripo.glb`.
