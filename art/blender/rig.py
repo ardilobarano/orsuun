@@ -76,10 +76,6 @@ def measure_hands(verts, base, tip):
 
 
 def build_armature(root, right_hand, left_hand, pole_dir):
-    arm_data = bpy.data.armatures.new("VanguardRig")
-    arm = bpy.data.objects.new("Armature", arm_data)
-    bpy.context.scene.collection.objects.link(arm)
-    arm.parent = root
     layout = {k: list(v) for k, v in LAYOUT.items()}
     layout["forearm.R"][1] = tuple(right_hand)
     layout["hand.R"][0] = tuple(right_hand)
@@ -87,6 +83,15 @@ def build_armature(root, right_hand, left_hand, pole_dir):
     layout["forearm.L"][1] = tuple(left_hand)
     layout["hand.L"][0] = tuple(left_hand)
     layout["hand.L"][1] = tuple(left_hand + Vector((0.0, -0.10, -0.02)))
+    return build_from_layout(root, layout, "VanguardRig")
+
+
+def build_from_layout(root, layout, rig_name):
+    """layout: bone -> [head, tail, parent, radius]. Creates the armature under root with forward-facing rolls."""
+    arm_data = bpy.data.armatures.new(rig_name)
+    arm = bpy.data.objects.new("Armature", arm_data)
+    bpy.context.scene.collection.objects.link(arm)
+    arm.parent = root
 
     view = bpy.context.view_layer
     view.objects.active = arm
@@ -278,3 +283,56 @@ def rig_vanguard(meshes, root, base, tip, body=None):
         attach_to_bone(e, arm, "hand.R")
     key_actions(arm)
     return arm, right, left
+
+
+# ---- other classes: a humanoid standing in an A-pose with a weapon in each hand (Kestrel's knives) ----
+
+def humanoid_layout(verts, height):
+    """Bone layout for an A-pose figure `height` tall, feet on z=0, facing -Y. Proportions are fractions of the
+    height; the hands are measured (the outermost surface at hand height on each side)."""
+    H = height
+    def f(x, y, z):
+        return (x * H, y * H, z * H)
+    band = [v for v in verts if 0.42 * H < v.z < 0.53 * H]
+    right = [v for v in band if v.x < -0.16 * H]
+    left = [v for v in band if v.x > 0.16 * H]
+    def centre(vs, default):
+        return sum(vs, Vector()) / len(vs) if vs else Vector(default)
+    hand_r = centre(right, f(-0.20, 0, 0.48))
+    hand_l = centre(left, f(0.20, 0, 0.48))
+    elbow_r = Vector(f(-0.18, 0.01, 0.605))
+    elbow_l = Vector(f(0.18, 0.01, 0.605))
+    down = Vector((0.0, 0.0, -0.11 * H))                     # hand bones run down the knife
+    return {
+        "root":        [f(0, 0, 0), f(0, 0, 0.1), None, 0.0],
+        "hips":        [f(0, 0.01, 0.51), f(0, 0.01, 0.59), "root", 0.11 * H],
+        "spine":       [f(0, 0.01, 0.59), f(0, 0.01, 0.67), "hips", 0.11 * H],
+        "chest":       [f(0, 0.01, 0.67), f(0, 0.01, 0.78), "spine", 0.12 * H],
+        "neck":        [f(0, 0, 0.78), f(0, 0, 0.845), "chest", 0.05 * H],
+        "head":        [f(0, 0, 0.845), f(0, 0, 1.0), "neck", 0.09 * H],
+        "shoulder.R":  [f(-0.03, 0.01, 0.755), f(-0.09, 0.01, 0.745), "chest", 0.05 * H],
+        "upper_arm.R": [f(-0.09, 0.01, 0.745), tuple(elbow_r), "shoulder.R", 0.045 * H],
+        "forearm.R":   [tuple(elbow_r), tuple(hand_r), "upper_arm.R", 0.04 * H],
+        "hand.R":      [tuple(hand_r), tuple(hand_r + down), "forearm.R", 0.05 * H],
+        "shoulder.L":  [f(0.03, 0.01, 0.755), f(0.09, 0.01, 0.745), "chest", 0.05 * H],
+        "upper_arm.L": [f(0.09, 0.01, 0.745), tuple(elbow_l), "shoulder.L", 0.045 * H],
+        "forearm.L":   [tuple(elbow_l), tuple(hand_l), "upper_arm.L", 0.04 * H],
+        "hand.L":      [tuple(hand_l), tuple(hand_l + down), "forearm.L", 0.05 * H],
+        "thigh.L":     [f(0.05, 0.01, 0.50), f(0.06, 0, 0.28), "hips", 0.06 * H],
+        "shin.L":      [f(0.06, 0, 0.28), f(0.065, 0.01, 0.045), "thigh.L", 0.05 * H],
+        "foot.L":      [f(0.065, 0.01, 0.045), f(0.065, -0.065, 0.01), "shin.L", 0.045 * H],
+        "thigh.R":     [f(-0.05, 0.01, 0.50), f(-0.06, 0, 0.28), "hips", 0.06 * H],
+        "shin.R":      [f(-0.06, 0, 0.28), f(-0.065, 0.01, 0.045), "thigh.R", 0.05 * H],
+        "foot.R":      [f(-0.065, 0.01, 0.045), f(-0.065, -0.065, 0.01), "shin.R", 0.045 * H],
+    }
+
+
+def rig_humanoid(meshes, root, height, rig_name):
+    """Rigs an A-pose class model with the shared bone names, so the same five actions play on it."""
+    verts = [v.co.copy() for m in meshes for v in m.data.vertices]
+    layout = humanoid_layout(verts, height)
+    arm, radii = build_from_layout(root, layout, rig_name)
+    for m in meshes:
+        skin(m, arm, radii)
+    key_actions(arm)
+    return arm, layout

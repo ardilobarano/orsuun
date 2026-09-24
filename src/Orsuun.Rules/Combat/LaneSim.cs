@@ -4,8 +4,19 @@ using System.Collections.Generic;
 
 namespace Orsuun.Rules.Combat
 {
+    /// <summary>Playable classes in the lane (GDD section 4). Kestrel since 24 Sep 2026; the others come later.</summary>
+    public enum HeroClass
+    {
+        Vanguard = 0,
+        Kestrel = 1,
+    }
+
     public sealed class HeroStats
     {
+        /// <summary>The class these stats belong to; it also picks the skill kit (SkillDef.For).</summary>
+        public HeroClass Class { get; set; } = HeroClass.Vanguard;
+        /// <summary>An aimed Burst on a Korstone or boss hits for this share of its power (LaneSim.AimedWeakPointPercent).</summary>
+        public int WeakPointPercent { get; set; } = LaneSim.AimedWeakPointPercent;
         public long MaxHp { get; set; } = 2000;
         public long Attack { get; set; } = 80;
         /// <summary>Flat reduction of every enemy hit, never below 1 damage.</summary>
@@ -47,6 +58,21 @@ namespace Orsuun.Rules.Combat
         public int CooldownTicks { get; }
         public int PowerPercent { get; }
         public int DurationTicks { get; }
+
+        /// <summary>The kit a class fights with.</summary>
+        public static SkillDef[] For(HeroClass cls) => cls == HeroClass.Kestrel ? KestrelTalon() : VanguardWrath();
+
+        /// <summary>
+        /// Kestrel, Talon branch (paired knives): GDD "best single target, fastest bosses". Heartseeker is a bigger
+        /// burst than Rending Arc and finds a Korstone's or boss's weak point harder (HeroStats.WeakPointPercent 900);
+        /// Knife Fan is a thinner area hit than Iron Whirl. Aimed play pays about 125%, as the Vanguard's does.
+        /// </summary>
+        public static SkillDef[] KestrelTalon() => new[]
+        {
+            new SkillDef("Heartseeker", SkillKind.Burst, 6 * LaneSim.TicksPerSecond, 600),
+            new SkillDef("Knife Fan", SkillKind.Area, 10 * LaneSim.TicksPerSecond, 130),
+            new SkillDef("Kestrel's Dive", SkillKind.Haste, 14 * LaneSim.TicksPerSecond, 0, 5 * LaneSim.TicksPerSecond),
+        };
 
         /// <summary>Grey-box kit of the Vanguard, Wrath branch.</summary>
         public static SkillDef[] VanguardWrath() => new[]
@@ -315,7 +341,7 @@ namespace Orsuun.Rules.Combat
                 case SkillKind.Burst:
                     Enemy? target = aimed ? Toughest() : FrontTarget();
                     if (target != null)
-                        Hit(target, aimed && (target.IsKorstone || target.IsBoss) ? skill.PowerPercent * AimedWeakPointPercent / 100 : skill.PowerPercent);
+                        Hit(target, aimed && (target.IsKorstone || target.IsBoss) ? skill.PowerPercent * _hero.WeakPointPercent / 100 : skill.PowerPercent);
                     break;
 
                 case SkillKind.Area:

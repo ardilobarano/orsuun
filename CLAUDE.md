@@ -38,6 +38,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   visible and glow (each by its own level, classic MMO shine, +7 pale gold, +8 gold, +9 ember-gold); weapon and armour
   looks change every 10 item levels (`ItemLooks`). Helmet, shield, jewellery, shoes are stats only. (24 Sep) every
   Forge attempt asks first; any owned piece, worn or in the bag, can be forged and turned.
+- Designs must be original: nothing that reads as another game's character (a first Tul-Gorak came out as Kratos and
+  was redone). Characters may be muscular or curvy but stay clothed and non-explicit (store ratings).
 - Art: generate sheets with the chosen `docs/concept/vanguard-1-sheet.jpg` as the style reference. 3D via Hyper3D Rodin on
   fal.ai (key in `~/.config/fal/key`, never in chat or git); the Blender MCP tool's fal path is broken, call the fal queue
   API directly. Item looks go through `art/blender/looks.py` (armour looks are rigged there by `rig.py`); enemies through

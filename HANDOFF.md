@@ -19,6 +19,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Forge burn rule | Items can be destroyed (Oathbreak) only from the +4 attempt upward; +1..+3 failures drop one level. |
 | Every item like the weapon | Owner, 23 Sep 2026: any equipped item can be forged and turned with the weapon's costs, chances and methods; an Oathbreak replaces it with a starter piece for its slot. The Forge screen picks the item with a slot row. |
 | Forge from the bag, and asking first | Owner, 24 Sep 2026: every Forge attempt asks for confirmation first (chance, full cost, what a failure costs), and pieces can be forged and turned from the Gear screen without equipping them. Assumption (not stated by the owner): an Oathbreak on a bag piece just destroys it; only a worn piece is replaced by a starter, so breaking junk cannot mint starters. |
+| Kestrel, character styling | Owner, 24 Sep 2026: add a second class, commanders, title screen and hunt sound; make characters "a bit muscled up or with big tits and ass". Built as: heroic muscular men (Vanguard drawn 10% broader, Tul-Gorak), curvy women (Kestrel, the Mirage Queen), always fully clothed and non-explicit so store ratings stay in the teen band. Kestrel (Talon, paired knives) is the second class: Heartseeker 600% / 6 s with a 900% weak point, Knife Fan 130% / 10 s, Kestrel's Dive haste; 90% attack, 85% HP, +7% crit, 10-tick swings. Measured: pushes 7% faster than the Vanguard, aimed play 125%. Class switch is free and instant for the playtest (Gear screen). The Wraithsworn stays next on the roadmap. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -59,6 +60,16 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   Tul-Gorak and his captains as war-red deserters. Mobs bob while alive and keel over when slain.
 - Active play wired end to end (see Known gaps for the rules): verified on 24 Sep 2026 with the Mac player against a
   local server, two loops reported and both replayed as exact matches.
+- Kestrel playable (`HeroClass`, `SkillDef.For`, `HeroFactory` class shape, `Account.Class` + migration `HeroClass`,
+  `POST /v1/class`); her model is rigged by `rig.rig_humanoid` (A-pose, hands measured, shared actions) through
+  `looks.class_look` into `Resources/Models/Classes`. `KestrelTests` cover her kit, pace and loop replay (100 tests).
+- Commanders in 3D: Tul-Gorak (an original steppe warlord; a first sheet read like Kratos from God of War and was
+  dropped), the Mirage Queen (her images are her model washed violet) and Old Greyjaw, all via `looks.mob_model`.
+- Hunt sound and feel: `GameAudio` (music crossfades, per-sound minimum gaps, SOUND toggle saved in PlayerPrefs),
+  twelve lane sounds and two music tracks in `Resources/Audio` (Mirelo / Sonilo; the hunt loop is crossfaded end into
+  start), hit sparks from one pooled particle system (`Resources/FxSpark.mat`, additive URP particles).
+- Title and loading screen (`TitleScreen`, art in `Resources/Art/Title.jpg`, alternatives in `docs/concept/title-*`);
+  the Unity splash is off and iOS shows the title art while loading. Dev switches: `-title`, `-notitle`, `-kestrel`.
 - Gear screen rebuilt: worn pieces as tiles with rarity rims and +level badges, a detail card (own stats, what wearing
   it would change, etchings, sockets), the bag as a scrolling grid with a slot filter, and EQUIP / FORGE / TURN for any
   piece. Forge and Turn requests carry the item id (`ForgeRequest.ItemId`, `TurnRequest.ItemId`); upgraded bag pieces are

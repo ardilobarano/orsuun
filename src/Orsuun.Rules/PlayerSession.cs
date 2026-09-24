@@ -46,7 +46,7 @@ namespace Orsuun.Rules
         /// Every piece scales with its upgrade level and rarity; etchings add on top; each character level adds
         /// +2 attack and +40 HP so Hunting Grounds pay off in power, not only in sorn.
         /// </summary>
-        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level)
+        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level, HeroClass cls = HeroClass.Vanguard)
         {
             long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
             int critBp = 500, critMult = 200, beast = 0, evasionBp = 0, haste = 0, warding = 0;
@@ -105,8 +105,22 @@ namespace Orsuun.Rules
                 }
             }
 
+            int interval = 12, weakPoint = LaneSim.AimedWeakPointPercent;
+            if (cls == HeroClass.Kestrel)
+            {
+                // Light and quick: faster blows and more crits, less weight per hit and a thinner hide.
+                attack = attack * 90 / 100;
+                defense = defense * 80 / 100;
+                maxHp = maxHp * 85 / 100;
+                critBp += 700;
+                interval = 10;
+                weakPoint = 900;           // an assassin's Heartseeker finds the seam in the stone
+            }
+
             return new HeroStats
             {
+                Class = cls,
+                WeakPointPercent = weakPoint,
                 Attack = attack,
                 Defense = defense,
                 MaxHp = maxHp,
@@ -114,7 +128,7 @@ namespace Orsuun.Rules
                 CritMultiplierPercent = critMult,
                 BeastDamagePercent = beast,
                 EvasionBp = Math.Min(evasionBp, 5000),
-                AttackIntervalTicks = Math.Max(6, 12 * 100 / (100 + haste)),
+                AttackIntervalTicks = Math.Max(6, interval * 100 / (100 + haste)),
                 CommanderDamageTakenPercent = Math.Max(40, 100 - warding),
             };
         }
@@ -170,7 +184,7 @@ namespace Orsuun.Rules
             _rng = rng;
             Inventory = new Inventory { Sorn = 20_000, Potions = 30, ScrollsOfMercy = 2, Turnstones = 5 };
             _equipped[(int)EquipSlot.Weapon] = NewWeapon();
-            Lane = new LaneSim(stage ?? Content.Stage(1), Hero, SkillDef.VanguardWrath(), Inventory, rng);
+            Lane = new LaneSim(stage ?? Content.Stage(1), Hero, SkillDef.For(Class), Inventory, rng);
         }
 
         public Inventory Inventory { get; }
@@ -217,7 +231,17 @@ namespace Orsuun.Rules
         private bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
-        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level);
+        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class);
+
+        /// <summary>The class being played. Changing it rebuilds the farm lane with that class's kit.</summary>
+        public HeroClass Class { get; private set; } = HeroClass.Vanguard;
+
+        public void SetClass(HeroClass cls)
+        {
+            if (cls == Class) return;
+            Class = cls;
+            NewFarmLane(ParkedStage);
+        }
         /// <summary>Etching pool of the item on the anvil (weapons and armour roll from different pools).</summary>
         public EtchingPool Pool => EtchingPool.For(OnAnvil.Slot);
 
@@ -354,7 +378,7 @@ namespace Orsuun.Rules
                 return;
             }
             bool[] auto = (bool[])Lane.AutoCast.Clone();
-            Lane = new LaneSim(stage, Hero, SkillDef.VanguardWrath(), Inventory, _rng);
+            Lane = new LaneSim(stage, Hero, SkillDef.For(Class), Inventory, _rng);
             Array.Copy(auto, Lane.AutoCast, Math.Min(auto.Length, Lane.AutoCast.Length));
         }
 
@@ -392,7 +416,7 @@ namespace Orsuun.Rules
         {
             bool[] auto = (bool[])Lane.AutoCast.Clone();
             HeroStats hero = Hero;
-            Lane = ActivePlay.NewLoop(stage, hero, SkillDef.VanguardWrath(), Inventory, _laneSeed!.Value, loop);
+            Lane = ActivePlay.NewLoop(stage, hero, SkillDef.For(Class), Inventory, _laneSeed!.Value, loop);
             Array.Copy(auto, Lane.AutoCast, Math.Min(auto.Length, Lane.AutoCast.Length));
             LaneLoop = loop;
             _loopAuto = (bool[])Lane.AutoCast.Clone();
@@ -457,7 +481,7 @@ namespace Orsuun.Rules
         }
 
         private static string Fingerprint(HeroStats h) =>
-            h.MaxHp + "/" + h.Attack + "/" + h.Defense + "/" + h.AttackIntervalTicks + "/" + h.CritChanceBp + "/" + h.CritMultiplierPercent
+            h.Class + "/" + h.WeakPointPercent + "/" + h.MaxHp + "/" + h.Attack + "/" + h.Defense + "/" + h.AttackIntervalTicks + "/" + h.CritChanceBp + "/" + h.CritMultiplierPercent
             + "/" + h.BeastDamagePercent + "/" + h.EvasionBp + "/" + h.CommanderDamageTakenPercent;
 
         /// <summary>Local Commander fight: damage, rank among simulated rivals and the chest. The server does the same.</summary>

@@ -1,4 +1,5 @@
 using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 
 namespace Orsuun.Server.Game;
 
@@ -38,6 +39,8 @@ public sealed record SocketResultDto(bool Success, int SocketIndex, string Text)
 
 public sealed record EquipRequest(string RequestId, Guid ItemId);
 public sealed record ParkRequest(int Stage);
+/// <summary>Switches the class being played (playtest: free and instant).</summary>
+public sealed record ClassRequest(HeroClass HeroClass);
 public sealed record PushRequest(string RequestId);
 
 /// <summary>The server's verdict on a push plus the seed the client replays to show it.</summary>
@@ -80,7 +83,8 @@ public sealed record StateDto(
     BossFightResultDto? LastBossFight,
     SocketResultDto? LastSocket,
     TurnResultDto? LastTurn,
-    LaneDto? Lane = null);
+    LaneDto? Lane = null,
+    HeroClass HeroClass = HeroClass.Vanguard);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

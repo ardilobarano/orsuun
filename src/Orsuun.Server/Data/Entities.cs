@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 
 namespace Orsuun.Server.Data;
 
@@ -38,6 +39,9 @@ public sealed class Account
     public long LaneSeed { get; set; }
     /// <summary>Next loop number the server will accept a report for.</summary>
     public int LaneLoop { get; set; }
+
+    /// <summary>The class being played; it picks the hero's stat shape and skill kit.</summary>
+    public HeroClass Class { get; set; } = HeroClass.Vanguard;
 
     /// <summary>All items the account owns, equipped or in the loot list. Loaded with the account.</summary>
     public List<Item> Items { get; set; } = new();

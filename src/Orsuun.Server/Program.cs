@@ -89,6 +89,7 @@ v1.MapPost("/equip", (HttpContext ctx, EquipRequest req, GameService game, Cance
 v1.MapPost("/socket/insert", (HttpContext ctx, SocketInsertRequest req, GameService game, CancellationToken ct) => game.SocketInsertAsync(Me(ctx), req, ct));
 v1.MapPost("/socket/clear", (HttpContext ctx, SocketClearRequest req, GameService game, CancellationToken ct) => game.SocketClearAsync(Me(ctx), req, ct));
 v1.MapPost("/park", (HttpContext ctx, ParkRequest req, GameService game, CancellationToken ct) => game.ParkAsync(Me(ctx), req, ct));
+v1.MapPost("/class", (HttpContext ctx, ClassRequest req, GameService game, CancellationToken ct) => game.SetClassAsync(Me(ctx), req, ct));
 v1.MapPost("/push", (HttpContext ctx, PushRequest req, GameService game, CancellationToken ct) => game.PushAsync(Me(ctx), req, ct));
 
 if (app.Environment.IsDevelopment())

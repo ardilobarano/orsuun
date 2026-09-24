@@ -122,7 +122,7 @@ public sealed class GameService
         long elapsedTicks = Math.Max(1L, (long)((now - account.LastHeartbeatUtc).TotalSeconds * LaneSim.TicksPerSecond));
         StageConfig stage = EveningBells.Apply(Content.Stage(account.ParkedStage), _bells.Active);
         HeroStats hero = Hero(account);
-        SkillDef[] skills = SkillDef.VanguardWrath();
+        SkillDef[] skills = SkillDef.For(hero.Class);
         ulong seed = unchecked((ulong)account.LaneSeed);
 
         long reported = 0, coveredTicks = 0, weighted = 0;
@@ -310,6 +310,24 @@ public sealed class GameService
     }
 
     /// <summary>
+    /// Switches class. The time on the old class is settled first, and the lane gets a fresh seed so loop reports
+    /// from the old kit can never be judged against the new one.
+    /// </summary>
+    public async Task<StateDto> SetClassAsync(Account account, ClassRequest request, CancellationToken ct)
+    {
+        if (!Enum.IsDefined(request.HeroClass)) throw new GameException("bad_class", "Unknown class.");
+        if (request.HeroClass == account.Class) return ToState(account);
+        DateTime now = DateTime.UtcNow;
+        SettlementDto settlement = Settle(account, now);
+        account.LastHeartbeatUtc = now;
+        account.Class = request.HeroClass;
+        NewLane(account);
+        _db.Ledger.Add(Entry(account.Id, null, "class", request.HeroClass.ToString(), 0, Guid.NewGuid().ToString("N")));
+        await SaveAsync(ct);
+        return ToState(account, settlement: settlement);
+    }
+
+    /// <summary>
     /// Decides the next stage with a fresh seed. The client replays the same seed with the same hero, so the
     /// fight it shows is the fight that was scored here.
     /// </summary>
@@ -484,7 +502,7 @@ public sealed class GameService
     }
 
     private static HeroStats Hero(Account a) =>
-        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp));
+        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class);
 
     private static int[] ParseShards(string s) => s.Split(';').Select(int.Parse).ToArray();
     private static string[] ParseSkins(string s) => s.Split(';', StringSplitOptions.RemoveEmptyEntries);
@@ -539,7 +557,8 @@ public sealed class GameService
             bossFight,
             socket,
             turn,
-            new LaneDto(unchecked((ulong)account.LaneSeed).ToString(), account.LaneLoop));
+            new LaneDto(unchecked((ulong)account.LaneSeed).ToString(), account.LaneLoop),
+            account.Class);
     }
 
     private static ItemDto ToDto(Item item)

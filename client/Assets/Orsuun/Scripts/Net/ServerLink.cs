@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -145,6 +146,14 @@ namespace Orsuun.Client.Net
             done(turns, stopped, failure);
         }
 
+        /// <summary>Switches the class being played on the server; the state that comes back carries the new lane seed.</summary>
+        public IEnumerator SetClass(HeroClass cls, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/class", "{\"heroClass\":\"" + cls + "\"}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
         private static string WithoutEmptyItemId(string json) => json.Replace(",\"itemId\":\"\"", "");
 
         public IEnumerator Equip(string itemId, Action<string> done)
@@ -280,6 +289,7 @@ namespace Orsuun.Client.Net
             if (anvilId != null)
                 foreach (KeyValuePair<ItemState, string> pair in ItemIds)
                     if (pair.Value == anvilId) { _player.PutOnAnvil(pair.Key); break; }
+            if (!string.IsNullOrEmpty(s.heroClass) && Enum.TryParse(s.heroClass, out HeroClass cls)) _player.SetClass(cls);
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
             Online = true;
@@ -357,6 +367,6 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; }
     }
 }

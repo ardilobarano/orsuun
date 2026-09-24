@@ -30,6 +30,9 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("AnvilWards")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Class")
+                        .HasColumnType("integer");
+
                     b.Property<string>("CreatedIp")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");

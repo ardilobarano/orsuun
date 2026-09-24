@@ -29,6 +29,9 @@ namespace Orsuun.Client
             public float Y;
             /// <summary>A 3D wolf, boar or deserter (not the Korstone, not a grey box).</summary>
             public bool IsMob;
+            public bool IsKorstone;
+            /// <summary>Height above the root where hits land (models stand on the ground, boxes are centred).</summary>
+            public float HitHeight;
         }
 
         /// <summary>A 3D enemy: model and material under Resources (art/blender/looks.py mob_model), and its lane scale.</summary>
@@ -181,6 +184,7 @@ namespace Orsuun.Client
             _rig = new GameObject("Rig").transform;
             _rig.SetParent(_hero, false);
             _rig.localRotation = Quaternion.Euler(0f, 125f, 0f); // models face +Z: this faces the enemies, three-quarter to the camera
+            _rig.localScale = VanguardBuild;
             _heroY = 0f;
             _heroTint = Color.white;
             _hero.position = new Vector3(HeroX, _heroY, 0f);
@@ -215,6 +219,7 @@ namespace Orsuun.Client
         public bool SetLooks(string armorLookId, string weaponLookId)
         {
             if (_rig == null) return false;
+            if (_class != HeroClass.Vanguard) return true;   // other classes wear their own model (SetHeroClass)
             armorLookId ??= BareArmorLook;
             if (armorLookId == _armorLookId && weaponLookId == _weaponLookId) return true;
             if (_heroDown) return true; // lying down: swap once back on his feet
@@ -354,13 +359,28 @@ namespace Orsuun.Client
                     {
                         hit.Punch = 1f;
                         Float(e.Amount.ToString(), hit.Root.position + Vector3.up * 1.2f, e.Crit ? Palette.Warn : Color.white, e.Crit ? 1.5f : 1f);
+                        Vector3 at = hit.Root.position + Vector3.up * hit.HitHeight + new Vector3(-0.2f, 0f, -0.3f);
+                        if (e.Crit) Sparks(at, 18, new Color(1f, 0.95f, 0.7f), 1.4f);
+                        else Sparks(at, hit.IsKorstone ? 10 : 7, hit.IsKorstone ? new Color(1f, 0.45f, 0.12f) : new Color(1f, 0.7f, 0.3f), 1f);
                     }
+                    GameAudio.Instance?.Play(e.Crit ? "LaneHitCrit" : "LaneHitSlash", e.Crit ? 0.9f : 0.55f, e.Crit ? 0.08f : 0.07f);
                     break;
 
                 case LaneEventKind.EnemyDied:
                     if (_views.TryGetValue(e.EnemyId, out EnemyView dead))
                     {
                         _views.Remove(e.EnemyId);
+                        Vector3 at = dead.Root.position + Vector3.up * dead.HitHeight;
+                        if (dead.IsKorstone)
+                        {
+                            Sparks(at + Vector3.up * 0.4f, 90, new Color(1f, 0.5f, 0.12f), 2.2f);
+                            GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.3f);
+                        }
+                        else
+                        {
+                            Sparks(at, 14, new Color(0.75f, 0.15f, 0.1f), 1.1f);
+                            GameAudio.Instance?.Play("LaneMobDeath", 0.45f, 0.12f);
+                        }
                         if (dead.IsMob && _falling.Count < 24)
                         {
                             // Models keel over and sink into the grass; the HP bar goes at once.
@@ -374,6 +394,7 @@ namespace Orsuun.Client
 
                 case LaneEventKind.KorstoneWave:
                     Float("WAVE " + e.Amount, new Vector3(3.4f, 3.4f, 0f), Palette.Bad, 1.8f);
+                    GameAudio.Instance?.Play("LaneKorstoneWave", 0.8f, 0.5f);
                     break;
 
                 case LaneEventKind.Shielded:
@@ -388,10 +409,16 @@ namespace Orsuun.Client
                 case LaneEventKind.HeroDamaged:
                     _heroHurt = 1f;
                     Flinch();
+                    GameAudio.Instance?.Play("LaneHeroHurt", 0.4f, 0.3f);
                     break;
 
                 case LaneEventKind.HeroHealed:
                     Float("+" + e.Amount, _hero.position + Vector3.up * 1.4f, Palette.Good, 1.2f);
+                    GameAudio.Instance?.Play("LanePotion", 0.7f, 0.3f);
+                    break;
+
+                case LaneEventKind.Loot:
+                    GameAudio.Instance?.Play("LaneLoot", 0.6f, 0.4f);
                     break;
 
                 case LaneEventKind.HeroDied:
@@ -416,6 +443,12 @@ namespace Orsuun.Client
 
                 case LaneEventKind.SkillCast:
                     Float(e.Text, _hero.position + Vector3.up * 1.9f, new Color(0.6f, 0.85f, 1f), 1.3f);
+                    if (e.Amount >= 0 && e.Amount < _sim.Skills.Length)
+                    {
+                        SkillKind kind = _sim.Skills[(int)e.Amount].Kind;
+                        GameAudio.Instance?.Play(kind == SkillKind.Burst ? "LaneSkillBurst" : kind == SkillKind.Area ? "LaneSkillArea" : "LaneSkillHaste", 0.85f, 0.2f);
+                        if (kind == SkillKind.Haste) Sparks(_hero.position + Vector3.up * 1.2f, 30, new Color(1f, 0.4f, 0.15f), 1.6f);
+                    }
                     break;
             }
         }
@@ -527,6 +560,52 @@ namespace Orsuun.Client
             }
         }
 
+        /// <summary>
+        /// "A bit muscled up" (owner, 24 Sep 2026): the Vanguard rig is drawn broader and a touch taller, which widens
+        /// shoulders, chest and arms on every armour look without new art.
+        /// </summary>
+        private static readonly Vector3 VanguardBuild = new Vector3(1.1f, 1.03f, 1.1f);
+
+        private HeroClass _class = HeroClass.Vanguard;
+        private GameObject _classLook;
+
+        /// <summary>Shows the class being played: the Vanguard's armour and glaive looks, or another class's own model.</summary>
+        public void SetHeroClass(HeroClass cls)
+        {
+            if (cls == _class || _rig == null) return;
+            _class = cls;
+            if (_armorLook != null) Kill(_armorLook);
+            if (_weaponLook != null) Kill(_weaponLook);
+            if (_classLook != null) Kill(_classLook);
+            _armorLook = _weaponLook = _classLook = null;
+            _armorLookId = _weaponLookId = null;
+            _heroParts.Clear();
+            for (int i = 0; i < _partGlow.Length; i++) _partGlow[i] = -1f;
+            _anim = null;
+            _rig.localScale = cls == HeroClass.Vanguard ? VanguardBuild : Vector3.one;
+            if (cls == HeroClass.Vanguard) return;   // GameRoot's next SetLooks rebuilds him
+
+            string name = cls.ToString();
+            var prefab = Resources.Load<GameObject>("Models/Classes/" + name);
+            if (prefab == null) return;
+            _classLook = Instantiate(prefab, _rig);
+            _anim = _classLook.GetComponent<Animation>();
+            if (_anim != null && _anim.GetClip("Idle") == null) _anim = null;
+            var material = Resources.Load<Material>("Looks/" + name);
+            Bounds b = default;
+            bool first = true;
+            foreach (Renderer r in _classLook.GetComponentsInChildren<Renderer>())
+            {
+                if (material != null) r.sharedMaterial = material;
+                // One body: it shines with the armour's upgrade level.
+                _heroParts.Add((r, (int)EquipSlot.Armor));
+                if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
+            }
+            Vector3 origin = _rig.position;
+            _classLook.transform.position -= new Vector3(b.center.x - origin.x, b.min.y - origin.y, b.center.z - origin.z);
+            Play("Idle", 0f);
+        }
+
         private void Play(string clip, float fade)
         {
             if (_anim == null || _anim.GetClip(clip) == null) return;
@@ -556,8 +635,64 @@ namespace Orsuun.Client
             if (_anim == null) return false;
             AnimationClip c = _anim.GetClip(clip);
             if (c == null) return false;
-            c.SampleAnimation(_armorLook, normalizedTime * c.length);
+            c.SampleAnimation(_anim.gameObject, normalizedTime * c.length);
             return true;
+        }
+
+        private ParticleSystem _sparks;
+        private int _sparksThisFrame;
+        private int _sparkFrame;
+
+        /// <summary>Hit sparks: one pooled world-space particle system, capped per frame so packs stay cheap on phones.</summary>
+        private void Sparks(Vector3 at, int count, Color color, float speed)
+        {
+            if (_sparks == null)
+            {
+                var material = Resources.Load<Material>("FxSpark");
+                if (material == null) return;
+                var go = new GameObject("HitSparks");
+                go.transform.SetParent(transform, false);
+                _sparks = go.AddComponent<ParticleSystem>();
+                _sparks.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                ParticleSystem.MainModule main = _sparks.main;
+                main.playOnAwake = false;
+                main.loop = false;
+                main.duration = 1f;
+                main.startLifetime = new ParticleSystem.MinMaxCurve(0.25f, 0.55f);
+                main.startSpeed = new ParticleSystem.MinMaxCurve(2.5f, 6.5f);
+                main.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.11f);
+                main.gravityModifier = 1.1f;
+                main.simulationSpace = ParticleSystemSimulationSpace.World;
+                main.maxParticles = 700;
+                ParticleSystem.EmissionModule emission = _sparks.emission;
+                emission.enabled = false;
+                ParticleSystem.ShapeModule shape = _sparks.shape;
+                shape.shapeType = ParticleSystemShapeType.Sphere;
+                shape.radius = 0.12f;
+                ParticleSystem.ColorOverLifetimeModule fade = _sparks.colorOverLifetime;
+                fade.enabled = true;
+                var gradient = new Gradient();
+                gradient.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                    new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0.8f, 0.5f), new GradientAlphaKey(0f, 1f) });
+                fade.color = gradient;
+                var renderer = go.GetComponent<ParticleSystemRenderer>();
+                renderer.sharedMaterial = material;
+                renderer.renderMode = ParticleSystemRenderMode.Stretch;
+                renderer.velocityScale = 0.06f;
+                renderer.lengthScale = 1.5f;
+                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                _sparks.Play();
+            }
+            if (_sparkFrame != Time.frameCount) { _sparkFrame = Time.frameCount; _sparksThisFrame = 0; }
+            count = Mathf.Min(count, 120 - _sparksThisFrame);
+            if (count <= 0) return;
+            _sparksThisFrame += count;
+            var emit = new ParticleSystem.EmitParams { position = at, applyShapeToPosition = true, startColor = color };
+            for (int i = 0; i < count; i++)
+            {
+                emit.velocity = (Random.onUnitSphere + Vector3.up * 0.8f).normalized * Random.Range(2.5f, 6.5f) * speed;
+                _sparks.Emit(emit, 1);
+            }
         }
 
         private static Vector3 BaseScale(bool korstone, bool boss = false) =>
@@ -629,7 +764,8 @@ namespace Orsuun.Client
             fill.SetParent(holder, false);
             fill.localPosition = new Vector3(0f, 0f, -0.01f);
 
-            _views[enemyId] = new EnemyView { Root = root, HpFill = fill, Scale = s, IsModel = standing, Y = y, IsMob = art != null };
+            float hitHeight = art != null ? art.Height * s.y * 0.55f : model != null ? 1.4f : 0f;
+            _views[enemyId] = new EnemyView { Root = root, HpFill = fill, Scale = s, IsModel = standing, Y = y, IsMob = art != null, IsKorstone = korstone, HitHeight = hitHeight };
         }
 
         /// <summary>
@@ -649,10 +785,20 @@ namespace Orsuun.Client
                     tint = new Color(1f, 0.72f, 0.55f);
                     return LoadMob("Deserter");
                 case EnemyKind.Boss:
+                {
+                    // Commanders have their own models (24 Sep 2026); older builds fall back to scaled mobs.
                     string boss = _sim.Stage.BossName ?? "";
+                    MobArt own = boss.Contains("Greyjaw") ? LoadMob("Greyjaw") : boss.Contains("Gorak") ? LoadMob("Gorak") : boss.Contains("Mirage") ? LoadMob("Queen") : null;
+                    if (own != null) { scale = 1f; return own; }
                     if (boss.Contains("Greyjaw")) { scale = 1.8f; return LoadMob("Wolf"); }
                     if (boss.Contains("Gorak")) { scale = 1.25f; tint = new Color(1f, 0.6f, 0.5f); return LoadMob("Deserter"); }
                     return null;
+                }
+                case EnemyKind.Image:
+                    // The Mirage Queen's false images: her shape, washed violet.
+                    scale = 0.9f;
+                    tint = new Color(0.72f, 0.55f, 1f);
+                    return LoadMob("Queen");
                 default:
                     return null;
             }

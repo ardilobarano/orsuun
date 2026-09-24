@@ -54,6 +54,7 @@ namespace Orsuun.Client
         private Text _equipLabel;
         private Button _forgeButton;
 
+        private Text _classLabel;
         private ItemState _selected;
         private string _selectedId;
 
@@ -80,6 +81,7 @@ namespace Orsuun.Client
             Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
             Ui.Title("Title", canvas, 0.05f, 0.94f, 0.95f, 0.978f, "GEAR", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _hero = Ui.Label("Hero", canvas, 0.04f, 0.91f, 0.96f, 0.937f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Button("Class", canvas, 0.66f, 0.944f, 0.96f, 0.976f, "", 22, Palette.Alloy, SwitchClass, out _classLabel);
 
             // Worn: two rows of four.
             for (int i = 0; i < 8; i++)
@@ -221,6 +223,18 @@ namespace Orsuun.Client
             _root.Forge.Open(fromGear: true);
         }
 
+        /// <summary>Playtest: switch between the playable classes at will (server-side on line).</summary>
+        private void SwitchClass()
+        {
+            HeroClass next = _root.Session.Class == HeroClass.Vanguard ? HeroClass.Kestrel : HeroClass.Vanguard;
+            if (_root.Server.Online) StartCoroutine(_root.Server.SetClass(next, error => _message.text = error ?? "Now playing " + next + "."));
+            else
+            {
+                _root.Session.SetClass(next);
+                _message.text = "Now playing " + next + ".";
+            }
+        }
+
         private void CycleFilter() => _filter = _filter >= 7 ? -1 : _filter + 1;
 
         private void Update()
@@ -230,6 +244,7 @@ namespace Orsuun.Client
             HeroStats hero = session.Hero;
             _hero.text = $"Level {session.Level}  ·  Attack {hero.Attack}  ·  Defense {hero.Defense}  ·  HP {hero.MaxHp}  ·  Crit {hero.CritChanceBp / 100}%";
             ItemState selected = Selected();
+            _classLabel.text = "CLASS: " + session.Class.ToString().ToUpperInvariant() + "  >";
 
             for (int i = 0; i < 8; i++)
                 Fill(_worn[i], session.Equipped((EquipSlot)i), selected, (EquipSlot)i);

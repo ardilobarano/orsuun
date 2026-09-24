@@ -28,6 +28,7 @@ namespace Orsuun.Client
         public ZonePanel Zones { get; private set; }
         public SocketPanel Sockets { get; private set; }
         public Net.ServerLink Server { get; private set; }
+        public TitleScreen Title { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
         /// <summary>The bell in force: the server's when online, else the local clock's (the local session uses it too).</summary>
@@ -54,6 +55,7 @@ namespace Orsuun.Client
             Session = new PlayerSession(new XorShiftRandom((ulong)DateTime.UtcNow.Ticks));
             Session.Lane.AutoCast[1] = true;
 
+            GameAudio.Create();
             BuildCameras();
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
             Lane.Init(Session.Lane);
@@ -72,12 +74,18 @@ namespace Orsuun.Client
             Sockets.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
+            Title = new GameObject("TitleScreen").AddComponent<TitleScreen>();
+            Title.Init(this);
+            // Screenshots and demos skip the title unless asked for it.
+            string[] cmd = Environment.GetCommandLineArgs();
+            if (Array.IndexOf(cmd, "-notitle") >= 0 || (Array.IndexOf(cmd, "-shot") >= 0 && Array.IndexOf(cmd, "-title") < 0)) Title.Skip();
 
             // Dev switch for screenshots and demos: Orsuun.exe -forge
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-forge") >= 0) Forge.Open();
 
             // Dev switches for screenshots: -sampleloot fills a local bag; -gear opens the Gear screen; -confirm asks to forge.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-sampleloot") >= 0 && !Server.Online) SampleLoot();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-kestrel") >= 0 && !Server.Online) Session.SetClass(HeroClass.Kestrel);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }
@@ -135,6 +143,7 @@ namespace Orsuun.Client
 
             LaneSim lane = ActiveLane;
             if (Lane.Sim != lane) Lane.Bind(lane);
+            Lane.SetHeroClass(Session.Class);
             Lane.SetLooks(Session.Equipped(EquipSlot.Armor)?.LookId, Session.Weapon.LookId);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 

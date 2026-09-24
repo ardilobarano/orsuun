@@ -42,7 +42,10 @@ namespace Orsuun.Client.EditorTools
             EnsurePostFx();
             EnsureBackdrops();
             EnsureLooks();
+            EnsureClassLooks();
             EnsureMobs();
+            EnsureFx();
+            EnsureAudioImport();
             EnsureKorstoneImport();
             AssetDatabase.SaveAssets();
             Debug.Log("Orsuun rendering setup complete (URP " + (GraphicsSettings.defaultRenderPipeline != null) + ").");
@@ -147,6 +150,26 @@ namespace Orsuun.Client.EditorTools
         }
 
         /// <summary>
+        /// Other classes' bodies (Resources/Models/Classes/*.fbx, rigged by art/blender/rig.py): legacy clips like the
+        /// Vanguard's armour looks, and a glow material in Resources/Looks named after the class.
+        /// </summary>
+        private static void EnsureClassLooks()
+        {
+            const string models = Res + "Models/Classes/";
+            if (!Directory.Exists(models)) return;
+            foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
+            {
+                string id = Path.GetFileNameWithoutExtension(fbx);
+                EnsureAnimatedImport(models + id + ".fbx");
+                Material mat = EnsureGlowMaterial("Looks/" + id, Color.white, crackScale: 5f, crackWidth: 0.025f, intensity: 1.15f, rim: 2.5f);
+                mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png"));
+                mat.SetFloat("_BodyGlow", 0f);
+                mat.SetFloat("_AuraWidth", 0.01f);
+                EditorUtility.SetDirty(mat);
+            }
+        }
+
+        /// <summary>
         /// One URP Lit material per enemy model (Resources/Models/Mobs/*.fbx from looks.py mob_model) in Resources/Mobs.
         /// The Hollowed are ember-corrupted: their base colour doubles as a faint emission, so the bright orange veins
         /// cross the bloom threshold while dark fur barely lifts. Deserters are plain men and get none.
@@ -167,7 +190,7 @@ namespace Orsuun.Client.EditorTools
                 mat.shader = lit;
                 var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png");
                 mat.SetTexture("_BaseMap", tex);
-                bool ember = id != "Deserter";
+                bool ember = id == "Wolf" || id == "Boar" || id == "Greyjaw";   // the Hollowed; people are not ember-veined
                 // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
                 mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
                 mat.SetFloat("_Smoothness", 0.2f);
@@ -185,6 +208,76 @@ namespace Orsuun.Client.EditorTools
                 mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                 EditorUtility.SetDirty(mat);
             }
+        }
+
+        /// <summary>
+        /// Music streams as Vorbis (a minute of stereo PCM would sit in memory on the phone); short effects are
+        /// mono ADPCM, decompressed on load so they fire without delay.
+        /// </summary>
+        private static void EnsureAudioImport()
+        {
+            const string dir = Res + "Audio/";
+            if (!Directory.Exists(dir)) return;
+            foreach (string wav in Directory.GetFiles(dir, "*.wav"))
+            {
+                string path = dir + Path.GetFileName(wav);
+                if (!(AssetImporter.GetAtPath(path) is AudioImporter importer)) continue;
+                bool music = Path.GetFileName(wav).StartsWith("Music");
+                AudioImporterSampleSettings want = importer.defaultSampleSettings;
+                want.loadType = music ? AudioClipLoadType.Streaming : AudioClipLoadType.DecompressOnLoad;
+                want.compressionFormat = music ? AudioCompressionFormat.Vorbis : AudioCompressionFormat.ADPCM;
+                want.quality = music ? 0.55f : 1f;
+                AudioImporterSampleSettings have = importer.defaultSampleSettings;
+                bool same = have.loadType == want.loadType && have.compressionFormat == want.compressionFormat
+                    && Mathf.Approximately(have.quality, want.quality) && importer.forceToMono == !music;
+                if (same) continue;
+                importer.defaultSampleSettings = want;
+                importer.forceToMono = !music;
+                importer.SaveAndReimport();
+            }
+        }
+
+        /// <summary>
+        /// Additive spark material for hit effects (Resources/FxSpark.mat, URP Particles/Unlit) with a soft round dot
+        /// texture generated here. Kept in Resources so the build keeps the particle shader.
+        /// </summary>
+        private static void EnsureFx()
+        {
+            string texPath = Res + "FxSparkDot.asset";
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+            if (tex == null)
+            {
+                const int size = 64;
+                tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "FxSparkDot" };
+                var px = new Color32[size * size];
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++)
+                    {
+                        float dx = (x + 0.5f) / size * 2f - 1f, dy = (y + 0.5f) / size * 2f - 1f;
+                        float a = Mathf.Pow(Mathf.Clamp01(1f - Mathf.Sqrt(dx * dx + dy * dy)), 1.6f);
+                        px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+                    }
+                tex.SetPixels32(px);
+                tex.Apply();
+                AssetDatabase.CreateAsset(tex, texPath);
+            }
+            Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            if (shader == null) { Debug.LogWarning("URP particle shader missing"); return; }
+            string matPath = Res + "FxSpark.mat";
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+            if (mat == null) { mat = new Material(shader); AssetDatabase.CreateAsset(mat, matPath); }
+            mat.shader = shader;
+            mat.SetTexture("_BaseMap", tex);
+            mat.SetColor("_BaseColor", new Color(1.6f, 1.3f, 1f, 1f));   // HDR-bright so the bloom picks the sparks up
+            // Transparent, additive: the URP particle shader reads these instead of a blend-mode keyword per pass.
+            mat.SetFloat("_Surface", 1f);
+            mat.SetFloat("_Blend", 2f);
+            mat.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", (float)BlendMode.One);
+            mat.SetFloat("_ZWrite", 0f);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(mat);
         }
 
         /// <summary>Unlit materials for the zone environment keys behind the lane (docs/concept/env-*.jpg, variant 1 of each).</summary>
@@ -476,6 +569,17 @@ namespace Orsuun.Client.EditorTools
                 CaptureSkinned(cam, "../artifacts/pose-" + clip + "-" + (int)(at * 100) + ".png", view.transform);
             }
             view.PoseHero("Idle", 0f);
+
+            // Kestrel, the second class: idle, the knife slash and a run stride.
+            view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Kestrel);
+            foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.57f), ("Run", 0.25f) })
+            {
+                if (!view.PoseHero(clip, at)) { Debug.LogWarning("No clip " + clip + " on Kestrel"); break; }
+                CaptureSkinned(cam, "../artifacts/kestrel-" + clip + ".png", view.transform);
+            }
+            view.PoseHero("Idle", 0f);
+            view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
+            view.SetLooks("Armor_T1", "Weapon_T1");
 
             // Enemies from a live lane: a stage-1 pack, then each Commander (the boss stage has no packs).
             cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);

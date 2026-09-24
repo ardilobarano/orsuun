@@ -39,6 +39,7 @@ namespace Orsuun.Client.EditorTools
             // so the build would strip their shaders; the materials in Resources keep them in the player.
             RenderingSetup.Ensure();
             EnsureAppIcon();
+            EnsureLaunchScreens();
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
@@ -68,6 +69,20 @@ namespace Orsuun.Client.EditorTools
                 return;
             }
             PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+        }
+
+        /// <summary>
+        /// No "Made with Unity" splash (optional in Unity 6 Personal): the game opens straight on its own title screen.
+        /// iOS shows the title art while the app loads.
+        /// </summary>
+        private static void EnsureLaunchScreens()
+        {
+            PlayerSettings.SplashScreen.show = false;
+            PlayerSettings.SplashScreen.showUnityLogo = false;
+            var art = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Orsuun/Resources/Art/Title.jpg");
+            if (art == null) return;
+            PlayerSettings.iOS.SetiPhoneLaunchScreenType(iOSLaunchScreenType.ImageAndBackgroundRelative);
+            PlayerSettings.iOS.SetLaunchScreenImage(art, iOSLaunchScreenImageType.iPhonePortraitImage);
         }
 
         /// <summary>

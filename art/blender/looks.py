@@ -325,3 +325,41 @@ def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0):
         OUT = looks_out
     return dict(mob=name, tris_in=t0, faces=len(mesh.data.polygons), size=[round(c, 2) for c in mesh.dimensions],
                 texture=size)
+
+
+CLASSES = HOME + "/client/Assets/Orsuun/Resources/Models/Classes/"
+
+
+def class_look(glb, name, height, tris=TRIS):
+    """Another playable class (A-pose sheet, a weapon in each hand): decimated, standing `height` tall, facing -Y,
+    rigged by rig.rig_humanoid with the shared actions, exported to Resources/Models/Classes with its texture."""
+    import importlib
+    import rig as rigging
+    importlib.reload(rigging)
+    global OUT
+    _clear()
+    for a in list(bpy.data.actions):
+        bpy.data.actions.remove(a)
+    mesh = _import(glb)
+    t0 = _bake(mesh, tris=tris)
+    zs = [v.co.z for v in mesh.data.vertices]
+    mesh.data.transform(Matrix.Scale(height / (max(zs) - min(zs)), 4))
+    vs = [v.co for v in mesh.data.vertices]
+    cx = (max(v.x for v in vs) + min(v.x for v in vs)) / 2
+    cy = (max(v.y for v in vs) + min(v.y for v in vs)) / 2
+    mesh.data.transform(Matrix.Translation(Vector((-cx, -cy, -min(v.z for v in vs)))))
+    mesh.name = name + "_Body"
+    mesh.data.name = mesh.name
+    root = bpy.data.objects.new(name, None)
+    bpy.context.scene.collection.objects.link(root)
+    mesh.parent = root
+    looks_out, OUT = OUT, CLASSES
+    try:
+        os.makedirs(CLASSES, exist_ok=True)
+        size = _texture(mesh, name)
+        _arm, layout = rigging.rig_humanoid([mesh], root, height, name + "Rig")
+        _export_rigged(root, name)
+    finally:
+        OUT = looks_out
+    return dict(cls=name, tris_in=t0, faces=len(mesh.data.polygons), texture=size,
+                hands=(tuple(round(c, 2) for c in layout["hand.R"][0]), tuple(round(c, 2) for c in layout["hand.L"][0])))

@@ -27,7 +27,7 @@ namespace Orsuun.Rules.Combat
 
         public static LaneSim Create(StageConfig stage, HeroStats hero, Inventory inventory, ulong seed)
         {
-            var lane = new LaneSim(stage, hero, SkillDef.VanguardWrath(), inventory, new XorShiftRandom(seed));
+            var lane = new LaneSim(stage, hero, SkillDef.For(hero.Class), inventory, new XorShiftRandom(seed));
             for (int i = 0; i < lane.AutoCast.Length; i++) lane.AutoCast[i] = true;
             return lane;
         }

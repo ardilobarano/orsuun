@@ -19,6 +19,8 @@ namespace Orsuun.Client
         private Text _weapon;
         private Text _log;
         private Text _speedLabel;
+        private Text _soundLabel;
+        private int _lastLevel;
         private Text _stageLabel;
         private Text _pushLabel;
         private Button _pushButton;
@@ -87,9 +89,10 @@ namespace Orsuun.Client
             Ui.Button("Shards", canvas, 0.51f, 0.09f, 0.73f, 0.155f, "SHARDS", 30, Palette.Alloy, () => root.Sockets.Open(), out _);
             _pushButton = Ui.Button("Push", canvas, 0.74f, 0.09f, 0.96f, 0.155f, "", 22, Palette.Danger, root.Push, out _pushLabel);
 
-            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.55f, 0.08f, "", 24, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
-            Ui.Button("Speed", canvas, 0.57f, 0.02f, 0.75f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
-            Ui.Button("Dev", canvas, 0.77f, 0.02f, 0.96f, 0.08f, "DEV", 24, Palette.DevGrey, DevGrant, out _);
+            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.45f, 0.08f, "", 24, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
+            Ui.Button("Sound", canvas, 0.47f, 0.02f, 0.61f, 0.08f, "", 22, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
+            Ui.Button("Speed", canvas, 0.63f, 0.02f, 0.79f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
+            Ui.Button("Dev", canvas, 0.81f, 0.02f, 0.96f, 0.08f, "DEV", 24, Palette.DevGrey, DevGrant, out _);
         }
 
         public void Handle(LaneEvent e)
@@ -199,6 +202,13 @@ namespace Orsuun.Client
             _pushButton.interactable = !_root.Replaying && !_root.PushBusy && !allCleared;
             _stageLabel.text = $"ZONES  ·  here: {Content.StageName(session.ParkedStage)}";
             _speedLabel.text = $"SPEED x{_root.SpeedMultiplier}";
+            _soundLabel.text = GameAudio.Instance != null && GameAudio.Instance.Muted ? "MUTED" : "SOUND";
+            if (_lastLevel > 0 && inv.Level > _lastLevel)
+            {
+                GameAudio.Instance?.Play("LaneLevelUp", 0.9f, 1f, 0f);
+                Log($"Level up!  Level {inv.Level}");
+            }
+            _lastLevel = inv.Level;
         }
     }
 }
