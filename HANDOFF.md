@@ -247,6 +247,10 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 ## Next steps, waiting on the owner
 
+0. Database backups (owner, 24 Sep 2026: "not now keep that in mind"): nothing backs up the playtest database yet. The
+   plan to offer: a nightly `pg_dump` kept 14 days on a Hetzner Storage Box (about 4 EUR a month) or pulled to the Mac.
+   Do it before real players arrive.
+
 0. Monetization in the turning helper: the owner will add it and give the details (24 Sep 2026: "we will add
    monetization here, I will let u know"). Build nothing for it until then; the Hearthfire 10/50 batch split noted
    under "Turning helper" belongs to that decision.
