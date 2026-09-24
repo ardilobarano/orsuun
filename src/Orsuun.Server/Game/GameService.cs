@@ -241,13 +241,15 @@ public sealed partial class GameService
     }
 
     /// <summary>
-    /// Deletes the account and everything tied to it: items, the ledger and client error reports (Apple requires
-    /// in-app account deletion; the game holds no other personal data). The session dies with it.
+    /// Deletes the account and everything tied to it: items, the ledger, client error reports and its Commander fight
+    /// records (Apple requires in-app account deletion; the game holds no other personal data). The session dies with
+    /// it. War of Banners points stay with the Banner.
     /// </summary>
     public async Task DeleteAccountAsync(Account account, CancellationToken ct)
     {
         await _db.Ledger.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.ClientLogs.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.BossHits.Where(h => h.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.Items.Where(i => i.OwnerId == account.Id).ExecuteDeleteAsync(ct);
         await _db.Accounts.Where(a => a.Id == account.Id).ExecuteDeleteAsync(ct);
     }
