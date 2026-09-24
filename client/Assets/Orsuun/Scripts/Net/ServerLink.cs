@@ -157,6 +157,15 @@ namespace Orsuun.Client.Net
         /// <summary>Server id of an item in the session (worn or in the bag), or null.</summary>
         public string IdOf(ItemState item) => item != null && ItemIds.TryGetValue(item, out string id) ? id : null;
 
+        /// <summary>The session's current instance of a server item (every refresh rebuilds them), or null.</summary>
+        public ItemState ItemById(string id)
+        {
+            if (id == null) return null;
+            foreach (KeyValuePair<ItemState, string> pair in ItemIds)
+                if (pair.Value == id) return pair.Key;
+            return null;
+        }
+
         /// <summary>
         /// Server Forge on the piece on the anvil: by item id when known (bag pieces need it), else the piece worn in
         /// the slot. JsonUtility writes a null string as "", which the server cannot read as an id, so it is dropped.

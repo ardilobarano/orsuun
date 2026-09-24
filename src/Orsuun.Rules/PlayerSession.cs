@@ -259,7 +259,8 @@ namespace Orsuun.Rules
             _anvilItem = item;
         }
 
-        private bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
+        /// <summary>The piece is worn or in the bag, and not destroyed.</summary>
+        public bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
         public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class);
@@ -325,10 +326,14 @@ namespace Orsuun.Rules
             return result;
         }
 
-        public string? TurnBlocker()
+        public string? TurnBlocker() => TurnBlocker(OnAnvil);
+
+        /// <summary>Why this owned piece cannot be turned right now, or null.</summary>
+        public string? TurnBlocker(ItemState item)
         {
-            if (OnAnvil.Etchings.Count == 0) return "No etchings to turn yet";
-            int cost = OnAnvil.LockedEtchingIndex >= 0 ? 2 : 1;
+            if (!Owns(item)) return "You no longer have that piece";
+            if (item.Etchings.Count == 0) return "No etchings to turn yet";
+            int cost = item.LockedEtchingIndex >= 0 ? 2 : 1;
             return Inventory.Turnstones >= cost ? null : "Not enough Turnstones";
         }
 
@@ -346,12 +351,17 @@ namespace Orsuun.Rules
             TurnBulk(maxTurns, stopEntryId.HasValue ? new[] { new TurnTarget(stopEntryId.Value, minTier) } : Array.Empty<TurnTarget>(), out stopped);
 
         /// <summary>Bulk Turn toward a goal of up to five etchings with tiers (the turning helper).</summary>
-        public int TurnBulk(int maxTurns, IReadOnlyList<TurnTarget> targets, out bool stopped)
+        public int TurnBulk(int maxTurns, IReadOnlyList<TurnTarget> targets, out bool stopped) => TurnBulk(OnAnvil, maxTurns, targets, out stopped);
+
+        /// <summary>Bulk Turn on any owned piece, worn or in the bag, without putting it on the anvil (the helper
+        /// works through several pieces at once).</summary>
+        public int TurnBulk(ItemState item, int maxTurns, IReadOnlyList<TurnTarget> targets, out bool stopped)
         {
-            string? blocker = TurnBlocker() ?? EtchingService.TargetProblem(OnAnvil, Pool, targets);
+            EtchingPool pool = EtchingPool.For(item.Slot);
+            string? blocker = TurnBlocker(item) ?? EtchingService.TargetProblem(item, pool, targets);
             if (blocker != null) throw new InvalidOperationException(blocker);
 
-            _etchings.TurnUntil(OnAnvil, Pool, Inventory, _rng, maxTurns, targets, out int turns, out stopped);
+            _etchings.TurnUntil(item, pool, Inventory, _rng, maxTurns, targets, out int turns, out stopped);
             RefreshHero();
             return turns;
         }

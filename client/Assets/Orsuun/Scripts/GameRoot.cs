@@ -101,12 +101,20 @@ namespace Orsuun.Client
             if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-menu") >= 0) Menu.Open();
-            // -turnhelper [pick] opens the turning helper over the Forge (pick: with the etching list open).
+            // -turnhelper [pick|add|demo|run] opens the turning helper over the Forge (with the etching list or the piece
+            // list open, or three more pieces added; run also starts turning them locally with 600 Turnstones).
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-turnhelper") >= 0)
             {
                 Forge.Open();
                 TurnHelper.Open();
                 if (Arg("-turnhelper") == "pick") TurnHelper.OpenPicker(0);
+                if (Arg("-turnhelper") == "add") TurnHelper.OpenAdder();
+                if (Arg("-turnhelper") == "demo" || Arg("-turnhelper") == "run") TurnHelper.AddForShot(3);
+                if (Arg("-turnhelper") == "run" && !Server.Online)
+                {
+                    Session.Inventory.Turnstones = 600;
+                    TurnHelper.StartForShot();
+                }
             }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }

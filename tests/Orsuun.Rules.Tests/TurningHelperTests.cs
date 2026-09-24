@@ -95,6 +95,31 @@ public class TurningHelperTests
     }
 
     [Fact]
+    public void Session_turns_a_bag_piece_without_touching_the_anvil()
+    {
+        var session = new PlayerSession(new XorShiftRandom(4));
+        session.Inventory.Turnstones = 100;
+        var helm = new ItemState(40, Rarity.Rare, EquipSlot.Helmet);
+        EtchingPool armor = EtchingPool.For(EquipSlot.Helmet);
+        for (int i = 0; i < 3; i++) helm.Etchings.Add(new Etching(i, 1, armor.Entries[i].TierValues[0]));
+        session.Inventory.Loot.Add(helm);
+        ItemState anvil = session.OnAnvil;
+        string before = string.Join(",", anvil.Etchings.ConvertAll(e => e.EntryId));
+
+        int turns = session.TurnBulk(helm, 30, new[] { new TurnTarget(ArmorEtchingIds.MaxHp, 1) }, out bool stopped);
+
+        Assert.True(turns > 0);
+        Assert.Equal(100 - turns, session.Inventory.Turnstones);
+        Assert.Same(anvil, session.OnAnvil);
+        Assert.Equal(before, string.Join(",", anvil.Etchings.ConvertAll(e => e.EntryId)));
+        Assert.Equal(stopped, EtchingService.Matches(helm, ArmorEtchingIds.MaxHp, 1));
+
+        var stranger = new ItemState(40, Rarity.Rare, EquipSlot.Helmet);
+        stranger.Etchings.Add(new Etching(0, 1, 200));
+        Assert.Throws<InvalidOperationException>(() => session.TurnBulk(stranger, 5, Array.Empty<TurnTarget>(), out _));
+    }
+
+    [Fact]
     public void Session_refuses_a_goal_out_of_reach()
     {
         var session = new PlayerSession(new XorShiftRandom(3));
