@@ -10,6 +10,7 @@ public sealed class GameDb : DbContext
     public DbSet<Item> Items => Set<Item>();
     public DbSet<LedgerEntry> Ledger => Set<LedgerEntry>();
     public DbSet<BossClock> BossClocks => Set<BossClock>();
+    public DbSet<ClientLog> ClientLogs => Set<ClientLog>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -40,6 +41,8 @@ public sealed class GameDb : DbContext
             e.HasKey(c => c.BossId);
             e.Property(c => c.BossId).ValueGeneratedNever();
         });
+
+        b.Entity<ClientLog>(e => e.HasIndex(l => new { l.AccountId, l.Utc }));
 
         b.Entity<LedgerEntry>(e =>
         {

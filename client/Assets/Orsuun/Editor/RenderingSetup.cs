@@ -215,7 +215,7 @@ namespace Orsuun.Client.EditorTools
                 mat.shader = lit;
                 var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png");
                 mat.SetTexture("_BaseMap", tex);
-                bool ember = id == "Wolf" || id == "Boar" || id == "Greyjaw";   // the Hollowed; people are not ember-veined
+                bool ember = id == "Wolf" || id == "Boar" || id == "Greyjaw";   // the Hollowed; people and other beasts are not ember-veined
                 // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
                 mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
                 mat.SetFloat("_Smoothness", 0.2f);
@@ -309,7 +309,7 @@ namespace Orsuun.Client.EditorTools
         private static void EnsureBackdrops()
         {
             Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
-            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround" })
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture" })
             {
                 string texPath = Res + "Backdrops/" + zone + ".jpg";
                 if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))
@@ -542,6 +542,11 @@ namespace Orsuun.Client.EditorTools
                 view.SetZone((Orsuun.Rules.Combat.ZoneType)System.Enum.Parse(typeof(Orsuun.Rules.Combat.ZoneType), zone));
                 Capture(cam, "../artifacts/lane-" + zone + ".png", 1080, 1056);
             }
+            view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, 102);
+            Capture(cam, "../artifacts/lane-SaltFlats.png", 1080, 1056);
+            view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, 103);
+            Capture(cam, "../artifacts/lane-FrostPasture.png", 1080, 1056);
+            view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, 1);
             view.SetGear(new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f });
             Capture(cam, "../artifacts/lane-glow9.png", 1080, 1056);
             // Each piece at its own level: weapon +9, armour +7; the stat-only slots at +9 must not glow.
@@ -586,17 +591,19 @@ namespace Orsuun.Client.EditorTools
             }
             view.PoseHero("Idle", 0f);
 
-            // The other classes: idle, the attack and a run stride each.
+            // The other classes, each armour band drawn so far: idle, wind-up and strike, and a run stride on band 0.
             foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
-            {
-                view.SetHeroClass(cls);
-                foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.57f), ("Run", 0.25f) })
+                for (int band = 0; band <= 2; band++)
                 {
-                    if (!view.PoseHero(clip, at)) { Debug.LogWarning("No clip " + clip + " on " + cls); break; }
-                    CaptureSkinned(cam, "../artifacts/" + cls.ToString().ToLowerInvariant() + "-" + clip + ".png", view.transform);
+                    view.SetHeroClass(cls, band);
+                    foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.4f), ("Attack", 0.57f), ("Run", 0.25f) })
+                    {
+                        if (clip == "Run" && band > 0) continue;
+                        if (!view.PoseHero(clip, at)) { Debug.LogWarning("No clip " + clip + " on " + cls); break; }
+                        CaptureSkinned(cam, "../artifacts/" + cls.ToString().ToLowerInvariant() + "-T" + band + "-" + clip + (clip == "Attack" ? Mathf.RoundToInt(at * 100).ToString() : "") + ".png", view.transform);
+                    }
+                    view.PoseHero("Idle", 0f);
                 }
-                view.PoseHero("Idle", 0f);
-            }
             view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
             view.SetLooks("Armor_T1", "Weapon_T1");
 
@@ -635,6 +642,15 @@ namespace Orsuun.Client.EditorTools
             view.Bind(pack);
             view.PlaceEnemies(1f);
             Capture(cam, "../artifacts/lane-mobs.png", 1080, 1056);
+            // The Salt Flats and Frost Pasture packs on their own grounds.
+            foreach ((int zone, string label) in new[] { (102, "SaltFlats"), (103, "FrostPasture") })
+            {
+                var hunt = Orsuun.Rules.Combat.ActivePlay.NewLoop(Orsuun.Rules.Content.Stage(zone), heroStats, skills, new Orsuun.Rules.Inventory { Potions = 5 }, 7UL, 0);
+                for (int i = 0; i < 4000 && !(hunt.Phase == Orsuun.Rules.Combat.LanePhase.Fighting && hunt.Enemies.Count >= 6); i++) { hunt.Tick(); hunt.DrainEvents(); }
+                view.Bind(hunt);
+                view.PlaceEnemies(1f);
+                Capture(cam, "../artifacts/lane-mobs-" + label + ".png", 1080, 1056);
+            }
             foreach (Orsuun.Rules.BossDef boss in Orsuun.Rules.Content.Bosses)
             {
                 var fight = Orsuun.Rules.Combat.ActivePlay.NewLoop(Orsuun.Rules.Content.BossStage(boss), heroStats, skills, new Orsuun.Rules.Inventory { Potions = 5 }, 7UL, 0);

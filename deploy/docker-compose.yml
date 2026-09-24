@@ -50,6 +50,7 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ../downloads:/srv/downloads:ro
+      - ./site:/srv/site:ro
       - caddy_data:/data
       - caddy_config:/config
 

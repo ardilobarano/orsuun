@@ -121,14 +121,15 @@ def _segment_distance(p, a, b):
 def skin(mesh_obj, arm, radii, only=None):
     """Distance weights: each vertex takes its three nearest bones (distance over the bone's radius), sharpened and
     normalised, then smoothed twice over mesh edges so seams between bones do not tear. `only` pins every vertex
-    to one bone (the banner cloth rides the chest)."""
+    to one bone (the banner cloth rides the chest), or is a function of the vertex position naming its bone (twin
+    blades, each in its own hand)."""
     bones = [(b.name, b.head_local.copy(), b.tail_local.copy(), radii[b.name]) for b in arm.data.bones if b.use_deform]
     me = mesh_obj.data
     n = len(me.vertices)
     weights = [dict() for _ in range(n)]
     for i, v in enumerate(me.vertices):
         if only:
-            weights[i] = {only: 1.0}
+            weights[i] = {only(v.co) if callable(only) else only: 1.0}
             continue
         p = v.co
         scored = []
@@ -235,13 +236,45 @@ ACTIONS = {
 }
 
 
-def key_actions(arm):
-    """Keys every action on the armature (fake users keep them); the FBX exporter writes one take per action."""
+# Class attack styles replace the glaive chop (bone names are shared, so any humanoid rig takes them).
+ATTACKS = {
+    # Kestrel: two quick slashes, right then left, low and fast.
+    "knives": (12, [
+        (0, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+        (3, {"upper_arm.R": (-25, 0, 0), "forearm.R": (-10, 0, 0), "upper_arm.L": (-20, 0, 0), "forearm.L": (-10, 0, 0), "chest": (-4, 10, 0), "spine": (-2, 0, 0)}, (0, 0, 0)),
+        (6, {"upper_arm.R": (60, 0, 0), "forearm.R": (35, 0, 0), "upper_arm.L": (-10, 0, 0), "forearm.L": (0, 0, 0), "chest": (10, -14, 0), "spine": (5, 0, 0)}, (0, -0.04, 0)),
+        (9, {"upper_arm.R": (20, 0, 0), "forearm.R": (10, 0, 0), "upper_arm.L": (62, 0, 0), "forearm.L": (35, 0, 0), "chest": (10, 12, 0), "spine": (5, 0, 0)}, (0, -0.04, 0)),
+        (12, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+    ]),
+    # Wraithsworn: the sabre goes up over the shoulder, then a full-body diagonal cut; the void hand thrusts.
+    "sword": (16, [
+        (0, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "hand.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+        (5, {"upper_arm.R": (150, 0, 0), "forearm.R": (40, 0, 0), "hand.R": (30, 0, 0), "upper_arm.L": (20, 0, 0), "forearm.L": (10, 0, 0), "chest": (-8, 18, 0), "spine": (-6, 0, 0)}, (0, 0.02, 0)),
+        (9, {"upper_arm.R": (25, 0, 0), "forearm.R": (5, 0, 0), "hand.R": (-15, 0, 0), "upper_arm.L": (48, 0, 0), "forearm.L": (22, 0, 0), "chest": (14, -24, 0), "spine": (11, 0, 0)}, (0, -0.08, 0)),
+        (11, {"upper_arm.R": (18, 0, 0), "forearm.R": (4, 0, 0), "hand.R": (-18, 0, 0), "upper_arm.L": (40, 0, 0), "forearm.L": (18, 0, 0), "chest": (12, -22, 0), "spine": (9, 0, 0)}, (0, -0.07, 0)),
+        (16, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "hand.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+    ]),
+    # Drumcaller: the staff rises and slams down while the drum arm beats.
+    "staff": (15, [
+        (0, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+        (5, {"upper_arm.R": (110, 0, 0), "forearm.R": (20, 0, 0), "upper_arm.L": (25, 0, 0), "forearm.L": (10, 0, 0), "chest": (-10, 6, 0), "spine": (-4, 0, 0)}, (0, 0.03, 0)),
+        (9, {"upper_arm.R": (35, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (50, 0, 0), "forearm.L": (40, 0, 0), "chest": (10, -6, 0), "spine": (6, 0, 0)}, (0, -0.05, 0)),
+        (15, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+    ]),
+}
+
+
+def key_actions(arm, attack=None):
+    """Keys every action on the armature (fake users keep them); the FBX exporter writes one take per action.
+    attack: a style from ATTACKS that replaces the Vanguard's glaive chop."""
+    actions = dict(ACTIONS)
+    if attack:
+        actions["Attack"] = ATTACKS[attack]
     arm.animation_data_create()
     for pb in arm.pose.bones:
         pb.rotation_mode = 'QUATERNION'
     made = []
-    for name, (length, keys) in ACTIONS.items():
+    for name, (length, keys) in actions.items():
         action = bpy.data.actions.new(name)
         action.use_fake_user = True
         arm.animation_data.action = action
@@ -327,12 +360,14 @@ def humanoid_layout(verts, height):
     }
 
 
-def rig_humanoid(meshes, root, height, rig_name, staff=False):
+def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapon_bone=None, attack=None, layout=None):
     """Rigs an A-pose class model with the shared bone names, so the same five actions play on it. staff=True finds a
     long straight staff in the right hand (the straightest near-vertical line on that side) and pins it to hand.R,
     so it swings as one piece instead of bending with the head and shoulder."""
     verts = [v.co.copy() for m in meshes for v in m.data.vertices]
-    layout = humanoid_layout(verts, height)
+    if weapon is not None:
+        verts += [v.co.copy() for v in weapon.data.vertices]
+    layout = layout or humanoid_layout(verts, height)
     if staff:
         import looks
         a, b = looks.pole_axis(verts, height, max_x=-0.12 * height, radius=0.035)
@@ -353,5 +388,9 @@ def rig_humanoid(meshes, root, height, rig_name, staff=False):
                     group.add([v.index], 1.0, 'REPLACE')
                     pinned += 1
             print("staff: %d vertices pinned to hand.R" % pinned)
-    key_actions(arm)
+    if weapon is not None:
+        # The weapon part rides its hand whole: hand.R for a staff or sword; paired blades pass a function of the
+        # position, so each rides its own hand.
+        skin(weapon, arm, radii, only=weapon_bone)
+    key_actions(arm, attack)
     return arm, layout

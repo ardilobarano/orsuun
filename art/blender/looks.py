@@ -104,6 +104,40 @@ def _split(mesh, classify, names):
     return objs
 
 
+def _held_islands(mesh, classify, keep, other, hands):
+    """The region rules also catch boots and cloth shreds beside a blade. Faces classified `keep` are joined into
+    islands through shared vertex positions (glTF splits vertices at UV seams); for each hand only the island nearest
+    it (the one it grips) stays `keep`, the rest become `other`. Returns the refined classify."""
+    bm = bmesh.new()
+    bm.from_mesh(mesh.data)
+    key = lambda c: (round(c.x, 5), round(c.y, 5), round(c.z, 5))
+    cand = [(key(f.calc_center_median()), f) for f in bm.faces if classify(f.calc_center_median()) == keep]
+    parent = list(range(len(cand)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    owner = {}
+    for i, (_k, f) in enumerate(cand):
+        for v in f.verts:
+            j = owner.setdefault(key(v.co), i)
+            if find(j) != find(i):
+                parent[find(i)] = find(j)
+    groups = {}
+    for i, (k, f) in enumerate(cand):
+        groups.setdefault(find(i), []).append((k, f.calc_center_median().copy()))
+    kept = set()
+    for hand in hands:
+        held = min(groups.values(), key=lambda members: min((c - hand).length for _k, c in members))
+        kept.update(k for k, _c in held)
+    dropped = {k for k, _f in cand if k not in kept}
+    bm.free()
+    return lambda p: other if key(p) in dropped else classify(p)
+
+
 def find_pole(verts, height):
     """The glaive pole: the leftmost thin vertical strip between knee and hand height. Returns (left, right)."""
     band = sorted(v.x for v in verts if 0.20 * height < v.z < 0.42 * height)
@@ -129,16 +163,17 @@ def _clear():
             bpy.data.armatures.remove(a)
 
 
-def pole_axis(verts, height, left=None, right=None, iters=1500, radius=0.03, max_x=None):
+def pole_axis(verts, height, left=None, right=None, iters=1500, radius=0.03, max_x=None, top=0.8, near=None):
     """The glaive pole: the only straight line with surface along the whole height. RANSAC over lines from a point near
     the feet to a point above the head, scored by how many height bins have surface within `radius` of the line;
     the winner is refined by least squares on its inliers. max_x keeps the search on the glaive hand's side (the
-    Banner Lamellar carries a second, straight banner pole on its back). Returns the line's points at z=0 and
-    z=height."""
+    Banner Lamellar carries a second, straight banner pole on its back). top: where the line's upper point is sampled
+    from (a staff held at the side ends below the head). near: a point the line must pass within 0.1 of (the hand that
+    holds it). Returns the line's points at z=0 and z=height."""
     import random
     rng = random.Random(7)
     lows = [v for v in verts if v.z < 0.3 * height]
-    highs = [v for v in verts if v.z > 0.8 * height]
+    highs = [v for v in verts if v.z > top * height]
     r2 = radius * radius
     bin_h = 0.05 * height
     best, best_score = None, -1
@@ -150,6 +185,10 @@ def pole_axis(verts, height, left=None, right=None, iters=1500, radius=0.03, max
             continue                                   # near vertical: the glaive stands upright, the banner pole leans
         if max_x is not None and (a.x + b.x) / 2 > max_x:
             continue
+        if near is not None:
+            t = (near.z - a.z) / d.z
+            if (near.x - (a.x + d.x * t)) ** 2 + (near.y - (a.y + d.y * t)) ** 2 > 0.01:
+                continue
         bins = set()
         for v in verts:
             t = (v.z - a.z) / d.z
@@ -332,10 +371,15 @@ def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None):
 CLASSES = HOME + "/client/Assets/Orsuun/Resources/Models/Classes/"
 
 
-def class_look(glb, name, height, tris=TRIS, staff=False):
-    """Another playable class (A-pose sheet, a weapon in each hand): decimated, standing `height` tall, facing -Y,
-    rigged by rig.rig_humanoid with the shared actions, exported to Resources/Models/Classes with its texture."""
+def class_look(glb, name, height, tris=TRIS, weapon="knives", attack=None, yaw_degrees=0.0):
+    """Another playable class (A-pose sheet, weapon in hand): decimated, standing `height` tall, facing -Y, split
+    into <name>_Armor and <name>_Weapon so each glows with its own item's level, rigged by rig.rig_humanoid with the
+    shared actions and the class's own attack, exported to Resources/Models/Classes with its texture.
+    weapon: "knives" (a blade below each hand, also twin swords), "sword" (a blade below the right hand) or "staff"
+    (a straight staff in the right hand, found as a line and pinned to that hand). yaw_degrees turns the mesh about Z
+    first so it faces -Y (Tripo exports face +X: -90)."""
     import importlib
+    import math
     import rig as rigging
     importlib.reload(rigging)
     global OUT
@@ -344,24 +388,54 @@ def class_look(glb, name, height, tris=TRIS, staff=False):
         bpy.data.actions.remove(a)
     mesh = _import(glb)
     t0 = _bake(mesh, tris=tris)
+    if yaw_degrees:
+        mesh.data.transform(Matrix.Rotation(math.radians(yaw_degrees), 4, 'Z'))
     zs = [v.co.z for v in mesh.data.vertices]
     mesh.data.transform(Matrix.Scale(height / (max(zs) - min(zs)), 4))
     vs = [v.co for v in mesh.data.vertices]
     cx = (max(v.x for v in vs) + min(v.x for v in vs)) / 2
     cy = (max(v.y for v in vs) + min(v.y for v in vs)) / 2
     mesh.data.transform(Matrix.Translation(Vector((-cx, -cy, -min(v.z for v in vs)))))
-    mesh.name = name + "_Body"
-    mesh.data.name = mesh.name
-    root = bpy.data.objects.new(name, None)
-    bpy.context.scene.collection.objects.link(root)
-    mesh.parent = root
+    verts = [v.co.copy() for v in mesh.data.vertices]
+    layout = rigging.humanoid_layout(verts, height)
+    H = height
+    hand_r = Vector(layout["hand.R"][0])
+    hand_l = Vector(layout["hand.L"][0])
+    if weapon == "staff":
+        # Through the right hand, clear of the body's own edge.
+        a, b = pole_axis(verts, height, max_x=min(-0.12 * height, hand_r.x + 0.1), radius=0.035, top=0.7, near=hand_r)
+        classify = lambda p: name + "_Weapon" if _distance_to_axis(p, a, b) < 0.05 else name + "_Armor"
+    else:
+        def blade(p, hand):
+            # Below the hand on its side, out past the hips (past the shins under the knee, where a sabre's tip
+            # curves in). Boots and kilt shreds caught here are separate islands and _held_islands drops them.
+            side = 1 if hand.x > 0 else -1
+            return p.x * side > (0.16 if p.z > 0.25 * H else 0.1) * H and p.z < hand.z + 0.03 * H
+        if weapon == "sword":
+            classify = lambda p: name + "_Weapon" if blade(p, hand_r) else name + "_Armor"
+        else:
+            classify = lambda p: name + "_Weapon" if blade(p, hand_r) or blade(p, hand_l) else name + "_Armor"
+    if weapon != "staff":                       # a staff is already a clean line; the fist splits it into pieces
+        classify = _held_islands(mesh, classify, name + "_Weapon", name + "_Armor",
+                                 [hand_r, hand_l] if weapon == "knives" else [hand_r])
+    objs = _split(mesh, classify, [name + "_Armor", name + "_Weapon"])
+    # The weapon rides the hand that holds it whole; weighted by nearness, a blade by the thigh would follow the leg.
+    bone = (lambda p: "hand.R" if p.x < 0 else "hand.L") if weapon == "knives" else "hand.R"
     looks_out, OUT = OUT, CLASSES
     try:
         os.makedirs(CLASSES, exist_ok=True)
         size = _texture(mesh, name)
-        _arm, layout = rigging.rig_humanoid([mesh], root, height, name + "Rig", staff=staff)
+        bpy.data.objects.remove(mesh, do_unlink=True)
+        root = bpy.data.objects.new(name, None)
+        bpy.context.scene.collection.objects.link(root)
+        for o in objs.values():
+            o.parent = root
+        _arm, layout = rigging.rig_humanoid([objs[name + "_Armor"]], root, height, name + "Rig",
+                                             weapon=objs[name + "_Weapon"], weapon_bone=bone,
+                                             attack=attack, layout=layout)
         _export_rigged(root, name)
     finally:
         OUT = looks_out
-    return dict(cls=name, tris_in=t0, faces=len(mesh.data.polygons), texture=size,
-                hands=(tuple(round(c, 2) for c in layout["hand.R"][0]), tuple(round(c, 2) for c in layout["hand.L"][0])))
+    faces = {n: len(o.data.polygons) for n, o in objs.items()}
+    return dict(cls=name, tris_in=t0, faces=faces, texture=size,
+                hands=(tuple(round(c, 2) for c in hand_r), tuple(round(c, 2) for c in hand_l)))

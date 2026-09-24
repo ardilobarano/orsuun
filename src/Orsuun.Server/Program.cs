@@ -1,4 +1,6 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Orsuun.Rules;
 using Orsuun.Server.Data;
@@ -14,6 +16,18 @@ builder.Services.AddSingleton<BellClock>();
 builder.Services.AddScoped<GameService>();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
+// Abuse guard: 40 calls per 10 s per session (or per client IP before login). The game needs a few a minute.
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    o.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+        ctx.Connection.RemoteIpAddress is { } ip && System.Net.IPAddress.IsLoopback(ip)
+            ? RateLimitPartition.GetNoLimiter("loopback")      // local dev and the smoke test
+            : RateLimitPartition.GetFixedWindowLimiter(
+            ctx.Request.Headers["X-Session"].FirstOrDefault() ?? ctx.Connection.RemoteIpAddress?.ToString() ?? "anon",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = 40, Window = TimeSpan.FromSeconds(10), QueueLimit = 0 }));
+});
+
 // Behind Caddy the peer is the proxy; take the client IP from X-Forwarded-For. Safe because the server port is only
 // reachable from the Docker network, and Caddy overwrites any X-Forwarded-For the client sends.
 builder.Services.Configure<ForwardedHeadersOptions>(o =>
@@ -25,6 +39,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 
 var app = builder.Build();
 app.UseForwardedHeaders();
+app.UseRateLimiter();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
@@ -91,6 +106,16 @@ v1.MapPost("/socket/clear", (HttpContext ctx, SocketClearRequest req, GameServic
 v1.MapPost("/park", (HttpContext ctx, ParkRequest req, GameService game, CancellationToken ct) => game.ParkAsync(Me(ctx), req, ct));
 v1.MapPost("/class", (HttpContext ctx, ClassRequest req, GameService game, CancellationToken ct) => game.SetClassAsync(Me(ctx), req, ct));
 v1.MapPost("/push", (HttpContext ctx, PushRequest req, GameService game, CancellationToken ct) => game.PushAsync(Me(ctx), req, ct));
+v1.MapPost("/client-log", async (HttpContext ctx, ClientLogRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.LogClientErrorAsync(Me(ctx), req, ct);
+    return Results.Ok(new { ok = true });
+});
+v1.MapDelete("/account", async (HttpContext ctx, GameService game, CancellationToken ct) =>
+{
+    await game.DeleteAccountAsync(Me(ctx), ct);
+    return Results.Ok(new { deleted = true });
+});
 
 if (app.Environment.IsDevelopment())
 {

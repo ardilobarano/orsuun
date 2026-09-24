@@ -5,5 +5,11 @@
 		root * /srv/downloads
 		file_server
 	}
+	# Privacy policy for the stores (deploy/site/privacy.html).
+	handle /privacy {
+		root * /srv/site
+		rewrite * /privacy.html
+		file_server
+	}
 	reverse_proxy server:8080
 }

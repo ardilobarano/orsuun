@@ -33,10 +33,13 @@ namespace Orsuun.Client
         private float _logAge;
         private Net.ServerLink.SettlementDto _shownSettlement;
 
+        private Transform _canvas;
+
         public void Init(GameRoot root)
         {
             _root = root;
             Transform canvas = Ui.Canvas("HudCanvas", 0).transform;
+            _canvas = canvas;
             transform.SetParent(canvas, false);
 
             Ui.Panel("TopBar", canvas, 0f, 0.945f, 1f, 1f, Palette.PanelDark);
@@ -92,7 +95,21 @@ namespace Orsuun.Client
             Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.45f, 0.08f, "", 24, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
             Ui.Button("Sound", canvas, 0.47f, 0.02f, 0.61f, 0.08f, "", 22, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
             Ui.Button("Speed", canvas, 0.63f, 0.02f, 0.79f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
-            Ui.Button("Dev", canvas, 0.81f, 0.02f, 0.96f, 0.08f, "DEV", 24, Palette.DevGrey, DevGrant, out _);
+            Ui.Button("Menu", canvas, 0.81f, 0.02f, 0.96f, 0.08f, "MENU", 24, Palette.DevGrey, () => root.Menu.Open(), out _);
+        }
+
+        /// <summary>The screen area (canvas anchors) covering the named HUD elements, for the tutorial's highlight.</summary>
+        public Rect Area(params string[] names)
+        {
+            Vector2 min = Vector2.one, max = Vector2.zero;
+            foreach (string n in names)
+            {
+                var rect = (RectTransform)_canvas.Find(n);
+                if (rect == null) continue;
+                min = Vector2.Min(min, rect.anchorMin);
+                max = Vector2.Max(max, rect.anchorMax);
+            }
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
 
         public void Handle(LaneEvent e)
@@ -110,23 +127,6 @@ namespace Orsuun.Client
         private void CycleSpeed()
         {
             _root.SpeedMultiplier = _root.SpeedMultiplier == 1 ? 3 : _root.SpeedMultiplier == 3 ? 8 : 1;
-        }
-
-        /// <summary>Playtest shortcut so testers can reach the high Forge levels within one sitting.</summary>
-        private void DevGrant()
-        {
-            if (_root.Server.Online)
-            {
-                StartCoroutine(_root.Server.DevGrant());
-                return;
-            }
-            Inventory inv = _root.Session.Inventory;
-            inv.Sorn += 500_000;
-            inv.Materials += 10;
-            inv.ScrollsOfMercy += 5;
-            inv.KhansAlloys += 1;
-            inv.Turnstones += 20;
-            for (int r = 0; r < inv.Korshards.Length; r++) inv.Korshards[r] += 3;
         }
 
         private void Update()

@@ -227,6 +227,34 @@ public sealed class GameService
         return ToState(account, turn: new TurnResultDto(turns, spent, stopped));
     }
 
+    /// <summary>
+    /// Deletes the account and everything tied to it: items, the ledger and client error reports (Apple requires
+    /// in-app account deletion; the game holds no other personal data). The session dies with it.
+    /// </summary>
+    public async Task DeleteAccountAsync(Account account, CancellationToken ct)
+    {
+        await _db.Ledger.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.ClientLogs.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.Items.Where(i => i.OwnerId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.Accounts.Where(a => a.Id == account.Id).ExecuteDeleteAsync(ct);
+    }
+
+    public const int ClientLogsPerHour = 20;
+
+    /// <summary>Stores an error report from the client, trimmed, at most ClientLogsPerHour per account.</summary>
+    public async Task LogClientErrorAsync(Account account, ClientLogRequest request, CancellationToken ct)
+    {
+        DateTime since = DateTime.UtcNow.AddHours(-1);
+        if (await _db.ClientLogs.CountAsync(l => l.AccountId == account.Id && l.Utc > since, ct) >= ClientLogsPerHour) return;
+        static string Cut(string? s, int n) => s == null ? "" : s.Length <= n ? s : s.Substring(0, n);
+        _db.ClientLogs.Add(new ClientLog
+        {
+            AccountId = account.Id, Utc = DateTime.UtcNow, Platform = Cut(request.Platform, 32), Version = Cut(request.Version, 32),
+            Message = Cut(request.Message, 512), Stack = Cut(request.Stack, 4000),
+        });
+        await _db.SaveChangesAsync(ct);
+    }
+
     /// <summary>The piece a Forge or Turn acts on: any owned item by id (worn or in the bag), else the one worn in the slot.</summary>
     private static Item AnvilItem(Account account, Guid? itemId, EquipSlot slot)
     {

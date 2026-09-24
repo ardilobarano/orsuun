@@ -39,6 +39,8 @@ public sealed record SocketResultDto(bool Success, int SocketIndex, string Text)
 
 public sealed record EquipRequest(string RequestId, Guid ItemId);
 public sealed record ParkRequest(int Stage);
+/// <summary>An error the client caught; stored for the team, at most ClientLogsPerHour per account.</summary>
+public sealed record ClientLogRequest(string Platform, string Version, string Message, string? Stack = null);
 /// <summary>Switches the class being played (playtest: free and instant).</summary>
 public sealed record ClassRequest(HeroClass HeroClass);
 public sealed record PushRequest(string RequestId);

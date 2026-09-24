@@ -34,3 +34,6 @@ for id in 1 2 3; do
 done
 fa=$(post /v1/boss/fight "{\"requestId\":\"$(rid)\",\"bossId\":1}")
 echo "fight again: $(echo "$fa" | jq -c .)"
+echo "client log: $(post /v1/client-log '{"platform":"Smoke","version":"0","message":"smoke test report","stack":"at Smoke()"}' | jq -c .)"
+echo "delete account: $(curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $SESSION" | jq -c .)"
+echo "me after delete: $(curl -s -o /dev/null -w '%{http_code}' "$BASE/v1/me" -H "X-Session: $SESSION")"

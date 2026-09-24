@@ -53,6 +53,26 @@ namespace Orsuun.Client
         private static readonly Dictionary<string, MobArt> MobArts = new Dictionary<string, MobArt>();
         /// <summary>Mob models in the order of the Oathfields' mob names (Content map 1): enemy id picks one.</summary>
         private static readonly string[] MobModels = { "Wolf", "Boar", "Deserter" };
+        /// <summary>The Salt Flats (and Korstone Field III): salt scorpions, glass snakes, caravan ghouls.</summary>
+        private static readonly string[] SaltMobs = { "Scorpion", "GlassSnake", "Ghoul" };
+        /// <summary>The Frost Pasture (and Korstone Fields IV-V): frost bears, ice wights, snow hags.</summary>
+        private static readonly string[] FrostMobs = { "FrostBear", "IceWight", "SnowHag" };
+
+        /// <summary>Which mob set a stage or zone fields (zone ids from Content: 102 Salt Flats, 103 Frost Pasture, 113-115 Fields III-V).</summary>
+        private static string[] MobSetFor(int stageNumber)
+        {
+            string[] set = stageNumber == 102 || stageNumber == 113 ? SaltMobs : stageNumber == 103 || stageNumber == 114 || stageNumber == 115 ? FrostMobs : MobModels;
+            // Older builds without the new models keep the Oathfields set.
+            return LoadMob(set[0]) != null ? set : MobModels;
+        }
+
+        /// <summary>Backdrop for a stage: the Hunting Grounds past the Ember Steppe have their own environment keys.</summary>
+        private static string BackdropKey(ZoneType zone, int stageNumber)
+        {
+            if (stageNumber == 102 && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
+            if (stageNumber == 103 && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
+            return (zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone).ToString();
+        }
         /// <summary>Models face +Z; this turns them toward the hero, three-quarter to the camera (the hero uses 125).</summary>
         private const float EnemyYaw = -125f;
         private const float MobScale = 0.85f;
@@ -103,7 +123,7 @@ namespace Orsuun.Client
             foreach (EnemyView view in _views.Values) Kill(view.Root.gameObject);   // the editor preview rebinds too
             _views.Clear();
             _sim = sim;
-            SetZone(sim.Stage.Zone);
+            SetZone(sim.Stage.Zone, sim.Stage.StageNumber);
             _hero.rotation = Quaternion.identity;
             _hero.position = new Vector3(HeroX, _heroY, 0f);
             if (_heroDown) { _heroDown = false; Play("Idle", 0f); }
@@ -115,7 +135,7 @@ namespace Orsuun.Client
             _sim = sim;
             BuildScenery();
             BuildHero();
-            SetZone(sim.Stage.Zone);
+            SetZone(sim.Stage.Zone, sim.Stage.StageNumber);
         }
 
         /// <summary>Ground, scrolling stripes and the zone backdrop. Public so the editor preview can frame it.</summary>
@@ -148,20 +168,28 @@ namespace Orsuun.Client
             _backdrop.receiveShadows = false;
         }
 
-        /// <summary>Backdrop and ground tint for the zone type. Campaign stages use the Hunting Grounds key for now.</summary>
-        public void SetZone(ZoneType zone)
+        private string _backdropKey;
+
+        /// <summary>
+        /// Backdrop and ground tint for a stage: by zone type, with the Salt Flats and the Frost Pasture on their own
+        /// environment keys. Campaign stages use the Hunting Grounds key for now.
+        /// </summary>
+        public void SetZone(ZoneType zone, int stageNumber = 0)
         {
-            if (_zone == zone) return;
+            string key = BackdropKey(zone, stageNumber);
+            if (_backdropKey == key) return;
+            _backdropKey = key;
             _zone = zone;
-            ZoneType key = zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone;
             var mat = Resources.Load<Material>("Backdrops/Backdrop" + key);
             if (mat != null) _backdrop.sharedMaterial = mat;
             _backdrop.enabled = mat != null;
 
             (Color ground, Color stripe) = key switch
             {
-                ZoneType.KorstoneField => (new Color(0.50f, 0.38f, 0.20f), new Color(0.56f, 0.43f, 0.24f)),
-                ZoneType.CommanderGround => (new Color(0.30f, 0.21f, 0.15f), new Color(0.35f, 0.25f, 0.18f)),
+                "KorstoneField" => (new Color(0.50f, 0.38f, 0.20f), new Color(0.56f, 0.43f, 0.24f)),
+                "CommanderGround" => (new Color(0.30f, 0.21f, 0.15f), new Color(0.35f, 0.25f, 0.18f)),
+                "SaltFlats" => (new Color(0.66f, 0.61f, 0.53f), new Color(0.72f, 0.67f, 0.58f)),
+                "FrostPasture" => (new Color(0.60f, 0.67f, 0.76f), new Color(0.68f, 0.75f, 0.83f)),
                 _ => (new Color(0.52f, 0.48f, 0.22f), new Color(0.58f, 0.54f, 0.27f)),
             };
             _ground.material.color = ground;
@@ -603,12 +631,18 @@ namespace Orsuun.Client
 
         private HeroClass _class = HeroClass.Vanguard;
         private GameObject _classLook;
+        private int _classBand = -1;
 
-        /// <summary>Shows the class being played: the Vanguard's armour and glaive looks, or another class's own model.</summary>
-        public void SetHeroClass(HeroClass cls)
+        /// <summary>
+        /// Shows the class being played: the Vanguard's armour and glaive looks, or another class's own model for the
+        /// armour's level band (Models/Classes/&lt;Class&gt;_T&lt;band&gt;, nearest band if that one is not drawn yet).
+        /// </summary>
+        public void SetHeroClass(HeroClass cls, int band = 0)
         {
-            if (cls == _class || _rig == null) return;
+            if (_rig == null || (cls == _class && (cls == HeroClass.Vanguard || band == _classBand))) return;
+            if (_hero.rotation != Quaternion.identity || _heroDown) return;   // swap once back on the feet
             _class = cls;
+            _classBand = band;
             if (_armorLook != null) Kill(_armorLook);
             if (_weaponLook != null) Kill(_weaponLook);
             if (_classLook != null) Kill(_classLook);
@@ -620,9 +654,9 @@ namespace Orsuun.Client
             _rig.localScale = cls == HeroClass.Vanguard ? VanguardBuild : Vector3.one;
             if (cls == HeroClass.Vanguard) return;   // GameRoot's next SetLooks rebuilds him
 
-            string name = cls.ToString();
+            string name = ClassLookName(cls, band);
+            if (name == null) return;
             var prefab = Resources.Load<GameObject>("Models/Classes/" + name);
-            if (prefab == null) return;
             _classLook = Instantiate(prefab, _rig);
             _anim = _classLook.GetComponent<Animation>();
             if (_anim != null && _anim.GetClip("Idle") == null) _anim = null;
@@ -632,13 +666,27 @@ namespace Orsuun.Client
             foreach (Renderer r in _classLook.GetComponentsInChildren<Renderer>())
             {
                 if (material != null) r.sharedMaterial = material;
-                // One body: it shines with the armour's upgrade level.
-                _heroParts.Add((r, (int)EquipSlot.Armor));
+                // Body parts shine with the armour's level, the blade or staff with the weapon's.
+                int slot = SlotOf(r.name);
+                _heroParts.Add((r, slot == NoSlot ? (int)EquipSlot.Armor : slot));
                 if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
             }
             Vector3 origin = _rig.position;
             _classLook.transform.position -= new Vector3(b.center.x - origin.x, b.min.y - origin.y, b.center.z - origin.z);
             Play("Idle", 0f);
+        }
+
+        /// <summary>The class model for a band, or the nearest band drawn so far.</summary>
+        private static string ClassLookName(HeroClass cls, int band)
+        {
+            for (int step = 0; step <= ItemLooks.MaxTier; step++)
+                foreach (int t in new[] { band - step, band + step })
+                {
+                    if (t < 0 || t > ItemLooks.MaxTier) continue;
+                    string name = cls + "_T" + t;
+                    if (Resources.Load<GameObject>("Models/Classes/" + name) != null) return name;
+                }
+            return null;
         }
 
         private void Play(string clip, float fade)
@@ -834,8 +882,11 @@ namespace Orsuun.Client
             switch (kind)
             {
                 case EnemyKind.Mob:
-                    name = MobModels[enemyId % MobModels.Length];
+                {
+                    string[] set = MobSetFor(_sim.Stage.StageNumber);
+                    name = set[enemyId % set.Length];
                     return LoadMob(name);
+                }
                 case EnemyKind.Captain:
                     scale = 1f;
                     tint = new Color(1f, 0.72f, 0.55f);
@@ -964,7 +1015,9 @@ namespace Orsuun.Client
                 case "Wolf": return "MobBite";
                 case "Boar": return "MobGore";
                 case "Greyjaw": case "Gorak": return "BossSlam";
-                case "Queen": return "SpellVoid";
+                case "Queen": case "SnowHag": return "SpellVoid";
+                case "Scorpion": case "GlassSnake": return "MobBite";
+                case "FrostBear": return "MobGore";
                 default: return "MobClash";
             }
         }

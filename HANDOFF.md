@@ -21,6 +21,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Forge from the bag, and asking first | Owner, 24 Sep 2026: every Forge attempt asks for confirmation first (chance, full cost, what a failure costs), and pieces can be forged and turned from the Gear screen without equipping them. Assumption (not stated by the owner): an Oathbreak on a bag piece just destroys it; only a worn piece is replaced by a starter, so breaking junk cannot mint starters. |
 | Kestrel, character styling | Owner, 24 Sep 2026: add a second class, commanders, title screen and hunt sound; make characters "a bit muscled up or with big tits and ass". Built as: heroic muscular men (Vanguard drawn 10% broader, Tul-Gorak), curvy women (Kestrel, the Mirage Queen), always fully clothed and non-explicit so store ratings stay in the teen band. Kestrel (Talon, paired knives) is the second class: Heartseeker 600% / 6 s with a 900% weak point, Knife Fan 130% / 10 s, Kestrel's Dive haste; 90% attack, 85% HP, +7% crit, 10-tick swings. Measured: pushes 7% faster than the Vanguard, aimed play 125%. Class switch is free and instant for the playtest (Gear screen). The Wraithsworn stays next on the roadmap. |
 | All four classes, mob attacks, Korstone tiers | Owner, 24 Sep 2026. Wraithsworn (Voidpact: Void Lance 750%/8 s, Grave Tide, Pact Frenzy; 105% attack, 60% defense, 80% HP, 13-tick swings, weak point 700) and Drumcaller (Thunder Rite: Sky Hammer 450%/7 s, Storm Drum 200%/8 s, War Rhythm 7 s; 95/110/105%, +5% crit) join Vanguard and Kestrel; all four push within 10% of each other and pay 123-135% for aimed play (`ClassBalanceTests`). Korstones change with level: five tiers of 20 levels (Ember, Blood, Void, Grave, Khan colours, darker stone each tier) and three shapes (runed monolith, chained twin spire, crowned obelisk; an Elder takes the next shape up). |
+| Outfits, Wraithsworn sword, class bands | Owner, 24 Sep 2026: the women wear the shortest shorts with garters (Kestrel and the Drumcaller: shorts, garter straps, thigh-high stockings), still clothed and non-explicit. The Drumcaller's first band keeps a mid-thigh tunic over them because the image generator refused the bare version; the filter was not worked around. The Wraithsworn attacks with the Kestrel's slash rhythm but with a sword (`rig.ATTACKS["sword"]`: wind-up overhead, slash with a chest twist). Kestrel, Wraithsworn and Drumcaller now have three looks each (T0-T2, every 10 item levels like the Vanguard). Assumption (not stated by the owner): their weapon look follows the armour's band (the blade or staff is part of the class model), while its glow still follows the weapon's own level. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -35,7 +36,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 ## What exists and works
 
 - `src/Orsuun.Rules`: engine-free rules (Forge, etchings/Turnstone, offline settlement, lane combat, zones, bosses,
-  gear, XP/levels, item looks, active-play replay). 92 xUnit tests in `tests/`. Numbers pinned to the GDD (52.6 scrolls to +9, Turnstone odds, and so on).
+  gear, XP/levels, item looks, active-play replay). 107 xUnit tests in `tests/`. Numbers pinned to the GDD (52.6 scrolls to +9, Turnstone odds, and so on).
 - `src/Orsuun.Server`: ASP.NET Core 8 + PostgreSQL 16. Guest login, heartbeat settlement (live and offline), Forge,
   Turn, equip, park, push, boss fights with damage brackets, append-only ledger, idempotent request ids.
   `tools/smoke.ps1` walks every endpoint.
@@ -96,6 +97,37 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - UI colour pass in direction B: dusk-indigo panels, bronze rims, Philosopher Bold for buttons and headings, Cinzel for
   screen titles (both SIL OFL, licences next to the fonts), currency icons on the top bar, item names in the glow colours.
 
+## Done 24 Sep 2026, later (store readiness and new zones)
+
+- Class looks per band: `Resources/Models/Classes/<Class>_T0|T1|T2.fbx`, picked by the armour's band
+  (`LaneView.SetHeroClass(cls, band)`, nearest band when one is missing); the old one-band models are gone. Each is
+  split into `_Armor` and `_Weapon` so the two glow by their own items' levels, and the weapon rides its hand whole.
+- Salt Flats (salt scorpion, glass snake, caravan ghoul) and Frost Pasture (frost bear, ice wight, snow hag) have their
+  own mobs (`Resources/Models/Mobs`), backdrops and ground colours; Korstone Field III uses the Salt Flats set, IV-V the
+  Frost set (`LaneView.MobSetFor`). RenderPreview writes `lane-mobs-SaltFlats.png` and `lane-mobs-FrostPasture.png`.
+- First-session tutorial (`Tutorial`): eight steps with a pulsing frame (the hunt, the Korstone, skills, open the Forge,
+  one attempt, back, Gear, Push/Zones); some wait for the player's action, SKIP ends it, stored in PlayerPrefs
+  (`orsuun.tutorialDone`). `-tutorial` / `-tutorialStep <n>` for screenshots.
+- MENU replaces the DEV button (`MenuPanel`): HOW TO PLAY, PRIVACY POLICY (opens `<server>/privacy`), DELETE ACCOUNT
+  (confirm, `DELETE /v1/account`, then a new guest on a new device token), and the playtest grant (`ShowDevGrant`; the
+  dev endpoints only exist while the server runs in Development). `-menu` opens it.
+- Crash reports: uncaught client exceptions go to `POST /v1/client-log` (once per message, at most 10 a run; the server
+  keeps 20 per account per hour in `ClientLogs`, migration `ClientLogs`). Read them with
+  `docker compose -f deploy/docker-compose.yml exec db psql -U orsuun -d orsuun -c 'select * from "ClientLogs" order by "Utc" desc limit 20'`.
+- Server abuse guard: 40 calls per 10 s per session (or IP before login), HTTP 429 above that; loopback exempt.
+- Privacy policy page: `deploy/site/privacy.html`, served by Caddy at `/privacy`. Its contact line is a placeholder.
+
+## Store release, waiting on the owner's accounts
+
+- Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
+  with Apple / Google (so an account survives a new phone) needs both; guest login stays as the first step.
+- A contact email for the privacy policy (replace "[contact email to be added before release]" in
+  `deploy/site/privacy.html`) and the store listings.
+- A production server: the playtest box runs in Development mode with the dev endpoints open. For release, run it with
+  `ASPNETCORE_ENVIRONMENT=Production`, a real domain instead of sslip.io, and database backups; set `MenuPanel.ShowDevGrant`
+  to false in store builds.
+- App Attest / Play Integrity for one account per device (see Known gaps).
+
 ## Next steps, waiting on the owner
 
 1. Playtest server is live since 23 Sep 2026: https://65.108.221.210.sslip.io (Hetzner CPX12, Helsinki, Ubuntu 26.04,
@@ -125,6 +157,8 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 ## Known gaps
 
 - `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
+- The Wraithsworn's first band (the older Rodin model) carries two blades; bands 1-2 carry one sword and a void spell
+  in the left hand. All three use the sword attack.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Active play: the account holds a lane seed (new on first login and every park) and the next loop number; StateDto
   carries both. Online, the client's farm lane runs one seeded loop per encounter cycle (`LaneSim.Cycles`; Hunting
@@ -151,6 +185,15 @@ addon panel; Rodin is enabled in fal.ai mode (key in `~/.config/fal/key`, about 
 crashes before sending (it iterates the file-path list when given URLs), so submit to `https://queue.fal.run/fal-ai/hyper3d/rodin`
 directly with front/side/back crops hosted under `/downloads`, `condition_mode: concat`, `tier: Regular`, `material: PBR`.
 First result: the Vanguard (`art/blender/vanguard.blend`), decimated to 12k tris, in the lane as `Resources/Models/Vanguard.fbx`.
+**fal.ai's balance ran out on 24 Sep 2026** (every Rodin call returns "Exhausted balance"; top it up to use Rodin
+again). Since then 3D comes from Tripo H3.1 multiview through Higgsfield (`tripo_h3_1_multiview_to_3d`, about 9
+credits a model, `face_limit: 40000`, front/side/back views in that order as imported media). Tripo models face +X:
+pass `yaw_degrees=-90` to `class_look` / `mob_model`. Sources are kept as `art/blender/*-tripo.glb`.
+Other classes go through `looks.class_look(glb, "<Class>_T<n>", height, weapon=..., attack=...)`: "knives" (a blade in
+each hand; also the twin swords of the Wraithsworn's first band), "sword" (right hand) or "staff" (a straight line
+through the right hand). Blades are found below each hand, then only the mesh island the hand grips is kept (boots and
+cloth shreds beside a blade are separate islands); the weapon part is skinned whole to its hand. Heights: Kestrel 2.2,
+Wraithsworn 2.3, Drumcaller 2.45.
 Item looks (weapon and armour per level band) come from `art/blender/looks.py`: armour models are Rodin turnarounds of
 the same man holding a glaive; the pipeline finds the glaive pole (RANSAC for the straight full-height line), cuts it out
 and stores WeaponBase/WeaponTip; weapons are Rodin glaives normalised to base-at-origin. Output in

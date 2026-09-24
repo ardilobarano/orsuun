@@ -24,6 +24,8 @@ namespace Orsuun.Client.Net
         private PlayerSession _player;
 
         public bool Online { get; private set; }
+        /// <summary>The server's address (the privacy policy lives at BaseUrl + "/privacy").</summary>
+        public string BaseUrl => _baseUrl;
         public string Status { get; private set; } = "connecting";
         public SettlementDto LastSettlement { get; private set; }
         /// <summary>Server item ids for the ItemState instances currently in the session, needed by Equip.</summary>
@@ -44,7 +46,53 @@ namespace Orsuun.Client.Net
         {
             _player = player;
             _baseUrl = ResolveBaseUrl();
+            Application.logMessageReceived += OnLog;
             StartCoroutine(Run());
+        }
+
+        private void OnDestroy() => Application.logMessageReceived -= OnLog;
+
+        private const int CrashReportsPerRun = 10;
+        private readonly HashSet<string> _reported = new HashSet<string>();
+
+        /// <summary>
+        /// Crash reports: every uncaught exception goes to the server once per message (a few per run at most, and
+        /// the server caps an account at 20 an hour). Only the message, the stack, the platform and the version are
+        /// sent; the privacy policy lists them.
+        /// </summary>
+        private void OnLog(string message, string stack, LogType type)
+        {
+            if (type != LogType.Exception || _session == null || _reported.Count >= CrashReportsPerRun || !_reported.Add(message)) return;
+            var body = new ClientLogRequest { platform = Application.platform.ToString(), version = Application.version, message = message, stack = stack };
+            StartCoroutine(Send("POST", "/v1/client-log", JsonUtility.ToJson(body), true, _ => { }, _ => { }));
+        }
+
+        /// <summary>
+        /// Deletes the account and everything on it from the server, then signs in again as a new guest on a new
+        /// device token (a fresh start). Completes with null, or an error message.
+        /// </summary>
+        public IEnumerator DeleteAccount(Action<string> done)
+        {
+            if (_session == null)
+            {
+                done("Not connected to the server.");
+                yield break;
+            }
+            string failure = null;
+            yield return Send("DELETE", "/v1/account", null, true, _ => { }, error => failure = error ?? "No answer from the server.");
+            if (failure != null)
+            {
+                done(failure);
+                yield break;
+            }
+            StopAllCoroutines();
+            _session = null;
+            Online = false;
+            Status = "connecting";
+            PlayerPrefs.DeleteKey(DeviceTokenKey);
+            PlayerPrefs.Save();
+            StartCoroutine(Run());
+            done(null);
         }
 
         /// <summary>-server on the command line, else Resources/server-url.txt (written by the build script), else localhost.</summary>
@@ -315,12 +363,18 @@ namespace Orsuun.Client.Net
             return item;
         }
 
-        private IEnumerator Post(string path, string body, bool auth, Action<string> ok, Action<string> fail)
+        private IEnumerator Post(string path, string body, bool auth, Action<string> ok, Action<string> fail) =>
+            Send("POST", path, body, auth, ok, fail);
+
+        private IEnumerator Send(string method, string path, string body, bool auth, Action<string> ok, Action<string> fail)
         {
-            using var req = new UnityWebRequest(_baseUrl + path, "POST");
-            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+            using var req = new UnityWebRequest(_baseUrl + path, method);
+            if (body != null)
+            {
+                req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+                req.SetRequestHeader("Content-Type", "application/json");
+            }
             req.downloadHandler = new DownloadHandlerBuffer();
-            req.SetRequestHeader("Content-Type", "application/json");
             if (auth) req.SetRequestHeader("X-Session", _session);
             req.timeout = 10;
             yield return req.SendWebRequest();
@@ -350,6 +404,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class ParkRequest { public int stage; }
         [Serializable] public class PushRequest { public string requestId; }
         [Serializable] public class ErrorDto { public string code; public string message; }
+        [Serializable] public class ClientLogRequest { public string platform; public string version; public string message; public string stack; }
         [Serializable] public class EtchingDto { public int entryId; public string name; public int tier; public int value; }
         [Serializable] public class SocketDto { public bool dead; public string type; public int rank; public string text; }
         [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; public SocketDto[] sockets; }

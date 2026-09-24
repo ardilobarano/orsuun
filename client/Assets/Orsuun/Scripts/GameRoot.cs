@@ -29,6 +29,8 @@ namespace Orsuun.Client
         public SocketPanel Sockets { get; private set; }
         public Net.ServerLink Server { get; private set; }
         public TitleScreen Title { get; private set; }
+        public MenuPanel Menu { get; private set; }
+        public Tutorial Tutorial { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
         /// <summary>The bell in force: the server's when online, else the local clock's (the local session uses it too).</summary>
@@ -74,11 +76,17 @@ namespace Orsuun.Client
             Sockets.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
+            Menu = new GameObject("MenuPanel").AddComponent<MenuPanel>();
+            Menu.Init(this);
+            Tutorial = new GameObject("Tutorial").AddComponent<Tutorial>();
+            Tutorial.Init(this);
             Title = new GameObject("TitleScreen").AddComponent<TitleScreen>();
             Title.Init(this);
-            // Screenshots and demos skip the title unless asked for it.
+            // Screenshots and demos skip the title unless asked for it, and the tutorial unless -tutorial.
             string[] cmd = Environment.GetCommandLineArgs();
             if (Array.IndexOf(cmd, "-notitle") >= 0 || (Array.IndexOf(cmd, "-shot") >= 0 && Array.IndexOf(cmd, "-title") < 0)) Title.Skip();
+            _tutorialPending = Array.IndexOf(cmd, "-tutorial") >= 0 || Array.IndexOf(cmd, "-tutorialStep") >= 0
+                               || (!Tutorial.Finished && Array.IndexOf(cmd, "-shot") < 0);
 
             // Dev switch for screenshots and demos: Orsuun.exe -forge
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-forge") >= 0) Forge.Open();
@@ -89,6 +97,7 @@ namespace Orsuun.Client
             string cls = Arg("-class") ?? (Array.IndexOf(Environment.GetCommandLineArgs(), "-kestrel") >= 0 ? "Kestrel" : null);
             if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-menu") >= 0) Menu.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }
 
@@ -133,9 +142,18 @@ namespace Orsuun.Client
 
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
+        private bool _tutorialPending;
 
         private void Update()
         {
+            // The first session's guide starts once the title screen is gone.
+            if (_tutorialPending && !Title.Showing)
+            {
+                _tutorialPending = false;
+                // Dev switch: -tutorialStep <n> opens the guide at a step (screenshots).
+                Tutorial.Begin(int.TryParse(Arg("-tutorialStep"), out int step) ? step : 0);
+            }
+
             // Local mode rings the bells from the PC clock; online the server's state applies them.
             if (!Server.Online && !Replaying)
             {
@@ -145,7 +163,9 @@ namespace Orsuun.Client
 
             LaneSim lane = ActiveLane;
             if (Lane.Sim != lane) Lane.Bind(lane);
-            Lane.SetHeroClass(Session.Class);
+            // The other classes' looks follow the armour's level band (the Vanguard's armour and glaive have their own).
+            ItemState armor = Session.Equipped(EquipSlot.Armor);
+            Lane.SetHeroClass(Session.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0);
             Lane.SetLooks(Session.Equipped(EquipSlot.Armor)?.LookId, Session.Weapon.LookId);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 

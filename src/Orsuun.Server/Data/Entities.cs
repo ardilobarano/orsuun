@@ -126,6 +126,18 @@ public sealed class BossClock
 }
 
 /// <summary>Append-only record of every roll and every currency change. Support and rate audits read this.</summary>
+/// <summary>An error the game client caught on a player's device (store readiness: crash reports without a third party).</summary>
+public sealed class ClientLog
+{
+    public long Id { get; set; }
+    public Guid AccountId { get; set; }
+    public DateTime Utc { get; set; }
+    [MaxLength(32)] public string Platform { get; set; } = "";
+    [MaxLength(32)] public string Version { get; set; } = "";
+    [MaxLength(512)] public string Message { get; set; } = "";
+    [MaxLength(4000)] public string Stack { get; set; } = "";
+}
+
 public sealed class LedgerEntry
 {
     public long Id { get; set; }
