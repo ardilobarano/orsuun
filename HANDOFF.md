@@ -32,6 +32,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Sign in with Apple / Google | Owner, 24 Sep 2026: "i want to add sign in through google and apple". Built as a browser sign-in for both, on both platforms: the game asks the server for the provider's page, opens it in Apple's in-app sign-in sheet (iOS, `Plugins/iOS/OrsuunAuth.mm`) or the browser (Android), the provider returns to the server, which checks the signed ID token against the provider's published keys and sends the app a one-time ticket on an `orsuun://auth` link; the ticket only works on the device that started. A login already linked to a hero switches the phone to it; a new one is linked to the hero being played. Needs the owner's keys (see "Store release"); until then the buttons stay hidden. The Development server's stand-in provider ("dev", MENU > DEV: TEST SIGN-IN) walks the same round trip. A native iOS Apple button (no sheet) can come later: the server already takes ID tokens at `/v1/auth/external`. |
 | Moderation | Owner, 24 Sep 2026 ("go" on the moderation tool before inviting testers). A web page at `/admin` (served by the game server) for moderators: game accounts whose email is in `Admin:Emails` (`ADMIN_EMAILS` in the server's `deploy/.env`; the owner's is set). Sign in with that account's email and password (12-hour session). Tabs: overview, the report queue (hide, keep, all lines of a player), world chat search, players (mute 1 h / 24 h / 7 days, ban with a reason the player sees, unban), guilds (rename, disband), and the moderation log. A ban blocks sign-in, closes their Exchange listings, takes them out of their guild and hides their lines. |
 | Bounties and Hunt Marks | Owner, 24 Sep 2026 ("do all of them"; the GDD's Hunt Marks). Five daily and four weekly bounties counted by the server (Korstones, hunting minutes, forges, turns, Commander fights, pushes, sieges), reset at 20:00 server time (weekly on Mondays); the Hunt Marks shop sells Etching Needles, Pinning Wax, Turnstones, Scrolls of Mercy and Draughts. ETCH (Etching Needle, 1st to 4th etching at 100/80/60/40%) and PIN (Pinning Wax, one lock per item, turns cost two, unpinning spends the wax) are on the Forge. The owner will add monetization; the shop prices are placeholders. |
+| Guild war and fortress bids | Owner, 24 Sep 2026 (desktop app session): picked all four offered next steps, among them "guild war and fortress bids". Built asynchronous like the sieges (the GDD's live 20v20 and 50v50 are out of reach for now). Guild war: the leader signs up (3+ members), war nights Wednesday and Saturday 21:00 pair guilds by Elo rating for an hour; each member fights up to 6 duels, 2 min apart, on one of three lanes against a drawn member of the other guild; a win is a kill and pushes the lane (two steps under the war flag the leader or an officer plants), 5 steps break it; score = kills + 10 per broken lane; winner 150,000 treasury sorn + 100 guild XP (draw 50,000 + 60, loss 30 XP); a duel pays 5,000 sorn + 1 Hunt Mark (GDD: PvP pays currency, never upgrade protection). Duels follow the GDD's PvP balance: gear and level on a class-neutral frame, stats above the pair's median compressed by 30%, a seeded roll tuned so a +9 set beats a +7 set about 80% of the time (`Rules/GuildWar.cs`: `GuildWars`, `Duels`). Fortress keeps: the Banner sieges stay; the keep decides the guild flag. Leaders or officers bid treasury sorn on one keep a week (50,000+); Sunday 20:00 the top four bids contend (spent, the rest refunded) and storm the keep for an hour while its holders mend it; the best contender takes it past 150,000 + the mending. The holder flies its flag (+2% sorn) and earns 2% of the Exchange tax. All numbers are assumptions (not stated by the owner). |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -56,19 +57,21 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   push and boss replays from server seeds; seeded farm loops reported for active play; LOCAL MODE fallback.
 - `tools/Orsuun.Sim`: Monte Carlo balance report. `tools/ClientCheck`: compiles Unity scripts with dotnet.
 
-## Where we left off (24 Sep 2026, late night)
+## Where we left off (24 Sep 2026, desktop app session, late)
 
-The owner is moving to the Claude desktop app (Code tab, local folder `~/orsuun`); this session's chat does not
-carry over, so this file and CLAUDE.md are the memory. Everything below is committed, deployed to the playtest
-server and installed on the owner's iPhone (build 26092417); the APK on the download link matches.
+The owner moved to the Claude desktop app (Code tab, `~/orsuun`) and picked all four offered next steps. All four are
+built and committed on `main` locally: the first ten minutes (spotlight tutorial, next-goal line), the rest of the
+mockup look, the Mirage Queen (she already had a real rigged model; only the notes were stale), and guild war with
+fortress bids (see the decision row and "Done ... desktop app session"). **Nothing of this session is pushed, deployed
+or on the phones yet**: push, deploy (`ssh root@65.108.221.210 ...`, the migration `GuildWarKeeps` runs at startup) and
+new mobile builds wait for the owner's go.
 
-Waiting on the owner: database backups (yes/no, Storage Box or Mac), the paid Apple Developer Program (TestFlight,
-Sign in with Apple, no 7-day expiry), Google sign-in test users or "Publish app" in Google Cloud, the monetization
-plan, a real domain before release.
+Waiting on the owner: push / deploy / phone builds of this session; database backups (yes/no, Storage Box or Mac); the
+paid Apple Developer Program (TestFlight, Sign in with Apple, no 7-day expiry); Google sign-in test users or "Publish
+app" in Google Cloud; the monetization plan; a real domain before release.
 
-Offered next (owner to pick): polish the first ten minutes (tutorial for the new UI, a "next goal" tracker); a real
-Mirage Queen model (still a placeholder); the rest of the mockup look (framed tiles on the bottom bar, a bigger item
-picture on the Forge, shard art); guild war and fortress bids; password reset by email (needs a mail service).
+Could come next: the Mirage Queen's presence (a mirage shimmer, ghostlier images, a little taller), Free Lances and the
+fortress aura for keeps, guild invites, password reset by email (needs a mail service), bands 6-10 of looks.
 
 ## Done since the first handoff (same day)
 
@@ -295,6 +298,22 @@ picture on the Forge, shard art); guild war and fortress bids; password reset by
   lacquered in their colours with big flags, three tall fortress tiles with their paintings. Turning helper: slot
   tiles with rarity glow, the piece's picture, the goals in a card with numbered rings and red X buttons.
 
+- Guild war and fortress keeps. Rules: `GuildWar.cs` (`GuildWars` schedule, pairing, fronts, score, Elo; `Duels` neutral
+  frame, compression, edge, roll, and `Stage`, which shapes the replay's champion so the attacker's own hero wins or
+  falls as decided; `FortressKeeps`), `GuildWarTests`. Server: `GameService.GuildWar.cs`, `GameService.Keeps.cs`,
+  `WorldClock` (a hosted service: every 30 s it pairs a night that has begun, settles wars whose hour is up and moves each
+  keep through its week), migration `GuildWarKeeps` (`GuildWarSignups`, `GuildWarNights`, `GuildWars`,
+  `GuildWarEntries`, `FortressBids`; `Guild.WarRating/WarWins/WarLosses/WarDraws`; `Fortress.Keep*`). Endpoints
+  `GET /v1/guild/war`, `POST /v1/guild/war/signup|flag|fight`, `POST /v1/keep/bid|fight`; `/v1/war` carries the keeps.
+  The Banner Hall capture no longer moves the guild flag. Dev (Development only): `/v1/dev/war-night?minutes=`,
+  `/v1/dev/war-end`, `/v1/dev/keep-siege?minutes=`, `/v1/dev/keep-end`; `tools/smoke-war.sh` walks it all (local only:
+  it changes ratings and keeps). Client: `GuildWarPanel` (GUILD WAR from the guild screen: record, next night and SIGN
+  UP, the score, three lanes with fronts, flags, FIGHT HERE / PLANT FLAG, the ladder), the WAR screen's KEEP buttons
+  and keep dialog (holder, bids, BID +50,000 / +250,000 / +1,000,000 after a confirm, STORM / HOLD THE KEEP),
+  `GameRoot.FightDuel` / `FightKeep` replays (a rival shows in their class look for their band; a Vanguard rival as a
+  steel deserter). Screenshot switches online: `-guildwar`, `-duel <lane>`, `-keep <n>`; `-boss <id>` fights a
+  Commander in local play.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
@@ -356,7 +375,8 @@ picture on the Forge, shard art); guild war and fortress bids; password reset by
 - The fifth etching needs a Master's Needle, which nothing sells or drops yet (it is a Caravan item in the GDD).
 - Players are shown to each other by a generated name; custom names need moderation first. Guild names and tags go
   through a short word filter (`Guilds.Clean`) only; reports and a review queue are needed before a public launch.
-- Guilds: no invites, no guild war or fortress bids; the treasury only buys skills so far.
+- Guilds: no invites. Guild war and fortress keeps are asynchronous first versions (no live 20v20 / 50v50, no Free
+  Lances, no fortress aura, no class bonuses at gates); the treasury buys skills and keep bids.
 - Accounts: no email verification and no password reset (the server sends no mail yet); a forgotten password means a
   lost account until that exists. Sign in with Apple / Google still needs the owner's developer accounts.
 - Moderation has no alert for new reports (check the /admin overview), bans are per account (a banned player can

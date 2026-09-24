@@ -16,6 +16,8 @@ builder.Services.AddSingleton<BellClock>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ExternalAuth>();
+// War nights are paired and settled, and fortress keeps move through their week, on this clock.
+builder.Services.AddHostedService<WorldClock>();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 // Abuse guard: 40 calls per 10 s per session (or per client IP before login). The game needs a few a minute.
@@ -187,6 +189,13 @@ v1.MapPost("/banner", (HttpContext ctx, BannerRequest req, GameService game, Can
 v1.MapGet("/war", (HttpContext ctx, GameService game, CancellationToken ct) => game.WarAsync(Me(ctx), ct));
 v1.MapPost("/siege", (HttpContext ctx, SiegeRequest req, GameService game, CancellationToken ct) => game.SiegeAsync(Me(ctx), req, ct));
 v1.MapGet("/guild", (HttpContext ctx, string? q, GameService game, CancellationToken ct) => game.GuildAsync(Me(ctx), q, ct));
+// Guild war (asynchronous war nights) and the fortress keeps' bids and Sunday sieges.
+v1.MapGet("/guild/war", (HttpContext ctx, GameService game, CancellationToken ct) => game.GuildWarAsync(Me(ctx), "", ct));
+v1.MapPost("/guild/war/signup", (HttpContext ctx, GuildWarSignupRequest req, GameService game, CancellationToken ct) => game.GuildWarSignupAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/war/flag", (HttpContext ctx, GuildWarFlagRequest req, GameService game, CancellationToken ct) => game.GuildWarFlagAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/war/fight", (HttpContext ctx, GuildWarFightRequest req, GameService game, CancellationToken ct) => game.GuildWarFightAsync(Me(ctx), req, ct));
+v1.MapPost("/keep/bid", (HttpContext ctx, KeepBidRequest req, GameService game, CancellationToken ct) => game.KeepBidAsync(Me(ctx), req, ct));
+v1.MapPost("/keep/fight", (HttpContext ctx, KeepFightRequest req, GameService game, CancellationToken ct) => game.KeepFightAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/create", (HttpContext ctx, GuildCreateRequest req, GameService game, CancellationToken ct) => game.CreateGuildAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/join", (HttpContext ctx, GuildJoinRequest req, GameService game, CancellationToken ct) => game.JoinGuildAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/leave", (HttpContext ctx, GuildLeaveRequest req, GameService game, CancellationToken ct) => game.LeaveGuildAsync(Me(ctx), req, ct));
@@ -305,6 +314,10 @@ mod.MapGet("/log", (GameService game, CancellationToken ct) => game.AdminLogAsyn
 if (app.Environment.IsDevelopment())
 {
     v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
+    v1.MapPost("/dev/war-night", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevWarNightAsync(Me(ctx), minutes ?? 15, ct));
+    v1.MapPost("/dev/war-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevWarEndAsync(Me(ctx), ct));
+    v1.MapPost("/dev/keep-siege", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevKeepSiegeAsync(Me(ctx), minutes ?? 15, ct));
+    v1.MapPost("/dev/keep-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevKeepEndAsync(Me(ctx), ct));
     v1.MapPost("/dev/bosses-up", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.DevBossesUpAsync(Me(ctx), ct), ct));
 }
 

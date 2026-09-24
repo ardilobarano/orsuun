@@ -35,6 +35,7 @@ namespace Orsuun.Client
         public WarPanel War { get; private set; }
         public BountyPanel Bounties { get; private set; }
         public GuildPanel Guild { get; private set; }
+        public GuildWarPanel GuildWar { get; private set; }
         public ChatPanel Chat { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
@@ -92,6 +93,8 @@ namespace Orsuun.Client
             Bounties.Init(this);
             Guild = new GameObject("GuildPanel").AddComponent<GuildPanel>();
             Guild.Init(this);
+            GuildWar = new GameObject("GuildWarPanel").AddComponent<GuildWarPanel>();
+            GuildWar.Init(this);
             Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
             Market.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
@@ -154,6 +157,12 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }
 
+            // Screenshots online: -guildwar opens GUILD WAR, -duel <lane> fights a war duel, -keep <n> opens a fortress keep,
+            // each once the server has answered.
+            _openGuildWar = Array.IndexOf(Environment.GetCommandLineArgs(), "-guildwar") >= 0;
+            _duelLane = int.TryParse(Arg("-duel"), out int duelLane) ? duelLane : -1;
+            _keepIndex = int.TryParse(Arg("-keep"), out int keepIndex) ? keepIndex : -1;
+
             // Dev switch: -boss <id> fights that Commander at once in local play (screenshots of the Commanders).
             if (int.TryParse(Arg("-boss"), out int bossId) && !Server.Online && Content.Boss(bossId) != null) FightBoss(bossId);
 
@@ -196,6 +205,9 @@ namespace Orsuun.Client
             Application.Quit();
         }
 
+        private bool _openGuildWar;
+        private int _duelLane = -1;
+        private int _keepIndex = -1;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
         private bool _tutorialPending;
@@ -234,6 +246,20 @@ namespace Orsuun.Client
                 _tutorialPending = false;
                 // Dev switch: -tutorialStep <n> opens the guide at a step (screenshots).
                 Tutorial.Begin(int.TryParse(Arg("-tutorialStep"), out int step) ? step : 0);
+            }
+
+            if (Server.Online && Server.InGuild && (_openGuildWar || _duelLane >= 0))
+            {
+                if (_openGuildWar) GuildWar.Open();
+                if (_duelLane >= 0) FightDuel(_duelLane);
+                _openGuildWar = false;
+                _duelLane = -1;
+            }
+            if (Server.Online && _keepIndex >= 0)
+            {
+                War.Open();
+                War.ShowKeep(_keepIndex);
+                _keepIndex = -1;
             }
 
             // Local mode rings the bells from the PC clock; online the server's state applies them.
@@ -352,16 +378,64 @@ namespace Orsuun.Client
         public void FightSiege(int fortressId)
         {
             if (Replaying || PushBusy || !Server.Online) return;
-            StartCoroutine(SiegeSequence(fortressId));
+            StartCoroutine(SiegeSequence(fortressId, keep: false));
         }
 
-        private IEnumerator SiegeSequence(int fortressId)
+        /// <summary>A fight at a fortress keep during the Sunday siege (storming it, or holding it); replayed like a siege.</summary>
+        public void FightKeep(int fortressId)
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(SiegeSequence(fortressId, keep: true));
+        }
+
+        /// <summary>A guild war duel on a lane: the server decides it, the lane replays it, and the war screen comes back.</summary>
+        public void FightDuel(int lane)
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(DuelSequence(lane));
+        }
+
+        private IEnumerator DuelSequence(int lane)
+        {
+            PushBusy = true;
+            HeroStats hero = Session.Hero;
+            Net.ServerLink.DuelResultDto duel = null;
+            string failure = null;
+            yield return Server.GuildWarFight(lane, (r, e) => { duel = r; failure = e; });
+            if (duel == null)
+            {
+                GuildWar.Say(failure ?? "No answer from the server.");
+                PushBusy = false;
+                yield break;
+            }
+            GuildWar.Close();
+            // The champion the server shaped for this duel, dressed as the defender; no draughts, no bell.
+            var champion = new BossDef(Duels.ChampionId, 121, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
+            Lane.SetRival(Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard, duel.defenderBand);
+            _replay = BossRun.Create(champion, hero, new Inventory(), duel.seed);
+            ReplayBanner = "WAR  ·  " + duel.champion;
+            int guard = BossRun.MaxTicks;
+            while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+
+            string laneName = GuildWars.LaneNames[Mathf.Clamp(duel.lane, 0, GuildWars.Lanes - 1)].ToUpperInvariant();
+            ReplayBanner = (duel.won ? "FELLED  ·  " : "HELD  ·  ") + laneName;
+            Hud.Log(duel.text);
+            yield return new WaitForSecondsRealtime(2.5f);
+
+            _replay = null;
+            ReplayBanner = "";
+            PushBusy = false;
+            GuildWar.Open();
+        }
+
+        private IEnumerator SiegeSequence(int fortressId, bool keep)
         {
             PushBusy = true;
             HeroStats hero = Session.Hero;
             Net.ServerLink.SiegeResultDto result = null;
             string failure = null;
-            yield return Server.Siege(fortressId, (r, e) => { result = r; failure = e; });
+            if (keep) yield return Server.KeepFight(fortressId, (r, e) => { result = r; failure = e; });
+            else yield return Server.Siege(fortressId, (r, e) => { result = r; failure = e; });
             var champion = result == null ? null : Fortresses.FromChampionId(result.bossId);
             if (result == null || champion == null)
             {
@@ -373,11 +447,13 @@ namespace Orsuun.Client
             BossDef def = Fortresses.Champion(champion.Value.fortress, champion.Value.phase);
             var bell = (Bell)Enum.Parse(typeof(Bell), result.bell);
             _replay = BossRun.Create(def, hero, new Inventory { Potions = result.potionsAtStart }, result.seed, bell);
-            ReplayBanner = (result.defending ? "DEFEND  ·  " : "SIEGE  ·  ") + def.Name.ToUpperInvariant();
+            ReplayBanner = keep ? (result.defending ? "HOLD THE KEEP  ·  " : "STORM THE KEEP  ·  ") + champion.Value.fortress.Name.ToUpperInvariant()
+                : (result.defending ? "DEFEND  ·  " : "SIEGE  ·  ") + def.Name.ToUpperInvariant();
             int guard = BossRun.MaxTicks;
             while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
 
-            ReplayBanner = result.captured ? "FORTRESS TAKEN" : result.phaseBroken ? result.phase.ToUpperInvariant() + " BROKEN" : result.defending ? "WALL MENDED" : $"{result.damage:N0} DAMAGE";
+            ReplayBanner = keep ? (result.defending ? "KEEP MENDED" : $"{result.damage:N0} DAMAGE")
+                : result.captured ? "FORTRESS TAKEN" : result.phaseBroken ? result.phase.ToUpperInvariant() + " BROKEN" : result.defending ? "WALL MENDED" : $"{result.damage:N0} DAMAGE";
             Hud.Log(result.text);
             if (result.captured || result.phaseBroken) GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.5f, 0f);
             yield return new WaitForSecondsRealtime(2.5f);

@@ -31,6 +31,8 @@ namespace Orsuun.Client
             public Text Siege;
             public Button Button;
             public Text ButtonLabel;
+            public Button Keep;
+            public Text KeepLabel;
         }
 
         private GameRoot _root;
@@ -92,13 +94,146 @@ namespace Orsuun.Client
                 f.WallText = Ui.Title("WallText", card, 0.05f, 0.302f, 0.95f, 0.358f, "", 17, TextAnchor.MiddleCenter, Palette.Parchment);
                 f.Siege = Ui.Label("Siege", card, 0.08f, 0.15f, 0.92f, 0.295f, "", 18, TextAnchor.MiddleCenter, Palette.Parchment);
                 f.Siege.supportRichText = true;
-                f.Button = Ui.Button("Act", card, 0.06f, 0.025f, 0.94f, 0.145f, "", 26, Palette.Danger, () => Act(index), out f.ButtonLabel);
+                f.Button = Ui.Button("Act", card, 0.05f, 0.025f, 0.52f, 0.145f, "", 22, Palette.Danger, () => Act(index), out f.ButtonLabel);
+                f.Keep = Ui.Button("Keep", card, 0.54f, 0.025f, 0.95f, 0.145f, "KEEP", 22, Palette.Alloy, () => OpenKeep(index), out f.KeepLabel);
                 _forts[i] = f;
             }
 
             _message = Ui.Label("Message", canvas, 0.05f, 0.085f, 0.95f, 0.145f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
             Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
+            BuildKeep(canvas);
+            _confirm = new GameObject("KeepConfirm").AddComponent<ConfirmDialog>();
+            _confirm.Init();
             _canvas.SetActive(false);
+        }
+
+        // ---- The keep of a fortress (Rules.FortressKeeps): the holding guild, the week's bids, and the Sunday siege ----
+
+        private static readonly long[] BidSteps = { 50_000, 250_000, 1_000_000 };
+        private GameObject _keep;
+        private Text _keepTitle;
+        private Text _keepHolder;
+        private Text _keepState;
+        private Text _keepBids;
+        private Text _keepMine;
+        private Text _keepMessage;
+        private readonly Button[] _bidButtons = new Button[BidSteps.Length];
+        private Button _keepFight;
+        private Text _keepFightLabel;
+        private int _keepIndex = -1;
+        private bool _keepBusy;
+        private ConfirmDialog _confirm;
+
+        private void BuildKeep(Transform canvas)
+        {
+            _keep = Ui.Panel("Keep", canvas, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.82f)).gameObject;
+            Transform k = _keep.transform;
+            Ui.Framed("Box", k, 0.04f, 0.13f, 0.96f, 0.87f, new Color(0.07f, 0.07f, 0.12f, 0.98f));
+            _keepTitle = Ui.Title("Title", k, 0.06f, 0.8f, 0.94f, 0.855f, "", 36, TextAnchor.MiddleCenter, Palette.Sorn);
+            _keepHolder = Ui.Label("Holder", k, 0.07f, 0.755f, 0.93f, 0.8f, "", 26, TextAnchor.MiddleCenter, Palette.Parchment);
+            _keepHolder.supportRichText = true;
+            _keepState = Ui.Label("State", k, 0.07f, 0.7f, 0.93f, 0.755f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Section("BidsHead", k, 0.15f, 0.655f, 0.85f, 0.692f, "BIDS", 26);
+            _keepBids = Ui.Label("Bids", k, 0.08f, 0.45f, 0.92f, 0.65f, "", 24, TextAnchor.UpperLeft, Palette.Parchment);
+            _keepBids.supportRichText = true;
+            _keepMine = Ui.Label("Mine", k, 0.07f, 0.4f, 0.93f, 0.445f, "", 24, TextAnchor.MiddleCenter, Palette.Sorn);
+            for (int i = 0; i < BidSteps.Length; i++)
+            {
+                long step = BidSteps[i];
+                float x0 = 0.07f + i * 0.29f;
+                _bidButtons[i] = Ui.Button("Bid" + i, k, x0, 0.325f, x0 + 0.27f, 0.39f, $"BID +{step:N0}", 22, Palette.ButtonForge, () => AskBid(step), out _);
+            }
+            _keepFight = Ui.Button("Fight", k, 0.15f, 0.24f, 0.85f, 0.315f, "", 28, Palette.Danger, FightKeep, out _keepFightLabel);
+            _keepMessage = Ui.Label("Message", k, 0.07f, 0.19f, 0.93f, 0.235f, "", 22, TextAnchor.MiddleCenter, Palette.Warn);
+            Ui.Button("CloseKeep", k, 0.3f, 0.14f, 0.7f, 0.185f, "CLOSE", 24, Palette.ButtonIdle, () => _keep.SetActive(false), out _);
+            _keep.SetActive(false);
+        }
+
+        /// <summary>Opens a fortress's keep dialog (screenshots: -keep n).</summary>
+        public void ShowKeep(int index) => OpenKeep(index);
+
+        private void OpenKeep(int index)
+        {
+            _keepIndex = index;
+            _keepMessage.text = _root.Server.Online ? "" : "The keeps need the server.";
+            _keep.SetActive(true);
+        }
+
+        private Net.ServerLink.KeepDto KeepShown()
+        {
+            Net.ServerLink.WarDto war = _root.Server.War;
+            return war?.keeps != null && _keepIndex >= 0 && _keepIndex < war.keeps.Length ? war.keeps[_keepIndex] : null;
+        }
+
+        private void AskBid(long amount)
+        {
+            Net.ServerLink.KeepDto keep = KeepShown();
+            if (keep == null || _keepBusy) return;
+            long total = keep.myBid + amount;
+            _confirm.Show($"Bid on the keep of {keep.name}?",
+                $"{amount:N0} sorn leave the guild treasury now; your bid becomes {total:N0}.\n\n"
+                + ConfirmDialog.Tint("On Sunday at 20:00 the four highest bids storm the keep and are spent; the rest go back.", Palette.Muted),
+                "BID", Palette.ButtonForge, () =>
+                {
+                    _keepBusy = true;
+                    StartCoroutine(_root.Server.KeepBid(keep.fortressId, amount, (message, error) =>
+                    {
+                        _keepBusy = false;
+                        _keepMessage.text = error ?? message ?? "";
+                    }));
+                });
+        }
+
+        private void FightKeep()
+        {
+            Net.ServerLink.KeepDto keep = KeepShown();
+            if (keep == null || _keepBusy) return;
+            _keep.SetActive(false);
+            _canvas.SetActive(false);
+            _root.FightKeep(keep.fortressId);
+        }
+
+        private static string Clock(int seconds)
+        {
+            if (seconds >= 86_400) return $"{seconds / 86_400} d {seconds % 86_400 / 3600} h";
+            if (seconds >= 3600) return $"{seconds / 3600} h {seconds % 3600 / 60:00} m";
+            return $"{seconds / 60}:{seconds % 60:00}";
+        }
+
+        private void UpdateKeep(float age)
+        {
+            Net.ServerLink.KeepDto keep = KeepShown();
+            if (keep == null) return;
+            _keepTitle.text = "THE KEEP OF " + keep.name.ToUpperInvariant();
+            _keepHolder.text = string.IsNullOrEmpty(keep.holderTag) ? "No guild holds the keep."
+                : $"{ConfirmDialog.Tint("[" + keep.holderTag + "]", GuildPanel.ColorOf(keep.holderColor))} {keep.holderName} holds the keep: their flag flies here.";
+            int toSiege = Mathf.Max(0, keep.secondsToSiege - (int)age);
+            int left = Mathf.Max(0, keep.secondsLeft - (int)age);
+            _keepState.text = keep.state == 0 ? $"Bids are open. The keep is stormed on Sunday at 20:00, in {Clock(toSiege)}."
+                : keep.state == 1 ? $"The keep siege is on: {Clock(left)} left. The best contender must beat {keep.wall:N0} plus the {keep.mended:N0} its holders mended."
+                : keep.lastEvent + "  Bids open again on Monday at 20:00.";
+            var sb = new System.Text.StringBuilder();
+            if (keep.bids == null || keep.bids.Length == 0) sb.Append(ConfirmDialog.Tint("No bids yet this week.", Palette.Muted));
+            else
+                foreach (Net.ServerLink.KeepBidDto b in keep.bids)
+                {
+                    string line = $"{ConfirmDialog.Tint("[" + b.tag + "]", GuildPanel.ColorOf(b.color))} {b.name}   ·   {b.amount:N0} sorn"
+                                  + (keep.state >= 1 ? $"   ·   {b.damage:N0} damage" : "");
+                    sb.Append(b.mine ? ConfirmDialog.Tint(line, Palette.Sorn) : line).Append('\n');
+                }
+            _keepBids.text = sb.ToString().TrimEnd();
+            _keepMine.text = keep.holding ? "Your guild holds this keep and defends it on Sunday."
+                : keep.myBid > 0 ? $"Your guild bids {keep.myBid:N0} sorn." + (keep.contending ? "  It storms the keep." : "")
+                : keep.canBid ? $"Bids start at {Rules.FortressKeeps.MinBid:N0} sorn from the treasury." : "";
+            foreach (Button b in _bidButtons)
+            {
+                b.gameObject.SetActive(keep.canBid);
+                b.interactable = !_keepBusy;
+            }
+            _keepFight.gameObject.SetActive(keep.canFight);
+            _keepFightLabel.text = keep.holding ? "HOLD THE KEEP" : "STORM THE KEEP";
+            _keepFight.GetComponent<Image>().color = keep.holding ? Palette.Safe : Palette.Danger;
+            _keepFight.interactable = !_keepBusy && !_root.Replaying && !_root.PushBusy;
         }
 
         public void Open()
@@ -197,7 +332,12 @@ namespace Orsuun.Client
                 f.ButtonLabel.text = cooldown > 0 ? $"REGROUP {cooldown / 60}:{cooldown % 60:00}" : defend ? "DEFEND" : "ATTACK";
                 f.Button.GetComponent<Image>().color = defend ? Palette.Safe : Palette.Danger;
                 f.Button.interactable = cooldown == 0 && _root.Server.Online && !_root.Replaying && !_root.PushBusy;
+                Net.ServerLink.KeepDto keep = war.keeps != null && i < war.keeps.Length ? war.keeps[i] : null;
+                f.KeepLabel.text = keep != null && keep.canFight ? (keep.holding ? "HOLD KEEP" : "STORM KEEP") : "KEEP";
+                f.Keep.GetComponent<Image>().color = keep != null && keep.canFight ? Palette.ButtonForge : Palette.Alloy;
             }
+            if (_keep.activeSelf) UpdateKeep(age);
+            if (!string.IsNullOrEmpty(war.message) && _message.text.Length == 0) _message.text = war.message;
         }
     }
 }

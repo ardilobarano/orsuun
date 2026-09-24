@@ -78,7 +78,33 @@ public sealed record FortressDto(int Id, string Name, string Region, Banner Hold
     long SiegeEmber, long SiegeSky, long SiegeGold, string LastEvent, string FlagGuild = "");
 /// <summary>The War of Banners at a glance: this season's points, last season's winner and its bonus, the fortresses.</summary>
 public sealed record WarDto(string Season, BannerStandingDto[] Standings, Banner LastWinner, int MySornBonusPercent, FortressDto[] Fortresses,
-    int SiegeCooldownSeconds);
+    int SiegeCooldownSeconds, KeepDto[]? Keeps = null, string Message = "");
+
+/// <summary>
+/// A fortress keep for the guilds (Rules.FortressKeeps): the holding guild, the week's bids, and the Sunday siege.
+/// State 0 bids open (SecondsToSiege counts down), 1 the keep siege (SecondsLeft), 2 settled until the week turns.
+/// </summary>
+public sealed record KeepDto(int FortressId, string Name, string HolderTag, string HolderName, string HolderColor, int State, int SecondsToSiege,
+    int SecondsLeft, KeepBidDto[] Bids, long MyBid, bool Contending, bool Holding, bool CanBid, bool CanFight, long Wall, long Mended, string LastEvent);
+public sealed record KeepBidDto(string Tag, string Name, string Color, long Amount, bool Contender, long Damage, bool Mine);
+public sealed record KeepBidRequest(string RequestId, int FortressId, long Amount);
+public sealed record KeepFightRequest(string RequestId, int FortressId);
+
+/// <summary>Guild war (Rules.GuildWars): the guild's record, the next night, tonight's war and the ladder.</summary>
+public sealed record GuildWarDto(int Rating, int Wins, int Losses, int Draws, string NextNight, int SecondsToNext, bool SignedUp, int SignedGuilds,
+    bool CanSignUp, bool CanFlag, bool AtWar, GuildWarFoeDto? Foe, int MyKills, int TheirKills, int MyScore, int TheirScore, GuildWarLaneDto[] Lanes,
+    int SecondsLeft, int FightsLeft, int CooldownSeconds, string LastEvent, string LastResult, GuildWarLadderDto[] Ladder, string Message = "");
+public sealed record GuildWarFoeDto(string Tag, string Name, string Color, int Level, int Rating);
+/// <summary>A lane from this guild's side: Front runs from -5 (broken against us) to +5 (we broke it).</summary>
+public sealed record GuildWarLaneDto(string Name, int Front, bool MyFlag, bool TheirFlag, bool Broken);
+public sealed record GuildWarLadderDto(string Tag, string Name, string Color, int Rating, int Wins, int Losses, int Draws, bool Mine);
+public sealed record GuildWarSignupRequest(bool Join);
+public sealed record GuildWarFlagRequest(int Lane);
+public sealed record GuildWarFightRequest(string RequestId, int Lane);
+/// <summary>One duel: the replay is the attacker's hero against Champion (HP, attack) under Seed, with no draughts.</summary>
+public sealed record DuelResultDto(int Lane, ulong Seed, string Champion, long ChampionHp, long ChampionAttack, bool Won, int WinChancePercent, string Text,
+    HeroClass DefenderClass = HeroClass.Vanguard, int DefenderBand = 0);
+public sealed record GuildWarFightDto(StateDto State, DuelResultDto Duel, GuildWarDto War);
 public sealed record SiegeRequest(string RequestId, int FortressId);
 public sealed record SiegeResultDto(int FortressId, int BossId, bool Defending, ulong Seed, long Damage, int PotionsAtStart, Bell Bell,
     SiegePhase Phase, long WallLeft, bool PhaseBroken, bool Captured, Banner Holder, string Text);

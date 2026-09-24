@@ -116,6 +116,7 @@ public sealed partial class GameService
         listing.BuyerId = account.Id;
         listing.ClosedUtc = now;
         await _db.Accounts.Where(a => a.Id == listing.SellerId).ExecuteUpdateAsync(s => s.SetProperty(a => a.Sorn, a => a.Sorn + payout), ct);
+        await PayKeepHoldersAsync(Market.Tax(listing.Price), ct);
         string name = item.ToState().DisplayName + " +" + item.UpgradeLevel;
         _db.Ledger.Add(Entry(account.Id, item.Id, "market-buy", $"listing={listing.Id} price={listing.Price} seller={listing.SellerId}", -listing.Price, request.RequestId));
         _db.Ledger.Add(Entry(listing.SellerId, item.Id, "market-sale", $"listing={listing.Id} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id}",

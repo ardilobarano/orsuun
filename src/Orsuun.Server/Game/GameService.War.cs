@@ -72,7 +72,8 @@ public sealed partial class GameService
         }).ToArray();
         int cooldown = account.LastSiegeUtc is DateTime last
             ? Math.Max(0, (int)(last.AddMinutes(Fortresses.CooldownMinutes) - DateTime.UtcNow).TotalSeconds) : 0;
-        return new WarDto(season, standings, await LastWinnerAsync(ct), await SornBonusPercentAsync(account.Banner, ct), fortresses, cooldown);
+        return new WarDto(season, standings, await LastWinnerAsync(ct), await SornBonusPercentAsync(account.Banner, ct), fortresses, cooldown,
+            await KeepsAsync(account, forts, ct));
     }
 
     /// <summary>
@@ -205,8 +206,7 @@ public sealed partial class GameService
                     fort.Phase = (int)SiegePhase.Gate;
                     fort.WallMax = fort.Wall = Fortresses.PhaseHp(SiegePhase.Gate, players);
                     fort.SiegeEmber = fort.SiegeSky = fort.SiegeGold = 0;
-                    // The breaker's guild raises its flag beside the Banner's, when the breaker's Banner won the fortress.
-                    fort.FlagGuildId = conqueror == account.Banner ? account.GuildId : null;
+                    // The guild flag stays: guilds win the keep at the Sunday keep siege (GameService.Keeps).
                     fort.LastEvent = $"The {Banners.Def(conqueror).Name} took {def.Name}; {name} broke the Hall.";
                     text = $"The Hall of {def.Name} falls! {def.Name} now flies the {Banners.Def(conqueror).Name}.";
                     SystemLine(Chat.World, fort.LastEvent);

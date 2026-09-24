@@ -925,6 +925,16 @@ namespace Orsuun.Client
                     if (boss.StartsWith("Gate Warden")) { scale = 1.15f; name = "IceWight"; tint = new Color(0.85f, 0.8f, 0.75f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     if (boss.StartsWith("Yard Captain")) { scale = 1.3f; name = "Deserter"; tint = new Color(0.7f, 0.75f, 0.85f); return LoadMob(name); }
                     if (boss.StartsWith("Lord of")) { scale = 1.05f; name = "Gorak"; tint = new Color(0.55f, 0.5f, 0.6f); return LoadMob(name) ?? LoadMob("Deserter"); }
+                    // A guild war duel ("[TAG] Name"): the defender in their class's look for their band. The Vanguard's glaive
+                    // belongs to the hero rig, so a Vanguard rival fights as a deserter in steel.
+                    if (boss.StartsWith("["))
+                    {
+                        string look = _rivalClass != HeroClass.Vanguard ? ClassLookName(_rivalClass, _rivalBand) : null;
+                        MobArt rival = look != null ? LoadClass(look) : null;
+                        if (rival != null) { scale = 1f; name = look; return rival; }
+                        scale = 1.15f; name = "Deserter"; tint = new Color(0.72f, 0.78f, 0.92f);
+                        return LoadMob(name);
+                    }
                     name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen" : null;
                     MobArt own = name != null ? LoadMob(name) : null;
                     if (own != null) { scale = 1f; return own; }
@@ -1049,6 +1059,28 @@ namespace Orsuun.Client
                 case "FrostBear": return "MobGore";
                 default: return "MobClash";
             }
+        }
+
+        private HeroClass _rivalClass;
+        private int _rivalBand;
+
+        /// <summary>Who the next guild war duel's champion is dressed as (GameRoot sets it before the replay).</summary>
+        public void SetRival(HeroClass cls, int band)
+        {
+            _rivalClass = cls;
+            _rivalBand = band;
+        }
+
+        /// <summary>A class look (Models/Classes) as an enemy: rigged with the same five clips as the mobs.</summary>
+        private static MobArt LoadClass(string look)
+        {
+            string key = "Class/" + look;
+            if (MobArts.TryGetValue(key, out MobArt art)) return art;
+            var model = Resources.Load<GameObject>("Models/Classes/" + look);
+            var material = Resources.Load<Material>("Looks/" + look);
+            art = model != null && material != null ? new MobArt { Model = model, Material = material, Height = -1f } : null;
+            MobArts[key] = art;
+            return art;
         }
 
         private static MobArt LoadMob(string name)

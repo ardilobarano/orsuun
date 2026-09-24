@@ -224,10 +224,11 @@ namespace Orsuun.Client
                 _members[i] = m;
             }
 
-            Ui.Button("Leave", h, 0.04f, 0.015f, 0.21f, 0.075f, "LEAVE", 24, Palette.Danger, AskLeave, out _);
-            _gates = Ui.Button("Gates", h, 0.22f, 0.015f, 0.42f, 0.075f, "", 18, Palette.ButtonIdle, ToggleGates, out _gatesLabel);
-            Ui.Button("Chat", h, 0.43f, 0.015f, 0.62f, 0.075f, "GUILD CHAT", 20, Palette.Safe, () => _root.Chat.Open(guild: true), out _);
-            Ui.Button("Close", h, 0.63f, 0.015f, 0.96f, 0.075f, "BACK TO THE HUNT", 24, Palette.ButtonIdle, Close, out _);
+            Ui.Button("Leave", h, 0.03f, 0.015f, 0.17f, 0.075f, "LEAVE", 22, Palette.Danger, AskLeave, out _);
+            _gates = Ui.Button("Gates", h, 0.18f, 0.015f, 0.34f, 0.075f, "", 18, Palette.ButtonIdle, ToggleGates, out _gatesLabel);
+            Ui.Button("Chat", h, 0.35f, 0.015f, 0.51f, 0.075f, "GUILD CHAT", 18, Palette.Safe, () => _root.Chat.Open(guild: true), out _);
+            Ui.Button("War", h, 0.52f, 0.015f, 0.68f, 0.075f, "GUILD WAR", 18, Palette.Danger, () => _root.GuildWar.Open(), out _);
+            Ui.Button("Close", h, 0.69f, 0.015f, 0.97f, 0.075f, "BACK TO THE HUNT", 22, Palette.ButtonIdle, Close, out _);
         }
 
         private void BuildRequests(Transform canvas)

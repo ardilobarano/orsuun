@@ -270,7 +270,9 @@ namespace Orsuun.Client
             _link.text = _root.Server.Status + bellText;
             _link.color = bell != Bell.None ? Palette.Sorn : _root.Server.Online ? Palette.Good : Palette.Warn;
             _banner.text = _root.ReplayBanner;
-            _banner.color = _root.ReplayBanner.StartsWith("CLEARED") ? Palette.Good : _root.ReplayBanner.StartsWith("FAILED") ? Palette.Bad : Palette.Warn;
+            string shown = _root.ReplayBanner;
+            _banner.color = shown.StartsWith("CLEARED") || shown.StartsWith("FELLED") ? Palette.Good
+                : shown.StartsWith("FAILED") || shown.StartsWith("HELD") ? Palette.Bad : Palette.Warn;
 
             Net.ServerLink.SettlementDto settled = _root.Server.LastSettlement;
             if (settled != null && settled != _shownSettlement && settled.offline)

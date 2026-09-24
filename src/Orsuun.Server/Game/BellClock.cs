@@ -19,6 +19,9 @@ public sealed class BellClock
 
     public DateTime LocalNow => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _zone);
 
+    /// <summary>A server-local time (war nights, keep sieges) as UTC.</summary>
+    public DateTime ToUtc(DateTime local) => TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(local, DateTimeKind.Unspecified), _zone);
+
     public Bell Active => _forced ?? EveningBells.Active(LocalNow);
 
     public BellDto Dto()

@@ -513,6 +513,73 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        /// <summary>A keep fight at the Sunday siege (a contender storms, a holder holds); replayed like a siege fight.</summary>
+        public IEnumerator KeepFight(int fortressId, Action<SiegeResultDto, string> done)
+        {
+            SiegeResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/keep/fight", JsonUtility.ToJson(new KeepFightRequest { requestId = NewRequestId(), fortressId = fortressId }), true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                result = state.lastSiege;
+                Apply(state);
+            }, error => failure = error);
+            done(result, failure);
+        }
+
+        /// <summary>Adds treasury sorn to the guild's bid on a keep; completes with (message, error) and refreshes War.</summary>
+        public IEnumerator KeepBid(int fortressId, long amount, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/keep/bid", JsonUtility.ToJson(new KeepBidRequest { requestId = NewRequestId(), fortressId = fortressId, amount = amount }), true, json =>
+            {
+                War = JsonUtility.FromJson<WarDto>(json);
+                WarReceivedAt = Time.realtimeSinceStartup;
+            }, error => failure = error);
+            done(failure == null ? War?.message : null, failure);
+        }
+
+        /// <summary>The guild war view (the GUILD WAR screen), from the last war call.</summary>
+        public GuildWarDto GuildWar { get; private set; }
+        public float GuildWarReceivedAt { get; private set; }
+
+        public IEnumerator FetchGuildWar(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/guild/war", null, true, ApplyGuildWar, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>A guild war call under /v1/guild/war/ (signup, flag); completes with (message, error).</summary>
+        public IEnumerator GuildWarCall(string path, object request, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/guild/war/" + path, JsonUtility.ToJson(request), true, ApplyGuildWar, error => failure = error);
+            done(failure == null ? GuildWar?.message : null, failure);
+        }
+
+        /// <summary>One guild war duel on a lane; the result carries what the client replays.</summary>
+        public IEnumerator GuildWarFight(int lane, Action<DuelResultDto, string> done)
+        {
+            DuelResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/guild/war/fight", JsonUtility.ToJson(new GuildWarFightRequest { requestId = NewRequestId(), lane = lane }), true, json =>
+            {
+                GuildWarFightDto fight = JsonUtility.FromJson<GuildWarFightDto>(json);
+                Apply(fight.state);
+                GuildWar = fight.war;
+                GuildWarReceivedAt = Time.realtimeSinceStartup;
+                result = fight.duel;
+            }, error => failure = error);
+            done(result, failure);
+        }
+
+        private void ApplyGuildWar(string json)
+        {
+            GuildWar = JsonUtility.FromJson<GuildWarDto>(json);
+            GuildWarReceivedAt = Time.realtimeSinceStartup;
+        }
+
         /// <summary>Refreshes GuildView: the account's guild, or (none) guilds to join, filtered by search.</summary>
         public IEnumerator FetchGuild(string search, Action<string> done)
         {
@@ -770,7 +837,20 @@ namespace Orsuun.Client.Net
         [Serializable] public class BannerRequest { public string banner; }
         [Serializable] public class BannerStandingDto { public string banner; public string name; public long points; public int fortresses; }
         [Serializable] public class FortressDto { public int id; public string name; public string region; public string holder; public string phase; public long wall; public long wallMax; public long siegeEmber; public long siegeSky; public long siegeGold; public string lastEvent; public string flagGuild; }
-        [Serializable] public class WarDto { public string season; public BannerStandingDto[] standings; public string lastWinner; public int mySornBonusPercent; public FortressDto[] fortresses; public int siegeCooldownSeconds; }
+        [Serializable] public class WarDto { public string season; public BannerStandingDto[] standings; public string lastWinner; public int mySornBonusPercent; public FortressDto[] fortresses; public int siegeCooldownSeconds; public KeepDto[] keeps; public string message; }
+        [Serializable] public class KeepBidDto { public string tag; public string name; public string color; public long amount; public bool contender; public long damage; public bool mine; }
+        [Serializable] public class KeepDto { public int fortressId; public string name; public string holderTag; public string holderName; public string holderColor; public int state; public int secondsToSiege; public int secondsLeft; public KeepBidDto[] bids; public long myBid; public bool contending; public bool holding; public bool canBid; public bool canFight; public long wall; public long mended; public string lastEvent; }
+        [Serializable] public class KeepBidRequest { public string requestId; public int fortressId; public long amount; }
+        [Serializable] public class KeepFightRequest { public string requestId; public int fortressId; }
+        [Serializable] public class GuildWarFoeDto { public string tag; public string name; public string color; public int level; public int rating; }
+        [Serializable] public class GuildWarLaneDto { public string name; public int front; public bool myFlag; public bool theirFlag; public bool broken; }
+        [Serializable] public class GuildWarLadderDto { public string tag; public string name; public string color; public int rating; public int wins; public int losses; public int draws; public bool mine; }
+        [Serializable] public class GuildWarDto { public int rating; public int wins; public int losses; public int draws; public string nextNight; public int secondsToNext; public bool signedUp; public int signedGuilds; public bool canSignUp; public bool canFlag; public bool atWar; public GuildWarFoeDto foe; public int myKills; public int theirKills; public int myScore; public int theirScore; public GuildWarLaneDto[] lanes; public int secondsLeft; public int fightsLeft; public int cooldownSeconds; public string lastEvent; public string lastResult; public GuildWarLadderDto[] ladder; public string message; }
+        [Serializable] public class GuildWarSignupRequest { public bool join; }
+        [Serializable] public class GuildWarFlagRequest { public int lane; }
+        [Serializable] public class GuildWarFightRequest { public string requestId; public int lane; }
+        [Serializable] public class DuelResultDto { public int lane; public ulong seed; public string champion; public long championHp; public long championAttack; public bool won; public int winChancePercent; public string text; public string defenderClass; public int defenderBand; }
+        [Serializable] public class GuildWarFightDto { public StateDto state; public DuelResultDto duel; public GuildWarDto war; }
         [Serializable] public class SiegeRequest { public string requestId; public int fortressId; }
         [Serializable] public class SiegeResultDto { public int fortressId; public int bossId; public bool defending; public ulong seed; public long damage; public int potionsAtStart; public string bell; public string phase; public long wallLeft; public bool phaseBroken; public bool captured; public string holder; public string text; }
         [Serializable] public class BossHitDto { public string name; public string banner; public long damage; }

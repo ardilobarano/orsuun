@@ -22,6 +22,11 @@ public sealed class GameDb : DbContext
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<AdminAction> AdminActions => Set<AdminAction>();
     public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
+    public DbSet<GuildWarSignup> GuildWarSignups => Set<GuildWarSignup>();
+    public DbSet<GuildWarNight> GuildWarNights => Set<GuildWarNight>();
+    public DbSet<GuildWar> GuildWars => Set<GuildWar>();
+    public DbSet<GuildWarEntry> GuildWarEntries => Set<GuildWarEntry>();
+    public DbSet<FortressBid> FortressBids => Set<FortressBid>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -99,6 +104,26 @@ public sealed class GameDb : DbContext
             e.HasKey(d => d.Token);
             e.HasIndex(d => d.SessionToken);
             e.HasIndex(d => d.AccountId);
+        });
+
+        b.Entity<GuildWarSignup>(e => e.HasKey(w => new { w.Night, w.GuildId }));
+        b.Entity<GuildWarNight>(e => e.HasKey(n => n.Night));
+        b.Entity<GuildWar>(e =>
+        {
+            e.HasIndex(w => new { w.Night, w.GuildA });
+            e.HasIndex(w => new { w.Night, w.GuildB });
+            e.HasIndex(w => new { w.Result, w.EndsUtc });
+            e.Ignore(w => w.Fronts);
+        });
+        b.Entity<GuildWarEntry>(e =>
+        {
+            e.HasKey(x => new { x.WarId, x.AccountId });
+            e.HasIndex(x => x.AccountId);
+        });
+        b.Entity<FortressBid>(e =>
+        {
+            e.HasKey(x => new { x.Week, x.GuildId });
+            e.HasIndex(x => new { x.Week, x.FortressId });
         });
 
         b.Entity<LedgerEntry>(e =>

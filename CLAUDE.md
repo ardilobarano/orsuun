@@ -96,5 +96,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Screen scenes live in `Resources/Scenes` (non-power-of-two on purpose; `SceneArtImport` turns off NPOT scaling for
   that folder). A screen names its scene in `Ui.Backdrop(canvas, "Name")`.
 - `ChatPanel` stays off its canvas (it polls world chat for the lane ticker while hidden), like the `Tutorial`.
+- `WorldClock` (a hosted service, every 30 s) pairs war nights, settles guild wars and moves fortress keeps through
+  their week, each under its own row locks; endpoints refuse out-of-window actions themselves. Guild treasuries are
+  credited from outside the guild screen (keep refunds, the Exchange tax share) with single atomic UPDATEs, like guild XP.
+- A new `.cs` in `client/Assets` (or `src/Orsuun.Rules`) has no `.meta` until Unity imports it: the first
+  `ProjectSetup.BuildMac` after adding one fails to compile it; run it again (and commit the `.meta`).
+- This Mac's locale writes decimals with a comma: parse and format numbers with `CultureInfo.InvariantCulture`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).

@@ -210,6 +210,84 @@ public sealed class Guild
     public int Muster { get; set; }
     public DateTime CreatedUtc { get; set; }
     [MaxLength(160)] public string LastEvent { get; set; } = "";
+    /// <summary>Guild war rating (Elo, Rules.GuildWars) and record.</summary>
+    public int WarRating { get; set; } = Rules.GuildWars.StartRating;
+    public int WarWins { get; set; }
+    public int WarLosses { get; set; }
+    public int WarDraws { get; set; }
+}
+
+/// <summary>A guild signed up by its leader for a war night (Rules.GuildWars.NightKey).</summary>
+public sealed class GuildWarSignup
+{
+    [MaxLength(24)] public string Night { get; set; } = "";
+    public Guid GuildId { get; set; }
+    public DateTime Utc { get; set; }
+}
+
+/// <summary>A war night: when it runs, and whether its signed guilds were paired (the row is the pairing lock).</summary>
+public sealed class GuildWarNight
+{
+    [MaxLength(24)] public string Night { get; set; } = "";
+    public DateTime StartsUtc { get; set; }
+    public DateTime EndsUtc { get; set; }
+    public bool Paired { get; set; }
+}
+
+/// <summary>
+/// One war between two guilds on a night: kills, the three lanes' fronts (+ toward B's camp, - toward A's), each side's
+/// war flag (lane, -1 none) and the result once settled (0 running, 1 A won, 2 B won, 3 draw).
+/// </summary>
+public sealed class GuildWar
+{
+    public long Id { get; set; }
+    [MaxLength(24)] public string Night { get; set; } = "";
+    public Guid GuildA { get; set; }
+    public Guid GuildB { get; set; }
+    public DateTime StartsUtc { get; set; }
+    public DateTime EndsUtc { get; set; }
+    public int KillsA { get; set; }
+    public int KillsB { get; set; }
+    public int Front0 { get; set; }
+    public int Front1 { get; set; }
+    public int Front2 { get; set; }
+    public int FlagA { get; set; } = -1;
+    public int FlagB { get; set; } = -1;
+    public int Result { get; set; }
+    [MaxLength(160)] public string LastEvent { get; set; } = "";
+
+    public int[] Fronts => new[] { Front0, Front1, Front2 };
+
+    public void SetFront(int lane, int value)
+    {
+        if (lane == 0) Front0 = value;
+        else if (lane == 1) Front1 = value;
+        else Front2 = value;
+    }
+}
+
+/// <summary>One member's duels in one war.</summary>
+public sealed class GuildWarEntry
+{
+    public long WarId { get; set; }
+    public Guid AccountId { get; set; }
+    public Guid GuildId { get; set; }
+    public int Fights { get; set; }
+    public int Wins { get; set; }
+    public DateTime LastUtc { get; set; }
+}
+
+/// <summary>A guild's bid on a fortress keep for a bounty week (one per guild a week), and its keep damage if it contends.</summary>
+public sealed class FortressBid
+{
+    [MaxLength(16)] public string Week { get; set; } = "";
+    public Guid GuildId { get; set; }
+    public int FortressId { get; set; }
+    public long Amount { get; set; }
+    public DateTime Utc { get; set; }
+    public bool Contender { get; set; }
+    public bool Refunded { get; set; }
+    public long Damage { get; set; }
 }
 
 /// <summary>A fortress: its holding Banner, the phase under siege and that phase's wall, and each Banner's siege damage.</summary>
@@ -225,8 +303,16 @@ public sealed class Fortress
     public long SiegeSky { get; set; }
     public long SiegeGold { get; set; }
     [MaxLength(160)] public string LastEvent { get; set; } = "";
-    /// <summary>The guild whose member broke the Hall for the holding Banner: its flag flies here too.</summary>
+    /// <summary>The guild holding the keep (won at the Sunday keep siege): its flag flies here too.</summary>
     public Guid? FlagGuildId { get; set; }
+    /// <summary>The bounty week the keep's bids and siege belong to, and where they stand (Rules.FortressKeeps).</summary>
+    [MaxLength(16)] public string KeepWeek { get; set; } = "";
+    /// <summary>0 bids open, 1 the keep siege (contenders chosen), 2 settled.</summary>
+    public int KeepState { get; set; }
+    public DateTime KeepStartsUtc { get; set; }
+    public DateTime KeepEndsUtc { get; set; }
+    /// <summary>What the holding guild's members mended during this week's keep siege.</summary>
+    public long KeepMended { get; set; }
 }
 
 /// <summary>One chat line: a player's, or a system line (AccountId empty) for guild and world events.</summary>
