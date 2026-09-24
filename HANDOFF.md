@@ -62,12 +62,15 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 The owner moved to the Claude desktop app (Code tab, `~/orsuun`) and picked all four offered next steps. All four are
 built and committed on `main` locally: the first ten minutes (spotlight tutorial, next-goal line), the rest of the
 mockup look, the Mirage Queen (she already had a real rigged model; only the notes were stale), and guild war with
-fortress bids (see the decision row and "Done ... desktop app session"). Pushed to GitHub, and build 26092419 is
-installed on the owner's iPhone (24 Sep 2026, 22:34). **The playtest server is not deployed yet**: the phone's GUILD WAR
-screen and keep bids need it (`ssh root@65.108.221.210 ...`, the migration `GuildWarKeeps` runs at startup); the rest
-of the new client works against the old server. No new Android APK yet.
+fortress bids (see the decision row and "Done ... desktop app session"). Pushed to GitHub; build 26092419 is installed
+on the owner's iPhone (24 Sep 2026, 22:34); the playtest server is deployed (22:50, migration `GuildWarKeeps` applied)
+with a home page at `/` (`deploy/site/index.html`, routed in the Caddyfile; a single-file bind mount keeps the old
+Caddyfile after `git pull`, so restart the caddy container after changing it). A copy of the playtest database from
+just before that deploy is on the Mac: `~/orsuun-backups/playtest-before-guildwar-2026-09-24.sql.gz`. Google sign-in is
+published (owner, 24 Sep 2026: "published"); its Branding page wants the home page `https://65.108.221.210.sslip.io/`.
+No new Android APK yet (the download link serves the previous build).
 
-Waiting on the owner: the server deploy and an Android build of this session; database backups (yes/no, Storage Box or Mac); the
+Waiting on the owner: an Android build of this session; database backups (yes/no, Storage Box or Mac); the
 paid Apple Developer Program (TestFlight, Sign in with Apple, no 7-day expiry); Google sign-in test users or "Publish
 app" in Google Cloud; the monetization plan; a real domain before release.
 
@@ -319,11 +322,10 @@ fortress aura for keeps, guild invites, password reset by email (needs a mail se
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
   with Apple / Google (so an account survives a new phone) needs both; guest login stays as the first step.
-- Google sign-in: done on 24 Sep 2026 for the playtest server (Google Cloud project "Orsuun", Web application client,
+- Google sign-in: published on 24 Sep 2026 (the consent screen is "In production", anyone can sign in); set up the same
+  day for the playtest server (Google Cloud project "Orsuun", Web application client,
   redirect `https://65.108.221.210.sslip.io/auth/google/callback`; the key file is on the Mac at
-  `~/.config/orsuun/google-oauth.json`, never in git; id and secret are in the server's `deploy/.env`). While the
-  consent screen is in Testing, only its listed test users can sign in; publish it (basic scopes need no review) or add
-  testers. A new server domain needs a new redirect URI there.
+  `~/.config/orsuun/google-oauth.json`, never in git; id and secret are in the server's `deploy/.env`). A new server domain needs a new redirect URI there.
 - Apple sign-in: the paid Apple Developer Program; an App ID `com.orsuun.warofbanners` with Sign in with Apple, a
   Services ID (e.g. `com.orsuun.warofbanners.signin`) with Sign in with Apple configured for the server's domain and
   return URL `https://<server>/auth/apple/callback`; put the Services ID in `APPLE_SERVICES_ID`. Apple's review asks
