@@ -86,6 +86,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `Ui.Bar` rather than flat `Ui.Panel` plates; a new skill needs `Resources/Icons/Skills/<letters of its name>.png`.
 - The moderation page (`src/Orsuun.Server/Admin/`) is embedded in the server assembly; anything players wrote is put
   on it with `textContent` only (never innerHTML). Moderators come from `Admin:Emails` (env `Admin__Emails`).
+- The Google OAuth client file lives in `~/.config/orsuun/google-oauth.json` (like the fal key: never in chat or git);
+  the server reads `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` from `deploy/.env`.
 - Google / Apple sign-in tickets are bound to the device token that began the flow (`ExternalAuth.Redeem`): keep it
   that way, or a sign-in link sent by someone else could move a hero. The game object must stay named "ServerLink"
   (the iOS sign-in sheet answers through UnitySendMessage).

@@ -230,9 +230,11 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
   with Apple / Google (so an account survives a new phone) needs both; guest login stays as the first step.
-- Google sign-in: a Google Cloud project, OAuth consent screen (External, testing mode, test users added), and an OAuth
-  client of type "Web application" with redirect URI `https://<server>/auth/google/callback`; put its client id and
-  secret in the server's `deploy/.env` as `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` and restart.
+- Google sign-in: done on 24 Sep 2026 for the playtest server (Google Cloud project "Orsuun", Web application client,
+  redirect `https://65.108.221.210.sslip.io/auth/google/callback`; the key file is on the Mac at
+  `~/.config/orsuun/google-oauth.json`, never in git; id and secret are in the server's `deploy/.env`). While the
+  consent screen is in Testing, only its listed test users can sign in; publish it (basic scopes need no review) or add
+  testers. A new server domain needs a new redirect URI there.
 - Apple sign-in: the paid Apple Developer Program; an App ID `com.orsuun.warofbanners` with Sign in with Apple, a
   Services ID (e.g. `com.orsuun.warofbanners.signin`) with Sign in with Apple configured for the server's domain and
   return URL `https://<server>/auth/apple/callback`; put the Services ID in `APPLE_SERVICES_ID`. Apple's review asks
