@@ -339,7 +339,8 @@ fortress aura for keeps, guild invites, password reset by email (needs a mail se
 
 ## Next steps, waiting on the owner
 
-0. Database backups (owner, 24 Sep 2026: "not now keep that in mind"): nothing backs up the playtest database yet. The
+0. Database backups (owner, 25 Sep 2026: "put backup in mind, i will buy it later", meaning the Hetzner Storage Box):
+   nothing backs up the playtest database yet beyond the one-off copy on the Mac (`~/orsuun-backups`). The
    plan to offer: a nightly `pg_dump` kept 14 days on a Hetzner Storage Box (about 4 EUR a month) or pulled to the Mac.
    Do it before real players arrive.
 
