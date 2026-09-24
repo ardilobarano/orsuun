@@ -55,8 +55,8 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Back", canvas, 0f, 0f, 1f, 1f, new Color(0.05f, 0.05f, 0.09f, 0.98f));
-            Ui.Title("Game", canvas, 0.05f, 0.86f, 0.95f, 0.93f, "ORSUUN", 72, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
+            Ui.Backdrop(canvas);
+            Ui.Title("Game", canvas, 0.05f, 0.86f, 0.95f, 0.93f, "ORSUUN", 72, TextAnchor.MiddleCenter, Palette.Sorn, carved: true, ribbon: false);
             Ui.Title("Sub", canvas, 0.05f, 0.825f, 0.95f, 0.86f, "WAR OF BANNERS", 30, TextAnchor.MiddleCenter, Palette.Trim, carved: true);
             Ui.Trim("Rule", canvas, 0.25f, 0.815f, 0.75f, 0.818f);
             _heading = Ui.Title("Heading", canvas, 0.05f, 0.75f, 0.95f, 0.8f, "", 40, TextAnchor.MiddleCenter, Palette.Parchment);

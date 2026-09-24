@@ -52,7 +52,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Backdrop(canvas);
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "WAR OF BANNERS", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _season = Ui.Label("Season", canvas, 0.05f, 0.9f, 0.95f, 0.935f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
 
@@ -83,8 +83,7 @@ namespace Orsuun.Client
                 f.Flag = BannerLook.FlagImage("Flag", card, 0.01f, 0.05f, 0.1f, 0.95f);
                 f.Title = Ui.Title("Name", card, 0.12f, 0.72f, 0.7f, 0.97f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
                 f.Info = Ui.Label("Info", card, 0.12f, 0.52f, 0.97f, 0.72f, "", 20, TextAnchor.MiddleLeft, Palette.Muted);
-                Ui.Panel("WallBack", card, 0.12f, 0.33f, 0.72f, 0.5f, new Color(0.08f, 0.03f, 0.04f));
-                f.Wall = Ui.Panel("WallFill", card, 0.12f, 0.33f, 0.72f, 0.5f, new Color(0.7f, 0.55f, 0.3f)).rectTransform;
+                f.Wall = Ui.Bar("Wall", card, 0.12f, 0.31f, 0.72f, 0.52f, new Color(0.72f, 0.56f, 0.3f), out _);
                 f.WallText = Ui.Label("WallText", card, 0.12f, 0.33f, 0.72f, 0.5f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
                 f.Siege = Ui.Label("Siege", card, 0.12f, 0.04f, 0.97f, 0.32f, "", 19, TextAnchor.MiddleLeft, Palette.Parchment);
                 f.Button = Ui.Button("Act", card, 0.74f, 0.33f, 0.98f, 0.97f, "", 26, Palette.Danger, () => Act(index), out f.ButtonLabel);
@@ -179,7 +178,7 @@ namespace Orsuun.Client
                 string flag = string.IsNullOrEmpty(d.flagGuild) ? "" : $"  ·  guild flag [{d.flagGuild}]";
                 f.Info.text = $"{d.region}  ·  the {d.phase} is under siege{flag}\n{d.lastEvent}";
                 float wall = d.wallMax > 0 ? d.wall / (float)d.wallMax : 0f;
-                f.Wall.anchorMax = new Vector2(0.12f + 0.6f * wall, f.Wall.anchorMax.y);
+                f.Wall.anchorMax = new Vector2(wall, 1f);
                 f.WallText.text = $"{d.phase.ToUpperInvariant()} WALL  {d.wall:N0} / {d.wallMax:N0}";
                 f.Siege.text = "Siege damage:  " + ConfirmDialog.Tint($"Ember {d.siegeEmber:N0}", BannerLook.Color(Banner.Ember)) + "   "
                                + ConfirmDialog.Tint($"Sky {d.siegeSky:N0}", BannerLook.Color(Banner.Sky)) + "   "

@@ -81,6 +81,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Sessions live on `Device` rows (one per device token); `Account.SessionToken` is only read for sessions handed out
   before devices existed. Items on the Salt Exchange stay with their seller with `Item.Listed` set: anything that
   lists, wears, forges or turns an owned piece must skip listed ones.
+- UI art comes from the kit (`tools/ui/make_ui_kit.py` writes `Resources/UI`; power-of-two sizes only, since Unity's
+  default import rescales others and breaks nine-slice borders). Use `Ui.Button` / `Ui.Framed` / `Ui.Backdrop` /
+  `Ui.Bar` rather than flat `Ui.Panel` plates; a new skill needs `Resources/Icons/Skills/<letters of its name>.png`.
 - `ChatPanel` stays off its canvas (it polls world chat for the lane ticker while hidden), like the `Tutorial`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).

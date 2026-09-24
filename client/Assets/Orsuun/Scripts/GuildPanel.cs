@@ -107,7 +107,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Backdrop(canvas);
             BuildBrowse(canvas);
             BuildHome(canvas);
             _message = Ui.Label("Message", canvas, 0.05f, 0.08f, 0.95f, 0.125f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
@@ -174,8 +174,7 @@ namespace Orsuun.Client
             _plateTag = Ui.Title("Tag", _plate.transform, 0f, 0f, 1f, 1f, "", 44, TextAnchor.MiddleCenter, Palette.Parchment);
             _title = Ui.Title("Name", h, 0.23f, 0.93f, 0.96f, 0.975f, "", 42, TextAnchor.MiddleLeft, Palette.Parchment);
             _info = Ui.Label("Info", h, 0.23f, 0.87f, 0.96f, 0.93f, "", 22, TextAnchor.MiddleLeft, Palette.Muted);
-            Ui.Panel("XpBack", h, 0.04f, 0.838f, 0.96f, 0.862f, new Color(0f, 0f, 0f, 0.45f));
-            _xpFill = Ui.Panel("XpFill", h, 0.04f, 0.838f, 0.96f, 0.862f, new Color(0.62f, 0.44f, 0.14f)).rectTransform;
+            _xpFill = Ui.Bar("Xp", h, 0.04f, 0.834f, 0.96f, 0.866f, new Color(0.85f, 0.62f, 0.2f), out _);
             _xpText = Ui.Title("XpText", h, 0.04f, 0.838f, 0.96f, 0.862f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
             _event = Ui.Label("Event", h, 0.04f, 0.8f, 0.96f, 0.835f, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
 
@@ -510,7 +509,7 @@ namespace Orsuun.Client
             string forts = g.fortresses != null && g.fortresses.Length > 0 ? "  ·  flag on " + string.Join(", ", g.fortresses) : "";
             _info.text = $"Level {g.level}  ·  {g.members}/{g.maxMembers} members  ·  treasury {g.treasury:N0} sorn\nYou are {rank.ToString().ToLowerInvariant()}  ·  guild bonus +{g.sornBonusPercent}% hunting sorn{forts}";
             float xp = g.nextLevelXp > 0 ? Mathf.Clamp01(g.xp / (float)g.nextLevelXp) : 1f;
-            _xpFill.anchorMax = new Vector2(0.04f + 0.92f * xp, _xpFill.anchorMax.y);
+            _xpFill.anchorMax = new Vector2(xp, 1f);
             _xpText.text = g.nextLevelXp > 0 ? $"GUILD XP  {g.xp:N0} / {g.nextLevelXp:N0}" : $"GUILD XP  {g.xp:N0}  ·  TOP LEVEL";
             _event.text = g.lastEvent;
 

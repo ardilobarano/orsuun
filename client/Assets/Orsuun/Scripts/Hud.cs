@@ -32,6 +32,11 @@ namespace Orsuun.Client
         private Button[] _skillButtons;
         private Text[] _skillLabels;
         private Image[] _autoImages;
+        private Text[] _skillNames;
+        private Image[] _skillSweeps;
+        private RawImage[] _skillArt;
+        private string[] _skillShown;
+        private Image[] _navBadges;
         private Text[] _autoLabels;
         private float _logAge;
         private Net.ServerLink.SettlementDto _shownSettlement;
@@ -45,82 +50,113 @@ namespace Orsuun.Client
             _canvas = canvas;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("TopBar", canvas, 0f, 0.945f, 1f, 1f, Palette.PanelDark);
-            Ui.Trim("TopTrim", canvas, 0f, 0.943f, 1f, 0.945f);
-            _level = Ui.Title("Level", canvas, 0.01f, 0.948f, 0.11f, 0.997f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
+            // Top bar: the level on a crimson medallion, currencies in bronze-rimmed pills.
+            Ui.Sliced("TopBar", canvas, 0f, 0.94f, 1f, 1f, "TopBar", Color.white);
+            Ui.RoundButton("Level", canvas, 0.008f, 0.943f, 0.108f, 0.999f, "", new Color(0.62f, 0.14f, 0.13f), () => root.Gear.Open(), out _, out _level);
+            _level.resizeTextMaxSize = 34;
             _currencies = new Text[CurrencyIcons.Length];
             for (int i = 0; i < CurrencyIcons.Length; i++)
             {
-                // Sorn gets a wider slot: it runs to seven figures.
-                float x0 = i == 0 ? 0.115f : 0.285f + (i - 1) * 0.118f;
-                float x1 = i == 0 ? 0.28f : x0 + 0.113f;
+                // Sorn gets a wider pill: it runs to seven figures.
+                float x0 = i == 0 ? 0.112f : 0.29f + (i - 1) * 0.118f;
+                float x1 = i == 0 ? 0.285f : x0 + 0.112f;
+                Ui.Sliced("Pill" + CurrencyIcons[i], canvas, x0, 0.951f, x1, 0.991f, "Pill", Color.white).raycastTarget = false;
                 // Icon fits its parent, so it gets its own box.
-                RectTransform box = Ui.Rect("IconBox" + CurrencyIcons[i], canvas, x0, 0.951f, x0 + 0.045f, 0.994f);
+                RectTransform box = Ui.Rect("IconBox" + CurrencyIcons[i], canvas, x0 + 0.004f, 0.953f, x0 + 0.044f, 0.989f);
                 Ui.Icon("Icon", box, 0f, 0f, 1f, 1f, CurrencyIcons[i]);
-                _currencies[i] = Ui.Label("Count" + CurrencyIcons[i], canvas, x0 + 0.047f, 0.948f, x1, 0.997f, "", 28, TextAnchor.MiddleLeft, Palette.Sorn);
+                _currencies[i] = Ui.Label("Count" + CurrencyIcons[i], canvas, x0 + 0.046f, 0.951f, x1 - 0.008f, 0.991f, "", 26, TextAnchor.MiddleLeft, Palette.Sorn);
             }
-            _stage = Ui.Label("Stage", canvas, 0.03f, 0.905f, 0.97f, 0.943f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
+
+            // Where the hunt is, over a soft shade so it reads against any sky.
+            Ui.Panel("TopShade", canvas, 0f, 0.87f, 1f, 0.94f, new Color(0f, 0f, 0f, 0.32f)).raycastTarget = false;
+            _stage = Ui.Title("Stage", canvas, 0.03f, 0.905f, 0.97f, 0.94f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
             _link = Ui.Label("Link", canvas, 0.03f, 0.875f, 0.97f, 0.905f, "", 22, TextAnchor.MiddleLeft, Palette.Warn);
-            _banner = Ui.Label("Banner", canvas, 0.05f, 0.80f, 0.95f, 0.87f, "", 56, TextAnchor.MiddleCenter, Palette.Warn);
+            _link.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.8f);
+            _banner = Ui.Title("Banner", canvas, 0.05f, 0.80f, 0.95f, 0.87f, "", 56, TextAnchor.MiddleCenter, Palette.Warn);
 
-            Ui.Trim("HpRim", canvas, 0.037f, 0.4565f, 0.963f, 0.4835f);
-            Ui.Panel("HpBack", canvas, 0.04f, 0.458f, 0.96f, 0.482f, new Color(0.08f, 0.03f, 0.04f));
-            _hpFill = Ui.Panel("HpFill", canvas, 0.04f, 0.458f, 0.96f, 0.482f, new Color(0.78f, 0.16f, 0.14f)).rectTransform;
-            _hpText = Ui.Label("HpText", canvas, 0.04f, 0.458f, 0.96f, 0.482f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
-
-            Ui.Panel("BottomPanel", canvas, 0f, 0f, 1f, GameRoot.LaneViewportBottom, Palette.PanelDark);
-            Ui.Trim("BottomTrim", canvas, 0f, GameRoot.LaneViewportBottom - 0.002f, 1f, GameRoot.LaneViewportBottom);
-            _weapon = Ui.Title("Weapon", canvas, 0.04f, 0.405f, 0.96f, 0.445f, "", 32, TextAnchor.MiddleLeft, Palette.Parchment);
-            _log = Ui.Label("Log", canvas, 0.04f, 0.365f, 0.96f, 0.405f, "", 26, TextAnchor.MiddleLeft, Palette.Sorn);
-
-            int count = root.Session.Lane.Skills.Length;
-            _skillButtons = new Button[count];
-            _skillLabels = new Text[count];
-            _autoImages = new Image[count];
-            _autoLabels = new Text[count];
-            for (int i = 0; i < count; i++)
-            {
-                int index = i;
-                float x0 = 0.04f + i * 0.31f;
-                _skillButtons[i] = Ui.Button("Skill" + i, canvas, x0, 0.215f, x0 + 0.30f, 0.355f, root.Session.Lane.Skills[i].Name, 32,
-                    Palette.ButtonIdle, () => { if (!_root.Replaying) _root.Session.Cast(index); }, out _skillLabels[i]);
-
-                Button auto = Ui.Button("Auto" + i, canvas, x0, 0.165f, x0 + 0.30f, 0.208f, "", 24,
-                    Palette.ButtonIdle, () => _root.Session.ToggleAutoCast(index), out _autoLabels[i]);
-                _autoImages[i] = auto.GetComponent<Image>();
-            }
-
-            Ui.Button("Forge", canvas, 0.04f, 0.09f, 0.27f, 0.155f, "FORGE", 30, Palette.ButtonForge, () => root.Forge.Open(), out _);
-            Ui.Button("Gear", canvas, 0.28f, 0.09f, 0.50f, 0.155f, "GEAR", 30, Palette.ButtonIdle, () => root.Gear.Open(), out _);
-            Ui.Button("Shards", canvas, 0.51f, 0.09f, 0.73f, 0.155f, "SHARDS", 30, Palette.Alloy, () => root.Sockets.Open(), out _);
-            _pushButton = Ui.Button("Push", canvas, 0.74f, 0.09f, 0.96f, 0.155f, "", 22, Palette.Danger, root.Push, out _pushLabel);
-
-            // Bottom row (24 Sep 2026): the War of Banners, the bounty board, the guild and the Salt Exchange joined; SOUND
-            // and SPEED moved into the MENU.
-            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.22f, 0.08f, "", 18, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
-            Ui.Button("War", canvas, 0.23f, 0.02f, 0.36f, 0.08f, "WAR", 22, Palette.Danger, () => root.War.Open(), out _);
-            Ui.Button("Bounties", canvas, 0.37f, 0.02f, 0.53f, 0.08f, "BOUNTIES", 18, Palette.Alloy, () => root.Bounties.Open(), out _bountyLabel);
-            Ui.Button("Guild", canvas, 0.54f, 0.02f, 0.67f, 0.08f, "GUILD", 20, Palette.Safe, () => root.Guild.Open(), out _guildLabel);
-            Ui.Button("Trade", canvas, 0.68f, 0.02f, 0.81f, 0.08f, "TRADE", 20, Palette.ButtonForge, () => root.Market.Open(), out _);
-            Ui.Button("Menu", canvas, 0.82f, 0.02f, 0.96f, 0.08f, "MENU", 20, Palette.DevGrey, () => root.Menu.Open(), out _);
-
-            // The newest world chat line over the bottom of the lane; tap it for CHAT.
-            Image strip = Ui.Panel("ChatStrip", canvas, 0.03f, 0.488f, 0.97f, 0.522f, new Color(0f, 0f, 0f, 0.45f));
+            // The hero's HP in a bronze trough, and the newest world chat line above it (tap it for CHAT).
+            _hpFill = Ui.Bar("Hp", canvas, 0.03f, 0.452f, 0.97f, 0.486f, new Color(0.82f, 0.17f, 0.14f), out _);
+            _hpText = Ui.Title("HpText", canvas, 0.03f, 0.452f, 0.97f, 0.486f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
+            Image strip = Ui.Panel("ChatStrip", canvas, 0.03f, 0.492f, 0.97f, 0.524f, new Color(0f, 0f, 0f, 0.5f));
             strip.gameObject.AddComponent<Button>().onClick.AddListener(() => root.Chat.Open());
-            Ui.Label("ChatIcon", strip.transform, 0.01f, 0f, 0.1f, 1f, "CHAT", 18, TextAnchor.MiddleCenter, Palette.Sorn);
-            _ticker = Ui.Label("ChatLine", strip.transform, 0.11f, 0f, 0.99f, 1f, "", 20, TextAnchor.MiddleLeft, Palette.Parchment);
+            RectTransform chatIcon = Ui.Rect("ChatIconBox", strip.transform, 0.005f, 0.05f, 0.07f, 0.95f);
+            Ui.Icon("ChatIcon", chatIcon, 0f, 0f, 1f, 1f, "NavChat");
+            _ticker = Ui.Label("ChatLine", strip.transform, 0.08f, 0f, 0.99f, 1f, "", 20, TextAnchor.MiddleLeft, Palette.Parchment);
             _ticker.supportRichText = true;
             _ticker.horizontalOverflow = HorizontalWrapMode.Overflow;
             _ticker.resizeTextForBestFit = false;
             strip.gameObject.AddComponent<RectMask2D>();
 
+            // The command deck under the lane.
+            Ui.Sliced("BottomPanel", canvas, 0f, 0f, 1f, GameRoot.LaneViewportBottom, "Backdrop", Color.white).raycastTarget = false;
+            Ui.Sliced("BottomTrim", canvas, 0f, GameRoot.LaneViewportBottom - 0.012f, 1f, GameRoot.LaneViewportBottom + 0.002f, "TopBar", Color.white).raycastTarget = false;
+            Image plate = Ui.Framed("HeroPlate", canvas, 0.03f, 0.382f, 0.97f, 0.438f, new Color(0.13f, 0.12f, 0.2f));
+            RectTransform weaponBox = Ui.Rect("WeaponIconBox", plate.transform, 0.01f, 0.08f, 0.1f, 0.92f);
+            Ui.Icon("WeaponIcon", weaponBox, 0f, 0f, 1f, 1f, "Weapon");
+            _weapon = Ui.Title("Weapon", plate.transform, 0.11f, 0.05f, 0.98f, 0.95f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
+            _log = Ui.Title("Log", canvas, 0.04f, 0.345f, 0.96f, 0.378f, "", 24, TextAnchor.MiddleCenter, Palette.Sorn);
+
+            // Skills: round, with a painted icon, a cooldown sweep and the seconds left; their name and AUTO switch below.
+            int count = root.Session.Lane.Skills.Length;
+            _skillButtons = new Button[count];
+            _skillLabels = new Text[count];
+            _skillNames = new Text[count];
+            _skillSweeps = new Image[count];
+            _skillArt = new RawImage[count];
+            _skillShown = new string[count];
+            _autoImages = new Image[count];
+            _autoLabels = new Text[count];
+            for (int i = 0; i < count; i++)
+            {
+                int index = i;
+                float cx = 0.2f + i * 0.3f;
+                _skillButtons[i] = Ui.RoundButton("Skill" + i, canvas, cx - 0.12f, 0.2f, cx + 0.12f, 0.338f, "", new Color(0.2f, 0.2f, 0.3f),
+                    () => { if (!_root.Replaying) _root.Session.Cast(index); }, out _skillSweeps[i], out _skillLabels[i]);
+                _skillArt[i] = _skillButtons[i].transform.Find("Art").GetComponent<RawImage>();
+                _skillNames[i] = Ui.Title("SkillName" + i, canvas, cx - 0.15f, 0.176f, cx + 0.15f, 0.2f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
+                Button auto = Ui.Button("Auto" + i, canvas, cx - 0.1f, 0.142f, cx + 0.1f, 0.174f, "", 18,
+                    Palette.ButtonIdle, () => _root.Session.ToggleAutoCast(index), out _autoLabels[i]);
+                _autoImages[i] = auto.GetComponent<Image>();
+            }
+
+            Ui.IconButton("Forge", canvas, 0.03f, 0.078f, 0.265f, 0.136f, "FORGE", 26, Palette.ButtonForge, "NavForge", () => root.Forge.Open(), out _);
+            Ui.IconButton("Gear", canvas, 0.27f, 0.078f, 0.5f, 0.136f, "GEAR", 26, Palette.ButtonIdle, "NavGear", () => root.Gear.Open(), out _);
+            Ui.IconButton("Shards", canvas, 0.505f, 0.078f, 0.735f, 0.136f, "SHARDS", 24, Palette.Alloy, "NavShards", () => root.Sockets.Open(), out _);
+            _pushButton = Ui.IconButton("Push", canvas, 0.74f, 0.078f, 0.97f, 0.136f, "", 20, Palette.Danger, "NavPush", root.Push, out _pushLabel);
+
+            // Bottom bar (24 Sep 2026): the War of Banners, the bounty board, the guild and the Salt Exchange joined; SOUND
+            // and SPEED moved into the MENU. Painted icons over small labels; a red badge marks something waiting.
+            Ui.Sliced("NavBar", canvas, 0f, 0f, 1f, 0.072f, "NavBar", Color.white);
+            string[] icons = { "Zones", "War", "Bounties", "Guild", "Trade", "Menu" };
+            string[] labels = { "ZONES", "WAR", "BOUNTIES", "GUILD", "TRADE", "MENU" };
+            System.Action[] actions = { () => root.Zones.Open(), () => root.War.Open(), () => root.Bounties.Open(), () => root.Guild.Open(),
+                () => root.Market.Open(), () => root.Menu.Open() };
+            _navBadges = new Image[icons.Length];
+            for (int i = 0; i < icons.Length; i++)
+            {
+                float x0 = 0.01f + i * (0.98f / icons.Length);
+                Ui.NavButton(icons[i], canvas, x0 + 0.01f, 0.004f, x0 + 0.98f / icons.Length - 0.01f, 0.068f, icons[i], labels[i], actions[i],
+                    out Text label, out _navBadges[i]);
+                if (i == 0) _stageLabel = label;
+                if (i == 2) _bountyLabel = label;
+                if (i == 3) _guildLabel = label;
+            }
+
             // The Banner's flag in the corner of the lane; tap it for the War of Banners.
-            _flag = BannerLook.FlagImage("BannerFlag", canvas, 0.905f, 0.79f, 0.985f, 0.9f);
+            _flag = BannerLook.FlagImage("BannerFlag", canvas, 0.905f, 0.76f, 0.985f, 0.865f);
             var flagButton = _flag.gameObject.AddComponent<Button>();
             _flag.raycastTarget = true;
             flagButton.onClick.AddListener(() => root.War.Open());
             // The guild tag under the flag, in the guild's colour.
-            _guildTag = Ui.Title("GuildTag", canvas, 0.88f, 0.762f, 1f, 0.79f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
+            _guildTag = Ui.Title("GuildTag", canvas, 0.88f, 0.735f, 1f, 0.76f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
+        }
+
+        /// <summary>Resources/Icons/Skills name for a skill: its letters ("Kestrel's Dive" is KestrelsDive).</summary>
+        private static string SkillIcon(string name)
+        {
+            var letters = new System.Text.StringBuilder();
+            foreach (char c in name) if (char.IsLetter(c)) letters.Append(c);
+            return "Icons/Skills/" + letters;
         }
 
         /// <summary>The screen area (canvas anchors) covering the named HUD elements, for the tutorial's highlight.</summary>
@@ -156,7 +192,7 @@ namespace Orsuun.Client
             LaneSim lane = _root.ActiveLane;
             Inventory inv = session.Inventory;
 
-            _level.text = "Lv " + inv.Level;
+            _level.text = inv.Level.ToString();
             _currencies[0].text = inv.Sorn.ToString("N0");
             _currencies[1].text = inv.Potions.ToString();
             _currencies[2].text = inv.Materials.ToString();
@@ -194,11 +230,11 @@ namespace Orsuun.Client
             }
 
             float hp = Mathf.Clamp01(lane.HeroHp / (float)lane.HeroMaxHp);
-            _hpFill.anchorMax = new Vector2(0.04f + 0.92f * hp, _hpFill.anchorMax.y);
+            _hpFill.anchorMax = new Vector2(hp, 1f);
             _hpText.text = lane.Phase == LanePhase.Dead ? "DEFEATED — respawning" : $"{lane.HeroHp} / {lane.HeroMaxHp}";
 
             HeroStats stats = session.Hero;
-            _weapon.text = $"{session.Weapon.DisplayName} +{session.Weapon.UpgradeLevel}   ·   Atk {stats.Attack}   Def {stats.Defense}   Crit {stats.CritChanceBp / 100}%";
+            _weapon.text = $"{session.Weapon.DisplayName} +{session.Weapon.UpgradeLevel}\n<size=20><color=#C2BAAD>Attack {stats.Attack}   ·   Defense {stats.Defense}   ·   Crit {stats.CritChanceBp / 100}%</color></size>";
             _weapon.color = ForgePanel.LevelColor(session.Weapon.UpgradeLevel);
 
             _logAge += Time.deltaTime;
@@ -210,25 +246,33 @@ namespace Orsuun.Client
             {
                 int ticksLeft = lane.CooldownTicksLeft(i);
                 _skillButtons[i].interactable = !_root.Replaying && ticksLeft == 0 && lane.Phase == LanePhase.Fighting;
-                _skillLabels[i].text = ticksLeft == 0
-                    ? lane.Skills[i].Name
-                    : $"{lane.Skills[i].Name}\n{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}s";
-                _autoLabels[i].text = lane.AutoCast[i] ? "AUTO: ON" : "AUTO: OFF";
+                SkillDef skill = lane.Skills[i];
+                if (_skillShown[i] != skill.Name)
+                {
+                    // A class change swaps the kit: new names, new icons.
+                    _skillShown[i] = skill.Name;
+                    _skillArt[i].texture = Resources.Load<Texture2D>(SkillIcon(skill.Name));
+                    _skillArt[i].enabled = _skillArt[i].texture != null;
+                }
+                _skillNames[i].text = skill.Name.ToUpperInvariant();
+                _skillSweeps[i].fillAmount = skill.CooldownTicks > 0 ? Mathf.Clamp01(ticksLeft / (float)skill.CooldownTicks) : 0f;
+                _skillLabels[i].text = ticksLeft == 0 ? "" : $"{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}";
+                _autoLabels[i].text = lane.AutoCast[i] ? "AUTO ON" : "AUTO OFF";
                 _autoImages[i].color = lane.AutoCast[i] ? Palette.Safe : Palette.ButtonIdle;
             }
 
             bool allCleared = session.HighestStageCleared >= Content.TotalStages;
-            _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n{Content.StageName(session.PushTarget)}";
+            _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n<size=15>{Content.StageName(session.PushTarget)}</size>";
             _pushButton.interactable = !_root.Replaying && !_root.PushBusy && !allCleared;
-            _stageLabel.text = $"ZONES\n<size=16>{Content.StageName(session.ParkedStage)}</size>";
+            _stageLabel.text = "ZONES";
             Net.ServerLink.GuildBriefDto guild = _root.Server.Guild;
             bool inGuild = _root.Server.InGuild;
-            _guildLabel.text = inGuild ? $"GUILD\n<size=16>[{guild.tag}]</size>" : "GUILD";
+            _guildLabel.text = inGuild ? "[" + guild.tag + "]" : "GUILD";
             _guildTag.text = inGuild ? "[" + guild.tag + "]" : "";
             _ticker.text = _root.Chat.Ticker.Length > 0 ? _root.Chat.Ticker : ConfirmDialog.Tint(_root.Server.Online ? "Tap to talk with the steppe." : "Chat needs the server.", Palette.Muted);
             if (inGuild) _guildTag.color = GuildPanel.ColorOf(guild.color);
             bool claim = _root.Bounties.AnyClaimable;
-            _bountyLabel.text = claim ? "BOUNTIES\n<size=16><color=#8CF08C>ready!</color></size>" : "BOUNTIES";
+            _navBadges[2].gameObject.SetActive(claim);
             BannerLook.Show(_flag, _root.Server.Banner);
             if (_lastLevel > 0 && inv.Level > _lastLevel)
             {

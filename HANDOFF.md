@@ -185,6 +185,22 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   (safe against the live server). Screenshot switches: `-chat`, `-market`, `-account`.
 - Privacy policy: contact uardilbaran@gmail.com; now covers emails, chat and trades.
 
+## Done 24 Sep 2026, late night (UI upgrade)
+
+- Owner: "user ui is bad. upgrade it". A UI kit in direction B, drawn by `tools/ui/make_ui_kit.py` into
+  `Resources/UI` (bevelled button plates under studded bronze rims, cards with corner diamonds, round skill rings and a
+  cooldown disc, bar troughs, currency pills, the crimson title ribbon, top and bottom bars, badge, the screen backdrop).
+  `Ui.Kit` nine-slices them at runtime (borders in `Kit.Borders`, drawn at 2x). Painted icons from two sheets
+  (`docs/concept/icons/nav-sheet.jpg`, `skills-sheet.jpg`): `Resources/Icons/Nav*.png` (cut out) and
+  `Resources/Icons/Skills/<letters of the skill name>.png` (round).
+- Every screen picks the kit up through `Ui.Button`, `Ui.Framed`, `Ui.Title` (carved titles at the top stand on the
+  ribbon) and `Ui.Backdrop` (opaque, fades the screen in). New helpers: `Ui.Bar`, `Ui.RoundButton`, `Ui.NavButton`,
+  `Ui.IconButton`, `Ui.Sliced`; buttons sink under the finger (`Press`).
+- HUD rebuilt: level medallion and currency pills on the top bar, a shade behind the stage line, HP in a bronze
+  trough, a hero plate with the weapon, round skill buttons with painted icons, a cooldown sweep and seconds, AUTO
+  switches under them, icon buttons for FORGE / GEAR / SHARDS / PUSH, and a bottom bar of painted icons with a red
+  badge when a bounty is ready.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in

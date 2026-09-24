@@ -31,7 +31,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Backdrop(canvas);
             Ui.Title("Title", canvas, 0.05f, 0.84f, 0.95f, 0.91f, "MENU", 60, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Trim("Rule", canvas, 0.25f, 0.835f, 0.75f, 0.838f);
 

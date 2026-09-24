@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -46,10 +47,18 @@ namespace Orsuun.Client
             _carvedFont = Resources.Load<Font>("Fonts/Cinzel");
         }
 
-        /// <summary>A heading with a soft drop shadow; carved = the screen-title face (no digits).</summary>
+        /// <summary>
+        /// A heading with a soft drop shadow; carved = the screen-title face (no digits). A carved title at the top of a
+        /// screen stands on the crimson ribbon unless ribbon is false.
+        /// </summary>
         public static Text Title(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
-            string content, int size, TextAnchor anchor, Color color, bool carved = false)
+            string content, int size, TextAnchor anchor, Color color, bool carved = false, bool? ribbon = null)
         {
+            if (ribbon ?? (carved && yMax >= 0.9f))
+            {
+                float inset = (xMax - xMin) * 0.12f;
+                Sliced(name + "Ribbon", parent, xMin + inset, yMin - 0.006f, xMax - inset, yMax + 0.006f, "Ribbon", Color.white).raycastTarget = false;
+            }
             Text text = Label(name, parent, xMin, yMin, xMax, yMax, content, size, anchor, color);
             text.font = carved ? CarvedFont : TitleFont;
             text.fontStyle = FontStyle.Bold;
@@ -59,14 +68,42 @@ namespace Orsuun.Client
             return text;
         }
 
-        /// <summary>A content panel with a thin bronze frame (etchings, rows, sockets).</summary>
+        /// <summary>A content panel (etchings, rows, sockets): a tinted card with a bronze rim and corner diamonds.</summary>
         public static Image Framed(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, Color color)
         {
-            Image image = Panel(name, parent, xMin, yMin, xMax, yMax, color);
-            var rim = image.gameObject.AddComponent<Outline>();
-            rim.effectColor = new Color(Palette.Trim.r, Palette.Trim.g, Palette.Trim.b, 0.55f);
-            rim.effectDistance = new Vector2(1.5f, -1.5f);
+            Image image = Sliced(name, parent, xMin, yMin, xMax, yMax, "CardFill", color);
+            Sliced("Rim", image.transform, 0f, 0f, 1f, 1f, "CardRim", Color.white).raycastTarget = false;
             return image;
+        }
+
+        /// <summary>
+        /// A full-screen screen background (opaque, so the hunt does not show through) that also fades the screen in
+        /// each time its canvas is shown.
+        /// </summary>
+        public static Image Backdrop(Transform canvas)
+        {
+            Image back = Sliced("Backdrop", canvas, 0f, 0f, 1f, 1f, "Backdrop", Color.white);
+            if (canvas.GetComponent<ScreenFade>() == null) canvas.gameObject.AddComponent<ScreenFade>();
+            return back;
+        }
+
+        /// <summary>An image from the UI kit (Resources/UI, tools/ui/make_ui_kit.py), nine-sliced where the kit has borders.</summary>
+        public static Image Sliced(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, string sprite, Color color)
+        {
+            var image = Rect(name, parent, xMin, yMin, xMax, yMax).gameObject.AddComponent<Image>();
+            Kit.Apply(image, sprite);
+            image.color = color;
+            return image;
+        }
+
+        /// <summary>A bar: bronze-rimmed trough with a glossy fill inside it; move the fill's anchorMax.x from 0 to 1.</summary>
+        public static RectTransform Bar(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, Color fill, out Image fillImage)
+        {
+            Image frame = Sliced(name, parent, xMin, yMin, xMax, yMax, "BarFrame", Color.white);
+            RectTransform inner = Rect("Inner", frame.transform, 0.012f, 0.2f, 0.988f, 0.8f);
+            fillImage = Sliced("Fill", inner, 0f, 0f, 1f, 1f, "BarFill", fill);
+            fillImage.raycastTarget = false;
+            return fillImage.rectTransform;
         }
 
         /// <summary>A thin bronze rule, for panel edges.</summary>
@@ -212,16 +249,90 @@ namespace Orsuun.Client
             return text;
         }
 
+        /// <summary>A button with an icon on its left and the label beside it (FORGE, GEAR, SHARDS, PUSH).</summary>
+        public static Button IconButton(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
+            string label, int size, Color background, string icon, Action onClick, out Text labelText)
+        {
+            Button button = Button(name, parent, xMin, yMin, xMax, yMax, label, size, background, onClick, out labelText);
+            RectTransform box = Rect("IconBox", button.transform, 0.04f, 0.1f, 0.34f, 0.9f);
+            Icon("Icon", box, 0f, 0f, 1f, 1f, icon);
+            RectTransform text = labelText.rectTransform;
+            text.anchorMin = new Vector2(0.3f, text.anchorMin.y);
+            return button;
+        }
+
+        /// <summary>
+        /// A round button in its own box (kept round by a fitter): tinted plate, an icon, a dark cooldown sweep (fill it
+        /// 1 to 0) and a bronze ring. The label sits in the middle for cooldown seconds.
+        /// </summary>
+        public static Button RoundButton(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
+            string icon, Color background, Action onClick, out Image sweep, out Text label)
+        {
+            RectTransform box = Rect(name, parent, xMin, yMin, xMax, yMax);
+            RectTransform round = Rect("Round", box, 0f, 0f, 1f, 1f);
+            var fit = round.gameObject.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            fit.aspectRatio = 1f;
+            var plate = round.gameObject.AddComponent<Image>();
+            Kit.Apply(plate, "RoundFill");
+            plate.color = background;
+            var art = Rect("Art", round, 0.08f, 0.08f, 0.92f, 0.92f).gameObject.AddComponent<RawImage>();
+            art.texture = Resources.Load<Texture2D>("Icons/" + icon);
+            art.raycastTarget = false;
+            art.enabled = art.texture != null;
+            sweep = Rect("Sweep", round, 0.08f, 0.08f, 0.92f, 0.92f).gameObject.AddComponent<Image>();
+            Kit.Apply(sweep, "Disc");
+            sweep.color = new Color(0.02f, 0.02f, 0.05f, 0.72f);
+            sweep.type = Image.Type.Filled;
+            sweep.fillMethod = Image.FillMethod.Radial360;
+            sweep.fillOrigin = (int)Image.Origin360.Top;
+            sweep.fillClockwise = false;
+            sweep.fillAmount = 0f;
+            sweep.raycastTarget = false;
+            var ringImage = Rect("Ring", round, 0f, 0f, 1f, 1f).gameObject.AddComponent<Image>();
+            Kit.Apply(ringImage, "RoundRim");
+            ringImage.raycastTarget = false;
+            label = Title("Label", round, 0.1f, 0.1f, 0.9f, 0.9f, "", 60, TextAnchor.MiddleCenter, Palette.Parchment);
+            round.gameObject.AddComponent<Press>();
+            var button = round.gameObject.AddComponent<Button>();
+            button.targetGraphic = plate;
+            button.onClick.AddListener(() => onClick());
+            return button;
+        }
+
+        /// <summary>A bottom-bar button: a painted icon over a small label, and a red badge (hidden until needed).</summary>
+        public static Button NavButton(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
+            string icon, string label, Action onClick, out Text labelText, out Image badge)
+        {
+            RectTransform box = Rect(name, parent, xMin, yMin, xMax, yMax);
+            var hit = box.gameObject.AddComponent<Image>();
+            hit.color = new Color(1f, 1f, 1f, 0f);
+            RectTransform iconBox = Rect("IconBox", box, 0.1f, 0.34f, 0.9f, 1f);
+            Icon("Icon", iconBox, 0f, 0f, 1f, 1f, "Nav" + icon);
+            labelText = Title("Label", box, 0f, 0f, 1f, 0.36f, label, 20, TextAnchor.MiddleCenter, Palette.Parchment);
+            // The fitter keeps the badge round inside its own small box (a fitter fits its parent).
+            RectTransform badgeBox = Rect("BadgeBox", box, 0.64f, 0.7f, 0.92f, 1f);
+            badge = Sliced("Badge", badgeBox, 0f, 0f, 1f, 1f, "Badge", Color.white);
+            var badgeFit = badge.gameObject.AddComponent<AspectRatioFitter>();
+            badgeFit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            badgeFit.aspectRatio = 1f;
+            badge.raycastTarget = false;
+            badge.gameObject.SetActive(false);
+            box.gameObject.AddComponent<Press>();
+            var button = box.gameObject.AddComponent<Button>();
+            button.targetGraphic = hit;
+            button.transition = Selectable.Transition.None;
+            button.onClick.AddListener(() => onClick());
+            return button;
+        }
+
         public static Button Button(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
             string label, int size, Color background, Action onClick, out Text labelText)
         {
-            // Direction B: a lacquered plate with a bronze rim and a darker lower lip, carved capitals on top.
-            Image image = Panel(name, parent, xMin, yMin, xMax, yMax, background);
-            var rim = image.gameObject.AddComponent<Outline>();
-            rim.effectColor = Palette.Trim;
-            rim.effectDistance = new Vector2(2f, -2f);
-            Image lip = Panel("Lip", image.transform, 0f, 0f, 1f, 0.12f, new Color(0f, 0f, 0f, 0.28f));
-            lip.raycastTarget = false;
+            // Direction B: a lacquered, bevelled plate (tinted) under a studded bronze rim, carved capitals on top.
+            Image image = Sliced(name, parent, xMin, yMin, xMax, yMax, "ButtonFill", background);
+            Sliced("Rim", image.transform, 0f, 0f, 1f, 1f, "ButtonRim", Color.white).raycastTarget = false;
+            image.gameObject.AddComponent<Press>();
             var button = image.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             ColorBlock colors = button.colors;
@@ -231,13 +342,104 @@ namespace Orsuun.Client
             colors.colorMultiplier = 1.1f;
             button.colors = colors;
             button.onClick.AddListener(() => onClick());
-            labelText = Label("Label", image.transform, 0.04f, 0.10f, 0.96f, 0.94f, label, size, TextAnchor.MiddleCenter, Palette.Parchment);
+            labelText = Label("Label", image.transform, 0.06f, 0.12f, 0.94f, 0.9f, label, size, TextAnchor.MiddleCenter, Palette.Parchment);
             labelText.font = TitleFont;
             labelText.fontStyle = FontStyle.Bold;
             var shadow = labelText.gameObject.AddComponent<Shadow>();
             shadow.effectColor = new Color(0f, 0f, 0f, 0.65f);
             shadow.effectDistance = new Vector2(1.5f, -1.5f);
             return button;
+        }
+    }
+
+    /// <summary>
+    /// The UI kit's sprites (Resources/UI, drawn by tools/ui/make_ui_kit.py at 2x): loaded once, clamped, nine-sliced by
+    /// the borders below (texture pixels: left, bottom, right, top).
+    /// </summary>
+    public static class Kit
+    {
+        private static readonly Dictionary<string, Vector4> Borders = new Dictionary<string, Vector4>
+        {
+            ["ButtonFill"] = new Vector4(44, 44, 44, 44),
+            ["ButtonRim"] = new Vector4(44, 44, 44, 44),
+            ["CardFill"] = new Vector4(28, 28, 28, 28),
+            ["CardRim"] = new Vector4(28, 28, 28, 28),
+            ["BarFrame"] = new Vector4(30, 26, 30, 26),
+            ["BarFill"] = new Vector4(20, 20, 20, 20),
+            ["Pill"] = new Vector4(60, 30, 60, 30),
+            ["Ribbon"] = new Vector4(190, 40, 190, 40),
+            ["NavBar"] = new Vector4(8, 24, 8, 24),
+            ["TopBar"] = new Vector4(8, 24, 8, 24),
+            ["Rule"] = new Vector4(200, 0, 200, 0),
+        };
+
+        private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
+
+        public static Sprite Get(string name)
+        {
+            if (Cache.TryGetValue(name, out Sprite sprite)) return sprite;
+            var texture = Resources.Load<Texture2D>("UI/" + name);
+            if (texture == null) return Cache[name] = null;
+            texture.wrapMode = TextureWrapMode.Clamp;
+            Borders.TryGetValue(name, out Vector4 border);
+            sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f, 0,
+                SpriteMeshType.FullRect, border);
+            return Cache[name] = sprite;
+        }
+
+        public static void Apply(Image image, string name)
+        {
+            image.sprite = Get(name);
+            bool sliced = Borders.ContainsKey(name);
+            image.type = sliced ? Image.Type.Sliced : Image.Type.Simple;
+            // The kit is drawn at 2x: borders show at half their pixel size in canvas units.
+            image.pixelsPerUnitMultiplier = 2f;
+        }
+    }
+
+    /// <summary>Presses sink a little under the finger and spring back.</summary>
+    public sealed class Press : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        private float _target = 1f;
+
+        public void OnPointerDown(PointerEventData eventData) => _target = 0.94f;
+        public void OnPointerUp(PointerEventData eventData) => _target = 1f;
+        public void OnPointerExit(PointerEventData eventData) => _target = 1f;
+
+        private void OnDisable()
+        {
+            _target = 1f;
+            transform.localScale = Vector3.one;
+        }
+
+        private void Update()
+        {
+            float s = transform.localScale.x;
+            if (Mathf.Abs(s - _target) < 0.001f) return;
+            s = Mathf.MoveTowards(s, _target, Time.unscaledDeltaTime * 2.5f);
+            transform.localScale = new Vector3(s, s, 1f);
+        }
+    }
+
+    /// <summary>Fades a screen in each time its canvas is shown.</summary>
+    public sealed class ScreenFade : MonoBehaviour
+    {
+        private const float Seconds = 0.14f;
+        private CanvasGroup _group;
+        private float _age;
+
+        private void OnEnable()
+        {
+            if (_group == null) _group = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            _age = 0f;
+            _group.alpha = 0f;
+        }
+
+        private void Update()
+        {
+            if (_age >= Seconds) return;
+            _age += Time.unscaledDeltaTime;
+            _group.alpha = Mathf.Clamp01(_age / Seconds);
         }
     }
 

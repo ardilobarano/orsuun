@@ -66,7 +66,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Backdrop(canvas);
             Ui.Title("Title", canvas, 0.05f, 0.93f, 0.95f, 0.975f, "THE FORGE  ·  Forgemaster Dorun", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
 
             // What goes on the anvil: one button per equipment slot, empty slots disabled.

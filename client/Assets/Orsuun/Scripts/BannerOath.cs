@@ -28,7 +28,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Back", canvas, 0f, 0f, 1f, 1f, Palette.Background);
+            Ui.Backdrop(canvas);
             Ui.Title("Title", canvas, 0.05f, 0.9f, 0.95f, 0.96f, "SWEAR TO A BANNER", 50, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Label("Lead", canvas, 0.06f, 0.85f, 0.94f, 0.9f,
                 "Three Banners fight over one question: what should be done with the Korstones? Your Banner sets your side in the War of Banners and the fortress sieges.",

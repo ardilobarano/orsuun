@@ -86,7 +86,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             // This component stays off its canvas: it keeps polling world chat for the lane's ticker while hidden.
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Backdrop(canvas);
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "CHAT", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _worldTab = Ui.Button("WorldTab", canvas, 0.04f, 0.875f, 0.49f, 0.925f, "WORLD", 28, Palette.ButtonIdle, () => Show(_world), out _);
             _guildTab = Ui.Button("GuildTab", canvas, 0.51f, 0.875f, 0.96f, 0.925f, "GUILD", 28, Palette.ButtonIdle, () => Show(_guild), out _);

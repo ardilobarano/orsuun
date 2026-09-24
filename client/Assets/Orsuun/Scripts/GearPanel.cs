@@ -78,8 +78,9 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
-            Ui.Title("Title", canvas, 0.05f, 0.94f, 0.95f, 0.978f, "GEAR", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
+            Ui.Backdrop(canvas);
+            // The title sits left of the class switch, so its ribbon stays clear of it.
+            Ui.Title("Title", canvas, 0.04f, 0.94f, 0.64f, 0.978f, "GEAR", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _hero = Ui.Label("Hero", canvas, 0.04f, 0.91f, 0.96f, 0.937f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
             Ui.Button("Class", canvas, 0.66f, 0.944f, 0.96f, 0.976f, "", 22, Palette.Alloy, SwitchClass, out _classLabel);
 

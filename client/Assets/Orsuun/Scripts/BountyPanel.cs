@@ -53,7 +53,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Panel("Dim", canvas, 0f, 0f, 1f, 1f, Palette.Dim);
+            Ui.Backdrop(canvas);
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "BOUNTIES", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _marks = Ui.Title("Marks", canvas, 0.05f, 0.895f, 0.95f, 0.935f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
 
@@ -160,7 +160,9 @@ namespace Orsuun.Client
                 float done = b.target > 0 ? Mathf.Clamp01(b.count / (float)b.target) : 0f;
                 r.Fill.anchorMax = new Vector2(0.045f + 0.69f * done, r.Fill.anchorMax.y);
                 bool ready = !b.claimed && b.count >= b.target;
-                r.ClaimLabel.text = b.claimed ? "CLAIMED" : ready ? "CLAIM" : "";
+                // Unfinished bounties show how far along they are on a quiet plate; only a finished one glows green.
+                r.ClaimLabel.text = b.claimed ? "CLAIMED" : ready ? "CLAIM" : $"{Mathf.FloorToInt(done * 100f)}%";
+                r.Claim.GetComponent<Image>().color = ready ? Palette.Safe : Palette.ButtonIdle;
                 r.Claim.interactable = ready && !_busy;
             }
             for (int i = 0; i < _buy.Length; i++)
