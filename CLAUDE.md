@@ -72,5 +72,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   (`FOR UPDATE`); status reads never write pools. War points go through the `AddPointsAsync` upsert.
 - `tools/build-mobile.sh` starts the editor with `-buildTarget` for the platform: the notification package's iOS
   post-processor (links UserNotifications.framework) only compiles with `UNITY_IOS` defined at startup.
+- In zsh, `GID` (and `UID`) are read-only integer specials: a script that stores a guild id in `$GID` fails with
+  "bad math expression". Use another name, or run the script with bash.
+- Guild rows change only under `LockGuildAsync` (FOR UPDATE, then a reload, since `GuildOf` may already track the row);
+  other accounts' guild fields change through single `ExecuteUpdateAsync` statements, never loaded and saved.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).

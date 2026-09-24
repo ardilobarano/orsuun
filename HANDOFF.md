@@ -25,6 +25,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Turning helper | Owner, 24 Sep 2026 (after the classic bonus switcher): pick up to five etchings, each with the lowest tier accepted; it turns until all of them are on the piece; then "several pieces at once": up to eight pieces, worn or in the bag, each with its own goal and ON/OFF, turned in turn one batch each. Built as a stop rule of up to five targets (`TurnTarget`, `EtchingService.TurnUntil`, `TurnRequest.Targets`), all must match; the screen shows the exact chance per turn (`EtchingService.TargetChance`) and names goals that can never be met (`TargetProblem`). Assumption (not stated by the owner): the helper chains Bulk Turn batches of 50 until the goal, no Turnstones, or STOP, so the planned 10-free / 50-Hearthfire batch split would only change its speed. |
 | Banners: red, blue, yellow | Owner, 24 Sep 2026: "make 3 banners: red blue and yellow, name and draw their flag according to our theme". The world bible's three creeds stay; the colours moved and two names changed to match: **Ember Banner** (crimson, "Break every stone", rider clans, Karsun), **Sky Banner** (blue, takes the monasteries' "Reseal what was sealed", Ostrakh), **Gold Banner** (yellow, takes the salt-road merchants' "Every stone has a price", Velimar). Flags in `docs/concept/banner-*.jpg`, cut-outs in `Resources/Art/Banners`. The oath is asked once, online, after the title screen; it cannot be changed yet (the bible's once-a-season defection is not built). |
 | Multiplayer layer | Owner, 24 Sep 2026: "do all of them" (Banners, shared boss fights, fortress PvP). Built: Commander spawns have one HP pool for the server (sized by last week's fighters, at least one; the killing blow is named for its Banner; ranks count real fighters, simulated rivals fill to 20); the War of Banners point race per season; fortress sieges between Banners. Assumptions (not stated by the owner): a season is a week for the playtest; last season's winner hunts with +5% sorn and each fortress held gives +3%; until guilds exist the Banners hold the fortresses (the GDD has guilds bidding on Sunday 50v50 sieges); sieges are asynchronous scored fights, one per player every 10 minutes, attackers wear the wall down, defenders mend it by half their damage, the Hall's fall hands the fortress to the attacking Banner with the most siege damage; the GDD's "break each phase within 10 minutes" rule is not enforced yet. |
+| Guilds | Owner, 24 Sep 2026: "create guild as well". Built from the GDD (guilds mix Banners, daily donation to the treasury, Guild Tallies for the guild shop, guild skills, guild flags on fortresses, 50 Tallies for a Commander's rank-1 guild). Assumptions (not stated by the owner): a charter costs 100,000 sorn; 20 members, +5 per Muster level (max 40); up to 200,000 sorn donated per member per bounty day, 1 guild XP per 1,000 sorn and 1 Guild Tally per 5,000; levels 1-10; skills are bought from the treasury by the leader or an officer (the GDD lists Tallies as the skill currency, the treasury felt clearer): Plunder +1% hunting sorn per level (max 5), Muster; guild shop: Anvil Ward 30, Khan's Alloy 40, Trooper Korshard 8 Tallies; the 50 Tallies go to the rank-1 fighter (in a guild) when the spawn falls, with 50 guild XP; siege damage gives guild XP (1 per 10,000); the member who breaks a Hall for the conquering Banner raises the guild's flag there (+2% sorn per flag); guilds are open or shut (no join requests yet); leaders promote (4 officers max), demote, hand over the lead; officers remove members; a leader leaving passes the lead to the highest rank that stayed longest, the last member leaving disbands. Guild war and fortress bids are not built. |
 | Bounties and Hunt Marks | Owner, 24 Sep 2026 ("do all of them"; the GDD's Hunt Marks). Five daily and four weekly bounties counted by the server (Korstones, hunting minutes, forges, turns, Commander fights, pushes, sieges), reset at 20:00 server time (weekly on Mondays); the Hunt Marks shop sells Etching Needles, Pinning Wax, Turnstones, Scrolls of Mercy and Draughts. ETCH (Etching Needle, 1st to 4th etching at 100/80/60/40%) and PIN (Pinning Wax, one lock per item, turns cost two, unpinning spends the wax) are on the Forge. The owner will add monetization; the shop prices are placeholders. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
@@ -144,7 +145,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   fortresses seeded at startup. Rules: `Banners.cs` (Banners, points, generated player names like "Swift Falcon 4821",
   fortresses and champions), `BossRun.RankShared`.
 - Bounties (`Bounties.cs`, `BountyPanel`, server `GameService.Bounties.cs`), the shop, ETCH and PIN.
-- HUD bottom row: ZONES, WAR, BOUNTIES (marked when one is ready), SPEED, MENU; SOUND moved into MENU; the Banner's
+- HUD bottom row: ZONES, WAR, BOUNTIES (marked when one is ready), SPEED (GUILD since the guild round), MENU; SOUND moved into MENU; the Banner's
   flag stands in the lane's top-right corner (tap for WAR). ZONES shows each Commander's server pool and best fighter.
 - Local notifications (`GameNotifications`, Unity Mobile Notifications 2.4.0, no push server): the full offline hunt,
   the next Evening Bell, the next Commander and new bounties are scheduled when the game goes to the background; the
@@ -156,7 +157,15 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   Attack on their blow, Hit when struck and Death instead of the old keel-over. Heights: Wolf 1.25, Boar 1.15,
   Deserter 1.9, Greyjaw 2.0, Gorak 2.45, Queen 2.4, Scorpion 1.0, GlassSnake 1.3, Ghoul 1.85, FrostBear 1.6,
   IceWight 1.9, SnowHag 2.0 (Tripo sources need `yaw_degrees=-90`).
-- Screenshot switches: `-oath`, `-war`, `-bounties` (online screenshots need `-server <url>` instead of `-local`).
+- Screenshot switches: `-oath`, `-war`, `-bounties`, `-guild` (online screenshots need `-server <url>` instead of `-local`).
+- Banner flags normalised (owner: "banners sizes arent equal"): the three cut-outs share one 266x698 canvas with equal
+  cloth height, crossbars on one line and pole feet on one line (Sky's and Gold's poles shortened, Ember's lengthened);
+  `docs/concept/banner-*.jpg` keep the full art.
+- Guilds (`Guilds.cs`, `GuildPanel`, server `GameService.Guilds.cs`, migration `Guilds`, endpoints under `/v1/guild`):
+  browse and search, found (name, 2-4 letter tag, 8 colours, basic word filter), join, leave, ranks, donate, skills,
+  shop, open or shut gates. The GUILD button replaced SPEED on the HUD (SPEED is in MENU as HUNT SPEED); the guild tag
+  shows under the lane flag, on Commander boards ("[TAG] Name") and on fortresses that fly the guild's flag. Guild rows
+  change under a row lock (`LockGuildAsync`); other members' rows through single UPDATEs.
 
 ## Store release, waiting on the owner's accounts
 
@@ -206,7 +215,10 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   Reset after it: `DELETE FROM "BannerScores"; UPDATE "Fortresses" SET "Wall"="WallMax", "SiegeEmber"=0, "SiegeSky"=0, "SiegeGold"=0;`
   (through `docker compose -f deploy/docker-compose.yml --env-file deploy/.env exec -T postgres psql -U orsuun -d orsuun -c '...'`).
 - The fifth etching needs a Master's Needle, which nothing sells or drops yet (it is a Caravan item in the GDD).
-- Players are shown to each other by a generated name; custom names need moderation first.
+- Players are shown to each other by a generated name; custom names need moderation first. Guild names and tags go
+  through a short word filter (`Guilds.Clean`) only; reports and a review queue are needed before a public launch.
+- Guilds: no join requests or invites (a shut guild takes no one), no guild chat, no guild war or fortress bids; the
+  treasury only buys skills so far.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Active play: the account holds a lane seed (new on first login and every park) and the next loop number; StateDto
   carries both. Online, the client's farm lane runs one seeded loop per encounter cycle (`LaneSim.Cycles`; Hunting
