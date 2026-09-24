@@ -18,6 +18,7 @@ namespace Orsuun.Client
         private Text _status;
         private Text _soundLabel;
         private Text _speedLabel;
+        private Text _accountLabel;
         private ConfirmDialog _confirm;
         private bool _deleting;
 
@@ -34,16 +35,17 @@ namespace Orsuun.Client
             Ui.Title("Title", canvas, 0.05f, 0.84f, 0.95f, 0.91f, "MENU", 60, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Trim("Rule", canvas, 0.25f, 0.835f, 0.75f, 0.838f);
 
-            Ui.Button("HowToPlay", canvas, 0.15f, 0.745f, 0.85f, 0.81f, "HOW TO PLAY", 34, Palette.ButtonIdle, HowToPlay, out _);
-            Ui.Button("Speed", canvas, 0.15f, 0.665f, 0.85f, 0.73f, "", 34, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
-            Ui.Button("Sound", canvas, 0.15f, 0.585f, 0.85f, 0.65f, "", 34, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
-            Ui.Button("Privacy", canvas, 0.15f, 0.505f, 0.85f, 0.57f, "PRIVACY POLICY", 34, Palette.ButtonIdle,
+            Ui.Button("HowToPlay", canvas, 0.15f, 0.755f, 0.85f, 0.815f, "HOW TO PLAY", 32, Palette.ButtonIdle, HowToPlay, out _);
+            Ui.Button("Account", canvas, 0.15f, 0.68f, 0.85f, 0.74f, "", 30, Palette.Safe, OpenAccount, out _accountLabel);
+            Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.85f, 0.665f, "", 32, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
+            Ui.Button("Sound", canvas, 0.15f, 0.53f, 0.85f, 0.59f, "", 32, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
+            Ui.Button("Privacy", canvas, 0.15f, 0.455f, 0.85f, 0.515f, "PRIVACY POLICY", 32, Palette.ButtonIdle,
                 () => Application.OpenURL(_root.Server.BaseUrl + "/privacy"), out _);
-            Ui.Button("Delete", canvas, 0.15f, 0.425f, 0.85f, 0.49f, "DELETE ACCOUNT", 34, Palette.Danger, AskDelete, out _);
+            Ui.Button("Delete", canvas, 0.15f, 0.38f, 0.85f, 0.44f, "DELETE ACCOUNT", 32, Palette.Danger, AskDelete, out _);
             if (ShowDevGrant)
-                Ui.Button("DevGrant", canvas, 0.15f, 0.345f, 0.85f, 0.41f, "DEV: GRANT RESOURCES", 28, Palette.DevGrey, DevGrant, out _);
-            _status = Ui.Label("Status", canvas, 0.08f, 0.26f, 0.92f, 0.335f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
-            Ui.Button("Close", canvas, 0.25f, 0.18f, 0.75f, 0.25f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
+                Ui.Button("DevGrant", canvas, 0.15f, 0.305f, 0.85f, 0.365f, "DEV: GRANT RESOURCES", 26, Palette.DevGrey, DevGrant, out _);
+            _status = Ui.Label("Status", canvas, 0.08f, 0.255f, 0.92f, 0.3f, "", 28, TextAnchor.MiddleCenter, Palette.Parchment);
+            Ui.Button("Close", canvas, 0.25f, 0.18f, 0.75f, 0.245f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
             Ui.Label("Version", canvas, 0.05f, 0.10f, 0.95f, 0.14f, "Orsuun: War of Banners  ·  v" + Application.version, 22,
                 TextAnchor.MiddleCenter, Palette.Muted);
 
@@ -100,6 +102,12 @@ namespace Orsuun.Client
             _root.Hud.Log("Account deleted. A new hunt begins.");
         }
 
+        private void OpenAccount()
+        {
+            Close();
+            _root.Account.Open();
+        }
+
         /// <summary>Hunt speed x1, x3, x8 (the lane runs faster on screen; the server still pays by the clock).</summary>
         private void CycleSpeed()
         {
@@ -111,6 +119,7 @@ namespace Orsuun.Client
             if (!_canvas.activeSelf) return;
             _soundLabel.text = GameAudio.Instance != null && GameAudio.Instance.Muted ? "SOUND: OFF" : "SOUND: ON";
             _speedLabel.text = $"HUNT SPEED: x{_root.SpeedMultiplier}";
+            _accountLabel.text = _root.Server.Registered ? "ACCOUNT\n<size=18>" + _root.Server.Email + "</size>" : "SIGN UP / SIGN IN";
         }
 
         /// <summary>Playtest shortcut so testers can reach the high Forge levels within one sitting.</summary>

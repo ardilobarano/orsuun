@@ -48,6 +48,13 @@ namespace Orsuun.Client.Net
         public int Tallies { get; private set; }
         /// <summary>The GUILD screen's data, fetched on demand and returned by every guild call.</summary>
         public GuildViewDto GuildView { get; private set; }
+        /// <summary>The Salt Exchange screen's data, fetched on demand and returned by every market call.</summary>
+        public MarketDto MarketView { get; private set; }
+        /// <summary>The account's sign-in email; empty for a guest.</summary>
+        public string Email { get; private set; } = "";
+        public bool Registered => !string.IsNullOrEmpty(Email);
+        /// <summary>Goes up whenever this device switches account (sign in, sign out, deletion): screens drop what they cached.</summary>
+        public int AccountGeneration { get; private set; }
 
         /// <summary>Stops all traffic and falls back to local rolls. Used by tests and by the -local switch.</summary>
         public void Disconnect()
@@ -101,14 +108,64 @@ namespace Orsuun.Client.Net
                 done(failure);
                 yield break;
             }
+            PlayerPrefs.DeleteKey(DeviceTokenKey);
+            PlayerPrefs.Save();
+            Restart();
+            done(null);
+        }
+
+        /// <summary>Drops the session and logs in again by the device token (after a sign in, sign out or deletion).</summary>
+        private void Restart()
+        {
             StopAllCoroutines();
             _session = null;
             Online = false;
             Status = "connecting";
+            Email = "";
+            GuildView = null;
+            MarketView = null;
+            War = null;
+            Guild = null;
+            Banner = Banner.None;
+            AccountGeneration++;
+            StartCoroutine(Run());
+        }
+
+        /// <summary>Sign up: saves an email and password to the account being played.</summary>
+        public IEnumerator Register(string email, string password, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/auth/register", JsonUtility.ToJson(new RegisterRequest { email = email, password = password }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>Sign in: points this device at the account, then logs in again (the hero on screen is replaced).</summary>
+        public IEnumerator SignIn(string email, string password, Action<string> done)
+        {
+            string failure = null;
+            string token = PlayerPrefs.GetString(DeviceTokenKey, "");
+            if (token.Length == 0)
+            {
+                token = Guid.NewGuid().ToString("N");
+                PlayerPrefs.SetString(DeviceTokenKey, token);
+                PlayerPrefs.Save();
+            }
+            yield return Post("/v1/auth/login", JsonUtility.ToJson(new LoginRequest { email = email, password = password, deviceToken = token }), false,
+                _ => { }, error => failure = error ?? "No answer from the server.");
+            if (failure == null) Restart();
+            done(failure);
+        }
+
+        /// <summary>Sign out: ends this device's session and starts a new guest with a new device token.</summary>
+        public IEnumerator SignOut(Action<string> done)
+        {
+            string failure = null;
+            if (_session != null) yield return Post("/v1/auth/signout", "{}", true, _ => { }, error => failure = error);
             PlayerPrefs.DeleteKey(DeviceTokenKey);
             PlayerPrefs.Save();
-            StartCoroutine(Run());
-            done(null);
+            Restart();
+            done(failure);
         }
 
         /// <summary>-server on the command line, else Resources/server-url.txt (written by the build script), else localhost.</summary>
@@ -389,6 +446,65 @@ namespace Orsuun.Client.Net
 
         public static string NewRequestId() => Guid.NewGuid().ToString("N");
 
+        /// <summary>A chat channel's lines after the given id. Completes with (lines, error).</summary>
+        public IEnumerator FetchChat(string channel, long after, Action<ChatDto, string> done)
+        {
+            ChatDto result = null;
+            string failure = null;
+            yield return Send("GET", $"/v1/chat?channel={channel}&after={after}", null, true, json => result = JsonUtility.FromJson<ChatDto>(json), error => failure = error);
+            done(result, failure);
+        }
+
+        public IEnumerator Say(string channel, string text, long after, Action<ChatDto, string> done)
+        {
+            ChatDto result = null;
+            string failure = null;
+            yield return Post("/v1/chat", JsonUtility.ToJson(new ChatSayRequest { channel = channel, text = text, after = after }), true,
+                json => result = JsonUtility.FromJson<ChatDto>(json), error => failure = error);
+            done(result, failure);
+        }
+
+        public IEnumerator ReportLine(long messageId, string channel, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/chat/report", JsonUtility.ToJson(new ChatReportRequest { messageId = messageId, channel = channel }), true, _ => { }, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Blocks or unblocks a player's chat lines; unblocking an empty id clears the list.</summary>
+        public IEnumerator Block(string accountId, bool block, Action<ChatDto, string> done)
+        {
+            ChatDto result = null;
+            string failure = null;
+            yield return Post("/v1/chat/block", JsonUtility.ToJson(new ChatBlockRequest { accountId = accountId, block = block, channel = "world" }), true,
+                json => result = JsonUtility.FromJson<ChatDto>(json), error => failure = error);
+            done(result, failure);
+        }
+
+        /// <summary>Refreshes MarketView: one page of listings (slot empty = all; sort cheapest, newest or level) and mine.</summary>
+        public IEnumerator FetchMarket(string slot, string sort, int page, Action<string> done)
+        {
+            string failure = null;
+            string path = $"/v1/market?sort={sort}&page={page}" + (string.IsNullOrEmpty(slot) ? "" : "&slot=" + slot);
+            yield return Send("GET", path, null, true, ApplyMarket, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>A market call (list, buy, cancel); completes with (message, error).</summary>
+        public IEnumerator MarketCall(string path, object request, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/market/" + path, JsonUtility.ToJson(request), true, ApplyMarket, error => failure = error);
+            done(failure == null ? MarketView?.message : null, failure);
+        }
+
+        private void ApplyMarket(string json)
+        {
+            MarketDto view = JsonUtility.FromJson<MarketDto>(json);
+            MarketView = view;
+            if (view.state != null && view.state.inventory != null && view.state.items != null) Apply(view.state);
+        }
+
         public IEnumerator DevGrant()
         {
             yield return Post("/v1/dev/grant", "{}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), _ => { });
@@ -474,13 +590,14 @@ namespace Orsuun.Client.Net
             if (!string.IsNullOrEmpty(s.name)) PlayerName = s.name;
             Guild = s.guild;
             Tallies = s.inventory.tallies;
+            Email = s.email ?? "";
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
             Online = true;
             Status = "server: " + _baseUrl;
         }
 
-        private static ItemState ToState(ItemDto dto)
+        public static ItemState ToState(ItemDto dto)
         {
             var item = new ItemState(dto.itemLevel, (Rarity)Enum.Parse(typeof(Rarity), dto.rarity), (EquipSlot)Enum.Parse(typeof(EquipSlot), dto.slot))
             {
@@ -573,13 +690,25 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; }
         [Serializable] public class GuildBriefDto { public string tag; public string name; public string color; public string rank; }
         [Serializable] public class GuildDto { public string id; public string name; public string tag; public string color; public bool open; public int level; public long xp; public long nextLevelXp; public long treasury; public int plunder; public int muster; public int members; public int maxMembers; public int sornBonusPercent; public string[] fortresses; public string lastEvent; }
         [Serializable] public class GuildMemberDto { public string accountId; public string name; public string banner; public string rank; public int level; public long donated; public int lastSeenMinutes; public bool me; }
-        [Serializable] public class GuildListItemDto { public string id; public string name; public string tag; public string color; public int level; public int members; public int maxMembers; public bool open; }
+        [Serializable] public class GuildListItemDto { public string id; public string name; public string tag; public string color; public int level; public int members; public int maxMembers; public bool open; public bool requested; }
         /// <summary>mine is never null after JsonUtility: an empty id means no guild.</summary>
-        [Serializable] public class GuildViewDto { public StateDto state; public GuildDto mine; public GuildMemberDto[] members; public GuildListItemDto[] browse; public long donatedToday; public long donationCap; public string message; }
+        [Serializable] public class GuildViewDto { public StateDto state; public GuildDto mine; public GuildMemberDto[] members; public GuildListItemDto[] browse; public long donatedToday; public long donationCap; public string message; public GuildMemberDto[] requests; public string[] log; }
+        [Serializable] public class GuildAnswerRequest { public string requestId; public string accountId; public bool accept; }
+        [Serializable] public class ChatLineDto { public long id; public string accountId; public string name; public string banner; public string text; public string utc; public bool system; public bool mine; }
+        [Serializable] public class ChatDto { public string channel; public ChatLineDto[] lines; public long latestId; public int blocked; }
+        [Serializable] public class ChatSayRequest { public string channel; public string text; public long after; }
+        [Serializable] public class ChatReportRequest { public long messageId; public string channel; }
+        [Serializable] public class ChatBlockRequest { public string accountId; public bool block; public string channel; }
+        [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; }
+        [Serializable] public class MarketDto { public StateDto state; public ListingDto[] listings; public int page; public int pages; public int total; public ListingDto[] mine; public int taxPercent; public string message; }
+        [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; }
+        [Serializable] public class MarketBuyRequest { public string requestId; public long listingId; }
+        [Serializable] public class RegisterRequest { public string email; public string password; }
+        [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }
         [Serializable] public class GuildCreateRequest { public string requestId; public string name; public string tag; public string color; }
         [Serializable] public class GuildJoinRequest { public string requestId; public string guildId; }
         [Serializable] public class GuildLeaveRequest { public string requestId; }

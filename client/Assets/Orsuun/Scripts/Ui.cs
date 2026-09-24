@@ -158,6 +158,60 @@ namespace Orsuun.Client
             return field;
         }
 
+        /// <summary>
+        /// A vertical scroll list: rows added under content stack from the top and size to their text (a
+        /// VerticalLayoutGroup plus ContentSizeFitter); the viewport clips them.
+        /// </summary>
+        public static ScrollRect Scroll(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, out RectTransform content)
+        {
+            Image back = Framed(name, parent, xMin, yMin, xMax, yMax, new Color(0.05f, 0.05f, 0.09f, 0.92f));
+            var scroll = back.gameObject.AddComponent<ScrollRect>();
+            RectTransform viewport = Rect("Viewport", back.transform, 0.005f, 0.005f, 0.995f, 0.995f);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
+            content.SetParent(viewport, false);
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(0.5f, 1f);
+            content.offsetMin = Vector2.zero;
+            content.offsetMax = Vector2.zero;
+            var layout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.childControlHeight = true;
+            layout.childControlWidth = true;
+            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = true;
+            layout.spacing = 8f;
+            layout.padding = new RectOffset(14, 14, 10, 10);
+            content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            scroll.content = content;
+            scroll.viewport = viewport;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30f;
+            return scroll;
+        }
+
+        /// <summary>A wrapping rich-text row for a Scroll list, tappable (the text is the button's graphic).</summary>
+        public static Text ListRow(string name, Transform content, int size, Action onClick)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(content, false);
+            var text = go.AddComponent<Text>();
+            text.font = Font;
+            text.fontSize = size;
+            text.color = Palette.Parchment;
+            text.alignment = TextAnchor.UpperLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.supportRichText = true;
+            var button = go.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = text;
+            button.onClick.AddListener(() => onClick());
+            return text;
+        }
+
         public static Button Button(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
             string label, int size, Color background, Action onClick, out Text labelText)
         {

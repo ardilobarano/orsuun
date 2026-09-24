@@ -35,6 +35,9 @@ namespace Orsuun.Client
         public WarPanel War { get; private set; }
         public BountyPanel Bounties { get; private set; }
         public GuildPanel Guild { get; private set; }
+        public ChatPanel Chat { get; private set; }
+        public MarketPanel Market { get; private set; }
+        public AccountPanel Account { get; private set; }
         public GameNotifications Notifications { get; private set; }
         public Tutorial Tutorial { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
@@ -89,10 +92,16 @@ namespace Orsuun.Client
             Bounties.Init(this);
             Guild = new GameObject("GuildPanel").AddComponent<GuildPanel>();
             Guild.Init(this);
+            Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
+            Market.Init(this);
+            Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
+            Chat.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
             Oath = new GameObject("BannerOath").AddComponent<BannerOath>();
             Oath.Init(this);
+            Account = new GameObject("AccountPanel").AddComponent<AccountPanel>();
+            Account.Init(this);
             Notifications.Init(this);
             Menu = new GameObject("MenuPanel").AddComponent<MenuPanel>();
             Menu.Init(this);
@@ -121,6 +130,10 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-war") >= 0) War.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-bounties") >= 0) Bounties.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-guild") >= 0) Guild.Open();
+            // -chat, -market (-sell, -mylistings) and -account open those screens for screenshots.
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-chat") >= 0) Chat.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-market") >= 0) Market.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-account") >= 0) _accountAsked = true;
             // -turnhelper [pick|add|demo|run] opens the turning helper over the Forge (with the etching list or the piece
             // list open, or three more pieces added; run also starts turning them locally with 600 Turnstones).
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-turnhelper") >= 0)
@@ -182,18 +195,35 @@ namespace Orsuun.Client
         private Bell _localBellApplied = Bell.None;
         private bool _tutorialPending;
         private bool _oathAsked;
+        private bool _accountAsked;
+        private bool _accountShown;
+        private int _accountGeneration;
 
         private void Update()
         {
-            // Online and not yet sworn: the oath comes first, once the title screen is gone.
-            if (!_oathAsked && !Title.Showing && Server.Online && Server.Banner == Rules.Banner.None && Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") < 0)
+            // Another account on this device (sign in, sign out, deletion): its oath is asked afresh.
+            if (_accountGeneration != Server.AccountGeneration)
+            {
+                _accountGeneration = Server.AccountGeneration;
+                _oathAsked = false;
+            }
+            bool shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") >= 0;
+            // A guest's first launch: sign up, sign in or play as guest, once the title screen is gone (-account forces it).
+            if (!Title.Showing && Server.Online && !Account.Showing
+                && (_accountAsked ? !_accountShown : !AccountPanel.Chosen && !Server.Registered && !shot && !_accountShown))
+            {
+                _accountShown = true;
+                Account.Open();
+            }
+            // Online and not yet sworn: the oath comes next, once the title and account screens are gone.
+            if (!_oathAsked && !Title.Showing && !Account.Showing && Server.Online && Server.Banner == Rules.Banner.None && !shot)
             {
                 _oathAsked = true;
                 Oath.Open();
             }
             // The first session's guide starts once the title screen (and the oath) is gone; the notification
             // permission is asked then too, once.
-            if (_tutorialPending && !Title.Showing && !Oath.Showing)
+            if (_tutorialPending && !Title.Showing && !Account.Showing && !Oath.Showing)
             {
                 Notifications.AskOnce();
                 _tutorialPending = false;

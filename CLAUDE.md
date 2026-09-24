@@ -76,5 +76,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   "bad math expression". Use another name, or run the script with bash.
 - Guild rows change only under `LockGuildAsync` (FOR UPDATE, then a reload, since `GuildOf` may already track the row);
   other accounts' guild fields change through single `ExecuteUpdateAsync` statements, never loaded and saved.
+- macOS `/bin/bash` is 3.2: it brace-expands `"{..,..}"` JSON inside `"$(...)"`. Shell scripts build request bodies
+  with `jq -n` into variables (see `tools/smoke-social.sh`).
+- Sessions live on `Device` rows (one per device token); `Account.SessionToken` is only read for sessions handed out
+  before devices existed. Items on the Salt Exchange stay with their seller with `Item.Listed` set: anything that
+  lists, wears, forges or turns an owned piece must skip listed ones.
+- `ChatPanel` stays off its canvas (it polls world chat for the lane ticker while hidden), like the `Tutorial`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).

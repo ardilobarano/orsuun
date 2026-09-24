@@ -19,6 +19,7 @@ namespace Orsuun.Client
         private Text _weapon;
         private Text _log;
         private Text _guildLabel;
+        private Text _ticker;
         private Text _guildTag;
         private Text _bountyLabel;
         private RawImage _flag;
@@ -94,12 +95,24 @@ namespace Orsuun.Client
             Ui.Button("Shards", canvas, 0.51f, 0.09f, 0.73f, 0.155f, "SHARDS", 30, Palette.Alloy, () => root.Sockets.Open(), out _);
             _pushButton = Ui.Button("Push", canvas, 0.74f, 0.09f, 0.96f, 0.155f, "", 22, Palette.Danger, root.Push, out _pushLabel);
 
-            // Bottom row (24 Sep 2026): the War of Banners, the bounty board and the guild joined; SOUND and SPEED moved into the MENU.
-            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.3f, 0.08f, "", 20, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
-            Ui.Button("War", canvas, 0.31f, 0.02f, 0.47f, 0.08f, "WAR", 24, Palette.Danger, () => root.War.Open(), out _);
-            Ui.Button("Bounties", canvas, 0.48f, 0.02f, 0.67f, 0.08f, "BOUNTIES", 22, Palette.Alloy, () => root.Bounties.Open(), out _bountyLabel);
-            Ui.Button("Guild", canvas, 0.68f, 0.02f, 0.8f, 0.08f, "GUILD", 22, Palette.Safe, () => root.Guild.Open(), out _guildLabel);
-            Ui.Button("Menu", canvas, 0.81f, 0.02f, 0.96f, 0.08f, "MENU", 24, Palette.DevGrey, () => root.Menu.Open(), out _);
+            // Bottom row (24 Sep 2026): the War of Banners, the bounty board, the guild and the Salt Exchange joined; SOUND
+            // and SPEED moved into the MENU.
+            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.22f, 0.08f, "", 18, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
+            Ui.Button("War", canvas, 0.23f, 0.02f, 0.36f, 0.08f, "WAR", 22, Palette.Danger, () => root.War.Open(), out _);
+            Ui.Button("Bounties", canvas, 0.37f, 0.02f, 0.53f, 0.08f, "BOUNTIES", 18, Palette.Alloy, () => root.Bounties.Open(), out _bountyLabel);
+            Ui.Button("Guild", canvas, 0.54f, 0.02f, 0.67f, 0.08f, "GUILD", 20, Palette.Safe, () => root.Guild.Open(), out _guildLabel);
+            Ui.Button("Trade", canvas, 0.68f, 0.02f, 0.81f, 0.08f, "TRADE", 20, Palette.ButtonForge, () => root.Market.Open(), out _);
+            Ui.Button("Menu", canvas, 0.82f, 0.02f, 0.96f, 0.08f, "MENU", 20, Palette.DevGrey, () => root.Menu.Open(), out _);
+
+            // The newest world chat line over the bottom of the lane; tap it for CHAT.
+            Image strip = Ui.Panel("ChatStrip", canvas, 0.03f, 0.488f, 0.97f, 0.522f, new Color(0f, 0f, 0f, 0.45f));
+            strip.gameObject.AddComponent<Button>().onClick.AddListener(() => root.Chat.Open());
+            Ui.Label("ChatIcon", strip.transform, 0.01f, 0f, 0.1f, 1f, "CHAT", 18, TextAnchor.MiddleCenter, Palette.Sorn);
+            _ticker = Ui.Label("ChatLine", strip.transform, 0.11f, 0f, 0.99f, 1f, "", 20, TextAnchor.MiddleLeft, Palette.Parchment);
+            _ticker.supportRichText = true;
+            _ticker.horizontalOverflow = HorizontalWrapMode.Overflow;
+            _ticker.resizeTextForBestFit = false;
+            strip.gameObject.AddComponent<RectMask2D>();
 
             // The Banner's flag in the corner of the lane; tap it for the War of Banners.
             _flag = BannerLook.FlagImage("BannerFlag", canvas, 0.905f, 0.79f, 0.985f, 0.9f);
@@ -212,6 +225,7 @@ namespace Orsuun.Client
             bool inGuild = _root.Server.InGuild;
             _guildLabel.text = inGuild ? $"GUILD\n<size=16>[{guild.tag}]</size>" : "GUILD";
             _guildTag.text = inGuild ? "[" + guild.tag + "]" : "";
+            _ticker.text = _root.Chat.Ticker.Length > 0 ? _root.Chat.Ticker : ConfirmDialog.Tint(_root.Server.Online ? "Tap to talk with the steppe." : "Chat needs the server.", Palette.Muted);
             if (inGuild) _guildTag.color = GuildPanel.ColorOf(guild.color);
             bool claim = _root.Bounties.AnyClaimable;
             _bountyLabel.text = claim ? "BOUNTIES\n<size=16><color=#8CF08C>ready!</color></size>" : "BOUNTIES";

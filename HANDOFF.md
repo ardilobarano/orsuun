@@ -26,6 +26,9 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Banners: red, blue, yellow | Owner, 24 Sep 2026: "make 3 banners: red blue and yellow, name and draw their flag according to our theme". The world bible's three creeds stay; the colours moved and two names changed to match: **Ember Banner** (crimson, "Break every stone", rider clans, Karsun), **Sky Banner** (blue, takes the monasteries' "Reseal what was sealed", Ostrakh), **Gold Banner** (yellow, takes the salt-road merchants' "Every stone has a price", Velimar). Flags in `docs/concept/banner-*.jpg`, cut-outs in `Resources/Art/Banners`. The oath is asked once, online, after the title screen; it cannot be changed yet (the bible's once-a-season defection is not built). |
 | Multiplayer layer | Owner, 24 Sep 2026: "do all of them" (Banners, shared boss fights, fortress PvP). Built: Commander spawns have one HP pool for the server (sized by last week's fighters, at least one; the killing blow is named for its Banner; ranks count real fighters, simulated rivals fill to 20); the War of Banners point race per season; fortress sieges between Banners. Assumptions (not stated by the owner): a season is a week for the playtest; last season's winner hunts with +5% sorn and each fortress held gives +3%; until guilds exist the Banners hold the fortresses (the GDD has guilds bidding on Sunday 50v50 sieges); sieges are asynchronous scored fights, one per player every 10 minutes, attackers wear the wall down, defenders mend it by half their damage, the Hall's fall hands the fortress to the attacking Banner with the most siege damage; the GDD's "break each phase within 10 minutes" rule is not enforced yet. |
 | Guilds | Owner, 24 Sep 2026: "create guild as well". Built from the GDD (guilds mix Banners, daily donation to the treasury, Guild Tallies for the guild shop, guild skills, guild flags on fortresses, 50 Tallies for a Commander's rank-1 guild). Assumptions (not stated by the owner): a charter costs 100,000 sorn; 20 members, +5 per Muster level (max 40); up to 200,000 sorn donated per member per bounty day, 1 guild XP per 1,000 sorn and 1 Guild Tally per 5,000; levels 1-10; skills are bought from the treasury by the leader or an officer (the GDD lists Tallies as the skill currency, the treasury felt clearer): Plunder +1% hunting sorn per level (max 5), Muster; guild shop: Anvil Ward 30, Khan's Alloy 40, Trooper Korshard 8 Tallies; the 50 Tallies go to the rank-1 fighter (in a guild) when the spawn falls, with 50 guild XP; siege damage gives guild XP (1 per 10,000); the member who breaks a Hall for the conquering Banner raises the guild's flag there (+2% sorn per flag); guilds are open or shut (no join requests yet); leaders promote (4 officers max), demote, hand over the lead; officers remove members; a leader leaving passes the lead to the highest rank that stayed longest, the last member leaving disbands. Guild war and fortress bids are not built. |
+| Chat | Owner, 24 Sep 2026: "all chat". A world channel for everyone and one channel per guild; guild events are system lines in guild chat (the guild log); Commander kills, fortress captures and +8 or better forges are system lines in world chat. Assumptions: 200 characters a line, one line per 3 s, bad words starred out (`WordFilter`), three reports hide a line, players can block others (unblock all from the chat screen), lines are kept 7 days. The newest world line runs over the bottom of the lane (tap it for CHAT). |
+| Salt Exchange | Owner, 24 Sep 2026: "a global trading screen that all players can list their items for gold or buying from them". Built as the GDD's Salt Exchange for gear: any bag piece listed for sorn; buyers pay the price, the seller gets it less the GDD's 5% tax. Assumptions: 1,000 to 1,000,000,000 sorn, 10 listings a player, 48 hours then the piece goes back; worn pieces must be taken off first; a listed piece cannot be worn, forged or turned; BUY pages by slot and order (cheapest, newest, highest +). Materials, shards and consumables are not tradable yet. |
+| Accounts | Owner, 24 Sep 2026: "a sign up sign in screen". Email and password (PBKDF2-SHA256, 210,000 iterations); CREATE ACCOUNT saves them to the hero being played; SIGN IN points this phone at an account (a guest hero with progress is warned first); SIGN OUT starts a new guest; sessions are per device, so one hero can be played on two phones. Shown once after the title screen on a guest's first launch (then from MENU, ACCOUNT). Assumptions: 8+ character passwords, 8 wrong tries per email per 15 minutes; no email verification or password reset yet (no mail sending). |
 | Bounties and Hunt Marks | Owner, 24 Sep 2026 ("do all of them"; the GDD's Hunt Marks). Five daily and four weekly bounties counted by the server (Korstones, hunting minutes, forges, turns, Commander fights, pushes, sieges), reset at 20:00 server time (weekly on Mondays); the Hunt Marks shop sells Etching Needles, Pinning Wax, Turnstones, Scrolls of Mercy and Draughts. ETCH (Etching Needle, 1st to 4th etching at 100/80/60/40%) and PIN (Pinning Wax, one lock per item, turns cost two, unpinning spends the wax) are on the Forge. The owner will add monetization; the shop prices are placeholders. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
@@ -167,6 +170,21 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   shows under the lane flag, on Commander boards ("[TAG] Name") and on fortresses that fly the guild's flag. Guild rows
   change under a row lock (`LockGuildAsync`); other members' rows through single UPDATEs.
 
+## Done 24 Sep 2026, night (chat, guild requests, the Salt Exchange, accounts)
+
+- Rules: `WordFilter` (guild names and chat), `Chat`, `Market`, `AccountRules`; tests in `SocialTests`.
+- Server: `GameService.Chat.cs` (channels, system lines, reports, blocks), guild join requests (`GuildRequest`, shut gates
+  take an ASK, `/v1/guild/answer`), `GameService.Market.cs` (listings locked for buy and cancel, lazy expiry on market
+  reads and every `/me` and heartbeat), `GameService.Auth.cs` (`Device` rows hold device tokens and sessions,
+  `/v1/auth/login`, `/v1/auth/register`, `/v1/auth/signout`), migration `ChatMarketAccounts`. Account deletion also
+  removes devices, chat lines and reports, guild requests and listings.
+- Client: `ChatPanel` (scroll list, WORLD / GUILD, report and block, the lane ticker), `MarketPanel` (BUY / SELL /
+  MY LISTINGS), `AccountPanel` (create, sign in, guest, signed in with SIGN OUT), GUILD CHAT and ASKING (n) on the
+  guild screen. HUD bottom row: ZONES, WAR, BOUNTIES, GUILD, TRADE, MENU. MENU gained ACCOUNT.
+- `tools/smoke-social.sh [url]` walks chat, requests, the Exchange and sign in with its own accounts and deletes them
+  (safe against the live server). Screenshot switches: `-chat`, `-market`, `-account`.
+- Privacy policy: contact uardilbaran@gmail.com; now covers emails, chat and trades.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
@@ -216,8 +234,13 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - The fifth etching needs a Master's Needle, which nothing sells or drops yet (it is a Caravan item in the GDD).
 - Players are shown to each other by a generated name; custom names need moderation first. Guild names and tags go
   through a short word filter (`Guilds.Clean`) only; reports and a review queue are needed before a public launch.
-- Guilds: no join requests or invites (a shut guild takes no one), no guild chat, no guild war or fortress bids; the
-  treasury only buys skills so far.
+- Guilds: no invites, no guild war or fortress bids; the treasury only buys skills so far.
+- Accounts: no email verification and no password reset (the server sends no mail yet); a forgotten password means a
+  lost account until that exists. Sign in with Apple / Google still needs the owner's developer accounts.
+- Chat moderation is a word list, reports (three hide a line) and blocks; nobody reviews reports yet, and there is no
+  mute or ban tool. Needed before a public launch (Apple guideline 1.2 asks for filtering, reporting and blocking,
+  which exist, and timely action on reports).
+- The Salt Exchange trades gear only, and a seller learns of a sale only in MY LISTINGS (no notification).
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Active play: the account holds a lane seed (new on first login and every park) and the next loop number; StateDto
   carries both. Online, the client's farm lane runs one seeded loop per encounter cycle (`LaneSim.Cycles`; Hunting

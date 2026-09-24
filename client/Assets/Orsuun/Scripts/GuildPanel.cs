@@ -75,6 +75,15 @@ namespace Orsuun.Client
         private int _page;
         private Button _gates;
         private Text _gatesLabel;
+        private Button _requestsButton;
+        private Text _requestsLabel;
+
+        // Join requests (shut gates), answered by the leader or an officer.
+        private const int RequestRows = 6;
+        private GameObject _requests;
+        private readonly Text[] _requestNames = new Text[RequestRows];
+        private readonly GameObject[] _requestRows = new GameObject[RequestRows];
+        private Text _requestsEmpty;
 
         // Member actions.
         private GameObject _manage;
@@ -104,6 +113,7 @@ namespace Orsuun.Client
             _message = Ui.Label("Message", canvas, 0.05f, 0.08f, 0.95f, 0.125f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
             BuildManage(canvas);
+            BuildRequests(canvas);
             _canvas.SetActive(false);
             _confirm = new GameObject("GuildConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
@@ -198,7 +208,8 @@ namespace Orsuun.Client
                     Palette.ButtonIdle, () => Buy(item.Id), out _);
             }
 
-            _membersTitle = Ui.Title("MembersTitle", h, 0.04f, 0.43f, 0.6f, 0.465f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            _membersTitle = Ui.Title("MembersTitle", h, 0.04f, 0.43f, 0.4f, 0.465f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            _requestsButton = Ui.Button("Requests", h, 0.41f, 0.43f, 0.62f, 0.467f, "", 18, Palette.Alloy, OpenRequests, out _requestsLabel);
             Ui.Button("Prev", h, 0.64f, 0.43f, 0.79f, 0.467f, "PREV", 20, Palette.ButtonIdle, () => _page = Mathf.Max(0, _page - 1), out _);
             Ui.Button("Next", h, 0.81f, 0.43f, 0.96f, 0.467f, "NEXT", 20, Palette.ButtonIdle, () => _page++, out _);
             for (int i = 0; i < MemberRows; i++)
@@ -214,9 +225,58 @@ namespace Orsuun.Client
                 _members[i] = m;
             }
 
-            Ui.Button("Leave", h, 0.04f, 0.015f, 0.26f, 0.075f, "LEAVE", 26, Palette.Danger, AskLeave, out _);
-            _gates = Ui.Button("Gates", h, 0.28f, 0.015f, 0.5f, 0.075f, "", 20, Palette.ButtonIdle, ToggleGates, out _gatesLabel);
-            Ui.Button("Close", h, 0.52f, 0.015f, 0.96f, 0.075f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Close, out _);
+            Ui.Button("Leave", h, 0.04f, 0.015f, 0.21f, 0.075f, "LEAVE", 24, Palette.Danger, AskLeave, out _);
+            _gates = Ui.Button("Gates", h, 0.22f, 0.015f, 0.42f, 0.075f, "", 18, Palette.ButtonIdle, ToggleGates, out _gatesLabel);
+            Ui.Button("Chat", h, 0.43f, 0.015f, 0.62f, 0.075f, "GUILD CHAT", 20, Palette.Safe, () => _root.Chat.Open(guild: true), out _);
+            Ui.Button("Close", h, 0.63f, 0.015f, 0.96f, 0.075f, "BACK TO THE HUNT", 24, Palette.ButtonIdle, Close, out _);
+        }
+
+        private void BuildRequests(Transform canvas)
+        {
+            _requests = Ui.Rect("Requests", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Transform m = _requests.transform;
+            Image dim = Ui.Panel("Dim", m, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f));
+            dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _requests.SetActive(false));
+            Transform box = Ui.Framed("Box", m, 0.06f, 0.25f, 0.94f, 0.75f, Palette.PanelDark).transform;
+            Ui.Title("Title", box, 0.05f, 0.88f, 0.95f, 0.98f, "ASKING TO JOIN", 30, TextAnchor.MiddleCenter, Palette.Sorn);
+            for (int i = 0; i < RequestRows; i++)
+            {
+                int index = i;
+                float y1 = 0.86f - i * 0.12f;
+                _requestRows[i] = Ui.Rect("Row" + i, box, 0.03f, y1 - 0.11f, 0.97f, y1).gameObject;
+                Transform row = _requestRows[i].transform;
+                _requestNames[i] = Ui.Label("Name", row, 0.02f, 0f, 0.56f, 1f, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
+                _requestNames[i].supportRichText = true;
+                Ui.Button("Accept", row, 0.58f, 0.08f, 0.78f, 0.92f, "LET IN", 20, Palette.Safe, () => Answer(index, true), out _);
+                Ui.Button("Decline", row, 0.8f, 0.08f, 0.99f, 0.92f, "TURN AWAY", 18, Palette.Danger, () => Answer(index, false), out _);
+            }
+            _requestsEmpty = Ui.Label("Empty", box, 0.05f, 0.4f, 0.95f, 0.6f, "Nobody is asking to join.", 24, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Button("Close", box, 0.3f, 0.02f, 0.7f, 0.11f, "CLOSE", 22, Palette.ButtonIdle, () => _requests.SetActive(false), out _);
+            _requests.SetActive(false);
+        }
+
+        private void OpenRequests() => _requests.SetActive(true);
+
+        private void Answer(int index, bool accept)
+        {
+            GuildMemberDto[] asking = _root.Server.GuildView?.requests;
+            if (asking == null || index >= asking.Length) return;
+            Call("answer", new GuildAnswerRequest { requestId = NewRequestId(), accountId = asking[index].accountId, accept = accept });
+        }
+
+        private void ShowRequests(GuildViewDto v)
+        {
+            GuildMemberDto[] asking = v.requests ?? new GuildMemberDto[0];
+            for (int i = 0; i < RequestRows; i++)
+            {
+                bool has = i < asking.Length;
+                _requestRows[i].SetActive(has);
+                if (!has) continue;
+                GuildMemberDto a = asking[i];
+                string mark = ColorUtility.ToHtmlStringRGB(BannerLook.Color(BannerLook.Parse(a.banner)));
+                _requestNames[i].text = $"<color=#{mark}>■</color>  {a.name}   Lv {a.level}   ·   {Ago(a.lastSeenMinutes)}";
+            }
+            _requestsEmpty.gameObject.SetActive(asking.Length == 0);
         }
 
         private void BuildManage(Transform canvas)
@@ -240,6 +300,7 @@ namespace Orsuun.Client
             _nextFetch = 0f;
             _page = 0;
             _manage.SetActive(false);
+            _requests.SetActive(false);
             _canvas.SetActive(true);
         }
 
@@ -274,6 +335,8 @@ namespace Orsuun.Client
             GuildListItemDto g = _root.Server.GuildView?.browse != null && index < _root.Server.GuildView.browse.Length ? _root.Server.GuildView.browse[index] : null;
             if (g == null) return;
             Call("join", new GuildJoinRequest { requestId = NewRequestId(), guildId = g.id }, () => GameAudio.Instance?.Play("LaneLoot", 0.9f, 0.1f, 0f));
+            // A shut guild answers later: look again soon.
+            if (!g.open) _nextFetch = Time.realtimeSinceStartup + 3f;
         }
 
         private void AskCreate()
@@ -421,8 +484,10 @@ namespace Orsuun.Client
                 r.Tag.text = g.tag;
                 r.Label.text = $"{g.name}   ·   Lv {g.level}   ·   {g.members}/{g.maxMembers}";
                 bool full = g.members >= g.maxMembers;
-                r.JoinLabel.text = !g.open ? "SHUT" : full ? "FULL" : "JOIN";
-                r.Join.interactable = g.open && !full && !_busy && _root.Server.Online;
+                // Shut gates take a request instead of a join.
+                r.JoinLabel.text = full ? "FULL" : g.open ? "JOIN" : g.requested ? "ASKED" : "ASK";
+                r.Join.GetComponent<Image>().color = g.open ? Palette.Safe : Palette.Alloy;
+                r.Join.interactable = !full && !g.requested && !_busy && _root.Server.Online;
             }
             _empty.text = v == null ? (_root.Server.Online ? "Gathering word of the guilds..." : "")
                 : list.Length == 0 ? (string.IsNullOrEmpty(_search.text) ? "No guilds yet. Found the first one below." : "No guild by that name.") : "";
@@ -480,6 +545,11 @@ namespace Orsuun.Client
                 row.Button.interactable = !m.me && Guilds.CanKick(rank, theirs);
             }
 
+            int asking = v.requests?.Length ?? 0;
+            _requestsButton.gameObject.SetActive(manager);
+            _requestsLabel.text = asking > 0 ? $"ASKING ({asking})" : "REQUESTS";
+            _requestsButton.GetComponent<Image>().color = asking > 0 ? Palette.ButtonForge : Palette.Alloy;
+            if (_requests.activeSelf) ShowRequests(v);
             _gates.gameObject.SetActive(manager);
             _gatesLabel.text = g.open ? "GATES OPEN\n<size=14>tap to shut</size>" : "GATES SHUT\n<size=14>tap to open</size>";
             _gates.GetComponent<Image>().color = g.open ? Palette.Safe : Palette.ButtonIdle;

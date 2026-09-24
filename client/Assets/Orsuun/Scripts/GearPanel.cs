@@ -60,7 +60,7 @@ namespace Orsuun.Client
 
         public bool IsOpen => _canvas.activeSelf;
 
-        private static readonly string[] SlotNames = { "Weapon", "Armour", "Helmet", "Shield", "Bracelet", "Necklace", "Earrings", "Shoes" };
+        public static readonly string[] SlotNames = { "Weapon", "Armour", "Helmet", "Shield", "Bracelet", "Necklace", "Earrings", "Shoes" };
 
         public static Color RarityColor(Rarity rarity) => rarity switch
         {
