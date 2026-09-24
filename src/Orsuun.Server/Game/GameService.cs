@@ -85,6 +85,7 @@ public sealed partial class GameService
             _db.Ledger.Add(Entry(account.Id, null, "account-created", "starter kit", account.Sorn, Guid.NewGuid().ToString("N")));
         }
 
+        ThrowIfBanned(account);
         if (account.LaneSeed == 0) NewLane(account);
         string session = await BindDeviceAsync(deviceToken, account, ct);
         await _db.SaveChangesAsync(ct);
@@ -99,8 +100,15 @@ public sealed partial class GameService
         Account? account = accountId is Guid id
             ? await _db.Accounts.SingleOrDefaultAsync(a => a.Id == id, ct)
             : await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
+        if (account != null) ThrowIfBanned(account);
         if (account?.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
         return account;
+    }
+
+    private static void ThrowIfBanned(Account account)
+    {
+        if (account.BannedUtc != null)
+            throw new GameException("banned", "This account is banned" + (string.IsNullOrEmpty(account.BanReason) ? "." : ": " + account.BanReason));
     }
 
     /// <summary>At most this many loop reports are replayed per heartbeat.</summary>

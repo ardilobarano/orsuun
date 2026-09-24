@@ -84,6 +84,7 @@ public sealed partial class GameService
             RecordFailure(ipKey);
             throw new GameException("bad_login", "Wrong email or password.");
         }
+        ThrowIfBanned(account);
         if (account.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
         string session = await BindDeviceAsync(request.DeviceToken, account, ct);
         _db.Ledger.Add(Entry(account.Id, null, "login", "email sign in", 0, Guid.NewGuid().ToString("N")));

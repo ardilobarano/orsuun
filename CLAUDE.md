@@ -84,6 +84,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - UI art comes from the kit (`tools/ui/make_ui_kit.py` writes `Resources/UI`; power-of-two sizes only, since Unity's
   default import rescales others and breaks nine-slice borders). Use `Ui.Button` / `Ui.Framed` / `Ui.Backdrop` /
   `Ui.Bar` rather than flat `Ui.Panel` plates; a new skill needs `Resources/Icons/Skills/<letters of its name>.png`.
+- The moderation page (`src/Orsuun.Server/Admin/`) is embedded in the server assembly; anything players wrote is put
+  on it with `textContent` only (never innerHTML). Moderators come from `Admin:Emails` (env `Admin__Emails`).
 - `ChatPanel` stays off its canvas (it polls world chat for the lane ticker while hidden), like the `Tutorial`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).

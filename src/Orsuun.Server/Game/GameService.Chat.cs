@@ -56,6 +56,11 @@ public sealed partial class GameService
         string text = Chat.Clean(request.Text);
         if (Chat.TextProblem(text) is string problem) throw new GameException("bad_text", problem);
         DateTime now = DateTime.UtcNow;
+        if (account.MutedUntilUtc is DateTime muted && muted > now)
+        {
+            int minutes = (int)Math.Ceiling((muted - now).TotalMinutes);
+            throw new GameException("muted", minutes >= 120 ? $"A moderator muted you for {minutes / 60} more hours." : $"A moderator muted you for {minutes} more minutes.");
+        }
         if (account.LastChatUtc is DateTime last && (now - last).TotalSeconds < Chat.CooldownSeconds)
             throw new GameException("chat_cooldown", "Slow down a little.");
         account.LastChatUtc = now;
@@ -79,9 +84,12 @@ public sealed partial class GameService
         {
             _db.ChatReports.Add(new ChatReport { MessageId = line.Id, ReporterId = account.Id, Utc = DateTime.UtcNow });
             await SaveAsync(ct);
+            // A new report puts the line back in the moderators' queue; it hides itself at three reports unless a
+            // moderator had already looked at it and kept it.
             await _db.ChatMessages.Where(m => m.Id == line.Id).ExecuteUpdateAsync(s => s
                 .SetProperty(m => m.Reports, m => m.Reports + 1)
-                .SetProperty(m => m.Hidden, m => m.Hidden || m.Reports + 1 >= Chat.HideAfterReports), ct);
+                .SetProperty(m => m.Hidden, m => m.Hidden || (!m.Reviewed && m.Reports + 1 >= Chat.HideAfterReports))
+                .SetProperty(m => m.Reviewed, false), ct);
         }
         return await ChatAsync(account, request.Channel, 0, ct);
     }

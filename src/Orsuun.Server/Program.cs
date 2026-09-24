@@ -64,6 +64,8 @@ app.Use(async (ctx, next) =>
             "conflict" or "duplicate_request" => StatusCodes.Status409Conflict,
             "unauthorized" => StatusCodes.Status401Unauthorized,
             "siege_cooldown" or "chat_cooldown" or "login_wait" => StatusCodes.Status429TooManyRequests,
+            "banned" => StatusCodes.Status403Forbidden,
+            "admin_unauthorized" => StatusCodes.Status401Unauthorized,
             _ => StatusCodes.Status400BadRequest,
         };
         await ctx.Response.WriteAsJsonAsync(new ErrorDto(ex.Code, ex.Message));
@@ -155,6 +157,73 @@ v1.MapDelete("/account", async (HttpContext ctx, GameService game, CancellationT
     await game.DeleteAccountAsync(Me(ctx), ct);
     return Results.Ok(new { deleted = true });
 });
+
+// Moderation: the /admin page and its API. Moderators are accounts whose email is in Admin:Emails (comma separated;
+// ADMIN_EMAILS in deploy/.env). With none configured the page still loads but nobody can sign in.
+string[] admins = (app.Configuration["Admin:Emails"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    .Select(AccountRules.NormaliseEmail).ToArray();
+static IResult Embedded(string name, string type)
+{
+    using Stream stream = typeof(GameService).Assembly.GetManifestResourceStream("Orsuun.Server.Admin." + name)!;
+    using var reader = new StreamReader(stream);
+    return Results.Text(reader.ReadToEnd(), type);
+}
+app.MapGet("/admin", (HttpContext ctx) =>
+{
+    // The page shows other players' words: no framing, no outside scripts, no inline script.
+    ctx.Response.Headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'";
+    ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    ctx.Response.Headers["Cache-Control"] = "no-store";
+    return Embedded("admin.html", "text/html; charset=utf-8");
+});
+app.MapGet("/admin/admin.js", () => Embedded("admin.js", "text/javascript; charset=utf-8"));
+app.MapPost("/admin/api/login", (AdminLoginRequest req, HttpContext http, GameService game, CancellationToken ct) =>
+    game.AdminLoginAsync(req, admins, http.Connection.RemoteIpAddress?.ToString(), ct));
+RouteGroupBuilder mod = app.MapGroup("/admin/api").AddEndpointFilter(async (ctx, next) =>
+{
+    if (ctx.HttpContext.Request.Path.Value?.EndsWith("/login") == true) return await next(ctx);
+    string? admin = GameService.AdminFor(ctx.HttpContext.Request.Headers["X-Admin"]);
+    if (admin == null) throw new GameException("admin_unauthorized", "Sign in again.");
+    ctx.HttpContext.Items["admin"] = admin;
+    return await next(ctx);
+});
+static string Mod(HttpContext ctx) => (string)ctx.Items["admin"]!;
+mod.MapGet("/overview", (GameService game, CancellationToken ct) => game.AdminOverviewAsync(ct));
+mod.MapGet("/reports", (GameService game, CancellationToken ct) => game.AdminReportsAsync(ct));
+mod.MapGet("/chat", (Guid? accountId, string? q, GameService game, CancellationToken ct) => game.AdminChatAsync(accountId, q, ct));
+mod.MapPost("/lines/{id:long}", async (HttpContext ctx, long id, AdminLineRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.AdminLineAsync(Mod(ctx), id, req, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapGet("/players", (string? q, GameService game, CancellationToken ct) => game.AdminPlayersAsync(q, ct));
+mod.MapPost("/players/{id:guid}/mute", async (HttpContext ctx, Guid id, AdminMuteRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.AdminMuteAsync(Mod(ctx), id, req, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapPost("/players/{id:guid}/ban", async (HttpContext ctx, Guid id, AdminBanRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.AdminBanAsync(Mod(ctx), id, req, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapPost("/players/{id:guid}/unban", async (HttpContext ctx, Guid id, GameService game, CancellationToken ct) =>
+{
+    await game.AdminUnbanAsync(Mod(ctx), id, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapGet("/guilds", (string? q, GameService game, CancellationToken ct) => game.AdminGuildsAsync(q, ct));
+mod.MapPost("/guilds/{id:guid}/rename", async (HttpContext ctx, Guid id, AdminRenameRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.AdminRenameGuildAsync(Mod(ctx), id, req, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapPost("/guilds/{id:guid}/disband", async (HttpContext ctx, Guid id, GameService game, CancellationToken ct) =>
+{
+    await game.AdminDisbandGuildAsync(Mod(ctx), id, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapGet("/log", (GameService game, CancellationToken ct) => game.AdminLogAsync(ct));
 
 if (app.Environment.IsDevelopment())
 {

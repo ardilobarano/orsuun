@@ -34,6 +34,8 @@ services:
       URLS: http://0.0.0.0:8080
       ConnectionStrings__Game: "Host=postgres;Port=5432;Database=orsuun;Username=orsuun;Password=${POSTGRES_PASSWORD}"
       Bells__TimeZone: ${BELLS_TIMEZONE:-Europe/Istanbul}
+      # Moderators (the /admin page): comma-separated emails of game accounts. Empty = nobody can sign in there.
+      Admin__Emails: ${ADMIN_EMAILS:-}
     expose:
       - "8080"
 

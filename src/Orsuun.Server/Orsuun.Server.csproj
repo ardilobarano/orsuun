@@ -19,4 +19,10 @@
     <ProjectReference Include="..\Orsuun.Rules\Orsuun.Rules.csproj" />
   </ItemGroup>
 
+  <!-- The moderation page (/admin) ships inside the server. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Admin\admin.html" LogicalName="Orsuun.Server.Admin.admin.html" />
+    <EmbeddedResource Include="Admin\admin.js" LogicalName="Orsuun.Server.Admin.admin.js" />
+  </ItemGroup>
+
 </Project>

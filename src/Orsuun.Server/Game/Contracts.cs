@@ -176,3 +176,18 @@ public sealed record StateDto(
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 
 public sealed record ErrorDto(string Code, string Message);
+
+/// <summary>Moderation (the /admin page).</summary>
+public sealed record AdminLoginRequest(string Email, string Password);
+public sealed record AdminLoginDto(string Token, string Email, int Minutes);
+public sealed record AdminOverviewDto(int Players, int Active24h, int New24h, int WithEmail, int Chat24h, int OpenReports, int Guilds,
+    int ActiveListings, int Muted, int Banned);
+public sealed record AdminLineDto(long Id, string Channel, Guid AccountId, string Name, string Text, DateTime Utc, int Reports, bool Hidden, bool Reviewed);
+public sealed record AdminLineRequest(string Action);
+public sealed record AdminPlayerDto(Guid Id, string Name, string Email, Banner Banner, string Guild, int Level, DateTime CreatedUtc, DateTime LastSeenUtc,
+    DateTime? MutedUntilUtc, DateTime? BannedUtc, string? BanReason, int ReportedLines);
+public sealed record AdminMuteRequest(int Minutes, string? Reason = null);
+public sealed record AdminBanRequest(string Reason, bool HideLines = true);
+public sealed record AdminGuildDto(Guid Id, string Name, string Tag, int Level, int Members, string Leader, DateTime CreatedUtc, bool Open);
+public sealed record AdminRenameRequest(string Name, string Tag);
+public sealed record AdminActionDto(DateTime Utc, string Admin, string Action, string Target, string Detail);

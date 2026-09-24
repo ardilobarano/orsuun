@@ -56,6 +56,11 @@ public sealed class Account
     /// <summary>Sign in (lower-case, unique) and the password hash ("pbkdf2-sha256$iterations$salt$hash"); null for guests.</summary>
     [MaxLength(254)] public string? Email { get; set; }
     [MaxLength(200)] public string? PasswordHash { get; set; }
+
+    /// <summary>Moderation: no chat until this time; banned accounts cannot sign in at all.</summary>
+    public DateTime? MutedUntilUtc { get; set; }
+    public DateTime? BannedUtc { get; set; }
+    [MaxLength(200)] public string? BanReason { get; set; }
     /// <summary>Korshards by rank as "n;n;n;n;n" (Trooper .. Guard of the Khan).</summary>
     [MaxLength(64)] public string Korshards { get; set; } = "0;0;0;0;0";
     /// <summary>Owned skins, semicolon separated.</summary>
@@ -237,6 +242,19 @@ public sealed class ChatMessage
     public DateTime Utc { get; set; }
     public int Reports { get; set; }
     public bool Hidden { get; set; }
+    /// <summary>A moderator has looked at this line's reports (it leaves the queue).</summary>
+    public bool Reviewed { get; set; }
+}
+
+/// <summary>What a moderator did, for the moderation log.</summary>
+public sealed class AdminAction
+{
+    public long Id { get; set; }
+    public DateTime Utc { get; set; }
+    [MaxLength(254)] public string Admin { get; set; } = "";
+    [MaxLength(32)] public string Action { get; set; } = "";
+    [MaxLength(64)] public string Target { get; set; } = "";
+    [MaxLength(300)] public string Detail { get; set; } = "";
 }
 
 public sealed class ChatReport

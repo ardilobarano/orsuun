@@ -29,6 +29,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Chat | Owner, 24 Sep 2026: "all chat". A world channel for everyone and one channel per guild; guild events are system lines in guild chat (the guild log); Commander kills, fortress captures and +8 or better forges are system lines in world chat. Assumptions: 200 characters a line, one line per 3 s, bad words starred out (`WordFilter`), three reports hide a line, players can block others (unblock all from the chat screen), lines are kept 7 days. The newest world line runs over the bottom of the lane (tap it for CHAT). |
 | Salt Exchange | Owner, 24 Sep 2026: "a global trading screen that all players can list their items for gold or buying from them". Built as the GDD's Salt Exchange for gear: any bag piece listed for sorn; buyers pay the price, the seller gets it less the GDD's 5% tax. Assumptions: 1,000 to 1,000,000,000 sorn, 10 listings a player, 48 hours then the piece goes back; worn pieces must be taken off first; a listed piece cannot be worn, forged or turned; BUY pages by slot and order (cheapest, newest, highest +). Materials, shards and consumables are not tradable yet. |
 | Accounts | Owner, 24 Sep 2026: "a sign up sign in screen". Email and password (PBKDF2-SHA256, 210,000 iterations); CREATE ACCOUNT saves them to the hero being played; SIGN IN points this phone at an account (a guest hero with progress is warned first); SIGN OUT starts a new guest; sessions are per device, so one hero can be played on two phones. Shown once after the title screen on a guest's first launch (then from MENU, ACCOUNT). Assumptions: 8+ character passwords, 8 wrong tries per email per 15 minutes; no email verification or password reset yet (no mail sending). |
+| Moderation | Owner, 24 Sep 2026 ("go" on the moderation tool before inviting testers). A web page at `/admin` (served by the game server) for moderators: game accounts whose email is in `Admin:Emails` (`ADMIN_EMAILS` in the server's `deploy/.env`; the owner's is set). Sign in with that account's email and password (12-hour session). Tabs: overview, the report queue (hide, keep, all lines of a player), world chat search, players (mute 1 h / 24 h / 7 days, ban with a reason the player sees, unban), guilds (rename, disband), and the moderation log. A ban blocks sign-in, closes their Exchange listings, takes them out of their guild and hides their lines. |
 | Bounties and Hunt Marks | Owner, 24 Sep 2026 ("do all of them"; the GDD's Hunt Marks). Five daily and four weekly bounties counted by the server (Korstones, hunting minutes, forges, turns, Commander fights, pushes, sieges), reset at 20:00 server time (weekly on Mondays); the Hunt Marks shop sells Etching Needles, Pinning Wax, Turnstones, Scrolls of Mercy and Draughts. ETCH (Etching Needle, 1st to 4th etching at 100/80/60/40%) and PIN (Pinning Wax, one lock per item, turns cost two, unpinning spends the wax) are on the Forge. The owner will add monetization; the shop prices are placeholders. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
@@ -201,6 +202,17 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   switches under them, icon buttons for FORGE / GEAR / SHARDS / PUSH, and a bottom bar of painted icons with a red
   badge when a bounty is ready.
 
+## Done 24 Sep 2026, late night (moderation)
+
+- `GameService.Admin.cs`, `src/Orsuun.Server/Admin/admin.html` and `admin.js` (embedded in the server; every
+  player's words go in with `textContent`; the page sends a strict Content-Security-Policy), migration `Moderation`
+  (`Account.MutedUntilUtc`, `BannedUtc`, `BanReason`, `ChatMessage.Reviewed`, `AdminAction`). Muted players get
+  "A moderator muted you for N more minutes" in chat; banned ones get "This account is banned: reason" at sign-in.
+  A new report on a line a moderator already looked at puts it back in the queue.
+- `tools/smoke-admin.sh [url]` needs a server started with `Admin__Emails=mod-smoke@example.com` (local only).
+- To add a moderator: append their account email to `ADMIN_EMAILS` in `/opt/orsuun/deploy/.env` and restart the
+  stack (`docker compose ... up -d`).
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
@@ -253,9 +265,9 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - Guilds: no invites, no guild war or fortress bids; the treasury only buys skills so far.
 - Accounts: no email verification and no password reset (the server sends no mail yet); a forgotten password means a
   lost account until that exists. Sign in with Apple / Google still needs the owner's developer accounts.
-- Chat moderation is a word list, reports (three hide a line) and blocks; nobody reviews reports yet, and there is no
-  mute or ban tool. Needed before a public launch (Apple guideline 1.2 asks for filtering, reporting and blocking,
-  which exist, and timely action on reports).
+- Moderation has no alert for new reports (check the /admin overview), bans are per account (a banned player can
+  start a new guest, within the 10-accounts-per-network-a-day cap), and admin sessions live in server memory (a
+  restart signs moderators out).
 - The Salt Exchange trades gear only, and a seller learns of a sale only in MY LISTINGS (no notification).
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Active play: the account holds a lane seed (new on first login and every park) and the next loop number; StateDto

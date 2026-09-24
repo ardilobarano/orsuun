@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Orsuun Moderation</title>
+<style>
+  :root {
+    --bg: #12111c; --panel: #1b1a2b; --panel2: #232238; --line: #3a3550; --bronze: #c28f45; --gold: #ffd66b;
+    --text: #f2e8d2; --muted: #b3a994; --bad: #ff6a58; --good: #7fd98a; --warn: #ffb850; --btn: #2e2f48;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: #0d0c15; border-bottom: 2px solid var(--bronze); padding: 10px 16px; }
+  h1 { margin: 0; font: 600 18px Georgia, serif; color: var(--gold); letter-spacing: .04em; }
+  .who { color: var(--muted); font-size: 13px; }
+  nav { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  nav button { flex: 1 1 auto; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  button { background: var(--btn); color: var(--text); border: 1px solid var(--bronze); border-radius: 6px; padding: 7px 11px; font: inherit;
+    font-size: 13px; cursor: pointer; }
+  button:hover { filter: brightness(1.15); }
+  button.on { background: #5b3f1a; color: var(--gold); }
+  button.bad { background: #6b1c19; }
+  button.good { background: #1d5244; }
+  button:disabled { opacity: .5; cursor: default; }
+  input { background: #0d0c15; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font: inherit; width: 100%; }
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .row input { flex: 1; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--bronze); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+  .card.hidden { border-left-color: var(--bad); opacity: .8; }
+  .meta { color: var(--muted); font-size: 12px; }
+  .text { margin: 4px 0 8px; white-space: pre-wrap; word-break: break-word; }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; margin-left: 6px; background: var(--panel2); border: 1px solid var(--line); }
+  .tag.bad { color: var(--bad); border-color: var(--bad); }
+  .tag.warn { color: var(--warn); border-color: var(--warn); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+  .stat b { display: block; font-size: 26px; color: var(--gold); }
+  .empty { color: var(--muted); padding: 30px 0; text-align: center; }
+  #msg { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: #0d0c15; border: 1px solid var(--bronze);
+    border-radius: 8px; padding: 10px 16px; display: none; max-width: 90vw; }
+  #login { max-width: 360px; margin: 12vh auto; background: var(--panel); border: 1px solid var(--bronze); border-radius: 10px; padding: 22px; }
+  #login h2 { margin-top: 0; font: 600 20px Georgia, serif; color: var(--gold); }
+  #login input { margin-bottom: 10px; }
+  #login p { color: var(--muted); font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td { border-bottom: 1px solid var(--line); padding: 6px 4px; vertical-align: top; word-break: break-word; }
+</style>
+</head>
+<body>
+<div id="login">
+  <h2>Orsuun moderation</h2>
+  <p>Sign in with the email and password of a moderator's game account.</p>
+  <input id="email" type="email" autocomplete="username" placeholder="Email">
+  <input id="password" type="password" autocomplete="current-password" placeholder="Password">
+  <button id="signin" class="good">Sign in</button>
+  <p id="loginError"></p>
+</div>
+<div id="app" hidden>
+  <header>
+    <h1>ORSUUN · MODERATION</h1>
+    <div class="who" id="who"></div>
+    <nav id="tabs"></nav>
+  </header>
+  <main id="view"></main>
+</div>
+<div id="msg"></div>
+<script src="/admin/admin.js"></script>
+</body>
+</html>
