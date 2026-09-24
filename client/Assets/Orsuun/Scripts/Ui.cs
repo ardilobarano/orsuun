@@ -140,6 +140,24 @@ namespace Orsuun.Client
             return image;
         }
 
+        /// <summary>A one-line text field (the phone's keyboard opens on tap) with a muted placeholder.</summary>
+        public static InputField Input(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
+            string placeholder, int size, int limit)
+        {
+            Image back = Framed(name, parent, xMin, yMin, xMax, yMax, new Color(0.05f, 0.05f, 0.09f));
+            var field = back.gameObject.AddComponent<InputField>();
+            Text text = Label("Text", back.transform, 0.04f, 0.05f, 0.96f, 0.95f, "", size, TextAnchor.MiddleLeft, Palette.Parchment);
+            text.resizeTextForBestFit = false;
+            text.supportRichText = false;
+            Text hint = Label("Placeholder", back.transform, 0.04f, 0.05f, 0.96f, 0.95f, placeholder, size, TextAnchor.MiddleLeft, Palette.Muted);
+            hint.fontStyle = FontStyle.Italic;
+            field.textComponent = text;
+            field.placeholder = hint;
+            field.characterLimit = limit;
+            field.targetGraphic = back;
+            return field;
+        }
+
         public static Button Button(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
             string label, int size, Color background, Action onClick, out Text labelText)
         {

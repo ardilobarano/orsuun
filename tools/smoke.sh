@@ -59,6 +59,49 @@ echo "siege Stagfort: $(post /v1/siege "$siege" | jq -c '.lastSiege | {defending
 siege2='{"requestId":"'$(rid)'","fortressId":2}'
 echo "siege again at once: $(post /v1/siege "$siege2" | jq -c .code)"
 echo "war after: $(curl -s "$BASE/v1/war" -H "X-Session: $SESSION" | jq -c '{standings: [.standings[] | {banner, points}], bonus: .mySornBonusPercent, cooldown: .siegeCooldownSeconds}')"
+# Guilds: create (leader), a second account joins, donate, raise Plunder, shop, ranks, kick and rejoin, then the
+# leader's deletion hands the guild on and the last member's deletion disbands it.
+TAG=$(rid | cut -c1-4 | tr 'a-z' 'A-Z')
+bad='{"requestId":"'$(rid)'","name":"x","tag":"'$TAG'","color":"#2E9E5B"}'
+echo "guild bad name: $(post /v1/guild/create "$bad" | jq -c .code)"
+gc='{"requestId":"'$(rid)'","name":"Smoke '$TAG'","tag":"'$TAG'","color":"#2E9E5B"}'
+g=$(post /v1/guild/create "$gc")
+echo "guild create: $(echo "$g" | jq -c '{mine: .mine | {name, tag, level, members}, sorn: .state.inventory.sorn, brief: .state.guild, message}')"
+GID=$(echo "$g" | jq -r .mine.id)
+echo "guild create again: $(post /v1/guild/create "$gc" | jq -c .code)"
+don='{"requestId":"'$(rid)'","sorn":200000}'
+echo "donate 200k: $(post /v1/guild/donate "$don" | jq -c '{treasury: .mine.treasury, xp: .mine.xp, level: .mine.level, tallies: .state.inventory.tallies, today: .donatedToday, message}')"
+don2='{"requestId":"'$(rid)'","sorn":1000}'
+echo "donate over the cap: $(post /v1/guild/donate "$don2" | jq -c .code)"
+sk='{"requestId":"'$(rid)'","skill":"Plunder"}'
+echo "raise Plunder: $(post /v1/guild/skill "$sk" | jq -c '{plunder: .mine.plunder, treasury: .mine.treasury, bonus: .mine.sornBonusPercent, message}')"
+gs='{"requestId":"'$(rid)'","itemId":1}'
+echo "guild shop Anvil Ward: $(post /v1/guild/shop "$gs" | jq -c '{tallies: .state.inventory.tallies, wards: .state.inventory.anvilWards}')"
+login2=$(curl -s -X POST "$BASE/v1/auth/guest" -H 'Content-Type: application/json' -d "{\"deviceToken\":\"smoke-$(rid)\"}")
+S2=$(echo "$login2" | jq -r .sessionToken)
+post2() { curl -s -X POST "$BASE$1" -H 'Content-Type: application/json' -H "X-Session: $S2" -d "$2"; }
+echo "browse as a stranger: $(curl -s "$BASE/v1/guild?q=$TAG" -H "X-Session: $S2" | jq -c '[.browse[] | {tag, members, open}]')"
+join='{"requestId":"'$(rid)'","guildId":"'$GID'"}'
+echo "join: $(post2 /v1/guild/join "$join" | jq -c '{members: .mine.members, brief: .state.guild}')"
+A2=$(echo "$login2" | jq -r .accountId)
+rk='{"requestId":"'$(rid)'","accountId":"'$A2'","rank":"Officer"}'
+echo "promote: $(post /v1/guild/rank "$rk" | jq -c '[.members[] | {rank, me}]')"
+kk='{"requestId":"'$(rid)'","accountId":"'$A2'"}'
+echo "kick: $(post /v1/guild/kick "$kk" | jq -c '{members: .mine.members, message}')"
+shut='{"requestId":"'$(rid)'","open":false,"color":"#2E9E5B"}'
+echo "close the gates: $(post /v1/guild/settings "$shut" | jq -c '{open: .mine.open}')"
+join2='{"requestId":"'$(rid)'","guildId":"'$GID'"}'
+echo "join a closed guild: $(post2 /v1/guild/join "$join2" | jq -c .code)"
+open='{"requestId":"'$(rid)'","open":true,"color":"#2E9E5B"}'
+post /v1/guild/settings "$open" > /dev/null
+join3='{"requestId":"'$(rid)'","guildId":"'$GID'"}'
+echo "rejoin: $(post2 /v1/guild/join "$join3" | jq -c '{members: .mine.members}')"
 echo "client log: $(post /v1/client-log '{"platform":"Smoke","version":"0","message":"smoke test report","stack":"at Smoke()"}' | jq -c .)"
 echo "delete account: $(curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $SESSION" | jq -c .)"
 echo "me after delete: $(curl -s -o /dev/null -w '%{http_code}' "$BASE/v1/me" -H "X-Session: $SESSION")"
+echo "guild after the leader left: $(curl -s "$BASE/v1/guild" -H "X-Session: $S2" | jq -c '{members: .mine.members, ranks: [.members[] | .rank], last: .mine.lastEvent}')"
+curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $S2" > /dev/null
+login3=$(curl -s -X POST "$BASE/v1/auth/guest" -H 'Content-Type: application/json' -d "{\"deviceToken\":\"smoke-$(rid)\"}")
+S3=$(echo "$login3" | jq -r .sessionToken)
+echo "guild after the last member left: $(curl -s "$BASE/v1/guild?q=$TAG" -H "X-Session: $S3" | jq -c '[.browse[] | .tag]')"
+curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $S3" > /dev/null

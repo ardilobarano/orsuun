@@ -14,6 +14,7 @@ public sealed class GameDb : DbContext
     public DbSet<BossHit> BossHits => Set<BossHit>();
     public DbSet<BannerScore> BannerScores => Set<BannerScore>();
     public DbSet<Fortress> Fortresses => Set<Fortress>();
+    public DbSet<Guild> Guilds => Set<Guild>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -23,6 +24,7 @@ public sealed class GameDb : DbContext
             e.HasIndex(a => a.DeviceToken).IsUnique();
             e.HasIndex(a => a.SessionToken);
             e.HasIndex(a => new { a.CreatedIp, a.CreatedUtc });
+            e.HasIndex(a => a.GuildId);
             // Optimistic concurrency on PostgreSQL's xmin system column: two requests for one account never both win.
             e.Property(a => a.Version).IsRowVersion();
             e.HasMany(a => a.Items).WithOne().HasForeignKey(i => i.OwnerId);
@@ -50,6 +52,13 @@ public sealed class GameDb : DbContext
         b.Entity<BossHit>(e => e.HasIndex(h => new { h.BossId, h.SpawnUtc }));
         b.Entity<BannerScore>(e => e.HasKey(s => new { s.Season, s.Banner }));
         b.Entity<Fortress>(e => e.Property(f => f.Id).ValueGeneratedNever());
+        b.Entity<Guild>(e =>
+        {
+            e.Property(g => g.Id).ValueGeneratedNever();
+            e.HasIndex(g => g.NameKey).IsUnique();
+            e.HasIndex(g => g.Tag).IsUnique();
+            e.HasIndex(g => g.Xp);
+        });
 
         b.Entity<LedgerEntry>(e =>
         {

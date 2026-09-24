@@ -36,6 +36,18 @@ public sealed class Account
     public DateTime? SwornUtc { get; set; }
     /// <summary>The last fortress siege fight, for the cooldown.</summary>
     public DateTime? LastSiegeUtc { get; set; }
+
+    /// <summary>The guild this account belongs to, its rank there and when it joined.</summary>
+    public Guid? GuildId { get; set; }
+    public GuildRank GuildRank { get; set; }
+    public DateTime? GuildJoinedUtc { get; set; }
+    /// <summary>Sorn donated to the current guild since joining (the member list shows it).</summary>
+    public long GuildDonated { get; set; }
+    /// <summary>Sorn donated in the bounty day GuildDonationDay (Rules.Bounties.DayKey), for the daily cap.</summary>
+    public long GuildDonatedToday { get; set; }
+    [MaxLength(16)] public string GuildDonationDay { get; set; } = "";
+    /// <summary>Guild Tallies, spent in the guild shop. They stay with the player across guilds.</summary>
+    public int Tallies { get; set; }
     /// <summary>Korshards by rank as "n;n;n;n;n" (Trooper .. Guard of the Khan).</summary>
     [MaxLength(64)] public string Korshards { get; set; } = "0;0;0;0;0";
     /// <summary>Owned skins, semicolon separated.</summary>
@@ -166,6 +178,25 @@ public sealed class BannerScore
     public long Points { get; set; }
 }
 
+/// <summary>A guild: name, tag and colour, the treasury, XP (level) and its skills. Members point at it from Account.</summary>
+public sealed class Guild
+{
+    public Guid Id { get; set; }
+    [MaxLength(20)] public string Name { get; set; } = "";
+    /// <summary>Lower-case name, unique: two guilds never differ only by case.</summary>
+    [MaxLength(20)] public string NameKey { get; set; } = "";
+    [MaxLength(4)] public string Tag { get; set; } = "";
+    [MaxLength(7)] public string Color { get; set; } = "#B0B0B0";
+    /// <summary>Open guilds take anyone who taps JOIN; closed ones take nobody new.</summary>
+    public bool Open { get; set; } = true;
+    public long Treasury { get; set; }
+    public long Xp { get; set; }
+    public int Plunder { get; set; }
+    public int Muster { get; set; }
+    public DateTime CreatedUtc { get; set; }
+    [MaxLength(160)] public string LastEvent { get; set; } = "";
+}
+
 /// <summary>A fortress: its holding Banner, the phase under siege and that phase's wall, and each Banner's siege damage.</summary>
 public sealed class Fortress
 {
@@ -179,6 +210,8 @@ public sealed class Fortress
     public long SiegeSky { get; set; }
     public long SiegeGold { get; set; }
     [MaxLength(160)] public string LastEvent { get; set; } = "";
+    /// <summary>The guild whose member broke the Hall for the holding Banner: its flag flies here too.</summary>
+    public Guid? FlagGuildId { get; set; }
 }
 
 /// <summary>Append-only record of every roll and every currency change. Support and rate audits read this.</summary>

@@ -176,7 +176,8 @@ namespace Orsuun.Client
                 BannerLook.Show(f.Flag, holder);
                 f.Title.text = d.name.ToUpperInvariant();
                 f.Title.color = BannerLook.Color(holder);
-                f.Info.text = $"{d.region}  ·  the {d.phase} is under siege\n{d.lastEvent}";
+                string flag = string.IsNullOrEmpty(d.flagGuild) ? "" : $"  ·  guild flag [{d.flagGuild}]";
+                f.Info.text = $"{d.region}  ·  the {d.phase} is under siege{flag}\n{d.lastEvent}";
                 float wall = d.wallMax > 0 ? d.wall / (float)d.wallMax : 0f;
                 f.Wall.anchorMax = new Vector2(0.12f + 0.6f * wall, f.Wall.anchorMax.y);
                 f.WallText.text = $"{d.phase.ToUpperInvariant()} WALL  {d.wall:N0} / {d.wallMax:N0}";

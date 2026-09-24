@@ -88,7 +88,9 @@ public sealed partial class GameService
     public async Task<Account?> AuthenticateAsync(string? sessionToken, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(sessionToken)) return null;
-        return await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
+        Account? account = await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
+        if (account?.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
+        return account;
     }
 
     /// <summary>At most this many loop reports are replayed per heartbeat.</summary>
@@ -104,7 +106,7 @@ public sealed partial class GameService
         DateTime now = DateTime.UtcNow;
         bool online = now - account.LastHeartbeatUtc <= OnlineGrace;
         (int activeBp, int verified) = online ? VerifyLoops(account, request?.Loops, now) : (RandomExtensions.FullBp, 0);
-        int bonus = await SornBonusPercentAsync(account.Banner, ct);
+        int bonus = await SornBonusPercentAsync(account.Banner, ct) + await GuildBonusPercentAsync(account, ct);
         SettlementDto settlement = Settle(account, now, activeBp, verified, bonus) with { ActiveBp = activeBp, LoopsVerified = verified };
         account.LastHeartbeatUtc = now;
         Count(account, BountyMetric.Korstones, settlement.Korstones);
@@ -243,10 +245,17 @@ public sealed partial class GameService
     /// <summary>
     /// Deletes the account and everything tied to it: items, the ledger, client error reports and its Commander fight
     /// records (Apple requires in-app account deletion; the game holds no other personal data). The session dies with
-    /// it. War of Banners points stay with the Banner.
+    /// it. War of Banners points stay with the Banner. A guild leader's guild passes on (or disbands if empty).
     /// </summary>
     public async Task DeleteAccountAsync(Account account, CancellationToken ct)
     {
+        if (account.GuildId != null)
+        {
+            await using var tx = await _db.Database.BeginTransactionAsync(ct);
+            await LeaveCoreAsync(account, ct);
+            await SaveAsync(ct);
+            await tx.CommitAsync(ct);
+        }
         await _db.Ledger.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.ClientLogs.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.BossHits.Where(h => h.AccountId == account.Id).ExecuteDeleteAsync(ct);
@@ -429,7 +438,7 @@ public sealed partial class GameService
         int rank = BossRun.RankShared(run.Damage, others, boss, _rng);
         string chest = HuntYield.LootCommander(boss, rank, inventory, _rng);
 
-        string name = Banners.GeneratedName(account.Id);
+        string name = DisplayName(account);
         clock.HpLeft = Math.Max(0, clock.HpLeft - run.Damage);
         bool slew = clock.HpLeft == 0;
         if (slew)
@@ -438,6 +447,7 @@ public sealed partial class GameService
             clock.SlainBanner = account.Banner;
             clock.SlainBy = name;
             chest += ", and you struck the last blow";
+            if (await RewardTopGuildAsync(boss, clock, account, run.Damage, ct)) chest += $", and your guild's {Guilds.CommanderTopTallies} Guild Tallies for rank 1";
         }
         _db.BossHits.Add(new BossHit { BossId = boss.Id, SpawnUtc = clock.SpawnUtc, AccountId = account.Id, Name = name, Banner = account.Banner, Damage = run.Damage, Utc = now });
         Apply(account, inventory);
@@ -451,6 +461,28 @@ public sealed partial class GameService
         return ToState(account, bossFight: new BossFightResultDto(boss.Id, seed, run.Damage, run.Killed, rank, chest, potionsAtStart, bell, clock.HpLeft, slew));
     }
 
+    /// <summary>
+    /// GDD: the guild of a Commander's rank 1 gets 50 Guild Tallies. When a spawn falls, the top damage dealer of the
+    /// spawn (this fighter included) is paid them if in a guild, and the guild gains XP. True when that is this fighter.
+    /// </summary>
+    private async Task<bool> RewardTopGuildAsync(BossDef boss, BossClock clock, Account account, long damage, CancellationToken ct)
+    {
+        var top = await _db.BossHits.AsNoTracking().Where(h => h.BossId == boss.Id && h.SpawnUtc == clock.SpawnUtc)
+            .OrderByDescending(h => h.Damage).Select(h => new { h.AccountId, h.Damage }).FirstOrDefaultAsync(ct);
+        if (top == null || damage >= top.Damage)
+        {
+            if (account.GuildId == null) return false;
+            account.Tallies += Guilds.CommanderTopTallies;
+            await AddGuildXpAsync(account.GuildId, Guilds.CommanderTopXp, ct);
+            return true;
+        }
+        Guid? guild = await _db.Accounts.AsNoTracking().Where(a => a.Id == top.AccountId).Select(a => a.GuildId).FirstOrDefaultAsync(ct);
+        if (guild == null) return false;
+        await _db.Accounts.Where(a => a.Id == top.AccountId).ExecuteUpdateAsync(s => s.SetProperty(a => a.Tallies, a => a.Tallies + Guilds.CommanderTopTallies), ct);
+        await AddGuildXpAsync(guild, Guilds.CommanderTopXp, ct);
+        return false;
+    }
+
     /// <summary>Playtest only; disabled outside Development.</summary>
     public async Task<StateDto> DevGrantAsync(Account account, CancellationToken ct)
     {
@@ -462,6 +494,7 @@ public sealed partial class GameService
         account.HuntMarks += 20;
         account.EtchingNeedles += 5;
         account.PinningWax += 2;
+        account.Tallies += 100;
         int[] shards = ParseShards(account.Korshards);
         for (int i = 0; i < shards.Length; i++) shards[i] += 3;
         account.Korshards = string.Join(';', shards);
@@ -616,7 +649,7 @@ public sealed partial class GameService
             account.Id,
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
-                account.HuntMarks, account.PinningWax),
+                account.HuntMarks, account.PinningWax, account.Tallies),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -644,7 +677,8 @@ public sealed partial class GameService
             account.Banner,
             Banners.GeneratedName(account.Id),
             siege,
-            etch);
+            etch,
+            Brief(account));
     }
 
     private static ItemDto ToDto(Item item)

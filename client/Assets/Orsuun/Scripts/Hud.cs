@@ -18,7 +18,8 @@ namespace Orsuun.Client
         private Text _banner;
         private Text _weapon;
         private Text _log;
-        private Text _speedLabel;
+        private Text _guildLabel;
+        private Text _guildTag;
         private Text _bountyLabel;
         private RawImage _flag;
         private int _lastLevel;
@@ -93,11 +94,11 @@ namespace Orsuun.Client
             Ui.Button("Shards", canvas, 0.51f, 0.09f, 0.73f, 0.155f, "SHARDS", 30, Palette.Alloy, () => root.Sockets.Open(), out _);
             _pushButton = Ui.Button("Push", canvas, 0.74f, 0.09f, 0.96f, 0.155f, "", 22, Palette.Danger, root.Push, out _pushLabel);
 
-            // Bottom row (24 Sep 2026): the War of Banners and the bounty board joined; SOUND moved into the MENU.
+            // Bottom row (24 Sep 2026): the War of Banners, the bounty board and the guild joined; SOUND and SPEED moved into the MENU.
             Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.3f, 0.08f, "", 20, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
             Ui.Button("War", canvas, 0.31f, 0.02f, 0.47f, 0.08f, "WAR", 24, Palette.Danger, () => root.War.Open(), out _);
             Ui.Button("Bounties", canvas, 0.48f, 0.02f, 0.67f, 0.08f, "BOUNTIES", 22, Palette.Alloy, () => root.Bounties.Open(), out _bountyLabel);
-            Ui.Button("Speed", canvas, 0.68f, 0.02f, 0.8f, 0.08f, "", 22, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
+            Ui.Button("Guild", canvas, 0.68f, 0.02f, 0.8f, 0.08f, "GUILD", 22, Palette.Safe, () => root.Guild.Open(), out _guildLabel);
             Ui.Button("Menu", canvas, 0.81f, 0.02f, 0.96f, 0.08f, "MENU", 24, Palette.DevGrey, () => root.Menu.Open(), out _);
 
             // The Banner's flag in the corner of the lane; tap it for the War of Banners.
@@ -105,6 +106,8 @@ namespace Orsuun.Client
             var flagButton = _flag.gameObject.AddComponent<Button>();
             _flag.raycastTarget = true;
             flagButton.onClick.AddListener(() => root.War.Open());
+            // The guild tag under the flag, in the guild's colour.
+            _guildTag = Ui.Title("GuildTag", canvas, 0.88f, 0.762f, 1f, 0.79f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
         }
 
         /// <summary>The screen area (canvas anchors) covering the named HUD elements, for the tutorial's highlight.</summary>
@@ -131,11 +134,6 @@ namespace Orsuun.Client
         {
             _log.text = text;
             _logAge = 0f;
-        }
-
-        private void CycleSpeed()
-        {
-            _root.SpeedMultiplier = _root.SpeedMultiplier == 1 ? 3 : _root.SpeedMultiplier == 3 ? 8 : 1;
         }
 
         private void Update()
@@ -210,7 +208,11 @@ namespace Orsuun.Client
             _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n{Content.StageName(session.PushTarget)}";
             _pushButton.interactable = !_root.Replaying && !_root.PushBusy && !allCleared;
             _stageLabel.text = $"ZONES\n<size=16>{Content.StageName(session.ParkedStage)}</size>";
-            _speedLabel.text = $"SPEED\nx{_root.SpeedMultiplier}";
+            Net.ServerLink.GuildBriefDto guild = _root.Server.Guild;
+            bool inGuild = _root.Server.InGuild;
+            _guildLabel.text = inGuild ? $"GUILD\n<size=16>[{guild.tag}]</size>" : "GUILD";
+            _guildTag.text = inGuild ? "[" + guild.tag + "]" : "";
+            if (inGuild) _guildTag.color = GuildPanel.ColorOf(guild.color);
             bool claim = _root.Bounties.AnyClaimable;
             _bountyLabel.text = claim ? "BOUNTIES\n<size=16><color=#8CF08C>ready!</color></size>" : "BOUNTIES";
             BannerLook.Show(_flag, _root.Server.Banner);

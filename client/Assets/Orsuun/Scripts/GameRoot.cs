@@ -34,6 +34,7 @@ namespace Orsuun.Client
         public BannerOath Oath { get; private set; }
         public WarPanel War { get; private set; }
         public BountyPanel Bounties { get; private set; }
+        public GuildPanel Guild { get; private set; }
         public GameNotifications Notifications { get; private set; }
         public Tutorial Tutorial { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
@@ -86,6 +87,8 @@ namespace Orsuun.Client
             War.Init(this);
             Bounties = new GameObject("BountyPanel").AddComponent<BountyPanel>();
             Bounties.Init(this);
+            Guild = new GameObject("GuildPanel").AddComponent<GuildPanel>();
+            Guild.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
             Oath = new GameObject("BannerOath").AddComponent<BannerOath>();
@@ -117,6 +120,7 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-oath") >= 0) Oath.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-war") >= 0) War.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-bounties") >= 0) Bounties.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-guild") >= 0) Guild.Open();
             // -turnhelper [pick|add|demo|run] opens the turning helper over the Forge (with the etching list or the piece
             // list open, or three more pieces added; run also starts turning them locally with 600 Turnstones).
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-turnhelper") >= 0)

@@ -42,6 +42,12 @@ namespace Orsuun.Client.Net
         /// <summary>The War of Banners, fetched on demand by the WAR screen.</summary>
         public WarDto War { get; private set; }
         public float WarReceivedAt { get; private set; }
+        /// <summary>The account's guild at a glance (empty tag = no guild) and its Guild Tallies, from every state.</summary>
+        public GuildBriefDto Guild { get; private set; }
+        public bool InGuild => Guild != null && !string.IsNullOrEmpty(Guild.tag);
+        public int Tallies { get; private set; }
+        /// <summary>The GUILD screen's data, fetched on demand and returned by every guild call.</summary>
+        public GuildViewDto GuildView { get; private set; }
 
         /// <summary>Stops all traffic and falls back to local rolls. Used by tests and by the -local switch.</summary>
         public void Disconnect()
@@ -357,6 +363,32 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        /// <summary>Refreshes GuildView: the account's guild, or (none) guilds to join, filtered by search.</summary>
+        public IEnumerator FetchGuild(string search, Action<string> done)
+        {
+            string failure = null;
+            string path = "/v1/guild" + (string.IsNullOrEmpty(search) ? "" : "?q=" + UnityWebRequest.EscapeURL(search));
+            yield return Send("GET", path, null, true, ApplyGuild, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>A guild call (path under /v1/guild/); completes with (message, error).</summary>
+        public IEnumerator GuildCall(string path, object request, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/guild/" + path, JsonUtility.ToJson(request), true, ApplyGuild, error => failure = error);
+            done(failure == null ? GuildView?.message : null, failure);
+        }
+
+        private void ApplyGuild(string json)
+        {
+            GuildViewDto view = JsonUtility.FromJson<GuildViewDto>(json);
+            GuildView = view;
+            if (view.state != null && view.state.inventory != null && view.state.items != null) Apply(view.state);
+        }
+
+        public static string NewRequestId() => Guid.NewGuid().ToString("N");
+
         public IEnumerator DevGrant()
         {
             yield return Post("/v1/dev/grant", "{}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), _ => { });
@@ -440,6 +472,8 @@ namespace Orsuun.Client.Net
             }
             if (!string.IsNullOrEmpty(s.banner) && Enum.TryParse(s.banner, out Banner banner)) Banner = banner;
             if (!string.IsNullOrEmpty(s.name)) PlayerName = s.name;
+            Guild = s.guild;
+            Tallies = s.inventory.tallies;
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
             Online = true;
@@ -514,7 +548,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
         [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
         [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }
-        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; }
+        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; }
         [Serializable] public class BountyDto { public int id; public string title; public string period; public long count; public int target; public int marks; public bool claimed; }
         [Serializable] public class BountyBoardDto { public BountyDto[] items; public int dailyResetSeconds; public int weeklyResetSeconds; }
         [Serializable] public class ClaimBountyRequest { public string requestId; public int bountyId; }
@@ -524,7 +558,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class EtchResultDto { public bool took; public int chanceBp; public string text; }
         [Serializable] public class BannerRequest { public string banner; }
         [Serializable] public class BannerStandingDto { public string banner; public string name; public long points; public int fortresses; }
-        [Serializable] public class FortressDto { public int id; public string name; public string region; public string holder; public string phase; public long wall; public long wallMax; public long siegeEmber; public long siegeSky; public long siegeGold; public string lastEvent; }
+        [Serializable] public class FortressDto { public int id; public string name; public string region; public string holder; public string phase; public long wall; public long wallMax; public long siegeEmber; public long siegeSky; public long siegeGold; public string lastEvent; public string flagGuild; }
         [Serializable] public class WarDto { public string season; public BannerStandingDto[] standings; public string lastWinner; public int mySornBonusPercent; public FortressDto[] fortresses; public int siegeCooldownSeconds; }
         [Serializable] public class SiegeRequest { public string requestId; public int fortressId; }
         [Serializable] public class SiegeResultDto { public int fortressId; public int bossId; public bool defending; public ulong seed; public long damage; public int potionsAtStart; public string bell; public string phase; public long wallLeft; public bool phaseBroken; public bool captured; public string holder; public string text; }
@@ -539,6 +573,20 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; }
+        [Serializable] public class GuildBriefDto { public string tag; public string name; public string color; public string rank; }
+        [Serializable] public class GuildDto { public string id; public string name; public string tag; public string color; public bool open; public int level; public long xp; public long nextLevelXp; public long treasury; public int plunder; public int muster; public int members; public int maxMembers; public int sornBonusPercent; public string[] fortresses; public string lastEvent; }
+        [Serializable] public class GuildMemberDto { public string accountId; public string name; public string banner; public string rank; public int level; public long donated; public int lastSeenMinutes; public bool me; }
+        [Serializable] public class GuildListItemDto { public string id; public string name; public string tag; public string color; public int level; public int members; public int maxMembers; public bool open; }
+        /// <summary>mine is never null after JsonUtility: an empty id means no guild.</summary>
+        [Serializable] public class GuildViewDto { public StateDto state; public GuildDto mine; public GuildMemberDto[] members; public GuildListItemDto[] browse; public long donatedToday; public long donationCap; public string message; }
+        [Serializable] public class GuildCreateRequest { public string requestId; public string name; public string tag; public string color; }
+        [Serializable] public class GuildJoinRequest { public string requestId; public string guildId; }
+        [Serializable] public class GuildLeaveRequest { public string requestId; }
+        [Serializable] public class GuildMemberRequest { public string requestId; public string accountId; public string rank; }
+        [Serializable] public class GuildDonateRequest { public string requestId; public long sorn; }
+        [Serializable] public class GuildSkillRequest { public string requestId; public string skill; }
+        [Serializable] public class GuildShopRequest { public string requestId; public int itemId; }
+        [Serializable] public class GuildSettingsRequest { public string requestId; public bool open; public string color; }
     }
 }

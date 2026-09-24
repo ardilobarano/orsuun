@@ -115,6 +115,16 @@ v1.MapPost("/pin", (HttpContext ctx, PinRequest req, GameService game, Cancellat
 v1.MapPost("/banner", (HttpContext ctx, BannerRequest req, GameService game, CancellationToken ct) => game.SwearAsync(Me(ctx), req, ct));
 v1.MapGet("/war", (HttpContext ctx, GameService game, CancellationToken ct) => game.WarAsync(Me(ctx), ct));
 v1.MapPost("/siege", (HttpContext ctx, SiegeRequest req, GameService game, CancellationToken ct) => game.SiegeAsync(Me(ctx), req, ct));
+v1.MapGet("/guild", (HttpContext ctx, string? q, GameService game, CancellationToken ct) => game.GuildAsync(Me(ctx), q, ct));
+v1.MapPost("/guild/create", (HttpContext ctx, GuildCreateRequest req, GameService game, CancellationToken ct) => game.CreateGuildAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/join", (HttpContext ctx, GuildJoinRequest req, GameService game, CancellationToken ct) => game.JoinGuildAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/leave", (HttpContext ctx, GuildLeaveRequest req, GameService game, CancellationToken ct) => game.LeaveGuildAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/kick", (HttpContext ctx, GuildMemberRequest req, GameService game, CancellationToken ct) => game.KickAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/rank", (HttpContext ctx, GuildMemberRequest req, GameService game, CancellationToken ct) => game.SetGuildRankAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/donate", (HttpContext ctx, GuildDonateRequest req, GameService game, CancellationToken ct) => game.DonateAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/skill", (HttpContext ctx, GuildSkillRequest req, GameService game, CancellationToken ct) => game.RaiseSkillAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/shop", (HttpContext ctx, GuildShopRequest req, GameService game, CancellationToken ct) => game.GuildBuyAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/settings", (HttpContext ctx, GuildSettingsRequest req, GameService game, CancellationToken ct) => game.GuildSettingsAsync(Me(ctx), req, ct));
 v1.MapPost("/client-log", async (HttpContext ctx, ClientLogRequest req, GameService game, CancellationToken ct) =>
 {
     await game.LogClientErrorAsync(Me(ctx), req, ct);

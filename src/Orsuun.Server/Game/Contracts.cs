@@ -58,7 +58,7 @@ public sealed record PushResultDto(int Stage, bool Cleared, ulong Seed, int Tick
 public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChanceBp);
 
 public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
-    int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0);
+    int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0, int Tallies = 0);
 
 /// <summary>One bounty with this account's count toward it (the server counts; the client only shows).</summary>
 public sealed record BountyDto(int Id, string Title, BountyPeriod Period, long Count, int Target, int Marks, bool Claimed);
@@ -75,13 +75,34 @@ public sealed record EtchResultDto(bool Took, int ChanceBp, string Text);
 public sealed record BannerRequest(Banner Banner);
 public sealed record BannerStandingDto(Banner Banner, string Name, long Points, int Fortresses);
 public sealed record FortressDto(int Id, string Name, string Region, Banner Holder, SiegePhase Phase, long Wall, long WallMax,
-    long SiegeEmber, long SiegeSky, long SiegeGold, string LastEvent);
+    long SiegeEmber, long SiegeSky, long SiegeGold, string LastEvent, string FlagGuild = "");
 /// <summary>The War of Banners at a glance: this season's points, last season's winner and its bonus, the fortresses.</summary>
 public sealed record WarDto(string Season, BannerStandingDto[] Standings, Banner LastWinner, int MySornBonusPercent, FortressDto[] Fortresses,
     int SiegeCooldownSeconds);
 public sealed record SiegeRequest(string RequestId, int FortressId);
 public sealed record SiegeResultDto(int FortressId, int BossId, bool Defending, ulong Seed, long Damage, int PotionsAtStart, Bell Bell,
     SiegePhase Phase, long WallLeft, bool PhaseBroken, bool Captured, Banner Holder, string Text);
+/// <summary>The account's guild at a glance (every state carries it; empty Tag = no guild).</summary>
+public sealed record GuildBriefDto(string Tag, string Name, string Color, GuildRank Rank);
+public sealed record GuildDto(Guid Id, string Name, string Tag, string Color, bool Open, int Level, long Xp, long NextLevelXp, long Treasury,
+    int Plunder, int Muster, int Members, int MaxMembers, int SornBonusPercent, string[] Fortresses, string LastEvent);
+public sealed record GuildMemberDto(Guid AccountId, string Name, Banner Banner, GuildRank Rank, int Level, long Donated, int LastSeenMinutes, bool Me);
+public sealed record GuildListItemDto(Guid Id, string Name, string Tag, string Color, int Level, int Members, int MaxMembers, bool Open);
+/// <summary>
+/// The GUILD screen: the account's guild with its members, or (no guild) guilds to join. Every guild call returns it,
+/// with the account's state inside.
+/// </summary>
+public sealed record GuildViewDto(StateDto State, GuildDto? Mine, GuildMemberDto[] Members, GuildListItemDto[] Browse, long DonatedToday,
+    long DonationCap, string Message = "");
+public sealed record GuildCreateRequest(string RequestId, string Name, string Tag, string Color);
+public sealed record GuildJoinRequest(string RequestId, Guid GuildId);
+public sealed record GuildLeaveRequest(string RequestId);
+public sealed record GuildMemberRequest(string RequestId, Guid AccountId, GuildRank Rank = GuildRank.Member);
+public sealed record GuildDonateRequest(string RequestId, long Sorn);
+public sealed record GuildSkillRequest(string RequestId, GuildSkill Skill);
+public sealed record GuildShopRequest(string RequestId, int ItemId);
+public sealed record GuildSettingsRequest(string RequestId, bool Open, string Color);
+
 /// <summary>A fighter on a Commander spawn's damage board.</summary>
 public sealed record BossHitDto(string Name, Banner Banner, long Damage);
 
@@ -126,7 +147,8 @@ public sealed record StateDto(
     Banner Banner = Banner.None,
     string Name = "",
     SiegeResultDto? LastSiege = null,
-    EtchResultDto? LastEtch = null);
+    EtchResultDto? LastEtch = null,
+    GuildBriefDto? Guild = null);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

@@ -60,12 +60,15 @@ public sealed partial class GameService
         string season = Season();
         var rows = await _db.BannerScores.AsNoTracking().Where(s => s.Season == season).ToListAsync(ct);
         var forts = await _db.Fortresses.AsNoTracking().OrderBy(f => f.Id).ToListAsync(ct);
+        var flagIds = forts.Where(f => f.FlagGuildId != null).Select(f => f.FlagGuildId!.Value).Distinct().ToList();
+        var tags = await _db.Guilds.AsNoTracking().Where(g => flagIds.Contains(g.Id)).Select(g => new { g.Id, g.Tag }).ToListAsync(ct);
         var standings = Banners.All.Select(d => new BannerStandingDto(d.Id, d.Name,
             rows.Where(r => r.Banner == d.Id).Select(r => r.Points).FirstOrDefault(), forts.Count(f => f.Holder == d.Id))).ToArray();
         FortressDto[] fortresses = forts.Select(f =>
         {
             FortressDef def = Fortresses.Find(f.Id)!;
-            return new FortressDto(f.Id, def.Name, def.Region, f.Holder, (SiegePhase)f.Phase, f.Wall, f.WallMax, f.SiegeEmber, f.SiegeSky, f.SiegeGold, f.LastEvent);
+            return new FortressDto(f.Id, def.Name, def.Region, f.Holder, (SiegePhase)f.Phase, f.Wall, f.WallMax, f.SiegeEmber, f.SiegeSky, f.SiegeGold, f.LastEvent,
+                tags.Where(t => t.Id == f.FlagGuildId).Select(t => t.Tag).FirstOrDefault() ?? "");
         }).ToArray();
         int cooldown = account.LastSiegeUtc is DateTime last
             ? Math.Max(0, (int)(last.AddMinutes(Fortresses.CooldownMinutes) - DateTime.UtcNow).TotalSeconds) : 0;
@@ -162,7 +165,7 @@ public sealed partial class GameService
         inventory.Sorn += Fortresses.FightSorn;
         inventory.HuntMarks += Fortresses.FightMarks;
 
-        string name = Banners.GeneratedName(account.Id);
+        string name = DisplayName(account);
         string bannerName = Banners.Def(account.Banner).Name;
         bool broke = false, captured = false;
         long points = run.Damage / Banners.SiegeDamagePerPoint;
@@ -202,6 +205,8 @@ public sealed partial class GameService
                     fort.Phase = (int)SiegePhase.Gate;
                     fort.WallMax = fort.Wall = Fortresses.PhaseHp(SiegePhase.Gate, players);
                     fort.SiegeEmber = fort.SiegeSky = fort.SiegeGold = 0;
+                    // The breaker's guild raises its flag beside the Banner's, when the breaker's Banner won the fortress.
+                    fort.FlagGuildId = conqueror == account.Banner ? account.GuildId : null;
                     fort.LastEvent = $"The {Banners.Def(conqueror).Name} took {def.Name}; {name} broke the Hall.";
                     text = $"The Hall of {def.Name} falls! {def.Name} now flies the {Banners.Def(conqueror).Name}.";
                 }
@@ -223,6 +228,7 @@ public sealed partial class GameService
             Fortresses.FightSorn, request.RequestId));
         await SaveAsync(ct);
         await AddPointsAsync(pointsTo, points, ct);
+        await AddGuildXpAsync(account.GuildId, run.Damage / Guilds.SiegeDamagePerXp, ct);
         if (captured) await AddPointsAsync(conqueror, Banners.PointsFortressTaken, ct);
         await tx.CommitAsync(ct);
         return ToState(account, siege: new SiegeResultDto(def.Id, champion.Id, defending, seed, run.Damage, potionsAtStart, bell, phase, fort.Wall, broke, captured, fort.Holder, text));
