@@ -52,8 +52,15 @@ namespace Orsuun.Client
 
             // Top bar: the level on a crimson medallion, currencies in bronze-rimmed pills.
             Ui.Sliced("TopBar", canvas, 0f, 0.94f, 1f, 1f, "TopBar", Color.white);
-            Ui.RoundButton("Level", canvas, 0.008f, 0.943f, 0.108f, 0.999f, "", new Color(0.62f, 0.14f, 0.13f), () => root.Gear.Open(), out _, out _level);
-            _level.resizeTextMaxSize = 34;
+            // The level on the painted crimson medallion (tap for GEAR).
+            RectTransform levelBox = Ui.Rect("Level", canvas, 0.004f, 0.941f, 0.112f, 1f);
+            Image medal = Ui.Sliced("Medallion", levelBox, 0f, 0f, 1f, 1f, "Medallion", Color.white);
+            var medalFit = medal.gameObject.AddComponent<AspectRatioFitter>();
+            medalFit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            medalFit.aspectRatio = 1f;
+            medal.gameObject.AddComponent<Button>().onClick.AddListener(() => root.Gear.Open());
+            medal.gameObject.AddComponent<Press>();
+            _level = Ui.Title("LevelText", medal.transform, 0.2f, 0.2f, 0.8f, 0.8f, "", 34, TextAnchor.MiddleCenter, Palette.Parchment);
             _currencies = new Text[CurrencyIcons.Length];
             for (int i = 0; i < CurrencyIcons.Length; i++)
             {

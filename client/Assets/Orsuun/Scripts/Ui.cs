@@ -289,14 +289,16 @@ namespace Orsuun.Client
             var fit = round.gameObject.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             fit.aspectRatio = 1f;
-            var plate = round.gameObject.AddComponent<Image>();
-            Kit.Apply(plate, "RoundFill");
-            plate.color = background;
-            var art = Rect("Art", round, 0.08f, 0.08f, 0.92f, 0.92f).gameObject.AddComponent<RawImage>();
+            // The painted ring is slim: the plate, the art and the sweep sit inside it.
+            var hit = round.gameObject.AddComponent<Image>();
+            hit.color = new Color(1f, 1f, 1f, 0f);
+            Image plate = Sliced("Plate", round, 0.08f, 0.08f, 0.92f, 0.92f, "RoundFill", background);
+            plate.raycastTarget = false;
+            var art = Rect("Art", round, 0.12f, 0.12f, 0.88f, 0.88f).gameObject.AddComponent<RawImage>();
             art.texture = Resources.Load<Texture2D>("Icons/" + icon);
             art.raycastTarget = false;
             art.enabled = art.texture != null;
-            sweep = Rect("Sweep", round, 0.08f, 0.08f, 0.92f, 0.92f).gameObject.AddComponent<Image>();
+            sweep = Rect("Sweep", round, 0.12f, 0.12f, 0.88f, 0.88f).gameObject.AddComponent<Image>();
             Kit.Apply(sweep, "Disc");
             sweep.color = new Color(0.02f, 0.02f, 0.05f, 0.72f);
             sweep.type = Image.Type.Filled;
@@ -312,8 +314,41 @@ namespace Orsuun.Client
             round.gameObject.AddComponent<Press>();
             var button = round.gameObject.AddComponent<Button>();
             button.targetGraphic = plate;
+            button.transition = Selectable.Transition.ColorTint;
             button.onClick.AddListener(() => onClick());
             return button;
+        }
+
+        /// <summary>A section heading on the crimson plate with gold flourishes (from the screen mockups).</summary>
+        public static Text Section(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, string text, int size)
+        {
+            Sliced(name + "Plate", parent, xMin, yMin, xMax, yMax, "Section", Color.white).raycastTarget = false;
+            float inset = (xMax - xMin) * 0.24f;
+            return Title(name, parent, xMin + inset, yMin, xMax - inset, yMax, text, size, TextAnchor.MiddleCenter, Palette.Sorn);
+        }
+
+        /// <summary>A picture from Resources (Thumbs, card art) in its own box, cropped to fill it, under a gold slot frame.</summary>
+        public static RawImage Picture(string name, Transform parent, float xMin, float yMin, float xMax, float yMax, string texture, bool frame = true)
+        {
+            RectTransform box = Rect(name, parent, xMin, yMin, xMax, yMax);
+            box.gameObject.AddComponent<RectMask2D>();
+            RectTransform inner = Rect("Image", box, 0f, 0f, 1f, 1f);
+            var raw = inner.gameObject.AddComponent<RawImage>();
+            raw.raycastTarget = false;
+            var fit = inner.gameObject.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            SetPicture(raw, texture);
+            if (frame) Sliced("Frame", box, 0f, 0f, 1f, 1f, "SlotRim", Color.white).raycastTarget = false;
+            return raw;
+        }
+
+        public static void SetPicture(RawImage raw, string texture)
+        {
+            Texture2D art = texture == null ? null : Resources.Load<Texture2D>(texture);
+            if (raw.texture == art) return;
+            raw.texture = art;
+            raw.enabled = art != null;
+            if (art != null) raw.GetComponent<AspectRatioFitter>().aspectRatio = art.width / (float)art.height;
         }
 
         /// <summary>A bottom-bar button: a painted icon over a small label, and a red badge (hidden until needed).</summary>
@@ -345,9 +380,13 @@ namespace Orsuun.Client
         public static Button Button(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
             string label, int size, Color background, Action onClick, out Text labelText)
         {
-            // Direction B: a lacquered, bevelled plate (tinted) under a studded bronze rim, carved capitals on top.
-            Image image = Sliced(name, parent, xMin, yMin, xMax, yMax, "ButtonFill", background);
-            Sliced("Rim", image.transform, 0f, 0f, 1f, 1f, "ButtonRim", Color.white).raycastTarget = false;
+            // Direction B: a lacquered plate (tinted) under an ornate gold frame, carved capitals on top. The way back to
+            // the hunt or the Forge is the long indigo plate with arrow tips instead (from the screen mockups).
+            bool back = label.StartsWith("BACK TO");
+            Image image = back
+                ? Sliced(name, parent, xMin, yMin, xMax, yMax, "Back", Color.white)
+                : Sliced(name, parent, xMin, yMin, xMax, yMax, "ButtonFill", background);
+            if (!back) Sliced("Rim", image.transform, 0f, 0f, 1f, 1f, "ButtonRim", Color.white).raycastTarget = false;
             image.gameObject.AddComponent<Press>();
             var button = image.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
@@ -358,7 +397,7 @@ namespace Orsuun.Client
             colors.colorMultiplier = 1.1f;
             button.colors = colors;
             button.onClick.AddListener(() => onClick());
-            labelText = Label("Label", image.transform, 0.06f, 0.12f, 0.94f, 0.9f, label, size, TextAnchor.MiddleCenter, Palette.Parchment);
+            labelText = Label("Label", image.transform, back ? 0.14f : 0.1f, 0.14f, back ? 0.86f : 0.9f, 0.86f, label, size, TextAnchor.MiddleCenter, Palette.Parchment);
             labelText.font = TitleFont;
             labelText.fontStyle = FontStyle.Bold;
             var shadow = labelText.gameObject.AddComponent<Shadow>();
@@ -390,9 +429,26 @@ namespace Orsuun.Client
         };
 
         private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
+        private static bool _paintedBordersRead;
+
+        /// <summary>
+        /// The painted pieces (tools/ui/cut_ai_kit.py) carry their own nine-slice borders in Resources/UI/Borders.json,
+        /// {"Name": [left, bottom, right, top]}; they override the procedural kit's.
+        /// </summary>
+        private static void ReadPaintedBorders()
+        {
+            if (_paintedBordersRead) return;
+            _paintedBordersRead = true;
+            var json = Resources.Load<TextAsset>("UI/Borders");
+            if (json == null) return;
+            foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(json.text,
+                         "\"(\\w+)\"\\s*:\\s*\\[\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\]"))
+                Borders[m.Groups[1].Value] = new Vector4(int.Parse(m.Groups[2].Value), int.Parse(m.Groups[3].Value), int.Parse(m.Groups[4].Value), int.Parse(m.Groups[5].Value));
+        }
 
         public static Sprite Get(string name)
         {
+            ReadPaintedBorders();
             if (Cache.TryGetValue(name, out Sprite sprite)) return sprite;
             var texture = Resources.Load<Texture2D>("UI/" + name);
             if (texture == null) return Cache[name] = null;
@@ -406,7 +462,7 @@ namespace Orsuun.Client
         public static void Apply(Image image, string name)
         {
             image.sprite = Get(name);
-            bool sliced = Borders.ContainsKey(name);
+            bool sliced = Borders.ContainsKey(name) && Borders[name] != Vector4.zero;
             image.type = sliced ? Image.Type.Sliced : Image.Type.Simple;
             // The kit is drawn at 2x: borders show at half their pixel size in canvas units.
             image.pixelsPerUnitMultiplier = 2f;

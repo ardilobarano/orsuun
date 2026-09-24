@@ -72,13 +72,18 @@ namespace Orsuun.Client
             _myFlag = BannerLook.FlagImage("MyFlag", canvas, 0.04f, 0.665f, 0.1f, 0.715f);
             _mine = Ui.Label("Mine", canvas, 0.11f, 0.665f, 0.96f, 0.715f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
 
-            Ui.Title("FortTitle", canvas, 0.04f, 0.625f, 0.96f, 0.66f, "FORTRESSES  ·  one siege fight every 10 minutes", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            Ui.Section("FortTitle", canvas, 0.08f, 0.626f, 0.92f, 0.66f, "FORTRESSES", 26);
             for (int i = 0; i < 3; i++)
             {
                 int index = i;
                 float y1 = 0.62f - i * 0.16f;
                 float y0 = y1 - 0.15f;
                 Transform card = Ui.Framed("Fort" + i, canvas, 0.04f, y0, 0.96f, y1, Palette.PanelDark).transform;
+                // The fortress's painting fills the card behind a shade, under the gold frame.
+                RawImage art = Ui.Picture("Art", card, 0.004f, 0.02f, 0.996f, 0.98f, "Thumbs/Fortress" + Fortresses.All[i].Name, frame: false);
+                art.color = new Color(0.55f, 0.55f, 0.6f, 1f);
+                art.transform.parent.SetSiblingIndex(0);
+                Ui.Panel("Shade", art.transform.parent, 0f, 0f, 0.75f, 1f, new Color(0.03f, 0.03f, 0.06f, 0.55f)).raycastTarget = false;
                 var f = new Fort();
                 f.Flag = BannerLook.FlagImage("Flag", card, 0.01f, 0.05f, 0.1f, 0.95f);
                 f.Title = Ui.Title("Name", card, 0.12f, 0.72f, 0.7f, 0.97f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);

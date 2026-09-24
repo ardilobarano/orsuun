@@ -91,6 +91,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Google / Apple sign-in tickets are bound to the device token that began the flow (`ExternalAuth.Redeem`): keep it
   that way, or a sign-in link sent by someone else could move a hero. The game object must stay named "ServerLink"
   (the iOS sign-in sheet answers through UnitySendMessage).
+- The painted kit pieces (`docs/concept/ui-kit`) are cut by `tools/ui/cut_ai_kit.py`, which writes their borders to
+  `Resources/UI/Borders.json`; rerunning `make_ui_kit.py` alone overwrites them with the procedural ones, so run both.
 - Screen scenes live in `Resources/Scenes` (non-power-of-two on purpose; `SceneArtImport` turns off NPOT scaling for
   that folder). A screen names its scene in `Ui.Backdrop(canvas, "Name")`.
 - `ChatPanel` stays off its canvas (it polls world chat for the lane ticker while hidden), like the `Tutorial`.

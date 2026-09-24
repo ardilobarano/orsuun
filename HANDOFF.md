@@ -236,6 +236,20 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   are a design target for a further UI pass: filigree headers, painted thumbnails on zone and fortress cards, framed
   item icons.
 
+## Done 24 Sep 2026, night (the mockups' assets in the game)
+
+- Owner: "get all of the assets inside these [AI mockups] and integrate to our game ... make assets separately". Each
+  piece was painted on its own by Higgsfield with a mockup as reference (`docs/concept/ui-kit/*.png`): title banner,
+  panel frame, button, back button, section header, slot frame, bar frame, skill ring, level medallion, three
+  fortress paintings. `tools/ui/cut_ai_kit.py` cuts them out (black background flooded away, button split into a
+  tintable lacquer plate and its gold frame, frame centres cut out, stretch centres flattened) into `Resources/UI`
+  over the procedural kit, with nine-slice borders in `Resources/UI/Borders.json` (read by `Ui.Kit`). Run
+  `make_ui_kit.py` first, then `cut_ai_kit.py`.
+- In the game: every button, card, title and bar; `BACK TO ...` buttons use the arrow-tipped plate; `Ui.Section`
+  headers (Commanders, Fortresses, Hunt Marks shop); `Ui.Picture` framed pictures from `Resources/Thumbs` (zone
+  thumbnails cropped from the environment art, Commander portraits cropped from their sheets, fortress paintings
+  behind the War cards); Gear tiles are gold slots with a rarity glow; the HUD level sits on the medallion.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in

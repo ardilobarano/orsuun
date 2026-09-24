@@ -25,6 +25,7 @@ namespace Orsuun.Client
             public Button Button;
             public Image Rim;
             public Outline Selected;
+            public Image Glow;
             public RawImage Icon;
             public Text Badge;
             public Text Caption;
@@ -160,7 +161,8 @@ namespace Orsuun.Client
 
         private Tile MakeTile(Transform parent, string name, bool withCaption)
         {
-            Image rim = Ui.Panel(name, parent, 0f, 0f, 1f, 1f, Palette.Trim);
+            // A dark slot with the item's rarity glowing behind it, under the painted gold slot frame.
+            Image rim = Ui.Sliced(name, parent, 0f, 0f, 1f, 1f, "CardFill", new Color(0.07f, 0.07f, 0.11f));
             var t = new Tile { Rect = rim.rectTransform, Rim = rim };
             t.Button = rim.gameObject.AddComponent<Button>();
             t.Button.targetGraphic = rim;
@@ -168,8 +170,11 @@ namespace Orsuun.Client
             t.Selected.effectColor = Palette.Sorn;
             t.Selected.effectDistance = new Vector2(5f, -5f);
             t.Selected.enabled = false;
-            Image inner = Ui.Panel("Inner", rim.transform, 0.045f, 0.045f, 0.955f, 0.955f, new Color(0.07f, 0.07f, 0.11f));
+            Image inner = Ui.Panel("Inner", rim.transform, 0.045f, 0.045f, 0.955f, 0.955f, new Color(0f, 0f, 0f, 0f));
             inner.raycastTarget = false;
+            t.Glow = Ui.Sliced("Glow", inner.transform, 0.05f, 0.05f, 0.95f, 0.95f, "Glow", Color.clear);
+            t.Glow.raycastTarget = false;
+            Ui.Sliced("Frame", rim.transform, 0f, 0f, 1f, 1f, "SlotRim", Color.white).raycastTarget = false;
             RectTransform iconBox = Ui.Rect("IconBox", inner.transform, 0.08f, withCaption ? 0.06f : 0.08f, 0.92f, withCaption ? 0.80f : 0.92f);
             t.Icon = Ui.Icon("Icon", iconBox, 0f, 0f, 1f, 1f, "Weapon");
             t.Badge = Ui.Title("Badge", inner.transform, 0.40f, 0.0f, 0.97f, 0.34f, "", 30, TextAnchor.LowerRight, Palette.Parchment);
@@ -277,7 +282,9 @@ namespace Orsuun.Client
             if (t.Icon.texture != icon) t.Icon.texture = icon;
             t.Icon.enabled = icon != null;
             t.Icon.color = item == null ? new Color(1f, 1f, 1f, 0.18f) : Color.white;
-            t.Rim.color = item == null ? new Color(0.25f, 0.25f, 0.3f) : RarityColor(item.Rarity);
+            Color glow = item == null ? Color.clear : RarityColor(item.Rarity);
+            glow.a = item == null ? 0f : 0.55f;
+            t.Glow.color = glow;
             t.Badge.text = item == null || item.UpgradeLevel == 0 ? "" : "+" + item.UpgradeLevel;
             t.Badge.color = item == null ? Palette.Muted : ForgePanel.LevelColor(item.UpgradeLevel);
             t.Selected.enabled = item != null && item == selected;

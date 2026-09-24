@@ -18,6 +18,7 @@ namespace Orsuun.Client
         private sealed class Row
         {
             public Image Back;
+            public RawImage Picture;
             public Text Label;
             public Button Button;
             public Text ButtonLabel;
@@ -49,7 +50,7 @@ namespace Orsuun.Client
                 _zoneRows[i] = MakeRow(canvas, "Zone" + i, y1 - 0.048f, y1, "PARK", Palette.Safe, i, row => _root.Park(_zoneRows[row].Id));
             }
 
-            Ui.Label("BossTitle", canvas, 0.05f, 0.375f, 0.95f, 0.41f, "COMMANDERS  ·  Gorak War Camp  ·  one HP pool for the whole server, one fight per spawn, chest by damage rank", 20, TextAnchor.MiddleLeft, Palette.Muted);
+            Ui.Section("BossTitle", canvas, 0.1f, 0.378f, 0.9f, 0.41f, "COMMANDERS", 24);
             for (int i = 0; i < BossRows; i++)
             {
                 float y1 = 0.37f - i * 0.075f;
@@ -66,7 +67,10 @@ namespace Orsuun.Client
         {
             var row = new Row();
             row.Back = Ui.Framed(name + "Back", canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
-            row.Label = Ui.Label(name + "Label", canvas, 0.06f, y0, 0.73f, y1, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
+            // A painted thumbnail of the zone, or the Commander's portrait, in a gold slot frame at the row's left.
+            float picture = (y1 - y0) * 1920f / 1080f * (action == "FIGHT" ? 1f : 1.3f);
+            row.Picture = Ui.Picture(name + "Picture", canvas, 0.045f, y0 + 0.003f, 0.045f + picture, y1 - 0.003f, null);
+            row.Label = Ui.Label(name + "Label", canvas, 0.06f + picture, y0, 0.73f, y1, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
             row.Button = Ui.Button(name + "Btn", canvas, 0.76f, y0, 0.96f, y1, action, 22, color, () => onClick(index), out row.ButtonLabel);
             return row;
         }
@@ -108,6 +112,7 @@ namespace Orsuun.Client
                 row.Button.gameObject.SetActive(has && entries[i].Unlocked);
                 if (!has) continue;
                 row.Id = entries[i].Id;
+                Ui.SetPicture(row.Picture, "Thumbs/" + ZoneThumb(entries[i].Id));
                 bool parked = session.ParkedStage == entries[i].Id;
                 row.Label.text = (parked ? "▶ " : "") + entries[i].Text;
                 row.Label.color = entries[i].Unlocked ? Palette.Parchment : Palette.Muted;
@@ -123,6 +128,7 @@ namespace Orsuun.Client
                 Row row = _bossRows[i];
                 BossDef boss = Content.Bosses[i];
                 row.Id = boss.Id;
+                Ui.SetPicture(row.Picture, "Thumbs/Commander" + new string(System.Array.FindAll(boss.Name.Replace("Warlord ", "").Replace("The ", "").ToCharArray(), char.IsLetter)));
                 string status;
                 string pool = "";
                 bool canFight = campOpen;
@@ -154,6 +160,17 @@ namespace Orsuun.Client
                 row.Button.interactable = canFight && !_root.Replaying && !_root.PushBusy;
             }
         }
+
+        /// <summary>Resources/Thumbs picture for a campaign stage (below 100) or a zone id.</summary>
+        private static string ZoneThumb(int id) => id switch
+        {
+            < 100 => "ZoneCampaign",
+            101 => "ZoneEmberSteppe",
+            102 => "ZoneSaltFlats",
+            103 => "ZoneFrostPasture",
+            121 => "ZoneWarCamp",
+            _ => "ZoneKorstoneField",
+        };
 
         private static string Mechanic(BossMechanic m) => m switch
         {

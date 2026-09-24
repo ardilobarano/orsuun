@@ -74,7 +74,7 @@ namespace Orsuun.Client
                 _rows[i] = r;
             }
 
-            Ui.Title("ShopTitle", canvas, 0.04f, 0.31f, 0.96f, 0.345f, "HUNT MARKS SHOP", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            Ui.Section("ShopTitle", canvas, 0.08f, 0.31f, 0.92f, 0.345f, "HUNT MARKS SHOP", 24);
             for (int i = 0; i < HuntShop.Items.Length; i++)
             {
                 ShopItem item = HuntShop.Items[i];
