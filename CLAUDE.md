@@ -66,3 +66,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Panels hide by deactivating their canvas; a component that must keep updating while hidden (the `Tutorial`) lives
   off its canvas.
 - Store-release blockers that need the owner's accounts are listed in HANDOFF.md ("Store release").
+- The Banners are Ember (red), Sky (blue) and Gold (yellow) since 24 Sep 2026; the world bible's older Jade and Bone
+  names are gone (their creeds moved to Gold and Sky).
+- Shared world rows (Commander pools, fortresses) are changed only inside a transaction that locks the row
+  (`FOR UPDATE`); status reads never write pools. War points go through the `AddPointsAsync` upsert.
+- `tools/build-mobile.sh` starts the editor with `-buildTarget` for the platform: the notification package's iOS
+  post-processor (links UserNotifications.framework) only compiles with `UNITY_IOS` defined at startup.
+- Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
+  no clips (LaneView then falls back to the old procedural bob and keel-over).

@@ -23,6 +23,9 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | All four classes, mob attacks, Korstone tiers | Owner, 24 Sep 2026. Wraithsworn (Voidpact: Void Lance 750%/8 s, Grave Tide, Pact Frenzy; 105% attack, 60% defense, 80% HP, 13-tick swings, weak point 700) and Drumcaller (Thunder Rite: Sky Hammer 450%/7 s, Storm Drum 200%/8 s, War Rhythm 7 s; 95/110/105%, +5% crit) join Vanguard and Kestrel; all four push within 10% of each other and pay 123-135% for aimed play (`ClassBalanceTests`). Korstones change with level: five tiers of 20 levels (Ember, Blood, Void, Grave, Khan colours, darker stone each tier) and three shapes (runed monolith, chained twin spire, crowned obelisk; an Elder takes the next shape up). |
 | Outfits, Wraithsworn sword, class bands | Owner, 24 Sep 2026: the women wear the shortest shorts with garters (Kestrel and the Drumcaller: shorts, garter straps, thigh-high stockings), still clothed and non-explicit. The Drumcaller's first band keeps a mid-thigh tunic over them because the image generator refused the bare version; the filter was not worked around. The Wraithsworn attacks with the Kestrel's slash rhythm but with a sword (`rig.ATTACKS["sword"]`: wind-up overhead, slash with a chest twist). Kestrel, Wraithsworn and Drumcaller now have three looks each (T0-T2, every 10 item levels like the Vanguard). Assumption (not stated by the owner): their weapon look follows the armour's band (the blade or staff is part of the class model), while its glow still follows the weapon's own level. |
 | Turning helper | Owner, 24 Sep 2026 (after the classic bonus switcher): pick up to five etchings, each with the lowest tier accepted; it turns until all of them are on the piece; then "several pieces at once": up to eight pieces, worn or in the bag, each with its own goal and ON/OFF, turned in turn one batch each. Built as a stop rule of up to five targets (`TurnTarget`, `EtchingService.TurnUntil`, `TurnRequest.Targets`), all must match; the screen shows the exact chance per turn (`EtchingService.TargetChance`) and names goals that can never be met (`TargetProblem`). Assumption (not stated by the owner): the helper chains Bulk Turn batches of 50 until the goal, no Turnstones, or STOP, so the planned 10-free / 50-Hearthfire batch split would only change its speed. |
+| Banners: red, blue, yellow | Owner, 24 Sep 2026: "make 3 banners: red blue and yellow, name and draw their flag according to our theme". The world bible's three creeds stay; the colours moved and two names changed to match: **Ember Banner** (crimson, "Break every stone", rider clans, Karsun), **Sky Banner** (blue, takes the monasteries' "Reseal what was sealed", Ostrakh), **Gold Banner** (yellow, takes the salt-road merchants' "Every stone has a price", Velimar). Flags in `docs/concept/banner-*.jpg`, cut-outs in `Resources/Art/Banners`. The oath is asked once, online, after the title screen; it cannot be changed yet (the bible's once-a-season defection is not built). |
+| Multiplayer layer | Owner, 24 Sep 2026: "do all of them" (Banners, shared boss fights, fortress PvP). Built: Commander spawns have one HP pool for the server (sized by last week's fighters, at least one; the killing blow is named for its Banner; ranks count real fighters, simulated rivals fill to 20); the War of Banners point race per season; fortress sieges between Banners. Assumptions (not stated by the owner): a season is a week for the playtest; last season's winner hunts with +5% sorn and each fortress held gives +3%; until guilds exist the Banners hold the fortresses (the GDD has guilds bidding on Sunday 50v50 sieges); sieges are asynchronous scored fights, one per player every 10 minutes, attackers wear the wall down, defenders mend it by half their damage, the Hall's fall hands the fortress to the attacking Banner with the most siege damage; the GDD's "break each phase within 10 minutes" rule is not enforced yet. |
+| Bounties and Hunt Marks | Owner, 24 Sep 2026 ("do all of them"; the GDD's Hunt Marks). Five daily and four weekly bounties counted by the server (Korstones, hunting minutes, forges, turns, Commander fights, pushes, sieges), reset at 20:00 server time (weekly on Mondays); the Hunt Marks shop sells Etching Needles, Pinning Wax, Turnstones, Scrolls of Mercy and Draughts. ETCH (Etching Needle, 1st to 4th etching at 100/80/60/40%) and PIN (Pinning Wax, one lock per item, turns cost two, unpinning spends the wax) are on the Forge. The owner will add monetization; the shop prices are placeholders. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -132,6 +135,29 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   set for its pool (weapon, other slots). The server still takes the older `StopEntryId`/`MinTier` from installed
   clients. `-turnhelper pick|add|demo|run` for screenshots (run: three pieces, 600 local Turnstones, START).
 
+## Done 24 Sep 2026, evening (War of Banners and the rest)
+
+- Banners, the oath screen (`BannerOath`), the WAR screen (`WarPanel`: standings, last winner and bonus, the three
+  fortresses with ATTACK / DEFEND and the cooldown), sieges replayed from seeds (`GameRoot.FightSiege`; champions:
+  Gate Warden = Ice Wight, Yard Captain = steel Deserter, Lord of the Hall = dark Tul-Gorak). Server:
+  `GameService.War.cs` (oath, points upsert, bonus, row-locked Commander pools and sieges), migration `WarOfBanners`,
+  fortresses seeded at startup. Rules: `Banners.cs` (Banners, points, generated player names like "Swift Falcon 4821",
+  fortresses and champions), `BossRun.RankShared`.
+- Bounties (`Bounties.cs`, `BountyPanel`, server `GameService.Bounties.cs`), the shop, ETCH and PIN.
+- HUD bottom row: ZONES, WAR, BOUNTIES (marked when one is ready), SPEED, MENU; SOUND moved into MENU; the Banner's
+  flag stands in the lane's top-right corner (tap for WAR). ZONES shows each Commander's server pool and best fighter.
+- Local notifications (`GameNotifications`, Unity Mobile Notifications 2.4.0, no push server): the full offline hunt,
+  the next Evening Bell, the next Commander and new bounties are scheduled when the game goes to the background; the
+  permission is asked once after the oath.
+- Kestrel, Wraithsworn and Drumcaller looks 4-6 (item levels 30-59; sheets `docs/concept/<class>-T3..T5-sheet.jpg`).
+- Every enemy is rigged with Idle / Run / Attack / Hit / Death (`art/blender/mobrig.py`, through
+  `looks.mob_model(..., rig=plan)`: biped for people and the undead, quadruped for wolves, boars, Greyjaw and the bear,
+  serpent for the glass snake, scorpion for the scorpion); LaneView plays Run while they close in, Idle in place,
+  Attack on their blow, Hit when struck and Death instead of the old keel-over. Heights: Wolf 1.25, Boar 1.15,
+  Deserter 1.9, Greyjaw 2.0, Gorak 2.45, Queen 2.4, Scorpion 1.0, GlassSnake 1.3, Ghoul 1.85, FrostBear 1.6,
+  IceWight 1.9, SnowHag 2.0 (Tripo sources need `yaw_degrees=-90`).
+- Screenshot switches: `-oath`, `-war`, `-bounties` (online screenshots need `-server <url>` instead of `-local`).
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
@@ -176,6 +202,11 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 ## Known gaps
 
 - `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
+- `tools/smoke.sh` against the live server swears a Banner, sieges Stagfort and scores points in the shared world.
+  Reset after it: `DELETE FROM "BannerScores"; UPDATE "Fortresses" SET "Wall"="WallMax", "SiegeEmber"=0, "SiegeSky"=0, "SiegeGold"=0;`
+  (through `docker compose -f deploy/docker-compose.yml --env-file deploy/.env exec -T postgres psql -U orsuun -d orsuun -c '...'`).
+- The fifth etching needs a Master's Needle, which nothing sells or drops yet (it is a Caravan item in the GDD).
+- Players are shown to each other by a generated name; custom names need moderation first.
 - The live lane's loot is display only; each heartbeat replaces it with the server's settlement.
 - Active play: the account holds a lane seed (new on first login and every park) and the next loop number; StateDto
   carries both. Online, the client's farm lane runs one seeded loop per encounter cycle (`LaneSim.Cycles`; Hunting

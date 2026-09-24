@@ -12,21 +12,23 @@ mkdir -p "$ROOT/artifacts"
 
 [ -n "${ORSUUN_SERVER_URL:-}" ] || echo "warning: ORSUUN_SERVER_URL is not set; the build will talk to localhost"
 
+# The editor starts on the build's platform (-buildTarget): platform-only editor code, such as the notification
+# package's iOS post-processor (#if UNITY_IOS, it links UserNotifications.framework), only compiles that way.
 unity_run() {
-  local method="$1" log="$2"
-  "$UNITY" -batchmode -quit -projectPath "$ROOT/client" -executeMethod "$method" -logFile "$log"
+  local method="$1" log="$2" platform="$3"
+  "$UNITY" -batchmode -quit -projectPath "$ROOT/client" -buildTarget "$platform" -executeMethod "$method" -logFile "$log"
 }
 
 build_android() {
   echo "== Android"
-  unity_run Orsuun.Client.EditorTools.ProjectSetup.BuildAndroid "$ROOT/artifacts/unity-android.log"
+  unity_run Orsuun.Client.EditorTools.ProjectSetup.BuildAndroid "$ROOT/artifacts/unity-android.log" Android
   ls -la "$ROOT/client/Builds/Android/Orsuun.apk"
   echo "Install: adb install -r client/Builds/Android/Orsuun.apk (or share the file; testers enable 'install unknown apps')"
 }
 
 build_ios() {
   echo "== iOS: exporting the Xcode project"
-  unity_run Orsuun.Client.EditorTools.ProjectSetup.BuildIos "$ROOT/artifacts/unity-ios.log"
+  unity_run Orsuun.Client.EditorTools.ProjectSetup.BuildIos "$ROOT/artifacts/unity-ios.log" iOS
   local proj="$ROOT/client/Builds/iOS/Unity-iPhone.xcodeproj"
   if [ -z "${ORSUUN_APPLE_TEAM_ID:-}" ]; then
     echo "ORSUUN_APPLE_TEAM_ID not set: open $proj in Xcode, pick your team under Signing, and run on a connected iPhone."
