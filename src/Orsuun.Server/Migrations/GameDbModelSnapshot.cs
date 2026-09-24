@@ -30,6 +30,14 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("AnvilWards")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Banner")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Bounties")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
                     b.Property<int>("Class")
                         .HasColumnType("integer");
 
@@ -51,6 +59,9 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("HighestStageCleared")
                         .HasColumnType("integer");
 
+                    b.Property<int>("HuntMarks")
+                        .HasColumnType("integer");
+
                     b.Property<int>("KhansAlloys")
                         .HasColumnType("integer");
 
@@ -68,10 +79,16 @@ namespace Orsuun.Server.Migrations
                     b.Property<DateTime>("LastHeartbeatUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("LastSiegeUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Materials")
                         .HasColumnType("integer");
 
                     b.Property<int>("ParkedStage")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PinningWax")
                         .HasColumnType("integer");
 
                     b.Property<int>("Potions")
@@ -94,6 +111,9 @@ namespace Orsuun.Server.Migrations
 
                     b.Property<int>("SummoningMarkers")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("SwornUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Turnstones")
                         .HasColumnType("integer");
@@ -122,10 +142,46 @@ namespace Orsuun.Server.Migrations
                     b.ToTable("Accounts");
                 });
 
+            modelBuilder.Entity("Orsuun.Server.Data.BannerScore", b =>
+                {
+                    b.Property<string>("Season")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<int>("Banner")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Points")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Season", "Banner");
+
+                    b.ToTable("BannerScores");
+                });
+
             modelBuilder.Entity("Orsuun.Server.Data.BossClock", b =>
                 {
                     b.Property<int>("BossId")
                         .HasColumnType("integer");
+
+                    b.Property<long>("HpLeft")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("HpMax")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("PoolSpawnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SlainBanner")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SlainBy")
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)");
+
+                    b.Property<DateTime?>("SlainUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("SpawnUtc")
                         .HasColumnType("timestamp with time zone");
@@ -133,6 +189,44 @@ namespace Orsuun.Server.Migrations
                     b.HasKey("BossId");
 
                     b.ToTable("BossClocks");
+                });
+
+            modelBuilder.Entity("Orsuun.Server.Data.BossHit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Banner")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BossId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Damage")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)");
+
+                    b.Property<DateTime>("SpawnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("Utc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BossId", "SpawnUtc");
+
+                    b.ToTable("BossHits");
                 });
 
             modelBuilder.Entity("Orsuun.Server.Data.ClientLog", b =>
@@ -174,6 +268,45 @@ namespace Orsuun.Server.Migrations
                     b.HasIndex("AccountId", "Utc");
 
                     b.ToTable("ClientLogs");
+                });
+
+            modelBuilder.Entity("Orsuun.Server.Data.Fortress", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("HeldSinceUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Holder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LastEvent")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<int>("Phase")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("SiegeEmber")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SiegeGold")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SiegeSky")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Wall")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("WallMax")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Fortresses");
                 });
 
             modelBuilder.Entity("Orsuun.Server.Data.Item", b =>

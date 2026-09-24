@@ -31,6 +31,10 @@ namespace Orsuun.Client
         public Net.ServerLink Server { get; private set; }
         public TitleScreen Title { get; private set; }
         public MenuPanel Menu { get; private set; }
+        public BannerOath Oath { get; private set; }
+        public WarPanel War { get; private set; }
+        public BountyPanel Bounties { get; private set; }
+        public GameNotifications Notifications { get; private set; }
         public Tutorial Tutorial { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
@@ -59,6 +63,7 @@ namespace Orsuun.Client
             Session.Lane.AutoCast[1] = true;
 
             GameAudio.Create();
+            Notifications = new GameObject("GameNotifications").AddComponent<GameNotifications>();
             BuildCameras();
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
             Lane.Init(Session.Lane);
@@ -77,8 +82,15 @@ namespace Orsuun.Client
             Sockets.Init(this);
             TurnHelper = new GameObject("TurnHelperPanel").AddComponent<TurnHelperPanel>();
             TurnHelper.Init(this);
+            War = new GameObject("WarPanel").AddComponent<WarPanel>();
+            War.Init(this);
+            Bounties = new GameObject("BountyPanel").AddComponent<BountyPanel>();
+            Bounties.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
+            Oath = new GameObject("BannerOath").AddComponent<BannerOath>();
+            Oath.Init(this);
+            Notifications.Init(this);
             Menu = new GameObject("MenuPanel").AddComponent<MenuPanel>();
             Menu.Init(this);
             Tutorial = new GameObject("Tutorial").AddComponent<Tutorial>();
@@ -101,6 +113,10 @@ namespace Orsuun.Client
             if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-menu") >= 0) Menu.Open();
+            // Screenshots: -oath shows the Banner oath, -war the War of Banners, -bounties the bounty board.
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-oath") >= 0) Oath.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-war") >= 0) War.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-bounties") >= 0) Bounties.Open();
             // -turnhelper [pick|add|demo|run] opens the turning helper over the Forge (with the etching list or the piece
             // list open, or three more pieces added; run also starts turning them locally with 600 Turnstones).
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-turnhelper") >= 0)
@@ -161,12 +177,21 @@ namespace Orsuun.Client
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
         private bool _tutorialPending;
+        private bool _oathAsked;
 
         private void Update()
         {
-            // The first session's guide starts once the title screen is gone.
-            if (_tutorialPending && !Title.Showing)
+            // Online and not yet sworn: the oath comes first, once the title screen is gone.
+            if (!_oathAsked && !Title.Showing && Server.Online && Server.Banner == Rules.Banner.None && Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") < 0)
             {
+                _oathAsked = true;
+                Oath.Open();
+            }
+            // The first session's guide starts once the title screen (and the oath) is gone; the notification
+            // permission is asked then too, once.
+            if (_tutorialPending && !Title.Showing && !Oath.Showing)
+            {
+                Notifications.AskOnce();
                 _tutorialPending = false;
                 // Dev switch: -tutorialStep <n> opens the guide at a step (screenshots).
                 Tutorial.Begin(int.TryParse(Arg("-tutorialStep"), out int step) ? step : 0);
@@ -220,6 +245,16 @@ namespace Orsuun.Client
             }
         }
 
+        /// <summary>The shared pool after a server fight, for the log: what the server has left, or who slew it.</summary>
+        private string PoolNote(int bossId)
+        {
+            if (!Server.Online) return "";
+            foreach (Net.ServerLink.BossStatusDto b in Server.Bosses)
+                if (b.bossId == bossId && b.hpMax > 0)
+                    return b.slain ? "  ·  slain by " + b.slainBy : $"  ·  {b.hpLeft:N0} of {b.hpMax:N0} HP left for the server";
+            return "";
+        }
+
         /// <summary>Fights a Commander: the server (or the local session) scores it, then the lane replays the seed.</summary>
         public void FightBoss(int bossId)
         {
@@ -266,7 +301,46 @@ namespace Orsuun.Client
             while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
 
             ReplayBanner = (_replay.BossesKilled > 0 ? "SLAIN  ·  " : "FLED  ·  ") + "rank " + rank + " of 20";
-            Hud.Log(chest);
+            Hud.Log(chest + PoolNote(bossId));
+            yield return new WaitForSecondsRealtime(2.5f);
+
+            _replay = null;
+            ReplayBanner = "";
+            PushBusy = false;
+        }
+
+        /// <summary>A siege fight at a fortress: the server scores it, then the lane replays the seed.</summary>
+        public void FightSiege(int fortressId)
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(SiegeSequence(fortressId));
+        }
+
+        private IEnumerator SiegeSequence(int fortressId)
+        {
+            PushBusy = true;
+            HeroStats hero = Session.Hero;
+            Net.ServerLink.SiegeResultDto result = null;
+            string failure = null;
+            yield return Server.Siege(fortressId, (r, e) => { result = r; failure = e; });
+            var champion = result == null ? null : Fortresses.FromChampionId(result.bossId);
+            if (result == null || champion == null)
+            {
+                Hud.Log(failure ?? "No answer from the server.");
+                War.Say(failure ?? "");
+                PushBusy = false;
+                yield break;
+            }
+            BossDef def = Fortresses.Champion(champion.Value.fortress, champion.Value.phase);
+            var bell = (Bell)Enum.Parse(typeof(Bell), result.bell);
+            _replay = BossRun.Create(def, hero, new Inventory { Potions = result.potionsAtStart }, result.seed, bell);
+            ReplayBanner = (result.defending ? "DEFEND  ·  " : "SIEGE  ·  ") + def.Name.ToUpperInvariant();
+            int guard = BossRun.MaxTicks;
+            while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+
+            ReplayBanner = result.captured ? "FORTRESS TAKEN" : result.phaseBroken ? result.phase.ToUpperInvariant() + " BROKEN" : result.defending ? "WALL MENDED" : $"{result.damage:N0} DAMAGE";
+            Hud.Log(result.text);
+            if (result.captured || result.phaseBroken) GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.5f, 0f);
             yield return new WaitForSecondsRealtime(2.5f);
 
             _replay = null;

@@ -11,6 +11,9 @@ public sealed class GameDb : DbContext
     public DbSet<LedgerEntry> Ledger => Set<LedgerEntry>();
     public DbSet<BossClock> BossClocks => Set<BossClock>();
     public DbSet<ClientLog> ClientLogs => Set<ClientLog>();
+    public DbSet<BossHit> BossHits => Set<BossHit>();
+    public DbSet<BannerScore> BannerScores => Set<BannerScore>();
+    public DbSet<Fortress> Fortresses => Set<Fortress>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -43,6 +46,10 @@ public sealed class GameDb : DbContext
         });
 
         b.Entity<ClientLog>(e => e.HasIndex(l => new { l.AccountId, l.Utc }));
+
+        b.Entity<BossHit>(e => e.HasIndex(h => new { h.BossId, h.SpawnUtc }));
+        b.Entity<BannerScore>(e => e.HasKey(s => new { s.Season, s.Banner }));
+        b.Entity<Fortress>(e => e.Property(f => f.Id).ValueGeneratedNever());
 
         b.Entity<LedgerEntry>(e =>
         {

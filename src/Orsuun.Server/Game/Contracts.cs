@@ -58,14 +58,43 @@ public sealed record PushResultDto(int Stage, bool Cleared, ulong Seed, int Tick
 public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChanceBp);
 
 public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
-    int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins);
+    int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0);
+
+/// <summary>One bounty with this account's count toward it (the server counts; the client only shows).</summary>
+public sealed record BountyDto(int Id, string Title, BountyPeriod Period, long Count, int Target, int Marks, bool Claimed);
+public sealed record BountyBoardDto(BountyDto[] Items, int DailyResetSeconds, int WeeklyResetSeconds);
+public sealed record ShopItemDto(int Id, string Name, int Marks, string Detail);
+public sealed record ClaimBountyRequest(string RequestId, int BountyId);
+public sealed record ShopBuyRequest(string RequestId, int ShopItemId, int Count = 1);
+/// <summary>ETCH: an Etching Needle on an owned piece. PIN: Pinning Wax on one of its etchings (again on it: unpin).</summary>
+public sealed record EtchRequest(string RequestId, Guid ItemId);
+public sealed record PinRequest(string RequestId, Guid ItemId, int Index);
+public sealed record EtchResultDto(bool Took, int ChanceBp, string Text);
+
+/// <summary>The oath: once, to one of the three Banners.</summary>
+public sealed record BannerRequest(Banner Banner);
+public sealed record BannerStandingDto(Banner Banner, string Name, long Points, int Fortresses);
+public sealed record FortressDto(int Id, string Name, string Region, Banner Holder, SiegePhase Phase, long Wall, long WallMax,
+    long SiegeEmber, long SiegeSky, long SiegeGold, string LastEvent);
+/// <summary>The War of Banners at a glance: this season's points, last season's winner and its bonus, the fortresses.</summary>
+public sealed record WarDto(string Season, BannerStandingDto[] Standings, Banner LastWinner, int MySornBonusPercent, FortressDto[] Fortresses,
+    int SiegeCooldownSeconds);
+public sealed record SiegeRequest(string RequestId, int FortressId);
+public sealed record SiegeResultDto(int FortressId, int BossId, bool Defending, ulong Seed, long Damage, int PotionsAtStart, Bell Bell,
+    SiegePhase Phase, long WallLeft, bool PhaseBroken, bool Captured, Banner Holder, string Text);
+/// <summary>A fighter on a Commander spawn's damage board.</summary>
+public sealed record BossHitDto(string Name, Banner Banner, long Damage);
 
 public sealed record BossFightRequest(string RequestId, int BossId);
 
 /// <summary>One Commander's state for the panel: up now with seconds left, or next spawn in N seconds.</summary>
-public sealed record BossStatusDto(int BossId, string Name, string Mechanic, bool Up, long SecondsLeft, bool FoughtThisSpawn);
+/// <summary>Since 24 Sep 2026 each spawn has one HP pool for the whole server: HpLeft/HpMax, who slew it, the top fighters.</summary>
+public sealed record BossStatusDto(int BossId, string Name, string Mechanic, bool Up, long SecondsLeft, bool FoughtThisSpawn,
+    long HpLeft = 0, long HpMax = 0, bool Slain = false, string? SlainBy = null, Banner SlainBanner = Banner.None, BossHitDto[]? Top = null);
 
-public sealed record BossFightResultDto(int BossId, ulong Seed, long Damage, bool Killed, int Rank, string Chest, int PotionsAtStart, Bell Bell);
+/// <summary>PoolLeft: the shared pool after this fight; Slew: this fight took the last of it.</summary>
+public sealed record BossFightResultDto(int BossId, ulong Seed, long Damage, bool Killed, int Rank, string Chest, int PotionsAtStart, Bell Bell,
+    long PoolLeft = 0, bool Slew = false);
 
 public sealed record ForgePreviewDto(long Cost, int Materials, int ChanceAloneBp, int ChanceAlloyBp, bool OathbreakPossible);
 
@@ -92,7 +121,12 @@ public sealed record StateDto(
     SocketResultDto? LastSocket,
     TurnResultDto? LastTurn,
     LaneDto? Lane = null,
-    HeroClass HeroClass = HeroClass.Vanguard);
+    HeroClass HeroClass = HeroClass.Vanguard,
+    BountyBoardDto? Bounties = null,
+    Banner Banner = Banner.None,
+    string Name = "",
+    SiegeResultDto? LastSiege = null,
+    EtchResultDto? LastEtch = null);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

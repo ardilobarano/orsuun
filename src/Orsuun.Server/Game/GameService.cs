@@ -16,7 +16,7 @@ public sealed class GameException : Exception
 /// All game mutations. Each public method is one database transaction: load the account, apply the
 /// rules from Orsuun.Rules, write the ledger, save. A concurrency clash aborts the whole thing.
 /// </summary>
-public sealed class GameService
+public sealed partial class GameService
 {
     /// <summary>Gaps longer than this count as offline time at the offline rate.</summary>
     public static readonly TimeSpan OnlineGrace = TimeSpan.FromMinutes(3);
@@ -104,9 +104,13 @@ public sealed class GameService
         DateTime now = DateTime.UtcNow;
         bool online = now - account.LastHeartbeatUtc <= OnlineGrace;
         (int activeBp, int verified) = online ? VerifyLoops(account, request?.Loops, now) : (RandomExtensions.FullBp, 0);
-        SettlementDto settlement = Settle(account, now, activeBp, verified) with { ActiveBp = activeBp, LoopsVerified = verified };
+        int bonus = await SornBonusPercentAsync(account.Banner, ct);
+        SettlementDto settlement = Settle(account, now, activeBp, verified, bonus) with { ActiveBp = activeBp, LoopsVerified = verified };
         account.LastHeartbeatUtc = now;
+        Count(account, BountyMetric.Korstones, settlement.Korstones);
+        if (!settlement.Offline) Count(account, BountyMetric.HuntSeconds, settlement.CountedSeconds);
         await SaveAsync(ct);
+        await AddPointsAsync(account.Banner, settlement.Korstones * Banners.PointsPerKorstone, ct);
         return ToState(account, settlement: settlement);
     }
 
@@ -199,6 +203,7 @@ public sealed class GameService
             if (worn) account.Items.Add(Item.From(NewStarter(item.Slot), account.Id, equipped: true));
         }
 
+        Count(account, BountyMetric.ForgeAttempts, 1);
         _db.Ledger.Add(Entry(account.Id, item.Id, "forge",
             $"{request.Method} +{result.LevelBefore}->+{result.LevelAfter} chance={result.ChanceBp} outcome={result.Outcome}", -cost, request.RequestId));
         await SaveAsync(ct);
@@ -228,6 +233,7 @@ public sealed class GameService
         int spent = _etchings.TurnUntil(state, pool, inventory, _rng, request.Count, goal, out int turns, out bool stopped);
         Apply(account, inventory);
         item.ApplyState(state);
+        Count(account, BountyMetric.Turns, turns);
         string goalText = string.Join(",", goal.Select(t => $"{t.EntryId}:T{t.MinTier}"));
         _db.Ledger.Add(Entry(account.Id, item.Id, "turn", $"turns={turns} spent={spent} stopped={stopped} goal={goalText} etchings={item.Etchings}", 0, request.RequestId));
         await SaveAsync(ct);
@@ -378,15 +384,20 @@ public sealed class GameService
         StageRunResult run = StageRun.Simulate(EveningBells.Apply(Content.Stage(target), _bells.Active), Hero(account), inventory, seed);
         Apply(account, inventory);
         if (run.Cleared) account.HighestStageCleared = target;
+        Count(account, BountyMetric.Pushes, 1);
 
         _db.Ledger.Add(Entry(account.Id, null, "push", $"stage={target} seed={seed} cleared={run.Cleared} ticks={run.Ticks}", 0, request.RequestId));
         await SaveAsync(ct);
+        if (run.Cleared) await AddPointsAsync(account.Banner, Banners.PointsPushCleared, ct);
         return ToState(account, push: new PushResultDto(target, run.Cleared, seed, run.Ticks, account.HighestStageCleared, potionsAtStart, _bells.Active));
     }
 
     /// <summary>
     /// One Commander fight. The boss must be up (server-wide clock) and this account may fight it once per spawn.
-    /// The fight is scored here with a seed the client replays; the chest follows the damage bracket.
+    /// Since 24 Sep 2026 every spawn has one HP pool for the whole server: the fight is scored here with a seed the
+    /// client replays, its damage comes off the pool, and the fight that takes the last of it slays the Commander for
+    /// its Banner. The chest follows the damage rank among this spawn's real fighters (simulated rivals fill the
+    /// bracket to 20). The boss row is locked for the fight so two fights never spend the same HP.
     /// </summary>
     public async Task<StateDto> FightBossAsync(Account account, BossFightRequest request, CancellationToken ct)
     {
@@ -396,9 +407,12 @@ public sealed class GameService
             throw new GameException("stage_locked", "That Commander Ground is not unlocked.");
 
         DateTime now = DateTime.UtcNow;
-        BossClock clock = await ClockAsync(boss, now, ct);
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        BossClock clock = await LockClockAsync(boss, now, ct);
         if (now >= clock.SpawnUtc.AddSeconds(BossDef.WindowSeconds) || now < clock.SpawnUtc)
             throw new GameException("boss_down", boss.Name + " is not up.");
+        if (clock.SlainUtc != null)
+            throw new GameException("boss_slain", boss.Name + (clock.SlainBanner == Banner.None ? " has already fallen." : " has fallen to the " + Banners.Def(clock.SlainBanner).Name + "."));
 
         string spawnKey = "boss:" + boss.Id + ":" + clock.SpawnUtc.Ticks;
         if (await _db.Ledger.AnyAsync(l => l.AccountId == account.Id && l.Kind == spawnKey, ct))
@@ -409,13 +423,30 @@ public sealed class GameService
         Bell bell = _bells.Active;
         var inventory = Snapshot(account);
         BossRunResult run = BossRun.Simulate(boss, Hero(account), inventory, seed, bell);
-        int rank = BossRun.Rank(run.Damage, boss, _rng);
+        List<long> others = await _db.BossHits.Where(h => h.BossId == boss.Id && h.SpawnUtc == clock.SpawnUtc).Select(h => h.Damage).ToListAsync(ct);
+        int rank = BossRun.RankShared(run.Damage, others, boss, _rng);
         string chest = HuntYield.LootCommander(boss, rank, inventory, _rng);
-        Apply(account, inventory);
 
-        _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} bell={bell} chest={chest}", 0, request.RequestId));
+        string name = Banners.GeneratedName(account.Id);
+        clock.HpLeft = Math.Max(0, clock.HpLeft - run.Damage);
+        bool slew = clock.HpLeft == 0;
+        if (slew)
+        {
+            clock.SlainUtc = now;
+            clock.SlainBanner = account.Banner;
+            clock.SlainBy = name;
+            chest += ", and you struck the last blow";
+        }
+        _db.BossHits.Add(new BossHit { BossId = boss.Id, SpawnUtc = clock.SpawnUtc, AccountId = account.Id, Name = name, Banner = account.Banner, Damage = run.Damage, Utc = now });
+        Apply(account, inventory);
+        Count(account, BountyMetric.CommanderFights, 1);
+
+        _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} pool={clock.HpLeft}/{clock.HpMax} slew={slew} bell={bell} chest={chest}", 0, request.RequestId));
         await SaveAsync(ct);
-        return ToState(account, bossFight: new BossFightResultDto(boss.Id, seed, run.Damage, run.Killed, rank, chest, potionsAtStart, bell));
+        long points = run.Damage / Banners.CommanderDamagePerPoint + (slew ? Banners.PointsCommanderSlain : 0);
+        await AddPointsAsync(account.Banner, points, ct);
+        await tx.CommitAsync(ct);
+        return ToState(account, bossFight: new BossFightResultDto(boss.Id, seed, run.Damage, run.Killed, rank, chest, potionsAtStart, bell, clock.HpLeft, slew));
     }
 
     /// <summary>Playtest only; disabled outside Development.</summary>
@@ -426,6 +457,9 @@ public sealed class GameService
         account.ScrollsOfMercy += 5;
         account.KhansAlloys += 1;
         account.Turnstones += 20;
+        account.HuntMarks += 20;
+        account.EtchingNeedles += 5;
+        account.PinningWax += 2;
         int[] shards = ParseShards(account.Korshards);
         for (int i = 0; i < shards.Length; i++) shards[i] += 3;
         account.Korshards = string.Join(';', shards);
@@ -462,21 +496,19 @@ public sealed class GameService
         return clock;
     }
 
-    private static BossStatusDto[] BossStatuses(IReadOnlyDictionary<int, BossClock> clocks, ISet<int> foughtIds, DateTime now)
+    private static BossStatusDto BossStatus(BossDef boss, BossClock clock, bool fought, long freshPool, BossHitDto[] top, DateTime now)
     {
-        var list = new List<BossStatusDto>();
-        foreach (BossDef boss in Content.Bosses)
-        {
-            if (!clocks.TryGetValue(boss.Id, out BossClock? clock)) continue;
-            DateTime windowEnd = clock.SpawnUtc.AddSeconds(BossDef.WindowSeconds);
-            bool up = now >= clock.SpawnUtc && now < windowEnd;
-            long secondsLeft = up ? (long)(windowEnd - now).TotalSeconds : (long)(clock.SpawnUtc.AddSeconds(boss.RespawnSeconds) - now).TotalSeconds;
-            list.Add(new BossStatusDto(boss.Id, boss.Name, boss.Mechanic.ToString(), up, Math.Max(0, secondsLeft), foughtIds.Contains(boss.Id)));
-        }
-        return list.ToArray();
+        DateTime windowEnd = clock.SpawnUtc.AddSeconds(BossDef.WindowSeconds);
+        bool slain = clock.PoolSpawnUtc == clock.SpawnUtc && clock.SlainUtc != null;
+        bool up = now >= clock.SpawnUtc && now < windowEnd && !slain;
+        long secondsLeft = up ? (long)(windowEnd - now).TotalSeconds : (long)(clock.SpawnUtc.AddSeconds(boss.RespawnSeconds) - now).TotalSeconds;
+        // A spawn nobody has fought yet shows the pool it will open with.
+        bool current = clock.PoolSpawnUtc == clock.SpawnUtc;
+        return new BossStatusDto(boss.Id, boss.Name, boss.Mechanic.ToString(), up, Math.Max(0, secondsLeft), fought,
+            current ? clock.HpLeft : freshPool, current ? clock.HpMax : freshPool, slain, slain ? clock.SlainBy : null, slain ? clock.SlainBanner : Banner.None, top);
     }
 
-    private SettlementDto Settle(Account account, DateTime now, int onlineEfficiencyBp = RandomExtensions.FullBp, int loopsVerified = 0)
+    private SettlementDto Settle(Account account, DateTime now, int onlineEfficiencyBp = RandomExtensions.FullBp, int loopsVerified = 0, int sornBonusPercent = 0)
     {
         TimeSpan gap = now - account.LastHeartbeatUtc;
         bool offline = gap > OnlineGrace;
@@ -493,13 +525,16 @@ public sealed class GameService
         if (!offline) EveningBells.Apply(stage, _bells.Active);
         var inventory = Snapshot(account);
         HuntSettlement s = HuntYield.Settle(stage, Hero(account), seconds, cap, efficiency, inventory, _rng);
+        // The War of Banners bonus: last season's winning Banner and each fortress a Banner holds add sorn.
+        long bonusSorn = s.SornEarned * sornBonusPercent / 100;
+        inventory.Sorn += bonusSorn;
         Apply(account, inventory);
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
-                $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones} efficiencyBp={efficiency} loopsVerified={loopsVerified}", s.SornEarned, Guid.NewGuid().ToString("N")));
+                $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones} efficiencyBp={efficiency} loopsVerified={loopsVerified} bannerBonus={sornBonusPercent}%", s.SornEarned + bonusSorn, Guid.NewGuid().ToString("N")));
 
-        return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned, offline);
+        return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned + bonusSorn, offline);
     }
 
     private async Task EnsureFreshRequestAsync(Account account, string requestId, CancellationToken ct)
@@ -542,24 +577,32 @@ public sealed class GameService
     private static int[] ParseShards(string s) => s.Split(';').Select(int.Parse).ToArray();
     private static string[] ParseSkins(string s) => s.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-    /// <summary>Boss statuses need the clocks and this account's fights this spawn; loaded per request by the endpoints.</summary>
+    /// <summary>
+    /// Boss statuses need the clocks, the shared pools, the top fighters and this account's fights this spawn; loaded
+    /// per request by the endpoints. Nothing here refills a pool: only a fight (holding the row lock) opens a spawn's
+    /// pool, so a status read can never undo a fight's damage.
+    /// </summary>
     public async Task<StateDto> WithBossesAsync(Account account, StateDto state, CancellationToken ct)
     {
         DateTime now = DateTime.UtcNow;
-        var clocks = new Dictionary<int, BossClock>();
-        var fought = new HashSet<int>();
+        var list = new List<BossStatusDto>();
+        long freshPool = -1;
         foreach (BossDef boss in Content.Bosses)
         {
             BossClock clock = await ClockAsync(boss, now, ct);
-            clocks[boss.Id] = clock;
             string spawnKey = "boss:" + boss.Id + ":" + clock.SpawnUtc.Ticks;
-            if (await _db.Ledger.AnyAsync(l => l.AccountId == account.Id && l.Kind == spawnKey, ct)) fought.Add(boss.Id);
+            bool fought = await _db.Ledger.AnyAsync(l => l.AccountId == account.Id && l.Kind == spawnKey, ct);
+            BossHitDto[] top = await _db.BossHits.Where(h => h.BossId == boss.Id && h.SpawnUtc == clock.SpawnUtc)
+                .OrderByDescending(h => h.Damage).Take(3).Select(h => new BossHitDto(h.Name, h.Banner, h.Damage)).ToArrayAsync(ct);
+            if (freshPool < 0) freshPool = await PoolFightersAsync(now, ct);
+            list.Add(BossStatus(boss, clock, fought, boss.Hp * freshPool, top, now));
         }
         await _db.SaveChangesAsync(ct);
-        return state with { Bosses = BossStatuses(clocks, fought, now) };
+        return state with { Bosses = list.ToArray() };
     }
 
-    private StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null, SocketResultDto? socket = null, TurnResultDto? turn = null)
+    private StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null, SocketResultDto? socket = null, TurnResultDto? turn = null,
+        SiegeResultDto? siege = null, EtchResultDto? etch = null)
     {
         Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
@@ -570,7 +613,8 @@ public sealed class GameService
         return new StateDto(
             account.Id,
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
-                account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins)),
+                account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
+                account.HuntMarks, account.PinningWax),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -593,7 +637,12 @@ public sealed class GameService
             socket,
             turn,
             new LaneDto(unchecked((ulong)account.LaneSeed).ToString(), account.LaneLoop),
-            account.Class);
+            account.Class,
+            Board(account),
+            account.Banner,
+            Banners.GeneratedName(account.Id),
+            siege,
+            etch);
     }
 
     private static ItemDto ToDto(Item item)
@@ -613,6 +662,7 @@ public sealed class GameService
             Sorn = a.Sorn, Potions = a.Potions, Materials = a.Materials, ScrollsOfMercy = a.ScrollsOfMercy,
             KhansAlloys = a.KhansAlloys, AnvilWards = a.AnvilWards, Turnstones = a.Turnstones,
             EtchingNeedles = a.EtchingNeedles, SummoningMarkers = a.SummoningMarkers, Xp = a.Xp,
+            HuntMarks = a.HuntMarks, PinningWax = a.PinningWax,
         };
         int[] shards = ParseShards(a.Korshards);
         Array.Copy(shards, inventory.Korshards, Math.Min(shards.Length, inventory.Korshards.Length));
@@ -626,6 +676,7 @@ public sealed class GameService
         a.Sorn = i.Sorn; a.Potions = i.Potions; a.Materials = i.Materials; a.ScrollsOfMercy = i.ScrollsOfMercy;
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
         a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;
+        a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax;
         a.Korshards = string.Join(';', i.Korshards);
         a.Skins = string.Join(';', i.Skins);
 

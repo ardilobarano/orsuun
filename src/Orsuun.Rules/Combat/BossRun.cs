@@ -47,6 +47,25 @@ namespace Orsuun.Rules.Combat
         }
 
         /// <summary>
+        /// Damage rank on a shared Commander spawn: every real player who fought this spawn counts, and simulated
+        /// rivals fill the bracket up to 20 fighters (so a quiet server still ranks like a busy one). Ties go to the
+        /// earlier fighter.
+        /// </summary>
+        public static int RankShared(long damage, System.Collections.Generic.IReadOnlyList<long> others, BossDef boss, IRandom rng)
+        {
+            int rank = 1;
+            foreach (long d in others)
+                if (d >= damage) rank++;
+            int rivals = Math.Max(0, SimulatedRivals - others.Count);
+            for (int i = 0; i < rivals; i++)
+            {
+                long u = rng.NextInt(1000);
+                if (boss.Hp * u * u / 1_000_000 > damage) rank++;
+            }
+            return rank;
+        }
+
+        /// <summary>
         /// Damage rank among simulated rivals until shared boss pools exist: rival damage is skewed low
         /// (u squared of the boss HP), so a hero that deals a third of the boss lands near the top.
         /// </summary>

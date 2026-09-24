@@ -208,7 +208,8 @@ namespace Orsuun.Client.EditorTools
             foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
             {
                 string id = Path.GetFileNameWithoutExtension(fbx);
-                EnsureModelImport(models + id + ".fbx");
+                // Mobs are rigged with their own clips since 24 Sep 2026 (art/blender/mobrig.py).
+                EnsureAnimatedImport(models + id + ".fbx");
                 string matPath = Res + "Mobs/" + id + ".mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
                 if (mat == null) { mat = new Material(lit); AssetDatabase.CreateAsset(mat, matPath); }
@@ -593,7 +594,7 @@ namespace Orsuun.Client.EditorTools
 
             // The other classes, each armour band drawn so far: idle, wind-up and strike, and a run stride on band 0.
             foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
-                for (int band = 0; band <= 2; band++)
+                for (int band = 0; band <= 5; band++)
                 {
                     view.SetHeroClass(cls, band);
                     foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.4f), ("Attack", 0.57f), ("Run", 0.25f) })

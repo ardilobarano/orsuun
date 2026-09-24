@@ -49,7 +49,7 @@ namespace Orsuun.Client
                 _zoneRows[i] = MakeRow(canvas, "Zone" + i, y1 - 0.048f, y1, "PARK", Palette.Safe, i, row => _root.Park(_zoneRows[row].Id));
             }
 
-            Ui.Label("BossTitle", canvas, 0.05f, 0.375f, 0.95f, 0.41f, "COMMANDERS  ·  Gorak War Camp  ·  one fight per spawn, chest by damage rank", 20, TextAnchor.MiddleLeft, Palette.Muted);
+            Ui.Label("BossTitle", canvas, 0.05f, 0.375f, 0.95f, 0.41f, "COMMANDERS  ·  Gorak War Camp  ·  one HP pool for the whole server, one fight per spawn, chest by damage rank", 20, TextAnchor.MiddleLeft, Palette.Muted);
             for (int i = 0; i < BossRows; i++)
             {
                 float y1 = 0.37f - i * 0.075f;
@@ -124,6 +124,7 @@ namespace Orsuun.Client
                 BossDef boss = Content.Bosses[i];
                 row.Id = boss.Id;
                 string status;
+                string pool = "";
                 bool canFight = campOpen;
                 if (_root.Server.Online)
                 {
@@ -133,13 +134,22 @@ namespace Orsuun.Client
                     else
                     {
                         long left = System.Math.Max(0, s.secondsLeft - (long)age);
-                        status = s.up ? (s.foughtThisSpawn ? $"fought · up {left / 60}:{left % 60:00}" : $"UP {left / 60}:{left % 60:00}") : $"next in {left / 60}:{left % 60:00}";
-                        canFight &= s.up && !s.foughtThisSpawn;
+                        status = s.slain ? $"next in {left / 60}:{left % 60:00}"
+                            : s.up ? (s.foughtThisSpawn ? $"fought · up {left / 60}:{left % 60:00}" : $"UP {left / 60}:{left % 60:00}") : $"next in {left / 60}:{left % 60:00}";
+                        canFight &= s.up && !s.foughtThisSpawn && !s.slain;
+                        // The shared pool: what the server has left of it, the best fighter so far, or who slew it.
+                        if (s.slain) pool = "\n" + ConfirmDialog.Tint($"SLAIN by {s.slainBy}", BannerLook.Color(BannerLook.Parse(s.slainBanner)));
+                        else if (s.hpMax > 0)
+                        {
+                            pool = $"\nServer pool {s.hpLeft:N0} / {s.hpMax:N0} HP";
+                            if (s.top != null && s.top.Length > 0)
+                                pool += "  ·  best: " + ConfirmDialog.Tint($"{s.top[0].name} {s.top[0].damage:N0}", BannerLook.Color(BannerLook.Parse(s.top[0].banner)));
+                        }
                     }
                 }
                 else status = "up (local)";
 
-                row.Label.text = campOpen ? $"{boss.Name}\n{Mechanic(boss.Mechanic)}  ·  {status}" : $"{boss.Name}  ·  clear campaign stage 5";
+                row.Label.text = campOpen ? $"{boss.Name}  ·  {status}\n{Mechanic(boss.Mechanic)}{pool}" : $"{boss.Name}  ·  clear campaign stage 5";
                 row.Label.color = campOpen ? Palette.Parchment : Palette.Muted;
                 row.Button.interactable = canFight && !_root.Replaying && !_root.PushBusy;
             }

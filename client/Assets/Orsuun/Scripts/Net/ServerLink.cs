@@ -33,6 +33,16 @@ namespace Orsuun.Client.Net
 
         public void MarkLocal() => Status = "LOCAL MODE (-local)";
 
+        /// <summary>Bounties with this account's counts, from the last response (server-counted).</summary>
+        public BountyBoardDto Bounties { get; private set; }
+        public float BountiesReceivedAt { get; private set; }
+        /// <summary>The Banner this account is sworn to (None before the oath) and its name as other players see it.</summary>
+        public Banner Banner { get; private set; } = Banner.None;
+        public string PlayerName { get; private set; } = "";
+        /// <summary>The War of Banners, fetched on demand by the WAR screen.</summary>
+        public WarDto War { get; private set; }
+        public float WarReceivedAt { get; private set; }
+
         /// <summary>Stops all traffic and falls back to local rolls. Used by tests and by the -local switch.</summary>
         public void Disconnect()
         {
@@ -274,6 +284,79 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        public IEnumerator ClaimBounty(int bountyId, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/bounty/claim", JsonUtility.ToJson(new ClaimBountyRequest { requestId = Guid.NewGuid().ToString("N"), bountyId = bountyId }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        public IEnumerator Buy(int shopItemId, int count, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/shop/buy", JsonUtility.ToJson(new ShopBuyRequest { requestId = Guid.NewGuid().ToString("N"), shopItemId = shopItemId, count = count }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>An Etching Needle on an owned piece. Completes with (result, error).</summary>
+        public IEnumerator Etch(string itemId, Action<EtchResultDto, string> done)
+        {
+            EtchResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/etch", JsonUtility.ToJson(new EtchRequest { requestId = Guid.NewGuid().ToString("N"), itemId = itemId }), true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                Apply(state);
+                result = state.lastEtch;
+            }, error => failure = error);
+            done(result, failure);
+        }
+
+        public IEnumerator Pin(string itemId, int index, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/pin", JsonUtility.ToJson(new PinRequest { requestId = Guid.NewGuid().ToString("N"), itemId = itemId, index = index }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>The oath to a Banner (once).</summary>
+        public IEnumerator Swear(Banner banner, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/banner", JsonUtility.ToJson(new BannerRequest { banner = banner.ToString() }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Refreshes War (standings, fortresses, cooldown).</summary>
+        public IEnumerator FetchWar(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/war", null, true, json =>
+            {
+                War = JsonUtility.FromJson<WarDto>(json);
+                WarReceivedAt = Time.realtimeSinceStartup;
+            }, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>One siege fight; the result carries the seed the client replays.</summary>
+        public IEnumerator Siege(int fortressId, Action<SiegeResultDto, string> done)
+        {
+            SiegeResultDto result = null;
+            string failure = null;
+            yield return Post("/v1/siege", JsonUtility.ToJson(new SiegeRequest { requestId = Guid.NewGuid().ToString("N"), fortressId = fortressId }), true, json =>
+            {
+                StateDto state = JsonUtility.FromJson<StateDto>(json);
+                result = state.lastSiege;
+                Apply(state);
+            }, error => failure = error);
+            done(result, failure);
+        }
+
         public IEnumerator DevGrant()
         {
             yield return Post("/v1/dev/grant", "{}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), _ => { });
@@ -314,6 +397,7 @@ namespace Orsuun.Client.Net
                 ScrollsOfMercy = s.inventory.scrollsOfMercy, KhansAlloys = s.inventory.khansAlloys,
                 AnvilWards = s.inventory.anvilWards, Turnstones = s.inventory.turnstones,
                 EtchingNeedles = s.inventory.etchingNeedles, SummoningMarkers = s.inventory.summoningMarkers, Xp = s.inventory.xp,
+                HuntMarks = s.inventory.huntMarks, PinningWax = s.inventory.pinningWax,
             };
             if (s.inventory.korshards != null) Array.Copy(s.inventory.korshards, inventory.Korshards, Math.Min(5, s.inventory.korshards.Length));
             if (s.inventory.skins != null) inventory.Skins.AddRange(s.inventory.skins);
@@ -349,6 +433,13 @@ namespace Orsuun.Client.Net
                 foreach (KeyValuePair<ItemState, string> pair in ItemIds)
                     if (pair.Value == anvilId) { _player.PutOnAnvil(pair.Key); break; }
             if (!string.IsNullOrEmpty(s.heroClass) && Enum.TryParse(s.heroClass, out HeroClass cls)) _player.SetClass(cls);
+            if (s.bounties != null && s.bounties.items != null)
+            {
+                Bounties = s.bounties;
+                BountiesReceivedAt = Time.realtimeSinceStartup;
+            }
+            if (!string.IsNullOrEmpty(s.banner) && Enum.TryParse(s.banner, out Banner banner)) Banner = banner;
+            if (!string.IsNullOrEmpty(s.name)) PlayerName = s.name;
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
             Online = true;
@@ -423,10 +514,24 @@ namespace Orsuun.Client.Net
         [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
         [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
         [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }
-        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; }
+        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; }
+        [Serializable] public class BountyDto { public int id; public string title; public string period; public long count; public int target; public int marks; public bool claimed; }
+        [Serializable] public class BountyBoardDto { public BountyDto[] items; public int dailyResetSeconds; public int weeklyResetSeconds; }
+        [Serializable] public class ClaimBountyRequest { public string requestId; public int bountyId; }
+        [Serializable] public class ShopBuyRequest { public string requestId; public int shopItemId; public int count; }
+        [Serializable] public class EtchRequest { public string requestId; public string itemId; }
+        [Serializable] public class PinRequest { public string requestId; public string itemId; public int index; }
+        [Serializable] public class EtchResultDto { public bool took; public int chanceBp; public string text; }
+        [Serializable] public class BannerRequest { public string banner; }
+        [Serializable] public class BannerStandingDto { public string banner; public string name; public long points; public int fortresses; }
+        [Serializable] public class FortressDto { public int id; public string name; public string region; public string holder; public string phase; public long wall; public long wallMax; public long siegeEmber; public long siegeSky; public long siegeGold; public string lastEvent; }
+        [Serializable] public class WarDto { public string season; public BannerStandingDto[] standings; public string lastWinner; public int mySornBonusPercent; public FortressDto[] fortresses; public int siegeCooldownSeconds; }
+        [Serializable] public class SiegeRequest { public string requestId; public int fortressId; }
+        [Serializable] public class SiegeResultDto { public int fortressId; public int bossId; public bool defending; public ulong seed; public long damage; public int potionsAtStart; public string bell; public string phase; public long wallLeft; public bool phaseBroken; public bool captured; public string holder; public string text; }
+        [Serializable] public class BossHitDto { public string name; public string banner; public long damage; }
         [Serializable] public class BossFightRequest { public string requestId; public int bossId; }
-        [Serializable] public class BossStatusDto { public int bossId; public string name; public string mechanic; public bool up; public long secondsLeft; public bool foughtThisSpawn; }
-        [Serializable] public class BossFightResultDto { public int bossId; public ulong seed; public long damage; public bool killed; public int rank; public string chest; public int potionsAtStart; public string bell; }
+        [Serializable] public class BossStatusDto { public int bossId; public string name; public string mechanic; public bool up; public long secondsLeft; public bool foughtThisSpawn; public long hpLeft; public long hpMax; public bool slain; public string slainBy; public string slainBanner; public BossHitDto[] top; }
+        [Serializable] public class BossFightResultDto { public int bossId; public ulong seed; public long damage; public bool killed; public int rank; public string chest; public int potionsAtStart; public string bell; public long poolLeft; public bool slew; }
         [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; public int activeBp; public int loopsVerified; }
         [Serializable] public class LaneDto { public string seed; public int loop; }
         [Serializable] public class CastDto { public int tick; public int skill; }
@@ -434,6 +539,6 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; }
     }
 }

@@ -25,7 +25,17 @@ public sealed class Account
     public int Turnstones { get; set; }
     public int EtchingNeedles { get; set; }
     public int SummoningMarkers { get; set; }
+    public int HuntMarks { get; set; }
+    public int PinningWax { get; set; }
     public long Xp { get; set; }
+    /// <summary>Bounty counts and claims for the current day and week (Rules.BountyProgress.Serialize).</summary>
+    [MaxLength(512)] public string Bounties { get; set; } = "";
+
+    /// <summary>The Banner sworn to; None until the oath.</summary>
+    public Banner Banner { get; set; } = Banner.None;
+    public DateTime? SwornUtc { get; set; }
+    /// <summary>The last fortress siege fight, for the cooldown.</summary>
+    public DateTime? LastSiegeUtc { get; set; }
     /// <summary>Korshards by rank as "n;n;n;n;n" (Trooper .. Guard of the Khan).</summary>
     [MaxLength(64)] public string Korshards { get; set; } = "0;0;0;0;0";
     /// <summary>Owned skins, semicolon separated.</summary>
@@ -118,11 +128,57 @@ public sealed class Item
     }
 }
 
-/// <summary>Server-wide spawn clock of one Commander. A boss is up from SpawnUtc for BossDef.WindowSeconds.</summary>
+/// <summary>
+/// Server-wide spawn clock of one Commander. A boss is up from SpawnUtc for BossDef.WindowSeconds; each spawn has one
+/// HP pool that every player's fight wears down (shared since 24 Sep 2026), sized when the spawn opens.
+/// </summary>
 public sealed class BossClock
 {
     public int BossId { get; set; }
     public DateTime SpawnUtc { get; set; }
+    /// <summary>The spawn the pool below belongs to; a new spawn refills it.</summary>
+    public DateTime PoolSpawnUtc { get; set; }
+    public long HpMax { get; set; }
+    public long HpLeft { get; set; }
+    public DateTime? SlainUtc { get; set; }
+    public Banner SlainBanner { get; set; }
+    [MaxLength(48)] public string? SlainBy { get; set; }
+}
+
+/// <summary>One player's fight against one Commander spawn: the shared pool's damage ranking reads these.</summary>
+public sealed class BossHit
+{
+    public long Id { get; set; }
+    public int BossId { get; set; }
+    public DateTime SpawnUtc { get; set; }
+    public Guid AccountId { get; set; }
+    [MaxLength(48)] public string Name { get; set; } = "";
+    public Banner Banner { get; set; }
+    public long Damage { get; set; }
+    public DateTime Utc { get; set; }
+}
+
+/// <summary>War of Banners points of one Banner in one season.</summary>
+public sealed class BannerScore
+{
+    [MaxLength(16)] public string Season { get; set; } = "";
+    public Banner Banner { get; set; }
+    public long Points { get; set; }
+}
+
+/// <summary>A fortress: its holding Banner, the phase under siege and that phase's wall, and each Banner's siege damage.</summary>
+public sealed class Fortress
+{
+    public int Id { get; set; }
+    public Banner Holder { get; set; }
+    public DateTime HeldSinceUtc { get; set; }
+    public int Phase { get; set; }
+    public long WallMax { get; set; }
+    public long Wall { get; set; }
+    public long SiegeEmber { get; set; }
+    public long SiegeSky { get; set; }
+    public long SiegeGold { get; set; }
+    [MaxLength(160)] public string LastEvent { get; set; } = "";
 }
 
 /// <summary>Append-only record of every roll and every currency change. Support and rate audits read this.</summary>

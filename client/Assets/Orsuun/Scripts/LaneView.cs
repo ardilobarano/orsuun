@@ -40,6 +40,8 @@ namespace Orsuun.Client
             public float LungeT = -1f;
             public bool IsBoss;
             public KorstoneFx Fx;
+            /// <summary>The mob's own clips (Idle, Run, Attack, Hit, Death; art/blender/mobrig.py), or null for a still model.</summary>
+            public Animation Anim;
         }
 
         /// <summary>A 3D enemy: model and material under Resources (art/blender/looks.py mob_model), and its lane scale.</summary>
@@ -400,6 +402,7 @@ namespace Orsuun.Client
                         if (e.Crit) Sparks(at, 18, new Color(1f, 0.95f, 0.7f), 1.4f);
                         else Sparks(at, hit.IsKorstone ? 10 : 7, hit.IsKorstone ? korstoneGlow : new Color(1f, 0.7f, 0.3f), 1f);
                         hit.Fx?.Flare();
+                        if (hit.Anim != null && !hit.Anim.IsPlaying("Attack")) hit.Anim.CrossFade("Hit", 0.05f);
                         SpellFx(at);
                     }
                     GameAudio.Instance?.Play(e.Crit ? "LaneHitCrit" : "LaneHitSlash", e.Crit ? 0.9f : 0.55f, e.Crit ? 0.08f : 0.07f);
@@ -422,10 +425,11 @@ namespace Orsuun.Client
                         }
                         if (dead.IsMob && _falling.Count < 24)
                         {
-                            // Models keel over and sink into the grass; the HP bar goes at once.
+                            // Models fall (their own Death clip, or a keel-over) and sink into the grass; the HP bar goes at once.
                             Transform bar = dead.Root.Find("HpBar");
                             if (bar != null) Destroy(bar.gameObject);
-                            _falling.Add((dead.Root, 0f, (e.EnemyId & 1) == 0 ? 1f : -1f));
+                            if (dead.Anim != null) dead.Anim.CrossFade("Death", 0.05f);
+                            _falling.Add((dead.Root, 0f, dead.Anim != null ? 0f : (e.EnemyId & 1) == 0 ? 1f : -1f));
                         }
                         else Destroy(dead.Root.gameObject);
                     }
@@ -454,6 +458,11 @@ namespace Orsuun.Client
                     if (_views.TryGetValue(e.EnemyId, out EnemyView attacker) && !attacker.IsKorstone)
                     {
                         attacker.LungeT = 0f;
+                        if (attacker.Anim != null)
+                        {
+                            attacker.Anim.CrossFade("Attack", 0.05f);
+                            attacker.Anim["Attack"].time = 0f;
+                        }
                         bool evaded = e.Text == "evaded";
                         if (!evaded)
                         {
@@ -530,10 +539,10 @@ namespace Orsuun.Client
                 if (root == null) { _falling.RemoveAt(i); continue; }
                 age += dt;
                 float t = Mathf.Clamp01(age / FallSeconds);
-                // Roll onto the side over the first half, then sink below the ground.
-                root.rotation = Quaternion.Euler(0f, EnemyYaw, side * 85f * Mathf.SmoothStep(0f, 1f, Mathf.Min(1f, t * 1.6f)));
+                // Roll onto the side over the first half (still models; animated ones play their Death), then sink.
+                if (side != 0f) root.rotation = Quaternion.Euler(0f, EnemyYaw, side * 85f * Mathf.SmoothStep(0f, 1f, Mathf.Min(1f, t * 1.6f)));
                 Vector3 p = root.position;
-                p.y = -Mathf.Max(0f, t - 0.55f) * 1.4f;
+                p.y = -Mathf.Max(0f, t - (side != 0f ? 0.55f : 0.65f)) * 1.4f;
                 root.position = p;
                 if (t >= 1f) { Destroy(root.gameObject); _falling.RemoveAt(i); }
                 else _falling[i] = (root, age, side);
@@ -601,8 +610,14 @@ namespace Orsuun.Client
                     mobIndex++;
                 }
 
-                if (view.IsMob)
+                if (view.IsMob && view.Anim == null)
                     target.y += Mathf.Abs(Mathf.Sin(Time.time * 5f + enemy.Id * 1.7f)) * 0.04f;   // restless on their feet
+                if (view.Anim != null && !view.Anim.IsPlaying("Attack") && !view.Anim.IsPlaying("Hit"))
+                {
+                    // Animated mobs run while they close in and stand breathing in their place.
+                    string loop = (view.Base - target).sqrMagnitude > 0.04f ? "Run" : "Idle";
+                    if (!view.Anim.IsPlaying(loop)) view.Anim.CrossFade(loop, 0.2f);
+                }
                 view.Base = Vector3.Lerp(view.Base, target, follow);
                 Vector3 lunge = Vector3.zero;
                 if (view.LungeT >= 0f)
@@ -611,7 +626,8 @@ namespace Orsuun.Client
                     view.LungeT += dt;
                     float t = view.LungeT / (view.IsBoss ? 0.45f : 0.32f);
                     if (t >= 1f) view.LungeT = -1f;
-                    else lunge = new Vector3(-Mathf.Sin(t * Mathf.PI) * (view.IsBoss ? 0.9f : 0.55f), Mathf.Sin(t * Mathf.PI) * 0.12f, 0f);
+                    else lunge = new Vector3(-Mathf.Sin(t * Mathf.PI) * (view.IsBoss ? 0.9f : 0.55f), Mathf.Sin(t * Mathf.PI) * 0.12f, 0f)
+                                 * (view.Anim != null ? 0.45f : 1f);   // an Attack clip carries its own lunge
                 }
                 view.Root.position = view.Base + lunge;
                 view.Punch = Mathf.MoveTowards(view.Punch, 0f, dt * 6f);
@@ -857,10 +873,17 @@ namespace Orsuun.Client
             fill.localPosition = new Vector3(0f, 0f, -0.01f);
 
             float hitHeight = art != null ? art.Height * s.y * 0.55f : korstoneFx != null ? korstoneHeight * 0.45f : model != null ? 1.4f : 0f;
+            Animation anim = art != null ? root.GetComponent<Animation>() : null;
+            if (anim != null && anim.GetClip("Idle") == null) anim = null;
+            if (anim != null)
+            {
+                anim.cullingType = AnimationCullingType.AlwaysAnimate;
+                anim.Play("Run");
+            }
             _views[enemyId] = new EnemyView
             {
                 Root = root, HpFill = fill, Scale = s, IsModel = standing, Y = y, IsMob = art != null, IsKorstone = korstone,
-                HitHeight = hitHeight, ArtName = artName, Base = root.position, IsBoss = boss, Fx = korstoneFx,
+                HitHeight = hitHeight, ArtName = artName, Base = root.position, IsBoss = boss, Fx = korstoneFx, Anim = anim,
             };
             if (korstoneFx != null)
             {
@@ -896,6 +919,11 @@ namespace Orsuun.Client
                 {
                     // Commanders have their own models (24 Sep 2026); older builds fall back to scaled mobs.
                     string boss = _sim.Stage.BossName ?? "";
+                    // Fortress champions (sieges) wear existing shapes: the Gate's warden an ice wight in armour, the
+                    // Yard's captain a deserter in steel, the lord of the Hall a darkened warlord.
+                    if (boss.StartsWith("Gate Warden")) { scale = 1.15f; name = "IceWight"; tint = new Color(0.85f, 0.8f, 0.75f); return LoadMob(name) ?? LoadMob("Deserter"); }
+                    if (boss.StartsWith("Yard Captain")) { scale = 1.3f; name = "Deserter"; tint = new Color(0.7f, 0.75f, 0.85f); return LoadMob(name); }
+                    if (boss.StartsWith("Lord of")) { scale = 1.05f; name = "Gorak"; tint = new Color(0.55f, 0.5f, 0.6f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen" : null;
                     MobArt own = name != null ? LoadMob(name) : null;
                     if (own != null) { scale = 1f; return own; }

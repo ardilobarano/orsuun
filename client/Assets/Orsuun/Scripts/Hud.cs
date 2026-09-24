@@ -19,7 +19,8 @@ namespace Orsuun.Client
         private Text _weapon;
         private Text _log;
         private Text _speedLabel;
-        private Text _soundLabel;
+        private Text _bountyLabel;
+        private RawImage _flag;
         private int _lastLevel;
         private Text _stageLabel;
         private Text _pushLabel;
@@ -92,10 +93,18 @@ namespace Orsuun.Client
             Ui.Button("Shards", canvas, 0.51f, 0.09f, 0.73f, 0.155f, "SHARDS", 30, Palette.Alloy, () => root.Sockets.Open(), out _);
             _pushButton = Ui.Button("Push", canvas, 0.74f, 0.09f, 0.96f, 0.155f, "", 22, Palette.Danger, root.Push, out _pushLabel);
 
-            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.45f, 0.08f, "", 24, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
-            Ui.Button("Sound", canvas, 0.47f, 0.02f, 0.61f, 0.08f, "", 22, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
-            Ui.Button("Speed", canvas, 0.63f, 0.02f, 0.79f, 0.08f, "", 24, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
+            // Bottom row (24 Sep 2026): the War of Banners and the bounty board joined; SOUND moved into the MENU.
+            Ui.Button("Zones", canvas, 0.04f, 0.02f, 0.3f, 0.08f, "", 20, Palette.ButtonIdle, () => root.Zones.Open(), out _stageLabel);
+            Ui.Button("War", canvas, 0.31f, 0.02f, 0.47f, 0.08f, "WAR", 24, Palette.Danger, () => root.War.Open(), out _);
+            Ui.Button("Bounties", canvas, 0.48f, 0.02f, 0.67f, 0.08f, "BOUNTIES", 22, Palette.Alloy, () => root.Bounties.Open(), out _bountyLabel);
+            Ui.Button("Speed", canvas, 0.68f, 0.02f, 0.8f, 0.08f, "", 22, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
             Ui.Button("Menu", canvas, 0.81f, 0.02f, 0.96f, 0.08f, "MENU", 24, Palette.DevGrey, () => root.Menu.Open(), out _);
+
+            // The Banner's flag in the corner of the lane; tap it for the War of Banners.
+            _flag = BannerLook.FlagImage("BannerFlag", canvas, 0.905f, 0.79f, 0.985f, 0.9f);
+            var flagButton = _flag.gameObject.AddComponent<Button>();
+            _flag.raycastTarget = true;
+            flagButton.onClick.AddListener(() => root.War.Open());
         }
 
         /// <summary>The screen area (canvas anchors) covering the named HUD elements, for the tutorial's highlight.</summary>
@@ -200,9 +209,11 @@ namespace Orsuun.Client
             bool allCleared = session.HighestStageCleared >= Content.TotalStages;
             _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n{Content.StageName(session.PushTarget)}";
             _pushButton.interactable = !_root.Replaying && !_root.PushBusy && !allCleared;
-            _stageLabel.text = $"ZONES  ·  here: {Content.StageName(session.ParkedStage)}";
-            _speedLabel.text = $"SPEED x{_root.SpeedMultiplier}";
-            _soundLabel.text = GameAudio.Instance != null && GameAudio.Instance.Muted ? "MUTED" : "SOUND";
+            _stageLabel.text = $"ZONES\n<size=16>{Content.StageName(session.ParkedStage)}</size>";
+            _speedLabel.text = $"SPEED\nx{_root.SpeedMultiplier}";
+            bool claim = _root.Bounties.AnyClaimable;
+            _bountyLabel.text = claim ? "BOUNTIES\n<size=16><color=#8CF08C>ready!</color></size>" : "BOUNTIES";
+            BannerLook.Show(_flag, _root.Server.Banner);
             if (_lastLevel > 0 && inv.Level > _lastLevel)
             {
                 GameAudio.Instance?.Play("LaneLevelUp", 0.9f, 1f, 0f);

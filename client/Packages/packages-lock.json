@@ -42,6 +42,15 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.mobile.notifications": {
+      "version": "2.4.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.androidjni": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.4",
       "depth": 3,
@@ -137,6 +146,12 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "com.unity.modules.androidjni": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {}
     },
     "com.unity.modules.animation": {
       "version": "1.0.0",

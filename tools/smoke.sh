@@ -34,10 +34,31 @@ echo "park field I: parked=$(post /v1/park '{"stage":111}' | jq .parkedStage)"
 post /v1/dev/bosses-up '{}' > /dev/null
 for id in 1 2 3; do
   bf=$(post /v1/boss/fight "{\"requestId\":\"$(rid)\",\"bossId\":$id}")
-  echo "fight $id: $(echo "$bf" | jq -r '.lastBossFight | "damage=\(.damage) killed=\(.killed) rank=\(.rank)\n  \(.chest)"')"
+  echo "fight $id: $(echo "$bf" | jq -r '.lastBossFight | "damage=\(.damage) killed=\(.killed) rank=\(.rank) pool=\(.poolLeft) slew=\(.slew)\n  \(.chest)"')"
 done
 fa=$(post /v1/boss/fight "{\"requestId\":\"$(rid)\",\"bossId\":1}")
 echo "fight again: $(echo "$fa" | jq -c .)"
+echo "war before oath: $(curl -s "$BASE/v1/war" -H "X-Session: $SESSION" | jq -c '{season, standings: [.standings[] | {banner, points}], forts: [.fortresses[] | {name, holder, phase, wall}]}')"
+early='{"requestId":"'$(rid)'","fortressId":1}' 
+echo "siege before oath: $(post /v1/siege "$early" | jq -c .code)"
+echo "oath: $(post /v1/banner '{"banner":"Gold"}' | jq -c '{banner, name}')"
+echo "oath again: $(post /v1/banner '{"banner":"Sky"}' | jq -c .code)"
+post /v1/dev/grant '{}' > /dev/null
+echo "bounties: $(curl -s "$BASE/v1/me" -H "X-Session: $SESSION" | jq -c '[.bounties.items[] | "\(.title) \(.count)/\(.target)"]')"
+claim='{"requestId":"'$(rid)'","bountyId":2}' 
+echo "claim unfinished: $(post /v1/bounty/claim "$claim" | jq -c .code)"
+buy='{"requestId":"'$(rid)'","shopItemId":1,"count":2}'
+echo "buy 2 needles: $(post /v1/shop/buy "$buy" | jq -c '{marks: .inventory.huntMarks, needles: .inventory.etchingNeedles}')"
+wid=$(curl -s "$BASE/v1/me" -H "X-Session: $SESSION" | jq -r '[.items[] | select(.equipped and .slot=="Weapon")][0].id')
+etch='{"requestId":"'$(rid)'","itemId":"'$wid'"}'
+echo "etch a full weapon: $(post /v1/etch "$etch" | jq -c .code)"
+pin='{"requestId":"'$(rid)'","itemId":"'$wid'","index":1}'
+echo "pin: $(post /v1/pin "$pin" | jq -c '{wax: .inventory.pinningWax, locked: ([.items[] | select(.id=="'$wid'")][0].lockedEtchingIndex)}')"
+siege='{"requestId":"'$(rid)'","fortressId":1}'
+echo "siege Stagfort: $(post /v1/siege "$siege" | jq -c '.lastSiege | {defending, damage, phase, wallLeft, phaseBroken, text}')"
+siege2='{"requestId":"'$(rid)'","fortressId":2}'
+echo "siege again at once: $(post /v1/siege "$siege2" | jq -c .code)"
+echo "war after: $(curl -s "$BASE/v1/war" -H "X-Session: $SESSION" | jq -c '{standings: [.standings[] | {banner, points}], bonus: .mySornBonusPercent, cooldown: .siegeCooldownSeconds}')"
 echo "client log: $(post /v1/client-log '{"platform":"Smoke","version":"0","message":"smoke test report","stack":"at Smoke()"}' | jq -c .)"
 echo "delete account: $(curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $SESSION" | jq -c .)"
 echo "me after delete: $(curl -s -o /dev/null -w '%{http_code}' "$BASE/v1/me" -H "X-Session: $SESSION")"

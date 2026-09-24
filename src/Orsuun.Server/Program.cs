@@ -48,6 +48,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     if (app.Environment.IsDevelopment() && Environment.GetEnvironmentVariable("ORSUUN_RESET_DB") == "1")
         await db.Database.ExecuteSqlRawAsync("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
     await db.Database.MigrateAsync();
+    await GameService.SeedFortressesAsync(db, CancellationToken.None);
 }
 
 app.Use(async (ctx, next) =>
@@ -62,6 +63,7 @@ app.Use(async (ctx, next) =>
         {
             "conflict" or "duplicate_request" => StatusCodes.Status409Conflict,
             "unauthorized" => StatusCodes.Status401Unauthorized,
+            "siege_cooldown" => StatusCodes.Status429TooManyRequests,
             _ => StatusCodes.Status400BadRequest,
         };
         await ctx.Response.WriteAsJsonAsync(new ErrorDto(ex.Code, ex.Message));
@@ -106,6 +108,13 @@ v1.MapPost("/socket/clear", (HttpContext ctx, SocketClearRequest req, GameServic
 v1.MapPost("/park", (HttpContext ctx, ParkRequest req, GameService game, CancellationToken ct) => game.ParkAsync(Me(ctx), req, ct));
 v1.MapPost("/class", (HttpContext ctx, ClassRequest req, GameService game, CancellationToken ct) => game.SetClassAsync(Me(ctx), req, ct));
 v1.MapPost("/push", (HttpContext ctx, PushRequest req, GameService game, CancellationToken ct) => game.PushAsync(Me(ctx), req, ct));
+v1.MapPost("/bounty/claim", (HttpContext ctx, ClaimBountyRequest req, GameService game, CancellationToken ct) => game.ClaimBountyAsync(Me(ctx), req, ct));
+v1.MapPost("/shop/buy", (HttpContext ctx, ShopBuyRequest req, GameService game, CancellationToken ct) => game.BuyAsync(Me(ctx), req, ct));
+v1.MapPost("/etch", (HttpContext ctx, EtchRequest req, GameService game, CancellationToken ct) => game.EtchAsync(Me(ctx), req, ct));
+v1.MapPost("/pin", (HttpContext ctx, PinRequest req, GameService game, CancellationToken ct) => game.PinAsync(Me(ctx), req, ct));
+v1.MapPost("/banner", (HttpContext ctx, BannerRequest req, GameService game, CancellationToken ct) => game.SwearAsync(Me(ctx), req, ct));
+v1.MapGet("/war", (HttpContext ctx, GameService game, CancellationToken ct) => game.WarAsync(Me(ctx), ct));
+v1.MapPost("/siege", (HttpContext ctx, SiegeRequest req, GameService game, CancellationToken ct) => game.SiegeAsync(Me(ctx), req, ct));
 v1.MapPost("/client-log", async (HttpContext ctx, ClientLogRequest req, GameService game, CancellationToken ct) =>
 {
     await game.LogClientErrorAsync(Me(ctx), req, ct);

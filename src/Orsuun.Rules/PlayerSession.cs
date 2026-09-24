@@ -16,6 +16,10 @@ namespace Orsuun.Rules
         public int Turnstones { get; set; }
         public int EtchingNeedles { get; set; }
         public int SummoningMarkers { get; set; }
+        /// <summary>Paid by bounties, spent in the Hunt Marks shop.</summary>
+        public int HuntMarks { get; set; }
+        /// <summary>Holds one etching of a piece through turns (GDD: the etching lock).</summary>
+        public int PinningWax { get; set; }
         public long Xp { get; set; }
         /// <summary>Korshards held, by rank index (Trooper .. Guard of the Khan). Sockets come in the next step.</summary>
         public int[] Korshards { get; } = new int[5];
@@ -31,6 +35,7 @@ namespace Orsuun.Rules
             Sorn = other.Sorn; Potions = other.Potions; Materials = other.Materials; ScrollsOfMercy = other.ScrollsOfMercy;
             KhansAlloys = other.KhansAlloys; AnvilWards = other.AnvilWards; Turnstones = other.Turnstones;
             EtchingNeedles = other.EtchingNeedles; SummoningMarkers = other.SummoningMarkers; Xp = other.Xp;
+            HuntMarks = other.HuntMarks; PinningWax = other.PinningWax;
             Array.Copy(other.Korshards, Korshards, Korshards.Length);
             Skins.Clear();
             Skins.AddRange(other.Skins);
@@ -344,6 +349,22 @@ namespace Orsuun.Rules
 
             Inventory.Turnstones -= _etchings.Turn(OnAnvil, Pool, _rng);
             RefreshHero();
+        }
+
+        /// <summary>Adds the next etching to an owned piece with an Etching Needle; returns whether it took.</summary>
+        public bool Etch(ItemState item)
+        {
+            if (!Owns(item)) throw new InvalidOperationException("You no longer have that piece.");
+            bool took = EtchingActions.Etch(item, Inventory, _etchings, _rng);
+            RefreshHero();
+            return took;
+        }
+
+        /// <summary>Pins an etching of an owned piece with Pinning Wax, or unpins it (the wax is spent).</summary>
+        public void Pin(ItemState item, int index)
+        {
+            if (!Owns(item)) throw new InvalidOperationException("You no longer have that piece.");
+            EtchingActions.Pin(item, index, Inventory);
         }
 
         /// <summary>Bulk Turn with an optional stop rule. Returns turns made; stopped says whether the rule hit.</summary>

@@ -334,9 +334,11 @@ MOB_TRIS = 6000       # up to 16 on screen at once
 KORSTONES = HOME + "/client/Assets/Orsuun/Resources/Models/Korstones/"   # korstone shapes: mob_model(..., out_dir=KORSTONES)
 
 
-def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None):
+def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None, rig=None, attack=None):
     """Enemy model: decimated, rotated by yaw_degrees about Z so it faces -Y, centred on X/Y with its lowest point on
-    the ground, scaled so it stands `height` metres tall. Exports <name>.fbx and <name>BaseColor.png to MOBS."""
+    the ground, scaled so it stands `height` metres tall. Exports <name>.fbx and <name>BaseColor.png to MOBS.
+    rig: a body plan from mobrig (biped, quadruped, serpent, scorpion) to rig it with the five clips; attack: the
+    biped attack style (sword or staff)."""
     import math
     global OUT
     _clear()
@@ -361,7 +363,16 @@ def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None):
         root = bpy.data.objects.new(name, None)
         bpy.context.scene.collection.objects.link(root)
         mesh.parent = root
-        _export([mesh], root, name)
+        if rig:
+            import importlib
+            import mobrig
+            importlib.reload(mobrig)
+            for a in list(bpy.data.actions):
+                bpy.data.actions.remove(a)
+            mobrig.rig_mob(mesh, root, height, name + "Rig", rig, attack=attack)
+            _export_rigged(root, name)
+        else:
+            _export([mesh], root, name)
     finally:
         OUT = looks_out
     return dict(mob=name, tris_in=t0, faces=len(mesh.data.polygons), size=[round(c, 2) for c in mesh.dimensions],

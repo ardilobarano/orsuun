@@ -190,6 +190,56 @@ namespace Orsuun.Rules
         }
     }
 
+    /// <summary>
+    /// The player's two etching tools: an Etching Needle adds the next etching (1st to 4th, at the slot's add chance;
+    /// a failure only costs the needle), and Pinning Wax holds one etching through turns (GDD: one lock per item,
+    /// turns cost double while it holds). Unpinning is free but the wax is spent.
+    /// </summary>
+    public static class EtchingActions
+    {
+        public static string? EtchBlocker(ItemState item, Inventory inventory)
+        {
+            if (item.Destroyed) return "That piece is gone.";
+            if (item.Etchings.Count >= ItemState.MaxEtchings) return "This piece has all five etchings.";
+            if (item.Etchings.Count == ItemState.MaxEtchings - 1) return "The fifth etching needs a Master's Needle.";
+            if (inventory.EtchingNeedles < 1) return "No Etching Needles.";
+            return null;
+        }
+
+        /// <summary>The chance the next Etching Needle takes on this piece, in basis points.</summary>
+        public static int EtchChanceBp(ItemState item) =>
+            item.Etchings.Count < ItemState.MaxEtchings ? EtchingRules.AddChance(item.Etchings.Count) : 0;
+
+        public static bool Etch(ItemState item, Inventory inventory, EtchingService etchings, IRandom rng)
+        {
+            string? blocker = EtchBlocker(item, inventory);
+            if (blocker != null) throw new InvalidOperationException(blocker);
+            inventory.EtchingNeedles--;
+            return etchings.TryAdd(item, EtchingPool.For(item.Slot), NeedleKind.EtchingNeedle, rng);
+        }
+
+        public static string? PinBlocker(ItemState item, int index, Inventory inventory)
+        {
+            if (item.Destroyed) return "That piece is gone.";
+            if (index < 0 || index >= item.Etchings.Count) return "No etching there.";
+            if (item.LockedEtchingIndex == index) return null;          // unpinning is free
+            return inventory.PinningWax < 1 ? "No Pinning Wax." : null;
+        }
+
+        public static void Pin(ItemState item, int index, Inventory inventory)
+        {
+            string? blocker = PinBlocker(item, index, inventory);
+            if (blocker != null) throw new InvalidOperationException(blocker);
+            if (item.LockedEtchingIndex == index)
+            {
+                item.LockedEtchingIndex = -1;
+                return;
+            }
+            inventory.PinningWax--;
+            item.LockedEtchingIndex = index;
+        }
+    }
+
     public sealed class EtchingService
     {
         /// <summary>Tries to add the next etching. Failure only consumes the needle; gear is never at risk here.</summary>

@@ -30,6 +30,10 @@ namespace Orsuun.Client
         private Text _weapon;
         private Text _stats;
         private Text _etchings;
+        private readonly Button[] _etchRows = new Button[ItemState.MaxEtchings];
+        private readonly Text[] _etchRowLabels = new Text[ItemState.MaxEtchings];
+        private Button _etchButton;
+        private Text _etchLabel;
         private Text _attemptInfo;
         private Text _result;
         private Text _turnLabel;
@@ -81,8 +85,19 @@ namespace Orsuun.Client
             _weapon = Ui.Label("Weapon", canvas, 0.05f, 0.795f, 0.95f, 0.85f, "", 56, TextAnchor.MiddleCenter, Palette.Parchment);
             _stats = Ui.Label("Stats", canvas, 0.05f, 0.765f, 0.95f, 0.81f, "", 30, TextAnchor.MiddleCenter, Palette.Muted);
 
-            Ui.Framed("EtchingsBack", canvas, 0.06f, 0.575f, 0.94f, 0.755f, Palette.PanelDark);
-            _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.58f, 0.91f, 0.75f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
+            // Etchings: each line is tappable to pin or unpin it (Pinning Wax); ETCH adds the next one (Etching Needle).
+            Ui.Framed("EtchingsBack", canvas, 0.06f, 0.575f, 0.74f, 0.755f, Palette.PanelDark);
+            _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.58f, 0.73f, 0.75f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
+            for (int i = 0; i < _etchRows.Length; i++)
+            {
+                int index = i;
+                float y1 = 0.752f - i * 0.0352f;
+                _etchRows[i] = Ui.Button("Etch" + i, canvas, 0.065f, y1 - 0.034f, 0.735f, y1, "", 24, Palette.PanelDark, () => AskPin(index), out _etchRowLabels[i]);
+                _etchRowLabels[i].alignment = TextAnchor.MiddleLeft;
+                _etchRowLabels[i].font = Ui.Font;
+                _etchRowLabels[i].fontStyle = FontStyle.Normal;
+            }
+            _etchButton = Ui.Button("EtchAdd", canvas, 0.75f, 0.575f, 0.94f, 0.755f, "", 22, Palette.Alloy, AskEtch, out _etchLabel);
 
             // Turnstones: one turn here; the turning helper keeps turning until up to five chosen etchings are there.
             _turnButton = Ui.Button("Turn", canvas, 0.06f, 0.48f, 0.34f, 0.57f, "", 26, Palette.ButtonIdle, Turn, out _turnLabel);
@@ -278,6 +293,73 @@ namespace Orsuun.Client
             }
         }
 
+        /// <summary>ETCH: an Etching Needle adds the next etching to the piece on the anvil, after asking.</summary>
+        private void AskEtch()
+        {
+            if (Busy) return;
+            PlayerSession s = _root.Session;
+            ItemState item = s.OnAnvil;
+            string blocker = EtchingActions.EtchBlocker(item, s.Inventory);
+            if (blocker != null) { ShowResult(blocker, Palette.Muted); return; }
+            int chance = EtchingActions.EtchChanceBp(item) / 100;
+            _confirm.Show("Add an etching?", $"{item.DisplayName} +{item.UpgradeLevel}\n\nEtching {item.Etchings.Count + 1} takes {ConfirmDialog.Tint(chance + "%", Palette.Good)} of the time.\n"
+                + ConfirmDialog.Tint("If it slips, only the needle is lost.", Palette.Muted) + $"\n\nYou have {s.Inventory.EtchingNeedles} Etching Needles.",
+                "USE NEEDLE", Palette.Alloy, () =>
+                {
+                    if (_root.Server.Online)
+                    {
+                        Busy = true;
+                        StartCoroutine(_root.Server.Etch(_root.Server.IdOf(item), (result, error) =>
+                        {
+                            Busy = false;
+                            if (error != null) ShowResult(error, Palette.Muted);
+                            else ShowResult(result.text, result.took ? Palette.Good : Palette.Warn);
+                        }));
+                    }
+                    else
+                    {
+                        bool took = s.Etch(item);
+                        ShowResult(took ? "The needle took." : "The needle slipped; the piece is unharmed.", took ? Palette.Good : Palette.Warn);
+                    }
+                });
+        }
+
+        /// <summary>PIN: Pinning Wax holds one etching through turns (turns then cost two); tapping it again unpins it.</summary>
+        private void AskPin(int index)
+        {
+            if (Busy) return;
+            PlayerSession s = _root.Session;
+            ItemState item = s.OnAnvil;
+            if (index >= item.Etchings.Count) return;
+            Etching e = item.Etchings[index];
+            string line = $"T{e.Tier} {s.Pool.Entries[e.EntryId].Name} +{e.Value}";
+            bool pinned = item.LockedEtchingIndex == index;
+            string blocker = EtchingActions.PinBlocker(item, index, s.Inventory);
+            if (blocker != null) { ShowResult(blocker + " Hunt Marks buy it in BOUNTIES.", Palette.Muted); return; }
+            string body = pinned
+                ? $"{line}\n\nIt will change with the next turn again.\n" + ConfirmDialog.Tint("The wax is spent.", Palette.Warn)
+                : $"{line}\n\nIt stays through every turn; each turn then costs {ConfirmDialog.Tint("2 Turnstones", Palette.Warn)}.\n"
+                  + (item.LockedEtchingIndex >= 0 ? ConfirmDialog.Tint("The etching pinned now is released and its wax is spent.", Palette.Warn) + "\n" : "")
+                  + $"You have {s.Inventory.PinningWax} Pinning Wax.";
+            _confirm.Show(pinned ? "Unpin this etching?" : "Pin this etching?", body, pinned ? "UNPIN" : "USE WAX", Palette.Alloy, () =>
+            {
+                if (_root.Server.Online)
+                {
+                    Busy = true;
+                    StartCoroutine(_root.Server.Pin(_root.Server.IdOf(item), index, error =>
+                    {
+                        Busy = false;
+                        ShowResult(error ?? (pinned ? "Unpinned." : "Pinned."), error != null ? Palette.Muted : Palette.Good);
+                    }));
+                }
+                else
+                {
+                    s.Pin(item, index);
+                    ShowResult(pinned ? "Unpinned." : "Pinned.", Palette.Good);
+                }
+            });
+        }
+
         private void ShowResult(string message, Color color)
         {
             _result.text = message;
@@ -309,10 +391,22 @@ namespace Orsuun.Client
                 ? $"Attack {hero.Attack}  ·  Crit {hero.CritChanceBp / 100}%  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%  ·  Blades lost {session.WeaponsBroken}"
                 : $"From your bag, not worn  ·  Item level {weapon.ItemLevel}  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%";
 
-            var sb = new StringBuilder();
-            foreach (Etching e in weapon.Etchings)
-                sb.Append("T").Append(e.Tier).Append("   ").Append(session.Pool.Entries[e.EntryId].Name).Append("  +").Append(e.Value).Append('\n');
-            _etchings.text = sb.ToString().TrimEnd();
+            _etchings.text = weapon.Etchings.Count == 0 ? "No etchings yet: ETCH adds one." : "";
+            for (int i = 0; i < _etchRows.Length; i++)
+            {
+                bool has = i < weapon.Etchings.Count;
+                _etchRows[i].gameObject.SetActive(has);
+                if (!has) continue;
+                Etching e = weapon.Etchings[i];
+                bool pinned = weapon.LockedEtchingIndex == i;
+                _etchRowLabels[i].text = $"T{e.Tier}   {session.Pool.Entries[e.EntryId].Name}  +{e.Value}" + (pinned ? "   ◆ PINNED" : "");
+                _etchRowLabels[i].color = pinned ? Palette.Sorn : Palette.Parchment;
+                _etchRows[i].interactable = !Busy;
+            }
+            int etchChance = EtchingActions.EtchChanceBp(weapon) / 100;
+            _etchLabel.text = weapon.Etchings.Count >= ItemState.MaxEtchings - 1 ? $"ETCH\n<size=16>5th needs a\nMaster's Needle</size>"
+                : $"ETCH\n<size=16>{etchChance}% chance\n{inv.EtchingNeedles} needles\n{inv.PinningWax} wax</size>";
+            _etchButton.interactable = !Busy && EtchingActions.EtchBlocker(weapon, inv) == null;
             _turnLabel.text = $"TURN x1\n(have {inv.Turnstones})";
             _turnButton.interactable = !Busy;
 
