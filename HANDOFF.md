@@ -68,9 +68,10 @@ with a home page at `/` (`deploy/site/index.html`, routed in the Caddyfile; a si
 Caddyfile after `git pull`, so restart the caddy container after changing it). A copy of the playtest database from
 just before that deploy is on the Mac: `~/orsuun-backups/playtest-before-guildwar-2026-09-24.sql.gz`. Google sign-in is
 published (owner, 24 Sep 2026: "published"); its Branding page wants the home page `https://65.108.221.210.sslip.io/`.
-No new Android APK yet (the download link serves the previous build).
+The Android APK of this session is on the download link (24 Sep 2026, 22:56); the previous one is kept beside it as
+`/opt/orsuun/downloads/Orsuun-prev.apk`.
 
-Waiting on the owner: an Android build of this session; database backups (yes/no, Storage Box or Mac); the
+Waiting on the owner: database backups (yes/no, Storage Box or Mac); the
 paid Apple Developer Program (TestFlight, Sign in with Apple, no 7-day expiry); Google sign-in test users or "Publish
 app" in Google Cloud; the monetization plan; a real domain before release.
 
