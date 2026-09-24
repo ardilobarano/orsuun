@@ -142,6 +142,10 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 ## Next steps, waiting on the owner
 
+0. Monetization in the turning helper: the owner will add it and give the details (24 Sep 2026: "we will add
+   monetization here, I will let u know"). Build nothing for it until then; the Hearthfire 10/50 batch split noted
+   under "Turning helper" belongs to that decision.
+
 1. Playtest server is live since 23 Sep 2026: https://65.108.221.210.sslip.io (Hetzner CPX12, Helsinki, Ubuntu 26.04,
    2 GB RAM + 2 GB swap, `/opt/orsuun`, Docker stack from `deploy/`, `ASPNETCORE_ENVIRONMENT=Development` for the
    playtest). Update with `ssh root@65.108.221.210 'cd /opt/orsuun && git pull && docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build'`
