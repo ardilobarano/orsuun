@@ -126,6 +126,8 @@ namespace Orsuun.Client.EditorTools
             WriteServerUrl();
 
             PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS, "com.orsuun.warofbanners");
+            // Sign in with Google / Apple come back to the game through orsuun://auth links.
+            PlayerSettings.iOS.iOSUrlSchemes = new[] { AuthBuild.Scheme };
             PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
             PlayerSettings.iOS.targetOSVersionString = "15.0";
             PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneAndiPad;

@@ -108,6 +108,54 @@ public sealed partial class GameService
         return ToState(account);
     }
 
+    private List<string>? _logins;
+    private Guid _loginsFor;
+
+    /// <summary>The Google / Apple logins linked to the account (loaded with the account per request).</summary>
+    private async Task LoadLoginsAsync(Account account, CancellationToken ct)
+    {
+        _logins = await _db.ExternalLogins.AsNoTracking().Where(l => l.AccountId == account.Id).Select(l => l.Provider).ToListAsync(ct);
+        _loginsFor = account.Id;
+    }
+
+    private string[]? LoginsOf(Account account) => _loginsFor == account.Id ? _logins?.ToArray() : null;
+
+    /// <summary>The device token behind a session (for a native sign-in, which moves this device).</summary>
+    public async Task<string?> DeviceTokenForSessionAsync(string? session, CancellationToken ct) =>
+        string.IsNullOrEmpty(session) ? null : await _db.Devices.AsNoTracking().Where(d => d.SessionToken == session).Select(d => d.Token).FirstOrDefaultAsync(ct);
+
+    /// <summary>
+    /// A verified Google or Apple identity arrives for the hero being played on a device. Already linked to a hero:
+    /// the device switches to that hero. Not linked yet: it is linked to the hero being played, which keeps its
+    /// progress. A hero has at most one login per provider.
+    /// </summary>
+    public async Task<ExternalLoginResultDto> LinkOrLoginAsync(Guid currentAccountId, string deviceToken, ExternalIdentity identity, CancellationToken ct)
+    {
+        ExternalLogin? existing = await _db.ExternalLogins.FirstOrDefaultAsync(l => l.Provider == identity.Provider && l.Subject == identity.Subject, ct);
+        Account target;
+        bool linked = false;
+        if (existing != null)
+        {
+            target = await _db.Accounts.SingleOrDefaultAsync(a => a.Id == existing.AccountId, ct) ?? throw new GameException("no_account", "That hero is gone.");
+            ThrowIfBanned(target);
+            if (identity.Email != null) existing.Email = identity.Email;
+        }
+        else
+        {
+            target = await _db.Accounts.SingleOrDefaultAsync(a => a.Id == currentAccountId, ct) ?? throw new GameException("no_account", "Start the game once, then sign in.");
+            ThrowIfBanned(target);
+            if (await _db.ExternalLogins.AnyAsync(l => l.AccountId == target.Id && l.Provider == identity.Provider, ct))
+                throw new GameException("linked_other", $"This hero is already linked to another {ExternalAuth.Name(identity.Provider)} account.");
+            _db.ExternalLogins.Add(new ExternalLogin { Provider = identity.Provider, Subject = identity.Subject, AccountId = target.Id, Email = identity.Email, CreatedUtc = DateTime.UtcNow });
+            linked = true;
+        }
+        string session = await BindDeviceAsync(deviceToken, target, ct);
+        _db.Ledger.Add(Entry(target.Id, null, "external-login", $"{identity.Provider} linked={linked} switched={target.Id != currentAccountId}", 0, Guid.NewGuid().ToString("N")));
+        try { await _db.SaveChangesAsync(ct); }
+        catch (DbUpdateException) { throw new GameException("linked_other", "That sign-in was just linked elsewhere. Try again."); }
+        return new ExternalLoginResultDto(target.Id, session, target.Id != currentAccountId, linked, identity.Provider);
+    }
+
     /// <summary>Ends this device's session; the client then starts a new guest with a new device token.</summary>
     public async Task SignOutAsync(string? sessionToken, CancellationToken ct)
     {

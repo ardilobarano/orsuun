@@ -52,7 +52,14 @@ namespace Orsuun.Client.Net
         public MarketDto MarketView { get; private set; }
         /// <summary>The account's sign-in email; empty for a guest.</summary>
         public string Email { get; private set; } = "";
-        public bool Registered => !string.IsNullOrEmpty(Email);
+        /// <summary>Google / Apple logins linked to the account ("google", "apple").</summary>
+        public string[] Logins { get; private set; } = new string[0];
+        public bool Registered => !string.IsNullOrEmpty(Email) || Logins.Length > 0;
+        /// <summary>The sign-in providers this server offers ("apple", "google"; "dev" only on test servers).</summary>
+        public string[] Providers { get; private set; } = new string[0];
+        /// <summary>Raised when a Google / Apple sign-in ends: (message, error). The account screen shows it.</summary>
+        public event Action<string, string> ExternalFinished;
+        public bool ExternalPending { get; private set; }
         /// <summary>Goes up whenever this device switches account (sign in, sign out, deletion): screens drop what they cached.</summary>
         public int AccountGeneration { get; private set; }
 
@@ -70,6 +77,9 @@ namespace Orsuun.Client.Net
             _player = player;
             _baseUrl = ResolveBaseUrl();
             Application.logMessageReceived += OnLog;
+            // Android brings Google / Apple sign-ins back as orsuun://auth deep links (a cold start carries it in absoluteURL).
+            Application.deepLinkActivated += OnAuthCallback;
+            if (!string.IsNullOrEmpty(Application.absoluteURL)) OnAuthCallback(Application.absoluteURL);
             StartCoroutine(Run());
         }
 
@@ -122,6 +132,7 @@ namespace Orsuun.Client.Net
             Online = false;
             Status = "connecting";
             Email = "";
+            Logins = new string[0];
             GuildView = null;
             MarketView = null;
             War = null;
@@ -129,6 +140,87 @@ namespace Orsuun.Client.Net
             Banner = Banner.None;
             AccountGeneration++;
             StartCoroutine(Run());
+        }
+
+#if UNITY_IOS && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void OrsuunAuth_Start(string url, string scheme);
+#endif
+
+        /// <summary>
+        /// Sign in with Google / Apple: the server gives the provider's page, which opens in the in-app sign-in sheet
+        /// (iOS) or the browser; it ends on an orsuun://auth link with a one-time ticket (OnAuthCallback / deep link).
+        /// </summary>
+        public IEnumerator BeginExternal(string provider, Action<string> done)
+        {
+            string failure = null, url = null;
+            yield return Post("/v1/auth/external/begin", JsonUtility.ToJson(new ExternalBeginRequest { provider = provider }), true,
+                json => url = JsonUtility.FromJson<ExternalBeginDto>(json).url, error => failure = error ?? "No answer from the server.");
+            if (failure == null && !string.IsNullOrEmpty(url))
+            {
+                ExternalPending = true;
+#if UNITY_IOS && !UNITY_EDITOR
+                OrsuunAuth_Start(url, "orsuun");
+#else
+                Application.OpenURL(url);
+#endif
+            }
+            done(failure);
+        }
+
+        /// <summary>The iOS sign-in sheet's result (UnitySendMessage), or a deep link from the browser (Android).</summary>
+        public void OnAuthCallback(string url)
+        {
+            if (string.IsNullOrEmpty(url) || !url.StartsWith("orsuun://auth")) return;
+            ExternalPending = false;
+            string ticket = QueryValue(url, "ticket");
+            if (ticket == null)
+            {
+                string error = QueryValue(url, "error") ?? "failed";
+                ExternalFinished?.Invoke(null, error == "cancelled" ? "Sign-in was cancelled." : UnityWebRequest.UnEscapeURL(error));
+                return;
+            }
+            StartCoroutine(RedeemTicket(ticket));
+        }
+
+        private static string QueryValue(string url, string key)
+        {
+            int q = url.IndexOf('?');
+            if (q < 0) return null;
+            foreach (string pair in url.Substring(q + 1).Split('&'))
+            {
+                int eq = pair.IndexOf('=');
+                if (eq > 0 && pair.Substring(0, eq) == key) return UnityWebRequest.UnEscapeURL(pair.Substring(eq + 1));
+            }
+            return null;
+        }
+
+        private IEnumerator RedeemTicket(string ticket)
+        {
+            string failure = null;
+            ExternalLoginResultDto result = null;
+            string device = PlayerPrefs.GetString(DeviceTokenKey, "");
+            yield return Post("/v1/auth/ticket", JsonUtility.ToJson(new ExternalTicketRequest { ticket = ticket, deviceToken = device }), false,
+                json => result = JsonUtility.FromJson<ExternalLoginResultDto>(json), error => failure = error ?? "No answer from the server.");
+            if (failure != null)
+            {
+                ExternalFinished?.Invoke(null, failure);
+                yield break;
+            }
+            string name = result.provider == "apple" ? "Apple" : result.provider == "google" ? "Google" : "the test sign-in";
+            string message = result.switched ? $"Signed in with {name}. Welcome back." : $"Your hero is now saved with {name}.";
+            // This device now points at that hero (switched or not): log in again to load it.
+            Restart();
+            ExternalFinished?.Invoke(message, null);
+        }
+
+        private IEnumerator FetchProviders()
+        {
+            yield return Send("GET", "/v1/auth/providers", null, false, json =>
+            {
+                ProvidersDto dto = JsonUtility.FromJson<ProvidersDto>(json);
+                if (dto?.providers != null) Providers = dto.providers;
+            }, _ => { });
         }
 
         /// <summary>Sign up: saves an email and password to the account being played.</summary>
@@ -195,6 +287,7 @@ namespace Orsuun.Client.Net
                 error => Status = "LOCAL MODE: " + error);
 
             if (_session == null) yield break;
+            StartCoroutine(FetchProviders());
 
             while (true)
             {
@@ -591,6 +684,7 @@ namespace Orsuun.Client.Net
             Guild = s.guild;
             Tallies = s.inventory.tallies;
             Email = s.email ?? "";
+            Logins = s.logins ?? new string[0];
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
             Online = true;
@@ -690,7 +784,12 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; }
+        [Serializable] public class ProvidersDto { public string[] providers; }
+        [Serializable] public class ExternalBeginRequest { public string provider; }
+        [Serializable] public class ExternalBeginDto { public string url; }
+        [Serializable] public class ExternalTicketRequest { public string ticket; public string deviceToken; }
+        [Serializable] public class ExternalLoginResultDto { public string accountId; public string sessionToken; public bool switched; public bool linked; public string provider; }
         [Serializable] public class GuildBriefDto { public string tag; public string name; public string color; public string rank; }
         [Serializable] public class GuildDto { public string id; public string name; public string tag; public string color; public bool open; public int level; public long xp; public long nextLevelXp; public long treasury; public int plunder; public int muster; public int members; public int maxMembers; public int sornBonusPercent; public string[] fortresses; public string lastEvent; }
         [Serializable] public class GuildMemberDto { public string accountId; public string name; public string banner; public string rank; public int level; public long donated; public int lastSeenMinutes; public bool me; }

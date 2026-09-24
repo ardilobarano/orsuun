@@ -36,6 +36,12 @@ services:
       Bells__TimeZone: ${BELLS_TIMEZONE:-Europe/Istanbul}
       # Moderators (the /admin page): comma-separated emails of game accounts. Empty = nobody can sign in there.
       Admin__Emails: ${ADMIN_EMAILS:-}
+      # Sign in with Google / Apple (Game/ExternalAuth.cs). Empty = that button is not offered.
+      Auth__PublicUrl: https://${DOMAIN}
+      Auth__Google__ClientId: ${GOOGLE_CLIENT_ID:-}
+      Auth__Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
+      Auth__Apple__ServicesId: ${APPLE_SERVICES_ID:-}
+      Auth__Apple__BundleId: com.orsuun.warofbanners
     expose:
       - "8080"
 

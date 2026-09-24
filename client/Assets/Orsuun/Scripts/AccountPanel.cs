@@ -6,8 +6,10 @@ namespace Orsuun.Client
 {
     /// <summary>
     /// SIGN UP / SIGN IN (owner, 24 Sep 2026). Shown once after the title screen on a guest's first launch, and from
-    /// MENU (ACCOUNT). CREATE ACCOUNT saves an email and password to the hero being played; SIGN IN switches this phone
-    /// to an account made elsewhere; PLAY AS GUEST carries on without one. Signed in, it shows the email and SIGN OUT.
+    /// MENU (ACCOUNT). CONTINUE WITH APPLE / GOOGLE links the hero being played to that login, or switches this phone to
+    /// the hero already linked to it; CREATE ACCOUNT saves an email and password to the hero; SIGN IN switches this phone
+    /// to an account made elsewhere; PLAY AS GUEST carries on without one. Signed in, it shows how, links the other
+    /// provider, and signs out.
     /// </summary>
     public sealed class AccountPanel : MonoBehaviour
     {
@@ -34,6 +36,11 @@ namespace Orsuun.Client
         private Text _who;
         private Text _message;
         private bool _busy;
+        private Button _apple;
+        private Button _google;
+        private Button _linkApple;
+        private Button _linkGoogle;
+        private Text _orLabel;
 
         public bool Showing => _canvas != null && _canvas.activeSelf;
 
@@ -64,9 +71,18 @@ namespace Orsuun.Client
 
             _choose = Ui.Rect("Choose", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform c = _choose.transform;
-            Ui.Button("Create", c, 0.15f, 0.54f, 0.85f, 0.61f, "CREATE ACCOUNT", 34, Palette.ButtonForge, () => SetMode(Mode.Create), out _);
-            Ui.Button("SignIn", c, 0.15f, 0.45f, 0.85f, 0.52f, "SIGN IN", 34, Palette.Safe, () => SetMode(Mode.SignIn), out _);
-            Ui.Button("Guest", c, 0.15f, 0.36f, 0.85f, 0.43f, "PLAY AS GUEST", 30, Palette.ButtonIdle, PlayAsGuest, out _);
+            // Apple's and Google's buttons in their own colours: black, and white with dark letters.
+            _apple = Ui.Button("Apple", c, 0.15f, 0.585f, 0.85f, 0.645f, "CONTINUE WITH APPLE", 30, new Color(0.04f, 0.04f, 0.05f), () => External("apple"), out _);
+            _google = Ui.Button("Google", c, 0.15f, 0.51f, 0.85f, 0.57f, "CONTINUE WITH GOOGLE", 30, new Color(0.97f, 0.97f, 0.97f), () => External("google"), out Text googleLabel);
+            googleLabel.color = new Color(0.15f, 0.15f, 0.18f);
+            googleLabel.GetComponent<Shadow>().enabled = false;
+            _orLabel = Ui.Label("Or", c, 0.15f, 0.47f, 0.85f, 0.505f, "or with an email", 22, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Button("Create", c, 0.15f, 0.405f, 0.49f, 0.465f, "CREATE ACCOUNT", 24, Palette.ButtonForge, () => SetMode(Mode.Create), out _);
+            Ui.Button("SignIn", c, 0.51f, 0.405f, 0.85f, 0.465f, "SIGN IN", 24, Palette.Safe, () => SetMode(Mode.SignIn), out _);
+            Ui.Button("Guest", c, 0.15f, 0.32f, 0.85f, 0.38f, "PLAY AS GUEST", 28, Palette.ButtonIdle, PlayAsGuest, out _);
+            Ui.Label("Switch", c, 0.1f, 0.24f, 0.9f, 0.31f,
+                "If that Apple or Google login already has a hero, this phone switches to it. If not, it is linked to the hero you play now.",
+                20, TextAnchor.MiddleCenter, Palette.Muted);
 
             _form = Ui.Rect("Form", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform f = _form.transform;
@@ -83,15 +99,68 @@ namespace Orsuun.Client
 
             _signedIn = Ui.Rect("SignedIn", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform s = _signedIn.transform;
-            _who = Ui.Title("Who", s, 0.08f, 0.56f, 0.92f, 0.63f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
-            Ui.Button("SignOut", s, 0.15f, 0.44f, 0.85f, 0.51f, "SIGN OUT", 32, Palette.Danger, AskSignOut, out _);
-            Ui.Button("Done", s, 0.15f, 0.35f, 0.85f, 0.42f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
+            _who = Ui.Title("Who", s, 0.08f, 0.58f, 0.92f, 0.66f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
+            _linkApple = Ui.Button("LinkApple", s, 0.15f, 0.505f, 0.85f, 0.56f, "ALSO LINK APPLE", 26, new Color(0.04f, 0.04f, 0.05f), () => External("apple"), out _);
+            _linkGoogle = Ui.Button("LinkGoogle", s, 0.15f, 0.435f, 0.85f, 0.49f, "ALSO LINK GOOGLE", 26, new Color(0.97f, 0.97f, 0.97f), () => External("google"), out Text linkGoogleLabel);
+            linkGoogleLabel.color = new Color(0.15f, 0.15f, 0.18f);
+            linkGoogleLabel.GetComponent<Shadow>().enabled = false;
+            Ui.Button("SignOut", s, 0.15f, 0.345f, 0.85f, 0.405f, "SIGN OUT", 30, Palette.Danger, AskSignOut, out _);
+            Ui.Button("Done", s, 0.15f, 0.265f, 0.85f, 0.325f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Close, out _);
 
             _message = Ui.Label("Message", canvas, 0.08f, 0.1f, 0.92f, 0.17f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
             _canvas.SetActive(false);
             _confirm = new GameObject("AccountConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
+            root.Server.ExternalFinished += OnExternalFinished;
+        }
+
+        /// <summary>Test builds (-devauth) put the Development server's stand-in provider behind the Google button.</summary>
+        private static readonly bool DevAuth = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-devauth") >= 0;
+
+        private bool Has(string provider) => System.Array.IndexOf(_root.Server.Providers, provider) >= 0;
+
+        private bool Offered(string provider) => Has(provider) || (provider == "google" && DevAuth && Has("dev"));
+
+        private bool Linked(string provider) => System.Array.IndexOf(_root.Server.Logins, provider) >= 0
+                                                || (provider == "google" && DevAuth && System.Array.IndexOf(_root.Server.Logins, "dev") >= 0);
+
+        private void External(string provider)
+        {
+            if (_busy) return;
+            if (!_root.Server.Online) { Say("Offline: accounts need the server."); return; }
+            string actual = provider == "google" && DevAuth && !Has("google") ? "dev" : provider;
+            _busy = true;
+            Say("Finish signing in on the page that opens...", Palette.Muted);
+            StartCoroutine(_root.Server.BeginExternal(actual, error =>
+            {
+                _busy = false;
+                if (error != null) Say(error);
+            }));
+        }
+
+        private void OnExternalFinished(string message, string error)
+        {
+            if (error != null)
+            {
+                if (_canvas.activeSelf) Say(error);
+                else _root.Hud.Log(error);
+                return;
+            }
+            MarkChosen();
+            _root.Hud.Log(message);
+            Close();
+        }
+
+        private void Update()
+        {
+            if (!_canvas.activeSelf) return;
+            _apple.gameObject.SetActive(Offered("apple"));
+            _google.gameObject.SetActive(Offered("google"));
+            _orLabel.gameObject.SetActive(Offered("apple") || Offered("google"));
+            _linkApple.gameObject.SetActive(Offered("apple") && !Linked("apple"));
+            _linkGoogle.gameObject.SetActive(Offered("google") && !Linked("google"));
+            _apple.interactable = _google.interactable = !_busy;
         }
 
         public void Open()
@@ -133,8 +202,12 @@ namespace Orsuun.Client
                     break;
                 case Mode.SignedIn:
                     _heading.text = "Your account";
-                    _lead.text = "This hero is saved with your email. Sign in with it on any phone.";
-                    _who.text = _root.Server.Email;
+                    var ways = new System.Collections.Generic.List<string>();
+                    if (Linked("apple")) ways.Add("Apple");
+                    if (Linked("google")) ways.Add("Google");
+                    if (!string.IsNullOrEmpty(_root.Server.Email)) ways.Add(_root.Server.Email);
+                    _lead.text = "This hero is saved. Sign in with it on any phone.";
+                    _who.text = "Saved with " + string.Join(" and ", ways);
                     break;
             }
         }

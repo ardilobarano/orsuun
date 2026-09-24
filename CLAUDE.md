@@ -86,6 +86,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `Ui.Bar` rather than flat `Ui.Panel` plates; a new skill needs `Resources/Icons/Skills/<letters of its name>.png`.
 - The moderation page (`src/Orsuun.Server/Admin/`) is embedded in the server assembly; anything players wrote is put
   on it with `textContent` only (never innerHTML). Moderators come from `Admin:Emails` (env `Admin__Emails`).
+- Google / Apple sign-in tickets are bound to the device token that began the flow (`ExternalAuth.Redeem`): keep it
+  that way, or a sign-in link sent by someone else could move a hero. The game object must stay named "ServerLink"
+  (the iOS sign-in sheet answers through UnitySendMessage).
 - `ChatPanel` stays off its canvas (it polls world chat for the lane ticker while hidden), like the `Tutorial`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).

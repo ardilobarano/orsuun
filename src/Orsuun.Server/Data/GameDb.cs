@@ -21,6 +21,7 @@ public sealed class GameDb : DbContext
     public DbSet<MarketListing> MarketListings => Set<MarketListing>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<AdminAction> AdminActions => Set<AdminAction>();
+    public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -73,6 +74,11 @@ public sealed class GameDb : DbContext
             e.HasIndex(m => m.AccountId);
         });
         b.Entity<AdminAction>(e => e.HasIndex(a => a.Utc));
+        b.Entity<ExternalLogin>(e =>
+        {
+            e.HasIndex(l => new { l.Provider, l.Subject }).IsUnique();
+            e.HasIndex(l => l.AccountId);
+        });
         b.Entity<ChatReport>(e => e.HasIndex(r => new { r.MessageId, r.ReporterId }).IsUnique());
         b.Entity<GuildRequest>(e =>
         {

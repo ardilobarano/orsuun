@@ -246,6 +246,18 @@ public sealed class ChatMessage
     public bool Reviewed { get; set; }
 }
 
+/// <summary>A Google or Apple identity linked to an account (sign in with it on any phone).</summary>
+public sealed class ExternalLogin
+{
+    public long Id { get; set; }
+    [MaxLength(16)] public string Provider { get; set; } = "";
+    /// <summary>The provider's stable user id ("sub").</summary>
+    [MaxLength(255)] public string Subject { get; set; } = "";
+    public Guid AccountId { get; set; }
+    [MaxLength(254)] public string? Email { get; set; }
+    public DateTime CreatedUtc { get; set; }
+}
+
 /// <summary>What a moderator did, for the moderation log.</summary>
 public sealed class AdminAction
 {

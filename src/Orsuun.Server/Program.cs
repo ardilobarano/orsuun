@@ -14,6 +14,8 @@ builder.Services.AddDbContext<GameDb>(o => o.UseNpgsql(connection));
 builder.Services.AddSingleton<IRandom>(CryptoRandom.Instance);
 builder.Services.AddSingleton<BellClock>();
 builder.Services.AddScoped<GameService>();
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<ExternalAuth>();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 // Abuse guard: 40 calls per 10 s per session (or per client IP before login). The game needs a few a minute.
@@ -81,6 +83,69 @@ app.MapPost("/v1/auth/guest", (GuestLoginRequest req, HttpContext http, GameServ
 app.MapPost("/v1/auth/login", (LoginRequest req, HttpContext http, GameService game, CancellationToken ct) =>
     game.LoginAsync(req, http.Connection.RemoteIpAddress?.ToString(), ct));
 
+// Sign in with Google / Apple. The browser flow: /auth/{provider}/start (from the app) -> the provider -> the callback
+// here -> an orsuun:// link with a one-time ticket -> /v1/auth/ticket from the device that started it.
+app.MapGet("/v1/auth/providers", (ExternalAuth auth) => Results.Ok(new { providers = auth.Providers }));
+app.MapGet("/auth/{provider}/start", (string provider, string? flow, ExternalAuth auth) =>
+{
+    ExternalAuth.Flow? f = auth.FlowById(flow);
+    if (f == null || f.Provider != provider) return Results.Content(ExternalAuth.ReturnPage(null, "This sign-in link has expired. Start again in the game."), "text/html; charset=utf-8");
+    return Results.Redirect(auth.AuthorizeUrl(f));
+});
+async Task<IResult> Finish(ExternalAuth auth, ExternalAuth.Flow? flow, Func<ExternalAuth.Flow, Task<ExternalIdentity>> verify)
+{
+    if (flow == null) return Results.Content(ExternalAuth.ReturnPage(null, "This sign-in has expired. Start again in the game."), "text/html; charset=utf-8");
+    try
+    {
+        ExternalIdentity identity = await verify(flow);
+        return Results.Content(ExternalAuth.ReturnPage(auth.IssueTicket(flow, identity), null), "text/html; charset=utf-8");
+    }
+    catch (GameException ex)
+    {
+        return Results.Content(ExternalAuth.ReturnPage(null, ex.Message), "text/html; charset=utf-8");
+    }
+}
+app.MapGet("/auth/google/callback", (string? code, string? state, string? error, ExternalAuth auth, CancellationToken ct) =>
+    Finish(auth, auth.TakeByState(state), async f =>
+    {
+        if (string.IsNullOrEmpty(code)) throw new GameException("cancelled", "Sign-in was cancelled.");
+        string idToken = await auth.GoogleIdTokenAsync(code, f, ct);
+        return await auth.VerifyAsync("google", idToken, f.Nonce, ct);
+    }));
+// Apple posts its answer as a form (response_mode=form_post).
+app.MapPost("/auth/apple/callback", async (HttpContext http, ExternalAuth auth, CancellationToken ct) =>
+{
+    IFormCollection form = await http.Request.ReadFormAsync(ct);
+    return await Finish(auth, auth.TakeByState(form["state"]), async f =>
+    {
+        string idToken = form["id_token"].ToString();
+        if (idToken.Length == 0) throw new GameException("cancelled", "Sign-in was cancelled.");
+        return await auth.VerifyAsync("apple", idToken, f.Nonce, ct);
+    });
+}).DisableAntiforgery();
+if (app.Environment.IsDevelopment())
+{
+    // A stand-in provider for tests: the "sign-in page" is a link per test identity.
+    // A fresh test login each time, or the shared Tester 1 (to try switching phones onto one hero).
+    app.MapGet("/auth/dev/authorize", (string state) =>
+    {
+        string s = Uri.EscapeDataString(state), fresh = "tester-" + Guid.NewGuid().ToString("N")[..8];
+        return Results.Content("<!doctype html><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+            + "<style>body{background:#12111c;color:#f2e8d2;font:18px Georgia,serif;padding:12vh 24px;text-align:center}a{display:block;margin:18px auto;"
+            + "max-width:320px;padding:14px;border:1px solid #c28f45;border-radius:8px;color:#ffd66b;text-decoration:none}</style>"
+            + "<p>Orsuun test sign-in (playtest server only)</p>"
+            + $"<a href=\"/auth/dev/callback?state={s}&sub={fresh}\">A new test login</a>"
+            + $"<a href=\"/auth/dev/callback?state={s}&sub=tester-1&email=tester1@example.com\">Tester 1 (shared)</a>", "text/html; charset=utf-8");
+    });
+    app.MapGet("/auth/dev/callback", (string? state, string? sub, string? email, ExternalAuth auth, CancellationToken ct) =>
+        Finish(auth, auth.TakeByState(state), f => auth.VerifyAsync("dev", $"dev|{sub}|{email}", null, ct)));
+}
+app.MapPost("/v1/auth/ticket", async (ExternalTicketRequest req, ExternalAuth auth, GameService game, CancellationToken ct) =>
+{
+    ExternalAuth.Ticket ticket = auth.Redeem(req.Ticket, req.DeviceToken) ?? throw new GameException("bad_ticket", "That sign-in expired or belongs to another device. Try again.");
+    return await game.LinkOrLoginAsync(ticket.AccountId, ticket.DeviceToken, ticket.Identity, ct);
+});
+
 RouteGroupBuilder v1 = app.MapGroup("/v1").AddEndpointFilter(async (ctx, next) =>
 {
     var game = ctx.HttpContext.RequestServices.GetRequiredService<GameService>();
@@ -141,6 +206,18 @@ v1.MapGet("/market", (HttpContext ctx, EquipSlot? slot, string? sort, int? page,
 v1.MapPost("/market/list", (HttpContext ctx, MarketListRequest req, GameService game, CancellationToken ct) => game.ListItemAsync(Me(ctx), req, ct));
 v1.MapPost("/market/buy", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.BuyListingAsync(Me(ctx), req, ct));
 v1.MapPost("/market/cancel", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.CancelListingAsync(Me(ctx), req, ct));
+v1.MapPost("/auth/external/begin", async (HttpContext ctx, ExternalBeginRequest req, ExternalAuth auth, GameService game, CancellationToken ct) =>
+{
+    string device = await game.DeviceTokenForSessionAsync(ctx.Request.Headers["X-Session"], ct) ?? throw new GameException("unauthorized", "Sign in again.");
+    ExternalAuth.Flow flow = auth.Begin(req.Provider, Me(ctx).Id, device);
+    return new ExternalBeginDto($"{auth.PublicUrl}/auth/{flow.Provider}/start?flow={flow.Id}");
+});
+v1.MapPost("/auth/external", async (HttpContext ctx, ExternalTokenRequest req, ExternalAuth auth, GameService game, CancellationToken ct) =>
+{
+    string device = await game.DeviceTokenForSessionAsync(ctx.Request.Headers["X-Session"], ct) ?? throw new GameException("unauthorized", "Sign in again.");
+    ExternalIdentity identity = await auth.VerifyAsync(req.Provider, req.IdToken, req.Nonce, ct);
+    return await game.LinkOrLoginAsync(Me(ctx).Id, device, identity, ct);
+});
 v1.MapPost("/auth/register", (HttpContext ctx, RegisterRequest req, GameService game, CancellationToken ct) => game.RegisterAsync(Me(ctx), req, ct));
 v1.MapPost("/auth/signout", async (HttpContext ctx, GameService game, CancellationToken ct) =>
 {

@@ -116,6 +116,13 @@ public sealed record MarketBuyRequest(string RequestId, long ListingId);
 public sealed record RegisterRequest(string Email, string Password);
 public sealed record LoginRequest(string Email, string Password, string DeviceToken);
 public sealed record AccountDto(string? Email, bool Registered);
+/// <summary>Sign in with Google or Apple: begin gives the page to open; the app redeems the ticket it is sent back with.</summary>
+public sealed record ExternalBeginRequest(string Provider);
+public sealed record ExternalBeginDto(string Url);
+public sealed record ExternalTicketRequest(string Ticket, string DeviceToken);
+/// <summary>A native button's ID token (the iOS Apple button later), for the account being played.</summary>
+public sealed record ExternalTokenRequest(string Provider, string IdToken, string? Nonce = null);
+public sealed record ExternalLoginResultDto(Guid AccountId, string SessionToken, bool Switched, bool Linked, string Provider);
 public sealed record GuildCreateRequest(string RequestId, string Name, string Tag, string Color);
 public sealed record GuildJoinRequest(string RequestId, Guid GuildId);
 public sealed record GuildLeaveRequest(string RequestId);
@@ -171,7 +178,8 @@ public sealed record StateDto(
     SiegeResultDto? LastSiege = null,
     EtchResultDto? LastEtch = null,
     GuildBriefDto? Guild = null,
-    string? Email = null);
+    string? Email = null,
+    string[]? Logins = null);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

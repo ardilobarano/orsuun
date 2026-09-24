@@ -29,6 +29,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Chat | Owner, 24 Sep 2026: "all chat". A world channel for everyone and one channel per guild; guild events are system lines in guild chat (the guild log); Commander kills, fortress captures and +8 or better forges are system lines in world chat. Assumptions: 200 characters a line, one line per 3 s, bad words starred out (`WordFilter`), three reports hide a line, players can block others (unblock all from the chat screen), lines are kept 7 days. The newest world line runs over the bottom of the lane (tap it for CHAT). |
 | Salt Exchange | Owner, 24 Sep 2026: "a global trading screen that all players can list their items for gold or buying from them". Built as the GDD's Salt Exchange for gear: any bag piece listed for sorn; buyers pay the price, the seller gets it less the GDD's 5% tax. Assumptions: 1,000 to 1,000,000,000 sorn, 10 listings a player, 48 hours then the piece goes back; worn pieces must be taken off first; a listed piece cannot be worn, forged or turned; BUY pages by slot and order (cheapest, newest, highest +). Materials, shards and consumables are not tradable yet. |
 | Accounts | Owner, 24 Sep 2026: "a sign up sign in screen". Email and password (PBKDF2-SHA256, 210,000 iterations); CREATE ACCOUNT saves them to the hero being played; SIGN IN points this phone at an account (a guest hero with progress is warned first); SIGN OUT starts a new guest; sessions are per device, so one hero can be played on two phones. Shown once after the title screen on a guest's first launch (then from MENU, ACCOUNT). Assumptions: 8+ character passwords, 8 wrong tries per email per 15 minutes; no email verification or password reset yet (no mail sending). |
+| Sign in with Apple / Google | Owner, 24 Sep 2026: "i want to add sign in through google and apple". Built as a browser sign-in for both, on both platforms: the game asks the server for the provider's page, opens it in Apple's in-app sign-in sheet (iOS, `Plugins/iOS/OrsuunAuth.mm`) or the browser (Android), the provider returns to the server, which checks the signed ID token against the provider's published keys and sends the app a one-time ticket on an `orsuun://auth` link; the ticket only works on the device that started. A login already linked to a hero switches the phone to it; a new one is linked to the hero being played. Needs the owner's keys (see "Store release"); until then the buttons stay hidden. The Development server's stand-in provider ("dev", MENU > DEV: TEST SIGN-IN) walks the same round trip. A native iOS Apple button (no sheet) can come later: the server already takes ID tokens at `/v1/auth/external`. |
 | Moderation | Owner, 24 Sep 2026 ("go" on the moderation tool before inviting testers). A web page at `/admin` (served by the game server) for moderators: game accounts whose email is in `Admin:Emails` (`ADMIN_EMAILS` in the server's `deploy/.env`; the owner's is set). Sign in with that account's email and password (12-hour session). Tabs: overview, the report queue (hide, keep, all lines of a player), world chat search, players (mute 1 h / 24 h / 7 days, ban with a reason the player sees, unban), guilds (rename, disband), and the moderation log. A ban blocks sign-in, closes their Exchange listings, takes them out of their guild and hides their lines. |
 | Bounties and Hunt Marks | Owner, 24 Sep 2026 ("do all of them"; the GDD's Hunt Marks). Five daily and four weekly bounties counted by the server (Korstones, hunting minutes, forges, turns, Commander fights, pushes, sieges), reset at 20:00 server time (weekly on Mondays); the Hunt Marks shop sells Etching Needles, Pinning Wax, Turnstones, Scrolls of Mercy and Draughts. ETCH (Etching Needle, 1st to 4th etching at 100/80/60/40%) and PIN (Pinning Wax, one lock per item, turns cost two, unpinning spends the wax) are on the Forge. The owner will add monetization; the shop prices are placeholders. |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
@@ -213,10 +214,29 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 - To add a moderator: append their account email to `ADMIN_EMAILS` in `/opt/orsuun/deploy/.env` and restart the
   stack (`docker compose ... up -d`).
 
+## Done 24 Sep 2026, night (sign in with Apple / Google)
+
+- Server: `Game/ExternalAuth.cs` (flows and tickets in memory, OIDC key discovery, Google code exchange with PKCE,
+  Apple form_post), `LinkOrLoginAsync` in `GameService.Auth.cs`, `ExternalLogin` table (migration `ExternalLogins`),
+  endpoints `/v1/auth/providers`, `/v1/auth/external/begin`, `/auth/{provider}/start`, `/auth/google/callback`,
+  `/auth/apple/callback` (POST), `/v1/auth/ticket`, `/v1/auth/external`. Settings in `deploy/.env`:
+  `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `APPLE_SERVICES_ID` (empty = not offered).
+- Client: `ServerLink.BeginExternal` / `OnAuthCallback` (the iOS sheet's result and Android deep links), the account
+  screen's CONTINUE WITH APPLE / GOOGLE and ALSO LINK buttons, `Editor/AuthBuild.cs` (iOS: AuthenticationServices and
+  the orsuun scheme; Android: the orsuun://auth intent filter on the launcher activity).
+- `tools/smoke-external.sh [url]` walks it with the dev provider.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
   with Apple / Google (so an account survives a new phone) needs both; guest login stays as the first step.
+- Google sign-in: a Google Cloud project, OAuth consent screen (External, testing mode, test users added), and an OAuth
+  client of type "Web application" with redirect URI `https://<server>/auth/google/callback`; put its client id and
+  secret in the server's `deploy/.env` as `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` and restart.
+- Apple sign-in: the paid Apple Developer Program; an App ID `com.orsuun.warofbanners` with Sign in with Apple, a
+  Services ID (e.g. `com.orsuun.warofbanners.signin`) with Sign in with Apple configured for the server's domain and
+  return URL `https://<server>/auth/apple/callback`; put the Services ID in `APPLE_SERVICES_ID`. Apple's review asks
+  for Sign in with Apple whenever Google sign-in is offered.
 - A contact email for the store listings. The privacy policy uses uardilbaran@gmail.com (owner, 24 Sep 2026: "for now").
 - A production server: the playtest box runs in Development mode with the dev endpoints open. For release, run it with
   `ASPNETCORE_ENVIRONMENT=Production`, a real domain instead of sslip.io, and database backups; set `MenuPanel.ShowDevGrant`

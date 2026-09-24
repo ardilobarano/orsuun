@@ -102,6 +102,7 @@ public sealed partial class GameService
             : await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
         if (account != null) ThrowIfBanned(account);
         if (account?.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
+        if (account != null) await LoadLoginsAsync(account, ct);
         return account;
     }
 
@@ -278,6 +279,7 @@ public sealed partial class GameService
             await tx.CommitAsync(ct);
         }
         await _db.Devices.Where(d => d.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.ExternalLogins.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.ChatMessages.Where(m => m.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.ChatReports.Where(r => r.ReporterId == account.Id).ExecuteDeleteAsync(ct);
         await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
@@ -709,7 +711,8 @@ public sealed partial class GameService
             siege,
             etch,
             Brief(account),
-            account.Email);
+            account.Email,
+            LoginsOf(account));
     }
 
     private static ItemDto ToDto(Item item)
