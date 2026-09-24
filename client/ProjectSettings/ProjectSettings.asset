@@ -17,8 +17,8 @@ PlayerSettings:
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.12156863, g: 0.12156863, b: 0.1254902, a: 1}
-  m_ShowUnitySplashScreen: 1
-  m_ShowUnitySplashLogo: 1
+  m_ShowUnitySplashScreen: 0
+  m_ShowUnitySplashLogo: 0
   m_SplashScreenOverlayOpacity: 1
   m_SplashScreenAnimation: 1
   m_SplashScreenLogoStyle: 1
@@ -140,7 +140,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.1.260923
+  bundleVersion: 0.1.260924
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -168,10 +168,10 @@ PlayerSettings:
   buildNumber:
     Standalone: 0
     VisionOS: 0
-    iPhone: 26092323
+    iPhone: 26092400
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 26092323
+  AndroidBundleVersionCode: 26092400
   AndroidMinSdkVersion: 24
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
@@ -212,8 +212,8 @@ PlayerSettings:
   tvOSTopShelfImageLayers2x: []
   tvOSTopShelfImageWideLayers: []
   tvOSTopShelfImageWideLayers2x: []
-  iOSLaunchScreenType: 0
-  iOSLaunchScreenPortrait: {fileID: 0}
+  iOSLaunchScreenType: 1
+  iOSLaunchScreenPortrait: {fileID: 2800000, guid: 57919d6f4f9a0470a999a4360dd5babb, type: 3}
   iOSLaunchScreenLandscape: {fileID: 0}
   iOSLaunchScreenBackgroundColor:
     serializedVersion: 2
