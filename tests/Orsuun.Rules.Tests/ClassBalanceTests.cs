@@ -72,4 +72,34 @@ public class ClassBalanceTests
         _out.WriteLine($"{cls} aimed play over {n} loops: {average / 100}% of auto-cast pace");
         Assert.InRange(average, 11800, 13600);
     }
+
+    private static HeroStats Geared(int level, int upgrade, HeroClass cls)
+    {
+        var items = new List<ItemState>();
+        for (int s = 0; s < 8; s++) items.Add(new ItemState(level, Rarity.Rare, (EquipSlot)s) { UpgradeLevel = upgrade });
+        return HeroFactory.FromEquipment(items, level, cls);
+    }
+
+    /// <summary>
+    /// Late game (owner, 25 Sep 2026: balance the classes past the Oathfields): each class clears the Salt Sea's and
+    /// Whitefang's bosses one forge level above the Vanguard's need, and none clears Whitefang two levels below it.
+    /// </summary>
+    [Theory]
+    [InlineData(HeroClass.Vanguard)]
+    [InlineData(HeroClass.Kestrel)]
+    [InlineData(HeroClass.Wraithsworn)]
+    [InlineData(HeroClass.Drumcaller)]
+    public void Late_map_bosses_ask_every_class_for_about_the_same_forge_level(HeroClass cls)
+    {
+        int s30 = 0, s40 = 0, s40Low = 0;
+        for (ulong seed = 1; seed <= 10; seed++)
+        {
+            if (StageRun.Simulate(Content.Stage(30), Geared(30, 6, cls), new Inventory { Potions = 5 }, seed).Cleared) s30++;
+            if (StageRun.Simulate(Content.Stage(40), Geared(40, 7, cls), new Inventory { Potions = 5 }, seed).Cleared) s40++;
+            if (StageRun.Simulate(Content.Stage(40), Geared(40, 4, cls), new Inventory { Potions = 5 }, seed).Cleared) s40Low++;
+        }
+        _out.WriteLine($"{cls}: Mirage Queen at +6 {s30}/10, Nine-Winters at +7 {s40}/10, at +4 {s40Low}/10");
+        Assert.True(s30 >= 7 && s40 >= 7, $"{cls}: {s30}/10, {s40}/10");
+        Assert.True(s40Low <= 3, $"{cls} at +4: {s40Low}/10");
+    }
 }

@@ -76,8 +76,7 @@ locally, **not pushed, not deployed, not installed** (see "Done 25 Sep 2026"). D
 `Dungeons` and `Pits` (take a database copy first, as on 24 Sep).
 
 Waiting on the owner: the Hetzner Storage Box for database backups (they will buy it later); the paid Apple Developer
-Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release; whether
-the Wraithsworn's gap at the higher map bosses should be closed (see "Done 25 Sep 2026").
+Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
 
 Could come next: the other dungeons (Silkmother's Warren needs spider art; the Carvers' Archive is the Master's Needle
 source), Pit seasons and the Pit shop's Technique Scrolls and frames, the Mirage Queen's presence (a mirage shimmer,
@@ -369,9 +368,15 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   switches: `-pits`, `-pitfight <n>` (online).
 - Guild war now pays Guild Tallies (GDD currency table) to every member who fought: 10 for a win, 5 a draw, 3 a loss
   (`GuildWars.WinTallies`..., paid in `SettleWarAsync`, one UPDATE a side).
-- Found while tuning, for the owner: at the higher map bosses the Wraithsworn needs about two more forge levels than
-  the Vanguard, Kestrel or Drumcaller (his low HP and defence tell in long boss fights; the Oathfields hides it). Not
-  changed: class numbers were balanced at the owner's request (`ClassBalanceTests`).
+- Class balance past the Oathfields (owner, 25 Sep 2026: "balance"). Measured with full Rare sets at the stage's level,
+  the Wraithsworn needed two to four more forge levels than the Vanguard at Gorak Pass, the Salt Sea and Whitefang, the
+  Kestrel two more at Whitefang, and the Drumcaller two fewer. New class shapes (attack/defence/HP %): Kestrel 90/90/95
+  (was 90/80/85), Wraithsworn 100/95/90 (was 105/60/80), Drumcaller 85/100/100 (was 95/110/105); crit, swing speed and
+  weak points unchanged. Every class now needs about the Vanguard's forge level (+5 Salt Sea, +6 Whitefang, +7 the
+  Spire at level 40), guarded by `ClassBalanceTests.Late_map_bosses_ask_every_class_for_about_the_same_forge_level`;
+  the early push pace and aimed-play tests still hold (the Wraithsworn's weak point stays 700: at 600 an early loop
+  outlasts the 20 minute cap). Duels are class-neutral, so PvP is unchanged. Rules changed on both sides: a client
+  older than this build sends loop reports the server no longer matches, so testers need the new build.
 
 ## Store release, waiting on the owner's accounts
 

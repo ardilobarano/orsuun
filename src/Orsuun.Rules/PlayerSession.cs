@@ -158,12 +158,15 @@ namespace Orsuun.Rules
                 switch (cls)
                 {
                     // Light and quick: faster blows and more crits, less weight per hit, a thinner hide; the
-                    // assassin's Heartseeker finds the seam in the stone.
-                    case HeroClass.Kestrel: return new ClassShape(90, 80, 85, 700, 10, 900);
-                    // Glass cannon: hits hard but slowly between casts, paper defense; Void Lance splits stone.
-                    case HeroClass.Wraithsworn: return new ClassShape(105, 60, 80, 0, 13, 700);
-                    // Storm rhythm: sturdier and critier, a little lighter per blow.
-                    case HeroClass.Drumcaller: return new ClassShape(95, 110, 105, 500, 12, 700);
+                    // assassin's Heartseeker finds the seam in the stone. (25 Sep 2026: hide and HP raised so the
+                    // late map bosses need the Vanguard's forge levels, not two more.)
+                    case HeroClass.Kestrel: return new ClassShape(90, 90, 95, 700, 10, 900);
+                    // Glass cannon: the burst is in the skills; slow between casts, a thin hide and the fewest HP; Void Lance splits
+                    // stone. (25 Sep 2026: was 105/60/80, which needed two to four more forge levels past Gorak Pass.)
+                    case HeroClass.Wraithsworn: return new ClassShape(100, 95, 90, 0, 13, 700);
+                    // Storm rhythm: as sturdy as the Vanguard and critier, lighter per blow. (25 Sep 2026: was
+                    // 95/110/105, which outgrew every other class at the late bosses.)
+                    case HeroClass.Drumcaller: return new ClassShape(85, 100, 100, 500, 12, 700);
                     default: return new ClassShape(100, 100, 100, 0, 12, LaneSim.AimedWeakPointPercent);
                 }
             }
