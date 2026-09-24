@@ -207,7 +207,16 @@ public sealed record StateDto(
     string? Email = null,
     string[]? Logins = null,
     int DungeonRunsLeft = 0,
-    long DungeonRunAtSmith = 0);
+    long DungeonRunAtSmith = 0,
+    WardrobeDto? Wardrobe = null);
+
+/// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
+public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);
+public sealed record WardrobePieceDto(string Id, long SecondsLeft);
+public sealed record CaravanBuyRequest(string RequestId, string PieceId, int Days);
+/// <summary>Wears PieceId (a held piece with time left); an empty PieceId takes off the piece worn in Kind ("Skin", "Mount", "Companion").</summary>
+public sealed record WearRequest(string RequestId, string PieceId, string Kind);
+public sealed record AmberPackRequest(string RequestId, int PackId);
 
 /// <summary>The Pits (Rules.Pits): the record, the three challengers, the board, the shop's currency.</summary>
 public sealed record PitsDto(int Rating, string League, int Wins, int Losses, int Laurels, int TicketsLeft, PitChallengerDto[] Challengers,

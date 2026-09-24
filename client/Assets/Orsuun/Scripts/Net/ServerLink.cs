@@ -539,6 +539,71 @@ namespace Orsuun.Client.Net
             done(failure == null ? War?.message : null, failure);
         }
 
+        /// <summary>Amber and the wardrobe from the last state (Rules.Wardrobe); SecondsLeft counts down from its arrival.</summary>
+        public WardrobeDto Wardrobe { get; private set; }
+        private float _wardrobeAt;
+        private float _wardrobeCheck;
+        public long Amber => Wardrobe?.amber ?? 0;
+
+        /// <summary>Seconds a held piece has left now (0: not held or run out).</summary>
+        public long SecondsLeft(string pieceId)
+        {
+            if (Wardrobe?.pieces == null || string.IsNullOrEmpty(pieceId)) return 0;
+            foreach (WardrobePieceDto p in Wardrobe.pieces)
+                if (p.id == pieceId) return Math.Max(0, p.secondsLeft - (long)(Time.realtimeSinceStartup - _wardrobeAt));
+            return 0;
+        }
+
+        /// <summary>The id worn in a slot ("" for none), whether or not its time has run out.</summary>
+        public string WornId(WardrobeKind kind) =>
+            Wardrobe == null ? "" : kind == WardrobeKind.Skin ? Wardrobe.skin : kind == WardrobeKind.Mount ? Wardrobe.mount : Wardrobe.companion;
+
+        /// <summary>The worn pieces with time left, as the server counts them in the hero.</summary>
+        public List<WardrobeDef> WornPieces()
+        {
+            var list = new List<WardrobeDef>();
+            foreach (WardrobeKind kind in new[] { WardrobeKind.Skin, WardrobeKind.Mount, WardrobeKind.Companion })
+            {
+                WardrobeDef def = Rules.Wardrobe.Find(WornId(kind));
+                if (def != null && SecondsLeft(def.Id) > 0) list.Add(def);
+            }
+            return list;
+        }
+
+        private void Update()
+        {
+            // A worn piece whose time runs out stops counting here as it does on the server.
+            if (Wardrobe == null || Time.realtimeSinceStartup < _wardrobeCheck) return;
+            _wardrobeCheck = Time.realtimeSinceStartup + 1f;
+            _player.SetWorn(WornPieces());
+        }
+
+        public IEnumerator CaravanBuy(string pieceId, int days, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/caravan/buy", JsonUtility.ToJson(new CaravanBuyRequest { requestId = NewRequestId(), pieceId = pieceId, days = days }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Wears a held piece, or with an empty id takes off what is worn in <paramref name="kind"/>.</summary>
+        public IEnumerator Wear(string pieceId, WardrobeKind kind, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/wardrobe/wear", JsonUtility.ToJson(new WearRequest { requestId = NewRequestId(), pieceId = pieceId ?? "", kind = kind.ToString() }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>An Amber pack (free on the playtest server until the stores are connected).</summary>
+        public IEnumerator AmberPack(int packId, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/caravan/amber", JsonUtility.ToJson(new AmberPackRequest { requestId = NewRequestId(), packId = packId }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
         /// <summary>The Pits (the PITS screen): record, challengers, board; from the last Pits call.</summary>
         public PitsDto Pits { get; private set; }
 
@@ -764,6 +829,12 @@ namespace Orsuun.Client.Net
         {
             DungeonRunsLeft = s.dungeonRunsLeft;
             DungeonRunAtSmith = s.dungeonRunAtSmith;
+            if (s.wardrobe != null && s.wardrobe.pieces != null)
+            {
+                Wardrobe = s.wardrobe;
+                _wardrobeAt = Time.realtimeSinceStartup;
+                _player.SetWorn(WornPieces());
+            }
             var inventory = new Inventory
             {
                 Sorn = s.inventory.sorn, Potions = s.inventory.potions, Materials = s.inventory.materials,
@@ -929,7 +1000,12 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; }
+        [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
+        [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
+        [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
+        [Serializable] public class WearRequest { public string requestId; public string pieceId; public string kind; }
+        [Serializable] public class AmberPackRequest { public string requestId; public int packId; }
         [Serializable] public class PitChallengerDto { public string id; public string name; public string tag; public int rating; public string league; public string @class; public string weapon; public int winChancePercent; public bool shade; }
         [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; }
         [Serializable] public class PitsDto { public int rating; public string league; public int wins; public int losses; public int laurels; public int ticketsLeft; public PitChallengerDto[] challengers; public PitBoardDto[] board; public string message; }

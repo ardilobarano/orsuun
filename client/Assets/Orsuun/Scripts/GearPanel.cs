@@ -159,7 +159,8 @@ namespace Orsuun.Client
             _bagEmpty = Ui.Label("Empty", _bagView, 0.05f, 0.3f, 0.95f, 0.7f, "The bag is empty. Drops from the hunt land here.", 26, TextAnchor.MiddleCenter, Palette.Muted);
 
             _message = Ui.Label("Message", canvas, 0.05f, 0.072f, 0.95f, 0.097f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.068f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
+            Ui.Button("Wardrobe", canvas, 0.03f, 0.015f, 0.47f, 0.068f, "WARDROBE", 28, Palette.Alloy, () => { _canvas.SetActive(false); _root.Wardrobe.Open(); }, out _);
+            Ui.Button("Close", canvas, 0.5f, 0.015f, 0.97f, 0.068f, "BACK TO THE HUNT", 24, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
             _canvas.SetActive(false);
         }
 

@@ -27,6 +27,12 @@ namespace Orsuun.Server.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<long>("Amber")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("AmberPurchases")
+                        .HasColumnType("integer");
+
                     b.Property<int>("AnvilWards")
                         .HasColumnType("integer");
 
@@ -207,8 +213,28 @@ namespace Orsuun.Server.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<string>("Wardrobe")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
                     b.Property<int>("WeaponsBroken")
                         .HasColumnType("integer");
+
+                    b.Property<string>("WornCompanion")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WornMount")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WornSkin")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<long>("Xp")
                         .HasColumnType("bigint");

@@ -37,6 +37,8 @@ namespace Orsuun.Client
         public GuildPanel Guild { get; private set; }
         public GuildWarPanel GuildWar { get; private set; }
         public PitsPanel Pits { get; private set; }
+        public CaravanPanel Caravan { get; private set; }
+        public WardrobePanel Wardrobe { get; private set; }
         public SmithPanel Smith { get; private set; }
         public ChatPanel Chat { get; private set; }
         public MarketPanel Market { get; private set; }
@@ -99,6 +101,10 @@ namespace Orsuun.Client
             GuildWar.Init(this);
             Pits = new GameObject("PitsPanel").AddComponent<PitsPanel>();
             Pits.Init(this);
+            Caravan = new GameObject("CaravanPanel").AddComponent<CaravanPanel>();
+            Caravan.Init(this);
+            Wardrobe = new GameObject("WardrobePanel").AddComponent<WardrobePanel>();
+            Wardrobe.Init(this);
             Smith = new GameObject("SmithPanel").AddComponent<SmithPanel>();
             Smith.Init(this);
             Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
@@ -171,6 +177,9 @@ namespace Orsuun.Client
             // -pits opens THE PITS, -pitfight <n> fights its nth challenger.
             _openPits = Array.IndexOf(Environment.GetCommandLineArgs(), "-pits") >= 0;
             _pitFight = int.TryParse(Arg("-pitfight"), out int pitFight) ? pitFight : -1;
+            // -caravan <tab> opens THE CARAVAN on a tab (0 skins .. 3 Amber), -wardrobe the WARDROBE, once online.
+            _caravanTab = int.TryParse(Arg("-caravan"), out int caravanTab) ? caravanTab : -1;
+            _openWardrobe = Array.IndexOf(Environment.GetCommandLineArgs(), "-wardrobe") >= 0;
             // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
             _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
@@ -226,6 +235,8 @@ namespace Orsuun.Client
         private int _keepIndex = -1;
         private bool _openPits;
         private int _pitFight = -1;
+        private int _caravanTab = -1;
+        private bool _openWardrobe;
         private bool _enterDungeon;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
@@ -279,6 +290,12 @@ namespace Orsuun.Client
                 _enterDungeon = false;
                 EnterDungeon(Dungeons.All[0].Id);
             }
+            if (Server.Online && Server.Wardrobe != null && (_caravanTab >= 0 || _openWardrobe))
+            {
+                if (_caravanTab >= 0) Caravan.Open(_caravanTab); else Wardrobe.Open();
+                _caravanTab = -1;
+                _openWardrobe = false;
+            }
             if (Server.Online && _openPits)
             {
                 _openPits = false;
@@ -307,8 +324,16 @@ namespace Orsuun.Client
             if (Lane.Sim != lane) Lane.Bind(lane);
             // The other classes' looks follow the armour's level band (the Vanguard's armour and glaive have their own).
             ItemState armor = Session.Equipped(EquipSlot.Armor);
-            Lane.SetHeroClass(Session.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0);
-            Lane.SetLooks(Session.Equipped(EquipSlot.Armor)?.LookId, Session.Weapon.LookId);
+            // A worn skin shows its own band in its tint; mounts and companions follow the hero (the wardrobe).
+            WardrobeDef skin = null, mount = null, companion = null;
+            foreach (WardrobeDef piece in Session.Worn)
+                if (piece.Kind == WardrobeKind.Skin) skin = piece; else if (piece.Kind == WardrobeKind.Mount) mount = piece; else companion = piece;
+            bool skinned = skin != null && LaneView.SkinLooks.ContainsKey(skin.Look);
+            (int Band, Color Tint) skinLook = skinned ? LaneView.SkinLooks[skin.Look] : (0, Color.white);
+            int band = skinned ? skinLook.Band : armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0;
+            Lane.SetHeroClass(Session.Class, band);
+            Lane.SetLooks(skinned ? "Armor_T" + band : armor?.LookId, Session.Weapon.LookId);
+            Lane.SetWardrobe(mount?.Look, companion?.Look, skinLook.Tint);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);

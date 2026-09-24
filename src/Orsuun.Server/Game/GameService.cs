@@ -422,7 +422,7 @@ public sealed partial class GameService
         int potionsAtStart = account.Potions;
         var inventory = Snapshot(account);
         StageRunResult run = StageRun.Simulate(EveningBells.Apply(Content.Stage(target), _bells.Active), Hero(account), inventory, seed);
-        Apply(account, inventory);
+        Apply(account, inventory, hunt: true);
         if (run.Cleared) account.HighestStageCleared = target;
         Count(account, BountyMetric.Pushes, 1);
 
@@ -481,7 +481,7 @@ public sealed partial class GameService
             if (await RewardTopGuildAsync(boss, clock, account, run.Damage, ct)) chest += $", and your guild's {Guilds.CommanderTopTallies} Guild Tallies for rank 1";
         }
         _db.BossHits.Add(new BossHit { BossId = boss.Id, SpawnUtc = clock.SpawnUtc, AccountId = account.Id, Name = name, Banner = account.Banner, Damage = run.Damage, Utc = now });
-        Apply(account, inventory);
+        Apply(account, inventory, hunt: true);
         Count(account, BountyMetric.CommanderFights, 1);
 
         _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} pool={clock.HpLeft}/{clock.HpMax} slew={slew} bell={bell} chest={chest}", 0, request.RequestId));
@@ -594,7 +594,7 @@ public sealed partial class GameService
         // The War of Banners bonus: last season's winning Banner and each fortress a Banner holds add sorn.
         long bonusSorn = s.SornEarned * sornBonusPercent / 100;
         inventory.Sorn += bonusSorn;
-        Apply(account, inventory);
+        Apply(account, inventory, hunt: true);
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
@@ -638,7 +638,7 @@ public sealed partial class GameService
     }
 
     private static HeroStats Hero(Account a) =>
-        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class);
+        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class, WornPieces(a));
 
     private static int[] ParseShards(string s) => s.Split(';').Select(int.Parse).ToArray();
     private static string[] ParseSkins(string s) => s.Split(';', StringSplitOptions.RemoveEmptyEntries);
@@ -714,7 +714,8 @@ public sealed partial class GameService
             account.Email,
             LoginsOf(account),
             DungeonRunsLeft(account),
-            account.DungeonRunAtSmith);
+            account.DungeonRunAtSmith,
+            WardrobeOf(account));
     }
 
     private static ItemDto ToDto(Item item)
@@ -742,9 +743,21 @@ public sealed partial class GameService
         return inventory;
     }
 
-    /// <summary>Writes settled currency back and turns dropped gear into item rows, trimming the loot list.</summary>
-    private void Apply(Account a, Inventory i)
+    /// <summary>
+    /// Writes settled currency back and turns dropped gear into item rows, trimming the loot list. Dropped wardrobe pieces
+    /// become held ones. <paramref name="hunt"/>: the gain was hunted, so a worn companion adds its XP or sorn to it.
+    /// </summary>
+    private void Apply(Account a, Inventory i, bool hunt = false)
     {
+        if (hunt)
+        {
+            List<WardrobeDef> worn = WornPieces(a);
+            int xp = Wardrobe.Bonus(worn, WardrobePerk.Xp), sorn = Wardrobe.Bonus(worn, WardrobePerk.Sorn);
+            if (xp > 0 && i.Xp > a.Xp) i.Xp += (i.Xp - a.Xp) * xp / 100;
+            if (sorn > 0 && i.Sorn > a.Sorn) i.Sorn += (i.Sorn - a.Sorn) * sorn / 100;
+        }
+        if (i.WardrobeDrops.Count > 0) HoldDrops(a, i.WardrobeDrops);
+
         a.Sorn = i.Sorn; a.Potions = i.Potions; a.Materials = i.Materials; a.ScrollsOfMercy = i.ScrollsOfMercy;
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
         a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;

@@ -49,6 +49,16 @@ public sealed class Account
     [MaxLength(16)] public string PitDay { get; set; } = "";
     public int PitFights { get; set; }
     public int PitRoll { get; set; }
+    /// <summary>
+    /// Amber (Rules.Amber, bought with real money only) and the packs bought so far (the first pays double). The wardrobe
+    /// (Rules.Wardrobe.Format: "id:expiresUnix;...") and the piece worn in each slot ("" for none).
+    /// </summary>
+    public long Amber { get; set; }
+    public int AmberPurchases { get; set; }
+    [MaxLength(2048)] public string Wardrobe { get; set; } = "";
+    [MaxLength(64)] public string WornSkin { get; set; } = "";
+    [MaxLength(64)] public string WornMount { get; set; } = "";
+    [MaxLength(64)] public string WornCompanion { get; set; } = "";
 
     /// <summary>The guild this account belongs to, its rank there and when it joined.</summary>
     public Guid? GuildId { get; set; }

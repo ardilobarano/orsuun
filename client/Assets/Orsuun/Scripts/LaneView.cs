@@ -589,14 +589,16 @@ namespace Orsuun.Client
                 // Legs carry him on the run; otherwise he stands and breathes between blows.
                 if (!_heroDown)
                 {
-                    string loop = _sim.Phase == LanePhase.Running ? "Run" : "Idle";
+                    // In the saddle the mount does the running.
+                    string loop = _sim.Phase == LanePhase.Running && _mount == null ? "Run" : "Idle";
                     if (!_anim.IsPlaying("Attack") && !_anim.IsPlaying("Hit") && !_anim.IsPlaying(loop)) Play(loop, 0.15f);
-                    _hero.position = new Vector3(HeroX + _heroPunch * 0.12f, _heroY, 0f);
+                    _hero.position = new Vector3(HeroX + RideShift + _heroPunch * 0.12f, _heroY + RideY, 0f);
                 }
             }
             else if (_sim.Phase != LanePhase.Dead)
                 _hero.position = new Vector3(HeroX + _heroPunch * 0.35f, _heroY + (_sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 9f)) * 0.12f : 0f), 0f);
-            Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : _heroTint;
+            UpdateWardrobe(dt);
+            Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : _anim != null ? _skinTint : _heroTint;
             // Textured looks only flush a little when struck; the grey-box capsule flashes hard.
             Color tint = Color.Lerp(heroBase, Color.red, _heroHurt * (_anim != null ? 0.3f : 0.7f));
             foreach ((Renderer r, int _) in _heroParts) r.material.color = tint;
@@ -634,13 +636,13 @@ namespace Orsuun.Client
                 }
                 else if (enemy.IsBoss)
                 {
-                    target = new Vector3(view.IsModel ? 1.6f : 1.2f, view.Y, 0.3f);
+                    target = new Vector3((view.IsModel ? 1.6f : 1.2f) + (_mount != null ? MountMobPush : 0f), view.Y, 0.3f);
                 }
                 else
                 {
                     // Every other mob a step back, so long bodies (wolves, boars) do not sit inside each other.
                     int row = mobIndex / MobsPerRow;
-                    target = new Vector3(-0.4f + (mobIndex % MobsPerRow) * MobSpacing, view.Y, row * 1.1f + (mobIndex % 2) * 0.5f);
+                    target = new Vector3(-0.4f + (_mount != null ? MountMobPush : 0f) + (mobIndex % MobsPerRow) * MobSpacing, view.Y, row * 1.1f + (mobIndex % 2) * 0.5f);
                     mobIndex++;
                 }
 
@@ -687,6 +689,185 @@ namespace Orsuun.Client
         /// Shows the class being played: the Vanguard's armour and glaive looks, or another class's own model for the
         /// armour's level band (Models/Classes/&lt;Class&gt;_T&lt;band&gt;, nearest band if that one is not drawn yet).
         /// </summary>
+        // ---- The wardrobe on the lane (owner, 25 Sep 2026): a skin tints the hero (GameRoot picks its band), a mount
+        // carries him with his legs held in a riding pose, a companion trots behind or glides above. ----
+
+        /// <summary>Skin looks (WardrobeDef.Look): the armour band shown and the tint over it.</summary>
+        public static readonly Dictionary<string, (int Band, Color Tint)> SkinLooks = new Dictionary<string, (int, Color)>
+        {
+            ["SaltNomad"] = (1, new Color(1f, 0.93f, 0.78f)),
+            ["FrostHunter"] = (3, new Color(0.82f, 0.92f, 1f)),
+            ["EmberKhan"] = (5, new Color(1f, 0.9f, 0.84f)),
+            ["GraveWarden"] = (4, new Color(0.62f, 0.52f, 0.8f)),
+            ["TulGorak"] = (2, new Color(0.92f, 0.76f, 0.7f)),
+            ["MirageVeil"] = (3, new Color(1f, 0.92f, 0.66f)),
+            ["GreyjawPelt"] = (2, new Color(0.78f, 0.78f, 0.8f)),
+        };
+
+        private static readonly Dictionary<string, (string Model, float Scale)> MountLooks = new Dictionary<string, (string, float)>
+        {
+            ["HorsePony"] = ("MountPony", 1f),
+            ["HorseEmber"] = ("MountWarhorse", 0.88f),
+            ["HorseGold"] = ("MountWarhorseGold", 0.9f),
+            ["HorseHollow"] = ("MountWarhorseHollow", 0.92f),
+        };
+
+        private static readonly Dictionary<string, (string Model, float Scale, bool Flies)> CompanionLooks = new Dictionary<string, (string, float, bool)>
+        {
+            ["Fox"] = ("PetFox", 1f, false),
+            ["WolfPup"] = ("Wolf", 0.5f, false),
+            ["Falcon"] = ("PetFalcon", 1.4f, true),
+            ["Eagle"] = ("PetEagle", 1.8f, true),
+        };
+
+        /// <summary>The seat above the ground, as a share of the mount's height, and the rider's hips above his feet.</summary>
+        private const float SaddleShare = 0.56f, HipHeight = 1.0f;
+        /// <summary>
+        /// Mounted, the rider is drawn this far right of HeroX (so the horse's hindquarters stay in frame), the saddle sits
+        /// this far behind the mount's centre, and the mobs line up this much further off (clear of the horse's head).
+        /// </summary>
+        private const float MountShift = 0.6f, SaddleBack = 0.6f, MountMobPush = 1.3f;
+        private float RideShift => _mount != null && !_heroDown ? MountShift : 0f;
+        /// <summary>Riding pose, degrees about each leg bone's local X (positive swings the tip forward) and Z (outward).</summary>
+        private static readonly (string Bone, float Forward, float Out)[] RidePose =
+        {
+            ("thigh.L", 78f, 16f), ("thigh.R", 78f, -16f), ("shin.L", -82f, 0f), ("shin.R", -82f, 0f), ("foot.L", 20f, 0f), ("foot.R", 20f, 0f),
+        };
+
+        private Color _skinTint = Color.white;
+        private string _mountKey, _companionKey;
+        private Transform _mount, _companion;
+        private Animation _mountAnim, _companionAnim;
+        private float _rideY;
+        private bool _companionFlies;
+        private GameObject _ridePoseFor;
+        private readonly List<(Transform Bone, Quaternion Bind, Quaternion Ride)> _rideBones = new List<(Transform, Quaternion, Quaternion)>();
+
+        private float RideY => _mount != null && !_heroDown ? _rideY + (_sim != null && _sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 7f)) * 0.05f : 0f) : 0f;
+
+        /// <summary>Shows the worn mount and companion (WardrobeDef.Look keys; null for none) and the skin's tint.</summary>
+        public void SetWardrobe(string mountLook, string companionLook, Color skinTint)
+        {
+            if (_rig == null) return;
+            _skinTint = skinTint;
+            if (mountLook != _mountKey)
+            {
+                _mountKey = mountLook;
+                if (_mount != null) Kill(_mount.gameObject);
+                _mount = null;
+                _mountAnim = null;
+                _ridePoseFor = null;
+                if (mountLook != null && MountLooks.TryGetValue(mountLook, out var m)) _mount = Companion(m.Model, m.Scale, out _mountAnim, out _mountHeight);
+                if (_mount != null) _rideY = Mathf.Max(0f, _mountHeight * SaddleShare - HipHeight * _rig.localScale.y);
+            }
+            if (companionLook != _companionKey)
+            {
+                _companionKey = companionLook;
+                if (_companion != null) Kill(_companion.gameObject);
+                _companion = null;
+                _companionAnim = null;
+                if (companionLook != null && CompanionLooks.TryGetValue(companionLook, out var c))
+                {
+                    _companion = Companion(c.Model, c.Scale, out _companionAnim, out _);
+                    _companionFlies = c.Flies;
+                }
+            }
+        }
+
+        private float _mountHeight;
+
+        private Transform Companion(string model, float scale, out Animation anim, out float height)
+        {
+            anim = null;
+            height = 0f;
+            MobArt art = LoadMob(model);
+            if (art == null) return null;
+            Transform root = Instantiate(art.Model).transform;
+            root.name = model;
+            root.SetParent(transform, false);
+            foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
+            {
+                r.sharedMaterial = art.Material;
+                height = Mathf.Max(height, r.bounds.max.y);
+            }
+            root.localScale = Vector3.one * scale;
+            root.rotation = Quaternion.Euler(0f, -EnemyYaw, 0f);   // faces the enemies like the hero
+            height *= scale;
+            anim = root.GetComponent<Animation>();
+            if (anim != null && anim.GetClip("Idle") == null) anim = null;
+            if (anim != null)
+            {
+                anim.cullingType = AnimationCullingType.AlwaysAnimate;
+                anim.Play("Idle");
+            }
+            return root;
+        }
+
+        private void UpdateWardrobe(float dt)
+        {
+            bool running = _sim.Phase == LanePhase.Running;
+            if (_mount != null)
+            {
+                // The saddle under the rider: the mount's centre sits SaddleBack ahead of him along its facing.
+                Vector3 facing = _mount.rotation * Vector3.forward;
+                _mount.position = new Vector3(HeroX + MountShift + _heroPunch * 0.12f, 0f, 0f) + new Vector3(facing.x, 0f, facing.z) * SaddleBack;
+                string loop = running ? "Run" : "Idle";
+                if (_mountAnim != null && !_mountAnim.IsPlaying(loop)) _mountAnim.CrossFade(loop, 0.2f);
+            }
+            if (_companion != null)
+            {
+                float x = HeroX + RideShift;
+                if (_companionFlies)
+                {
+                    // Gliding ahead of the hero, a little toward the camera, like a falcon sent after the quarry.
+                    float t = Time.time;
+                    _companion.position = new Vector3(x + 1.3f + Mathf.Sin(t * 0.7f) * 0.25f, 1.5f + RideY + Mathf.Sin(t * 2.1f) * 0.15f, -1.3f);
+                    // Turned mostly to the camera so the spread wings show (side on, a glider is a line).
+                    _companion.rotation = Quaternion.Euler(12f + Mathf.Sin(t * 2.1f) * 6f, 160f, Mathf.Sin(t * 1.3f) * 12f);
+                }
+                else
+                {
+                    // At the hero's feet, a step toward the camera (in front of the horse when mounted).
+                    _companion.position = new Vector3(x + (_mount != null ? 0.9f : 0.5f), 0f, -1.1f);
+                    string loop = running ? "Run" : "Idle";
+                    if (_companionAnim != null && !_companionAnim.IsPlaying(loop)) _companionAnim.CrossFade(loop, 0.2f);
+                }
+            }
+        }
+
+        /// <summary>Holds the rider's legs in the saddle after the clips have posed him (the clips move the upper body).</summary>
+        private void LateUpdate()
+        {
+            if (_mount == null || _heroDown || _anim == null) return;
+            GameObject look = _classLook != null ? _classLook : _armorLook;
+            if (look == null) return;
+            if (_ridePoseFor != look)
+            {
+                _ridePoseFor = look;
+                _rideBones.Clear();
+                SkinnedMeshRenderer skin = look.GetComponentInChildren<SkinnedMeshRenderer>();
+                foreach ((string bone, float forward, float outward) in RidePose)
+                {
+                    Transform t = FindDeep(look.transform, bone);
+                    if (t == null) continue;
+                    Quaternion rest = skin != null ? RestLocal(skin, t) : t.localRotation;
+                    _rideBones.Add((t, rest, Quaternion.Euler(forward, 0f, outward)));
+                }
+            }
+            foreach ((Transform bone, Quaternion bind, Quaternion ride) in _rideBones) bone.localRotation = bind * ride;
+        }
+
+        /// <summary>A bone's rest rotation relative to its parent, from the skin's bind poses (the clips never touch them).</summary>
+        private static Quaternion RestLocal(SkinnedMeshRenderer skin, Transform bone)
+        {
+            Transform[] bones = skin.bones;
+            Matrix4x4[] binds = skin.sharedMesh.bindposes;
+            int i = System.Array.IndexOf(bones, bone), p = System.Array.IndexOf(bones, bone.parent);
+            if (i < 0 || p < 0) return bone.localRotation;
+            Quaternion world = binds[i].inverse.rotation, parent = binds[p].inverse.rotation;
+            return Quaternion.Inverse(parent) * world;
+        }
+
         public void SetHeroClass(HeroClass cls, int band = 0)
         {
             if (_rig == null || (cls == _class && (cls == HeroClass.Vanguard || band == _classBand))) return;

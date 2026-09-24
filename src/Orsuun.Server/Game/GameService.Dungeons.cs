@@ -36,7 +36,7 @@ public sealed partial class GameService
                 break;
             }
         }
-        Apply(account, inventory);
+        Apply(account, inventory, hunt: true);
         return floors;
     }
 

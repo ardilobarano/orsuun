@@ -21,6 +21,7 @@ namespace Orsuun.Client
         private Text _guildLabel;
         private Text _ticker;
         private Text _guildTag;
+        private Text _amber;
         private Text _bountyLabel;
         private RawImage _flag;
         private int _lastLevel;
@@ -205,6 +206,9 @@ namespace Orsuun.Client
             flagButton.onClick.AddListener(() => root.War.Open());
             // The guild tag under the flag, in the guild's colour.
             _guildTag = Ui.Title("GuildTag", canvas, 0.88f, 0.735f, 1f, 0.76f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
+            // The Caravan under the flag: a round camel button with the Amber held beneath it.
+            Ui.RoundButton("Caravan", canvas, 0.9f, 0.655f, 0.99f, 0.73f, "Caravan", new Color(0.55f, 0.3f, 0.08f), () => root.Caravan.Open(), out _, out _);
+            _amber = Ui.Title("Amber", canvas, 0.86f, 0.632f, 1f, 0.656f, "", 20, TextAnchor.MiddleCenter, CaravanPanel.AmberColor);
         }
 
         /// <summary>Resources/Icons/Skills name for a skill: its letters ("Kestrel's Dive" is KestrelsDive).</summary>
@@ -330,6 +334,7 @@ namespace Orsuun.Client
             _guildTag.text = inGuild ? "[" + guild.tag + "]" : "";
             _ticker.text = _root.Chat.Ticker.Length > 0 ? _root.Chat.Ticker : ConfirmDialog.Tint(_root.Server.Online ? "Tap to talk with the steppe." : "Chat needs the server.", Palette.Muted);
             if (inGuild) _guildTag.color = GuildPanel.ColorOf(guild.color);
+            _amber.text = _root.Server.Online ? _root.Server.Amber.ToString("N0") : "";
             bool claim = _root.Bounties.AnyClaimable;
             _navBadges[2].gameObject.SetActive(claim);
             BannerLook.Show(_flag, _root.Server.Banner);

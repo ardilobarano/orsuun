@@ -37,7 +37,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Owner decisions (23 Sep 2026): art direction B; every item forges like the weapon; only weapon and body armour are
   visible and glow (each by its own level, classic MMO shine, +7 pale gold, +8 gold, +9 ember-gold); weapon and armour
   looks change every 10 item levels (`ItemLooks`). Helmet, shield, jewellery, shoes are stats only. (24 Sep) every
-  Forge attempt asks first; any owned piece, worn or in the bag, can be forged and turned.
+  Forge attempt asks first; any owned piece, worn or in the bag, can be forged and turned. (25 Sep) The premium
+  currency is Amber, real money only; skins, mounts and companions are held 1/3/5/7/14 days with small stats (skin HP,
+  mount attack, companion hunting XP or sorn), sold at the Caravan, and bosses from Gorak Pass on drop short ones.
 - Designs must be original: nothing that reads as another game's character (a first Tul-Gorak came out as Kratos and
   was redone). Characters may be muscular or curvy but stay clothed and non-explicit (store ratings); the women wear
   the shortest shorts with garters (owner, 24 Sep).
@@ -104,3 +106,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - This Mac's locale writes decimals with a comma: parse and format numbers with `CultureInfo.InvariantCulture`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).
+- Wardrobe stats: HP and attack are in `HeroFactory.FromEquipment(..., worn)` on both sides (server `Hero(account)`,
+  client `PlayerSession.SetWorn` from the state), so loop replays match; a companion's XP/sorn is added only by the
+  server's `Apply(..., hunt: true)`. Duels/Pits (`Duels.Neutral`) ignore the wardrobe. Amber packs are free only on a
+  Development server (`/v1/caravan/amber` answers "store_closed" elsewhere) until store purchases are built.

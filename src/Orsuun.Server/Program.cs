@@ -198,6 +198,10 @@ v1.MapGet("/pits", (HttpContext ctx, GameService game, CancellationToken ct) => 
 v1.MapPost("/pits/refresh", (HttpContext ctx, GameService game, CancellationToken ct) => game.PitRefreshAsync(Me(ctx), ct));
 v1.MapPost("/pits/fight", (HttpContext ctx, PitFightRequest req, GameService game, CancellationToken ct) => game.PitFightAsync(Me(ctx), req, ct));
 v1.MapPost("/pits/shop", (HttpContext ctx, PitShopRequest req, GameService game, CancellationToken ct) => game.PitShopAsync(Me(ctx), req, ct));
+v1.MapPost("/caravan/buy", (HttpContext ctx, CaravanBuyRequest req, GameService game, CancellationToken ct) => game.CaravanBuyAsync(Me(ctx), req, ct));
+v1.MapPost("/caravan/amber", (HttpContext ctx, AmberPackRequest req, GameService game, CancellationToken ct) =>
+    game.AmberPackAsync(Me(ctx), req, app.Environment.IsDevelopment(), ct));
+v1.MapPost("/wardrobe/wear", (HttpContext ctx, WearRequest req, GameService game, CancellationToken ct) => game.WearAsync(Me(ctx), req, ct));
 v1.MapPost("/dungeon/enter", (HttpContext ctx, DungeonEnterRequest req, GameService game, CancellationToken ct) => game.EnterDungeonAsync(Me(ctx), req, ct));
 v1.MapPost("/dungeon/smith", (HttpContext ctx, DungeonSmithRequest req, GameService game, CancellationToken ct) => game.DungeonSmithAsync(Me(ctx), req, ct));
 v1.MapPost("/keep/bid", (HttpContext ctx, KeepBidRequest req, GameService game, CancellationToken ct) => game.KeepBidAsync(Me(ctx), req, ct));

@@ -127,6 +127,8 @@ namespace Orsuun.Rules
                 inventory.KhansAlloys += 1;
                 text += " and a Khan's Alloy";
             }
+            string? piece = Wardrobe.RollDrop(inventory, Wardrobe.WardenDropBp, rng);
+            if (piece != null) text += "; " + piece;
             return text;
         }
     }

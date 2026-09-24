@@ -92,12 +92,18 @@ namespace Orsuun.Rules.Combat
                 inventory.KhansAlloys++;
                 text += ", +1 Khan's Alloy";
             }
+            // Bosses from Gorak Pass's level on can drop a short wardrobe piece.
+            if (stage.GearItemLevel >= Wardrobe.MinDropLevel)
+            {
+                string? piece = Wardrobe.RollDrop(inventory, Wardrobe.BossDropBp, rng);
+                if (piece != null) text += ", " + piece;
+            }
             return text;
         }
 
         /// <summary>
         /// A Commander chest by damage rank (GDD section 13): rank 1 the Commander's chest, 2-5 an Officer's,
-        /// 6-20 a Trooper's, beyond that nothing. Skins come only from the first two.
+        /// 6-20 a Trooper's, beyond that nothing. The Commander's wardrobe trophy comes only from the first two.
         /// </summary>
         public static string LootCommander(BossDef boss, int rank, Inventory inventory, IRandom rng)
         {
@@ -113,7 +119,6 @@ namespace Orsuun.Rules.Combat
 
             int legendaryBp = rank == 1 ? 1000 : rank <= 5 ? 300 : 0;
             int alloyBp = rank == 1 ? 5000 : rank <= 5 ? 2500 : 1000;
-            int skinBp = rank == 1 ? 300 : rank <= 5 ? 100 : 0;
 
             var stage = new StageConfig { GearItemLevel = Content.Zone(boss.ZoneId)!.LevelMin };
             ItemState gear = DropGear(stage, inventory, rng, rng.RollBp(legendaryBp) ? Rarity.Legendary : Rarity.Epic, minimum: rank <= 5 ? Rarity.Epic : Rarity.Rare);
@@ -123,11 +128,9 @@ namespace Orsuun.Rules.Combat
                 inventory.KhansAlloys++;
                 text += ", +1 Khan's Alloy";
             }
-            if (rng.RollBp(skinBp))
-            {
-                inventory.Skins.Add(boss.SkinName);
-                text += ", SKIN: " + boss.SkinName;
-            }
+            // The Commander's own trophy, a short wardrobe skin (the old permanent trophy names stay in Inventory.Skins).
+            string? trophy = Wardrobe.RollDrop(inventory, Wardrobe.CommanderDropBp(rank), rng, Wardrobe.FindByName(boss.SkinName));
+            if (trophy != null) text += ", " + trophy;
             return text;
         }
 

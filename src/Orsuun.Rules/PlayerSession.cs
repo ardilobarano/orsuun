@@ -23,8 +23,10 @@ namespace Orsuun.Rules
         public long Xp { get; set; }
         /// <summary>Korshards held, by rank index (Trooper .. Guard of the Khan). Sockets come in the next step.</summary>
         public int[] Korshards { get; } = new int[5];
-        /// <summary>Cosmetics owned; only Commanders drop them.</summary>
+        /// <summary>Trophy names the Commanders dropped before the wardrobe (kept, shown nowhere yet).</summary>
         public List<string> Skins { get; } = new List<string>();
+        /// <summary>Wardrobe pieces dropped and not yet held ("id:days"); the server turns them into timed pieces.</summary>
+        public List<string> WardrobeDrops { get; } = new List<string>();
         /// <summary>Gear that dropped and has not been placed anywhere yet.</summary>
         public List<ItemState> Loot { get; } = new List<ItemState>();
 
@@ -39,6 +41,8 @@ namespace Orsuun.Rules
             Array.Copy(other.Korshards, Korshards, Korshards.Length);
             Skins.Clear();
             Skins.AddRange(other.Skins);
+            WardrobeDrops.Clear();
+            WardrobeDrops.AddRange(other.WardrobeDrops);
         }
     }
 
@@ -51,7 +55,8 @@ namespace Orsuun.Rules
         /// Every piece scales with its upgrade level and rarity; etchings add on top; each character level adds
         /// +2 attack and +40 HP so Hunting Grounds pay off in power, not only in sorn.
         /// </summary>
-        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level, HeroClass cls = HeroClass.Vanguard)
+        /// <param name="worn">Wardrobe pieces worn with time left: a skin adds HP, a mount attack (after the class shape).</param>
+        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level, HeroClass cls = HeroClass.Vanguard, IEnumerable<WardrobeDef>? worn = null)
         {
             long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
             int critBp = 500, critMult = 200, beast = 0, evasionBp = 0, haste = 0, warding = 0;
@@ -114,6 +119,8 @@ namespace Orsuun.Rules
             attack = attack * shape.AttackPercent / 100;
             defense = defense * shape.DefensePercent / 100;
             maxHp = maxHp * shape.HpPercent / 100;
+            attack = attack * (100 + Wardrobe.Bonus(worn, WardrobePerk.Attack)) / 100;
+            maxHp = maxHp * (100 + Wardrobe.Bonus(worn, WardrobePerk.Hp)) / 100;
             critBp += shape.CritBonusBp;
             int interval = shape.AttackIntervalTicks, weakPoint = shape.WeakPointPercent;
 
@@ -271,7 +278,21 @@ namespace Orsuun.Rules
         public bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
-        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class);
+        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class, _worn);
+
+        private readonly List<WardrobeDef> _worn = new List<WardrobeDef>();
+        /// <summary>The wardrobe pieces worn with time left (online: from the server's state).</summary>
+        public IReadOnlyList<WardrobeDef> Worn => _worn;
+
+        /// <summary>Wears these pieces; a change of stats rebuilds the hero like a change of gear.</summary>
+        public void SetWorn(IEnumerable<WardrobeDef> worn)
+        {
+            var next = new List<WardrobeDef>(worn);
+            if (next.Count == _worn.Count && next.TrueForAll(_worn.Contains)) return;
+            _worn.Clear();
+            _worn.AddRange(next);
+            RefreshHero();
+        }
 
         /// <summary>The class being played. Changing it rebuilds the farm lane with that class's kit.</summary>
         public HeroClass Class { get; private set; } = HeroClass.Vanguard;

@@ -220,11 +220,16 @@ namespace Orsuun.Client.EditorTools
                 // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
                 mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
                 mat.SetFloat("_Smoothness", 0.2f);
-                if (ember)
+                // Wardrobe pieces (owner, 25 Sep 2026): the Hollow Steed glows cold, the Ember Fox's tail warm.
+                Color? glow = ember ? new Color(0.32f, 0.26f, 0.2f)
+                    : id == "MountWarhorseHollow" ? new Color(0.3f, 0.4f, 0.55f)
+                    : id == "PetFox" ? new Color(0.22f, 0.16f, 0.1f)
+                    : id == "PetFalcon" || id == "PetEagle" ? new Color(0.3f, 0.28f, 0.25f) : (Color?)null;   // birds fly in the shade side
+                if (glow.HasValue)
                 {
                     mat.EnableKeyword("_EMISSION");
                     mat.SetTexture("_EmissionMap", tex);
-                    mat.SetColor("_EmissionColor", new Color(0.32f, 0.26f, 0.2f));
+                    mat.SetColor("_EmissionColor", glow.Value);
                 }
                 else
                 {
