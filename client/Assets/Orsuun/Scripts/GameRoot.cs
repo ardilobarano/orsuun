@@ -154,6 +154,9 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }
 
+            // Dev switch: -boss <id> fights that Commander at once in local play (screenshots of the Commanders).
+            if (int.TryParse(Arg("-boss"), out int bossId) && !Server.Online && Content.Boss(bossId) != null) FightBoss(bossId);
+
             // Dev switch: -fxdemo <outcome> plays the Forge's anvil moment with a made-up result (screenshots).
             string fxDemo = Arg("-fxdemo");
             if (fxDemo != null) StartCoroutine(Forge.Demo(fxDemo));

@@ -894,8 +894,9 @@ namespace Orsuun.Client
         }
 
         /// <summary>
-        /// The model for an enemy: mobs cycle the map's three kinds by id; Old Greyjaw is a great wolf; Tul-Gorak and his
-        /// captains are deserters in war-red. The Mirage Queen and her images have no model yet (grey box).
+        /// The model for an enemy: mobs cycle their ground's three kinds by id; the Commanders (Tul-Gorak, the Mirage Queen,
+        /// Old Greyjaw) have their own rigged models, Tul-Gorak's captains are deserters in war-red, and the Queen's images
+        /// are her own model washed violet.
         /// </summary>
         private MobArt ArtFor(int enemyId, EnemyKind kind, out float scale, out Color? tint, out string name)
         {

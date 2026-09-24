@@ -342,9 +342,8 @@ picture on the Forge, shard art); guild war and fortress bids; password reset by
    (`docs/concept/`). The upgrade-glow progression sheet is done too. The full remaining art backlog (second-sex class variants, Forgemaster, more
    Hollowed mobs, Commander sheets, three environment keys, Oathfields backdrops, town vistas, gear and consumable and
    Korshard icons, Banner emblems, Forge VFX boards, store screenshots) is the checklist in GDD section 14.1. Done since: bands 3-5
-   of item looks, boar and deserter sheets and models, a first UI colour pass. Open: a Mirage Queen model (she and her
-   images are still grey-box capsules), mob rigs (mobs move procedurally), bands 6-10 of looks, the other three classes
-   in the lane.
+   of item looks, boar and deserter sheets and models, a first UI colour pass. Open: bands 6-10 of looks. (The Mirage
+   Queen, mob rigs and the other three classes are done: see the sections above.)
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
    real shared boss HP pools, Hunt Marks and the Hearthfire subscription (Bulk Turn's 10/50 split depends on it).
 
