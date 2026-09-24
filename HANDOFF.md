@@ -185,10 +185,11 @@ addon panel; Rodin is enabled in fal.ai mode (key in `~/.config/fal/key`, about 
 crashes before sending (it iterates the file-path list when given URLs), so submit to `https://queue.fal.run/fal-ai/hyper3d/rodin`
 directly with front/side/back crops hosted under `/downloads`, `condition_mode: concat`, `tier: Regular`, `material: PBR`.
 First result: the Vanguard (`art/blender/vanguard.blend`), decimated to 12k tris, in the lane as `Resources/Models/Vanguard.fbx`.
-**fal.ai's balance ran out on 24 Sep 2026** (every Rodin call returns "Exhausted balance"; top it up to use Rodin
-again). Since then 3D comes from Tripo H3.1 multiview through Higgsfield (`tripo_h3_1_multiview_to_3d`, about 9
-credits a model, `face_limit: 40000`, front/side/back views in that order as imported media). Tripo models face +X:
-pass `yaw_degrees=-90` to `class_look` / `mob_model`. Sources are kept as `art/blender/*-tripo.glb`.
+fal.ai's balance ran out once on 24 Sep 2026 ("Exhausted balance" on every call); the owner topped it up the same
+day. The class bands and the Salt Flats / Frost Pasture mobs made in between come from Tripo H3.1 multiview through
+Higgsfield (`tripo_h3_1_multiview_to_3d`, about 9 credits a model, `face_limit: 40000`, front/side/back views in that
+order as imported media), which held up as well as Rodin; either works. Tripo models face +X: pass
+`yaw_degrees=-90` to `class_look` / `mob_model`. Sources are kept as `art/blender/*-tripo.glb`.
 Other classes go through `looks.class_look(glb, "<Class>_T<n>", height, weapon=..., attack=...)`: "knives" (a blade in
 each hand; also the twin swords of the Wraithsworn's first band), "sword" (right hand) or "staff" (a straight line
 through the right hand). Blades are found below each hand, then only the mesh island the hand grips is kept (boots and

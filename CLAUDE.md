@@ -43,8 +43,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   the shortest shorts with garters (owner, 24 Sep).
 - Art: generate sheets with the chosen `docs/concept/vanguard-1-sheet.jpg` as the style reference. 3D via Hyper3D Rodin on
   fal.ai (key in `~/.config/fal/key`, never in chat or git; the Blender MCP tool's fal path is broken, call the fal queue
-  API directly). fal's balance ran out on 24 Sep 2026: until it is topped up, use Tripo H3.1 multiview on Higgsfield
-  (faces +X, so `yaw_degrees=-90`). Item looks go through `art/blender/looks.py` (armour looks are rigged there by
+  API directly). Tripo H3.1 multiview on Higgsfield is the alternative (used while fal was empty on 24 Sep; faces +X,
+  so `yaw_degrees=-90`). Item looks go through `art/blender/looks.py` (armour looks are rigged there by
   `rig.py`); other classes' bands through `looks.class_look`; enemies through `looks.mob_model`.
 - Active play: the farm lane online is one seeded loop per encounter cycle; anything that rebuilds `PlayerSession.Lane`
   must go through `NewFarmLane`/`StartLoop`, and anything that changes the hero through `RefreshHero`, or loop reports
