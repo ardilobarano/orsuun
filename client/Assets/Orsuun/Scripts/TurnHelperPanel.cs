@@ -114,7 +114,7 @@ namespace Orsuun.Client
             transform.SetParent(canvas, false);
 
             // Opaque: it sits on the Forge, whose text would show through the usual dim.
-            Ui.Backdrop(canvas);
+            Ui.Backdrop(canvas, "Turning");
             Ui.Title("Title", canvas, 0.05f, 0.94f, 0.95f, 0.978f, "TURNING HELPER", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
 
             // The pieces: two rows of four, the next free tile adds one.

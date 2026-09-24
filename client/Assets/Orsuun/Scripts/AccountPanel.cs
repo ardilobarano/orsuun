@@ -62,12 +62,14 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Backdrop(canvas);
+            Ui.Backdrop(canvas, "Gate");
             Ui.Title("Game", canvas, 0.05f, 0.86f, 0.95f, 0.93f, "ORSUUN", 72, TextAnchor.MiddleCenter, Palette.Sorn, carved: true, ribbon: false);
             Ui.Title("Sub", canvas, 0.05f, 0.825f, 0.95f, 0.86f, "WAR OF BANNERS", 30, TextAnchor.MiddleCenter, Palette.Trim, carved: true);
             Ui.Trim("Rule", canvas, 0.25f, 0.815f, 0.75f, 0.818f);
+            // A card behind the heading and its lead, so they read over the painted gate.
+            Ui.Framed("LeadCard", canvas, 0.05f, 0.662f, 0.95f, 0.806f, new Color(0.08f, 0.08f, 0.13f, 0.88f));
             _heading = Ui.Title("Heading", canvas, 0.05f, 0.75f, 0.95f, 0.8f, "", 40, TextAnchor.MiddleCenter, Palette.Parchment);
-            _lead = Ui.Label("Lead", canvas, 0.08f, 0.67f, 0.92f, 0.75f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
+            _lead = Ui.Label("Lead", canvas, 0.08f, 0.67f, 0.92f, 0.75f, "", 26, TextAnchor.MiddleCenter, Palette.Parchment);
 
             _choose = Ui.Rect("Choose", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform c = _choose.transform;

@@ -107,7 +107,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Backdrop(canvas);
+            Ui.Backdrop(canvas, "Guild");
             BuildBrowse(canvas);
             BuildHome(canvas);
             _message = Ui.Label("Message", canvas, 0.05f, 0.08f, 0.95f, 0.125f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);

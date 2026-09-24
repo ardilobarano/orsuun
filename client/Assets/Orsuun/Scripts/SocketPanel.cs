@@ -42,7 +42,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Backdrop(canvas);
+            Ui.Backdrop(canvas, "Shards");
             Ui.Title("Title", canvas, 0.05f, 0.925f, 0.95f, 0.975f, "KORSHARDS", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Label("Hint", canvas, 0.05f, 0.885f, 0.95f, 0.925f, "A set shard takes 70% of the time. A failed one dies in the socket and costs sorn to remove.", 20, TextAnchor.MiddleCenter, Palette.Muted);
 

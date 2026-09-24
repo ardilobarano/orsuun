@@ -69,7 +69,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Backdrop(canvas);
+            Ui.Backdrop(canvas, "Exchange");
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "SALT EXCHANGE", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _purse = Ui.Label("Purse", canvas, 0.05f, 0.9f, 0.95f, 0.935f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
             string[] tabs = { "BUY", "SELL", "MY LISTINGS" };

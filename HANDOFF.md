@@ -226,6 +226,16 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   the orsuun scheme; Android: the orsuun://auth intent filter on the launcher activity).
 - `tools/smoke-external.sh [url]` walks it with the dev provider.
 
+## Done 24 Sep 2026, night (painted screens)
+
+- Owner: scenes for every screen with menus, "do it directly [in the] ui". Twelve painted portrait scenes in direction
+  B (`docs/concept/screens/bg-*.jpg`, in the game as `Resources/Scenes/*.jpg`): Forge, Gear, Shards, Turning, Zones,
+  War, Bounties, Guild, Exchange, Chat, Gate (MENU and the account screen), Oath. `Ui.Backdrop(canvas, "Name")` lays the
+  scene under a shade that darkens toward the bottom. `Editor/SceneArtImport.cs` keeps their 752x1344 size.
+- AI mockups of whole screens (`docs/concept/screens/mockup-*.jpg`: hunt, forge, gear, korshards, turning, zones, war)
+  are a design target for a further UI pass: filigree headers, painted thumbnails on zone and fortress cards, framed
+  item icons.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in

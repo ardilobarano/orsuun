@@ -78,7 +78,7 @@ namespace Orsuun.Client
             Transform canvas = _canvas.transform;
             transform.SetParent(canvas, false);
 
-            Ui.Backdrop(canvas);
+            Ui.Backdrop(canvas, "Gear");
             // The title sits left of the class switch, so its ribbon stays clear of it.
             Ui.Title("Title", canvas, 0.04f, 0.94f, 0.64f, 0.978f, "GEAR", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _hero = Ui.Label("Hero", canvas, 0.04f, 0.91f, 0.96f, 0.937f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);

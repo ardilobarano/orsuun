@@ -80,9 +80,25 @@ namespace Orsuun.Client
         /// A full-screen screen background (opaque, so the hunt does not show through) that also fades the screen in
         /// each time its canvas is shown.
         /// </summary>
-        public static Image Backdrop(Transform canvas)
+        public static Image Backdrop(Transform canvas, string scene = null)
         {
             Image back = Sliced("Backdrop", canvas, 0f, 0f, 1f, 1f, "Backdrop", Color.white);
+            // A painted scene for the screen (Resources/Scenes, docs/concept/screens): it fills the screen (cropped at
+            // the sides on tall phones) under a shade that darkens toward the bottom, where the panels sit.
+            Texture2D art = scene == null ? null : Resources.Load<Texture2D>("Scenes/" + scene);
+            if (art != null)
+            {
+                RectTransform box = Rect("Scene", back.transform, 0f, 0f, 1f, 1f);
+                RectTransform inner = Rect("Image", box, 0f, 0f, 1f, 1f);
+                var raw = inner.gameObject.AddComponent<RawImage>();
+                raw.texture = art;
+                raw.raycastTarget = false;
+                var fit = inner.gameObject.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fit.aspectRatio = art.width / (float)art.height;
+                Panel("Shade", back.transform, 0f, 0f, 1f, 1f, new Color(0.03f, 0.03f, 0.06f, 0.38f)).raycastTarget = false;
+                Panel("ShadeLow", back.transform, 0f, 0f, 1f, 0.6f, new Color(0.03f, 0.03f, 0.06f, 0.3f)).raycastTarget = false;
+            }
             if (canvas.GetComponent<ScreenFade>() == null) canvas.gameObject.AddComponent<ScreenFade>();
             return back;
         }
