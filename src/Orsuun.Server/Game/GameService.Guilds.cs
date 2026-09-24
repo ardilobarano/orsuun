@@ -90,7 +90,18 @@ public sealed partial class GameService
                 .Select(id => Fortresses.Find(id)!.Name).ToArray();
             var mine = new GuildDto(g.Id, g.Name, g.Tag, g.Color, g.Open, Guilds.Level(g.Xp), g.Xp, Guilds.NextLevelXp(g.Xp), g.Treasury, g.Plunder, g.Muster,
                 members.Length, Guilds.MaxMembers(g.Muster), g.Plunder + forts.Length * Guilds.FlagBonusPercent, forts, g.LastEvent);
-            return new GuildViewDto(state, mine, members, Array.Empty<GuildListItemDto>(), today, Guilds.DailyDonationCap, message);
+            GuildMemberDto[] requests = Array.Empty<GuildMemberDto>();
+            if (Guilds.CanManage(account.GuildRank))
+            {
+                var asking = await _db.GuildRequests.AsNoTracking().Where(r => r.GuildId == g.Id).OrderBy(r => r.Utc).Take(20)
+                    .Join(_db.Accounts, r => r.AccountId, a => a.Id, (r, a) => new { a.Id, a.Banner, a.Xp, a.LastHeartbeatUtc }).ToListAsync(ct);
+                requests = asking.Select(a => new GuildMemberDto(a.Id, Banners.GeneratedName(a.Id), a.Banner, GuildRank.Member, Content.LevelFor(a.Xp), 0,
+                    (int)Math.Max(0, (now - a.LastHeartbeatUtc).TotalMinutes), false)).ToArray();
+            }
+            string channel = Chat.GuildChannel(g.Id);
+            string[] log = (await _db.ChatMessages.AsNoTracking().Where(m => m.Channel == channel && m.AccountId == Guid.Empty)
+                .OrderByDescending(m => m.Id).Take(6).Select(m => m.Text).ToListAsync(ct)).ToArray();
+            return new GuildViewDto(state, mine, members, Array.Empty<GuildListItemDto>(), today, Guilds.DailyDonationCap, message, requests, log);
         }
 
         IQueryable<Guild> query = _db.Guilds.AsNoTracking();
@@ -105,8 +116,9 @@ public sealed partial class GameService
         var ids = guilds.Select(g => (Guid?)g.Id).ToList();
         var counts = await _db.Accounts.AsNoTracking().Where(a => ids.Contains(a.GuildId)).GroupBy(a => a.GuildId)
             .Select(x => new { x.Key, Count = x.Count() }).ToListAsync(ct);
+        var asked = await _db.GuildRequests.AsNoTracking().Where(r => r.AccountId == account.Id).Select(r => r.GuildId).ToListAsync(ct);
         GuildListItemDto[] browse = guilds.Select(g => new GuildListItemDto(g.Id, g.Name, g.Tag, g.Color, Guilds.Level(g.Xp),
-            counts.Where(c => c.Key == g.Id).Select(c => c.Count).FirstOrDefault(), Guilds.MaxMembers(g.Muster), g.Open)).ToArray();
+            counts.Where(c => c.Key == g.Id).Select(c => c.Count).FirstOrDefault(), Guilds.MaxMembers(g.Muster), g.Open, asked.Contains(g.Id))).ToArray();
         return new GuildViewDto(state, null, Array.Empty<GuildMemberDto>(), browse, today, Guilds.DailyDonationCap, message);
     }
 
@@ -128,9 +140,10 @@ public sealed partial class GameService
         var guild = new Guild
         {
             Id = Guid.NewGuid(), Name = name, NameKey = key, Tag = tag, Color = request.Color, Open = true, CreatedUtc = now,
-            LastEvent = $"{Banners.GeneratedName(account.Id)} founded {name}.",
         };
         _db.Guilds.Add(guild);
+        GuildEvent(guild, $"{Banners.GeneratedName(account.Id)} founded {name}.");
+        await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
         account.Sorn -= Guilds.CreateCost;
         account.GuildId = guild.Id;
         account.GuildRank = GuildRank.Leader;
@@ -149,13 +162,27 @@ public sealed partial class GameService
         if (account.GuildId != null) throw new GameException("in_guild", "Leave your guild first.");
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
         Guild guild = await LockGuildAsync(request.GuildId, ct);
-        if (!guild.Open) throw new GameException("guild_closed", guild.Name + " takes no one new.");
+        if (!guild.Open)
+        {
+            // Shut gates: the player asks, and the leader or an officer answers.
+            if (await _db.GuildRequests.AnyAsync(r => r.GuildId == guild.Id && r.AccountId == account.Id, ct))
+                throw new GameException("requested", "You already asked " + guild.Name + ".");
+            if (await _db.GuildRequests.CountAsync(r => r.AccountId == account.Id, ct) >= Guilds.MaxRequests)
+                throw new GameException("requests_full", $"You can ask at most {Guilds.MaxRequests} guilds at once.");
+            _db.GuildRequests.Add(new GuildRequest { GuildId = guild.Id, AccountId = account.Id, Utc = DateTime.UtcNow });
+            SystemLine(Chat.GuildChannel(guild.Id), $"{Banners.GeneratedName(account.Id)} asks to join.");
+            _db.Ledger.Add(Entry(account.Id, null, "guild-ask", $"guild={guild.Id}", 0, request.RequestId));
+            await SaveAsync(ct);
+            await tx.CommitAsync(ct);
+            return await ViewAsync(account, null, "You asked to join " + guild.Name + ". Its leader or an officer will answer.", ct);
+        }
         if (await MemberCountAsync(guild.Id, ct) >= Guilds.MaxMembers(guild.Muster)) throw new GameException("guild_full", guild.Name + " is full.");
         account.GuildId = guild.Id;
         account.GuildRank = GuildRank.Member;
         account.GuildJoinedUtc = DateTime.UtcNow;
         account.GuildDonated = 0;
-        guild.LastEvent = $"{Banners.GeneratedName(account.Id)} joined.";
+        GuildEvent(guild, $"{Banners.GeneratedName(account.Id)} joined.");
+        await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
         _db.Ledger.Add(Entry(account.Id, null, "guild-join", $"guild={guild.Id}", 0, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
@@ -176,6 +203,9 @@ public sealed partial class GameService
         if (heir == null)
         {
             await _db.Fortresses.Where(f => f.FlagGuildId == id).ExecuteUpdateAsync(s => s.SetProperty(f => f.FlagGuildId, (Guid?)null), ct);
+            await _db.GuildRequests.Where(r => r.GuildId == id).ExecuteDeleteAsync(ct);
+            string channel = Chat.GuildChannel(id);
+            await _db.ChatMessages.Where(m => m.Channel == channel).ExecuteDeleteAsync(ct);
             _db.Guilds.Remove(guild);
             _guild = null;
         }
@@ -184,14 +214,48 @@ public sealed partial class GameService
             if (account.GuildRank == GuildRank.Leader)
             {
                 await _db.Accounts.Where(a => a.Id == heir.Id).ExecuteUpdateAsync(s => s.SetProperty(a => a.GuildRank, GuildRank.Leader), ct);
-                guild.LastEvent = $"{name} left; {Banners.GeneratedName(heir.Id)} leads now.";
+                GuildEvent(guild, $"{name} left; {Banners.GeneratedName(heir.Id)} leads now.");
             }
-            else guild.LastEvent = $"{name} left.";
+            else GuildEvent(guild, $"{name} left.");
         }
         account.GuildId = null;
         account.GuildRank = GuildRank.Member;
         account.GuildJoinedUtc = null;
         account.GuildDonated = 0;
+    }
+
+    /// <summary>The leader or an officer takes in, or turns away, a player who asked to join.</summary>
+    public async Task<GuildViewDto> AnswerRequestAsync(Account account, GuildAnswerRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        RequireManager(account);
+        Guid id = account.GuildId!.Value;
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        Guild guild = await LockGuildAsync(id, ct);
+        GuildRequest ask = await _db.GuildRequests.FirstOrDefaultAsync(r => r.GuildId == id && r.AccountId == request.AccountId, ct)
+            ?? throw new GameException("no_request", "That request is gone.");
+        _db.GuildRequests.Remove(ask);
+        string them = Banners.GeneratedName(request.AccountId);
+        string text;
+        if (request.Accept)
+        {
+            if (await MemberCountAsync(id, ct) >= Guilds.MaxMembers(guild.Muster)) throw new GameException("guild_full", guild.Name + " is full.");
+            int joined = await _db.Accounts.Where(a => a.Id == request.AccountId && a.GuildId == null).ExecuteUpdateAsync(s => s
+                .SetProperty(a => a.GuildId, (Guid?)id).SetProperty(a => a.GuildRank, GuildRank.Member)
+                .SetProperty(a => a.GuildJoinedUtc, (DateTime?)DateTime.UtcNow).SetProperty(a => a.GuildDonated, 0L), ct);
+            if (joined == 1)
+            {
+                await _db.GuildRequests.Where(r => r.AccountId == request.AccountId && r.Id != ask.Id).ExecuteDeleteAsync(ct);
+                text = $"{them} joined, let in by {Banners.GeneratedName(account.Id)}.";
+                GuildEvent(guild, text);
+            }
+            else text = them + " has joined another guild.";
+        }
+        else text = $"You turned {them} away.";
+        _db.Ledger.Add(Entry(account.Id, null, "guild-answer", $"guild={id} member={request.AccountId} accept={request.Accept}", 0, request.RequestId));
+        await SaveAsync(ct);
+        await tx.CommitAsync(ct);
+        return await ViewAsync(account, null, text, ct);
     }
 
     public async Task<GuildViewDto> LeaveGuildAsync(Account account, GuildLeaveRequest request, CancellationToken ct)
@@ -219,7 +283,7 @@ public sealed partial class GameService
         await _db.Accounts.Where(a => a.Id == request.AccountId && a.GuildId == id).ExecuteUpdateAsync(s => s
             .SetProperty(a => a.GuildId, (Guid?)null).SetProperty(a => a.GuildRank, GuildRank.Member)
             .SetProperty(a => a.GuildJoinedUtc, (DateTime?)null).SetProperty(a => a.GuildDonated, 0L), ct);
-        guild.LastEvent = $"{Banners.GeneratedName(request.AccountId)} was sent away by {Banners.GeneratedName(account.Id)}.";
+        GuildEvent(guild, $"{Banners.GeneratedName(request.AccountId)} was sent away by {Banners.GeneratedName(account.Id)}.");
         _db.Ledger.Add(Entry(account.Id, null, "guild-kick", $"guild={id} member={request.AccountId}", 0, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
@@ -249,7 +313,7 @@ public sealed partial class GameService
             text = $"{them} leads {guild.Name} now.";
         }
         else text = request.Rank == GuildRank.Officer ? $"{them} is an officer now." : $"{them} is a member now.";
-        guild.LastEvent = text;
+        GuildEvent(guild, text);
         _db.Ledger.Add(Entry(account.Id, null, "guild-rank", $"guild={id} member={request.AccountId} rank={request.Rank}", 0, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
@@ -283,7 +347,7 @@ public sealed partial class GameService
         string text = $"You gave {sorn.ToString("N0", CultureInfo.InvariantCulture)} sorn: +{tallies} Guild Tallies.";
         if (levelAfter > levelBefore)
         {
-            guild.LastEvent = $"{guild.Name} reached level {levelAfter}.";
+            GuildEvent(guild, $"{guild.Name} reached level {levelAfter}.");
             text += $" {guild.Name} reached level {levelAfter}!";
         }
         _db.Ledger.Add(Entry(account.Id, null, "guild-donate", $"guild={id} sorn={sorn} tallies={tallies} treasury={guild.Treasury} xp={guild.Xp}", -sorn, request.RequestId));
@@ -307,7 +371,7 @@ public sealed partial class GameService
         string text = request.Skill == GuildSkill.Plunder
             ? $"Plunder {guild.Plunder}: every member hunts with +{guild.Plunder}% sorn."
             : $"Muster {guild.Muster}: room for {Guilds.MaxMembers(guild.Muster)} members.";
-        guild.LastEvent = text;
+        GuildEvent(guild, text);
         _db.Ledger.Add(Entry(account.Id, null, "guild-skill", $"guild={guild.Id} skill={request.Skill} level={current + 1} cost={cost}", 0, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
@@ -336,6 +400,7 @@ public sealed partial class GameService
         if (!Guilds.Colors.Contains(request.Color)) throw new GameException("bad_color", "Choose one of the guild colours.");
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
         Guild guild = await LockGuildAsync(account.GuildId!.Value, ct);
+        if (guild.Open != request.Open) GuildEvent(guild, request.Open ? "The gates were opened." : "The gates were shut.");
         guild.Open = request.Open;
         guild.Color = request.Color;
         _db.Ledger.Add(Entry(account.Id, null, "guild-settings", $"guild={guild.Id} open={request.Open} color={request.Color}", 0, request.RequestId));

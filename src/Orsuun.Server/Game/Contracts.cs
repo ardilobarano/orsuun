@@ -87,13 +87,35 @@ public sealed record GuildBriefDto(string Tag, string Name, string Color, GuildR
 public sealed record GuildDto(Guid Id, string Name, string Tag, string Color, bool Open, int Level, long Xp, long NextLevelXp, long Treasury,
     int Plunder, int Muster, int Members, int MaxMembers, int SornBonusPercent, string[] Fortresses, string LastEvent);
 public sealed record GuildMemberDto(Guid AccountId, string Name, Banner Banner, GuildRank Rank, int Level, long Donated, int LastSeenMinutes, bool Me);
-public sealed record GuildListItemDto(Guid Id, string Name, string Tag, string Color, int Level, int Members, int MaxMembers, bool Open);
+public sealed record GuildListItemDto(Guid Id, string Name, string Tag, string Color, int Level, int Members, int MaxMembers, bool Open, bool Requested = false);
 /// <summary>
 /// The GUILD screen: the account's guild with its members, or (no guild) guilds to join. Every guild call returns it,
 /// with the account's state inside.
 /// </summary>
 public sealed record GuildViewDto(StateDto State, GuildDto? Mine, GuildMemberDto[] Members, GuildListItemDto[] Browse, long DonatedToday,
-    long DonationCap, string Message = "");
+    long DonationCap, string Message = "", GuildMemberDto[]? Requests = null, string[]? Log = null);
+public sealed record GuildAnswerRequest(string RequestId, Guid AccountId, bool Accept);
+
+/// <summary>One chat line; System lines (guild and world events) have no speaker.</summary>
+public sealed record ChatLineDto(long Id, Guid AccountId, string Name, Banner Banner, string Text, DateTime Utc, bool System, bool Mine);
+/// <summary>A channel's lines after the id the client asked from (at most Rules.Chat.PageSize), and the newest id.</summary>
+public sealed record ChatDto(string Channel, ChatLineDto[] Lines, long LatestId, int Blocked);
+public sealed record ChatSayRequest(string Channel, string Text, long After = 0);
+public sealed record ChatReportRequest(long MessageId, string Channel = "world");
+public sealed record ChatBlockRequest(Guid AccountId, bool Block, string Channel = "world");
+
+/// <summary>A piece on the Salt Exchange with its full details, its price and its seller.</summary>
+public sealed record ListingDto(long Id, ItemDto Item, long Price, string SellerName, Banner SellerBanner, bool Mine, int MinutesLeft,
+    ListingStatus Status = ListingStatus.Active);
+public sealed record MarketDto(StateDto State, ListingDto[] Listings, int Page, int Pages, int Total, ListingDto[] Mine, int TaxPercent,
+    string Message = "");
+public sealed record MarketListRequest(string RequestId, Guid ItemId, long Price);
+public sealed record MarketBuyRequest(string RequestId, long ListingId);
+
+/// <summary>Sign up saves an email and password to the account being played; sign in moves this device to an account.</summary>
+public sealed record RegisterRequest(string Email, string Password);
+public sealed record LoginRequest(string Email, string Password, string DeviceToken);
+public sealed record AccountDto(string? Email, bool Registered);
 public sealed record GuildCreateRequest(string RequestId, string Name, string Tag, string Color);
 public sealed record GuildJoinRequest(string RequestId, Guid GuildId);
 public sealed record GuildLeaveRequest(string RequestId);
@@ -148,7 +170,8 @@ public sealed record StateDto(
     string Name = "",
     SiegeResultDto? LastSiege = null,
     EtchResultDto? LastEtch = null,
-    GuildBriefDto? Guild = null);
+    GuildBriefDto? Guild = null,
+    string? Email = null);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

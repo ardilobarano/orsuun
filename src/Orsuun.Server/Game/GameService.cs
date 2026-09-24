@@ -49,7 +49,11 @@ public sealed partial class GameService
         if (string.IsNullOrWhiteSpace(deviceToken) || deviceToken.Length > 128)
             throw new GameException("bad_device_token", "Device token missing or too long.");
 
-        Account? account = await _db.Accounts.SingleOrDefaultAsync(a => a.DeviceToken == deviceToken, ct);
+        // A device signed in to an account (Devices) wins; older accounts are still found by their own device token.
+        Device? device = await _db.Devices.AsNoTracking().FirstOrDefaultAsync(d => d.Token == deviceToken, ct);
+        Account? account = device != null
+            ? await _db.Accounts.SingleOrDefaultAsync(a => a.Id == device.AccountId, ct)
+            : await _db.Accounts.SingleOrDefaultAsync(a => a.DeviceToken == deviceToken, ct);
         bool created = account == null;
         if (account == null)
         {
@@ -62,10 +66,12 @@ public sealed partial class GameService
                 if (recent >= MaxNewAccountsPerIpPerDay)
                     throw new GameException("too_many_accounts", "Too many new accounts from this network today. Try again tomorrow.");
             }
+            // A device that signed in elsewhere and whose account is gone may still own the token on an older account.
+            bool tokenTaken = await _db.Accounts.AnyAsync(a => a.DeviceToken == deviceToken, ct);
             account = new Account
             {
                 Id = Guid.NewGuid(),
-                DeviceToken = deviceToken,
+                DeviceToken = tokenTaken ? "moved-" + Guid.NewGuid().ToString("N") : deviceToken,
                 CreatedUtc = now,
                 CreatedIp = clientIp,
                 LastHeartbeatUtc = now,
@@ -80,15 +86,19 @@ public sealed partial class GameService
         }
 
         if (account.LaneSeed == 0) NewLane(account);
-        account.SessionToken = NewToken();
+        string session = await BindDeviceAsync(deviceToken, account, ct);
         await _db.SaveChangesAsync(ct);
-        return new GuestLoginResponse(account.Id, account.SessionToken, created);
+        return new GuestLoginResponse(account.Id, session, created);
     }
 
     public async Task<Account?> AuthenticateAsync(string? sessionToken, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(sessionToken)) return null;
-        Account? account = await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
+        // Sessions live on devices; sessions handed out before devices existed are still on the account.
+        Guid? accountId = await _db.Devices.AsNoTracking().Where(d => d.SessionToken == sessionToken).Select(d => (Guid?)d.AccountId).FirstOrDefaultAsync(ct);
+        Account? account = accountId is Guid id
+            ? await _db.Accounts.SingleOrDefaultAsync(a => a.Id == id, ct)
+            : await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
         if (account?.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
         return account;
     }
@@ -206,6 +216,8 @@ public sealed partial class GameService
         }
 
         Count(account, BountyMetric.ForgeAttempts, 1);
+        if (result.LevelAfter > result.LevelBefore && result.LevelAfter >= 8)
+            SystemLine(Chat.World, $"{DisplayName(account)} forged {state.DisplayName} to +{result.LevelAfter}!");
         _db.Ledger.Add(Entry(account.Id, item.Id, "forge",
             $"{request.Method} +{result.LevelBefore}->+{result.LevelAfter} chance={result.ChanceBp} outcome={result.Outcome}", -cost, request.RequestId));
         await SaveAsync(ct);
@@ -244,8 +256,9 @@ public sealed partial class GameService
 
     /// <summary>
     /// Deletes the account and everything tied to it: items, the ledger, client error reports and its Commander fight
-    /// records (Apple requires in-app account deletion; the game holds no other personal data). The session dies with
-    /// it. War of Banners points stay with the Banner. A guild leader's guild passes on (or disbands if empty).
+    /// records, chat lines and reports, guild requests, Exchange listings, devices and the email and password (Apple
+    /// requires in-app account deletion). The sessions die with it. War of Banners points stay with the Banner. A guild
+    /// leader's guild passes on (or disbands if empty).
     /// </summary>
     public async Task DeleteAccountAsync(Account account, CancellationToken ct)
     {
@@ -256,6 +269,12 @@ public sealed partial class GameService
             await SaveAsync(ct);
             await tx.CommitAsync(ct);
         }
+        await _db.Devices.Where(d => d.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.ChatMessages.Where(m => m.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.ChatReports.Where(r => r.ReporterId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.MarketListings.Where(l => l.SellerId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.MarketListings.Where(l => l.BuyerId == account.Id).ExecuteUpdateAsync(s => s.SetProperty(l => l.BuyerId, (Guid?)null), ct);
         await _db.Ledger.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.ClientLogs.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.BossHits.Where(h => h.AccountId == account.Id).ExecuteDeleteAsync(ct);
@@ -283,7 +302,7 @@ public sealed partial class GameService
     private static Item AnvilItem(Account account, Guid? itemId, EquipSlot slot)
     {
         if (itemId is Guid id)
-            return account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed)
+            return account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed && !i.Listed)
                 ?? throw new GameException("no_item", "You do not own that item.");
         return account.EquippedIn(slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
     }
@@ -292,7 +311,7 @@ public sealed partial class GameService
     public async Task<StateDto> SocketInsertAsync(Account account, SocketInsertRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed)
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.Listed)
             ?? throw new GameException("no_item", "You do not own that item.");
         ItemState state = item.ToState();
         var inventory = Snapshot(account);
@@ -315,7 +334,7 @@ public sealed partial class GameService
     public async Task<StateDto> SocketClearAsync(Account account, SocketClearRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed)
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.Listed)
             ?? throw new GameException("no_item", "You do not own that item.");
         ItemState state = item.ToState();
         var inventory = Snapshot(account);
@@ -336,7 +355,7 @@ public sealed partial class GameService
     public async Task<StateDto> EquipAsync(Account account, EquipRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed)
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.Listed)
             ?? throw new GameException("no_item", "You do not own that item.");
         if (item.Equipped) throw new GameException("already_equipped", "That piece is already equipped.");
 
@@ -447,6 +466,8 @@ public sealed partial class GameService
             clock.SlainBanner = account.Banner;
             clock.SlainBy = name;
             chest += ", and you struck the last blow";
+            SystemLine(Chat.World, account.Banner == Banner.None ? $"{boss.Name} has fallen; {name} struck the last blow."
+                : $"{boss.Name} has fallen to the {Banners.Def(account.Banner).Name}; {name} struck the last blow.");
             if (await RewardTopGuildAsync(boss, clock, account, run.Damage, ct)) chest += $", and your guild's {Guilds.CommanderTopTallies} Guild Tallies for rank 1";
         }
         _db.BossHits.Add(new BossHit { BossId = boss.Id, SpawnUtc = clock.SpawnUtc, AccountId = account.Id, Name = name, Banner = account.Banner, Damage = run.Damage, Utc = now });
@@ -619,6 +640,7 @@ public sealed partial class GameService
     /// </summary>
     public async Task<StateDto> WithBossesAsync(Account account, StateDto state, CancellationToken ct)
     {
+        await ExpireListingsAsync(account, ct);
         DateTime now = DateTime.UtcNow;
         var list = new List<BossStatusDto>();
         long freshPool = -1;
@@ -651,7 +673,7 @@ public sealed partial class GameService
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
                 account.HuntMarks, account.PinningWax, account.Tallies),
             ToDto(weapon),
-            account.Items.Where(i => !i.Destroyed).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
+            account.Items.Where(i => !i.Destroyed && !i.Listed).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
             new ForgePreviewDto(
                 maxed ? 0 : ForgeRules.Cost(state.ItemLevel, state.UpgradeLevel),
@@ -678,7 +700,8 @@ public sealed partial class GameService
             Banners.GeneratedName(account.Id),
             siege,
             etch,
-            Brief(account));
+            Brief(account),
+            account.Email);
     }
 
     private static ItemDto ToDto(Item item)
@@ -720,7 +743,7 @@ public sealed partial class GameService
 
         // Keep the best MaxLoot loose pieces: new drops compete with what is already stored by rarity, then age.
         // Pieces the player has forged up are never pushed out (bag items can be forged since 24 Sep 2026).
-        var stored = a.Items.Where(x => !x.Equipped && !x.Destroyed).ToList();
+        var stored = a.Items.Where(x => !x.Equipped && !x.Destroyed && !x.Listed).ToList();
         var keptDrops = new List<ItemState>();
         var candidates = stored.Select(x => (Rarity: x.Rarity, Worked: x.UpgradeLevel > 0 || x.PatienceBp > 0, Stored: (Item?)x, Drop: (ItemState?)null))
             .Concat(i.Loot.Select(d => (Rarity: d.Rarity, Worked: false, Stored: (Item?)null, Drop: (ItemState?)d)))

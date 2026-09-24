@@ -48,6 +48,14 @@ public sealed class Account
     [MaxLength(16)] public string GuildDonationDay { get; set; } = "";
     /// <summary>Guild Tallies, spent in the guild shop. They stay with the player across guilds.</summary>
     public int Tallies { get; set; }
+
+    /// <summary>Players whose chat lines this account does not see, semicolon separated account ids.</summary>
+    [MaxLength(2000)] public string Blocked { get; set; } = "";
+    public DateTime? LastChatUtc { get; set; }
+
+    /// <summary>Sign in (lower-case, unique) and the password hash ("pbkdf2-sha256$iterations$salt$hash"); null for guests.</summary>
+    [MaxLength(254)] public string? Email { get; set; }
+    [MaxLength(200)] public string? PasswordHash { get; set; }
     /// <summary>Korshards by rank as "n;n;n;n;n" (Trooper .. Guard of the Khan).</summary>
     [MaxLength(64)] public string Korshards { get; set; } = "0;0;0;0;0";
     /// <summary>Owned skins, semicolon separated.</summary>
@@ -94,6 +102,8 @@ public sealed class Item
     [MaxLength(64)] public string Sockets { get; set; } = "";
     public bool Destroyed { get; set; }
     public DateTime CreatedUtc { get; set; }
+    /// <summary>On the Salt Exchange: out of the bag, cannot be worn, forged or turned until sold, cancelled or expired.</summary>
+    public bool Listed { get; set; }
 
     public ItemState ToState()
     {
@@ -212,6 +222,72 @@ public sealed class Fortress
     [MaxLength(160)] public string LastEvent { get; set; } = "";
     /// <summary>The guild whose member broke the Hall for the holding Banner: its flag flies here too.</summary>
     public Guid? FlagGuildId { get; set; }
+}
+
+/// <summary>One chat line: a player's, or a system line (AccountId empty) for guild and world events.</summary>
+public sealed class ChatMessage
+{
+    public long Id { get; set; }
+    /// <summary>"world" or "g:" + guild id (Rules.Chat).</summary>
+    [MaxLength(40)] public string Channel { get; set; } = "";
+    public Guid AccountId { get; set; }
+    [MaxLength(56)] public string Name { get; set; } = "";
+    public Banner Banner { get; set; }
+    [MaxLength(200)] public string Text { get; set; } = "";
+    public DateTime Utc { get; set; }
+    public int Reports { get; set; }
+    public bool Hidden { get; set; }
+}
+
+public sealed class ChatReport
+{
+    public long Id { get; set; }
+    public long MessageId { get; set; }
+    public Guid ReporterId { get; set; }
+    public DateTime Utc { get; set; }
+}
+
+/// <summary>A request to join a guild whose gates are shut; the leader or an officer answers it.</summary>
+public sealed class GuildRequest
+{
+    public long Id { get; set; }
+    public Guid GuildId { get; set; }
+    public Guid AccountId { get; set; }
+    public DateTime Utc { get; set; }
+}
+
+/// <summary>A piece on the Salt Exchange. The item row keeps its owner (the seller) with Listed set until it closes.</summary>
+public sealed class MarketListing
+{
+    public long Id { get; set; }
+    public Guid ItemId { get; set; }
+    public Guid SellerId { get; set; }
+    [MaxLength(56)] public string SellerName { get; set; } = "";
+    public Banner SellerBanner { get; set; }
+    public long Price { get; set; }
+    public ListingStatus Status { get; set; }
+    public DateTime CreatedUtc { get; set; }
+    public DateTime ExpiresUtc { get; set; }
+    public DateTime? ClosedUtc { get; set; }
+    public Guid? BuyerId { get; set; }
+    // Copied from the item for browsing and sorting without loading it.
+    public EquipSlot Slot { get; set; }
+    public Rarity Rarity { get; set; }
+    public int ItemLevel { get; set; }
+    public int UpgradeLevel { get; set; }
+}
+
+/// <summary>
+/// A device signed in to an account: its device token (guest login) and its own session, so one account can be
+/// played on two phones. Accounts made before devices existed are found by Account.DeviceToken and get a row.
+/// </summary>
+public sealed class Device
+{
+    [MaxLength(128)] public string Token { get; set; } = "";
+    public Guid AccountId { get; set; }
+    [MaxLength(64)] public string? SessionToken { get; set; }
+    public DateTime CreatedUtc { get; set; }
+    public DateTime LastSeenUtc { get; set; }
 }
 
 /// <summary>Append-only record of every roll and every currency change. Support and rate audits read this.</summary>

@@ -209,6 +209,7 @@ public sealed partial class GameService
                     fort.FlagGuildId = conqueror == account.Banner ? account.GuildId : null;
                     fort.LastEvent = $"The {Banners.Def(conqueror).Name} took {def.Name}; {name} broke the Hall.";
                     text = $"The Hall of {def.Name} falls! {def.Name} now flies the {Banners.Def(conqueror).Name}.";
+                    SystemLine(Chat.World, fort.LastEvent);
                 }
                 else
                 {

@@ -63,7 +63,7 @@ app.Use(async (ctx, next) =>
         {
             "conflict" or "duplicate_request" => StatusCodes.Status409Conflict,
             "unauthorized" => StatusCodes.Status401Unauthorized,
-            "siege_cooldown" => StatusCodes.Status429TooManyRequests,
+            "siege_cooldown" or "chat_cooldown" or "login_wait" => StatusCodes.Status429TooManyRequests,
             _ => StatusCodes.Status400BadRequest,
         };
         await ctx.Response.WriteAsJsonAsync(new ErrorDto(ex.Code, ex.Message));
@@ -74,6 +74,10 @@ app.MapGet("/health", () => Results.Ok(new { ok = true, utc = DateTime.UtcNow })
 
 app.MapPost("/v1/auth/guest", (GuestLoginRequest req, HttpContext http, GameService game, CancellationToken ct) =>
     game.GuestLoginAsync(req.DeviceToken, http.Connection.RemoteIpAddress?.ToString(), ct));
+
+// Sign in with email and password: points this device at the account (no session needed; failed tries are limited).
+app.MapPost("/v1/auth/login", (LoginRequest req, HttpContext http, GameService game, CancellationToken ct) =>
+    game.LoginAsync(req, http.Connection.RemoteIpAddress?.ToString(), ct));
 
 RouteGroupBuilder v1 = app.MapGroup("/v1").AddEndpointFilter(async (ctx, next) =>
 {
@@ -125,6 +129,22 @@ v1.MapPost("/guild/donate", (HttpContext ctx, GuildDonateRequest req, GameServic
 v1.MapPost("/guild/skill", (HttpContext ctx, GuildSkillRequest req, GameService game, CancellationToken ct) => game.RaiseSkillAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/shop", (HttpContext ctx, GuildShopRequest req, GameService game, CancellationToken ct) => game.GuildBuyAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/settings", (HttpContext ctx, GuildSettingsRequest req, GameService game, CancellationToken ct) => game.GuildSettingsAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/answer", (HttpContext ctx, GuildAnswerRequest req, GameService game, CancellationToken ct) => game.AnswerRequestAsync(Me(ctx), req, ct));
+v1.MapGet("/chat", (HttpContext ctx, string? channel, long? after, GameService game, CancellationToken ct) => game.ChatAsync(Me(ctx), channel, after ?? 0, ct));
+v1.MapPost("/chat", (HttpContext ctx, ChatSayRequest req, GameService game, CancellationToken ct) => game.SayAsync(Me(ctx), req, ct));
+v1.MapPost("/chat/report", (HttpContext ctx, ChatReportRequest req, GameService game, CancellationToken ct) => game.ReportAsync(Me(ctx), req, ct));
+v1.MapPost("/chat/block", (HttpContext ctx, ChatBlockRequest req, GameService game, CancellationToken ct) => game.BlockAsync(Me(ctx), req, ct));
+v1.MapGet("/market", (HttpContext ctx, EquipSlot? slot, string? sort, int? page, GameService game, CancellationToken ct) =>
+    game.MarketAsync(Me(ctx), slot, sort, page ?? 0, ct));
+v1.MapPost("/market/list", (HttpContext ctx, MarketListRequest req, GameService game, CancellationToken ct) => game.ListItemAsync(Me(ctx), req, ct));
+v1.MapPost("/market/buy", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.BuyListingAsync(Me(ctx), req, ct));
+v1.MapPost("/market/cancel", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.CancelListingAsync(Me(ctx), req, ct));
+v1.MapPost("/auth/register", (HttpContext ctx, RegisterRequest req, GameService game, CancellationToken ct) => game.RegisterAsync(Me(ctx), req, ct));
+v1.MapPost("/auth/signout", async (HttpContext ctx, GameService game, CancellationToken ct) =>
+{
+    await game.SignOutAsync(ctx.Request.Headers["X-Session"], ct);
+    return Results.Ok(new { signedOut = true });
+});
 v1.MapPost("/client-log", async (HttpContext ctx, ClientLogRequest req, GameService game, CancellationToken ct) =>
 {
     await game.LogClientErrorAsync(Me(ctx), req, ct);

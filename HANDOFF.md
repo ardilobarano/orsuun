@@ -171,8 +171,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
   with Apple / Google (so an account survives a new phone) needs both; guest login stays as the first step.
-- A contact email for the privacy policy (replace "[contact email to be added before release]" in
-  `deploy/site/privacy.html`) and the store listings.
+- A contact email for the store listings. The privacy policy uses uardilbaran@gmail.com (owner, 24 Sep 2026: "for now").
 - A production server: the playtest box runs in Development mode with the dev endpoints open. For release, run it with
   `ASPNETCORE_ENVIRONMENT=Production`, a real domain instead of sslip.io, and database backups; set `MenuPanel.ShowDevGrant`
   to false in store builds.

@@ -15,6 +15,11 @@ public sealed class GameDb : DbContext
     public DbSet<BannerScore> BannerScores => Set<BannerScore>();
     public DbSet<Fortress> Fortresses => Set<Fortress>();
     public DbSet<Guild> Guilds => Set<Guild>();
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<ChatReport> ChatReports => Set<ChatReport>();
+    public DbSet<GuildRequest> GuildRequests => Set<GuildRequest>();
+    public DbSet<MarketListing> MarketListings => Set<MarketListing>();
+    public DbSet<Device> Devices => Set<Device>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -25,6 +30,7 @@ public sealed class GameDb : DbContext
             e.HasIndex(a => a.SessionToken);
             e.HasIndex(a => new { a.CreatedIp, a.CreatedUtc });
             e.HasIndex(a => a.GuildId);
+            e.HasIndex(a => a.Email).IsUnique();
             // Optimistic concurrency on PostgreSQL's xmin system column: two requests for one account never both win.
             e.Property(a => a.Version).IsRowVersion();
             e.HasMany(a => a.Items).WithOne().HasForeignKey(i => i.OwnerId);
@@ -58,6 +64,28 @@ public sealed class GameDb : DbContext
             e.HasIndex(g => g.NameKey).IsUnique();
             e.HasIndex(g => g.Tag).IsUnique();
             e.HasIndex(g => g.Xp);
+        });
+        b.Entity<ChatMessage>(e => e.HasIndex(m => new { m.Channel, m.Id }));
+        b.Entity<ChatReport>(e => e.HasIndex(r => new { r.MessageId, r.ReporterId }).IsUnique());
+        b.Entity<GuildRequest>(e =>
+        {
+            e.HasIndex(r => new { r.GuildId, r.AccountId }).IsUnique();
+            e.HasIndex(r => r.AccountId);
+        });
+        b.Entity<MarketListing>(e =>
+        {
+            e.HasIndex(l => new { l.Status, l.Slot, l.Price });
+            e.HasIndex(l => new { l.Status, l.ExpiresUtc });
+            e.HasIndex(l => new { l.SellerId, l.Status });
+            e.HasIndex(l => l.ItemId);
+            e.Property(l => l.Slot).HasConversion<int>();
+            e.Property(l => l.Rarity).HasConversion<int>();
+        });
+        b.Entity<Device>(e =>
+        {
+            e.HasKey(d => d.Token);
+            e.HasIndex(d => d.SessionToken);
+            e.HasIndex(d => d.AccountId);
         });
 
         b.Entity<LedgerEntry>(e =>

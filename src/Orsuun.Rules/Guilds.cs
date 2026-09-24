@@ -57,6 +57,8 @@ namespace Orsuun.Rules
         /// <summary>Guild XP is donated sorn in thousands, plus siege and Commander feats.</summary>
         public const long SornPerXp = 1_000;
         public const int MaxOfficers = 4;
+        /// <summary>Guilds with shut gates one player may ask to join at once.</summary>
+        public const int MaxRequests = 5;
         /// <summary>A guild's members hunt with this much more sorn for each fortress flying the guild's flag.</summary>
         public const int FlagBonusPercent = 2;
         /// <summary>GDD: the guild of a Commander's rank 1 gets 50 Guild Tallies (paid to that fighter) and XP.</summary>
@@ -110,23 +112,8 @@ namespace Orsuun.Rules
             "#C0392B", "#2F6FD0", "#E0A81C", "#2E9E5B", "#8E44AD", "#D35400", "#16A5A5", "#B0B0B0",
         };
 
-        // Crude but cheap: guild names are shown to every player, so the obvious slurs and obscenities are refused.
-        // Proper moderation (reports, a review queue) comes before a public launch. Strong words are refused anywhere,
-        // even spaced out; short ones only as a whole word, so Canal Wardens and Essex Riders pass.
-        private static readonly string[] Strong =
-        {
-            "fuck", "shit", "cunt", "nigg", "hitler", "nazi", "porn", "pussy", "whore", "slut", "bitch", "penis", "vagina",
-        };
-        private static readonly string[] Short = { "sex", "anal", "anus", "dick", "cock", "fag", "rape", "kys", "tits", "cum" };
-
-        public static bool Clean(string text)
-        {
-            string lower = text.ToLowerInvariant();
-            string letters = new string(lower.Where(char.IsLetter).ToArray());
-            if (Strong.Any(letters.Contains)) return false;
-            string[] words = lower.Split(new[] { ' ', '-', '\'' }, StringSplitOptions.RemoveEmptyEntries);
-            return !words.Any(w => Short.Any(b => w == b || w == b + "s" || w == b + "y"));
-        }
+        /// <summary>Guild names and tags are shown to every player: refused when WordFilter finds a bad word.</summary>
+        public static bool Clean(string text) => WordFilter.IsClean(text);
 
         public static string? NameProblem(string? name)
         {
