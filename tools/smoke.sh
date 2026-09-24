@@ -25,6 +25,10 @@ echo "forge: $(echo "$f" | jq -r '.lastForge | "\(.outcome) +\(.levelBefore)->+\
 fr=$(post /v1/forge "{\"requestId\":\"$r\",\"method\":\"ScrollOfMercy\"}")
 echo "forge replay: $(echo "$fr" | jq -c .)"
 echo "turn: turnstones=$(post /v1/turn "{\"requestId\":\"$(rid)\"}" | jq .inventory.turnstones)"
+goal='{"requestId":"'$(rid)'","count":20,"targets":[{"entryId":1,"minTier":1}]}' 
+echo "turn toward a goal: $(post /v1/turn "$goal" | jq -c .lastTurn)"
+bad='{"requestId":"'$(rid)'","count":5,"targets":[{"entryId":1,"minTier":1},{"entryId":1,"minTier":2}]}' 
+echo "goal out of reach: $(post /v1/turn "$bad" | jq -c .)"
 echo "park hunting ground: parked=$(post /v1/park '{"stage":101}' | jq .parkedStage)"
 echo "park field I: parked=$(post /v1/park '{"stage":111}' | jq .parkedStage)"
 post /v1/dev/bosses-up '{}' > /dev/null

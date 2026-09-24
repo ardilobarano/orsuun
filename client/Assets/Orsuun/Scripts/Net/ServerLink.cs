@@ -175,17 +175,19 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
-        /// <summary>One turn or a Bulk Turn. stopEntryId -1 means no stop rule. Completes with (turns, stopped, error).</summary>
-        public IEnumerator Turn(int count, int stopEntryId, int minTier, EquipSlot slot, string itemId, Action<int, bool, string> done)
+        /// <summary>
+        /// One turn, or a Bulk Turn toward a goal (up to five etchings with tiers; an empty goal runs the batch to the
+        /// end). Completes with (turns, stopped, error).
+        /// </summary>
+        public IEnumerator Turn(int count, IReadOnlyList<TurnTarget> goal, EquipSlot slot, string itemId, Action<int, bool, string> done)
         {
             string failure = null;
             int turns = 0;
             bool stopped = false;
-            var req = new TurnRequest { requestId = Guid.NewGuid().ToString("N"), count = count, stopEntryId = stopEntryId, minTier = minTier, slot = slot.ToString(), itemId = itemId };
-            // JsonUtility cannot omit a field: send -1 and let the server read it as "no rule" via stopEntryId >= 0.
-            string body = WithoutEmptyItemId(JsonUtility.ToJson(req));
-            if (stopEntryId < 0) body = body.Replace("\"stopEntryId\":-1", "\"stopEntryId\":null");
-            yield return Post("/v1/turn", body, true, json =>
+            var targets = new TurnTargetDto[goal.Count];
+            for (int i = 0; i < targets.Length; i++) targets[i] = new TurnTargetDto { entryId = goal[i].EntryId, minTier = goal[i].MinTier };
+            var req = new TurnRequest { requestId = Guid.NewGuid().ToString("N"), count = count, slot = slot.ToString(), itemId = itemId, targets = targets };
+            yield return Post("/v1/turn", WithoutEmptyItemId(JsonUtility.ToJson(req)), true, json =>
             {
                 StateDto state = JsonUtility.FromJson<StateDto>(json);
                 Apply(state);
@@ -397,7 +399,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class GuestLoginRequest { public string deviceToken; }
         [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; }
         [Serializable] public class ForgeRequest { public string requestId; public string method; public string slot; public string itemId; }
-        [Serializable] public class TurnRequest { public string requestId; public int count; public int stopEntryId; public int minTier; public string slot; public string itemId; }
+        [Serializable] public class TurnRequest { public string requestId; public int count; public string slot; public string itemId; public TurnTargetDto[] targets; }
+        [Serializable] public class TurnTargetDto { public int entryId; public int minTier; }
         [Serializable] public class TurnResultDto { public int turns; public int turnstonesSpent; public bool stopped; }
         [Serializable] public class BellDto { public string active; public string activeName; public string next; public int minutesUntilNext; public string serverLocalTime; }
         [Serializable] public class EquipRequest { public string requestId; public string itemId; }

@@ -218,11 +218,18 @@ public sealed class GameService
         if (request.StopEntryId.HasValue && (request.StopEntryId < 0 || request.StopEntryId >= EtchingPool.For(state.Slot).Entries.Count))
             throw new GameException("bad_stop_rule", "Unknown etching in the stop rule.");
 
+        EtchingPool pool = EtchingPool.For(state.Slot);
+        TurnTarget[] goal = request.Targets is { Length: > 0 }
+            ? request.Targets.Select(t => new TurnTarget(t.EntryId, t.MinTier)).ToArray()
+            : request.StopEntryId is int stopEntry ? new[] { new TurnTarget(stopEntry, Math.Clamp(request.MinTier, 1, 5)) } : Array.Empty<TurnTarget>();
+        if (EtchingService.TargetProblem(state, pool, goal) is string problem) throw new GameException("bad_goal", problem);
+
         var inventory = Snapshot(account);
-        int spent = _etchings.TurnUntil(state, EtchingPool.For(state.Slot), inventory, _rng, request.Count, request.StopEntryId, Math.Clamp(request.MinTier, 1, 5), out int turns, out bool stopped);
+        int spent = _etchings.TurnUntil(state, pool, inventory, _rng, request.Count, goal, out int turns, out bool stopped);
         Apply(account, inventory);
         item.ApplyState(state);
-        _db.Ledger.Add(Entry(account.Id, item.Id, "turn", $"turns={turns} spent={spent} stopped={stopped} etchings={item.Etchings}", 0, request.RequestId));
+        string goalText = string.Join(",", goal.Select(t => $"{t.EntryId}:T{t.MinTier}"));
+        _db.Ledger.Add(Entry(account.Id, item.Id, "turn", $"turns={turns} spent={spent} stopped={stopped} goal={goalText} etchings={item.Etchings}", 0, request.RequestId));
         await SaveAsync(ct);
         return ToState(account, turn: new TurnResultDto(turns, spent, stopped));
     }

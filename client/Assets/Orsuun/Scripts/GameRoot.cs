@@ -27,6 +27,7 @@ namespace Orsuun.Client
         public GearPanel Gear { get; private set; }
         public ZonePanel Zones { get; private set; }
         public SocketPanel Sockets { get; private set; }
+        public TurnHelperPanel TurnHelper { get; private set; }
         public Net.ServerLink Server { get; private set; }
         public TitleScreen Title { get; private set; }
         public MenuPanel Menu { get; private set; }
@@ -74,6 +75,8 @@ namespace Orsuun.Client
             Zones.Init(this);
             Sockets = new GameObject("SocketPanel").AddComponent<SocketPanel>();
             Sockets.Init(this);
+            TurnHelper = new GameObject("TurnHelperPanel").AddComponent<TurnHelperPanel>();
+            TurnHelper.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
             Menu = new GameObject("MenuPanel").AddComponent<MenuPanel>();
@@ -98,6 +101,13 @@ namespace Orsuun.Client
             if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-menu") >= 0) Menu.Open();
+            // -turnhelper [pick] opens the turning helper over the Forge (pick: with the etching list open).
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-turnhelper") >= 0)
+            {
+                Forge.Open();
+                TurnHelper.Open();
+                if (Arg("-turnhelper") == "pick") TurnHelper.OpenPicker(0);
+            }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }
 

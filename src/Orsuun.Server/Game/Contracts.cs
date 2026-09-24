@@ -18,8 +18,14 @@ public sealed record LaneDto(string Seed, int Loop);
 
 /// <summary>ItemId picks any owned piece, worn or in the bag; without it the piece worn in Slot is used.</summary>
 public sealed record ForgeRequest(string RequestId, ForgeMethod Method, EquipSlot Slot = EquipSlot.Weapon, Guid? ItemId = null);
-/// <summary>Count 1..50 (10 without Hearthfire Blessing); StopEntryId/MinTier form the optional stop rule.</summary>
-public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1, EquipSlot Slot = EquipSlot.Weapon, Guid? ItemId = null);
+/// <summary>
+/// Count 1..50 (10 without Hearthfire Blessing). Targets (the turning helper, up to five etchings with tiers) stop the
+/// batch once all are on the item; StopEntryId/MinTier is the older one-etching stop rule, used when Targets is empty.
+/// </summary>
+public sealed record TurnRequest(string RequestId, int Count = 1, int? StopEntryId = null, int MinTier = 1, EquipSlot Slot = EquipSlot.Weapon, Guid? ItemId = null,
+    TurnTargetDto[]? Targets = null);
+
+public sealed record TurnTargetDto(int EntryId, int MinTier);
 public sealed record TurnResultDto(int Turns, int TurnstonesSpent, bool Stopped);
 
 /// <summary>Active Evening Bell and the next one, in server-local time.</summary>

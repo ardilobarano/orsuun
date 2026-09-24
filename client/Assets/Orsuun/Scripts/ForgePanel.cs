@@ -84,12 +84,10 @@ namespace Orsuun.Client
             Ui.Framed("EtchingsBack", canvas, 0.06f, 0.575f, 0.94f, 0.755f, Palette.PanelDark);
             _etchings = Ui.Label("Etchings", canvas, 0.09f, 0.58f, 0.91f, 0.75f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
 
-            // Turnstones: one turn, or a Bulk Turn of 10 / 50 that stops when the chosen etching reaches the chosen tier.
-            _turnButton = Ui.Button("Turn", canvas, 0.06f, 0.515f, 0.34f, 0.57f, "", 24, Palette.ButtonIdle, () => Turn(1), out _turnLabel);
-            Ui.Button("Turn10", canvas, 0.35f, 0.515f, 0.58f, 0.57f, "TURN x10", 24, Palette.ButtonIdle, () => Turn(10), out _);
-            Ui.Button("Turn50", canvas, 0.59f, 0.515f, 0.94f, 0.57f, "TURN x50", 24, Palette.ButtonIdle, () => Turn(50), out _);
-            Ui.Button("StopEntry", canvas, 0.06f, 0.475f, 0.66f, 0.51f, "", 20, Palette.PanelDark, () => _stopEntry = (_stopEntry + 2) % 17 - 1, out _stopEntryLabel);
-            Ui.Button("StopTier", canvas, 0.67f, 0.475f, 0.94f, 0.51f, "", 20, Palette.PanelDark, () => _stopTier = _stopTier % 5 + 1, out _stopTierLabel);
+            // Turnstones: one turn here; the turning helper keeps turning until up to five chosen etchings are there.
+            _turnButton = Ui.Button("Turn", canvas, 0.06f, 0.48f, 0.34f, 0.57f, "", 26, Palette.ButtonIdle, Turn, out _turnLabel);
+            Ui.Button("TurnHelper", canvas, 0.36f, 0.48f, 0.94f, 0.57f, "TURNING HELPER\npick up to 5 etchings", 28, Palette.Alloy,
+                () => { if (!Busy) _root.TurnHelper.Open(); }, out _);
 
             _attemptInfo = Ui.Label("AttemptInfo", canvas, 0.05f, 0.385f, 0.95f, 0.465f, "", 32, TextAnchor.MiddleCenter, Palette.Parchment);
 
@@ -255,12 +253,7 @@ namespace Orsuun.Client
             Busy = false;
         }
 
-        private int _stopEntry = -1;
-        private int _stopTier = 3;
-        private Text _stopEntryLabel;
-        private Text _stopTierLabel;
-
-        private void Turn(int count)
+        private void Turn()
         {
             if (Busy) return;
             string blocker = _root.Session.TurnBlocker();
@@ -270,25 +263,18 @@ namespace Orsuun.Client
                 return;
             }
 
-            int stopEntry = count > 1 ? _stopEntry : -1;
             if (_root.Server.Online)
             {
                 Busy = true;
-                StartCoroutine(_root.Server.Turn(count, stopEntry, _stopTier, _root.Session.AnvilSlot, _root.Server.IdOf(_root.Session.OnAnvil), (turns, stopped, error) =>
+                StartCoroutine(_root.Server.Turn(1, System.Array.Empty<TurnTarget>(), _root.Session.AnvilSlot, _root.Server.IdOf(_root.Session.OnAnvil), (turns, stopped, error) =>
                 {
                     Busy = false;
                     if (error != null) ShowResult(error, Palette.Muted);
-                    else if (count > 1) ShowResult(stopped ? $"Stopped after {turns} turn{(turns == 1 ? "" : "s")}: the rule hit." : $"{turns} turns, no match.", stopped ? Palette.Good : Palette.Warn);
                 }));
-            }
-            else if (count == 1)
-            {
-                _root.Session.Turn();
             }
             else
             {
-                int turns = _root.Session.TurnBulk(count, stopEntry >= 0 ? stopEntry : (int?)null, _stopTier, out bool stopped);
-                ShowResult(stopped ? $"Stopped after {turns} turn{(turns == 1 ? "" : "s")}: the rule hit." : $"{turns} turns, no match.", stopped ? Palette.Good : Palette.Warn);
+                _root.Session.Turn();
             }
         }
 
@@ -329,8 +315,6 @@ namespace Orsuun.Client
             _etchings.text = sb.ToString().TrimEnd();
             _turnLabel.text = $"TURN x1\n(have {inv.Turnstones})";
             _turnButton.interactable = !Busy;
-            _stopEntryLabel.text = _stopEntry < 0 ? "Stop rule: none (bulk turns run to the end)" : "Stop when: " + session.Pool.Entries[_stopEntry].Name;
-            _stopTierLabel.text = _stopEntry < 0 ? "" : "at T" + _stopTier + "+";
 
             bool maxed = weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel;
             if (maxed)

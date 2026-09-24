@@ -129,6 +129,19 @@ namespace Orsuun.Rules
         public const int AttackValue = 15;
     }
 
+    /// <summary>One line of a turning goal: this etching at this tier or better.</summary>
+    public readonly struct TurnTarget
+    {
+        public TurnTarget(int entryId, int minTier)
+        {
+            EntryId = entryId;
+            MinTier = minTier;
+        }
+
+        public int EntryId { get; }
+        public int MinTier { get; }
+    }
+
     public enum NeedleKind
     {
         /// <summary>Adds etchings 1 to 4.</summary>
@@ -157,6 +170,14 @@ namespace Orsuun.Rules
                 case Rarity.Uncommon: return 4;
                 default: return 5;
             }
+        }
+
+        /// <summary>The chance a fresh etching rolls tier minTier or better (a roll above the rarity cap takes the cap).</summary>
+        public static double TierAtLeastChance(Rarity rarity, int minTier)
+        {
+            if (minTier <= 1) return 1.0;
+            if (minTier > MaxTier(rarity)) return 0.0;
+            return (RandomExtensions.FullBp - TierCumulativeBp[minTier - 2]) / (double)RandomExtensions.FullBp;
         }
 
         /// <summary>Rolls a tier from the weights; a roll above the rarity cap takes the cap.</summary>
@@ -221,11 +242,22 @@ namespace Orsuun.Rules
         public const int BulkTurnFree = 10;
         public const int BulkTurnMax = 50;
 
+        /// <summary>A turning goal names at most one etching per etching slot.</summary>
+        public const int MaxTargets = ItemState.MaxEtchings;
+
         /// <summary>
         /// Bulk Turn (GDD section 12): turns up to maxTurns times, stopping early when an etching with entry
         /// stopEntryId at tier >= minTier appears, or when Turnstones run out. Returns the Turnstones spent.
         /// </summary>
-        public int TurnUntil(ItemState item, EtchingPool pool, Inventory inventory, IRandom rng, int maxTurns, int? stopEntryId, int minTier, out int turns, out bool stopped)
+        public int TurnUntil(ItemState item, EtchingPool pool, Inventory inventory, IRandom rng, int maxTurns, int? stopEntryId, int minTier, out int turns, out bool stopped) =>
+            TurnUntil(item, pool, inventory, rng, maxTurns, stopEntryId.HasValue ? new[] { new TurnTarget(stopEntryId.Value, minTier) } : Array.Empty<TurnTarget>(), out turns, out stopped);
+
+        /// <summary>
+        /// Bulk Turn toward a goal (owner, 24 Sep 2026: the turning helper, up to five etchings with tiers): turns up
+        /// to maxTurns times, stopping early once every target is on the item at its tier or better, or when
+        /// Turnstones run out. No targets means no stop rule. Returns the Turnstones spent.
+        /// </summary>
+        public int TurnUntil(ItemState item, EtchingPool pool, Inventory inventory, IRandom rng, int maxTurns, IReadOnlyList<TurnTarget> targets, out int turns, out bool stopped)
         {
             turns = 0;
             stopped = false;
@@ -238,7 +270,7 @@ namespace Orsuun.Rules
                 inventory.Turnstones -= Turn(item, pool, rng);
                 spent += cost;
                 turns++;
-                if (stopEntryId.HasValue && Matches(item, stopEntryId.Value, minTier))
+                if (targets.Count > 0 && MatchesAll(item, targets))
                 {
                     stopped = true;
                     break;
@@ -252,6 +284,80 @@ namespace Orsuun.Rules
             foreach (Etching e in item.Etchings)
                 if (e.EntryId == entryId && e.Tier >= minTier) return true;
             return false;
+        }
+
+        /// <summary>Every target is on the item at its tier or better.</summary>
+        public static bool MatchesAll(ItemState item, IReadOnlyList<TurnTarget> targets)
+        {
+            foreach (TurnTarget t in targets)
+                if (!Matches(item, t.EntryId, t.MinTier)) return false;
+            return true;
+        }
+
+        /// <summary>Why a goal can never be met on this item (null when it can): too many targets, a repeat, a tier
+        /// above the rarity's cap, or a clash with the etching held by Pinning Wax.</summary>
+        public static string? TargetProblem(ItemState item, EtchingPool pool, IReadOnlyList<TurnTarget> targets)
+        {
+            if (targets.Count > MaxTargets) return $"Pick at most {MaxTargets} etchings.";
+            int cap = EtchingRules.MaxTier(item.Rarity);
+            var seen = new HashSet<int>();
+            foreach (TurnTarget t in targets)
+            {
+                if (t.EntryId < 0 || t.EntryId >= pool.Entries.Count) return "Unknown etching.";
+                if (!seen.Add(t.EntryId)) return "Each etching can be picked once.";
+                if (t.MinTier < 1 || t.MinTier > EtchingRules.TierCount) return "Tiers run from T1 to T5.";
+                if (t.MinTier > cap) return $"A {item.Rarity} piece rolls up to T{cap}.";
+            }
+            if (targets.Count > item.Etchings.Count)
+                return $"This piece has {item.Etchings.Count} etching{(item.Etchings.Count == 1 ? "" : "s")}: pick at most {item.Etchings.Count}.";
+            int locked = item.LockedEtchingIndex;
+            if (locked >= 0 && locked < item.Etchings.Count)
+            {
+                Etching held = item.Etchings[locked];
+                bool heldIsTarget = false;
+                foreach (TurnTarget t in targets)
+                {
+                    if (t.EntryId != held.EntryId) continue;
+                    heldIsTarget = true;
+                    if (held.Tier < t.MinTier) return "The etching held by Pinning Wax never changes, and it is below that tier.";
+                }
+                if (!heldIsTarget && targets.Count > item.Etchings.Count - 1)
+                    return $"One etching is pinned: pick at most {item.Etchings.Count - 1} others, or include it.";
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// The chance that one turn meets the whole goal: the free targets must all be among the fresh draws
+        /// (C(N-k, n-k) / C(N, n) for n distinct draws from N entries) and each must roll its tier or better.
+        /// Zero when TargetProblem says the goal is out of reach.
+        /// </summary>
+        public static double TargetChance(ItemState item, EtchingPool pool, IReadOnlyList<TurnTarget> targets)
+        {
+            if (targets.Count == 0 || item.Etchings.Count == 0 || TargetProblem(item, pool, targets) != null) return 0.0;
+            int locked = item.LockedEtchingIndex;
+            bool hasLock = locked >= 0 && locked < item.Etchings.Count;
+            int heldEntry = hasLock ? item.Etchings[locked].EntryId : -1;
+            int draws = item.Etchings.Count - (hasLock ? 1 : 0);
+            int entries = pool.Entries.Count - (hasLock ? 1 : 0);
+            double chance = 1.0;
+            int free = 0;
+            foreach (TurnTarget t in targets)
+            {
+                if (t.EntryId == heldEntry) continue;       // TargetProblem already checked its tier
+                free++;
+                chance *= EtchingRules.TierAtLeastChance(item.Rarity, t.MinTier);
+            }
+            if (free > draws) return 0.0;
+            return chance * Choose(entries - free, draws - free) / Choose(entries, draws);
+        }
+
+        private static double Choose(int n, int k)
+        {
+            if (k < 0 || k > n) return 0.0;
+            double r = 1.0;
+            for (int i = 1; i <= k; i++) r = r * (n - k + i) / i;
+            return r;
         }
 
         private static Etching RollOne(Rarity rarity, EtchingEntry entry, IRandom rng)

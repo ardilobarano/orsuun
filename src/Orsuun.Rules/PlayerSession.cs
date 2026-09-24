@@ -342,12 +342,16 @@ namespace Orsuun.Rules
         }
 
         /// <summary>Bulk Turn with an optional stop rule. Returns turns made; stopped says whether the rule hit.</summary>
-        public int TurnBulk(int maxTurns, int? stopEntryId, int minTier, out bool stopped)
+        public int TurnBulk(int maxTurns, int? stopEntryId, int minTier, out bool stopped) =>
+            TurnBulk(maxTurns, stopEntryId.HasValue ? new[] { new TurnTarget(stopEntryId.Value, minTier) } : Array.Empty<TurnTarget>(), out stopped);
+
+        /// <summary>Bulk Turn toward a goal of up to five etchings with tiers (the turning helper).</summary>
+        public int TurnBulk(int maxTurns, IReadOnlyList<TurnTarget> targets, out bool stopped)
         {
-            string? blocker = TurnBlocker();
+            string? blocker = TurnBlocker() ?? EtchingService.TargetProblem(OnAnvil, Pool, targets);
             if (blocker != null) throw new InvalidOperationException(blocker);
 
-            _etchings.TurnUntil(OnAnvil, Pool, Inventory, _rng, maxTurns, stopEntryId, minTier, out int turns, out stopped);
+            _etchings.TurnUntil(OnAnvil, Pool, Inventory, _rng, maxTurns, targets, out int turns, out stopped);
             RefreshHero();
             return turns;
         }
