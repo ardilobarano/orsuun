@@ -5,6 +5,16 @@
 		root * /srv/downloads
 		file_server
 	}
+	# The home page (deploy/site/index.html) and its picture: the app's home for Google sign-in and the stores.
+	handle / {
+		root * /srv/site
+		rewrite * /index.html
+		file_server
+	}
+	handle_path /home/* {
+		root * /srv/site
+		file_server
+	}
 	# Privacy policy for the stores (deploy/site/privacy.html).
 	handle /privacy {
 		root * /srv/site
