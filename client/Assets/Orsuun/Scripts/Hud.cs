@@ -40,6 +40,21 @@ namespace Orsuun.Client
         private Text[] _autoLabels;
         private float _logAge;
         private Net.ServerLink.SettlementDto _shownSettlement;
+        private Image _goalPlate;
+        private RawImage _goalIcon;
+        private Text _goalText;
+        private Text _goalCount;
+        private Image _pushGlow;
+        private float _pushNudge;
+        /// <summary>The account the goal chain belongs to (player name online, "local" offline); null until known.</summary>
+        private string _goalKey;
+        private float _goalKeySince;
+        private int _goalReached;
+        private Goal _goal;
+        private Goal _chainGoal;
+        private float _goalCheckIn;
+        private string _goalMetText;
+        private float _goalMetAt = -10f;
 
         private Transform _canvas;
 
@@ -80,6 +95,17 @@ namespace Orsuun.Client
             _link = Ui.Label("Link", canvas, 0.03f, 0.875f, 0.97f, 0.905f, "", 22, TextAnchor.MiddleLeft, Palette.Warn);
             _link.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.8f);
             _banner = Ui.Title("Banner", canvas, 0.05f, 0.80f, 0.95f, 0.87f, "", 56, TextAnchor.MiddleCenter, Palette.Warn);
+
+            // The next goal (Rules.Goals) at the top of the lane; tap it to go where it is done.
+            _goalPlate = Ui.Framed("Goal", canvas, 0.02f, 0.822f, 0.80f, 0.868f, new Color(0.06f, 0.06f, 0.11f, 0.9f));
+            _goalPlate.gameObject.AddComponent<Button>().onClick.AddListener(OnGoalTap);
+            _goalPlate.gameObject.AddComponent<Press>();
+            RectTransform goalIconBox = Ui.Rect("IconBox", _goalPlate.transform, 0.015f, 0.12f, 0.1f, 0.88f);
+            _goalIcon = Ui.Icon("Icon", goalIconBox, 0f, 0f, 1f, 1f, "NavForge");
+            _goalText = Ui.Label("Text", _goalPlate.transform, 0.11f, 0.08f, 0.86f, 0.92f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
+            _goalText.supportRichText = true;
+            _goalCount = Ui.Title("Count", _goalPlate.transform, 0.86f, 0.08f, 0.98f, 0.92f, "", 24, TextAnchor.MiddleCenter, Palette.Sorn);
+            _goalPlate.gameObject.SetActive(false);
 
             // The hero's HP in a bronze trough, and the newest world chat line above it (tap it for CHAT).
             _hpFill = Ui.Bar("Hp", canvas, 0.03f, 0.452f, 0.97f, 0.486f, new Color(0.82f, 0.17f, 0.14f), out _);
@@ -129,6 +155,10 @@ namespace Orsuun.Client
             Ui.IconButton("Forge", canvas, 0.03f, 0.078f, 0.265f, 0.136f, "FORGE", 26, Palette.ButtonForge, "NavForge", () => root.Forge.Open(), out _);
             Ui.IconButton("Gear", canvas, 0.27f, 0.078f, 0.5f, 0.136f, "GEAR", 26, Palette.ButtonIdle, "NavGear", () => root.Gear.Open(), out _);
             Ui.IconButton("Shards", canvas, 0.505f, 0.078f, 0.735f, 0.136f, "SHARDS", 24, Palette.Alloy, "NavShards", () => root.Sockets.Open(), out _);
+            // A push goal tapped on the goal line lights the PUSH button for a moment.
+            _pushGlow = Ui.Sliced("PushGlow", canvas, 0.71f, 0.05f, 1f, 0.164f, "Glow", Palette.Sorn);
+            _pushGlow.raycastTarget = false;
+            _pushGlow.color = Color.clear;
             _pushButton = Ui.IconButton("Push", canvas, 0.74f, 0.078f, 0.97f, 0.136f, "", 20, Palette.Danger, "NavPush", root.Push, out _pushLabel);
 
             // Bottom bar (24 Sep 2026): the War of Banners, the bounty board, the guild and the Salt Exchange joined; SOUND
@@ -287,6 +317,124 @@ namespace Orsuun.Client
                 Log($"Level up!  Level {inv.Level}");
             }
             _lastLevel = inv.Level;
+
+            UpdateGoal(session);
+            Color glow = Palette.Sorn;
+            _pushNudge = Mathf.Max(0f, _pushNudge - Time.unscaledDeltaTime);
+            glow.a = _pushNudge > 0f ? 0.75f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 6f)) : 0f;
+            _pushGlow.color = glow;
+        }
+
+        /// <summary>
+        /// The goal line: the chain step reached is kept per account in PlayerPrefs, so a met goal stays met. Checked
+        /// twice a second; a chain step met while playing flashes GOAL MET (a jump on loading an account does not).
+        /// </summary>
+        private void UpdateGoal(PlayerSession session)
+        {
+            Net.ServerLink server = _root.Server;
+            string key = server.Online ? (string.IsNullOrEmpty(server.PlayerName) ? null : server.PlayerName)
+                : server.Status.StartsWith("LOCAL MODE") ? "local" : null;
+            float now = Time.unscaledTime;
+            if (key != null && key != _goalKey)
+            {
+                _goalKey = key;
+                _goalKeySince = now;
+                _goalReached = LoadGoalStep(key);
+                _goal = _chainGoal = null;
+                _goalCheckIn = 0f;
+            }
+
+            _goalCheckIn -= Time.unscaledDeltaTime;
+            if (key != null && _goalCheckIn <= 0f)
+            {
+                _goalCheckIn = 0.5f;
+                var world = new GoalWorld { Online = server.Online, BountyReady = _root.Bounties.AnyClaimable, InGuild = server.InGuild };
+                Goal chain = Goals.OnChain(session, world, _goalReached);
+                if (chain != null && chain.Step > _goalReached)
+                {
+                    _goalReached = chain.Step;
+                    SaveGoalStep(key, _goalReached);
+                }
+                bool passed = _chainGoal != null && (chain == null || chain.Step > _chainGoal.Step);
+                if (passed && now - _goalKeySince > 3f)
+                {
+                    _goalMetText = _chainGoal.Text;
+                    _goalMetAt = now;
+                    GameAudio.Instance?.Play("LaneLevelUp", 0.8f, 1f, 0f);
+                }
+                _chainGoal = chain;
+                _goal = Goals.Reminder(session, world) ?? chain;
+            }
+
+            bool celebrating = now - _goalMetAt < 2.4f;
+            bool tutorialGoal = _root.Tutorial != null && _root.Tutorial.ShowsGoal;
+            bool show = _goalKey != null && !_root.Replaying && !_root.PushBusy
+                        && (tutorialGoal || (!(_root.Tutorial != null && _root.Tutorial.Running) && (_goal != null || celebrating)));
+            if (_goalPlate.gameObject.activeSelf != show) _goalPlate.gameObject.SetActive(show);
+            if (!show) return;
+
+            if (celebrating)
+            {
+                _goalText.text = ConfirmDialog.Tint("GOAL MET", Palette.Good) + "\n" + _goalMetText;
+                _goalCount.text = "";
+                float flash = Mathf.Clamp01(1f - (now - _goalMetAt) / 1.2f);
+                _goalPlate.color = Color.Lerp(new Color(0.06f, 0.06f, 0.11f, 0.9f), new Color(0.55f, 0.42f, 0.12f, 0.95f), flash);
+                return;
+            }
+            _goalPlate.color = new Color(0.06f, 0.06f, 0.11f, 0.9f);
+            if (_goal == null)
+            {
+                _goalText.text = "<size=17>" + ConfirmDialog.Tint("NEXT GOAL", Palette.Sorn) + "</size>\nEvery goal met. The steppe is yours.";
+                _goalCount.text = "";
+                return;
+            }
+            _goalText.text = "<size=17>" + ConfirmDialog.Tint("NEXT GOAL", Palette.Sorn) + "</size>\n" + _goal.Text;
+            _goalCount.text = _goal.Target > 1 ? $"{Mathf.Min(_goal.Current, _goal.Target)}/{_goal.Target}" : "";
+            string icon = GoalIcon(_goal.Screen);
+            if (_goalIcon.texture == null || _goalIcon.texture.name != icon)
+            {
+                _goalIcon.texture = Resources.Load<Texture2D>("Icons/" + icon);
+                _goalIcon.enabled = _goalIcon.texture != null;
+            }
+        }
+
+        private static string GoalIcon(GoalScreen screen) => screen switch
+        {
+            GoalScreen.Forge => "NavForge",
+            GoalScreen.Gear => "NavGear",
+            GoalScreen.Push => "NavPush",
+            GoalScreen.Bounties => "NavBounties",
+            GoalScreen.Guild => "NavGuild",
+            _ => "NavZones",
+        };
+
+        private void OnGoalTap()
+        {
+            if (_goal == null || _root.Replaying || _root.PushBusy) return;
+            switch (_goal.Screen)
+            {
+                case GoalScreen.Forge: _root.Forge.Open(); break;
+                case GoalScreen.Gear: _root.Gear.Open(); break;
+                case GoalScreen.Bounties: _root.Bounties.Open(); break;
+                case GoalScreen.Guild: _root.Guild.Open(); break;
+                case GoalScreen.Push:
+                    _pushNudge = 2.2f;
+                    Log("Tap PUSH to take the next stage.");
+                    break;
+                default:
+                    Log("Keep hunting: every pack brings the next level closer.");
+                    break;
+            }
+        }
+
+        private static int LoadGoalStep(string key)
+        {
+            try { return PlayerPrefs.GetInt("orsuun.goalStep." + key, 0); } catch { return 0; }
+        }
+
+        private static void SaveGoalStep(string key, int step)
+        {
+            try { PlayerPrefs.SetInt("orsuun.goalStep." + key, step); PlayerPrefs.Save(); } catch { }
         }
     }
 }

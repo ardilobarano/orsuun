@@ -284,6 +284,20 @@ def main():
     glow.putalpha(g)
     save(glow, "Glow")
 
+    # The tutorial's pointer: a bronze arrow pointing down (the client turns it), with a dark edge and a lit ridge.
+    S = 128 * SS
+    head = [(S * 0.5, S * 0.96), (S * 0.08, S * 0.5), (S * 0.3, S * 0.5), (S * 0.3, S * 0.06), (S * 0.7, S * 0.06),
+            (S * 0.7, S * 0.5), (S * 0.92, S * 0.5)]
+    mask = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(mask).polygon(head, fill=255)
+    metal = diag_gradient(S // 8, S // 8, BRONZE_STOPS).resize((S, S), Image.BILINEAR).convert("RGBA")
+    arrow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    arrow.paste(metal, (0, 0), mask)
+    d = ImageDraw.Draw(arrow)
+    d.polygon(head, outline=BRONZE_DARK + (255,), width=3 * SS)
+    d.line([(S * 0.5, S * 0.12), (S * 0.5, S * 0.86)], fill=(255, 240, 200, 150), width=3 * SS)
+    save(down(arrow), "Pointer")
+
 
 if __name__ == "__main__":
     main()

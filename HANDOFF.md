@@ -264,6 +264,22 @@ picture on the Forge, shard art); guild war and fortress bids; password reset by
   thumbnails cropped from the environment art, Commander portraits cropped from their sheets, fortress paintings
   behind the War cards); Gear tiles are gold slots with a rarity glow; the HUD level sits on the medallion.
 
+## Done 24 Sep 2026, desktop app session
+
+- First ten minutes. The tutorial (`Tutorial`) now dims the screen around its target (four shades that take no taps),
+  frames it in the gold slot rim with a pulsing glow, and points at it with a bobbing bronze arrow
+  (`Resources/UI/Pointer.png`, drawn by `make_ui_kit.py`). Each note has a title. Ten steps: two new ones show the
+  bottom bar (WAR, BOUNTIES, GUILD, TRADE, MENU) and the goal line. It also hides behind the Guild, Exchange, Chat
+  and account screens now (they sit below its canvas).
+- Next goal line (`Rules/Goals.cs`, `GoalTests`; `Hud.UpdateGoal`): a framed plate at the top of the lane shows one
+  goal at a time; tapping it opens the Forge, Gear, Bounties or Guild, or lights the PUSH button. Reminders first (a
+  finished bounty, an empty slot with a piece for it in the bag), then a chain: weapon +1, clear stage 1, gear in 3
+  slots, clear stage 3, any worn piece +3, level 10, clear stage 5, join a guild (online only), gear in all 8 slots,
+  clear all ten stages, weapon +7, weapon +9. Each clear names the zones it opens. A met chain step stays met
+  (the furthest step is kept per account in PlayerPrefs `orsuun.goalStep.<player name>`, `local` offline); one met
+  while playing flashes GOAL MET with the level-up sound. Assumption (not stated by the owner): guidance only, no
+  rewards; a reward per goal would need the server to count them.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in
