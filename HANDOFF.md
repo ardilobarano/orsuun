@@ -56,6 +56,20 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   push and boss replays from server seeds; seeded farm loops reported for active play; LOCAL MODE fallback.
 - `tools/Orsuun.Sim`: Monte Carlo balance report. `tools/ClientCheck`: compiles Unity scripts with dotnet.
 
+## Where we left off (24 Sep 2026, late night)
+
+The owner is moving to the Claude desktop app (Code tab, local folder `~/orsuun`); this session's chat does not
+carry over, so this file and CLAUDE.md are the memory. Everything below is committed, deployed to the playtest
+server and installed on the owner's iPhone (build 26092417); the APK on the download link matches.
+
+Waiting on the owner: database backups (yes/no, Storage Box or Mac), the paid Apple Developer Program (TestFlight,
+Sign in with Apple, no 7-day expiry), Google sign-in test users or "Publish app" in Google Cloud, the monetization
+plan, a real domain before release.
+
+Offered next (owner to pick): polish the first ten minutes (tutorial for the new UI, a "next goal" tracker); a real
+Mirage Queen model (still a placeholder); the rest of the mockup look (framed tiles on the bottom bar, a bigger item
+picture on the Forge, shard art); guild war and fortress bids; password reset by email (needs a mail service).
+
 ## Done since the first handoff (same day)
 
 - Korshards and sockets (rules, server endpoints, SHARDS panel). Evening Bells and Bulk Turn.
