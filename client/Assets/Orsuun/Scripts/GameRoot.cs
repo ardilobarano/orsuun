@@ -163,6 +163,10 @@ namespace Orsuun.Client
             _duelLane = int.TryParse(Arg("-duel"), out int duelLane) ? duelLane : -1;
             _keepIndex = int.TryParse(Arg("-keep"), out int keepIndex) ? keepIndex : -1;
 
+            // Dev switch: -stage <n> parks local play at campaign stage n with the ones before it cleared (screenshots of the maps).
+            if (int.TryParse(Arg("-stage"), out int parkAt) && !Server.Online && parkAt >= 1 && parkAt <= Content.TotalStages)
+                Session.ApplyRemote(Session.Inventory, new System.Collections.Generic.List<ItemState>(Session.Equipment), 0, parkAt - 1, parkAt);
+
             // Dev switch: -boss <id> fights that Commander at once in local play (screenshots of the Commanders).
             if (int.TryParse(Arg("-boss"), out int bossId) && !Server.Online && Content.Boss(bossId) != null) FightBoss(bossId);
 

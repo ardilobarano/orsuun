@@ -60,19 +60,47 @@ namespace Orsuun.Client
         /// <summary>The Frost Pasture (and Korstone Fields IV-V): frost bears, ice wights, snow hags.</summary>
         private static readonly string[] FrostMobs = { "FrostBear", "IceWight", "SnowHag" };
 
-        /// <summary>Which mob set a stage or zone fields (zone ids from Content: 102 Salt Flats, 103 Frost Pasture, 113-115 Fields III-V).</summary>
+        /// <summary>
+        /// Gorak Pass (campaign map 2): war hounds and Gorak marauders, the Oathfields' wolf and deserter in the warlord's
+        /// colours ("Model#RRGGBB" tints a model).
+        /// </summary>
+        private static readonly string[] GorakMobs = { "Wolf#7A5A48", "Deserter#E0876E", "Deserter#B9C2D6" };
+
+        /// <summary>The campaign map of a stage (1 the Oathfields .. 4 Whitefang Range), or 0 for a zone.</summary>
+        private static int CampaignMap(int stageNumber) => Content.IsZone(stageNumber) ? 0 : Content.MapOfStage(stageNumber).Id;
+
+        /// <summary>
+        /// Which mob set a stage or zone fields (zone ids from Content: 102 Salt Flats, 103 Frost Pasture, 113-115 Fields
+        /// III-V; campaign maps 2-4 are Gorak Pass, the Salt Sea and Whitefang Range).
+        /// </summary>
         private static string[] MobSetFor(int stageNumber)
         {
-            string[] set = stageNumber == 102 || stageNumber == 113 ? SaltMobs : stageNumber == 103 || stageNumber == 114 || stageNumber == 115 ? FrostMobs : MobModels;
+            int map = CampaignMap(stageNumber);
+            string[] set = map == 2 ? GorakMobs
+                : stageNumber == 102 || stageNumber == 113 || map == 3 ? SaltMobs
+                : stageNumber == 103 || stageNumber == 114 || stageNumber == 115 || map == 4 ? FrostMobs : MobModels;
             // Older builds without the new models keep the Oathfields set.
-            return LoadMob(set[0]) != null ? set : MobModels;
+            return LoadMob(ModelOf(set[0])) != null ? set : MobModels;
         }
 
-        /// <summary>Backdrop for a stage: the Hunting Grounds past the Ember Steppe have their own environment keys.</summary>
+        /// <summary>The model name in a mob set entry ("Wolf#7A5A48" is the wolf).</summary>
+        private static string ModelOf(string entry)
+        {
+            int hash = entry.IndexOf('#');
+            return hash < 0 ? entry : entry.Substring(0, hash);
+        }
+
+        /// <summary>
+        /// Backdrop for a stage: the Hunting Grounds past the Ember Steppe have their own environment keys, and so do the
+        /// campaign maps past the Oathfields (Gorak Pass under the war camp, the Salt Sea and Whitefang Range under the
+        /// Salt Flats and the Frost Pasture).
+        /// </summary>
         private static string BackdropKey(ZoneType zone, int stageNumber)
         {
-            if (stageNumber == 102 && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
-            if (stageNumber == 103 && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
+            int map = CampaignMap(stageNumber);
+            if ((stageNumber == 102 || map == 3) && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
+            if ((stageNumber == 103 || map == 4) && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
+            if (map == 2) return ZoneType.CommanderGround.ToString();
             return (zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone).ToString();
         }
         /// <summary>Models face +Z; this turns them toward the hero, three-quarter to the camera (the hero uses 125).</summary>
@@ -908,7 +936,9 @@ namespace Orsuun.Client
                 case EnemyKind.Mob:
                 {
                     string[] set = MobSetFor(_sim.Stage.StageNumber);
-                    name = set[enemyId % set.Length];
+                    string entry = set[enemyId % set.Length];
+                    name = ModelOf(entry);
+                    if (entry.Length > name.Length && ColorUtility.TryParseHtmlString(entry.Substring(name.Length), out Color shade)) tint = shade;
                     return LoadMob(name);
                 }
                 case EnemyKind.Captain:
@@ -935,6 +965,8 @@ namespace Orsuun.Client
                         scale = 1.15f; name = "Deserter"; tint = new Color(0.72f, 0.78f, 0.92f);
                         return LoadMob(name);
                     }
+                    // Nine-Winters, Whitefang Range's map boss: the ice wight lord, an ice wight grown tall and pale.
+                    if (boss.StartsWith("Nine-Winters")) { scale = 1.5f; name = "IceWight"; tint = new Color(0.78f, 0.9f, 1f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen" : null;
                     MobArt own = name != null ? LoadMob(name) : null;
                     if (own != null) { scale = 1f; return own; }

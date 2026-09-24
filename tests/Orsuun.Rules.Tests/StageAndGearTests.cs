@@ -8,13 +8,50 @@ namespace Orsuun.Rules.Tests;
 public class StageAndGearTests
 {
     [Fact]
-    public void Content_has_ten_stages_with_a_boss_on_the_last()
+    public void Four_maps_of_ten_stages_each_end_at_their_boss()
     {
-        Assert.Equal(10, Content.TotalStages);
+        Assert.Equal(40, Content.TotalStages);
         Assert.Equal(FinalEncounter.Korstone, Content.Stage(1).FinalEncounter);
         Assert.Equal(FinalEncounter.Boss, Content.Stage(10).FinalEncounter);
         Assert.Equal("The Oathfields 7", Content.StageName(7));
         Assert.True(Content.Stage(10).MobHp > Content.Stage(1).MobHp * 2);
+        // World bible section 6: Gorak Pass (Tul-Gorak), the Salt Sea (the Mirage Queen), Whitefang Range (Nine-Winters).
+        Assert.Equal("Gorak Pass 1", Content.StageName(11));
+        Assert.Equal("Warlord Tul-Gorak", Content.Stage(20).BossName);
+        Assert.Equal("The Mirage Queen", Content.Stage(30).BossName);
+        Assert.Equal("Nine-Winters", Content.Stage(40).BossName);
+        Assert.Equal(FinalEncounter.Korstone, Content.Stage(35).FinalEncounter);
+        // Each map's gear levels continue the last: Gorak Pass drops item level 10 to 20.
+        Assert.Equal(10, Content.Stage(11).GearItemLevel);
+        Assert.Equal(40, Content.Stage(40).GearItemLevel);
+        // A new map opens a little above the last boss stage's mobs, never below.
+        for (int map = 2; map <= 4; map++)
+            Assert.True(Content.Stage(map * 10 - 9).MobHp >= Content.Stage(map * 10 - 10).MobHp * 9 / 10);
+    }
+
+    private static HeroStats Geared(int level, int itemLevel, int upgrade)
+    {
+        var items = new List<ItemState>();
+        for (int s = 0; s < 8; s++) items.Add(new ItemState(itemLevel, Rarity.Rare, (EquipSlot)s) { UpgradeLevel = upgrade });
+        return HeroFactory.FromEquipment(items, level);
+    }
+
+    [Theory]
+    [InlineData(2, 20, 20, 6, 10, 10, 6)]
+    [InlineData(3, 30, 30, 7, 20, 20, 6)]
+    [InlineData(4, 40, 40, 7, 30, 30, 7)]
+    public void Each_map_boss_is_a_power_check(int map, int level, int itemLevel, int upgrade, int lastLevel, int lastItemLevel, int lastUpgrade)
+    {
+        // GDD section 2: map bosses gate the next map. A hero geared for the map clears its boss; the last map's cannot.
+        StageConfig boss = Content.Stage(map * 10);
+        int ready = 0, early = 0;
+        for (ulong seed = 1; seed <= 20; seed++)
+        {
+            if (StageRun.Simulate(boss, Geared(level, itemLevel, upgrade), new Inventory { Potions = 5 }, seed).Cleared) ready++;
+            if (StageRun.Simulate(boss, Geared(lastLevel, lastItemLevel, lastUpgrade), new Inventory { Potions = 5 }, seed).Cleared) early++;
+        }
+        Assert.True(ready >= 15, $"map {map} boss, geared: {ready}/20");
+        Assert.True(early <= 2, $"map {map} boss, last map's gear: {early}/20");
     }
 
     [Fact]

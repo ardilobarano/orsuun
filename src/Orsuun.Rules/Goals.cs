@@ -84,10 +84,12 @@ namespace Orsuun.Rules
             new Step("push-5", GoalScreen.Push, 5, (s, w) => s.HighestStageCleared, () => Clear(5)),
             new Step("guild", GoalScreen.Guild, 1, (s, w) => w.InGuild ? 1 : 0, () => "Join a guild", onlineOnly: true),
             new Step("wear-8", GoalScreen.Gear, 8, (s, w) => Worn(s), () => "Wear gear in all 8 slots"),
-            new Step("push-all", GoalScreen.Push, Content.TotalStages, (s, w) => s.HighestStageCleared,
-                () => $"Clear all {Content.TotalStages} stages of {Content.Maps[0].Name}"),
+            new Step("push-10", GoalScreen.Push, 10, (s, w) => s.HighestStageCleared, () => Clear(10)),
+            new Step("push-20", GoalScreen.Push, 20, (s, w) => s.HighestStageCleared, () => Clear(20)),
             new Step("forge-7", GoalScreen.Forge, 7, (s, w) => s.Weapon.UpgradeLevel, () => "Forge your weapon to +7: it starts to glow"),
+            new Step("push-30", GoalScreen.Push, 30, (s, w) => s.HighestStageCleared, () => Clear(30)),
             new Step("forge-9", GoalScreen.Forge, 9, (s, w) => s.Weapon.UpgradeLevel, () => "Forge your weapon to +9"),
+            new Step("push-40", GoalScreen.Push, 40, (s, w) => s.HighestStageCleared, () => Clear(40)),
         };
 
         public static int ChainLength => Chain.Length;
@@ -124,13 +126,16 @@ namespace Orsuun.Rules
             return null;
         }
 
-        /// <summary>"Clear The Oathfields 3", naming what the clear opens.</summary>
+        /// <summary>"Clear The Oathfields 3", or the map boss for a map's last stage, naming what the clear opens.</summary>
         private static string Clear(int stage)
         {
             var opens = new List<string>();
             foreach (ZoneDef zone in Content.Zones)
                 if (zone.UnlockStage == stage) opens.Add(zone.Name);
-            string text = "PUSH to clear " + Content.StageName(stage);
+            MapDef map = Content.MapOfStage(stage);
+            string text = Content.StageInMap(stage) == MapDef.StagesPerMap
+                ? $"PUSH to beat {map.BossName} and clear {map.Name}"
+                : "PUSH to clear " + Content.StageName(stage);
             return opens.Count == 0 ? text : text + ": " + string.Join(" and ", opens) + (opens.Count == 1 ? " opens" : " open");
         }
 

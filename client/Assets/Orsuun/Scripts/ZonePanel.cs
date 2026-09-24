@@ -190,7 +190,8 @@ namespace Orsuun.Client
         /// <summary>Resources/Thumbs picture for a campaign stage (below 100) or a zone id.</summary>
         private static string ZoneThumb(int id) => id switch
         {
-            < 100 => "ZoneCampaign",
+            // Campaign maps: the Oathfields, then Gorak Pass, the Salt Sea and Whitefang Range on their grounds' pictures.
+            < 100 => Content.MapOfStage(id).Id switch { 2 => "ZoneWarCamp", 3 => "ZoneSaltFlats", 4 => "ZoneFrostPasture", _ => "ZoneCampaign" },
             101 => "ZoneEmberSteppe",
             102 => "ZoneSaltFlats",
             103 => "ZoneFrostPasture",

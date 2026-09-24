@@ -319,6 +319,24 @@ fortress aura for keeps, guild invites, password reset by email (needs a mail se
   steel deserter). Screenshot switches online: `-guildwar`, `-duel <lane>`, `-keep <n>`; `-boss <id>` fights a
   Commander in local play.
 
+## Done 25 Sep 2026 (campaign maps, dungeons, the Pits)
+
+- Owner, 25 Sep 2026, asked what to develop next and picked more campaign maps, dungeons and the Pits.
+- Campaign maps 2-4 from the world bible (section 6): Gorak Pass (levels 10-20, war hounds and Gorak marauders,
+  Marauder Brand, boss Warlord Tul-Gorak), the Salt Sea (20-30, the Salt Flats' scorpions, snakes and ghouls, Scorpion
+  Glass, the Mirage Queen), Whitefang Range (30-40, the Frost Pasture's bears, wights and hags, Frozen Marrow,
+  Nine-Winters the ice wight lord). 40 campaign stages now. The Oathfields' curve is unchanged; past it HP climbs 19.7 and
+  attack 13.8 points a stage, simulated so each map boss needs that map's gear (a level-20 +6 set clears Gorak Pass 10,
+  a level-10 +6 set never does; level 30 +7 for the Salt Sea, level 40 +7 for Whitefang) and a new map opens just above
+  the last one's mobs (`StageAndGearTests`). Zone unlocks are unchanged (all zones still open by stage 10), so the new
+  maps are the push spine and higher campaign farm spots. Client: Gorak Pass uses the war camp backdrop with the wolf
+  and deserter recoloured (`LaneView.GorakMobs`, "Model#RRGGBB" tints a set entry), the Salt Sea and Whitefang Range the
+  Salt Flats' and Frost Pasture's sets and backdrops, Nine-Winters is a tall pale ice wight; Zones shows each map's
+  picture; the goal chain names each map boss. `-stage <n>` parks local play at a stage for screenshots.
+- Found while tuning, for the owner: at the higher map bosses the Wraithsworn needs about two more forge levels than
+  the Vanguard, Kestrel or Drumcaller (his low HP and defence tell in long boss fights; the Oathfields hides it). Not
+  changed: class numbers were balanced at the owner's request (`ClassBalanceTests`).
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in

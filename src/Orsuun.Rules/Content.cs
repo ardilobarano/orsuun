@@ -94,9 +94,16 @@ namespace Orsuun.Rules
         public const int FirstZoneId = 100;
         public const int MaxLevel = 105;
 
+        /// <summary>
+        /// The campaign maps (world bible section 6: twelve at launch, ten stages each). The first four are built: their
+        /// enemies and backdrops exist (the Salt Sea and Whitefang Range share the Salt Flats' and Frost Pasture's).
+        /// </summary>
         public static readonly MapDef[] Maps =
         {
             new MapDef(1, "The Oathfields", 1, 10, "Wolf Sinew", "Old Greyjaw", new[] { "Hollowed Wolf", "Hollowed Boar", "Deserter" }),
+            new MapDef(2, "Gorak Pass", 10, 20, "Marauder Brand", "Warlord Tul-Gorak", new[] { "War Hound", "Gorak Marauder", "Gorak Raider" }),
+            new MapDef(3, "The Salt Sea", 20, 30, "Scorpion Glass", "The Mirage Queen", new[] { "Salt Scorpion", "Glass Snake", "Caravan Ghoul" }),
+            new MapDef(4, "Whitefang Range", 30, 40, "Frozen Marrow", "Nine-Winters", new[] { "Frost Bear", "Ice Wight", "Snow Hag" }),
         };
 
         public static readonly ZoneDef[] Zones =
@@ -170,9 +177,15 @@ namespace Orsuun.Rules
             int s = ClampStage(stage);
             MapDef map = MapOfStage(s);
             int inMap = StageInMap(s);
-            // +12% HP and +9% attack per stage: stage 10 mobs are about 2.6x / 2.2x stage 1.
-            int hpPct = 100 + 12 * (inMap - 1) + 100 * (map.Id - 1);
-            int atkPct = 100 + 9 * (inMap - 1) + 80 * (map.Id - 1);
+            // The Oathfields: +12% HP and +9% attack per stage (stage 10 mobs about 2.1x / 1.8x stage 1). Past it the
+            // curve climbs about as fast as a hero grows over the levels a map spans (+19.7 and +13.8 points a stage,
+            // simulated), so each map boss is a power check the last map's gear cannot pass (GDD section 2) and a new
+            // map opens just above the last one's mobs. Sorn and XP follow HP, so they stay the same per point of
+            // damage and the zones keep their farming roles.
+            int past = Math.Max(0, s - MapDef.StagesPerMap);
+            int early = Math.Min(s, MapDef.StagesPerMap) - 1;
+            int hpPct = 100 + 12 * early + 197 * past / 10;
+            int atkPct = 100 + 9 * early + 138 * past / 10;
             return new StageConfig
             {
                 StageNumber = s,
