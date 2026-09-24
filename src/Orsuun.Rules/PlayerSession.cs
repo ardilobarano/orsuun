@@ -105,17 +105,12 @@ namespace Orsuun.Rules
                 }
             }
 
-            int interval = 12, weakPoint = LaneSim.AimedWeakPointPercent;
-            if (cls == HeroClass.Kestrel)
-            {
-                // Light and quick: faster blows and more crits, less weight per hit and a thinner hide.
-                attack = attack * 90 / 100;
-                defense = defense * 80 / 100;
-                maxHp = maxHp * 85 / 100;
-                critBp += 700;
-                interval = 10;
-                weakPoint = 900;           // an assassin's Heartseeker finds the seam in the stone
-            }
+            ClassShape shape = ClassShape.For(cls);
+            attack = attack * shape.AttackPercent / 100;
+            defense = defense * shape.DefensePercent / 100;
+            maxHp = maxHp * shape.HpPercent / 100;
+            critBp += shape.CritBonusBp;
+            int interval = shape.AttackIntervalTicks, weakPoint = shape.WeakPointPercent;
 
             return new HeroStats
             {
@@ -131,6 +126,42 @@ namespace Orsuun.Rules
                 AttackIntervalTicks = Math.Max(6, interval * 100 / (100 + haste)),
                 CommanderDamageTakenPercent = Math.Max(40, 100 - warding),
             };
+        }
+
+        /// <summary>How a class bends the shared stat model (percent of attack, defense and HP, crit, swing speed, weak point).</summary>
+        private readonly struct ClassShape
+        {
+            public ClassShape(int attack, int defense, int hp, int critBonusBp, int interval, int weakPoint)
+            {
+                AttackPercent = attack;
+                DefensePercent = defense;
+                HpPercent = hp;
+                CritBonusBp = critBonusBp;
+                AttackIntervalTicks = interval;
+                WeakPointPercent = weakPoint;
+            }
+
+            public int AttackPercent { get; }
+            public int DefensePercent { get; }
+            public int HpPercent { get; }
+            public int CritBonusBp { get; }
+            public int AttackIntervalTicks { get; }
+            public int WeakPointPercent { get; }
+
+            public static ClassShape For(HeroClass cls)
+            {
+                switch (cls)
+                {
+                    // Light and quick: faster blows and more crits, less weight per hit, a thinner hide; the
+                    // assassin's Heartseeker finds the seam in the stone.
+                    case HeroClass.Kestrel: return new ClassShape(90, 80, 85, 700, 10, 900);
+                    // Glass cannon: hits hard but slowly between casts, paper defense; Void Lance splits stone.
+                    case HeroClass.Wraithsworn: return new ClassShape(105, 60, 80, 0, 13, 700);
+                    // Storm rhythm: sturdier and critier, a little lighter per blow.
+                    case HeroClass.Drumcaller: return new ClassShape(95, 110, 105, 500, 12, 700);
+                    default: return new ClassShape(100, 100, 100, 0, 12, LaneSim.AimedWeakPointPercent);
+                }
+            }
         }
 
         private static int RarityPercent(Rarity rarity)

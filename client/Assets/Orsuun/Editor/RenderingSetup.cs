@@ -43,6 +43,7 @@ namespace Orsuun.Client.EditorTools
             EnsureBackdrops();
             EnsureLooks();
             EnsureClassLooks();
+            EnsureKorstones();
             EnsureMobs();
             EnsureFx();
             EnsureAudioImport();
@@ -165,6 +166,30 @@ namespace Orsuun.Client.EditorTools
                 mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png"));
                 mat.SetFloat("_BodyGlow", 0f);
                 mat.SetFloat("_AuraWidth", 0.01f);
+                EditorUtility.SetDirty(mat);
+            }
+        }
+
+        /// <summary>
+        /// Korstone shapes (Resources/Models/Korstones/A|B|C.fbx from looks.mob_model): one EmberGlow material each in
+        /// Resources/Korstones with the shape's texture. The lane copies it per stone and sets the tier's colours
+        /// (KorstoneLook); _CrackRemap repaints the painted cracks, a light layer of procedural cracks runs over the top.
+        /// </summary>
+        private static void EnsureKorstones()
+        {
+            const string models = Res + "Models/Korstones/";
+            if (!Directory.Exists(models)) return;
+            Directory.CreateDirectory(Res + "Korstones");
+            foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
+            {
+                string id = Path.GetFileNameWithoutExtension(fbx);
+                EnsureModelImport(models + id + ".fbx");
+                Material mat = EnsureGlowMaterial("Korstones/" + id, new Color(0.78f, 0.64f, 0.56f), crackScale: 2.2f, crackWidth: 0.018f, intensity: 2.4f, rim: 3f);
+                mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png"));
+                mat.SetFloat("_CrackRemap", 1f);
+                mat.SetFloat("_CrackAlways", 0.2f);
+                mat.SetFloat("_CrackFadeTop", 0f);
+                mat.SetFloat("_Roughness", 0.35f);
                 EditorUtility.SetDirty(mat);
             }
         }
@@ -512,15 +537,6 @@ namespace Orsuun.Client.EditorTools
             var view = rig.AddComponent<Orsuun.Client.LaneView>();
             view.BuildScenery();
             view.BuildHero();
-            var model = AssetDatabase.LoadAssetAtPath<GameObject>(Res + "Models/Korstone.fbx");
-            if (model != null)
-            {
-                var kor = (GameObject)Object.Instantiate(model, root.transform);
-                kor.transform.position = new Vector3(3.4f, 0f, 2.2f);
-                kor.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
-                var km = AssetDatabase.LoadAssetAtPath<Material>(Res + "KorstoneEmber.mat");
-                foreach (Renderer r in kor.GetComponentsInChildren<Renderer>()) r.sharedMaterial = km;
-            }
             foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround" })
             {
                 view.SetZone((Orsuun.Rules.Combat.ZoneType)System.Enum.Parse(typeof(Orsuun.Rules.Combat.ZoneType), zone));
@@ -570,16 +586,43 @@ namespace Orsuun.Client.EditorTools
             }
             view.PoseHero("Idle", 0f);
 
-            // Kestrel, the second class: idle, the knife slash and a run stride.
-            view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Kestrel);
-            foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.57f), ("Run", 0.25f) })
+            // The other classes: idle, the attack and a run stride each.
+            foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
             {
-                if (!view.PoseHero(clip, at)) { Debug.LogWarning("No clip " + clip + " on Kestrel"); break; }
-                CaptureSkinned(cam, "../artifacts/kestrel-" + clip + ".png", view.transform);
+                view.SetHeroClass(cls);
+                foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.57f), ("Run", 0.25f) })
+                {
+                    if (!view.PoseHero(clip, at)) { Debug.LogWarning("No clip " + clip + " on " + cls); break; }
+                    CaptureSkinned(cam, "../artifacts/" + cls.ToString().ToLowerInvariant() + "-" + clip + ".png", view.transform);
+                }
+                view.PoseHero("Idle", 0f);
             }
-            view.PoseHero("Idle", 0f);
             view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
             view.SetLooks("Armor_T1", "Weapon_T1");
+
+            // Korstones by level: the five tiers side by side, then the Elder of each shape.
+            {
+                cam.transform.position = new Vector3(4.5f, 3.2f, -17f);
+                cam.transform.LookAt(new Vector3(4.5f, 1.6f, 2f));
+                var stones = new System.Collections.Generic.List<Transform>();
+                int[] levels = { 10, 30, 50, 70, 95 };
+                for (int k = 0; k < levels.Length; k++)
+                {
+                    Transform t = view.PreviewKorstone(levels[k], false, new Vector3(-1.5f + k * 3f, 0f, 2f));
+                    if (t != null) stones.Add(t);
+                }
+                Capture(cam, "../artifacts/korstone-tiers.png", 1600, 700);
+                foreach (Transform t in stones) Object.DestroyImmediate(t.gameObject);
+                stones.Clear();
+                int[] elders = { 10, 50, 95 };
+                for (int k = 0; k < elders.Length; k++)
+                {
+                    Transform t = view.PreviewKorstone(elders[k], true, new Vector3(0.5f + k * 4f, 0f, 3f));
+                    if (t != null) stones.Add(t);
+                }
+                Capture(cam, "../artifacts/korstone-elders.png", 1600, 700);
+                foreach (Transform t in stones) Object.DestroyImmediate(t.gameObject);
+            }
 
             // Enemies from a live lane: a stage-1 pack, then each Commander (the boss stage has no packs).
             cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);

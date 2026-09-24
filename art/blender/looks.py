@@ -292,9 +292,10 @@ def weapon_look(glb, look_id):
 
 MOBS = HOME + "/client/Assets/Orsuun/Resources/Models/Mobs/"
 MOB_TRIS = 6000       # up to 16 on screen at once
+KORSTONES = HOME + "/client/Assets/Orsuun/Resources/Models/Korstones/"   # korstone shapes: mob_model(..., out_dir=KORSTONES)
 
 
-def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0):
+def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None):
     """Enemy model: decimated, rotated by yaw_degrees about Z so it faces -Y, centred on X/Y with its lowest point on
     the ground, scaled so it stands `height` metres tall. Exports <name>.fbx and <name>BaseColor.png to MOBS."""
     import math
@@ -313,9 +314,10 @@ def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0):
     mesh.data.transform(Matrix.Translation(Vector((-cx, -cy, -min(v.z for v in vs)))))
     mesh.name = name + "_Body"
     mesh.data.name = mesh.name
-    looks_out, OUT = OUT, MOBS
+    target = out_dir or MOBS
+    looks_out, OUT = OUT, target
     try:
-        os.makedirs(MOBS, exist_ok=True)
+        os.makedirs(target, exist_ok=True)
         size = _texture(mesh, name)
         root = bpy.data.objects.new(name, None)
         bpy.context.scene.collection.objects.link(root)
@@ -330,7 +332,7 @@ def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0):
 CLASSES = HOME + "/client/Assets/Orsuun/Resources/Models/Classes/"
 
 
-def class_look(glb, name, height, tris=TRIS):
+def class_look(glb, name, height, tris=TRIS, staff=False):
     """Another playable class (A-pose sheet, a weapon in each hand): decimated, standing `height` tall, facing -Y,
     rigged by rig.rig_humanoid with the shared actions, exported to Resources/Models/Classes with its texture."""
     import importlib
@@ -357,7 +359,7 @@ def class_look(glb, name, height, tris=TRIS):
     try:
         os.makedirs(CLASSES, exist_ok=True)
         size = _texture(mesh, name)
-        _arm, layout = rigging.rig_humanoid([mesh], root, height, name + "Rig")
+        _arm, layout = rigging.rig_humanoid([mesh], root, height, name + "Rig", staff=staff)
         _export_rigged(root, name)
     finally:
         OUT = looks_out

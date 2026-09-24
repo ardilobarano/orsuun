@@ -85,7 +85,9 @@ namespace Orsuun.Client
 
             // Dev switches for screenshots: -sampleloot fills a local bag; -gear opens the Gear screen; -confirm asks to forge.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-sampleloot") >= 0 && !Server.Online) SampleLoot();
-            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-kestrel") >= 0 && !Server.Online) Session.SetClass(HeroClass.Kestrel);
+            // -class <Name> starts local play as that class (-kestrel kept for old scripts).
+            string cls = Arg("-class") ?? (Array.IndexOf(Environment.GetCommandLineArgs(), "-kestrel") >= 0 ? "Kestrel" : null);
+            if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-anvilbag") >= 0 && Session.Inventory.Loot.Count > 0) Session.PutOnAnvil(Session.Inventory.Loot[4]);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-confirm") >= 0) { Forge.Open(); Forge.StartAttempt(ForgeMethod.ForgeAlone); }

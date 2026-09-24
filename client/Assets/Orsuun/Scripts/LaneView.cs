@@ -32,6 +32,14 @@ namespace Orsuun.Client
             public bool IsKorstone;
             /// <summary>Height above the root where hits land (models stand on the ground, boxes are centred).</summary>
             public float HitHeight;
+            /// <summary>Which model it wears (Wolf, Boar, Deserter, Gorak, Queen, Greyjaw) for attack sounds.</summary>
+            public string ArtName;
+            /// <summary>Where it stands; the lunge is drawn on top of this.</summary>
+            public Vector3 Base;
+            /// <summary>Seconds into its attack lunge, or below zero when not attacking.</summary>
+            public float LungeT = -1f;
+            public bool IsBoss;
+            public KorstoneFx Fx;
         }
 
         /// <summary>A 3D enemy: model and material under Resources (art/blender/looks.py mob_model), and its lane scale.</summary>
@@ -360,8 +368,11 @@ namespace Orsuun.Client
                         hit.Punch = 1f;
                         Float(e.Amount.ToString(), hit.Root.position + Vector3.up * 1.2f, e.Crit ? Palette.Warn : Color.white, e.Crit ? 1.5f : 1f);
                         Vector3 at = hit.Root.position + Vector3.up * hit.HitHeight + new Vector3(-0.2f, 0f, -0.3f);
+                        Color korstoneGlow = hit.IsKorstone && hit.Fx != null ? KorstoneLook.Tiers[_korstoneTier].Glow : new Color(1f, 0.45f, 0.12f);
                         if (e.Crit) Sparks(at, 18, new Color(1f, 0.95f, 0.7f), 1.4f);
-                        else Sparks(at, hit.IsKorstone ? 10 : 7, hit.IsKorstone ? new Color(1f, 0.45f, 0.12f) : new Color(1f, 0.7f, 0.3f), 1f);
+                        else Sparks(at, hit.IsKorstone ? 10 : 7, hit.IsKorstone ? korstoneGlow : new Color(1f, 0.7f, 0.3f), 1f);
+                        hit.Fx?.Flare();
+                        SpellFx(at);
                     }
                     GameAudio.Instance?.Play(e.Crit ? "LaneHitCrit" : "LaneHitSlash", e.Crit ? 0.9f : 0.55f, e.Crit ? 0.08f : 0.07f);
                     break;
@@ -394,6 +405,7 @@ namespace Orsuun.Client
 
                 case LaneEventKind.KorstoneWave:
                     Float("WAVE " + e.Amount, new Vector3(3.4f, 3.4f, 0f), Palette.Bad, 1.8f);
+                    foreach (EnemyView v in _views.Values) v.Fx?.Wave();
                     GameAudio.Instance?.Play("LaneKorstoneWave", 0.8f, 0.5f);
                     break;
 
@@ -410,6 +422,19 @@ namespace Orsuun.Client
                     _heroHurt = 1f;
                     Flinch();
                     GameAudio.Instance?.Play("LaneHeroHurt", 0.4f, 0.3f);
+                    // The attacker lunges; the blow lands on the hero with a spray of red, or whiffs on an evade.
+                    if (_views.TryGetValue(e.EnemyId, out EnemyView attacker) && !attacker.IsKorstone)
+                    {
+                        attacker.LungeT = 0f;
+                        bool evaded = e.Text == "evaded";
+                        if (!evaded)
+                        {
+                            Vector3 chest = _hero.position + new Vector3(0.25f, 1.25f, -0.25f);
+                            Sparks(chest, attacker.IsBoss ? 16 : 8, new Color(0.9f, 0.08f, 0.06f), attacker.IsBoss ? 1.4f : 0.9f);
+                            if (attacker.IsBoss) Sparks(chest, 8, new Color(1f, 0.85f, 0.6f), 1.6f);
+                        }
+                        GameAudio.Instance?.Play(AttackSound(attacker), attacker.IsBoss ? 0.9f : 0.45f, attacker.IsBoss ? 0.25f : 0.1f);
+                    }
                     break;
 
                 case LaneEventKind.HeroHealed:
@@ -550,7 +575,17 @@ namespace Orsuun.Client
 
                 if (view.IsMob)
                     target.y += Mathf.Abs(Mathf.Sin(Time.time * 5f + enemy.Id * 1.7f)) * 0.04f;   // restless on their feet
-                view.Root.position = Vector3.Lerp(view.Root.position, target, follow);
+                view.Base = Vector3.Lerp(view.Base, target, follow);
+                Vector3 lunge = Vector3.zero;
+                if (view.LungeT >= 0f)
+                {
+                    // A quick leap at the hero and back: out in the first half, home in the second.
+                    view.LungeT += dt;
+                    float t = view.LungeT / (view.IsBoss ? 0.45f : 0.32f);
+                    if (t >= 1f) view.LungeT = -1f;
+                    else lunge = new Vector3(-Mathf.Sin(t * Mathf.PI) * (view.IsBoss ? 0.9f : 0.55f), Mathf.Sin(t * Mathf.PI) * 0.12f, 0f);
+                }
+                view.Root.position = view.Base + lunge;
                 view.Punch = Mathf.MoveTowards(view.Punch, 0f, dt * 6f);
                 view.Root.localScale = view.Scale * (1f + view.Punch * 0.18f);
 
@@ -711,7 +746,10 @@ namespace Orsuun.Client
             GameObject model = korstone ? KorstoneModel() : null;
             float artScale = 1f;
             Color? artTint = null;
-            MobArt art = korstone ? null : ArtFor(enemyId, kind, out artScale, out artTint);
+            string artName = null;
+            MobArt art = korstone ? null : ArtFor(enemyId, kind, out artScale, out artTint, out artName);
+            KorstoneFx korstoneFx = null;
+            float korstoneHeight = 0f;
             Transform root;
             float barHeight;
             Vector3 s;
@@ -734,6 +772,12 @@ namespace Orsuun.Client
                 barHeight = art.Height + 0.3f / artScale;
                 root.rotation = Quaternion.Euler(0f, EnemyYaw, 0f);
             }
+            else if (korstone && TryKorstone(kind == EnemyKind.ElderKorstone, _sim.Stage.GearItemLevel, out root, out korstoneFx, out korstoneHeight))
+            {
+                model = root.gameObject;
+                s = root.localScale;
+                barHeight = korstoneHeight / s.y + 0.35f / s.y;
+            }
             else
             {
                 root = model != null ? Instantiate(model).transform : Primitive(boss ? PrimitiveType.Capsule : PrimitiveType.Cube, kind.ToString(), color);
@@ -744,7 +788,7 @@ namespace Orsuun.Client
                 if (korstone) root.rotation = Quaternion.Euler(0f, 25f, model != null ? 0f : 4f);
             }
             root.name = kind.ToString();
-            if (kind == EnemyKind.ElderKorstone) s *= 1.3f;
+            if (kind == EnemyKind.ElderKorstone && korstoneFx == null) s *= 1.3f;
             bool standing = model != null || art != null;
             float y = standing ? 0f : korstone ? 1.3f : boss ? 1.2f : 0.35f;
             root.SetParent(transform, false);
@@ -764,43 +808,164 @@ namespace Orsuun.Client
             fill.SetParent(holder, false);
             fill.localPosition = new Vector3(0f, 0f, -0.01f);
 
-            float hitHeight = art != null ? art.Height * s.y * 0.55f : model != null ? 1.4f : 0f;
-            _views[enemyId] = new EnemyView { Root = root, HpFill = fill, Scale = s, IsModel = standing, Y = y, IsMob = art != null, IsKorstone = korstone, HitHeight = hitHeight };
+            float hitHeight = art != null ? art.Height * s.y * 0.55f : korstoneFx != null ? korstoneHeight * 0.45f : model != null ? 1.4f : 0f;
+            _views[enemyId] = new EnemyView
+            {
+                Root = root, HpFill = fill, Scale = s, IsModel = standing, Y = y, IsMob = art != null, IsKorstone = korstone,
+                HitHeight = hitHeight, ArtName = artName, Base = root.position, IsBoss = boss, Fx = korstoneFx,
+            };
+            if (korstoneFx != null)
+            {
+                korstoneFx.Init(_korstoneStone, KorstoneLook.Tiers[_korstoneTier], korstoneHeight, _korstoneTier, Resources.Load<Material>("FxSpark"));
+                korstoneFx.Wave(90, 9f);
+                GameAudio.Instance?.Play("KorstoneAwaken", 1f, 1f, 0.03f);
+            }
         }
 
         /// <summary>
         /// The model for an enemy: mobs cycle the map's three kinds by id; Old Greyjaw is a great wolf; Tul-Gorak and his
         /// captains are deserters in war-red. The Mirage Queen and her images have no model yet (grey box).
         /// </summary>
-        private MobArt ArtFor(int enemyId, EnemyKind kind, out float scale, out Color? tint)
+        private MobArt ArtFor(int enemyId, EnemyKind kind, out float scale, out Color? tint, out string name)
         {
             scale = MobScale;
             tint = null;
+            name = null;
             switch (kind)
             {
                 case EnemyKind.Mob:
-                    return LoadMob(MobModels[enemyId % MobModels.Length]);
+                    name = MobModels[enemyId % MobModels.Length];
+                    return LoadMob(name);
                 case EnemyKind.Captain:
                     scale = 1f;
                     tint = new Color(1f, 0.72f, 0.55f);
-                    return LoadMob("Deserter");
+                    name = "Deserter";
+                    return LoadMob(name);
                 case EnemyKind.Boss:
                 {
                     // Commanders have their own models (24 Sep 2026); older builds fall back to scaled mobs.
                     string boss = _sim.Stage.BossName ?? "";
-                    MobArt own = boss.Contains("Greyjaw") ? LoadMob("Greyjaw") : boss.Contains("Gorak") ? LoadMob("Gorak") : boss.Contains("Mirage") ? LoadMob("Queen") : null;
+                    name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen" : null;
+                    MobArt own = name != null ? LoadMob(name) : null;
                     if (own != null) { scale = 1f; return own; }
-                    if (boss.Contains("Greyjaw")) { scale = 1.8f; return LoadMob("Wolf"); }
-                    if (boss.Contains("Gorak")) { scale = 1.25f; tint = new Color(1f, 0.6f, 0.5f); return LoadMob("Deserter"); }
+                    if (boss.Contains("Greyjaw")) { scale = 1.8f; name = "Wolf"; return LoadMob("Wolf"); }
+                    if (boss.Contains("Gorak")) { scale = 1.25f; tint = new Color(1f, 0.6f, 0.5f); name = "Deserter"; return LoadMob("Deserter"); }
                     return null;
                 }
                 case EnemyKind.Image:
                     // The Mirage Queen's false images: her shape, washed violet.
                     scale = 0.9f;
                     tint = new Color(0.72f, 0.55f, 1f);
+                    name = "Queen";
                     return LoadMob("Queen");
                 default:
                     return null;
+            }
+        }
+
+        private int _korstoneTier;
+        private Material _korstoneStone;
+
+        /// <summary>
+        /// A Korstone in its tier's shape and colours (KorstoneLook), with its living effects. False when the shapes are
+        /// not in the build, and the old single model is used.
+        /// </summary>
+        private bool TryKorstone(bool elder, int level, out Transform root, out KorstoneFx fx, out float height)
+        {
+            root = null;
+            fx = null;
+            height = 0f;
+            _korstoneTier = KorstoneLook.TierFor(level);
+            string shape = KorstoneLook.ShapeFor(_korstoneTier, elder);
+            var prefab = Resources.Load<GameObject>("Models/Korstones/" + shape);
+            var baseMaterial = Resources.Load<Material>("Korstones/" + shape);
+            if (prefab == null || baseMaterial == null) return false;
+            KorstoneLook.Tier tier = KorstoneLook.Tiers[_korstoneTier];
+            _korstoneStone = new Material(baseMaterial);
+            _korstoneStone.SetColor("_Tint", tier.Stone);
+            _korstoneStone.SetColor("_GlowColor", tier.Glow);
+            _korstoneStone.SetColor("_HotColor", tier.Hot);
+            _korstoneStone.SetFloat("_Intensity", tier.Intensity);
+            root = Instantiate(prefab).transform;
+            foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) r.sharedMaterial = _korstoneStone;
+            float top = 0.5f;
+            foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) top = Mathf.Max(top, r.bounds.max.y);
+            float scale = elder ? 1.3f : 1f;
+            root.localScale = Vector3.one * scale;
+            root.rotation = Quaternion.Euler(0f, 25f, 0f);
+            height = top * scale;
+            fx = root.gameObject.AddComponent<KorstoneFx>();
+            return true;
+        }
+
+        /// <summary>Editor preview: a Korstone of the given level standing at a spot, effects settled for a still.</summary>
+        public Transform PreviewKorstone(int level, bool elder, Vector3 position)
+        {
+            if (!TryKorstone(elder, level, out Transform root, out KorstoneFx fx, out float height)) return null;
+            root.SetParent(transform, false);
+            root.position = position;
+            fx.Init(_korstoneStone, KorstoneLook.Tiers[_korstoneTier], height, _korstoneTier, Resources.Load<Material>("FxSpark"));
+            fx.Settle();
+            return root;
+        }
+
+        /// <summary>Hero's casting hand, roughly: where bolts leave from.</summary>
+        private Vector3 HandPosition => _hero.position + new Vector3(0.45f, 1.35f, -0.2f);
+
+        /// <summary>
+        /// Spell classes show their magic on every hit: the Wraithsworn throws a violet void bolt, the Drumcaller calls
+        /// lightning down on the target.
+        /// </summary>
+        private void SpellFx(Vector3 at)
+        {
+            if (_class == HeroClass.Wraithsworn)
+            {
+                Vector3 from = HandPosition;
+                Vector3 dir = (at - from).normalized;
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector3 p = Vector3.Lerp(from, at, i / 10f) + Random.insideUnitSphere * 0.06f;
+                    SparkLine(p, dir * Random.Range(3f, 6f), new Color(0.62f, 0.2f, 1f));
+                }
+                Sparks(at, 10, new Color(0.7f, 0.35f, 1f), 1.2f);
+                GameAudio.Instance?.Play("SpellVoid", 0.5f, 0.12f);
+            }
+            else if (_class == HeroClass.Drumcaller)
+            {
+                Vector3 top = at + new Vector3(Random.Range(-0.3f, 0.3f), 4.2f, 0f);
+                Vector3 prev = top;
+                for (int i = 1; i <= 12; i++)
+                {
+                    Vector3 p = Vector3.Lerp(top, at, i / 12f) + new Vector3(Random.Range(-0.18f, 0.18f), 0f, Random.Range(-0.1f, 0.1f));
+                    SparkLine(p, (p - prev) * 3f, new Color(0.55f, 0.8f, 1f));
+                    prev = p;
+                }
+                Sparks(at, 12, new Color(0.75f, 0.9f, 1f), 1.3f);
+                GameAudio.Instance?.Play("SpellLightning", 0.45f, 0.15f);
+            }
+        }
+
+        /// <summary>One spark placed exactly (for bolts and lightning), sharing the hit-spark system and its cap.</summary>
+        private void SparkLine(Vector3 at, Vector3 velocity, Color color)
+        {
+            if (_sparks == null) Sparks(at, 0, color, 0f);
+            if (_sparks == null) return;
+            if (_sparkFrame != Time.frameCount) { _sparkFrame = Time.frameCount; _sparksThisFrame = 0; }
+            if (_sparksThisFrame >= 140) return;
+            _sparksThisFrame++;
+            _sparks.Emit(new ParticleSystem.EmitParams { position = at, velocity = velocity, startColor = color, startLifetime = 0.22f, startSize = 0.09f }, 1);
+        }
+
+        /// <summary>The sound an enemy makes when it strikes.</summary>
+        private static string AttackSound(EnemyView v)
+        {
+            switch (v.ArtName)
+            {
+                case "Wolf": return "MobBite";
+                case "Boar": return "MobGore";
+                case "Greyjaw": case "Gorak": return "BossSlam";
+                case "Queen": return "SpellVoid";
+                default: return "MobClash";
             }
         }
 

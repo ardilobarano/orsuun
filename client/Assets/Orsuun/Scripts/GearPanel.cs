@@ -226,7 +226,8 @@ namespace Orsuun.Client
         /// <summary>Playtest: switch between the playable classes at will (server-side on line).</summary>
         private void SwitchClass()
         {
-            HeroClass next = _root.Session.Class == HeroClass.Vanguard ? HeroClass.Kestrel : HeroClass.Vanguard;
+            // Vanguard -> Kestrel -> Wraithsworn -> Drumcaller -> Vanguard.
+            HeroClass next = (HeroClass)(((int)_root.Session.Class + 1) % 4);
             if (_root.Server.Online) StartCoroutine(_root.Server.SetClass(next, error => _message.text = error ?? "Now playing " + next + "."));
             else
             {

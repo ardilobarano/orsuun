@@ -4,11 +4,17 @@ using System.Collections.Generic;
 
 namespace Orsuun.Rules.Combat
 {
-    /// <summary>Playable classes in the lane (GDD section 4). Kestrel since 24 Sep 2026; the others come later.</summary>
+    /// <summary>Playable classes in the lane (GDD section 4), one branch each for now. All four since 24 Sep 2026.</summary>
     public enum HeroClass
     {
+        /// <summary>Wrath: melee bruiser with a glaive.</summary>
         Vanguard = 0,
+        /// <summary>Talon: paired knives, best single target.</summary>
         Kestrel = 1,
+        /// <summary>Voidpact: ranged caster, highest burst, low defense.</summary>
+        Wraithsworn = 2,
+        /// <summary>Thunder Rite: storm caller, crit and attack rhythm.</summary>
+        Drumcaller = 3,
     }
 
     public sealed class HeroStats
@@ -60,7 +66,38 @@ namespace Orsuun.Rules.Combat
         public int DurationTicks { get; }
 
         /// <summary>The kit a class fights with.</summary>
-        public static SkillDef[] For(HeroClass cls) => cls == HeroClass.Kestrel ? KestrelTalon() : VanguardWrath();
+        public static SkillDef[] For(HeroClass cls)
+        {
+            switch (cls)
+            {
+                case HeroClass.Kestrel: return KestrelTalon();
+                case HeroClass.Wraithsworn: return WraithswornVoidpact();
+                case HeroClass.Drumcaller: return DrumcallerThunderRite();
+                default: return VanguardWrath();
+            }
+        }
+
+        /// <summary>
+        /// Wraithsworn, Voidpact: GDD "ranged caster, highest burst, low defense; top Korstone kill speed with manual
+        /// casting". Void Lance is the heaviest and slowest burst in the game and finds weak points hardest.
+        /// </summary>
+        public static SkillDef[] WraithswornVoidpact() => new[]
+        {
+            new SkillDef("Void Lance", SkillKind.Burst, 8 * LaneSim.TicksPerSecond, 750),
+            new SkillDef("Grave Tide", SkillKind.Area, 10 * LaneSim.TicksPerSecond, 170),
+            new SkillDef("Pact Frenzy", SkillKind.Haste, 16 * LaneSim.TicksPerSecond, 0, 5 * LaneSim.TicksPerSecond),
+        };
+
+        /// <summary>
+        /// Drumcaller, Thunder Rite: GDD "offensive buffer: crit, attack". Storm Drum hits the whole pack hard, War
+        /// Rhythm is the longest haste, Sky Hammer calls lightning on the toughest foe.
+        /// </summary>
+        public static SkillDef[] DrumcallerThunderRite() => new[]
+        {
+            new SkillDef("Sky Hammer", SkillKind.Burst, 7 * LaneSim.TicksPerSecond, 450),
+            new SkillDef("Storm Drum", SkillKind.Area, 8 * LaneSim.TicksPerSecond, 200),
+            new SkillDef("War Rhythm", SkillKind.Haste, 14 * LaneSim.TicksPerSecond, 0, 7 * LaneSim.TicksPerSecond),
+        };
 
         /// <summary>
         /// Kestrel, Talon branch (paired knives): GDD "best single target, fastest bosses". Heartseeker is a bigger

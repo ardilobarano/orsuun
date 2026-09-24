@@ -18,6 +18,7 @@ Shader "Orsuun/EmberGlow"
         _CrackWidth ("Crack Width", Range(0.002, 0.2)) = 0.025
         _CrackAlways ("Cracks Always On (Korstone)", Range(0, 1)) = 0
         _CrackFadeTop ("Crack Fade Height (object Y, 0 = none)", Float) = 0
+        _CrackRemap ("Repaint Baked Cracks In Glow Colour (Korstone tiers)", Range(0, 1)) = 0
         _RimPower ("Rim Power", Float) = 3
         _Roughness ("Diffuse Softness", Range(0, 1)) = 0.5
         _BodyGlow ("Whole-Surface Glow Share (weapon)", Range(0, 1)) = 0
@@ -54,6 +55,7 @@ Shader "Orsuun/EmberGlow"
             float _CrackWidth;
             float _CrackAlways;
             float _CrackFadeTop;
+            float _CrackRemap;
             float _RimPower;
             float _Roughness;
             float _Debug;
@@ -164,7 +166,8 @@ Shader "Orsuun/EmberGlow"
 
             half4 Frag(Varyings i) : SV_Target
             {
-                half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _Tint;
+                half4 tex = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv);
+                half4 albedo = tex * _Tint;
                 float3 N = normalize(i.normalWS);
                 float3 V = GetWorldSpaceNormalizeViewDir(i.positionWS);
 
@@ -189,6 +192,19 @@ Shader "Orsuun/EmberGlow"
                     half fade = _CrackFadeTop > 0 ? saturate(1.15 - i.positionOS.y / _CrackFadeTop) : 1;
                     crackAmount = crack * _CrackAlways * fade;
                 }
+                // Korstone tiers: the molten cracks painted into the texture are the bright, warm, saturated texels. Repaint
+                // them in the tier's glow colour and light them, so one texture serves every tier's colour.
+                half baked = 0;
+                half bakedHeat = 1;
+                if (_CrackRemap > 0.01)
+                {
+                    half mx = max(tex.r, max(tex.g, tex.b));
+                    half mn = min(tex.r, min(tex.g, tex.b));
+                    half sat = (mx - mn) / max(mx, 0.001);
+                    half warm = saturate((tex.r - tex.b) * 3.0);
+                    baked = saturate((mx - 0.45) * 4.0) * saturate((sat - 0.45) * 4.0) * warm * _CrackRemap;
+                    bakedHeat = 0.55 + 0.45 * mx;
+                }
                 half flicker = 0.86 + 0.14 * sin(_Time.y * 5.0 - i.positionOS.y * 3.0);
                 half3 crackLight = lerp(_GlowColor.rgb, _HotColor.rgb, 0.2) * _Intensity * flicker;
 
@@ -210,7 +226,7 @@ Shader "Orsuun/EmberGlow"
                     emission = levelColor * _Intensity * glow * strength * pulse;
                 }
 
-                half3 color = lerp(lit + emission, crackLight, crackAmount);
+                half3 color = lerp(lit + emission, crackLight * bakedHeat, max(crackAmount, baked));
                 color = MixFog(color, i.fog);
                 return half4(color, 1);
             }

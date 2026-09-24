@@ -327,12 +327,31 @@ def humanoid_layout(verts, height):
     }
 
 
-def rig_humanoid(meshes, root, height, rig_name):
-    """Rigs an A-pose class model with the shared bone names, so the same five actions play on it."""
+def rig_humanoid(meshes, root, height, rig_name, staff=False):
+    """Rigs an A-pose class model with the shared bone names, so the same five actions play on it. staff=True finds a
+    long straight staff in the right hand (the straightest near-vertical line on that side) and pins it to hand.R,
+    so it swings as one piece instead of bending with the head and shoulder."""
     verts = [v.co.copy() for m in meshes for v in m.data.vertices]
     layout = humanoid_layout(verts, height)
+    if staff:
+        import looks
+        a, b = looks.pole_axis(verts, height, max_x=-0.12 * height, radius=0.035)
+        hand = Vector(layout["hand.R"][0])
+        axis = (b - a).normalized()
+        # The hand bone runs up the staff from the grip, so the pinned staff turns about the fist.
+        layout["hand.R"][1] = tuple(hand + axis * 0.12 * height)
     arm, radii = build_from_layout(root, layout, rig_name)
     for m in meshes:
         skin(m, arm, radii)
+        if staff:
+            group = m.vertex_groups.get("hand.R")
+            pinned = 0
+            for v in m.data.vertices:
+                if looks._distance_to_axis(v.co, a, b) < 0.05 and (v.co.z > 0.62 * height or v.co.z < 0.40 * height):
+                    for g in list(v.groups):
+                        m.vertex_groups[g.group].remove([v.index])
+                    group.add([v.index], 1.0, 'REPLACE')
+                    pinned += 1
+            print("staff: %d vertices pinned to hand.R" % pinned)
     key_actions(arm)
     return arm, layout

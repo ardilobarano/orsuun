@@ -34,6 +34,7 @@ Material:
     - _BodyGlow: 0
     - _CrackAlways: 1
     - _CrackFadeTop: 2.4
+    - _CrackRemap: 0
     - _CrackScale: 2.4
     - _CrackWidth: 0.02
     - _Debug: 0
