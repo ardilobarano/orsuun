@@ -23,6 +23,8 @@ namespace Orsuun.Client
         private Text _guildTag;
         private Text _amber;
         private Text _trailTier;
+        private Button _tradeCall;
+        private Text _tradeCallLabel;
         private Text _bountyLabel;
         private RawImage _flag;
         private int _lastLevel;
@@ -210,6 +212,10 @@ namespace Orsuun.Client
             // The Caravan under the flag: a round camel button with the Amber held beneath it.
             Ui.RoundButton("Caravan", canvas, 0.9f, 0.655f, 0.99f, 0.73f, "Caravan", new Color(0.55f, 0.3f, 0.08f), () => root.Caravan.Open(), out _, out _);
             _amber = Ui.Title("Amber", canvas, 0.86f, 0.632f, 1f, 0.656f, "", 20, TextAnchor.MiddleCenter, CaravanPanel.AmberColor);
+            // A trade waiting (someone asks, or a window is open): a call under the next goal; tap it for the window.
+            _tradeCall = Ui.Button("TradeCall", canvas, 0.02f, 0.778f, 0.8f, 0.818f, "", 20, Palette.Alloy, () => root.Trade.Open(), out _tradeCallLabel);
+            _tradeCallLabel.supportRichText = true;
+            _tradeCall.gameObject.SetActive(false);
             // The Campaign Trail under it: a round waystone button with the tier beneath (CLAIM when a reward waits).
             Ui.RoundButton("Trail", canvas, 0.9f, 0.553f, 0.99f, 0.628f, "Trail", new Color(0.1f, 0.35f, 0.36f), () => root.Trail.Open(), out _, out _);
             _trailTier = Ui.Title("TrailTier", canvas, 0.86f, 0.53f, 1f, 0.554f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
@@ -343,6 +349,10 @@ namespace Orsuun.Client
             bool trailReady = trail != null && TrailPanel.AnyReady(trail);
             _trailTier.text = trail == null ? "" : trailReady ? "CLAIM" : "TIER " + trail.tier;
             _trailTier.color = trailReady ? Palette.Sorn : Palette.Parchment;
+            Net.ServerLink.TradeBriefDto trade = _root.Server.Online ? _root.Server.TradeBrief : null;
+            bool calling = trade != null && !_root.Trade.IsOpen && (trade.state == "Open" || trade.incoming);
+            if (_tradeCall.gameObject.activeSelf != calling) _tradeCall.gameObject.SetActive(calling);
+            if (calling) _tradeCallLabel.text = trade.state == "Open" ? $"TRADE WITH {trade.otherName.ToUpperInvariant()}: BACK TO THE WINDOW" : $"{trade.otherName.ToUpperInvariant()} ASKS TO TRADE: ANSWER";
             bool claim = _root.Bounties.AnyClaimable;
             _navBadges[2].gameObject.SetActive(claim);
             BannerLook.Show(_flag, _root.Server.Banner);

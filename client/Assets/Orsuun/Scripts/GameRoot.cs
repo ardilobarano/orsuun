@@ -39,6 +39,7 @@ namespace Orsuun.Client
         public PitsPanel Pits { get; private set; }
         public CaravanPanel Caravan { get; private set; }
         public TrailPanel Trail { get; private set; }
+        public TradePanel Trade { get; private set; }
         public WardrobePanel Wardrobe { get; private set; }
         public CharacterPanel Characters { get; private set; }
         public DepotPanel Depot { get; private set; }
@@ -108,6 +109,8 @@ namespace Orsuun.Client
             Caravan.Init(this);
             Trail = new GameObject("TrailPanel").AddComponent<TrailPanel>();
             Trail.Init(this);
+            Trade = new GameObject("TradePanel").AddComponent<TradePanel>();
+            Trade.Init(this);
             Wardrobe = new GameObject("WardrobePanel").AddComponent<WardrobePanel>();
             Wardrobe.Init(this);
             Characters = new GameObject("CharacterPanel").AddComponent<CharacterPanel>();
@@ -191,6 +194,7 @@ namespace Orsuun.Client
             _openWardrobe = Array.IndexOf(Environment.GetCommandLineArgs(), "-wardrobe") >= 0;
             _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
             _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
+            _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
             // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
             _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
@@ -250,6 +254,7 @@ namespace Orsuun.Client
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
+        private bool _openTrade;
         private bool _enterDungeon;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
@@ -318,6 +323,12 @@ namespace Orsuun.Client
             {
                 _openTrail = false;
                 Trail.Open();
+            }
+            // Dev switch: -trade opens the trade window (screenshots).
+            if (Server.Online && _openTrade && Server.Trail != null)
+            {
+                _openTrade = false;
+                Trade.Open();
             }
             if (Server.Online && _openPits)
             {

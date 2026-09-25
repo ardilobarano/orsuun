@@ -119,3 +119,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   time. A new season needs its costume (a model per class) and mount in `CampaignTrail.Themes` before it opens, or it
   repeats the last one. Anything that spends or grants Amber locks the login row first (`LockLoginAsync`): four
   characters share it.
+- A piece on a direct trade's table has `Item.TradeId` and is out of the bag (`OutOfBag`), like a listed or depot piece;
+  code that ends a trade must release it (`ReleasePiecesAsync`). Direct trade's level and age rules are off on a
+  Development server.

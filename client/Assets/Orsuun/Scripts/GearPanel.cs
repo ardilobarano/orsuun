@@ -355,7 +355,7 @@ namespace Orsuun.Client
         }
 
         /// <summary>Attack, Defense, HP and Crit of a against b: the item's own share, or signed changes in green and red.</summary>
-        private static string Stats(HeroStats a, HeroStats b, bool signed)
+        public static string Stats(HeroStats a, HeroStats b, bool signed)
         {
             var parts = new List<string>();
             void Add(string name, long diff, string unit = "")

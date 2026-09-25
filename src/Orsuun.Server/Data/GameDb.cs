@@ -29,6 +29,7 @@ public sealed class GameDb : DbContext
     public DbSet<FortressBid> FortressBids => Set<FortressBid>();
     public DbSet<DungeonRun> DungeonRuns => Set<DungeonRun>();
     public DbSet<Login> Logins => Set<Login>();
+    public DbSet<TradeSession> Trades => Set<TradeSession>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -139,6 +140,15 @@ public sealed class GameDb : DbContext
         });
 
         b.Entity<DungeonRun>(e => e.HasIndex(r => new { r.AccountId, r.State }));
+
+        b.Entity<TradeSession>(e =>
+        {
+            e.HasIndex(t => new { t.FromId, t.State });
+            e.HasIndex(t => new { t.ToId, t.State });
+            e.Property(t => t.State).HasConversion<int>();
+            e.Property(t => t.FromStep).HasConversion<int>();
+            e.Property(t => t.ToStep).HasConversion<int>();
+        });
 
         b.Entity<LedgerEntry>(e =>
         {

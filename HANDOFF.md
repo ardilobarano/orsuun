@@ -36,6 +36,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | The Caravan, Amber and the wardrobe | Owner, 25 Sep 2026: "add skins, mounts and companions that have expire time, like 1-3-5-7-14 days. equipabble and changeable at gear or a different screen. higher level bosses can drop these, and also we will add a new currency that is only buyable with real money"; a shop screen shown first as a Higgsfield mockup (`docs/concept/screens/mockup-caravan-*.jpg`, `mockup-wardrobe.jpg`). Answers: the currency is **Amber** (not the GDD's Aurels; real money only); **small stats, Metin2 style** (skin HP, mount attack, companion hunting XP or sorn); **mounted combat** (the hero rides and fights from the saddle); **the shop sells every duration, bosses drop short ones** (1-3 days, rarely 5-7), a piece held again adds its days. |
 | Characters and the depot | Owner, 25 Sep 2026: "add character creation with name selection after signing up or loginning in like metin2 screen, total 4 char slots with a common depot of items to trade between each other". Answers: Amber is shared by the account's characters (everything else per character: sorn, level, gear, wardrobe, guild, Pits); the Banner is chosen per account (all four fight for it). |
 | Campaign Trail | Owner, 25 Sep 2026: asked "what to do next", picked "Campaign Trail (Recommended), Maps 5 and 6, Player-to-player trade, More dungeons" (built in that order). From the GDD: an 8 week season of 50 tiers; the day's missions (bounties) pay Trail XP; the free track pays Turnstones, Scrolls of Mercy and a Khan's Alloy every 10 tiers; the paid track the season costume, a mount, 300 Turnstones, 20 Khan's Alloys and 3 Anvil Wards; $9.99, "premium plus" $19.99. Assumptions (not stated by the owner): the paid track costs 650 Amber (the $9.99 pack's) and Trail Plus 1,400 (the $19.99 pack's) with 10 tiers at once, 750 from the Trail; each character climbs and buys its own Trail (only Amber is shared); 600 XP a tier, 100 per daily bounty and 500 per weekly (every daily and one weekly a week finish it in the 8 weeks, the dailies alone do not); free track 5 Turnstones on odd tiers and a Scroll of Mercy on the other even ones; the season's pieces are held until the season ends (at least 14 days) rather than the Caravan's 1-14 days; rewards left unclaimed are handed over when the next season starts; season 1 is "The Amber Road", Mon 21 Sep to Mon 16 Nov 2026 20:00, with the Amber Road Regalia (skin, +5% HP) at paid tier 1 and the Amber Road Courser (mount, +5% attack) at paid tier 50. The Trail does not add to offline yield yet (the GDD lists it among the B_afk sources). |
+| Direct trade | Owner, 25 Sep 2026: the third pick ("Player-to-player trade"), and while it was built: "at trade we need to see stats of items, maybe with clicking" (tapping a piece opens its stat card). From the GDD (section 8, "Direct trade window"): a two-step confirm with a 5 second lock after any change to the offer; level 30 and a 72 hour old account; a 2% tax on the sorn. Assumptions (not stated by the owner): up to 8 pieces and any sorn each side; both lock, then both confirm; an invitation lasts 3 minutes and an idle window 10; your own heroes cannot trade with each other (they share the depot); on the Development playtest server the level and age rules are off so it can be tried at once; the GDD's 12 hour hold for trades far off the Exchange median is not built (no price history yet). |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -493,6 +494,24 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   cold (`RenderingSetup.EnsureMobs`). Backdrops `Backdrops/CinderMarches.jpg` and `Whisperwood.jpg` (also
   `docs/concept/env-cindermarches.jpg`, `env-whisperwood.jpg`) with their own ground tints. `LaneView`: `CinderMobs`,
   `WhisperMobs`, the two bosses, attack sounds.
+
+## Done 25 Sep 2026 (direct trade)
+
+- Direct trade (decision row above). Rules: `Rules/Trade.cs` (`DirectTrade`, `TradeState`, `TradeStep`; `TradeTests`).
+  Server: `GameService.Trade.cs`, table `Trades` (`TradeSession`: both sides' item ids, sorn and step, `ChangedUtc` for
+  the 5 second hold, `TouchedUtc` for the idle close) and `Items.TradeId` (migrations `DirectTrade`, `TradePieces`).
+  `GET /v1/trade`, `POST /v1/trade/invite|accept|cancel|offer|press` (offer puts the whole offer each time; press locks,
+  then confirms). A piece on the table has `TradeId` set and is out of the bag (`Item.OutOfBag`), so it cannot be forged,
+  worn, listed or trimmed by a full bag while the other side looks at it (found in testing: a full bag's loot trim
+  deleted an offered piece); cancelling, the idle close and the trade itself put it back. Every action locks the trade
+  row; the exchange also locks the offered pieces (FOR UPDATE), checks them again, moves this side's sorn on its tracked
+  row and the other side's in one guarded UPDATE (`Sorn >= offered`), and writes a `trade-done` ledger line for each.
+  `/me` and the heartbeat carry `Trade` (a brief: an invitation or an open window). `tools/smoke-trade.sh` (needs a
+  Development server). Client: `TradePanel` (ask by name; answer; the window: their offer, your offer, a sorn field,
+  your bag; every row opens a stat card with the piece's stats, what wearing it would change, etchings and sockets, and
+  OFFER IT / TAKE BACK for your own; LOCK OFFER / CONFIRM with the hold counted down; CANCEL TRADE; polls every 1.5 s),
+  DIRECT TRADE on the Salt Exchange, a call on the HUD when someone asks or a window is open. Screenshot switches
+  `-trade`, `-tradecard`.
 
 ## Store release, waiting on the owner's accounts
 

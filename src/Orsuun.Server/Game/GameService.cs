@@ -730,7 +730,7 @@ public sealed partial class GameService
             list.Add(BossStatus(boss, clock, fought, boss.Hp * freshPool, top, now));
         }
         await _db.SaveChangesAsync(ct);
-        return state with { Bosses = list.ToArray() };
+        return state with { Bosses = list.ToArray(), Trade = await TradeBriefAsync(account, ct) };
     }
 
     private StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null, SocketResultDto? socket = null, TurnResultDto? turn = null,

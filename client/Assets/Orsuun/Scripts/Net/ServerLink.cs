@@ -30,6 +30,8 @@ namespace Orsuun.Client.Net
         public SettlementDto LastSettlement { get; private set; }
         /// <summary>Server item ids for the ItemState instances currently in the session, needed by Equip.</summary>
         public Dictionary<ItemState, string> ItemIds { get; } = new Dictionary<ItemState, string>();
+        /// <summary>The pieces of the last state as the server sent them (bag and worn; listed and depot pieces are not in it).</summary>
+        public ItemDto[] LastItems { get; private set; }
 
         public void MarkLocal() => Status = "LOCAL MODE (-local)";
 
@@ -702,6 +704,49 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>A live direct trade in brief, from the last /me or heartbeat (an invitation to answer, a window to go back to).</summary>
+        public TradeBriefDto TradeBrief { get; private set; }
+        /// <summary>The trade window as the server last showed it (Rules.DirectTrade); id 0 when there is none.</summary>
+        public TradeDto Trade { get; private set; }
+
+        private void ApplyTrade(string json)
+        {
+            Trade = JsonUtility.FromJson<TradeDto>(json);
+            TradeBrief = Trade.id > 0 && (Trade.state == "Invited" || Trade.state == "Open")
+                ? new TradeBriefDto { id = Trade.id, state = Trade.state, incoming = Trade.incoming, otherName = Trade.otherName } : null;
+            if (Trade.hero != null && Trade.hero.inventory != null && !string.IsNullOrEmpty(Trade.hero.accountId)) Apply(Trade.hero);
+        }
+
+        public IEnumerator FetchTrade(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/trade", null, true, ApplyTrade, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>A trade call (invite, accept, cancel, offer, press): the window comes back, or the refusal's message.</summary>
+        private IEnumerator TradeCall(string path, string body, Action<string> done)
+        {
+            string failure = null;
+            yield return Post(path, body, true, ApplyTrade, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        public IEnumerator TradeInvite(string name, Action<string> done) =>
+            TradeCall("/v1/trade/invite", JsonUtility.ToJson(new TradeInviteRequest { requestId = NewRequestId(), name = name }), done);
+
+        public IEnumerator TradeAct(string action, Action<string> done) =>
+            TradeCall("/v1/trade/" + action, JsonUtility.ToJson(new TradeRequest { requestId = NewRequestId(), tradeId = Trade?.id ?? TradeBrief?.id ?? 0 }), done);
+
+        public IEnumerator TradeOffer(string[] itemIds, long sorn, Action<string> done) =>
+            TradeCall("/v1/trade/offer", JsonUtility.ToJson(new TradeOfferRequest { requestId = NewRequestId(), tradeId = Trade?.id ?? 0, itemIds = itemIds, sorn = sorn }), done);
+
+        /// <summary>The hero's state again (after a trade the other side finished).</summary>
+        public IEnumerator RefreshState()
+        {
+            yield return Send("GET", "/v1/me", null, true, json => Apply(JsonUtility.FromJson<StateDto>(json)), _ => { });
+        }
+
         /// <summary>Claims tier <paramref name="tier"/>'s ready rewards on both tracks (0: every reward ready, and last season's).</summary>
         public IEnumerator TrailClaim(int tier, Action<string> done)
         {
@@ -977,6 +1022,8 @@ namespace Orsuun.Client.Net
             if (s.inventory.skins != null) inventory.Skins.AddRange(s.inventory.skins);
             if (s.bosses != null && s.bosses.Length > 0)
             {
+                // Only /me and the heartbeat carry the Commanders, and with them the live trade (none: id 0).
+                TradeBrief = s.trade != null && s.trade.id > 0 ? s.trade : null;
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
             }
@@ -993,6 +1040,7 @@ namespace Orsuun.Client.Net
 
             // Every ItemState is rebuilt below: remember which piece is on the anvil by its server id.
             string anvilId = IdOf(_player.OnAnvil);
+            LastItems = s.items;
             ItemIds.Clear();
             var equipped = new List<ItemState>();
             foreach (ItemDto dto in s.items)
@@ -1136,7 +1184,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
@@ -1144,6 +1192,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class AmberPackRequest { public string requestId; public int packId; }
         [Serializable] public class TrailDto { public int season; public string name; public long secondsLeft; public long xp; public int tier; public int xpIntoTier; public int pass; public long freeClaimed; public long paidClaimed; public int owed; }
         [Serializable] public class TrailClaimRequest { public string requestId; public int tier; }
+        [Serializable] public class TradeBriefDto { public long id; public string state; public bool incoming; public string otherName; }
+        [Serializable] public class TradeDto { public long id; public string state; public bool incoming; public string otherName; public ItemDto[] myItems; public long mySorn; public string myStep; public ItemDto[] theirItems; public long theirSorn; public string theirStep; public int lockLeft; public int taxPercent; public bool rulesRelaxed; public string message; public StateDto hero; }
+        [Serializable] public class TradeInviteRequest { public string requestId; public string name; }
+        [Serializable] public class TradeRequest { public string requestId; public long tradeId; }
+        [Serializable] public class TradeOfferRequest { public string requestId; public long tradeId; public string[] itemIds; public long sorn; }
         [Serializable] public class TrailBuyRequest { public string requestId; public bool plus; }
         [Serializable] public class PitChallengerDto { public string id; public string name; public string tag; public int rating; public string league; public string @class; public string weapon; public int winChancePercent; public bool shade; }
         [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; }

@@ -118,7 +118,9 @@ namespace Orsuun.Client
 
             _message = Ui.Label("Message", canvas, 0.05f, 0.085f, 0.95f, 0.14f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
-            Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
+            // Direct trade (GDD section 8): face to face with another hero, beside the Exchange.
+            Ui.Button("Trade", canvas, 0.03f, 0.015f, 0.47f, 0.075f, "DIRECT TRADE", 26, Palette.Alloy, () => { Close(); _root.Trade.Open(); }, out _);
+            Ui.Button("Close", canvas, 0.5f, 0.015f, 0.97f, 0.075f, "BACK TO THE HUNT", 26, Palette.ButtonIdle, Close, out _);
 
             _sellBox = Ui.Rect("SellBox", canvas, 0f, 0f, 1f, 1f).gameObject;
             Image dim = Ui.Panel("Dim", _sellBox.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.65f));

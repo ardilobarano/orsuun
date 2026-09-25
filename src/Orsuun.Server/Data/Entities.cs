@@ -160,8 +160,14 @@ public sealed class Item
     /// </summary>
     public Guid? DepotLoginId { get; set; }
 
-    /// <summary>Out of the bag: on the Salt Exchange or in the depot (not worn, forged, turned or counted in the bag).</summary>
-    public bool OutOfBag => Listed || DepotLoginId != null;
+    /// <summary>
+    /// On the table of this live direct trade: out of the bag like a listed piece, so it cannot be forged, worn or trimmed
+    /// away by a full bag while the other side looks at it. Cleared when the trade ends.
+    /// </summary>
+    public long? TradeId { get; set; }
+
+    /// <summary>Out of the bag: on the Salt Exchange, in the depot or on a trade table (not worn, forged, turned or counted in the bag).</summary>
+    public bool OutOfBag => Listed || DepotLoginId != null || TradeId != null;
 
     public ItemState ToState()
     {
@@ -503,4 +509,29 @@ public sealed class LedgerEntry
     /// <summary>Human-readable inputs and result, for example "ScrollOfMercy +7->+8 chance=5000 roll=success".</summary>
     [MaxLength(512)] public string Detail { get; set; } = "";
     public long SornDelta { get; set; }
+}
+
+/// <summary>
+/// A direct trade between two characters (Rules.DirectTrade): From asked To. Each side's offer is bag pieces (item ids)
+/// and sorn, with its step (offering, locked, confirmed). Changed only with the row locked (FOR UPDATE).
+/// </summary>
+public sealed class TradeSession
+{
+    public long Id { get; set; }
+    public Guid FromId { get; set; }
+    public Guid ToId { get; set; }
+    public TradeState State { get; set; }
+    [MaxLength(400)] public string FromItems { get; set; } = "";
+    public long FromSorn { get; set; }
+    public TradeStep FromStep { get; set; }
+    [MaxLength(400)] public string ToItems { get; set; } = "";
+    public long ToSorn { get; set; }
+    public TradeStep ToStep { get; set; }
+    public DateTime CreatedUtc { get; set; }
+    /// <summary>The last change to either offer: the buttons wait DirectTrade.LockSeconds after it.</summary>
+    public DateTime ChangedUtc { get; set; }
+    /// <summary>The last action of either side: an idle window closes after DirectTrade.IdleMinutes.</summary>
+    public DateTime TouchedUtc { get; set; }
+    public DateTime? ClosedUtc { get; set; }
+    [MaxLength(64)] public string ClosedReason { get; set; } = "";
 }

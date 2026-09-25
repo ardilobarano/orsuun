@@ -211,7 +211,8 @@ public sealed record StateDto(
     int DungeonRunsLeft = 0,
     long DungeonRunAtSmith = 0,
     WardrobeDto? Wardrobe = null,
-    TrailDto? Trail = null);
+    TrailDto? Trail = null,
+    TradeBriefDto? Trade = null);
 
 /// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
 public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);
@@ -232,6 +233,18 @@ public sealed record TrailDto(int Season, string Name, long SecondsLeft, long Xp
 public sealed record TrailClaimRequest(string RequestId, int Tier);
 /// <summary>Buys the paid track, or Plus (the paid track and ten tiers; from the Trail it costs the difference).</summary>
 public sealed record TrailBuyRequest(string RequestId, bool Plus);
+
+/// <summary>A live direct trade in brief (on /me and the heartbeat): an invitation to answer, or a window to go back to.</summary>
+public sealed record TradeBriefDto(long Id, TradeState State, bool Incoming, string OtherName);
+/// <summary>
+/// The trade window (Rules.DirectTrade). Steps: 0 offering, 1 locked, 2 confirmed. LockLeft: seconds the buttons wait
+/// after the last change. Hero is the hero's state once the trade went through on this request.
+/// </summary>
+public sealed record TradeDto(long Id, TradeState State, bool Incoming, string OtherName, ItemDto[] MyItems, long MySorn, TradeStep MyStep,
+    ItemDto[] TheirItems, long TheirSorn, TradeStep TheirStep, int LockLeft, int TaxPercent, bool RulesRelaxed, string Message, StateDto? Hero = null);
+public sealed record TradeInviteRequest(string RequestId, string Name);
+public sealed record TradeRequest(string RequestId, long TradeId);
+public sealed record TradeOfferRequest(string RequestId, long TradeId, Guid[] ItemIds, long Sorn);
 
 /// <summary>The Pits (Rules.Pits): the record, the three challengers, the board, the shop's currency.</summary>
 public sealed record PitsDto(int Rating, string League, int Wins, int Losses, int Laurels, int TicketsLeft, PitChallengerDto[] Challengers,

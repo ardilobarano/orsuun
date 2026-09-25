@@ -245,6 +245,18 @@ v1.MapPost("/caravan/amber", (HttpContext ctx, AmberPackRequest req, GameService
 v1.MapPost("/wardrobe/wear", (HttpContext ctx, WearRequest req, GameService game, CancellationToken ct) => game.WearAsync(Me(ctx), req, ct));
 v1.MapPost("/trail/claim", (HttpContext ctx, TrailClaimRequest req, GameService game, CancellationToken ct) => game.TrailClaimAsync(Me(ctx), req, ct));
 v1.MapPost("/trail/buy", (HttpContext ctx, TrailBuyRequest req, GameService game, CancellationToken ct) => game.TrailBuyAsync(Me(ctx), req, ct));
+// Direct trade (Rules.DirectTrade): on the playtest server the level 30 and 72 hour rules are lifted so it can be tried.
+v1.MapGet("/trade", (HttpContext ctx, GameService game, CancellationToken ct) => game.TradeAsync(Me(ctx), app.Environment.IsDevelopment(), ct));
+v1.MapPost("/trade/invite", (HttpContext ctx, TradeInviteRequest req, GameService game, CancellationToken ct) =>
+    game.TradeInviteAsync(Me(ctx), req, app.Environment.IsDevelopment(), ct));
+v1.MapPost("/trade/accept", (HttpContext ctx, TradeRequest req, GameService game, CancellationToken ct) =>
+    game.TradeAcceptAsync(Me(ctx), req, app.Environment.IsDevelopment(), ct));
+v1.MapPost("/trade/cancel", (HttpContext ctx, TradeRequest req, GameService game, CancellationToken ct) =>
+    game.TradeCancelAsync(Me(ctx), req, app.Environment.IsDevelopment(), ct));
+v1.MapPost("/trade/offer", (HttpContext ctx, TradeOfferRequest req, GameService game, CancellationToken ct) =>
+    game.TradeOfferAsync(Me(ctx), req, app.Environment.IsDevelopment(), ct));
+v1.MapPost("/trade/press", (HttpContext ctx, TradeRequest req, GameService game, CancellationToken ct) =>
+    game.TradePressAsync(Me(ctx), req, app.Environment.IsDevelopment(), ct));
 v1.MapGet("/depot", (HttpContext ctx, GameService game, CancellationToken ct) => game.DepotAsync(Me(ctx), "", ct));
 v1.MapPost("/depot/put", (HttpContext ctx, DepotRequest req, GameService game, CancellationToken ct) => game.DepotPutAsync(Me(ctx), req, ct));
 v1.MapPost("/depot/take", (HttpContext ctx, DepotRequest req, GameService game, CancellationToken ct) => game.DepotTakeAsync(Me(ctx), req, ct));
