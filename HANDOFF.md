@@ -121,6 +121,17 @@ The GDD has notes for all of this session's features (25 Sep 2026, evening).
 was built; see the two decision rows), then maps 11 and 12 (the Thousand Markers, the Hollow Throne; zone ids move
 first), private messages (whispers), a smaller download (the APK is 366 MB; Google Play's limit is 200 MB), in that
 order. The owner will not top up fal.ai: art runs on Higgsfield (see CLAUDE.md).
+**Asked next, ahead of maps 11 and 12 (owner, 26 Sep 2026):** "we need to have total 5 skills at each hero maybe other ones
+can unlocked at higher levels. also we need good and different effects and animations for each of the 20 skills. work on
+them and show me results before implementing them", then "also make skills effect better for master and grand levels and
+of course coolest for perfect". Proposal published for review (nothing built yet):
+https://claude.ai/artifact/RR175CzDeGFtnuUTkt4X2h (the Skill Codex: the eight new skills from the world bible's branch
+lists, Honed Edge and Bull Rush, Venom Cloud and Shadow Stoop, Grave Chains and Shroud of Night, Hunter's Blessing and
+Mirror Ward; skill 4 at level 30, skill 5 at level 60; a Higgsfield picture of every skill at Normal, Mastered, Grand and
+Peerless and a Kling clip of each; the Peerless class spirits). Wait for the owner's picks, then build: SkillDef kinds
+and numbers through the simulator, `SkillGrades.Slots` 5 and 20 scrolls (grades and `BookStacks`/listings renumbered
+from class * 3 + slot to class * 5 + slot in a migration), five HUD buttons with locks, a cast clip per skill in
+Blender, and the effects per tier in `LaneView`.
 Could come next: maps 11 and 12 (the Thousand Markers, the Hollow Throne; move the zone ids first, see the maps 9 and 10 row; band 10 of looks with them), Oath Renewal (Oathstones for the Archive),
 the Exchange's price history (the direct trade 10:1 hold needs it), Campaign Trail season 2 art before 16 Nov 2026, name frames in the Pit shop, the Mirage Queen's presence (a mirage shimmer,
 ghostlier images, a little taller), Free Lances and the fortress aura for keeps, private messages between friends, password reset by email
