@@ -69,7 +69,7 @@ public sealed partial class GameService
     public async Task<MarketDto> ListItemAsync(Account account, MarketListRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.Listed)
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.OutOfBag)
             ?? throw new GameException("no_item", "You do not own that item.");
         if (item.Equipped) throw new GameException("worn", "Take the piece off before you sell it.");
         if (Market.PriceProblem(request.Price) is string problem) throw new GameException("bad_price", problem);
@@ -103,7 +103,7 @@ public sealed partial class GameService
         if (listing.Status != ListingStatus.Active || listing.ExpiresUtc <= now) throw new GameException("sold", "Someone was quicker: that piece is gone.");
         if (listing.SellerId == account.Id) throw new GameException("own_listing", "That is your own listing.");
         if (account.Sorn < listing.Price) throw new GameException("sorn", "Not enough sorn.");
-        if (account.Items.Count(i => !i.Equipped && !i.Destroyed && !i.Listed) >= MaxLoot) throw new GameException("bag_full", "Your bag is full.");
+        if (account.Items.Count(i => !i.Equipped && !i.Destroyed && !i.OutOfBag) >= MaxLoot) throw new GameException("bag_full", "Your bag is full.");
 
         Item item = await _db.Items.FirstOrDefaultAsync(i => i.Id == listing.ItemId, ct) ?? throw new GameException("no_item", "That piece is gone.");
         long payout = Market.Payout(listing.Price);

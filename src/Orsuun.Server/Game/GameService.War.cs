@@ -13,13 +13,25 @@ namespace Orsuun.Server.Game;
 /// </summary>
 public sealed partial class GameService
 {
-    /// <summary>The oath: once per account, to one of the three Banners.</summary>
+    /// <summary>
+    /// The oath: once per account, to one of the three Banners (owner, 25 Sep 2026: the Banner belongs to the account, so
+    /// all four characters fight for it). The login keeps it for characters made later.
+    /// </summary>
     public async Task<StateDto> SwearAsync(Account account, BannerRequest request, CancellationToken ct)
     {
         if (request.Banner == Banner.None || !Enum.IsDefined(request.Banner)) throw new GameException("bad_banner", "Choose one of the three Banners.");
-        if (account.Banner != Banner.None) throw new GameException("sworn", "You are already sworn to the " + Banners.Def(account.Banner).Name + ".");
+        Banner held = _login?.Banner is Banner b && b != Banner.None ? b : account.Banner;
+        if (held != Banner.None) throw new GameException("sworn", "You are already sworn to the " + Banners.Def(held).Name + ".");
+        DateTime now = DateTime.UtcNow;
         account.Banner = request.Banner;
-        account.SwornUtc = DateTime.UtcNow;
+        account.SwornUtc = now;
+        if (_login != null)
+        {
+            _login.Banner = request.Banner;
+            _login.SwornUtc = now;
+            await _db.Accounts.Where(a => a.LoginId == account.LoginId && a.Id != account.Id)
+                .ExecuteUpdateAsync(s => s.SetProperty(a => a.Banner, request.Banner).SetProperty(a => a.SwornUtc, now), ct);
+        }
         _db.Ledger.Add(Entry(account.Id, null, "oath", request.Banner.ToString(), 0, Guid.NewGuid().ToString("N")));
         await SaveAsync(ct);
         return ToState(account);

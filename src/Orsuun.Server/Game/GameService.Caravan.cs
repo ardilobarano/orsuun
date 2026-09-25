@@ -16,7 +16,7 @@ public sealed partial class GameService
     private static List<WardrobeDef> WornPieces(Account a) =>
         Wardrobe.Worn(new[] { a.WornSkin, a.WornMount, a.WornCompanion }, Wardrobe.Parse(a.Wardrobe), NowUnix);
 
-    private static WardrobeDto WardrobeOf(Account a)
+    private WardrobeDto WardrobeOf(Account a)
     {
         long now = NowUnix;
         List<OwnedPiece> owned = Wardrobe.Parse(a.Wardrobe);
@@ -24,7 +24,8 @@ public sealed partial class GameService
             .OrderBy(p => p.ExpiresUnix).Select(p => new WardrobePieceDto(p.Id, p.ExpiresUnix - now)).ToArray();
         List<WardrobeDef> worn = WornPieces(a);
         string Slot(WardrobeKind kind) => worn.FirstOrDefault(d => d.Kind == kind)?.Id ?? "";
-        return new WardrobeDto(a.Amber, pieces, Slot(WardrobeKind.Skin), Slot(WardrobeKind.Mount), Slot(WardrobeKind.Companion), a.AmberPurchases == 0);
+        return new WardrobeDto(_login?.Amber ?? 0, pieces, Slot(WardrobeKind.Skin), Slot(WardrobeKind.Mount), Slot(WardrobeKind.Companion),
+            (_login?.AmberPurchases ?? 1) == 0);
     }
 
     private static void SetWorn(Account a, WardrobeKind kind, string id)
@@ -72,8 +73,9 @@ public sealed partial class GameService
         WardrobeDef def = Wardrobe.Find(request.PieceId) ?? throw new GameException("no_piece", "The Caravan has no such thing.");
         int price = Wardrobe.Price(def, request.Days);
         if (price < 0) throw new GameException("not_sold", "The Caravan does not sell that for so long.");
-        if (account.Amber < price) throw new GameException("no_amber", "Not enough Amber.");
-        account.Amber -= price;
+        Login login = _login ?? throw new GameException("no_login", "Sign in again.");
+        if (login.Amber < price) throw new GameException("no_amber", "Not enough Amber.");
+        login.Amber -= price;           // Amber is the account's: any of its characters spends it (25 Sep 2026)
         Hold(account, def, request.Days);
         _db.Ledger.Add(Entry(account.Id, null, "caravan", $"{def.Id} {request.Days}d for {price} Amber", 0, request.RequestId));
         await SaveAsync(ct);
@@ -108,9 +110,10 @@ public sealed partial class GameService
         if (!testStore) throw new GameException("store_closed", "Amber goes on sale with the App Store and Google Play release.");
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         AmberPack pack = Amber.Pack(request.PackId) ?? throw new GameException("no_pack", "No such pack.");
-        int paid = Amber.Paid(pack, account.AmberPurchases == 0);
-        account.Amber += paid;
-        account.AmberPurchases++;
+        Login login = _login ?? throw new GameException("no_login", "Sign in again.");
+        int paid = Amber.Paid(pack, login.AmberPurchases == 0);
+        login.Amber += paid;
+        login.AmberPurchases++;
         _db.Ledger.Add(Entry(account.Id, null, "amber-test", $"pack {pack.Id} ({pack.PriceText}) paid {paid} Amber, free on the playtest", 0, request.RequestId));
         await SaveAsync(ct);
         return ToState(account);

@@ -52,7 +52,7 @@ public sealed partial class GameService
             near.Remove(a);
             if (!a.Items.Any(i => i.Equipped && !i.Destroyed)) continue;
             string tag = tags.Where(t => t.Id == a.GuildId).Select(t => t.Tag).FirstOrDefault() ?? "";
-            list.Add(new Challenger(a.Id.ToString(), Banners.GeneratedName(a.Id), tag, a.PitRating, a.Class, Worn(a), Content.LevelFor(a.Xp), a));
+            list.Add(new Challenger(a.Id.ToString(), NameOf(a), tag, a.PitRating, a.Class, Worn(a), Content.LevelFor(a.Xp), a));
         }
         int[] steps = { -1, 0, 1 };
         foreach (int step in steps.Skip(list.Count))
@@ -78,7 +78,7 @@ public sealed partial class GameService
             .OrderByDescending(a => a.PitRating).ThenByDescending(a => a.PitWins).Take(20).ToListAsync(ct);
         var guildIds = top.Where(a => a.GuildId != null).Select(a => a.GuildId!.Value).Distinct().ToList();
         var tags = await _db.Guilds.AsNoTracking().Where(g => guildIds.Contains(g.Id)).Select(g => new { g.Id, g.Tag }).ToListAsync(ct);
-        PitBoardDto[] board = top.Select((a, i) => new PitBoardDto(i + 1, Banners.GeneratedName(a.Id),
+        PitBoardDto[] board = top.Select((a, i) => new PitBoardDto(i + 1, NameOf(a),
             tags.Where(t => t.Id == a.GuildId).Select(t => t.Tag).FirstOrDefault() ?? "", a.PitRating, Pits.League(a.PitRating), a.PitWins, a.PitLosses,
             WeaponLine(Worn(a)), a.Id == account.Id)).ToArray();
 

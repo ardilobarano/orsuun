@@ -191,7 +191,7 @@ public sealed partial class GameService
         Duels.Compress(a, d);
         double edge = Duels.Edge(a, d);
         bool won = Duels.Roll(edge, rng);
-        string foeName = $"[{foe.Tag}] {Banners.GeneratedName(defender.Id)}";
+        string foeName = $"[{foe.Tag}] {NameOf(defender)}";
         BossDef champion = Duels.Stage(foeName, Hero(account), won, seed);
 
         int lane = request.Lane;

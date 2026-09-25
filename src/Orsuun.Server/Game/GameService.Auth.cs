@@ -52,8 +52,8 @@ public sealed partial class GameService
 
     private static void RecordFailure(string key) => FailedLogins.GetOrAdd(key, _ => new ConcurrentQueue<DateTime>()).Enqueue(DateTime.UtcNow);
 
-    /// <summary>Points the device at the account with a fresh session for it.</summary>
-    private async Task<string> BindDeviceAsync(string deviceToken, Account account, CancellationToken ct)
+    /// <summary>Points the device at the login and a character (Guid.Empty: the character screen) with a fresh session.</summary>
+    private async Task<string> BindDeviceAsync(string deviceToken, Guid loginId, Guid accountId, CancellationToken ct)
     {
         DateTime now = DateTime.UtcNow;
         Device? device = await _db.Devices.FirstOrDefaultAsync(d => d.Token == deviceToken, ct);
@@ -62,7 +62,8 @@ public sealed partial class GameService
             device = new Device { Token = deviceToken, CreatedUtc = now };
             _db.Devices.Add(device);
         }
-        device.AccountId = account.Id;
+        device.LoginId = loginId;
+        device.AccountId = accountId;
         device.SessionToken = NewToken();
         device.LastSeenUtc = now;
         return device.SessionToken;
@@ -77,46 +78,56 @@ public sealed partial class GameService
         if (RecentFailures("email:" + email) >= MaxFailedLogins || RecentFailures(ipKey) >= MaxFailedLogins * 4)
             throw new GameException("login_wait", "Too many tries. Wait a few minutes and try again.");
 
-        Account? account = await _db.Accounts.SingleOrDefaultAsync(a => a.Email == email, ct);
-        if (account?.PasswordHash == null || !Passwords.Verify(request.Password ?? "", account.PasswordHash))
+        Login? login = await _db.Logins.SingleOrDefaultAsync(l => l.Email == email, ct);
+        if (login?.PasswordHash == null || !Passwords.Verify(request.Password ?? "", login.PasswordHash))
         {
             RecordFailure("email:" + email);
             RecordFailure(ipKey);
             throw new GameException("bad_login", "Wrong email or password.");
         }
-        ThrowIfBanned(account);
-        if (account.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
-        string session = await BindDeviceAsync(request.DeviceToken, account, ct);
-        _db.Ledger.Add(Entry(account.Id, null, "login", "email sign in", 0, Guid.NewGuid().ToString("N")));
+        // The device moves to this login, on its most recently played character (clients with the character screen show
+        // it anyway; older ones need a hero at once).
+        Guid last = await LastPlayedAsync(login.Id, ct);
+        string session = await BindDeviceAsync(request.DeviceToken, login.Id, last, ct);
         await _db.SaveChangesAsync(ct);
-        return new GuestLoginResponse(account.Id, session, false);
+        int characters = await _db.Accounts.CountAsync(a => a.LoginId == login.Id, ct);
+        return new GuestLoginResponse(last, session, false, login.Id, characters);
     }
 
-    public async Task<StateDto> RegisterAsync(Account account, RegisterRequest request, CancellationToken ct)
+    /// <summary>Sign up: an email and password for the login (the character screen or the game, 25 Sep 2026).</summary>
+    public async Task RegisterAsync(Login login, RegisterRequest request, CancellationToken ct)
     {
-        if (account.Email != null) throw new GameException("registered", "This account already has an email: " + account.Email);
+        if (login.Email != null) throw new GameException("registered", "This account already has an email: " + login.Email);
         string email = AccountRules.NormaliseEmail(request.Email);
         if (AccountRules.EmailProblem(email) is string emailProblem) throw new GameException("bad_email", emailProblem);
         if (AccountRules.PasswordProblem(request.Password) is string passwordProblem) throw new GameException("bad_password", passwordProblem);
-        if (await _db.Accounts.AnyAsync(a => a.Email == email, ct))
+        if (await _db.Logins.AnyAsync(l => l.Email == email, ct))
             throw new GameException("email_taken", "An account with that email exists. Sign in instead.");
-        account.Email = email;
-        account.PasswordHash = Passwords.Hash(request.Password);
-        _db.Ledger.Add(Entry(account.Id, null, "register", "email saved", 0, Guid.NewGuid().ToString("N")));
-        try { await SaveAsync(ct); }
+        login.Email = email;
+        login.PasswordHash = Passwords.Hash(request.Password);
+        try { await _db.SaveChangesAsync(ct); }
         catch (DbUpdateException) { throw new GameException("email_taken", "An account with that email exists. Sign in instead."); }
+    }
+
+    /// <summary>Sign up from the game (older clients): the character's login gets the email.</summary>
+    public async Task<StateDto> RegisterAsync(Account account, RegisterRequest request, CancellationToken ct)
+    {
+        await RegisterAsync(_login ?? throw new GameException("no_login", "Sign in again."), request, ct);
+        _db.Ledger.Add(Entry(account.Id, null, "register", "email saved", 0, Guid.NewGuid().ToString("N")));
+        await SaveAsync(ct);
         return ToState(account);
     }
 
     private List<string>? _logins;
     private Guid _loginsFor;
 
-    /// <summary>The Google / Apple logins linked to the account (loaded with the account per request).</summary>
+    /// <summary>The Google / Apple logins linked to the character's login (loaded with the account per request).</summary>
     private async Task LoadLoginsAsync(Account account, CancellationToken ct)
     {
-        _logins = await _db.ExternalLogins.AsNoTracking().Where(l => l.AccountId == account.Id).Select(l => l.Provider).ToListAsync(ct);
+        _logins = await _db.ExternalLogins.AsNoTracking().Where(l => l.LoginId == account.LoginId).Select(l => l.Provider).ToListAsync(ct);
         _loginsFor = account.Id;
     }
+
 
     private string[]? LoginsOf(Account account) => _loginsFor == account.Id ? _logins?.ToArray() : null;
 
@@ -125,36 +136,40 @@ public sealed partial class GameService
         string.IsNullOrEmpty(session) ? null : await _db.Devices.AsNoTracking().Where(d => d.SessionToken == session).Select(d => d.Token).FirstOrDefaultAsync(ct);
 
     /// <summary>
-    /// A verified Google or Apple identity arrives for the hero being played on a device. Already linked to a hero:
-    /// the device switches to that hero. Not linked yet: it is linked to the hero being played, which keeps its
-    /// progress. A hero has at most one login per provider.
+    /// A verified Google or Apple identity arrives for the login signed in on a device. Already linked to a login: the
+    /// device goes to that login's character screen. Not linked yet: it is linked to this login. A login has at most
+    /// one link per provider.
     /// </summary>
-    public async Task<ExternalLoginResultDto> LinkOrLoginAsync(Guid currentAccountId, string deviceToken, ExternalIdentity identity, CancellationToken ct)
+    public async Task<ExternalLoginResultDto> LinkOrLoginAsync(Guid currentLoginId, string deviceToken, ExternalIdentity identity, CancellationToken ct)
     {
         ExternalLogin? existing = await _db.ExternalLogins.FirstOrDefaultAsync(l => l.Provider == identity.Provider && l.Subject == identity.Subject, ct);
-        Account target;
-        bool linked = false;
         if (existing != null)
         {
-            target = await _db.Accounts.SingleOrDefaultAsync(a => a.Id == existing.AccountId, ct) ?? throw new GameException("no_account", "That hero is gone.");
-            ThrowIfBanned(target);
             if (identity.Email != null) existing.Email = identity.Email;
+            bool switched = existing.LoginId != currentLoginId;
+            Device? device = await _db.Devices.FirstOrDefaultAsync(d => d.Token == deviceToken, ct);
+            Guid last = switched || device == null ? await LastPlayedAsync(existing.LoginId, ct) : device.AccountId;
+            string session = switched || device?.SessionToken == null
+                ? await BindDeviceAsync(deviceToken, existing.LoginId, last, ct)
+                : device.SessionToken;
+            await _db.SaveChangesAsync(ct);
+            return new ExternalLoginResultDto(last, session, switched, false, identity.Provider);
         }
-        else
-        {
-            target = await _db.Accounts.SingleOrDefaultAsync(a => a.Id == currentAccountId, ct) ?? throw new GameException("no_account", "Start the game once, then sign in.");
-            ThrowIfBanned(target);
-            if (await _db.ExternalLogins.AnyAsync(l => l.AccountId == target.Id && l.Provider == identity.Provider, ct))
-                throw new GameException("linked_other", $"This hero is already linked to another {ExternalAuth.Name(identity.Provider)} account.");
-            _db.ExternalLogins.Add(new ExternalLogin { Provider = identity.Provider, Subject = identity.Subject, AccountId = target.Id, Email = identity.Email, CreatedUtc = DateTime.UtcNow });
-            linked = true;
-        }
-        string session = await BindDeviceAsync(deviceToken, target, ct);
-        _db.Ledger.Add(Entry(target.Id, null, "external-login", $"{identity.Provider} linked={linked} switched={target.Id != currentAccountId}", 0, Guid.NewGuid().ToString("N")));
+        if (currentLoginId == Guid.Empty || !await _db.Logins.AnyAsync(l => l.Id == currentLoginId, ct))
+            throw new GameException("no_account", "Start the game once, then sign in.");
+        if (await _db.ExternalLogins.AnyAsync(l => l.LoginId == currentLoginId && l.Provider == identity.Provider, ct))
+            throw new GameException("linked_other", $"This account is already linked to another {ExternalAuth.Name(identity.Provider)} account.");
+        _db.ExternalLogins.Add(new ExternalLogin { Provider = identity.Provider, Subject = identity.Subject, LoginId = currentLoginId, Email = identity.Email, CreatedUtc = DateTime.UtcNow });
+        Device? mine = await _db.Devices.FirstOrDefaultAsync(d => d.Token == deviceToken, ct);
+        string kept = mine?.SessionToken ?? await BindDeviceAsync(deviceToken, currentLoginId, Guid.Empty, ct);
         try { await _db.SaveChangesAsync(ct); }
         catch (DbUpdateException) { throw new GameException("linked_other", "That sign-in was just linked elsewhere. Try again."); }
-        return new ExternalLoginResultDto(target.Id, session, target.Id != currentAccountId, linked, identity.Provider);
+        return new ExternalLoginResultDto(mine?.AccountId ?? Guid.Empty, kept, false, true, identity.Provider);
     }
+
+    /// <summary>The login's most recently played character, or Guid.Empty when it has none.</summary>
+    private async Task<Guid> LastPlayedAsync(Guid loginId, CancellationToken ct) =>
+        await _db.Accounts.AsNoTracking().Where(a => a.LoginId == loginId).OrderByDescending(a => a.LastHeartbeatUtc).Select(a => a.Id).FirstOrDefaultAsync(ct);
 
     /// <summary>Ends this device's session; the client then starts a new guest with a new device token.</summary>
     public async Task SignOutAsync(string? sessionToken, CancellationToken ct)

@@ -4,9 +4,35 @@ using Orsuun.Rules.Combat;
 
 namespace Orsuun.Server.Data;
 
+/// <summary>
+/// The player's account (owner, 25 Sep 2026: four characters per account, Metin2 style). Devices sign in to it; it holds
+/// what the characters share: Amber (Rules.Amber), the Banner sworn once for all four, and the depot (items with
+/// DepotLoginId), and signs in: the email and password, and the Google / Apple links (ExternalLogin.LoginId). Each
+/// character is an Account row (the hero) with LoginId, a slot and a chosen name.
+/// </summary>
+public sealed class Login
+{
+    public Guid Id { get; set; }
+    public DateTime CreatedUtc { get; set; }
+    [MaxLength(64)] public string? CreatedIp { get; set; }
+    /// <summary>Sign in (lower-case, unique) and the password hash ("pbkdf2-sha256$iterations$salt$hash"); null for guests.</summary>
+    [MaxLength(254)] public string? Email { get; set; }
+    [MaxLength(200)] public string? PasswordHash { get; set; }
+    public long Amber { get; set; }
+    public int AmberPurchases { get; set; }
+    public Banner Banner { get; set; } = Banner.None;
+    public DateTime? SwornUtc { get; set; }
+}
+
 public sealed class Account
 {
     public Guid Id { get; set; }
+    /// <summary>The login (player account) this character belongs to, its slot there (0-3) and its chosen name.</summary>
+    public Guid LoginId { get; set; }
+    public int Slot { get; set; }
+    [MaxLength(24)] public string Name { get; set; } = "";
+    /// <summary>Rules.Characters.NameKey(Name): unique among characters.</summary>
+    [MaxLength(24)] public string NameKey { get; set; } = "";
     /// <summary>Opaque device token for the guest login. Real auth (Apple, Google) replaces this later.</summary>
     [MaxLength(128)] public string DeviceToken { get; set; } = "";
     [MaxLength(64)] public string? SessionToken { get; set; }
@@ -50,11 +76,9 @@ public sealed class Account
     public int PitFights { get; set; }
     public int PitRoll { get; set; }
     /// <summary>
-    /// Amber (Rules.Amber, bought with real money only) and the packs bought so far (the first pays double). The wardrobe
-    /// (Rules.Wardrobe.Format: "id:expiresUnix;...") and the piece worn in each slot ("" for none).
+    /// The wardrobe (Rules.Wardrobe.Format: "id:expiresUnix;...") and the piece worn in each slot ("" for none). Amber is
+    /// on the Login since characters came (25 Sep 2026).
     /// </summary>
-    public long Amber { get; set; }
-    public int AmberPurchases { get; set; }
     [MaxLength(2048)] public string Wardrobe { get; set; } = "";
     [MaxLength(64)] public string WornSkin { get; set; } = "";
     [MaxLength(64)] public string WornMount { get; set; } = "";
@@ -75,10 +99,6 @@ public sealed class Account
     /// <summary>Players whose chat lines this account does not see, semicolon separated account ids.</summary>
     [MaxLength(2000)] public string Blocked { get; set; } = "";
     public DateTime? LastChatUtc { get; set; }
-
-    /// <summary>Sign in (lower-case, unique) and the password hash ("pbkdf2-sha256$iterations$salt$hash"); null for guests.</summary>
-    [MaxLength(254)] public string? Email { get; set; }
-    [MaxLength(200)] public string? PasswordHash { get; set; }
 
     /// <summary>Moderation: no chat until this time; banned accounts cannot sign in at all.</summary>
     public DateTime? MutedUntilUtc { get; set; }
@@ -132,6 +152,14 @@ public sealed class Item
     public DateTime CreatedUtc { get; set; }
     /// <summary>On the Salt Exchange: out of the bag, cannot be worn, forged or turned until sold, cancelled or expired.</summary>
     public bool Listed { get; set; }
+    /// <summary>
+    /// In the shared depot of this login: out of the bag like a listed piece. OwnerId stays the character that put it in
+    /// until another takes it out.
+    /// </summary>
+    public Guid? DepotLoginId { get; set; }
+
+    /// <summary>Out of the bag: on the Salt Exchange or in the depot (not worn, forged, turned or counted in the bag).</summary>
+    public bool OutOfBag => Listed || DepotLoginId != null;
 
     public ItemState ToState()
     {
@@ -378,7 +406,8 @@ public sealed class ExternalLogin
     [MaxLength(16)] public string Provider { get; set; } = "";
     /// <summary>The provider's stable user id ("sub").</summary>
     [MaxLength(255)] public string Subject { get; set; } = "";
-    public Guid AccountId { get; set; }
+    /// <summary>The login it signs in to (was the account before characters, 25 Sep 2026).</summary>
+    public Guid LoginId { get; set; }
     [MaxLength(254)] public string? Email { get; set; }
     public DateTime CreatedUtc { get; set; }
 }
@@ -439,6 +468,8 @@ public sealed class MarketListing
 public sealed class Device
 {
     [MaxLength(128)] public string Token { get; set; } = "";
+    /// <summary>The login signed in on this device, and the character chosen there (Guid.Empty: the character screen).</summary>
+    public Guid LoginId { get; set; }
     public Guid AccountId { get; set; }
     [MaxLength(64)] public string? SessionToken { get; set; }
     public DateTime CreatedUtc { get; set; }

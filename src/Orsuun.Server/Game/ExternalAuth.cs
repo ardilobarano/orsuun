@@ -30,8 +30,8 @@ public sealed class ExternalAuth
     public static readonly TimeSpan TicketLife = TimeSpan.FromMinutes(5);
     public const string AppScheme = "orsuun";
 
-    public sealed record Flow(string Id, string Provider, Guid AccountId, string DeviceToken, string State, string Nonce, string Verifier, DateTime Expires);
-    public sealed record Ticket(string Id, Guid AccountId, string DeviceToken, ExternalIdentity Identity, DateTime Expires);
+    public sealed record Flow(string Id, string Provider, Guid LoginId, string DeviceToken, string State, string Nonce, string Verifier, DateTime Expires);
+    public sealed record Ticket(string Id, Guid LoginId, string DeviceToken, ExternalIdentity Identity, DateTime Expires);
 
     private readonly ConcurrentDictionary<string, Flow> _flows = new();
     private readonly ConcurrentDictionary<string, Ticket> _tickets = new();
@@ -87,11 +87,11 @@ public sealed class ExternalAuth
         foreach (var t in _tickets) if (t.Value.Expires < now) _tickets.TryRemove(t.Key, out _);
     }
 
-    public Flow Begin(string provider, Guid accountId, string deviceToken)
+    public Flow Begin(string provider, Guid loginId, string deviceToken)
     {
         if (!Enabled(provider)) throw new GameException("provider_off", Name(provider) + " sign-in is not set up yet.");
         Sweep();
-        var flow = new Flow(Random(18), provider, accountId, deviceToken, Random(24), Random(24), Random(32), DateTime.UtcNow + FlowLife);
+        var flow = new Flow(Random(18), provider, loginId, deviceToken, Random(24), Random(24), Random(32), DateTime.UtcNow + FlowLife);
         _flows[flow.Id] = flow;
         return flow;
     }
@@ -181,7 +181,7 @@ public sealed class ExternalAuth
 
     public string IssueTicket(Flow flow, ExternalIdentity identity)
     {
-        var ticket = new Ticket(Random(24), flow.AccountId, flow.DeviceToken, identity, DateTime.UtcNow + TicketLife);
+        var ticket = new Ticket(Random(24), flow.LoginId, flow.DeviceToken, identity, DateTime.UtcNow + TicketLife);
         _tickets[ticket.Id] = ticket;
         return ticket.Id;
     }

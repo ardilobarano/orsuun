@@ -44,66 +44,132 @@ public sealed partial class GameService
     /// </summary>
     public const int MaxNewAccountsPerIpPerDay = 10;
 
-    public async Task<GuestLoginResponse> GuestLoginAsync(string deviceToken, string? clientIp, CancellationToken ct)
+    /// <summary>
+    /// A device signs in by its token. Since characters came (25 Sep 2026) a device belongs to a Login and has a chosen
+    /// character (or none: the character screen). A new device gets a new Login; with <paramref name="lobby"/> (the current
+    /// client) it starts without a character and the player makes one, otherwise (older clients, smoke tests) a first
+    /// character with a generated name is made and chosen, as before.
+    /// </summary>
+    public async Task<GuestLoginResponse> GuestLoginAsync(string deviceToken, string? clientIp, CancellationToken ct, bool lobby = false)
     {
         if (string.IsNullOrWhiteSpace(deviceToken) || deviceToken.Length > 128)
             throw new GameException("bad_device_token", "Device token missing or too long.");
 
-        // A device signed in to an account (Devices) wins; older accounts are still found by their own device token.
+        // A device signed in before (Devices) wins; older accounts are still found by their own device token.
         Device? device = await _db.Devices.AsNoTracking().FirstOrDefaultAsync(d => d.Token == deviceToken, ct);
-        Account? account = device != null
-            ? await _db.Accounts.SingleOrDefaultAsync(a => a.Id == device.AccountId, ct)
-            : await _db.Accounts.SingleOrDefaultAsync(a => a.DeviceToken == deviceToken, ct);
-        bool created = account == null;
-        if (account == null)
+        Account? account = null;
+        Login? login = null;
+        if (device != null)
+        {
+            login = await _db.Logins.SingleOrDefaultAsync(l => l.Id == device.LoginId, ct);
+            if (device.AccountId != Guid.Empty) account = await _db.Accounts.SingleOrDefaultAsync(a => a.Id == device.AccountId && a.LoginId == device.LoginId, ct);
+        }
+        else
+        {
+            account = await _db.Accounts.SingleOrDefaultAsync(a => a.DeviceToken == deviceToken, ct);
+            if (account != null) login = await _db.Logins.SingleOrDefaultAsync(l => l.Id == account.LoginId, ct);
+        }
+        bool created = login == null;
+        if (login == null)
         {
             DateTime now = DateTime.UtcNow;
             bool loopback = clientIp == null || System.Net.IPAddress.TryParse(clientIp, out var ip) && System.Net.IPAddress.IsLoopback(ip);
             if (!loopback)
             {
                 DateTime since = now.AddDays(-1);
-                int recent = await _db.Accounts.CountAsync(a => a.CreatedIp == clientIp && a.CreatedUtc > since, ct);
+                int recent = await _db.Logins.CountAsync(l => l.CreatedIp == clientIp && l.CreatedUtc > since, ct);
                 if (recent >= MaxNewAccountsPerIpPerDay)
                     throw new GameException("too_many_accounts", "Too many new accounts from this network today. Try again tomorrow.");
             }
-            // A device that signed in elsewhere and whose account is gone may still own the token on an older account.
-            bool tokenTaken = await _db.Accounts.AnyAsync(a => a.DeviceToken == deviceToken, ct);
-            account = new Account
+            login = new Login { Id = Guid.NewGuid(), CreatedUtc = now, CreatedIp = clientIp };
+            _db.Logins.Add(login);
+            account = null;
+            if (!lobby)
             {
-                Id = Guid.NewGuid(),
-                DeviceToken = tokenTaken ? "moved-" + Guid.NewGuid().ToString("N") : deviceToken,
-                CreatedUtc = now,
-                CreatedIp = clientIp,
-                LastHeartbeatUtc = now,
-                Sorn = 20_000,
-                Potions = 30,
-                ScrollsOfMercy = 2,
-                Turnstones = 5,
-            };
-            account.Items.Add(Item.From(NewStarter(EquipSlot.Weapon), account.Id, equipped: true));
-            _db.Accounts.Add(account);
-            _db.Ledger.Add(Entry(account.Id, null, "account-created", "starter kit", account.Sorn, Guid.NewGuid().ToString("N")));
+                // Older clients have no character screen: their first character is made here with a generated name.
+                bool tokenTaken = await _db.Accounts.AnyAsync(a => a.DeviceToken == deviceToken, ct);
+                Guid id = Guid.NewGuid();
+                account = NewCharacter(login, Banners.GeneratedName(id), HeroClass.Vanguard, 0, id);
+                if (!tokenTaken) account.DeviceToken = deviceToken;
+                account.CreatedIp = clientIp;
+            }
         }
 
-        ThrowIfBanned(account);
-        if (account.LaneSeed == 0) NewLane(account);
-        string session = await BindDeviceAsync(deviceToken, account, ct);
+        if (account != null)
+        {
+            ThrowIfBanned(account);
+            if (account.LaneSeed == 0) NewLane(account);
+        }
+        else if (await _db.Accounts.AnyAsync(a => a.LoginId == login.Id && a.BannedUtc != null, ct))
+            throw new GameException("banned", "This account is banned.");
+        string session = await BindDeviceAsync(deviceToken, login.Id, account?.Id ?? Guid.Empty, ct);
         await _db.SaveChangesAsync(ct);
-        return new GuestLoginResponse(account.Id, session, created);
+        int characters = await _db.Accounts.CountAsync(a => a.LoginId == login.Id, ct);
+        return new GuestLoginResponse(account?.Id ?? Guid.Empty, session, created, login.Id, characters);
     }
 
+    /// <summary>A new character with the starter kit, the login's Banner, in the given slot.</summary>
+    private Account NewCharacter(Login login, string name, HeroClass cls, int slot, Guid? id = null)
+    {
+        DateTime now = DateTime.UtcNow;
+        var account = new Account
+        {
+            Id = id ?? Guid.NewGuid(),
+            LoginId = login.Id,
+            Slot = slot,
+            Name = name,
+            NameKey = Characters.NameKey(name),
+            Class = cls,
+            Banner = login.Banner,
+            SwornUtc = login.SwornUtc,
+            CreatedUtc = now,
+            LastHeartbeatUtc = now,
+            Sorn = 20_000,
+            Potions = 30,
+            ScrollsOfMercy = 2,
+            Turnstones = 5,
+        };
+        account.DeviceToken = "char-" + account.Id.ToString("N");
+        account.Items.Add(Item.From(NewStarter(EquipSlot.Weapon), account.Id, equipped: true));
+        NewLane(account);
+        _db.Accounts.Add(account);
+        _db.Ledger.Add(Entry(account.Id, null, "account-created", "starter kit, " + name, account.Sorn, Guid.NewGuid().ToString("N")));
+        return account;
+    }
+
+    /// <summary>
+    /// The character chosen on the session's device, with its login loaded (Amber, Banner). Null when the session is
+    /// unknown; throws "no_character" when the device is on the character screen.
+    /// </summary>
     public async Task<Account?> AuthenticateAsync(string? sessionToken, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(sessionToken)) return null;
         // Sessions live on devices; sessions handed out before devices existed are still on the account.
-        Guid? accountId = await _db.Devices.AsNoTracking().Where(d => d.SessionToken == sessionToken).Select(d => (Guid?)d.AccountId).FirstOrDefaultAsync(ct);
-        Account? account = accountId is Guid id
-            ? await _db.Accounts.SingleOrDefaultAsync(a => a.Id == id, ct)
+        Device? device = await _db.Devices.AsNoTracking().FirstOrDefaultAsync(d => d.SessionToken == sessionToken, ct);
+        if (device != null && device.AccountId == Guid.Empty) throw new GameException("no_character", "Choose a character first.");
+        Account? account = device != null
+            ? await _db.Accounts.SingleOrDefaultAsync(a => a.Id == device.AccountId, ct)
             : await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
         if (account != null) ThrowIfBanned(account);
         if (account?.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
-        if (account != null) await LoadLoginsAsync(account, ct);
+        if (account != null)
+        {
+            _login = await _db.Logins.SingleOrDefaultAsync(l => l.Id == account.LoginId, ct);
+            await LoadLoginsAsync(account, ct);
+        }
         return account;
+    }
+
+    /// <summary>The login behind a session, for the character screen (no character needed).</summary>
+    public async Task<(Login login, Device device)?> AuthenticateLoginAsync(string? sessionToken, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(sessionToken)) return null;
+        Device? device = await _db.Devices.FirstOrDefaultAsync(d => d.SessionToken == sessionToken, ct);
+        if (device == null) return null;
+        Login? login = await _db.Logins.SingleOrDefaultAsync(l => l.Id == device.LoginId, ct);
+        if (login == null) return null;
+        _login = login;
+        return (login, device);
     }
 
     private static void ThrowIfBanned(Account account)
@@ -264,12 +330,12 @@ public sealed partial class GameService
     }
 
     /// <summary>
-    /// Deletes the account and everything tied to it: items, the ledger, client error reports and its Commander fight
-    /// records, chat lines and reports, guild requests, Exchange listings, devices and the email and password (Apple
-    /// requires in-app account deletion). The sessions die with it. War of Banners points stay with the Banner. A guild
-    /// leader's guild passes on (or disbands if empty).
+    /// Deletes one character and everything tied to it: items, the ledger, client error reports and its Commander fight
+    /// records, chat lines and reports, guild requests, Exchange listings, devices on it and its email and password
+    /// (Apple requires in-app account deletion: DeleteAccountAsync runs this for every character of the login). War of
+    /// Banners points stay with the Banner. A guild leader's guild passes on (or disbands if empty).
     /// </summary>
-    public async Task DeleteAccountAsync(Account account, CancellationToken ct)
+    private async Task DeleteCharacterCoreAsync(Account account, CancellationToken ct)
     {
         if (account.GuildId != null)
         {
@@ -279,7 +345,6 @@ public sealed partial class GameService
             await tx.CommitAsync(ct);
         }
         await _db.Devices.Where(d => d.AccountId == account.Id).ExecuteDeleteAsync(ct);
-        await _db.ExternalLogins.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.ChatMessages.Where(m => m.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.ChatReports.Where(r => r.ReporterId == account.Id).ExecuteDeleteAsync(ct);
         await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
@@ -312,7 +377,7 @@ public sealed partial class GameService
     private static Item AnvilItem(Account account, Guid? itemId, EquipSlot slot)
     {
         if (itemId is Guid id)
-            return account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed && !i.Listed)
+            return account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed && !i.OutOfBag)
                 ?? throw new GameException("no_item", "You do not own that item.");
         return account.EquippedIn(slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
     }
@@ -321,7 +386,7 @@ public sealed partial class GameService
     public async Task<StateDto> SocketInsertAsync(Account account, SocketInsertRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.Listed)
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.OutOfBag)
             ?? throw new GameException("no_item", "You do not own that item.");
         ItemState state = item.ToState();
         var inventory = Snapshot(account);
@@ -344,7 +409,7 @@ public sealed partial class GameService
     public async Task<StateDto> SocketClearAsync(Account account, SocketClearRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.Listed)
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.OutOfBag)
             ?? throw new GameException("no_item", "You do not own that item.");
         ItemState state = item.ToState();
         var inventory = Snapshot(account);
@@ -365,7 +430,7 @@ public sealed partial class GameService
     public async Task<StateDto> EquipAsync(Account account, EquipRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.Listed)
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.OutOfBag)
             ?? throw new GameException("no_item", "You do not own that item.");
         if (item.Equipped) throw new GameException("already_equipped", "That piece is already equipped.");
 
@@ -683,7 +748,7 @@ public sealed partial class GameService
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
                 account.HuntMarks, account.PinningWax, account.Tallies),
             ToDto(weapon),
-            account.Items.Where(i => !i.Destroyed && !i.Listed).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
+            account.Items.Where(i => !i.Destroyed && !i.OutOfBag).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
             new ForgePreviewDto(
                 maxed ? 0 : ForgeRules.Cost(state.ItemLevel, state.UpgradeLevel),
@@ -707,11 +772,11 @@ public sealed partial class GameService
             account.Class,
             Board(account),
             account.Banner,
-            Banners.GeneratedName(account.Id),
+            NameOf(account),
             siege,
             etch,
             Brief(account),
-            account.Email,
+            _login?.Email,
             LoginsOf(account),
             DungeonRunsLeft(account),
             account.DungeonRunAtSmith,
@@ -769,7 +834,7 @@ public sealed partial class GameService
 
         // Keep the best MaxLoot loose pieces: new drops compete with what is already stored by rarity, then age.
         // Pieces the player has forged up are never pushed out (bag items can be forged since 24 Sep 2026).
-        var stored = a.Items.Where(x => !x.Equipped && !x.Destroyed && !x.Listed).ToList();
+        var stored = a.Items.Where(x => !x.Equipped && !x.Destroyed && !x.OutOfBag).ToList();
         var keptDrops = new List<ItemState>();
         var candidates = stored.Select(x => (Rarity: x.Rarity, Worked: x.UpgradeLevel > 0 || x.PatienceBp > 0, Stored: (Item?)x, Drop: (ItemState?)null))
             .Concat(i.Loot.Select(d => (Rarity: d.Rarity, Worked: false, Stored: (Item?)null, Drop: (ItemState?)d)))

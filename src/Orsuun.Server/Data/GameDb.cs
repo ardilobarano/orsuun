@@ -28,6 +28,7 @@ public sealed class GameDb : DbContext
     public DbSet<GuildWarEntry> GuildWarEntries => Set<GuildWarEntry>();
     public DbSet<FortressBid> FortressBids => Set<FortressBid>();
     public DbSet<DungeonRun> DungeonRuns => Set<DungeonRun>();
+    public DbSet<Login> Logins => Set<Login>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -39,7 +40,8 @@ public sealed class GameDb : DbContext
             e.HasIndex(a => new { a.CreatedIp, a.CreatedUtc });
             e.HasIndex(a => a.GuildId);
             e.HasIndex(a => a.PitRating);
-            e.HasIndex(a => a.Email).IsUnique();
+            e.HasIndex(a => a.LoginId);
+            e.HasIndex(a => a.NameKey).IsUnique().HasFilter("\"NameKey\" <> ''");
             // Optimistic concurrency on PostgreSQL's xmin system column: two requests for one account never both win.
             e.Property(a => a.Version).IsRowVersion();
             e.HasMany(a => a.Items).WithOne().HasForeignKey(i => i.OwnerId);
@@ -52,6 +54,7 @@ public sealed class GameDb : DbContext
             // Ids are minted in code; without this EF treats a pre-set Guid added via navigation as an existing row.
             e.Property(i => i.Id).ValueGeneratedNever();
             e.HasIndex(i => i.OwnerId);
+            e.HasIndex(i => i.DepotLoginId);
             e.Property(i => i.Rarity).HasConversion<int>();
             e.Property(i => i.Slot).HasConversion<int>();
         });
@@ -84,7 +87,7 @@ public sealed class GameDb : DbContext
         b.Entity<ExternalLogin>(e =>
         {
             e.HasIndex(l => new { l.Provider, l.Subject }).IsUnique();
-            e.HasIndex(l => l.AccountId);
+            e.HasIndex(l => l.LoginId);
         });
         b.Entity<ChatReport>(e => e.HasIndex(r => new { r.MessageId, r.ReporterId }).IsUnique());
         b.Entity<GuildRequest>(e =>
@@ -106,6 +109,13 @@ public sealed class GameDb : DbContext
             e.HasKey(d => d.Token);
             e.HasIndex(d => d.SessionToken);
             e.HasIndex(d => d.AccountId);
+            e.HasIndex(d => d.LoginId);
+        });
+        b.Entity<Login>(e =>
+        {
+            e.Property(l => l.Id).ValueGeneratedNever();
+            e.HasIndex(l => new { l.CreatedIp, l.CreatedUtc });
+            e.HasIndex(l => l.Email).IsUnique();
         });
 
         b.Entity<GuildWarSignup>(e => e.HasKey(w => new { w.Night, w.GuildId }));

@@ -3,8 +3,10 @@ using Orsuun.Rules.Combat;
 
 namespace Orsuun.Server.Game;
 
-public sealed record GuestLoginRequest(string DeviceToken);
-public sealed record GuestLoginResponse(Guid AccountId, string SessionToken, bool Created);
+/// <summary>Lobby: the client has a character screen (25 Sep 2026); a new device then starts without a character.</summary>
+public sealed record GuestLoginRequest(string DeviceToken, bool Lobby = false);
+/// <summary>AccountId is the character chosen on this device (Guid.Empty: the character screen, since 25 Sep 2026).</summary>
+public sealed record GuestLoginResponse(Guid AccountId, string SessionToken, bool Created, Guid LoginId = default, int Characters = 0);
 
 /// <summary>Slot picks the equipped item on the anvil; every item follows the weapon's rules. Omitted = weapon.</summary>
 /// <summary>A tapped skill in a loop report: the lane tick (from the loop start) and the skill index.</summary>
@@ -260,3 +262,16 @@ public sealed record AdminBanRequest(string Reason, bool HideLines = true);
 public sealed record AdminGuildDto(Guid Id, string Name, string Tag, int Level, int Members, string Leader, DateTime CreatedUtc, bool Open);
 public sealed record AdminRenameRequest(string Name, string Tag);
 public sealed record AdminActionDto(DateTime Utc, string Admin, string Action, string Target, string Detail);
+
+/// <summary>The character screen (25 Sep 2026): the login's characters, its Banner and Amber.</summary>
+public sealed record LobbyDto(Guid LoginId, CharacterSlotDto[] Characters, int MaxSlots, Banner Banner, long Amber, string? Email, string Message = "", int Links = 0);
+/// <summary>One character: enough to stand its model on the stage (class, armour and weapon bands, worn skin look).</summary>
+public sealed record CharacterSlotDto(Guid Id, int Slot, string Name, HeroClass Class, int Level, int ArmorBand, int WeaponBand, int WeaponUpgrade,
+    string Skin, int HighestStageCleared, DateTime LastPlayedUtc, string GuildTag, bool Banned);
+/// <summary>HeroClass as its name ("Vanguard"); Slot -1 takes the first free one.</summary>
+public sealed record CreateCharacterRequest(string Name, string HeroClass, int Slot = -1);
+/// <summary>Select or delete; delete needs the character's name typed as Name.</summary>
+public sealed record CharacterRequest(Guid CharacterId, string Name = "");
+public sealed record DepotDto(StateDto State, ItemDto[] Items, int Capacity, string Message = "");
+public sealed record DepotRequest(string RequestId, Guid ItemId);
+

@@ -28,7 +28,7 @@ public sealed partial class GameService
     /// <summary>The name other players see: the generated name, behind the guild tag.</summary>
     private string DisplayName(Account account)
     {
-        string name = Banners.GeneratedName(account.Id);
+        string name = NameOf(account);
         return GuildOf(account) is Guild g ? $"[{g.Tag}] {name}" : name;
     }
 
@@ -80,10 +80,10 @@ public sealed partial class GameService
         {
             DateTime now = DateTime.UtcNow;
             var rows = await _db.Accounts.AsNoTracking().Where(a => a.GuildId == g.Id)
-                .Select(a => new { a.Id, a.Banner, a.GuildRank, a.Xp, a.GuildDonated, a.LastHeartbeatUtc, a.GuildJoinedUtc }).ToListAsync(ct);
+                .Select(a => new { a.Id, a.Name, a.Banner, a.GuildRank, a.Xp, a.GuildDonated, a.LastHeartbeatUtc, a.GuildJoinedUtc }).ToListAsync(ct);
             GuildMemberDto[] members = rows
                 .OrderByDescending(r => r.GuildRank).ThenByDescending(r => r.GuildDonated).ThenBy(r => r.GuildJoinedUtc)
-                .Select(r => new GuildMemberDto(r.Id, Banners.GeneratedName(r.Id), r.Banner, r.GuildRank, Content.LevelFor(r.Xp), r.GuildDonated,
+                .Select(r => new GuildMemberDto(r.Id, ShownName(r.Id, r.Name), r.Banner, r.GuildRank, Content.LevelFor(r.Xp), r.GuildDonated,
                     (int)Math.Max(0, (now - r.LastHeartbeatUtc).TotalMinutes), r.Id == account.Id))
                 .ToArray();
             string[] forts = (await _db.Fortresses.AsNoTracking().Where(f => f.FlagGuildId == g.Id).Select(f => f.Id).ToListAsync(ct))
@@ -94,8 +94,8 @@ public sealed partial class GameService
             if (Guilds.CanManage(account.GuildRank))
             {
                 var asking = await _db.GuildRequests.AsNoTracking().Where(r => r.GuildId == g.Id).OrderBy(r => r.Utc).Take(20)
-                    .Join(_db.Accounts, r => r.AccountId, a => a.Id, (r, a) => new { a.Id, a.Banner, a.Xp, a.LastHeartbeatUtc }).ToListAsync(ct);
-                requests = asking.Select(a => new GuildMemberDto(a.Id, Banners.GeneratedName(a.Id), a.Banner, GuildRank.Member, Content.LevelFor(a.Xp), 0,
+                    .Join(_db.Accounts, r => r.AccountId, a => a.Id, (r, a) => new { a.Id, a.Name, a.Banner, a.Xp, a.LastHeartbeatUtc }).ToListAsync(ct);
+                requests = asking.Select(a => new GuildMemberDto(a.Id, ShownName(a.Id, a.Name), a.Banner, GuildRank.Member, Content.LevelFor(a.Xp), 0,
                     (int)Math.Max(0, (now - a.LastHeartbeatUtc).TotalMinutes), false)).ToArray();
             }
             string channel = Chat.GuildChannel(g.Id);
@@ -142,7 +142,7 @@ public sealed partial class GameService
             Id = Guid.NewGuid(), Name = name, NameKey = key, Tag = tag, Color = request.Color, Open = true, CreatedUtc = now,
         };
         _db.Guilds.Add(guild);
-        GuildEvent(guild, $"{Banners.GeneratedName(account.Id)} founded {name}.");
+        GuildEvent(guild, $"{NameOf(account)} founded {name}.");
         await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
         account.Sorn -= Guilds.CreateCost;
         account.GuildId = guild.Id;
@@ -170,7 +170,7 @@ public sealed partial class GameService
             if (await _db.GuildRequests.CountAsync(r => r.AccountId == account.Id, ct) >= Guilds.MaxRequests)
                 throw new GameException("requests_full", $"You can ask at most {Guilds.MaxRequests} guilds at once.");
             _db.GuildRequests.Add(new GuildRequest { GuildId = guild.Id, AccountId = account.Id, Utc = DateTime.UtcNow });
-            SystemLine(Chat.GuildChannel(guild.Id), $"{Banners.GeneratedName(account.Id)} asks to join.");
+            SystemLine(Chat.GuildChannel(guild.Id), $"{NameOf(account)} asks to join.");
             _db.Ledger.Add(Entry(account.Id, null, "guild-ask", $"guild={guild.Id}", 0, request.RequestId));
             await SaveAsync(ct);
             await tx.CommitAsync(ct);
@@ -181,7 +181,7 @@ public sealed partial class GameService
         account.GuildRank = GuildRank.Member;
         account.GuildJoinedUtc = DateTime.UtcNow;
         account.GuildDonated = 0;
-        GuildEvent(guild, $"{Banners.GeneratedName(account.Id)} joined.");
+        GuildEvent(guild, $"{NameOf(account)} joined.");
         await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
         _db.Ledger.Add(Entry(account.Id, null, "guild-join", $"guild={guild.Id}", 0, request.RequestId));
         await SaveAsync(ct);
@@ -197,7 +197,7 @@ public sealed partial class GameService
     {
         Guid id = InGuild(account).GuildId!.Value;
         Guild guild = await LockGuildAsync(id, ct);
-        string name = Banners.GeneratedName(account.Id);
+        string name = NameOf(account);
         var heir = await _db.Accounts.AsNoTracking().Where(a => a.GuildId == id && a.Id != account.Id)
             .OrderByDescending(a => a.GuildRank).ThenBy(a => a.GuildJoinedUtc).Select(a => new { a.Id }).FirstOrDefaultAsync(ct);
         if (heir == null)
@@ -214,7 +214,7 @@ public sealed partial class GameService
             if (account.GuildRank == GuildRank.Leader)
             {
                 await _db.Accounts.Where(a => a.Id == heir.Id).ExecuteUpdateAsync(s => s.SetProperty(a => a.GuildRank, GuildRank.Leader), ct);
-                GuildEvent(guild, $"{name} left; {Banners.GeneratedName(heir.Id)} leads now.");
+                GuildEvent(guild, $"{name} left; {await NameOfAsync(heir.Id, ct)} leads now.");
             }
             else GuildEvent(guild, $"{name} left.");
         }
@@ -235,7 +235,7 @@ public sealed partial class GameService
         GuildRequest ask = await _db.GuildRequests.FirstOrDefaultAsync(r => r.GuildId == id && r.AccountId == request.AccountId, ct)
             ?? throw new GameException("no_request", "That request is gone.");
         _db.GuildRequests.Remove(ask);
-        string them = Banners.GeneratedName(request.AccountId);
+        string them = await NameOfAsync(request.AccountId, ct);
         string text;
         if (request.Accept)
         {
@@ -246,7 +246,7 @@ public sealed partial class GameService
             if (joined == 1)
             {
                 await _db.GuildRequests.Where(r => r.AccountId == request.AccountId && r.Id != ask.Id).ExecuteDeleteAsync(ct);
-                text = $"{them} joined, let in by {Banners.GeneratedName(account.Id)}.";
+                text = $"{them} joined, let in by {NameOf(account)}.";
                 GuildEvent(guild, text);
             }
             else text = them + " has joined another guild.";
@@ -283,11 +283,12 @@ public sealed partial class GameService
         await _db.Accounts.Where(a => a.Id == request.AccountId && a.GuildId == id).ExecuteUpdateAsync(s => s
             .SetProperty(a => a.GuildId, (Guid?)null).SetProperty(a => a.GuildRank, GuildRank.Member)
             .SetProperty(a => a.GuildJoinedUtc, (DateTime?)null).SetProperty(a => a.GuildDonated, 0L), ct);
-        GuildEvent(guild, $"{Banners.GeneratedName(request.AccountId)} was sent away by {Banners.GeneratedName(account.Id)}.");
+        string gone = await NameOfAsync(request.AccountId, ct);
+        GuildEvent(guild, $"{gone} was sent away by {NameOf(account)}.");
         _db.Ledger.Add(Entry(account.Id, null, "guild-kick", $"guild={id} member={request.AccountId}", 0, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
-        return await ViewAsync(account, null, Banners.GeneratedName(request.AccountId) + " is no longer in the guild.", ct);
+        return await ViewAsync(account, null, gone + " is no longer in the guild.", ct);
     }
 
     /// <summary>The leader promotes to officer, demotes to member, or hands over the lead (becoming an officer).</summary>
@@ -305,7 +306,7 @@ public sealed partial class GameService
             && await _db.Accounts.CountAsync(a => a.GuildId == id && a.GuildRank == GuildRank.Officer && a.Id != request.AccountId, ct) >= Guilds.MaxOfficers)
             throw new GameException("officers_full", $"A guild has at most {Guilds.MaxOfficers} officers.");
         await _db.Accounts.Where(a => a.Id == request.AccountId && a.GuildId == id).ExecuteUpdateAsync(s => s.SetProperty(a => a.GuildRank, request.Rank), ct);
-        string them = Banners.GeneratedName(request.AccountId);
+        string them = await NameOfAsync(request.AccountId, ct);
         string text;
         if (request.Rank == GuildRank.Leader)
         {

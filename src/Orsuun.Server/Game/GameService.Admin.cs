@@ -42,7 +42,7 @@ public sealed partial class GameService
         string ipKey = "admin-ip:" + (clientIp ?? "?");
         if (RecentFailures("admin:" + email) >= MaxFailedLogins || RecentFailures(ipKey) >= MaxFailedLogins)
             throw new GameException("login_wait", "Too many tries. Wait a few minutes and try again.");
-        Account? account = admins.Contains(email) ? await _db.Accounts.AsNoTracking().SingleOrDefaultAsync(a => a.Email == email, ct) : null;
+        Login? account = admins.Contains(email) ? await _db.Logins.AsNoTracking().SingleOrDefaultAsync(l => l.Email == email, ct) : null;
         if (account?.PasswordHash == null || !Passwords.Verify(request.Password ?? "", account.PasswordHash))
         {
             RecordFailure("admin:" + email);
@@ -71,7 +71,7 @@ public sealed partial class GameService
             await _db.Accounts.CountAsync(ct),
             await _db.Accounts.CountAsync(a => a.LastHeartbeatUtc > day, ct),
             await _db.Accounts.CountAsync(a => a.CreatedUtc > day, ct),
-            await _db.Accounts.CountAsync(a => a.Email != null, ct),
+            await _db.Logins.CountAsync(l => l.Email != null, ct),
             await _db.ChatMessages.CountAsync(m => m.Utc > day && m.AccountId != Guid.Empty, ct),
             await _db.ChatMessages.CountAsync(m => m.Reports > 0 && !m.Reviewed, ct),
             await _db.Guilds.CountAsync(ct),
@@ -115,19 +115,23 @@ public sealed partial class GameService
         await _db.SaveChangesAsync(ct);
     }
 
-    private static AdminPlayerDto PlayerDto(Account a, string? guildTag, int reported) =>
-        new(a.Id, Banners.GeneratedName(a.Id), Mask(a.Email), a.Banner, guildTag ?? "", Content.LevelFor(a.Xp), a.CreatedUtc, a.LastHeartbeatUtc,
+    private static AdminPlayerDto PlayerDto(Account a, string? email, string? guildTag, int reported) =>
+        new(a.Id, NameOf(a), Mask(email), a.Banner, guildTag ?? "", Content.LevelFor(a.Xp), a.CreatedUtc, a.LastHeartbeatUtc,
             a.MutedUntilUtc > DateTime.UtcNow ? a.MutedUntilUtc : null, a.BannedUtc, a.BanReason, reported);
 
     /// <summary>Players by generated name, email, account id or guild tag (playtest scale: names are computed).</summary>
     public async Task<AdminPlayerDto[]> AdminPlayersAsync(string? q, CancellationToken ct)
     {
-        var rows = await _db.Accounts.AsNoTracking().IgnoreAutoIncludes()
-            .Select(a => new { a.Id, a.Email, a.GuildId, a.LastHeartbeatUtc, a.BannedUtc, a.MutedUntilUtc }).ToListAsync(ct);
+        // The email is the login's (25 Sep 2026: a login holds up to four characters).
+        var emails = await _db.Logins.AsNoTracking().Where(l => l.Email != null).Select(l => new { l.Id, l.Email }).ToDictionaryAsync(l => l.Id, l => l.Email, ct);
+        var rows = (await _db.Accounts.AsNoTracking().IgnoreAutoIncludes()
+            .Select(a => new { a.Id, a.Name, a.LoginId, a.GuildId, a.LastHeartbeatUtc, a.BannedUtc, a.MutedUntilUtc }).ToListAsync(ct))
+            .Select(a => new { a.Id, a.Name, a.LoginId, Email = emails.TryGetValue(a.LoginId, out string? e) ? e : null, a.GuildId, a.LastHeartbeatUtc, a.BannedUtc, a.MutedUntilUtc })
+            .ToList();
         var tags = await _db.Guilds.AsNoTracking().Select(g => new { g.Id, g.Tag }).ToDictionaryAsync(g => g.Id, g => g.Tag, ct);
         string text = (q ?? "").Trim().ToLowerInvariant();
         var hits = rows.Where(r => text.Length == 0
-                || Banners.GeneratedName(r.Id).ToLowerInvariant().Contains(text)
+                || ShownName(r.Id, r.Name).ToLowerInvariant().Contains(text)
                 || r.Id.ToString().StartsWith(text)
                 || (r.Email ?? "").Contains(text)
                 || (r.GuildId is Guid g && tags.TryGetValue(g, out string? tag) && tag.ToLowerInvariant() == text))
@@ -137,7 +141,7 @@ public sealed partial class GameService
         var reported = await _db.ChatMessages.AsNoTracking().Where(m => hits.Contains(m.AccountId) && m.Reports > 0)
             .GroupBy(m => m.AccountId).Select(x => new { x.Key, Count = x.Count() }).ToListAsync(ct);
         return hits.Select(id => accounts.First(a => a.Id == id))
-            .Select(a => PlayerDto(a, a.GuildId is Guid g && tags.TryGetValue(g, out string? tag) ? tag : null,
+            .Select(a => PlayerDto(a, emails.TryGetValue(a.LoginId, out string? e) ? e : null, a.GuildId is Guid g && tags.TryGetValue(g, out string? tag) ? tag : null,
                 reported.Where(r => r.Key == a.Id).Select(r => r.Count).FirstOrDefault()))
             .ToArray();
     }
@@ -150,7 +154,7 @@ public sealed partial class GameService
         Account account = await AccountForAdminAsync(id, ct);
         int minutes = Math.Clamp(request.Minutes, 0, 60 * 24 * 365);
         account.MutedUntilUtc = minutes == 0 ? null : DateTime.UtcNow.AddMinutes(minutes);
-        Log(admin, minutes == 0 ? "unmute" : "mute", id.ToString(), minutes == 0 ? Banners.GeneratedName(id) : $"{Banners.GeneratedName(id)} for {minutes} min: {request.Reason}");
+        Log(admin, minutes == 0 ? "unmute" : "mute", id.ToString(), minutes == 0 ? NameOf(account) : $"{NameOf(account)} for {minutes} min: {request.Reason}");
         await SaveAsync(ct);
     }
 
@@ -178,7 +182,7 @@ public sealed partial class GameService
         }
         if (request.HideLines) await _db.ChatMessages.Where(m => m.AccountId == id).ExecuteUpdateAsync(s => s.SetProperty(m => m.Hidden, true).SetProperty(m => m.Reviewed, true), ct);
         await _db.Devices.Where(d => d.AccountId == id).ExecuteUpdateAsync(s => s.SetProperty(d => d.SessionToken, (string?)null), ct);
-        Log(admin, "ban", id.ToString(), $"{Banners.GeneratedName(id)}: {account.BanReason} (lines hidden: {request.HideLines}, listings closed: {listed.Count})");
+        Log(admin, "ban", id.ToString(), $"{NameOf(account)}: {account.BanReason} (lines hidden: {request.HideLines}, listings closed: {listed.Count})");
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
     }
@@ -188,7 +192,7 @@ public sealed partial class GameService
         Account account = await AccountForAdminAsync(id, ct);
         account.BannedUtc = null;
         account.BanReason = null;
-        Log(admin, "unban", id.ToString(), Banners.GeneratedName(id));
+        Log(admin, "unban", id.ToString(), NameOf(account));
         await SaveAsync(ct);
     }
 
@@ -200,12 +204,12 @@ public sealed partial class GameService
         var guilds = await query.OrderByDescending(g => g.CreatedUtc).Take(100).ToListAsync(ct);
         var ids = guilds.Select(g => (Guid?)g.Id).ToList();
         var members = await _db.Accounts.AsNoTracking().Where(a => ids.Contains(a.GuildId))
-            .Select(a => new { a.Id, a.GuildId, a.GuildRank }).ToListAsync(ct);
+            .Select(a => new { a.Id, a.Name, a.GuildId, a.GuildRank }).ToListAsync(ct);
         return guilds.Select(g =>
         {
             var mine = members.Where(m => m.GuildId == g.Id).ToList();
             var leader = mine.FirstOrDefault(m => m.GuildRank == GuildRank.Leader);
-            return new AdminGuildDto(g.Id, g.Name, g.Tag, Guilds.Level(g.Xp), mine.Count, leader == null ? "" : Banners.GeneratedName(leader.Id), g.CreatedUtc, g.Open);
+            return new AdminGuildDto(g.Id, g.Name, g.Tag, Guilds.Level(g.Xp), mine.Count, leader == null ? "" : ShownName(leader.Id, leader.Name), g.CreatedUtc, g.Open);
         }).ToArray();
     }
 
