@@ -78,8 +78,12 @@ deployed (migrations `Dungeons` and `Pits`; database copy first: `~/orsuun-backu
 installed on the iPhone and put on the APK link (25 Sep 2026, about 01:45). Then the owner asked for timed skins,
 mounts and companions, Amber and a shop screen (the Caravan and the wardrobe: deployed with migration `Wardrobe` and on
 the APK, 25 Sep; the iPhone was not connected), costume models for the skins (APK), and Metin2-style character select
-with four slots and a shared depot (built and committed locally; deploying needs the migration `Characters`, which
-reshapes accounts into logins: take a database copy first).
+with four slots and a shared depot: pushed and deployed on 25 Sep (migration `Characters`, which reshaped every hero
+into slot 1 of its own login; copy first: `~/orsuun-backups/playtest-before-characters-2026-09-25.sql.gz`), APK on the
+download link. The owner's iPhone was not connected (devicectl "unavailable"): install the current build when it is.
+The owner's first playtest hero (a guest from 24 Sep, Ember Banner, in a guild) was deleted from a device with MENU ->
+DELETE ACCOUNT between 22:31 and 22:57 UTC on 24 Sep; it is in `~/orsuun-backups/playtest-before-dungeons-pits-2026-09-25.sql.gz`
+if the owner wants it back (asked, not answered yet).
 
 Waiting on the owner: the Hetzner Storage Box for database backups (they will buy it later); the paid Apple Developer
 Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
