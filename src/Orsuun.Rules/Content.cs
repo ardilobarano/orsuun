@@ -7,8 +7,9 @@ namespace Orsuun.Rules
 {
     public sealed class MapDef
     {
-        public MapDef(int id, string name, int levelMin, int levelMax, string material, string bossName, string[] mobNames)
+        public MapDef(int id, string name, int levelMin, int levelMax, string material, string bossName, string[] mobNames, int bossPercent = 100)
         {
+            BossPercent = bossPercent;
             Id = id;
             Name = name;
             LevelMin = levelMin;
@@ -25,6 +26,9 @@ namespace Orsuun.Rules
         public string Material { get; }
         public string BossName { get; }
         public string[] MobNames { get; }
+        /// <summary>The map boss's HP and attack against the curve (100: on it). Past the +9 cap the gear climb is item level
+        /// and rarity only, so the last boss needs a little more to stay a gate.</summary>
+        public int BossPercent { get; }
         public const int StagesPerMap = 10;
     }
 
@@ -107,6 +111,8 @@ namespace Orsuun.Rules
             new MapDef(4, "Whitefang Range", 30, 40, "Frozen Marrow", "Nine-Winters", new[] { "Frost Bear", "Ice Wight", "Snow Hag" }),
             new MapDef(5, "The Cinder Marches", 40, 50, "Cinder Heart", "Azhdar the Furnace Wyrm", new[] { "Ash Fiend", "Magma Hound", "Flame Cultist" }),
             new MapDef(6, "Whisperwood", 50, 58, "Whisper Bark", "The Lantern Widow", new[] { "Hollowed Dead", "Hanging Spirit", "Lantern Wisp" }),
+            new MapDef(7, "The Bloodbirch", 58, 66, "Bloodbirch Resin", "The Rootfather", new[] { "Red Treant", "Birch Stalker", "Sap Horror" }),
+            new MapDef(8, "The Drowned Steppe", 66, 74, "Serpent Scale", "The Coil Mother", new[] { "Marsh Serpent", "Bog Rider", "Leech Swarm" }, bossPercent: 105),
         };
 
         public static readonly ZoneDef[] Zones =
@@ -204,8 +210,8 @@ namespace Orsuun.Rules
                 SornPerMob = 150 * hpPct / 100,
                 XpPerMob = 10 * hpPct / 100,
                 FinalEncounter = inMap == MapDef.StagesPerMap ? FinalEncounter.Boss : FinalEncounter.Korstone,
-                BossHp = 9000 * hpPct / 100,
-                BossAttack = 95 * atkPct / 100,
+                BossHp = 9000L * hpPct / 100 * map.BossPercent / 100,
+                BossAttack = 95L * atkPct / 100 * map.BossPercent / 100,
                 BossName = map.BossName,
                 MaterialName = map.Material,
                 GearItemLevel = map.LevelMin + (map.LevelMax - map.LevelMin) * (inMap - 1) / (MapDef.StagesPerMap - 1),

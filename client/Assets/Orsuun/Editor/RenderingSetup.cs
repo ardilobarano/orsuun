@@ -219,7 +219,7 @@ namespace Orsuun.Client.EditorTools
                 mat.SetTexture("_BaseMap", tex);
                 bool ember = id == "Wolf" || id == "Boar" || id == "Greyjaw";   // the Hollowed; people and other beasts are not ember-veined
                 // The Cinder Marches burn from within; Whisperwood's dead glow cold (25 Sep 2026).
-                bool lava = id == "AshFiend" || id == "MagmaHound" || id == "Azhdar";
+                bool lava = id == "AshFiend" || id == "MagmaHound" || id == "Azhdar" || id == "SapHorror";   // and the Bloodbirch's glowing sap
                 bool ghost = id == "HangingSpirit" || id == "LanternWisp" || id == "LanternWidow" || id == "StoneSentinel" || id == "LastCarver";   // and the Archive's glowing runes
                 // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
                 mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
@@ -322,7 +322,7 @@ namespace Orsuun.Client.EditorTools
         private static void EnsureBackdrops()
         {
             Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
-            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood", "SilkWarren", "CarversArchive" })
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood", "SilkWarren", "CarversArchive", "Bloodbirch", "DrownedSteppe" })
             {
                 string texPath = Res + "Backdrops/" + zone + ".jpg";
                 if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))
@@ -407,6 +407,7 @@ namespace Orsuun.Client.EditorTools
                 ("FrostPasture", Orsuun.Rules.Combat.ZoneType.HuntingGround, 103), ("HollowSpire", Orsuun.Rules.Combat.ZoneType.Campaign, 311),
                 ("CinderMarches", Orsuun.Rules.Combat.ZoneType.Campaign, 45), ("Whisperwood", Orsuun.Rules.Combat.ZoneType.Campaign, 55),
                 ("SilkWarren", Orsuun.Rules.Combat.ZoneType.Campaign, 321), ("CarversArchive", Orsuun.Rules.Combat.ZoneType.Campaign, 331),
+                ("Bloodbirch", Orsuun.Rules.Combat.ZoneType.Campaign, 65), ("DrownedSteppe", Orsuun.Rules.Combat.ZoneType.Campaign, 75),
             };
             Directory.CreateDirectory("../artifacts");
             // ORSUUN_FLOOR_KEYS limits the maps ("HuntingGround,SaltFlats"), ORSUUN_FLOOR_VARIANTS the candidates ("_C,_D").
@@ -670,8 +671,8 @@ namespace Orsuun.Client.EditorTools
                 view.SetGear(glow);
                 Capture(cam, "../artifacts/hero-" + name + ".png", 700, 1000);
             }
-            // The new bands, 30 to 59: armour and weapon of the same band.
-            for (int t = 3; t <= 5; t++)
+            // The later bands, 30 to 79: armour and weapon of the same band.
+            for (int t = 3; t <= 7; t++)
             {
                 view.SetLooks("Armor_T" + t, "Weapon_T" + t);
                 view.SetGear(none);
@@ -690,7 +691,7 @@ namespace Orsuun.Client.EditorTools
 
             // The other classes, each armour band drawn so far: idle, wind-up and strike, and a run stride on band 0.
             foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
-                for (int band = 0; band <= 5; band++)
+                for (int band = 0; band <= 7; band++)
                 {
                     view.SetHeroClass(cls, band);
                     foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.4f), ("Attack", 0.57f), ("Run", 0.25f) })

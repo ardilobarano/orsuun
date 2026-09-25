@@ -8,9 +8,9 @@ namespace Orsuun.Rules.Tests;
 public class StageAndGearTests
 {
     [Fact]
-    public void Six_maps_of_ten_stages_each_end_at_their_boss()
+    public void Eight_maps_of_ten_stages_each_end_at_their_boss()
     {
-        Assert.Equal(60, Content.TotalStages);
+        Assert.Equal(80, Content.TotalStages);
         Assert.Equal(FinalEncounter.Korstone, Content.Stage(1).FinalEncounter);
         Assert.Equal(FinalEncounter.Boss, Content.Stage(10).FinalEncounter);
         Assert.Equal("The Oathfields 7", Content.StageName(7));
@@ -26,12 +26,18 @@ public class StageAndGearTests
         Assert.Equal("The Lantern Widow", Content.Stage(60).BossName);
         Assert.Equal("Whisper Bark", Content.Stage(55).MaterialName);
         Assert.Equal(58, Content.Stage(60).GearItemLevel);
+        // The Bloodbirch (the Rootfather, levels 58-66) and the Drowned Steppe (the Coil Mother, levels 66-74).
+        Assert.Equal("The Bloodbirch 1", Content.StageName(61));
+        Assert.Equal("The Rootfather", Content.Stage(70).BossName);
+        Assert.Equal("The Coil Mother", Content.Stage(80).BossName);
+        Assert.Equal("Serpent Scale", Content.Stage(75).MaterialName);
+        Assert.Equal(74, Content.Stage(80).GearItemLevel);
         Assert.Equal(FinalEncounter.Korstone, Content.Stage(35).FinalEncounter);
         // Each map's gear levels continue the last: Gorak Pass drops item level 10 to 20.
         Assert.Equal(10, Content.Stage(11).GearItemLevel);
         Assert.Equal(40, Content.Stage(40).GearItemLevel);
         // A new map opens a little above the last boss stage's mobs, never below.
-        for (int map = 2; map <= 6; map++)
+        for (int map = 2; map <= 8; map++)
             Assert.True(Content.Stage(map * 10 - 9).MobHp >= Content.Stage(map * 10 - 10).MobHp * 9 / 10);
     }
 
@@ -48,6 +54,8 @@ public class StageAndGearTests
     [InlineData(4, 40, 40, 7, 30, 30, 7)]
     [InlineData(5, 50, 50, 7, 40, 40, 7)]
     [InlineData(6, 58, 58, 8, 50, 50, 7)]
+    [InlineData(7, 66, 66, 9, 58, 58, 8)]
+    [InlineData(8, 74, 74, 9, 66, 66, 9)]
     public void Each_map_boss_is_a_power_check(int map, int level, int itemLevel, int upgrade, int lastLevel, int lastItemLevel, int lastUpgrade)
     {
         // GDD section 2: map bosses gate the next map. A hero geared for the map clears its boss; the last map's cannot.

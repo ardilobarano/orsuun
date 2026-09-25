@@ -125,4 +125,33 @@ public class ClassBalanceTests
         Assert.True(s50 >= 7 && s60 >= 7, $"{cls}: {s50}/10, {s60}/10");
         Assert.True(s60Low <= 3, $"{cls} at +5: {s60Low}/10");
     }
+
+    /// <summary>
+    /// The Bloodbirch and the Drowned Steppe (25 Sep 2026): past the +9 cap the rarity carries the climb. Every class
+    /// clears the Rootfather and the Coil Mother with an Epic +9 set; none does with the Salt Sea's +9.
+    /// </summary>
+    [Theory]
+    [InlineData(HeroClass.Vanguard)]
+    [InlineData(HeroClass.Kestrel)]
+    [InlineData(HeroClass.Wraithsworn)]
+    [InlineData(HeroClass.Drumcaller)]
+    public void The_seventh_and_eighth_map_bosses_ask_for_epic_gear(HeroClass cls)
+    {
+        HeroStats Epic(int level, int upgrade)
+        {
+            var items = new List<ItemState>();
+            for (int s = 0; s < 8; s++) items.Add(new ItemState(level, Rarity.Epic, (EquipSlot)s) { UpgradeLevel = upgrade });
+            return HeroFactory.FromEquipment(items, level, cls);
+        }
+        int s70 = 0, s80 = 0, low = 0;
+        for (ulong seed = 1; seed <= 10; seed++)
+        {
+            if (StageRun.Simulate(Content.Stage(70), Epic(66, 9), new Inventory { Potions = 5 }, seed).Cleared) s70++;
+            if (StageRun.Simulate(Content.Stage(80), Epic(74, 9), new Inventory { Potions = 5 }, seed).Cleared) s80++;
+            if (StageRun.Simulate(Content.Stage(80), Geared(30, 9, cls), new Inventory { Potions = 5 }, seed).Cleared) low++;
+        }
+        _out.WriteLine($"{cls}: the Rootfather at Epic +9 {s70}/10, the Coil Mother {s80}/10, with Salt Sea gear {low}/10");
+        Assert.True(s70 >= 7 && s80 >= 7, $"{cls}: {s70}/10, {s80}/10");
+        Assert.Equal(0, low);
+    }
 }

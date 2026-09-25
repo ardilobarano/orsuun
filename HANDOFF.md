@@ -39,6 +39,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Direct trade | Owner, 25 Sep 2026: the third pick ("Player-to-player trade"), and while it was built: "at trade we need to see stats of items, maybe with clicking" (tapping a piece opens its stat card). From the GDD (section 8, "Direct trade window"): a two-step confirm with a 5 second lock after any change to the offer; level 30 and a 72 hour old account; a 2% tax on the sorn. Assumptions (not stated by the owner): up to 8 pieces and any sorn each side; both lock, then both confirm; an invitation lasts 3 minutes and an idle window 10; your own heroes cannot trade with each other (they share the depot); on the Development playtest server the level and age rules are off so it can be tried at once; the GDD's 12 hour hold for trades far off the Exchange median is not built (no price history yet). |
 | More dungeons | Owner, 25 Sep 2026: the fourth pick. From the world bible: Silkmother's Warren (under the Salt Sea, 2 levels, the Silkmother, drops Khan's Alloy) and the Carvers' Archive (a Sky Banner vault, puzzle-light, the main source of Master's Needles and Oathstones). Assumptions (not stated by the owner): the Warren opens after the Salt Sea (stage 30), 6 floors in two levels (the Upper Galleries, the Brood Deep, opened by an egg-nest rush), the Silkmother's chest always holds a Khan's Alloy; the Archive opens after Whitefang (stage 40), 5 floors, the puzzle is a rune lock on floor 3 (an original steppe riddle carved in the vault door, three runes to choose from), the right rune makes the Last Carver's chest hold a Master's Needle (10% otherwise); the Master's Needle now exists as an item and adds the fifth etching (it could not be added before); Oathstones wait for Oath Renewal (not built); the two free keys a day are shared by all three dungeons; every dungeon's top floor is 40% above its first (the Spire's 5% a floor is unchanged). |
 | Lane floors | Owner, 25 Sep 2026: "no floor on the maps right? ... create some floors related to background and show me them together, and we will pick" (Higgsfield Ultra bought for it), then picked one by one from real lane renders: the Oathfields / Ember Steppe F (an old flat-stone road under the hero, after rejecting A and B), Korstone Fields A (cracked orange earth), Gorak Pass / war camp A (muddy firelit camp earth), the Salt Sea A (hexagonal salt crust), Whitefang B (a packed snow trail), the Hollow Spire A (grave-plain earth), the Cinder Marches A (basalt with lava cracks), Whisperwood B (a mossy stone path), Silkmother's Warren B (silk-covered salt flagstones), the Carvers' Archive A (carved tiles with glowing runes). |
+| Maps 7 and 8, looks 60-79 | Owner, 25 Sep 2026 ("what to do now", picked "Maps 7 and 8"): the world bible's Bloodbirch (red forest, levels 58-66: red treants, birch stalkers, sap horrors; Bloodbirch Resin; the Rootfather) and Drowned Steppe (swamp, levels 66-74: marsh serpents, bog riders, leech swarms; Serpent Scale; the Coil Mother), with the item looks for levels 60-79 (bands 6 and 7: the Emberwake Glaive / Emberplate and the Oathkeeper Glaive / Oathsworn Harness, and each class's own) since the new maps drop them. Floors picked by the owner: the Bloodbirch B (a stone path under red leaves), the Drowned Steppe B (a plank boardwalk). Assumptions: past the +9 cap the climb is item level and rarity (the Rootfather wants a Rare +9 or Epic +8 set at level 66, the Coil Mother a Rare +9 or Epic +9 at 74; the Wraithsworn wants Epic there); the Coil Mother has +5% HP and attack so the Drowned Steppe's gear stays a gate (`MapDef.BossPercent`). |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -98,7 +99,7 @@ DELETE ACCOUNT on 24 Sep; the owner does not want it back (25 Sep 2026: "not nec
 Waiting on the owner: the Hetzner Storage Box for database backups (they will buy it later); the paid Apple Developer
 Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
 
-Could come next: maps 7 and up (the Bloodbirch is next in the world bible), Oath Renewal (Oathstones for the Archive),
+Could come next: maps 9 and up (Colossus Graves is next in the world bible; bands 8-10 of looks with them), Oath Renewal (Oathstones for the Archive),
 the Exchange's price history (the direct trade 10:1 hold needs it), Campaign Trail season 2 art before 16 Nov 2026, Pit seasons and the Pit shop's Technique Scrolls and frames, the Mirage Queen's presence (a mirage shimmer,
 ghostlier images, a little taller), Free Lances and the fortress aura for keeps, guild invites, password reset by email
 (needs a mail service), bands 6-10 of looks.
@@ -550,6 +551,23 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   own top-face UVs (`MeasureFloorMapping`). `RenderingSetup.EnsureFloors` imports them repeating, anisotropic, 1024 px;
   `RenderingSetup.RenderFloors` renders every backdrop with its floor or candidates (`ORSUUN_FLOOR_KEYS`,
   `ORSUUN_FLOOR_VARIANTS=_A,_B` or `chosen`) to `artifacts/floor-*.png`.
+
+## Done 25 Sep 2026 (maps 7 and 8, looks for levels 60-79)
+
+- The Bloodbirch and the Drowned Steppe (decision row above): `Content.Maps` 7 and 8 (80 stages), `MapDef.BossPercent`
+  (105 for the Coil Mother). Tests: `StageAndGearTests` (power checks for maps 7 and 8),
+  `ClassBalanceTests.The_seventh_and_eighth_map_bosses_ask_for_epic_gear`. Art made on Higgsfield (the owner's Ultra plan)
+  with Tripo H3.1 on fal: RedTreant (biped), BirchStalker (quadruped), SapHorror (not rigged, glows), Rootfather (biped,
+  3.4 m), MarshSerpent (serpent), BogRider (quadruped: the drowned rider sits on the horse's mesh), LeechSwarm (not
+  rigged), CoilMother (serpent, 3.4 m); sheets in `docs/concept/mobs/`, meshes in `art/blender/mobs/`; backdrops
+  `Bloodbirch`, `DrownedSteppe`; floors picked by the owner. `LaneView`: `BloodbirchMobs`, `DrownedMobs`, the two
+  bosses, sounds.
+- Item looks for bands 6 and 7 (item levels 60-79): `Armor_T6`/`Armor_T7` (Emberplate, the Oathsworn Harness; from
+  turnaround sheets of the same Vanguard, Tripo, `looks.armor_look(..., yaw_degrees=-90)`: rigged, glaive pole cut),
+  `Weapon_T6`/`Weapon_T7` (the Emberwake and Oathkeeper Glaives, `looks.weapon_look`), and `Kestrel_T6/T7`,
+  `Wraithsworn_T6/T7`, `Drumcaller_T6/T7` (`looks.class_look`). Sheets in `docs/concept/looks/`, sources
+  `art/blender/<class>_T6|7-tripo.glb` and `look-weapon-t6|7-tripo.glb`. Bands 8-10 still show band 7.
+  RenderPreview renders bands 3-7 (`artifacts/hero-T*.png`, `<class>-T*-Idle.png`).
 
 ## Store release, waiting on the owner's accounts
 
