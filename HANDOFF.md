@@ -113,6 +113,11 @@ The maps 9 and 10 build and then Banner change and Oath Renewal went to the APK 
 evening); Pit seasons after them are on the APK link (20:32), but the iPhone was unavailable for that install: it has the
 Banner change build. Reinstall with the xcodebuild + devicectl commands under "Next steps" once it is plugged in and unlocked.
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
+**Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these"):**
+skill grades (Technique Scrolls for Mastered M1-M10, Oathstones for Grand G1-G10 and Peerless), maps 11 and 12 (the
+Thousand Markers, the Hollow Throne; zone ids move first), private messages (whispers), a smaller download (the APK is
+366 MB; Google Play's limit is 200 MB). Build them in that order after the owner's next request. The owner will not
+top up fal.ai: art runs on Higgsfield (see CLAUDE.md).
 Could come next: maps 11 and 12 (the Thousand Markers, the Hollow Throne; move the zone ids first, see the maps 9 and 10 row; band 10 of looks with them), Oath Renewal (Oathstones for the Archive),
 the Exchange's price history (the direct trade 10:1 hold needs it), Campaign Trail season 2 art before 16 Nov 2026, Pit seasons and the Pit shop's Technique Scrolls and frames, the Mirage Queen's presence (a mirage shimmer,
 ghostlier images, a little taller), Free Lances and the fortress aura for keeps, private messages between friends, password reset by email

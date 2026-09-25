@@ -44,10 +44,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Designs must be original: nothing that reads as another game's character (a first Tul-Gorak came out as Kratos and
   was redone). Characters may be muscular or curvy but stay clothed and non-explicit (store ratings); the women wear
   the shortest shorts with garters (owner, 24 Sep).
-- Art: generate sheets with the chosen `docs/concept/vanguard-1-sheet.jpg` as the style reference. 3D via Hyper3D Rodin on
-  fal.ai (key in `~/.config/fal/key`, never in chat or git; the Blender MCP tool's fal path is broken, call the fal queue
-  API directly). Tripo H3.1 multiview on Higgsfield is the alternative (used while fal was empty on 24 Sep; faces +X,
-  so `yaw_degrees=-90`). Item looks go through `art/blender/looks.py` (armour looks are rigged there by
+- Art: generate sheets with the chosen `docs/concept/vanguard-1-sheet.jpg` as the style reference. Since 26 Sep 2026
+  everything goes through Higgsfield (the owner's Ultra plan; the owner does not want to top up fal): sheets with
+  gpt_image_2_5, 3D with Tripo H3.1 multiview (`tripo_h3_1_multiview_to_3d`, 9 credits; faces +X, so
+  `yaw_degrees=-90`), upscales done locally; Blender then cuts, scales, rigs and exports. fal.ai (key in
+  `~/.config/fal/key`, never in chat or git; `tools/art/fal.py`) is out of balance and optional. Item looks go through `art/blender/looks.py` (armour looks are rigged there by
   `rig.py`); other classes' bands through `looks.class_look`; enemies through `looks.mob_model`.
 - Active play: the farm lane online is one seeded loop per encounter cycle; anything that rebuilds `PlayerSession.Lane`
   must go through `NewFarmLane`/`StartLoop`, and anything that changes the hero through `RefreshHero`, or loop reports
@@ -135,7 +136,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   Development `/v1/dev/pit-season-end` on the playtest server: it settles the running season and halves every rating.
 - Campaign stages run 1..100 (ten maps) and zone ids start at 101 (`Content.FirstZoneId`): maps 11 and 12 must move the
   zones (and migrate `Accounts.ParkedStage`) before they are added. Dungeon floors are 301-399.
-- fal.ai was out of balance on 25 Sep 2026 (a 403 "Exhausted balance"): until the owner tops it up, run Tripo through
-  Higgsfield (`tripo_h3_1_multiview_to_3d`, inputs imported with `media_import_url`) and upscale locally.
+- Higgsfield takes local images through `media_import_url` (stage them briefly in a random folder under the playtest
+  server's `/opt/orsuun/downloads`, delete it afterwards) or `media_upload` (presigned PUT).
 - Lane floors are `Resources/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
   (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes.
