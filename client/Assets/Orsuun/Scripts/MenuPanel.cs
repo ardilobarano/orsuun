@@ -35,6 +35,12 @@ namespace Orsuun.Client
             Ui.Title("Title", canvas, 0.05f, 0.84f, 0.95f, 0.91f, "MENU", 60, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Trim("Rule", canvas, 0.25f, 0.835f, 0.75f, 0.838f);
 
+            Ui.Button("Characters", canvas, 0.15f, 0.83f, 0.85f, 0.89f, "CHARACTERS", 32, Palette.Alloy, () =>
+            {
+                if (!_root.Server.Online) return;
+                Close();
+                _root.Server.ChangeCharacter();
+            }, out _);
             Ui.Button("HowToPlay", canvas, 0.15f, 0.755f, 0.85f, 0.815f, "HOW TO PLAY", 32, Palette.ButtonIdle, HowToPlay, out _);
             Ui.Button("Account", canvas, 0.15f, 0.68f, 0.85f, 0.74f, "", 30, Palette.Safe, OpenAccount, out _accountLabel);
             Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.85f, 0.665f, "", 32, Palette.ButtonIdle, CycleSpeed, out _speedLabel);

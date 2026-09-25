@@ -39,7 +39,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   looks change every 10 item levels (`ItemLooks`). Helmet, shield, jewellery, shoes are stats only. (24 Sep) every
   Forge attempt asks first; any owned piece, worn or in the bag, can be forged and turned. (25 Sep) The premium
   currency is Amber, real money only; skins, mounts and companions are held 1/3/5/7/14 days with small stats (skin HP,
-  mount attack, companion hunting XP or sorn), sold at the Caravan, and bosses from Gorak Pass on drop short ones.
+  mount attack, companion hunting XP or sorn), sold at the Caravan, and bosses from Gorak Pass on drop short ones. An
+  account (Login) has up to 4 named characters and a shared 40-piece depot; Amber and the Banner are the account's.
 - Designs must be original: nothing that reads as another game's character (a first Tul-Gorak came out as Kratos and
   was redone). Characters may be muscular or curvy but stay clothed and non-explicit (store ratings); the women wear
   the shortest shorts with garters (owner, 24 Sep).
@@ -106,6 +107,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - This Mac's locale writes decimals with a comma: parse and format numbers with `CultureInfo.InvariantCulture`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).
+- Characters: `Account` is a character; `Login` is the player's account (email, password, Amber, Banner, devices,
+  Google / Apple links). Show names with `NameOf(account)` / `ShownName(id, name)`, never `Banners.GeneratedName(id)`
+  (older rows only). Items in the depot (`DepotLoginId`) are out of the bag: filter bag pieces with `Item.OutOfBag`.
+  `/v1/auth/guest` without `lobby` keeps making a first character for older clients; online screenshots need `-autoselect`.
 - Wardrobe stats: HP and attack are in `HeroFactory.FromEquipment(..., worn)` on both sides (server `Hero(account)`,
   client `PlayerSession.SetWorn` from the state), so loop replays match; a companion's XP/sorn is added only by the
   server's `Apply(..., hunt: true)`. Duels/Pits (`Duels.Neutral`) ignore the wardrobe. Amber packs are free only on a

@@ -138,6 +138,9 @@ namespace Orsuun.Client.Net
             War = null;
             Guild = null;
             Banner = Banner.None;
+            Lobby = null;
+            Depot = null;
+            InLobby = false;
             AccountGeneration++;
             StartCoroutine(Run());
         }
@@ -154,7 +157,7 @@ namespace Orsuun.Client.Net
         public IEnumerator BeginExternal(string provider, Action<string> done)
         {
             string failure = null, url = null;
-            yield return Post("/v1/auth/external/begin", JsonUtility.ToJson(new ExternalBeginRequest { provider = provider }), true,
+            yield return Post(InLobby ? "/v1/lobby/external/begin" : "/v1/auth/external/begin", JsonUtility.ToJson(new ExternalBeginRequest { provider = provider }), true,
                 json => url = JsonUtility.FromJson<ExternalBeginDto>(json).url, error => failure = error ?? "No answer from the server.");
             if (failure == null && !string.IsNullOrEmpty(url))
             {
@@ -223,12 +226,94 @@ namespace Orsuun.Client.Net
             }, _ => { });
         }
 
-        /// <summary>Sign up: saves an email and password to the account being played.</summary>
+        /// <summary>At the character screen: signed in, no character chosen yet (CharacterPanel shows).</summary>
+        public bool InLobby { get; private set; }
+        /// <summary>The login's characters, Banner and Amber, from the last lobby call.</summary>
+        public LobbyDto Lobby { get; private set; }
+        private bool _chosen;
+
+        public IEnumerator FetchLobby(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/lobby", null, true, json => ApplyLobby(JsonUtility.FromJson<LobbyDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        private void ApplyLobby(LobbyDto lobby)
+        {
+            Lobby = lobby;
+            Email = lobby.email ?? "";
+            if (lobby.links > 0 && Logins.Length == 0) Logins = new[] { "linked" };
+            if (!string.IsNullOrEmpty(lobby.banner) && Enum.TryParse(lobby.banner, out Banner b)) Banner = b;
+        }
+
+        /// <summary>A new character in a slot (-1: the first free one). Completes with (message, error).</summary>
+        public IEnumerator CreateCharacter(string name, HeroClass cls, int slot, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/lobby/create", JsonUtility.ToJson(new CreateCharacterRequest { name = name, heroClass = cls.ToString(), slot = slot }), true,
+                json => ApplyLobby(JsonUtility.FromJson<LobbyDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure == null ? Lobby?.message : null, failure);
+        }
+
+        /// <summary>Plays a character: its state loads and the game goes on (the heartbeat starts).</summary>
+        public IEnumerator SelectCharacter(string id, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/lobby/select", JsonUtility.ToJson(new CharacterRequest { characterId = id, name = "" }), true, json =>
+            {
+                Apply(JsonUtility.FromJson<StateDto>(json));
+                _chosen = true;
+            }, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        public IEnumerator DeleteCharacter(string id, string typedName, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/lobby/delete", JsonUtility.ToJson(new CharacterRequest { characterId = id, name = typedName }), true,
+                json => ApplyLobby(JsonUtility.FromJson<LobbyDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure == null ? Lobby?.message : null, failure);
+        }
+
+        /// <summary>Back to the character screen (MENU's CHARACTERS): signs in again and waits there.</summary>
+        public void ChangeCharacter() => Restart();
+
+        /// <summary>The shared depot (Rules.Characters.DepotSlots pieces), from the last depot call.</summary>
+        public DepotDto Depot { get; private set; }
+
+        public IEnumerator FetchDepot(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/depot", null, true, json =>
+            {
+                Depot = JsonUtility.FromJson<DepotDto>(json);
+                Apply(Depot.state);
+            }, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>A bag piece into the depot (put) or a depot piece into the bag. Completes with (message, error).</summary>
+        public IEnumerator DepotMove(bool put, string itemId, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post(put ? "/v1/depot/put" : "/v1/depot/take", JsonUtility.ToJson(new DepotRequest { requestId = NewRequestId(), itemId = itemId }), true, json =>
+            {
+                Depot = JsonUtility.FromJson<DepotDto>(json);
+                Apply(Depot.state);
+            }, error => failure = error ?? "No answer from the server.");
+            done(failure == null ? Depot?.message : null, failure);
+        }
+
+        /// <summary>Sign up: saves an email and password to the account (from the character screen or the game).</summary>
         public IEnumerator Register(string email, string password, Action<string> done)
         {
             string failure = null;
-            yield return Post("/v1/auth/register", JsonUtility.ToJson(new RegisterRequest { email = email, password = password }), true,
-                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            string body = JsonUtility.ToJson(new RegisterRequest { email = email, password = password });
+            if (InLobby)
+                yield return Post("/v1/lobby/register", body, true, json => ApplyLobby(JsonUtility.FromJson<LobbyDto>(json)), error => failure = error ?? "No answer from the server.");
+            else
+                yield return Post("/v1/auth/register", body, true, json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
             done(failure);
         }
 
@@ -253,7 +338,7 @@ namespace Orsuun.Client.Net
         public IEnumerator SignOut(Action<string> done)
         {
             string failure = null;
-            if (_session != null) yield return Post("/v1/auth/signout", "{}", true, _ => { }, error => failure = error);
+            if (_session != null) yield return Post(InLobby ? "/v1/lobby/signout" : "/v1/auth/signout", "{}", true, _ => { }, error => failure = error);
             PlayerPrefs.DeleteKey(DeviceTokenKey);
             PlayerPrefs.Save();
             Restart();
@@ -282,12 +367,28 @@ namespace Orsuun.Client.Net
                 PlayerPrefs.SetString(DeviceTokenKey, token);
             }
 
-            yield return Post("/v1/auth/guest", JsonUtility.ToJson(new GuestLoginRequest { deviceToken = token }), false,
+            yield return Post("/v1/auth/guest", JsonUtility.ToJson(new GuestLoginRequest { deviceToken = token, lobby = true }), false,
                 json => { _session = JsonUtility.FromJson<GuestLoginResponse>(json).sessionToken; },
                 error => Status = "LOCAL MODE: " + error);
 
             if (_session == null) yield break;
             StartCoroutine(FetchProviders());
+
+            // The character screen (25 Sep 2026): the device waits there until a character is chosen (CharacterPanel).
+            _chosen = false;
+            InLobby = true;
+            Status = "choose a hero";
+            yield return FetchLobby(_ => { });
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-autoselect") >= 0 && Lobby?.characters != null && Lobby.characters.Length > 0)
+            {
+                // Screenshots: straight on with the character played last.
+                CharacterSlotDto last = Lobby.characters[0];
+                foreach (CharacterSlotDto c in Lobby.characters)
+                    if (string.CompareOrdinal(c.lastPlayedUtc, last.lastPlayedUtc) > 0) last = c;
+                yield return SelectCharacter(last.id, _ => { });
+            }
+            while (!_chosen) yield return null;
+            InLobby = false;
 
             while (true)
             {
@@ -300,6 +401,7 @@ namespace Orsuun.Client.Net
                     if (state.settlement != null && state.settlement.countedSeconds > 0) LastSettlement = state.settlement;
                     Apply(state);
                 }, error => Status = "LOCAL MODE: " + error);
+                if (!sent && Status.Contains("Choose a character")) { Restart(); yield break; }   // deleted from another device
                 if (!sent) _player.RequeueReports(reports);
                 yield return new WaitForSecondsRealtime(HeartbeatSeconds);
             }
@@ -944,8 +1046,14 @@ namespace Orsuun.Client.Net
         }
 
         // JsonUtility mirrors of the server contracts. Enums travel as strings.
-        [Serializable] public class GuestLoginRequest { public string deviceToken; }
-        [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; }
+        [Serializable] public class GuestLoginRequest { public string deviceToken; public bool lobby; }
+        [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; public string loginId; public int characters; }
+        [Serializable] public class CharacterSlotDto { public string id; public int slot; public string name; public string @class; public int level; public int armorBand; public int weaponBand; public int weaponUpgrade; public string skin; public int highestStageCleared; public string lastPlayedUtc; public string guildTag; public bool banned; }
+        [Serializable] public class LobbyDto { public string loginId; public CharacterSlotDto[] characters; public int maxSlots; public string banner; public long amber; public string email; public string message; public int links; }
+        [Serializable] public class CreateCharacterRequest { public string name; public string heroClass; public int slot; }
+        [Serializable] public class CharacterRequest { public string characterId; public string name; }
+        [Serializable] public class DepotDto { public StateDto state; public ItemDto[] items; public int capacity; public string message; }
+        [Serializable] public class DepotRequest { public string requestId; public string itemId; }
         [Serializable] public class ForgeRequest { public string requestId; public string method; public string slot; public string itemId; }
         [Serializable] public class TurnRequest { public string requestId; public int count; public string slot; public string itemId; public TurnTargetDto[] targets; }
         [Serializable] public class TurnTargetDto { public int entryId; public int minTier; }

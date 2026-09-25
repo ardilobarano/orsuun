@@ -39,6 +39,8 @@ namespace Orsuun.Client
         public PitsPanel Pits { get; private set; }
         public CaravanPanel Caravan { get; private set; }
         public WardrobePanel Wardrobe { get; private set; }
+        public CharacterPanel Characters { get; private set; }
+        public DepotPanel Depot { get; private set; }
         public SmithPanel Smith { get; private set; }
         public ChatPanel Chat { get; private set; }
         public MarketPanel Market { get; private set; }
@@ -105,6 +107,10 @@ namespace Orsuun.Client
             Caravan.Init(this);
             Wardrobe = new GameObject("WardrobePanel").AddComponent<WardrobePanel>();
             Wardrobe.Init(this);
+            Characters = new GameObject("CharacterPanel").AddComponent<CharacterPanel>();
+            Characters.Init(this);
+            Depot = new GameObject("DepotPanel").AddComponent<DepotPanel>();
+            Depot.Init(this);
             Smith = new GameObject("SmithPanel").AddComponent<SmithPanel>();
             Smith.Init(this);
             Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
@@ -180,6 +186,7 @@ namespace Orsuun.Client
             // -caravan <tab> opens THE CARAVAN on a tab (0 skins .. 3 Amber), -wardrobe the WARDROBE, once online.
             _caravanTab = int.TryParse(Arg("-caravan"), out int caravanTab) ? caravanTab : -1;
             _openWardrobe = Array.IndexOf(Environment.GetCommandLineArgs(), "-wardrobe") >= 0;
+            _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
             // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
             _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
@@ -237,6 +244,7 @@ namespace Orsuun.Client
         private int _pitFight = -1;
         private int _caravanTab = -1;
         private bool _openWardrobe;
+        private bool _openDepot;
         private bool _enterDungeon;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
@@ -256,7 +264,8 @@ namespace Orsuun.Client
             }
             bool shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") >= 0;
             // A guest's first launch: sign up, sign in or play as guest, once the title screen is gone (-account forces it).
-            if (!Title.Showing && Server.Online && !Account.Showing
+            // Since characters (25 Sep 2026) this comes before the character screen: sign up or in first, then choose a hero.
+            if (!Title.Showing && (Server.Online || Server.InLobby && Server.Lobby != null) && !Account.Showing
                 && (_accountAsked ? !_accountShown : !AccountPanel.Chosen && !Server.Registered && !shot && !_accountShown))
             {
                 _accountShown = true;
@@ -270,7 +279,9 @@ namespace Orsuun.Client
             }
             // The first session's guide starts once the title screen (and the oath) is gone; the notification
             // permission is asked then too, once.
-            if (_tutorialPending && !Title.Showing && !Account.Showing && !Oath.Showing)
+            // The character screen (25 Sep 2026): after the title and the account screen, until a hero is chosen.
+            Characters.SetVisible(Server.InLobby && !Title.Showing && !Account.Showing);
+            if (_tutorialPending && !Title.Showing && !Account.Showing && !Oath.Showing && !Characters.IsOpen)
             {
                 Notifications.AskOnce();
                 _tutorialPending = false;
@@ -290,11 +301,12 @@ namespace Orsuun.Client
                 _enterDungeon = false;
                 EnterDungeon(Dungeons.All[0].Id);
             }
-            if (Server.Online && Server.Wardrobe != null && (_caravanTab >= 0 || _openWardrobe))
+            if (Server.Online && Server.Wardrobe != null && (_caravanTab >= 0 || _openWardrobe || _openDepot))
             {
-                if (_caravanTab >= 0) Caravan.Open(_caravanTab); else Wardrobe.Open();
+                if (_caravanTab >= 0) Caravan.Open(_caravanTab); else if (_openDepot) Depot.Open(); else Wardrobe.Open();
                 _caravanTab = -1;
                 _openWardrobe = false;
+                _openDepot = false;
             }
             if (Server.Online && _openPits)
             {

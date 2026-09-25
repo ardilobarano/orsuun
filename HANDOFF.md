@@ -34,6 +34,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Bounties and Hunt Marks | Owner, 24 Sep 2026 ("do all of them"; the GDD's Hunt Marks). Five daily and four weekly bounties counted by the server (Korstones, hunting minutes, forges, turns, Commander fights, pushes, sieges), reset at 20:00 server time (weekly on Mondays); the Hunt Marks shop sells Etching Needles, Pinning Wax, Turnstones, Scrolls of Mercy and Draughts. ETCH (Etching Needle, 1st to 4th etching at 100/80/60/40%) and PIN (Pinning Wax, one lock per item, turns cost two, unpinning spends the wax) are on the Forge. The owner will add monetization; the shop prices are placeholders. |
 | Guild war and fortress bids | Owner, 24 Sep 2026 (desktop app session): picked all four offered next steps, among them "guild war and fortress bids". Built asynchronous like the sieges (the GDD's live 20v20 and 50v50 are out of reach for now). Guild war: the leader signs up (3+ members), war nights Wednesday and Saturday 21:00 pair guilds by Elo rating for an hour; each member fights up to 6 duels, 2 min apart, on one of three lanes against a drawn member of the other guild; a win is a kill and pushes the lane (two steps under the war flag the leader or an officer plants), 5 steps break it; score = kills + 10 per broken lane; winner 150,000 treasury sorn + 100 guild XP (draw 50,000 + 60, loss 30 XP); a duel pays 5,000 sorn + 1 Hunt Mark (GDD: PvP pays currency, never upgrade protection). Duels follow the GDD's PvP balance: gear and level on a class-neutral frame, stats above the pair's median compressed by 30%, a seeded roll tuned so a +9 set beats a +7 set about 80% of the time (`Rules/GuildWar.cs`: `GuildWars`, `Duels`). Fortress keeps: the Banner sieges stay; the keep decides the guild flag. Leaders or officers bid treasury sorn on one keep a week (50,000+); Sunday 20:00 the top four bids contend (spent, the rest refunded) and storm the keep for an hour while its holders mend it; the best contender takes it past 150,000 + the mending. The holder flies its flag (+2% sorn) and earns 2% of the Exchange tax. All numbers are assumptions (not stated by the owner). |
 | The Caravan, Amber and the wardrobe | Owner, 25 Sep 2026: "add skins, mounts and companions that have expire time, like 1-3-5-7-14 days. equipabble and changeable at gear or a different screen. higher level bosses can drop these, and also we will add a new currency that is only buyable with real money"; a shop screen shown first as a Higgsfield mockup (`docs/concept/screens/mockup-caravan-*.jpg`, `mockup-wardrobe.jpg`). Answers: the currency is **Amber** (not the GDD's Aurels; real money only); **small stats, Metin2 style** (skin HP, mount attack, companion hunting XP or sorn); **mounted combat** (the hero rides and fights from the saddle); **the shop sells every duration, bosses drop short ones** (1-3 days, rarely 5-7), a piece held again adds its days. |
+| Characters and the depot | Owner, 25 Sep 2026: "add character creation with name selection after signing up or loginning in like metin2 screen, total 4 char slots with a common depot of items to trade between each other". Answers: Amber is shared by the account's characters (everything else per character: sorn, level, gear, wardrobe, guild, Pits); the Banner is chosen per account (all four fight for it). |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -75,8 +76,10 @@ that build is on the download link (24 Sep 2026, 22:56); the previous one is kep
 On 25 Sep the owner picked more campaign maps, dungeons and the Pits; all three, and a class rebalance, were pushed,
 deployed (migrations `Dungeons` and `Pits`; database copy first: `~/orsuun-backups/playtest-before-dungeons-pits-2026-09-25.sql.gz`),
 installed on the iPhone and put on the APK link (25 Sep 2026, about 01:45). Then the owner asked for timed skins,
-mounts and companions, Amber and a shop screen: the Caravan and the wardrobe are built and committed locally, **not
-pushed, not deployed, not installed** (deploying needs the migration `Wardrobe`; take a database copy first).
+mounts and companions, Amber and a shop screen (the Caravan and the wardrobe: deployed with migration `Wardrobe` and on
+the APK, 25 Sep; the iPhone was not connected), costume models for the skins (APK), and Metin2-style character select
+with four slots and a shared depot (built and committed locally; deploying needs the migration `Characters`, which
+reshapes accounts into logins: take a database copy first).
 
 Waiting on the owner: the Hetzner Storage Box for database backups (they will buy it later); the paid Apple Developer
 Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
@@ -408,6 +411,28 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   Wraithsworn sword, Drumcaller staff). `LaneView.SkinModel` picks the costume when it exists; the old band-and-tint
   (`LaneView.SkinLooks`) stays as the fallback. Screenshot switches: `-caravan <tab>`
   (0 skins .. 3 Amber), `-wardrobe` (online).
+- Characters (decision row above). Rules `Characters` (4 slots, a 40-piece depot, names of 3-16 letters or digits
+  starting with a letter, clean by `WordFilter`, unique whatever the case; `CharacterTests`). Server: a `Login` table
+  (the player's account: email and password, Amber and packs bought, the Banner, its devices and Google / Apple links
+  via `ExternalLogin.LoginId`); each character is an `Account` row with `LoginId`, `Slot`, `Name`/`NameKey` (unique).
+  Migration `Characters` turns every existing hero into slot 0 of its own login (same id) and moves its email, Amber
+  and Banner there; names are filled once at startup (`GameService.BackfillNamesAsync`: the old generated name, which
+  has a space, so it never collides with a chosen one). Every place that showed `Banners.GeneratedName(id)` shows the
+  stored name. `Device.AccountId` is the character chosen on that device (Guid.Empty: the character screen). Lobby
+  endpoints need only a session: `GET /v1/lobby`, `POST /v1/lobby/create|select|delete|register|signout|external/begin|external`;
+  the game endpoints answer `no_character` until one is chosen. `/v1/auth/guest` takes `lobby: true` from this client
+  (a new device then starts with no character); without it (older clients, smoke tests) a new device still gets a
+  first character with a generated name, and email / Google sign-in pick the most recently played character, so the
+  builds already out keep working. The oath sets the login's Banner and every character's (`SwearAsync`); new
+  characters take it. Delete asks for the name typed; its depot pieces pass to another character of the login. MENU's
+  DELETE ACCOUNT deletes the login with every character. Depot: `Item.DepotLoginId` (out of the bag like a listed
+  piece: `Item.OutOfBag`), `GET /v1/depot`, `POST /v1/depot/put|take` (take is one guarded UPDATE, so two phones cannot
+  both take a piece); the taker becomes the owner. `tools/smoke-characters.sh`. Client: the character screen
+  (`CharacterPanel`, after the title and the account screen: the chosen hero stands large, rendered by `HeroStage`
+  with its class, bands and skin costume, over four slot cards; START, DELETE with the name typed, CREATE with a class
+  and a name), MENU's CHARACTERS goes back to it, GEAR's DEPOT opens `DepotPanel` (tap a row to move a piece).
+  Screenshot switches: `-autoselect` (straight into the game with the last played character; every online shot needs
+  it now), `-createhero`, `-depot`.
 - Class balance past the Oathfields (owner, 25 Sep 2026: "balance"). Measured with full Rare sets at the stage's level,
   the Wraithsworn needed two to four more forge levels than the Vanguard at Gorak Pass, the Salt Sea and Whitefang, the
   Kestrel two more at Whitefang, and the Drumcaller two fewer. New class shapes (attack/defence/HP %): Kestrel 90/90/95
