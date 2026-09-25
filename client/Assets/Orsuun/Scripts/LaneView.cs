@@ -155,6 +155,26 @@ namespace Orsuun.Client
         private float _heroHurt;
 
         private Renderer _ground;
+        /// <summary>
+        /// The painted floor under the lane (owner, 25 Sep 2026: "no floor on the maps right?"): Resources/Floors/&lt;backdrop
+        /// key&gt;, a tileable top-down texture that repeats every FloorTile metres and scrolls with the run. Without one the
+        /// plain ground and its stripes show.
+        /// </summary>
+        private const float FloorTile = 6f;
+        /// <summary>
+        /// A tile's depth: twice its length, which offsets the camera's low angle and leaves one road (a floor's road runs
+        /// across the middle of its tile) under the hero; FloorRoadOffset puts that middle at z = 0 on the ground's top face.
+        /// </summary>
+        private const float FloorTileDepth = 12f;
+        /// <summary>From the ground mesh's top face: which way its u runs along x (+1 or -1), and the v offset that puts a
+        /// tile's middle (where a floor's road runs) at z = 0, under the hero.</summary>
+        private float _floorScrollSign = 1f;
+        private float _floorRoadOffset;
+        private Material _groundMaterial;
+        private bool _hasFloor;
+        private float _floorScroll;
+        /// <summary>Editor previews only: a suffix picking a candidate floor ("_A", "_B").</summary>
+        public static string FloorVariant = "";
         private Renderer _backdrop;
         private ZoneType? _zone;
 
@@ -200,6 +220,8 @@ namespace Orsuun.Client
             ground.position = new Vector3(3f, -0.25f, -3.5f);
             ground.localScale = new Vector3(40f, 0.5f, 17f);
             _ground = ground.GetComponent<Renderer>();
+            _groundMaterial = _ground.material;
+            MeasureFloorMapping(ground);
 
             for (int i = 0; i < 10; i++)
             {
@@ -252,6 +274,54 @@ namespace Orsuun.Client
             };
             _ground.material.color = ground;
             foreach (Transform s in _stripes) s.GetComponent<Renderer>().material.color = stripe;
+            RefreshFloor();
+        }
+
+        /// <summary>
+        /// Reads the cube's top face (its UVs run 0..1 across it, in whichever direction the mesh has them): the sign that
+        /// makes the floor run past like the stripes, and the v offset that centres a tile's middle on z = 0.
+        /// </summary>
+        private void MeasureFloorMapping(Transform ground)
+        {
+            Mesh mesh = ground.GetComponent<MeshFilter>().sharedMesh;
+            Vector3[] vs = mesh.vertices;
+            Vector3[] ns = mesh.normals;
+            Vector2[] uvs = mesh.uv;
+            int a = -1, bx = -1, bz = -1;
+            for (int i = 0; i < vs.Length; i++)
+            {
+                if (ns[i].y < 0.9f) continue;
+                if (a < 0) { a = i; continue; }
+                if (bx < 0 && Mathf.Abs(vs[i].x - vs[a].x) > 0.5f && Mathf.Abs(vs[i].z - vs[a].z) < 0.01f) bx = i;
+                if (bz < 0 && Mathf.Abs(vs[i].z - vs[a].z) > 0.5f && Mathf.Abs(vs[i].x - vs[a].x) < 0.01f) bz = i;
+            }
+            if (a < 0 || bx < 0 || bz < 0) return;
+            float duDx = (uvs[bx].x - uvs[a].x) / (vs[bx].x - vs[a].x);
+            // The top face may map x to v and z to u; the floors assume u along the lane.
+            if (Mathf.Abs(duDx) < 0.5f) duDx = (uvs[bx].y - uvs[a].y) / (vs[bx].x - vs[a].x);
+            _floorScrollSign = duDx >= 0f ? 1f : -1f;
+            float dvDz = (uvs[bz].y - uvs[a].y) / (vs[bz].z - vs[a].z);
+            float zLocal = (0f - ground.position.z) / ground.localScale.z;           // world z = 0 on the unit cube
+            float v = uvs[a].y + dvDz * (zLocal - vs[a].z);
+            float tiles = ground.localScale.z / FloorTileDepth;
+            _floorRoadOffset = Mathf.Repeat(0.5f - v * tiles, 1f);
+        }
+
+        /// <summary>Puts the current backdrop's floor on the ground (or the plain colour and stripes when it has none).</summary>
+        public void RefreshFloor()
+        {
+            if (_groundMaterial == null) return;
+            var floor = _backdropKey == null ? null : Resources.Load<Texture2D>("Floors/" + _backdropKey + FloorVariant);
+            _hasFloor = floor != null;
+            _groundMaterial.SetTexture("_BaseMap", floor);
+            if (_hasFloor)
+            {
+                Vector3 size = _ground.transform.localScale;
+                _groundMaterial.SetTextureScale("_BaseMap", new Vector2(size.x / FloorTile, size.z / FloorTileDepth));
+                _groundMaterial.SetTextureOffset("_BaseMap", new Vector2(_floorScroll, _floorRoadOffset));
+                _groundMaterial.color = new Color(0.92f, 0.92f, 0.92f);   // the light does the rest
+            }
+            foreach (Transform s in _stripes) s.gameObject.SetActive(!_hasFloor);
         }
 
         /// <summary>A piece of the hero and what drives its glow: an EquipSlot index (weapon or armour) or NoSlot.</summary>
@@ -578,6 +648,12 @@ namespace Orsuun.Client
 
             if (_sim.Phase == LanePhase.Running)
             {
+                if (_hasFloor)
+                {
+                    // The floor runs past at the stripes' speed.
+                    _floorScroll = Mathf.Repeat(_floorScroll + _floorScrollSign * 6f * dt / FloorTile, 1f);
+                    _groundMaterial.SetTextureOffset("_BaseMap", new Vector2(_floorScroll, _floorRoadOffset));
+                }
                 foreach (Transform stripe in _stripes)
                 {
                     Vector3 p = stripe.position;

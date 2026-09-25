@@ -41,6 +41,7 @@ namespace Orsuun.Client.EditorTools
             EditorUtility.SetDirty(korstone);
             EnsurePostFx();
             EnsureBackdrops();
+            EnsureFloors();
             EnsureLooks();
             EnsureClassLooks();
             EnsureKorstones();
@@ -340,6 +341,90 @@ namespace Orsuun.Client.EditorTools
                 mat.SetColor("_BaseColor", Color.white);
                 EditorUtility.SetDirty(mat);
             }
+        }
+
+        /// <summary>
+        /// The lane floors (Resources/Floors): repeating, mipmapped and anisotropic, since the camera sees them at a low
+        /// angle, at most 1024 px.
+        /// </summary>
+        private static void EnsureFloors()
+        {
+            string dir = Res + "Floors/";
+            if (!Directory.Exists(dir)) return;
+            foreach (string file in Directory.GetFiles(dir))
+            {
+                if (file.EndsWith(".meta")) continue;
+                if (!(AssetImporter.GetAtPath(file) is TextureImporter ti)) continue;
+                if (ti.wrapMode == TextureWrapMode.Repeat && ti.anisoLevel == 8 && ti.maxTextureSize == 1024 && ti.mipmapEnabled) continue;
+                ti.wrapMode = TextureWrapMode.Repeat;
+                ti.anisoLevel = 8;
+                ti.mipmapEnabled = true;
+                ti.maxTextureSize = 1024;
+                ti.SaveAndReimport();
+            }
+        }
+
+        /// <summary>
+        /// Every backdrop with each candidate floor (Resources/Floors/&lt;key&gt;_A and _B) to artifacts/floor-&lt;key&gt;-&lt;v&gt;.png,
+        /// for choosing. Unity -batchmode -executeMethod Orsuun.Client.EditorTools.RenderingSetup.RenderFloors
+        /// </summary>
+        public static void RenderFloors()
+        {
+            ShaderUtil.allowAsyncCompilation = false;
+            Ensure();
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var root = new GameObject("FloorPreview");
+            var sun = new GameObject("Sun").AddComponent<Light>();
+            sun.transform.SetParent(root.transform);
+            sun.type = LightType.Directional;
+            sun.intensity = 1.1f;
+            sun.transform.rotation = Quaternion.Euler(40f, -30f, 0f);
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.45f, 0.45f, 0.5f);
+            var sh = new SphericalHarmonicsL2(); sh.AddAmbientLight(RenderSettings.ambientLight);
+            RenderSettings.ambientProbe = sh;
+            var volume = new GameObject("PostFX").AddComponent<Volume>();
+            volume.transform.SetParent(root.transform);
+            volume.isGlobal = true;
+            volume.sharedProfile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(Res + "PostFX.asset");
+            var cam = new GameObject("LaneCamera").AddComponent<Camera>();
+            cam.transform.SetParent(root.transform);
+            cam.fieldOfView = 25f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.16f, 0.19f, 0.24f);
+            cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);
+            cam.transform.LookAt(new Vector3(1.5f, 1.1f, 0f));
+            cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+            var rig = new GameObject("Lane"); rig.transform.SetParent(root.transform);
+            var view = rig.AddComponent<Orsuun.Client.LaneView>();
+            view.BuildScenery();
+            view.BuildHero();
+            view.SetLooks("Armor_T3", "Weapon_T3");
+            var places = new (string key, Orsuun.Rules.Combat.ZoneType zone, int stage)[]
+            {
+                ("HuntingGround", Orsuun.Rules.Combat.ZoneType.Campaign, 5), ("KorstoneField", Orsuun.Rules.Combat.ZoneType.KorstoneField, 111),
+                ("CommanderGround", Orsuun.Rules.Combat.ZoneType.Campaign, 15), ("SaltFlats", Orsuun.Rules.Combat.ZoneType.HuntingGround, 102),
+                ("FrostPasture", Orsuun.Rules.Combat.ZoneType.HuntingGround, 103), ("HollowSpire", Orsuun.Rules.Combat.ZoneType.Campaign, 311),
+                ("CinderMarches", Orsuun.Rules.Combat.ZoneType.Campaign, 45), ("Whisperwood", Orsuun.Rules.Combat.ZoneType.Campaign, 55),
+                ("SilkWarren", Orsuun.Rules.Combat.ZoneType.Campaign, 321), ("CarversArchive", Orsuun.Rules.Combat.ZoneType.Campaign, 331),
+            };
+            Directory.CreateDirectory("../artifacts");
+            // ORSUUN_FLOOR_KEYS limits the maps ("HuntingGround,SaltFlats"), ORSUUN_FLOOR_VARIANTS the candidates ("_C,_D").
+            string keys = System.Environment.GetEnvironmentVariable("ORSUUN_FLOOR_KEYS");
+            string variants = System.Environment.GetEnvironmentVariable("ORSUUN_FLOOR_VARIANTS");
+            // "chosen" is each map's own floor (Resources/Floors/<key>).
+            string[] vs = string.IsNullOrEmpty(variants) ? new[] { "", "_A", "_B" }
+                : System.Array.ConvertAll(variants.Split(','), v => v == "chosen" ? "" : v);
+            foreach (var (key, zone, stage) in places)
+                foreach (string v in vs)
+                {
+                    if (!string.IsNullOrEmpty(keys) && System.Array.IndexOf(keys.Split(','), key) < 0) continue;
+                    Orsuun.Client.LaneView.FloorVariant = v;
+                    view.SetZone(zone, stage);
+                    view.RefreshFloor();
+                    Capture(cam, "../artifacts/floor-" + key + (v.Length == 0 ? (variants == "chosen" ? "-chosen" : "-none") : "-" + v.Substring(1)) + ".png", 1080, 1056);
+                }
+            Orsuun.Client.LaneView.FloorVariant = "";
         }
 
         private static void EnsurePostFx()

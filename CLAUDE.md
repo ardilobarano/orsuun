@@ -125,3 +125,5 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - A dungeon's pause floor (`DungeonDef.SmithFloor`) holds the Chained Smith or the Carvers' rune lock (`DungeonDef.Pause`);
   the waiting run is `Account.DungeonRunAtSmith` and its dungeon `Account.DungeonPausedId`. A rune lock's riddle comes
   from the run id (`Dungeons.RiddleFor`), so it needs no storage.
+- Lane floors are `Resources/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
+  (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes.
