@@ -84,6 +84,13 @@ the APK, 25 Sep; the iPhone was not connected), costume models for the skins (AP
 with four slots and a shared depot: pushed and deployed on 25 Sep (migration `Characters`, which reshaped every hero
 into slot 1 of its own login; copy first: `~/orsuun-backups/playtest-before-characters-2026-09-25.sql.gz`), APK on the
 download link. Installed on the owner's iPhone on 25 Sep 2026 (after it was plugged in).
+Then the owner asked "what to do next" and picked all four offered steps, built in order the same day and each pushed and
+deployed with a database copy first (`~/orsuun-backups/playtest-before-{trail,trade,dungeons2}-2026-09-25.sql.gz`): the
+Campaign Trail (migration `CampaignTrail`), maps 5 and 6 (the Cinder Marches, Whisperwood; no migration), direct
+trade with a stat card for every piece (the owner asked for it while it was built; migrations `DirectTrade`,
+`TradePieces`), and two more dungeons with the Master's Needle (migration `MoreDungeons`). See the four "Done 25 Sep
+2026" sections below. Art now comes from fal.ai again (it has balance; Higgsfield has about 9 credits left):
+`tools/art/fal.py`. The APK with all four is on the download link and installed on the owner's iPhone (25 Sep 2026).
 The owner's first playtest hero (a guest from 24 Sep, Ember Banner, in a guild) was deleted from a device with MENU ->
 DELETE ACCOUNT between 22:31 and 22:57 UTC on 24 Sep; it is in `~/orsuun-backups/playtest-before-dungeons-pits-2026-09-25.sql.gz`
 if the owner wants it back (asked, not answered yet).
@@ -91,8 +98,8 @@ if the owner wants it back (asked, not answered yet).
 Waiting on the owner: the Hetzner Storage Box for database backups (they will buy it later); the paid Apple Developer
 Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
 
-Could come next: the other dungeons (Silkmother's Warren needs spider art; the Carvers' Archive is the Master's Needle
-source), Pit seasons and the Pit shop's Technique Scrolls and frames, the Mirage Queen's presence (a mirage shimmer,
+Could come next: maps 7 and up (the Bloodbirch is next in the world bible), Oath Renewal (Oathstones for the Archive),
+the Exchange's price history (the direct trade 10:1 hold needs it), Campaign Trail season 2 art before 16 Nov 2026, Pit seasons and the Pit shop's Technique Scrolls and frames, the Mirage Queen's presence (a mirage shimmer,
 ghostlier images, a little taller), Free Lances and the fortress aura for keeps, guild invites, password reset by email
 (needs a mail service), bands 6-10 of looks.
 
