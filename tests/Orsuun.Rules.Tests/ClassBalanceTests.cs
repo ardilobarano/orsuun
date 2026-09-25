@@ -154,4 +154,33 @@ public class ClassBalanceTests
         Assert.True(s70 >= 7 && s80 >= 7, $"{cls}: {s70}/10, {s80}/10");
         Assert.Equal(0, low);
     }
+
+    /// <summary>
+    /// Colossus Graves and the Sunken Bazaar (25 Sep 2026): Hurm the Unburied and the Last Merchant-Prince (105% like the
+    /// Coil Mother) fall to every class with an Epic +9 set of the map's level; the Bloodbirch's Epic +9 rarely does it.
+    /// </summary>
+    [Theory]
+    [InlineData(HeroClass.Vanguard)]
+    [InlineData(HeroClass.Kestrel)]
+    [InlineData(HeroClass.Wraithsworn)]
+    [InlineData(HeroClass.Drumcaller)]
+    public void The_ninth_and_tenth_map_bosses_ask_for_the_maps_epic_gear(HeroClass cls)
+    {
+        HeroStats Epic(int level)
+        {
+            var items = new List<ItemState>();
+            for (int s = 0; s < 8; s++) items.Add(new ItemState(level, Rarity.Epic, (EquipSlot)s) { UpgradeLevel = 9 });
+            return HeroFactory.FromEquipment(items, level, cls);
+        }
+        int s90 = 0, s100 = 0, low = 0;
+        for (ulong seed = 1; seed <= 20; seed++)
+        {
+            if (StageRun.Simulate(Content.Stage(90), Epic(82), new Inventory { Potions = 5 }, seed).Cleared) s90++;
+            if (StageRun.Simulate(Content.Stage(100), Epic(90), new Inventory { Potions = 5 }, seed).Cleared) s100++;
+            if (StageRun.Simulate(Content.Stage(90), Epic(66), new Inventory { Potions = 5 }, seed).Cleared) low++;
+        }
+        _out.WriteLine($"{cls}: Hurm at Epic +9 {s90}/20, the Last Merchant-Prince {s100}/20, Hurm with the Bloodbirch's {low}/20");
+        Assert.True(s90 >= 14 && s100 >= 14, $"{cls}: {s90}/20, {s100}/20");
+        Assert.True(low <= 4, $"{cls} with Bloodbirch gear: {low}/20");
+    }
 }

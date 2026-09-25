@@ -6,7 +6,8 @@ namespace Orsuun.Rules
     /// Item catalog for the visible slots (owner, 23 Sep 2026): only the weapon and the body armour show on the
     /// character, and their look changes with the item's level band, a new look every <see cref="LevelsPerLook"/>
     /// levels (1-9, 10-19, ... 100-105). Stat-only slots keep one base name each and have no look.
-    /// These are the Vanguard's tables; other classes get their own when class selection exists.
+    /// These are the Vanguard's tables; other classes get their own when class selection exists. Bands 8 and 9 were named
+    /// after their art (25 Sep 2026): the Colossus Graves' bone-and-iron Gravewrought, the Khan's guard in black and gold.
     /// </summary>
     public static class ItemLooks
     {
@@ -15,13 +16,13 @@ namespace Orsuun.Rules
         public static readonly string[] WeaponNames =
         {
             "Herder's Glaive", "Rider's Glaive", "Horsebreaker Glaive", "Tamga Glaive", "Crescent Glaive", "Banner Glaive",
-            "Emberwake Glaive", "Oathkeeper Glaive", "Khan's Crescent", "Korstone Glaive", "Glaive of the Nine Oaths",
+            "Emberwake Glaive", "Oathkeeper Glaive", "Colossus Glaive", "Khan's Crescent", "Glaive of the Nine Oaths",
         };
 
         public static readonly string[] ArmorNames =
         {
             "Quilted Coat", "Lamellar Coat", "Bronzescale Lamellar", "Wolfhide Lamellar", "Riveted Cuirass", "Banner Lamellar",
-            "Emberplate", "Oathsworn Harness", "Khan's Lamellar", "Korstone Plate", "Harness of the Nine Oaths",
+            "Emberplate", "Oathsworn Harness", "Gravewrought Lamellar", "Khan's Lamellar", "Harness of the Nine Oaths",
         };
 
         public static int MaxTier => WeaponNames.Length - 1;

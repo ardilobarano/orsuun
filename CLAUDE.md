@@ -131,5 +131,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - A dungeon's pause floor (`DungeonDef.SmithFloor`) holds the Chained Smith or the Carvers' rune lock (`DungeonDef.Pause`);
   the waiting run is `Account.DungeonRunAtSmith` and its dungeon `Account.DungeonPausedId`. A rune lock's riddle comes
   from the run id (`Dungeons.RiddleFor`), so it needs no storage.
+- Campaign stages run 1..100 (ten maps) and zone ids start at 101 (`Content.FirstZoneId`): maps 11 and 12 must move the
+  zones (and migrate `Accounts.ParkedStage`) before they are added. Dungeon floors are 301-399.
+- fal.ai was out of balance on 25 Sep 2026 (a 403 "Exhausted balance"): until the owner tops it up, run Tripo through
+  Higgsfield (`tripo_h3_1_multiview_to_3d`, inputs imported with `media_import_url`) and upscale locally.
 - Lane floors are `Resources/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
   (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes.

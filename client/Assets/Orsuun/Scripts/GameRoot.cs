@@ -213,9 +213,16 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-runelock") >= 0) RuneLock.Open(7, _ => { });
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
 
-            // Dev switch: -stage <n> parks local play at campaign stage n with the ones before it cleared (screenshots of the maps).
+            // Dev switch: -stage <n> parks local play at campaign stage n with the ones before it cleared, the hero at the
+            // stage's level in an Epic +9 set of its item level, so the fight stays on screen (screenshots of the maps).
             if (int.TryParse(Arg("-stage"), out int parkAt) && !Server.Online && parkAt >= 1 && parkAt <= Content.TotalStages)
-                Session.ApplyRemote(Session.Inventory, new System.Collections.Generic.List<ItemState>(Session.Equipment), 0, parkAt - 1, parkAt);
+            {
+                int gearLevel = Math.Max(1, Content.Stage(parkAt).GearItemLevel);
+                var set = new System.Collections.Generic.List<ItemState>();
+                for (int slot = 0; slot < 8; slot++) set.Add(new ItemState(gearLevel, Rarity.Epic, (EquipSlot)slot) { UpgradeLevel = 9 });
+                Session.Inventory.Xp = Content.XpPerLevelSquare * gearLevel * gearLevel;
+                Session.ApplyRemote(Session.Inventory, set, 0, parkAt - 1, parkAt);
+            }
 
             // Dev switch: -boss <id> fights that Commander at once in local play (screenshots of the Commanders).
             if (int.TryParse(Arg("-boss"), out int bossId) && !Server.Online && Content.Boss(bossId) != null) FightBoss(bossId);

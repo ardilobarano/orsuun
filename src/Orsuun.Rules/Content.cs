@@ -95,7 +95,11 @@ namespace Orsuun.Rules
     /// </summary>
     public static class Content
     {
-        public const int FirstZoneId = 100;
+        /// <summary>
+        /// Zone ids start here (101 the Ember Steppe). Campaign stages run 1..TotalStages (100 with ten maps); maps 11 and 12
+        /// would reach 120 and must move the zones first (a data migration of Accounts.ParkedStage).
+        /// </summary>
+        public const int FirstZoneId = 101;
         public const int MaxLevel = 105;
 
         /// <summary>
@@ -113,6 +117,8 @@ namespace Orsuun.Rules
             new MapDef(6, "Whisperwood", 50, 58, "Whisper Bark", "The Lantern Widow", new[] { "Hollowed Dead", "Hanging Spirit", "Lantern Wisp" }),
             new MapDef(7, "The Bloodbirch", 58, 66, "Bloodbirch Resin", "The Rootfather", new[] { "Red Treant", "Birch Stalker", "Sap Horror" }),
             new MapDef(8, "The Drowned Steppe", 66, 74, "Serpent Scale", "The Coil Mother", new[] { "Marsh Serpent", "Bog Rider", "Leech Swarm" }, bossPercent: 105),
+            new MapDef(9, "Colossus Graves", 74, 82, "Giant's Knuckle", "Hurm the Unburied", new[] { "Stone Giant", "Bone Picker", "Siege Beast" }, bossPercent: 105),
+            new MapDef(10, "The Sunken Bazaar", 82, 90, "Gilded Cog", "The Last Merchant-Prince", new[] { "Khan Cultist", "Gilded Construct", "Debt Wraith" }, bossPercent: 105),
         };
 
         public static readonly ZoneDef[] Zones =

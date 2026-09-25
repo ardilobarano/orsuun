@@ -28,8 +28,12 @@ def request(url, body=None, tries=8):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 return json.loads(r.read())
-        except urllib.error.HTTPError:
-            raise
+        except urllib.error.HTTPError as e:
+            # fal now and then refuses a submission with 403 (or 429) and takes the same one a little later.
+            if e.code not in (403, 429) or attempt == tries - 1:
+                raise
+            print("refused:", e.code, "- retrying", flush=True)
+            time.sleep(min(60, 5 * 2 ** attempt))
         except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
             if attempt == tries - 1:
                 raise
