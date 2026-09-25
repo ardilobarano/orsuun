@@ -102,4 +102,27 @@ public class ClassBalanceTests
         Assert.True(s30 >= 7 && s40 >= 7, $"{cls}: {s30}/10, {s40}/10");
         Assert.True(s40Low <= 3, $"{cls} at +4: {s40Low}/10");
     }
+
+    /// <summary>
+    /// The Cinder Marches and Whisperwood (25 Sep 2026): the Vanguard clears Azhdar at +7 and the Lantern Widow at +8
+    /// (StageAndGearTests); every class does within one forge level of that, and none clears the Widow at +5.
+    /// </summary>
+    [Theory]
+    [InlineData(HeroClass.Vanguard)]
+    [InlineData(HeroClass.Kestrel)]
+    [InlineData(HeroClass.Wraithsworn)]
+    [InlineData(HeroClass.Drumcaller)]
+    public void The_fifth_and_sixth_map_bosses_ask_every_class_within_a_forge_level(HeroClass cls)
+    {
+        int s50 = 0, s60 = 0, s60Low = 0;
+        for (ulong seed = 1; seed <= 10; seed++)
+        {
+            if (StageRun.Simulate(Content.Stage(50), Geared(50, 8, cls), new Inventory { Potions = 5 }, seed).Cleared) s50++;
+            if (StageRun.Simulate(Content.Stage(60), Geared(58, 9, cls), new Inventory { Potions = 5 }, seed).Cleared) s60++;
+            if (StageRun.Simulate(Content.Stage(60), Geared(58, 5, cls), new Inventory { Potions = 5 }, seed).Cleared) s60Low++;
+        }
+        _out.WriteLine($"{cls}: Azhdar at +8 {s50}/10, the Lantern Widow at +9 {s60}/10, at +5 {s60Low}/10");
+        Assert.True(s50 >= 7 && s60 >= 7, $"{cls}: {s50}/10, {s60}/10");
+        Assert.True(s60Low <= 3, $"{cls} at +5: {s60Low}/10");
+    }
 }

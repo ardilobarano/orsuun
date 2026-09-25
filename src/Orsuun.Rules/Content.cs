@@ -95,8 +95,9 @@ namespace Orsuun.Rules
         public const int MaxLevel = 105;
 
         /// <summary>
-        /// The campaign maps (world bible section 6: twelve at launch, ten stages each). The first four are built: their
-        /// enemies and backdrops exist (the Salt Sea and Whitefang Range share the Salt Flats' and Frost Pasture's).
+        /// The campaign maps (world bible section 6: twelve at launch, ten stages each). The first six are built: their
+        /// enemies and backdrops exist (the Salt Sea and Whitefang Range share the Salt Flats' and Frost Pasture's; the
+        /// Cinder Marches and Whisperwood, 25 Sep 2026, have their own).
         /// </summary>
         public static readonly MapDef[] Maps =
         {
@@ -104,6 +105,8 @@ namespace Orsuun.Rules
             new MapDef(2, "Gorak Pass", 10, 20, "Marauder Brand", "Warlord Tul-Gorak", new[] { "War Hound", "Gorak Marauder", "Gorak Raider" }),
             new MapDef(3, "The Salt Sea", 20, 30, "Scorpion Glass", "The Mirage Queen", new[] { "Salt Scorpion", "Glass Snake", "Caravan Ghoul" }),
             new MapDef(4, "Whitefang Range", 30, 40, "Frozen Marrow", "Nine-Winters", new[] { "Frost Bear", "Ice Wight", "Snow Hag" }),
+            new MapDef(5, "The Cinder Marches", 40, 50, "Cinder Heart", "Azhdar the Furnace Wyrm", new[] { "Ash Fiend", "Magma Hound", "Flame Cultist" }),
+            new MapDef(6, "Whisperwood", 50, 58, "Whisper Bark", "The Lantern Widow", new[] { "Hollowed Dead", "Hanging Spirit", "Lantern Wisp" }),
         };
 
         public static readonly ZoneDef[] Zones =

@@ -217,11 +217,16 @@ namespace Orsuun.Client.EditorTools
                 var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png");
                 mat.SetTexture("_BaseMap", tex);
                 bool ember = id == "Wolf" || id == "Boar" || id == "Greyjaw";   // the Hollowed; people and other beasts are not ember-veined
+                // The Cinder Marches burn from within; Whisperwood's dead glow cold (25 Sep 2026).
+                bool lava = id == "AshFiend" || id == "MagmaHound" || id == "Azhdar";
+                bool ghost = id == "HangingSpirit" || id == "LanternWisp" || id == "LanternWidow";
                 // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
                 mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
                 mat.SetFloat("_Smoothness", 0.2f);
                 // Wardrobe pieces (owner, 25 Sep 2026): the Hollow Steed glows cold, the Ember Fox's tail and the Amber Road Courser warm.
                 Color? glow = ember ? new Color(0.32f, 0.26f, 0.2f)
+                    : lava ? new Color(0.55f, 0.32f, 0.16f)
+                    : ghost ? new Color(0.22f, 0.3f, 0.38f)
                     : id == "MountWarhorseHollow" ? new Color(0.3f, 0.4f, 0.55f)
                     : id == "MountWarhorseAmber" ? new Color(0.26f, 0.2f, 0.12f)     // the Trail's courser, warm on its bronze
                     : id == "PetFox" ? new Color(0.22f, 0.16f, 0.1f)
@@ -316,7 +321,7 @@ namespace Orsuun.Client.EditorTools
         private static void EnsureBackdrops()
         {
             Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
-            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire" })
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood" })
             {
                 string texPath = Res + "Backdrops/" + zone + ".jpg";
                 if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))

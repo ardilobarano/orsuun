@@ -472,6 +472,28 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   black coat, `MountWarhorseAmber`, a warm glow), Caravan cards for both, the Trail's scene (`Scenes/Trail.jpg`) and
   icon (`Icons/Trail.png`). The Caravan lists the two pieces as "Campaign Trail" (not sold).
 
+## Done 25 Sep 2026 (maps 5 and 6)
+
+- The Cinder Marches and Whisperwood (owner, 25 Sep 2026, the second of the four picks), from the world bible's map
+  table: map 5, the Cinder Marches (fire land, levels 40-50: ash fiends, magma hounds, flame cultists; Cinder Heart;
+  Azhdar the Furnace Wyrm) and map 6, Whisperwood (ghost forest, levels 50-58: the hollowed dead, hanging spirits,
+  lantern wisps; Whisper Bark; the Lantern Widow). The campaign is 60 stages (`Content.Maps`). The stage curve simply
+  continues: the Vanguard, Kestrel and Drumcaller need about +7 for Azhdar and +8 for the Lantern Widow (at the +9 cap,
+  she is the wall for now); the Wraithsworn needs about one forge level more at both, as at Whitefang (class shapes were
+  left alone: changing them again breaks loop replays for the testers' current build). Guarded by
+  `StageAndGearTests.Each_map_boss_is_a_power_check` (5 and 6) and
+  `ClassBalanceTests.The_fifth_and_sixth_map_bosses_ask_every_class_within_a_forge_level`. Map bosses in the campaign
+  have no special mechanic (as before). Art, made on fal.ai now that it has balance again (`tools/art/fal.py`: GPT
+  Image 2.5 for sheets and backdrops, ESRGAN x2 for the sheets, Tripo H3.1 multiview for meshes; it retries through
+  network drops and prints each job's result URL, `fetch` resumes one): turnaround sheets in `docs/concept/mobs/`
+  (crops in `crops/`), meshes in `art/blender/mobs/`, built by `looks.mob_model(..., yaw_degrees=-90)`: AshFiend
+  (biped, sword swing), MagmaHound (quadruped), FlameCultist (biped, staff), HollowedDead (biped, sword),
+  HangingSpirit (not rigged: it floats on the lane's procedural bob), LanternWisp (biped, staff), and the bosses
+  Azhdar (serpent) and LanternWidow (biped, staff). The Cinder Marches' creatures glow warm, Whisperwood's spirits
+  cold (`RenderingSetup.EnsureMobs`). Backdrops `Backdrops/CinderMarches.jpg` and `Whisperwood.jpg` (also
+  `docs/concept/env-cindermarches.jpg`, `env-whisperwood.jpg`) with their own ground tints. `LaneView`: `CinderMobs`,
+  `WhisperMobs`, the two bosses, attack sounds.
+
 ## Store release, waiting on the owner's accounts
 
 - Apple Developer Program (paid) for TestFlight and the App Store, and a Google Play Console account for Play. Sign in

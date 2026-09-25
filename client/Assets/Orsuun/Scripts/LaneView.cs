@@ -59,6 +59,10 @@ namespace Orsuun.Client
         private static readonly string[] SaltMobs = { "Scorpion", "GlassSnake", "Ghoul" };
         /// <summary>The Frost Pasture (and Korstone Fields IV-V): frost bears, ice wights, snow hags.</summary>
         private static readonly string[] FrostMobs = { "FrostBear", "IceWight", "SnowHag" };
+        /// <summary>The Cinder Marches (campaign map 5): ash fiends, magma hounds, flame cultists.</summary>
+        private static readonly string[] CinderMobs = { "AshFiend", "MagmaHound", "FlameCultist" };
+        /// <summary>Whisperwood (campaign map 6): the hollowed dead, hanging spirits, lantern wisps.</summary>
+        private static readonly string[] WhisperMobs = { "HollowedDead", "HangingSpirit", "LanternWisp" };
 
         /// <summary>
         /// Gorak Pass (campaign map 2): war hounds and Gorak marauders, the Oathfields' wolf and deserter in the warlord's
@@ -69,18 +73,20 @@ namespace Orsuun.Client
         /// <summary>The Hollow Spire's floors: the hollowed dead of the grave plain, greyed and washed violet.</summary>
         private static readonly string[] SpireMobs = { "Ghoul#9C94B0", "Deserter#8E8AA0", "Wolf#8A8298" };
 
-        /// <summary>The campaign map of a stage (1 the Oathfields .. 4 Whitefang Range), or 0 for a zone or a dungeon floor.</summary>
+        /// <summary>The campaign map of a stage (1 the Oathfields .. 6 Whisperwood), or 0 for a zone or a dungeon floor.</summary>
         private static int CampaignMap(int stageNumber) => Content.IsZone(stageNumber) ? 0 : Content.MapOfStage(stageNumber).Id;
 
         /// <summary>
         /// Which mob set a stage or zone fields (zone ids from Content: 102 Salt Flats, 103 Frost Pasture, 113-115 Fields
-        /// III-V; campaign maps 2-4 are Gorak Pass, the Salt Sea and Whitefang Range).
+        /// III-V; campaign maps 2-6 are Gorak Pass, the Salt Sea, Whitefang Range, the Cinder Marches and Whisperwood).
         /// </summary>
         private static string[] MobSetFor(int stageNumber)
         {
             int map = CampaignMap(stageNumber);
             string[] set = Dungeons.IsFloor(stageNumber) ? SpireMobs
                 : map == 2 ? GorakMobs
+                : map == 5 ? CinderMobs
+                : map == 6 ? WhisperMobs
                 : stageNumber == 102 || stageNumber == 113 || map == 3 ? SaltMobs
                 : stageNumber == 103 || stageNumber == 114 || stageNumber == 115 || map == 4 ? FrostMobs : MobModels;
             // Older builds without the new models keep the Oathfields set.
@@ -97,7 +103,7 @@ namespace Orsuun.Client
         /// <summary>
         /// Backdrop for a stage: the Hunting Grounds past the Ember Steppe have their own environment keys, and so do the
         /// campaign maps past the Oathfields (Gorak Pass under the war camp, the Salt Sea and Whitefang Range under the
-        /// Salt Flats and the Frost Pasture).
+        /// Salt Flats and the Frost Pasture; the Cinder Marches and Whisperwood under their own).
         /// </summary>
         private static string BackdropKey(ZoneType zone, int stageNumber)
         {
@@ -105,6 +111,8 @@ namespace Orsuun.Client
             int map = CampaignMap(stageNumber);
             if ((stageNumber == 102 || map == 3) && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
             if ((stageNumber == 103 || map == 4) && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
+            if (map == 5 && Resources.Load<Material>("Backdrops/BackdropCinderMarches") != null) return "CinderMarches";
+            if (map == 6 && Resources.Load<Material>("Backdrops/BackdropWhisperwood") != null) return "Whisperwood";
             if (map == 2) return ZoneType.CommanderGround.ToString();
             return (zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone).ToString();
         }
@@ -226,6 +234,8 @@ namespace Orsuun.Client
                 "SaltFlats" => (new Color(0.66f, 0.61f, 0.53f), new Color(0.72f, 0.67f, 0.58f)),
                 "FrostPasture" => (new Color(0.60f, 0.67f, 0.76f), new Color(0.68f, 0.75f, 0.83f)),
                 "HollowSpire" => (new Color(0.24f, 0.23f, 0.26f), new Color(0.29f, 0.27f, 0.31f)),
+                "CinderMarches" => (new Color(0.22f, 0.19f, 0.18f), new Color(0.30f, 0.21f, 0.16f)),
+                "Whisperwood" => (new Color(0.20f, 0.25f, 0.22f), new Color(0.24f, 0.30f, 0.27f)),
                 _ => (new Color(0.52f, 0.48f, 0.22f), new Color(0.58f, 0.54f, 0.27f)),
             };
             _ground.material.color = ground;
@@ -1179,7 +1189,8 @@ namespace Orsuun.Client
                     if (boss.StartsWith("The Spire Warden")) { scale = 1.5f; name = "IceWight"; tint = new Color(0.55f, 0.48f, 0.74f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     // Nine-Winters, Whitefang Range's map boss: the ice wight lord, an ice wight grown tall and pale.
                     if (boss.StartsWith("Nine-Winters")) { scale = 1.5f; name = "IceWight"; tint = new Color(0.78f, 0.9f, 1f); return LoadMob(name) ?? LoadMob("Deserter"); }
-                    name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen" : null;
+                    name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen"
+                        : boss.Contains("Azhdar") ? "Azhdar" : boss.Contains("Lantern Widow") ? "LanternWidow" : null;
                     MobArt own = name != null ? LoadMob(name) : null;
                     if (own != null) { scale = 1f; return own; }
                     if (boss.Contains("Greyjaw")) { scale = 1.8f; name = "Wolf"; return LoadMob("Wolf"); }
@@ -1301,6 +1312,9 @@ namespace Orsuun.Client
                 case "Queen": case "SnowHag": return "SpellVoid";
                 case "Scorpion": case "GlassSnake": return "MobBite";
                 case "FrostBear": return "MobGore";
+                case "MagmaHound": return "MobBite";
+                case "Azhdar": return "BossSlam";
+                case "LanternWidow": case "HangingSpirit": case "FlameCultist": case "LanternWisp": return "SpellVoid";
                 default: return "MobClash";
             }
         }
