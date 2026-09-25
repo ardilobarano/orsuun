@@ -91,9 +91,8 @@ trade with a stat card for every piece (the owner asked for it while it was buil
 `TradePieces`), and two more dungeons with the Master's Needle (migration `MoreDungeons`). See the four "Done 25 Sep
 2026" sections below. Art now comes from fal.ai again (it has balance; Higgsfield has about 9 credits left):
 `tools/art/fal.py`. The APK with all four is on the download link and installed on the owner's iPhone (25 Sep 2026).
-The owner's first playtest hero (a guest from 24 Sep, Ember Banner, in a guild) was deleted from a device with MENU ->
-DELETE ACCOUNT between 22:31 and 22:57 UTC on 24 Sep; it is in `~/orsuun-backups/playtest-before-dungeons-pits-2026-09-25.sql.gz`
-if the owner wants it back (asked, not answered yet).
+The owner's first playtest hero (a guest from 24 Sep, Ember Banner, a guild leader) was deleted from a device with MENU ->
+DELETE ACCOUNT on 24 Sep; the owner does not want it back (25 Sep 2026: "not necessary"). Do not ask again.
 
 Waiting on the owner: the Hetzner Storage Box for database backups (they will buy it later); the paid Apple Developer
 Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
