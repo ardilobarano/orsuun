@@ -682,6 +682,22 @@ namespace Orsuun.Client
         private static readonly Vector3 VanguardBuild = new Vector3(1.1f, 1.03f, 1.1f);
 
         private HeroClass _class = HeroClass.Vanguard;
+        private string _classSkin;
+
+        /// <summary>A wardrobe skin's own model for a class, when it has been made (Vanguard: an armour look id).</summary>
+        public static string SkinModel(HeroClass cls, string look)
+        {
+            if (look == null) return null;
+            string key = cls + "/" + look;
+            if (SkinModels.TryGetValue(key, out string found)) return found;
+            string name = cls == HeroClass.Vanguard ? "Skin_" + look : cls + "_Skin" + look;
+            string folder = cls == HeroClass.Vanguard ? "Models/Looks/" : "Models/Classes/";
+            found = Resources.Load<GameObject>(folder + name) != null ? name : null;
+            SkinModels[key] = found;
+            return found;
+        }
+
+        private static readonly Dictionary<string, string> SkinModels = new Dictionary<string, string>();
         private GameObject _classLook;
         private int _classBand = -1;
 
@@ -868,12 +884,17 @@ namespace Orsuun.Client
             return Quaternion.Inverse(parent) * world;
         }
 
-        public void SetHeroClass(HeroClass cls, int band = 0)
+        /// <summary>
+        /// The class's body for an armour band, or a wardrobe skin's own model when <paramref name="skinModel"/> names one
+        /// that exists (Models/Classes/&lt;Class&gt;_Skin&lt;Look&gt;; the Vanguard's skins are armour looks, SetLooks).
+        /// </summary>
+        public void SetHeroClass(HeroClass cls, int band = 0, string skinModel = null)
         {
-            if (_rig == null || (cls == _class && (cls == HeroClass.Vanguard || band == _classBand))) return;
+            if (_rig == null || (cls == _class && (cls == HeroClass.Vanguard || (band == _classBand && skinModel == _classSkin)))) return;
             if (_hero.rotation != Quaternion.identity || _heroDown) return;   // swap once back on the feet
             _class = cls;
             _classBand = band;
+            _classSkin = skinModel;
             if (_armorLook != null) Kill(_armorLook);
             if (_weaponLook != null) Kill(_weaponLook);
             if (_classLook != null) Kill(_classLook);
@@ -885,7 +906,7 @@ namespace Orsuun.Client
             _rig.localScale = cls == HeroClass.Vanguard ? VanguardBuild : Vector3.one;
             if (cls == HeroClass.Vanguard) return;   // GameRoot's next SetLooks rebuilds him
 
-            string name = ClassLookName(cls, band);
+            string name = skinModel ?? ClassLookName(cls, band);
             if (name == null) return;
             var prefab = Resources.Load<GameObject>("Models/Classes/" + name);
             _classLook = Instantiate(prefab, _rig);

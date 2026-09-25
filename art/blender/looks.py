@@ -237,10 +237,15 @@ def _export_rigged(root, look_id):
                                  bake_anim_force_startend_keying=True, bake_anim_simplify_factor=0.0)
 
 
-def armor_look(glb, look_id, pole=None, rig=True):
+def armor_look(glb, look_id, pole=None, rig=True, yaw_degrees=0.0):
+    """yaw_degrees turns the mesh about Z first so it faces -Y like Rodin's output (Tripo faces +X: -90). Also used for
+    the Vanguard's wardrobe skins (look ids Skin_<Look>, 25 Sep 2026)."""
+    import math
     _clear()
     mesh = _import(glb)
     t0 = _bake(mesh)
+    if yaw_degrees:
+        mesh.data.transform(Matrix.Rotation(math.radians(yaw_degrees), 4, 'Z'))
     vs = [v.co for v in mesh.data.vertices]
     zs = [v.z for v in vs]
     mesh.data.transform(Matrix.Scale(ARMOR_HEIGHT / (max(zs) - min(zs)), 4))

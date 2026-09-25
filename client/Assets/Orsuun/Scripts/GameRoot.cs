@@ -328,11 +328,13 @@ namespace Orsuun.Client
             WardrobeDef skin = null, mount = null, companion = null;
             foreach (WardrobeDef piece in Session.Worn)
                 if (piece.Kind == WardrobeKind.Skin) skin = piece; else if (piece.Kind == WardrobeKind.Mount) mount = piece; else companion = piece;
-            bool skinned = skin != null && LaneView.SkinLooks.ContainsKey(skin.Look);
-            (int Band, Color Tint) skinLook = skinned ? LaneView.SkinLooks[skin.Look] : (0, Color.white);
-            int band = skinned ? skinLook.Band : armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0;
-            Lane.SetHeroClass(Session.Class, band);
-            Lane.SetLooks(skinned ? "Armor_T" + band : armor?.LookId, Session.Weapon.LookId);
+            // A skin shows its own costume model where one has been made, otherwise an armour band in the skin's tint.
+            string skinModel = skin != null ? LaneView.SkinModel(Session.Class, skin.Look) : null;
+            bool tinted = skin != null && skinModel == null && LaneView.SkinLooks.ContainsKey(skin.Look);
+            (int Band, Color Tint) skinLook = tinted ? LaneView.SkinLooks[skin.Look] : (0, Color.white);
+            int band = tinted ? skinLook.Band : armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0;
+            Lane.SetHeroClass(Session.Class, band, Session.Class == HeroClass.Vanguard ? null : skinModel);
+            Lane.SetLooks(skinModel != null && Session.Class == HeroClass.Vanguard ? skinModel : tinted ? "Armor_T" + band : armor?.LookId, Session.Weapon.LookId);
             Lane.SetWardrobe(mount?.Look, companion?.Look, skinLook.Tint);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 

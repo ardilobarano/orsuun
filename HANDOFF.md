@@ -400,8 +400,13 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   `PetEagle` (recoloured copies). On the lane (`LaneView.SetWardrobe`): the mount stands under the hero (saddle at
   56% of its height, the rider drawn 0.6 right of HeroX, mobs line up 1.3 further off), his legs held in a riding pose
   after the clips (`LateUpdate`, rest from the skin's bind poses); a ground companion trots at his feet, a bird glides
-  ahead of him; the Grave Wolf Pup is the Hollow wolf at half size. Skins for now show an existing armour band with a
-  tint (`LaneView.SkinLooks`); real costume models per class are still to make. Screenshot switches: `-caravan <tab>`
+  ahead of him; the Grave Wolf Pup is the Hollow wolf at half size. Skins have their own costume model per class (owner, 25 Sep 2026: "dont forget skin thing"): 28 models, 7 skins
+  x 4 classes, from turnaround sheets drawn with each class's own sheet as the reference (`docs/concept/skins/<class>-<Look>.jpg`,
+  front/side/back crops in `crops/`, Tripo sources in `art/blender/skins/`). The Vanguard's go through
+  `looks.armor_look(..., yaw_degrees=-90)` (the glaive is cut out, so the item's weapon look still shows) as
+  `Models/Looks/Skin_<Look>`; the others through `looks.class_look` as `Models/Classes/<Class>_Skin<Look>` (Kestrel knives,
+  Wraithsworn sword, Drumcaller staff). `LaneView.SkinModel` picks the costume when it exists; the old band-and-tint
+  (`LaneView.SkinLooks`) stays as the fallback. Screenshot switches: `-caravan <tab>`
   (0 skins .. 3 Amber), `-wardrobe` (online).
 - Class balance past the Oathfields (owner, 25 Sep 2026: "balance"). Measured with full Rare sets at the stage's level,
   the Wraithsworn needed two to four more forge levels than the Vanguard at Gorak Pass, the Salt Sea and Whitefang, the
