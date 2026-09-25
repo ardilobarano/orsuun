@@ -110,7 +110,9 @@ Waiting on the owner: the Hetzner Storage Box for database backups (they will bu
 Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
 
 The maps 9 and 10 build and then Banner change and Oath Renewal went to the APK link and the owner's iPhone (25 Sep 2026,
-evening); Pit seasons after them (see the Done sections).
+evening); Pit seasons after them are on the APK link (20:32), but the iPhone was unavailable for that install: it has the
+Banner change build. Reinstall with the xcodebuild + devicectl commands under "Next steps" once it is plugged in and unlocked.
+The GDD has notes for all of this session's features (25 Sep 2026, evening).
 Could come next: maps 11 and 12 (the Thousand Markers, the Hollow Throne; move the zone ids first, see the maps 9 and 10 row; band 10 of looks with them), Oath Renewal (Oathstones for the Archive),
 the Exchange's price history (the direct trade 10:1 hold needs it), Campaign Trail season 2 art before 16 Nov 2026, Pit seasons and the Pit shop's Technique Scrolls and frames, the Mirage Queen's presence (a mirage shimmer,
 ghostlier images, a little taller), Free Lances and the fortress aura for keeps, private messages between friends, password reset by email
