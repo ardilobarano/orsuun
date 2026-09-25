@@ -6,8 +6,9 @@ namespace Orsuun.Client
 {
     /// <summary>
     /// THE PITS (Rules.Pits, server GameService.Pits): the league, rating, record, Laurels and tickets; three challengers with
-    /// their weapon and the odds, FIGHT and LOOK AGAIN; the Pit shop's Korshards; the board of the best with their weapons
-    /// (the GDD's gear inspection, in brief). A fight closes the screen for its replay and brings it back.
+    /// their weapon and the odds, FIGHT and LOOK AGAIN; the Pit shop; the season's board with their weapons (the GDD's gear
+    /// inspection, in brief) and last season's titles. Pit seasons (25 Sep 2026): a week, its record and end, and what the
+    /// last one paid. A fight closes the screen for its replay and brings it back.
     /// </summary>
     public sealed class PitsPanel : MonoBehaviour
     {
@@ -28,7 +29,7 @@ namespace Orsuun.Client
         private Text _record;
         private Text _message;
         private readonly Card[] _cards = new Card[Pits.Challengers];
-        private readonly Button[] _shop = new Button[3];
+        private readonly Button[] _shop = new Button[Pits.Shop.Length];
         private readonly Text[] _board = new Text[8];
         private float _nextFetch;
         private bool _fetching;
@@ -52,6 +53,7 @@ namespace Orsuun.Client
             _league.supportRichText = true;
             _record = Ui.Label("Record", canvas, 0.07f, 0.828f, 0.93f, 0.858f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
             _message = Ui.Label("Message", canvas, 0.07f, 0.804f, 0.93f, 0.83f, "", 20, TextAnchor.MiddleCenter, Palette.Warn);
+            _message.supportRichText = true;
 
             Ui.Section("ChallengersHead", canvas, 0.04f, 0.752f, 0.7f, 0.79f, "CHALLENGERS", 26);
             Ui.Button("Refresh", canvas, 0.72f, 0.752f, 0.96f, 0.79f, "LOOK AGAIN", 20, Palette.ButtonIdle, Refresh, out _);
@@ -71,19 +73,31 @@ namespace Orsuun.Client
             }
 
             Ui.Section("ShopHead", canvas, 0.2f, 0.465f, 0.8f, 0.5f, "PIT SHOP", 26);
+            // Two rows: the three Korshards, then the goods added with the seasons.
             for (int i = 0; i < _shop.Length; i++)
             {
                 PitShopItem item = Pits.Shop[i];
-                float x0 = 0.04f + i * 0.31f;
-                _shop[i] = Ui.IconButton("Shop" + i, canvas, x0, 0.395f, x0 + 0.3f, 0.458f, $"{item.Name.Replace(" Korshard", "")}\n<size=16>{item.Laurels} Laurels</size>",
-                    20, Palette.Alloy, SocketPanel.RankIcons[item.KorshardRank], () => Buy(item.Id), out _);
+                bool top = i < 3;
+                int col = top ? i : i - 3;
+                float width = top ? 0.3f : 0.222f, step = top ? 0.31f : 0.232f;
+                float x0 = 0.04f + col * step, y0 = top ? 0.418f : 0.372f;
+                string icon = item.Good switch
+                {
+                    PitGood.Turnstones => "Turnstone",
+                    PitGood.EtchingNeedle => "EtchingNeedle",
+                    PitGood.PinningWax => "PinningWax",
+                    PitGood.Oathstone => "Oathstone",
+                    _ => SocketPanel.RankIcons[item.KorshardRank],
+                };
+                _shop[i] = Ui.IconButton("Shop" + i, canvas, x0, y0, x0 + width, y0 + 0.042f, $"{item.Name.Replace(" Korshard", "")}\n<size=15>{item.Laurels} Laurels</size>",
+                    top ? 20 : 17, Palette.Alloy, icon, () => Buy(item.Id), out _);
             }
 
-            Ui.Section("BoardHead", canvas, 0.2f, 0.345f, 0.8f, 0.38f, "THE BOARD", 26);
-            Ui.Framed("BoardBack", canvas, 0.04f, 0.085f, 0.96f, 0.34f, new Color(0.06f, 0.06f, 0.12f, 0.9f));
+            Ui.Section("BoardHead", canvas, 0.2f, 0.33f, 0.8f, 0.365f, "THE SEASON'S BOARD", 26);
+            Ui.Framed("BoardBack", canvas, 0.04f, 0.085f, 0.96f, 0.325f, new Color(0.06f, 0.06f, 0.12f, 0.9f));
             for (int i = 0; i < _board.Length; i++)
             {
-                float y1 = 0.332f - i * 0.03f;
+                float y1 = 0.317f - i * 0.029f;
                 _board[i] = Ui.Label("Board" + i, canvas, 0.07f, y1 - 0.029f, 0.93f, y1, "", 20, TextAnchor.MiddleLeft, Palette.Parchment);
                 _board[i].supportRichText = true;
             }
@@ -112,6 +126,16 @@ namespace Orsuun.Client
             "Khagan" => new Color(1f, 0.45f, 0.3f),
             _ => new Color(0.8f, 0.55f, 0.35f),
         };
+
+        /// <summary>The season's end, and what the last one paid this hero (or who won it).</summary>
+        private static string SeasonLine(Net.ServerLink.PitsDto pits)
+        {
+            long s = pits.seasonSecondsLeft;
+            string ends = s >= 86400 ? $"{s / 86400}d {s % 86400 / 3600}h" : $"{s / 3600}h {s % 3600 / 60}m";
+            string last = pits.lastRank > 0 ? $"last season #{pits.lastRank}, +{pits.lastLaurels} Laurels"
+                : !string.IsNullOrEmpty(pits.lastChampions) ? "last season's best: " + pits.lastChampions : $"{Pits.SeasonMinFights} fights to be ranked";
+            return ConfirmDialog.Tint($"Season ends in {ends}  ·  {last}" + (string.IsNullOrEmpty(pits.title) ? "" : $"  ·  ★ {pits.title}"), Palette.Muted);
+        }
 
         private void Refresh()
         {
@@ -151,7 +175,7 @@ namespace Orsuun.Client
             }
 
             Net.ServerLink.PitsDto pits = _root.Server.Pits;
-            _message.text = _note;
+            _message.text = _note.Length > 0 || pits == null ? _note : SeasonLine(pits);
             if (pits?.challengers == null)
             {
                 _league.text = _root.Server.Online ? "Sanding the pit floor..." : "";
@@ -161,7 +185,7 @@ namespace Orsuun.Client
             }
 
             _league.text = ConfirmDialog.Tint(pits.league.ToUpperInvariant(), LeagueColor(pits.league)) + $"  ·  {pits.rating:N0}";
-            _record.text = $"{pits.wins} won  ·  {pits.losses} lost  ·  {pits.laurels} Laurels  ·  tickets today {pits.ticketsLeft}/{Pits.TicketsPerDay}";
+            _record.text = $"This season {pits.seasonWins} won, {pits.seasonLosses} lost  ·  {pits.laurels} Laurels  ·  tickets {pits.ticketsLeft}/{Pits.TicketsPerDay}";
             for (int i = 0; i < _cards.Length; i++)
             {
                 Card c = _cards[i];
@@ -186,7 +210,8 @@ namespace Orsuun.Client
                 if (empty) _board[i].text = ConfirmDialog.Tint("No one has fought in the pits yet. Be the first.", Palette.Muted);
                 if (!has) continue;
                 Net.ServerLink.PitBoardDto r = pits.board[i];
-                string line = $"{r.rank}.  {(string.IsNullOrEmpty(r.tag) ? "" : "[" + r.tag + "] ")}{r.name}   ·   "
+                string title = string.IsNullOrEmpty(r.title) ? "" : ConfirmDialog.Tint(" ★ " + r.title, Palette.Sorn);
+                string line = $"{r.rank}.  {(string.IsNullOrEmpty(r.tag) ? "" : "[" + r.tag + "] ")}{r.name}{title}   ·   "
                               + ConfirmDialog.Tint($"{r.league} {r.rating:N0}", LeagueColor(r.league)) + $"   ·   {r.wins}-{r.losses}   ·   {r.weapon}";
                 _board[i].text = r.me ? ConfirmDialog.Tint(line, Palette.Sorn) : line;
             }

@@ -85,6 +85,17 @@ public sealed class Account
     [MaxLength(16)] public string PitDay { get; set; } = "";
     public int PitFights { get; set; }
     public int PitRoll { get; set; }
+    /// <summary>Pit seasons (Rules.Pits.SeasonKey): the season of PitSeasonWins/Losses; set by the hero's first fight in it.</summary>
+    [MaxLength(16)] public string PitSeason { get; set; } = "";
+    public int PitSeasonWins { get; set; }
+    public int PitSeasonLosses { get; set; }
+    /// <summary>The last settled season this hero ended ranked in: its key, rank, final rating and Laurels paid.</summary>
+    [MaxLength(16)] public string PitLastSeason { get; set; } = "";
+    public int PitLastRank { get; set; }
+    public int PitLastRating { get; set; }
+    public int PitLastLaurels { get; set; }
+    /// <summary>A title from the last season's end (Rules.Pits.Title), held through the next.</summary>
+    [MaxLength(32)] public string? PitTitle { get; set; }
     /// <summary>
     /// The wardrobe (Rules.Wardrobe.Format: "id:expiresUnix;...") and the piece worn in each slot ("" for none). Amber is
     /// on the Login since characters came (25 Sep 2026).
@@ -456,6 +467,15 @@ public sealed class GuildRequest
     public Guid GuildId { get; set; }
     public Guid AccountId { get; set; }
     public DateTime Utc { get; set; }
+}
+
+/// <summary>A settled Pit season (the key is unique, so only one settlement claims it) and its three best.</summary>
+public sealed class PitSeasonRecord
+{
+    [Key, MaxLength(16)] public string Season { get; set; } = "";
+    public DateTime SettledUtc { get; set; }
+    public int Fighters { get; set; }
+    [MaxLength(256)] public string Champions { get; set; } = "";
 }
 
 /// <summary>A guild's invitation to a player (Rules.Guilds.MaxInvites): taking it lets them in through shut gates.</summary>

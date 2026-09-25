@@ -1289,8 +1289,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class TradeOfferRequest { public string requestId; public long tradeId; public string[] itemIds; public long sorn; }
         [Serializable] public class TrailBuyRequest { public string requestId; public bool plus; }
         [Serializable] public class PitChallengerDto { public string id; public string name; public string tag; public int rating; public string league; public string @class; public string weapon; public int winChancePercent; public bool shade; }
-        [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; }
-        [Serializable] public class PitsDto { public int rating; public string league; public int wins; public int losses; public int laurels; public int ticketsLeft; public PitChallengerDto[] challengers; public PitBoardDto[] board; public string message; }
+        [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; public string title; }
+        [Serializable] public class PitsDto { public int rating; public string league; public int wins; public int losses; public int laurels; public int ticketsLeft; public PitChallengerDto[] challengers; public PitBoardDto[] board; public string message; public int seasonWins; public int seasonLosses; public long seasonSecondsLeft; public string title; public int lastRank; public int lastRating; public int lastLaurels; public string lastChampions; }
         [Serializable] public class PitFightRequest { public string requestId; public string opponentId; }
         [Serializable] public class PitShopRequest { public string requestId; public int itemId; }
         [Serializable] public class PitFightDto { public StateDto state; public DuelResultDto duel; public PitsDto pits; public int ratingBefore; public int ratingAfter; public int laurelsGained; }

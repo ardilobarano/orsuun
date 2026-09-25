@@ -131,6 +131,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - A dungeon's pause floor (`DungeonDef.SmithFloor`) holds the Chained Smith or the Carvers' rune lock (`DungeonDef.Pause`);
   the waiting run is `Account.DungeonRunAtSmith` and its dungeon `Account.DungeonPausedId`. A rune lock's riddle comes
   from the run id (`Dungeons.RiddleFor`), so it needs no storage.
+- Pit seasons are settled by `WorldClock` (`SettlePitSeasonAsync`, claimed by the `PitSeasons` row). Never call the
+  Development `/v1/dev/pit-season-end` on the playtest server: it settles the running season and halves every rating.
 - Campaign stages run 1..100 (ten maps) and zone ids start at 101 (`Content.FirstZoneId`): maps 11 and 12 must move the
   zones (and migrate `Accounts.ParkedStage`) before they are added. Dungeon floors are 301-399.
 - fal.ai was out of balance on 25 Sep 2026 (a 403 "Exhausted balance"): until the owner tops it up, run Tripo through

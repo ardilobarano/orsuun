@@ -51,4 +51,37 @@ public class PitsTests
         Assert.True(rider.Laurels > Pits.ShopItem(1)!.Laurels);
         Assert.Null(Pits.ShopItem(9));
     }
+
+    [Fact]
+    public void A_season_ends_with_Laurels_by_league_a_title_for_the_top_three_and_a_soft_reset()
+    {
+        Assert.Equal(3, Pits.SeasonMinFights);
+        Assert.Equal(20, Pits.SeasonReward(1000, 10));
+        Assert.Equal(40, Pits.SeasonReward(1100, 10));
+        Assert.Equal(220 + 100, Pits.SeasonReward(1850, 1));
+        Assert.Equal(160 + 50, Pits.SeasonReward(1650, 3));
+        Assert.Equal(110, Pits.SeasonReward(1450, 4));
+        Assert.Equal("Champion of the Pits", Pits.Title(1));
+        Assert.Equal("Pit Veteran", Pits.Title(2));
+        Assert.Null(Pits.Title(4));
+        Assert.Equal(1400, Pits.SoftReset(1800));
+        Assert.Equal(950, Pits.SoftReset(900));
+        Assert.Equal(1000, Pits.SoftReset(1000));
+        Assert.Equal(Bounties.WeekKey(new DateTime(2026, 9, 25, 12, 0, 0)), Pits.SeasonKey(new DateTime(2026, 9, 25, 12, 0, 0)));
+    }
+
+    [Fact]
+    public void The_Pit_shop_sells_currencies_never_upgrade_protection()
+    {
+        var inv = new Inventory();
+        foreach (PitShopItem item in Pits.Shop) item.GrantTo(inv);
+        Assert.Equal(new[] { 1, 1, 1, 0, 0 }, inv.Korshards);
+        Assert.Equal(5, inv.Turnstones);
+        Assert.Equal(1, inv.EtchingNeedles);
+        Assert.Equal(1, inv.PinningWax);
+        Assert.Equal(1, inv.Oathstones);
+        Assert.Equal(0, inv.AnvilWards);
+        Assert.Equal(0, inv.ScrollsOfMercy);
+        Assert.Equal(0, inv.KhansAlloys);
+    }
 }

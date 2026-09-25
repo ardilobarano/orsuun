@@ -10,7 +10,9 @@ namespace Orsuun.Server.Game;
 /// <summary>
 /// The Pits (owner, 25 Sep 2026: "the Pits"; Rules.Pits): three challengers at a time (players near the attacker's rating,
 /// Pit shades where there are too few), five tickets a bounty day, a duel scored here and replayed by the client, Elo with
-/// leagues, Laurels for the Pit shop, and a board of the best with their weapons on show.
+/// leagues, Laurels for the Pit shop, and a board of the best with their weapons on show. Pit seasons (owner, 25 Sep
+/// 2026; Rules.Pits seasons): the board is the season's; WorldClock settles a season once the week turns (Laurels by
+/// league, titles for the three best, ratings halfway back to the start).
 /// </summary>
 public sealed partial class GameService
 {
@@ -68,22 +70,32 @@ public sealed partial class GameService
     private double Edge(Account account, Challenger foe) =>
         Duels.Edge(Duels.Neutral(Worn(account), Content.LevelFor(account.Xp)), Duels.Neutral(foe.Gear, foe.Level)) + Pits.AttackerEdge;
 
+    private string PitSeasonNow() => Pits.SeasonKey(_bells.LocalNow);
+    private string PitSeasonLast() => Pits.SeasonKey(_bells.LocalNow.AddDays(-7));
+
     public async Task<PitsDto> PitsAsync(Account account, string message, CancellationToken ct)
     {
+        string season = PitSeasonNow(), last = PitSeasonLast();
         List<Challenger> challengers = await ChallengersAsync(account, ct);
         PitChallengerDto[] offered = challengers.Select(c => new PitChallengerDto(c.Id, c.Name, c.Tag, c.Rating, Pits.League(c.Rating), c.Class,
             WeaponLine(c.Gear), (int)Math.Round(Duels.WinChance(Edge(account, c)) * 100), c.Account == null)).ToArray();
 
-        List<Account> top = await _db.Accounts.AsNoTracking().Where(a => a.PitWins + a.PitLosses > 0 && a.BannedUtc == null)
-            .OrderByDescending(a => a.PitRating).ThenByDescending(a => a.PitWins).Take(20).ToListAsync(ct);
+        // The board is the season's: heroes who fought in it.
+        List<Account> top = await _db.Accounts.AsNoTracking().Where(a => a.PitSeason == season && a.PitSeasonWins + a.PitSeasonLosses > 0 && a.BannedUtc == null)
+            .OrderByDescending(a => a.PitRating).ThenByDescending(a => a.PitSeasonWins).Take(20).ToListAsync(ct);
         var guildIds = top.Where(a => a.GuildId != null).Select(a => a.GuildId!.Value).Distinct().ToList();
         var tags = await _db.Guilds.AsNoTracking().Where(g => guildIds.Contains(g.Id)).Select(g => new { g.Id, g.Tag }).ToListAsync(ct);
         PitBoardDto[] board = top.Select((a, i) => new PitBoardDto(i + 1, NameOf(a),
-            tags.Where(t => t.Id == a.GuildId).Select(t => t.Tag).FirstOrDefault() ?? "", a.PitRating, Pits.League(a.PitRating), a.PitWins, a.PitLosses,
-            WeaponLine(Worn(a)), a.Id == account.Id)).ToArray();
+            tags.Where(t => t.Id == a.GuildId).Select(t => t.Tag).FirstOrDefault() ?? "", a.PitRating, Pits.League(a.PitRating), a.PitSeasonWins, a.PitSeasonLosses,
+            WeaponLine(Worn(a)), a.Id == account.Id, a.PitTitle ?? "")).ToArray();
 
+        bool inSeason = account.PitSeason == season;
+        bool ranked = account.PitLastSeason == last;
+        string champions = await _db.PitSeasons.AsNoTracking().Where(p => p.Season == last).Select(p => p.Champions).FirstOrDefaultAsync(ct) ?? "";
         return new PitsDto(account.PitRating, Pits.League(account.PitRating), account.PitWins, account.PitLosses, account.Laurels, PitTicketsLeft(account),
-            offered, board, message);
+            offered, board, message, inSeason ? account.PitSeasonWins : 0, inSeason ? account.PitSeasonLosses : 0,
+            Rules.Bounties.SecondsToWeeklyReset(_bells.LocalNow), account.PitTitle ?? "",
+            ranked ? account.PitLastRank : 0, ranked ? account.PitLastRating : 0, ranked ? account.PitLastLaurels : 0, champions);
     }
 
     /// <summary>New challengers (free).</summary>
@@ -113,6 +125,15 @@ public sealed partial class GameService
         (int mine, int theirs) = Pits.Rate(account.PitRating, foe.Rating, won, foe.Account != null);
         account.PitRating = mine;
         if (won) account.PitWins++; else account.PitLosses++;
+        // The hero's first fight of a season opens its record for the season.
+        string season = PitSeasonNow();
+        if (account.PitSeason != season)
+        {
+            account.PitSeason = season;
+            account.PitSeasonWins = 0;
+            account.PitSeasonLosses = 0;
+        }
+        if (won) account.PitSeasonWins++; else account.PitSeasonLosses++;
         int laurels = won ? Pits.WinLaurels : Pits.LossLaurels;
         account.Laurels += laurels;
         string day = Rules.Bounties.DayKey(_bells.LocalNow);
@@ -143,11 +164,79 @@ public sealed partial class GameService
         PitShopItem item = Pits.ShopItem(request.ItemId) ?? throw new GameException("no_item", "The Pit shop has no such thing.");
         if (account.Laurels < item.Laurels) throw new GameException("no_laurels", "Not enough Laurels.");
         account.Laurels -= item.Laurels;
-        int[] shards = ParseShards(account.Korshards);
-        shards[item.KorshardRank]++;
-        account.Korshards = string.Join(';', shards);
+        Inventory inventory = Snapshot(account);
+        item.GrantTo(inventory);
+        Apply(account, inventory);
         _db.Ledger.Add(Entry(account.Id, null, "pit-shop", $"{item.Name} for {item.Laurels} Laurels", 0, request.RequestId));
         await SaveAsync(ct);
-        return await PitsAsync(account, $"A {item.Name} for {item.Laurels} Laurels.", ct);
+        return await PitsAsync(account, $"{item.Name} for {item.Laurels} Laurels.", ct);
+    }
+
+    /// <summary>
+    /// Settles the Pit season that ended when the week turned (WorldClock, every 30 s): claims its row (the key is
+    /// unique, so it is settled once), pays each hero who fought at least Rules.Pits.SeasonMinFights times Laurels by the
+    /// league they ended in (more for the three best, who also take a title for the next season), and moves every rating
+    /// not yet fought with in the new season halfway back to the start. The first run ever only marks the season before
+    /// as settled and opens this week's season for the heroes who fought before seasons existed.
+    /// </summary>
+    private async Task SettlePitSeasonAsync(CancellationToken ct)
+    {
+        string current = PitSeasonNow(), last = PitSeasonLast();
+        if (await _db.PitSeasons.AnyAsync(p => p.Season == last, ct)) return;
+        bool first = !await _db.PitSeasons.AnyAsync(ct);
+        await SettlePitSeasonCoreAsync(last, current, first, ct);
+    }
+
+    private async Task SettlePitSeasonCoreAsync(string ended, string next, bool bootstrap, CancellationToken ct)
+    {
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        var record = new PitSeasonRecord { Season = ended, SettledUtc = DateTime.UtcNow };
+        _db.PitSeasons.Add(record);
+        try { await _db.SaveChangesAsync(ct); }
+        catch (DbUpdateException) { _db.ChangeTracker.Clear(); return; }
+        if (bootstrap)
+        {
+            await _db.Accounts.Where(a => a.PitSeason == "" && a.PitWins + a.PitLosses > 0).ExecuteUpdateAsync(s => s
+                .SetProperty(a => a.PitSeason, next).SetProperty(a => a.PitSeasonWins, a => a.PitWins).SetProperty(a => a.PitSeasonLosses, a => a.PitLosses), ct);
+            await tx.CommitAsync(ct);
+            return;
+        }
+        var fighters = await _db.Accounts.AsNoTracking()
+            .Where(a => a.PitSeason == ended && a.PitSeasonWins + a.PitSeasonLosses >= Pits.SeasonMinFights && a.BannedUtc == null)
+            .OrderByDescending(a => a.PitRating).ThenByDescending(a => a.PitSeasonWins).ThenBy(a => a.Id)
+            .Select(a => new { a.Id, a.Name, a.PitRating }).ToListAsync(ct);
+        // Last season's titles end; this season's three best take theirs.
+        await _db.Accounts.Where(a => a.PitTitle != null).ExecuteUpdateAsync(s => s.SetProperty(a => a.PitTitle, (string?)null), ct);
+        var champions = new List<string>();
+        for (int i = 0; i < fighters.Count; i++)
+        {
+            var f = fighters[i];
+            int rank = i + 1, rating = f.PitRating, laurels = Pits.SeasonReward(rating, rank);
+            string? title = Pits.Title(rank);
+            await _db.Accounts.Where(a => a.Id == f.Id).ExecuteUpdateAsync(s => s
+                .SetProperty(a => a.Laurels, a => a.Laurels + laurels).SetProperty(a => a.PitLastSeason, ended).SetProperty(a => a.PitLastRank, rank)
+                .SetProperty(a => a.PitLastRating, rating).SetProperty(a => a.PitLastLaurels, laurels).SetProperty(a => a.PitTitle, title), ct);
+            if (rank <= 3) champions.Add(ShownName(f.Id, f.Name));
+        }
+        await _db.Accounts.Where(a => a.PitSeason != next && a.PitRating != Pits.StartRating)
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.PitRating, a => Pits.StartRating + (a.PitRating - Pits.StartRating) / 2), ct);
+        record.Fighters = fighters.Count;
+        record.Champions = string.Join(", ", champions);
+        if (champions.Count > 0)
+            SystemLine(Chat.World, $"The Pits' season is over: {champions[0]} is Champion of the Pits"
+                + (champions.Count > 1 ? ", " + string.Join(" and ", champions.Skip(1)) + (champions.Count > 2 ? " are Pit Veterans." : " is a Pit Veteran.") : "."));
+        await _db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+    }
+
+    /// <summary>Development: ends the current Pit season now (settles it as if the week had turned).</summary>
+    public async Task<PitsDto> DevPitSeasonEndAsync(Account account, CancellationToken ct)
+    {
+        string current = PitSeasonNow();
+        await _db.PitSeasons.Where(p => p.Season == current).ExecuteDeleteAsync(ct);
+        // Settle this week's season into a "next" key no hero is in, so every rating drifts back.
+        await SettlePitSeasonCoreAsync(current, "dev-next", bootstrap: false, ct);
+        await _db.Entry(account).ReloadAsync(ct);
+        return await PitsAsync(account, "The season was ended (Development).", ct);
     }
 }

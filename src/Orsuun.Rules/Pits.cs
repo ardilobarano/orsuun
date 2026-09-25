@@ -4,20 +4,43 @@ using System.Collections.Generic;
 
 namespace Orsuun.Rules
 {
+    /// <summary>What a Pit shop line hands over.</summary>
+    public enum PitGood { Korshard = 0, Turnstones = 1, EtchingNeedle = 2, PinningWax = 3, Oathstone = 4 }
+
     public sealed class PitShopItem
     {
         public PitShopItem(int id, string name, int laurels, int korshardRank)
+            : this(id, name, laurels, PitGood.Korshard, 1, korshardRank) { }
+
+        public PitShopItem(int id, string name, int laurels, PitGood good, int amount, int korshardRank = 0)
         {
             Id = id;
             Name = name;
             Laurels = laurels;
+            Good = good;
+            Amount = amount;
             KorshardRank = korshardRank;
         }
 
         public int Id { get; }
         public string Name { get; }
         public int Laurels { get; }
+        public PitGood Good { get; }
+        public int Amount { get; }
         public int KorshardRank { get; }
+
+        /// <summary>Hands the goods to the inventory (Korshards by rank).</summary>
+        public void GrantTo(Inventory inventory)
+        {
+            switch (Good)
+            {
+                case PitGood.Korshard: inventory.Korshards[KorshardRank] += Amount; break;
+                case PitGood.Turnstones: inventory.Turnstones += Amount; break;
+                case PitGood.EtchingNeedle: inventory.EtchingNeedles += Amount; break;
+                case PitGood.PinningWax: inventory.PinningWax += Amount; break;
+                case PitGood.Oathstone: inventory.Oathstones += Amount; break;
+            }
+        }
     }
 
     /// <summary>
@@ -72,13 +95,50 @@ namespace Orsuun.Rules
             return gear;
         }
 
-        /// <summary>The Pit shop (GDD: Technique Scrolls, Korshards and frames; Korshards for now).</summary>
+        /// <summary>
+        /// The Pit shop (GDD: Technique Scrolls, Korshards and frames; Pit rewards are currency and cosmetics, never
+        /// upgrade protection). Korshards, and since the seasons (25 Sep 2026) Turnstones, Etching Needles, Pinning Wax
+        /// and Oathstones; Technique Scrolls and frames wait for skill grades and name frames.
+        /// </summary>
         public static readonly PitShopItem[] Shop =
         {
             new PitShopItem(1, "Trooper Korshard", 10, 0),
             new PitShopItem(2, "Rider Korshard", 25, 1),
             new PitShopItem(3, "Captain Korshard", 60, 2),
+            new PitShopItem(4, "5 Turnstones", 15, PitGood.Turnstones, 5),
+            new PitShopItem(5, "Etching Needle", 20, PitGood.EtchingNeedle, 1),
+            new PitShopItem(6, "Pinning Wax", 25, PitGood.PinningWax, 1),
+            new PitShopItem(7, "Oathstone", 45, PitGood.Oathstone, 1),
         };
+
+        // ---- Pit seasons (owner, 25 Sep 2026; GDD: the Pit ladder resets weekly and pays titles and season currency) ----
+
+        /// <summary>A Pit season is the War season: the bounty week.</summary>
+        public static string SeasonKey(DateTime local) => Bounties.WeekKey(local);
+
+        /// <summary>Fights a season needs before its end pays.</summary>
+        public const int SeasonMinFights = 3;
+
+        /// <summary>Laurels at a season's end by the league it ended in (Bronze .. Khagan).</summary>
+        public static readonly int[] SeasonLaurels = { 20, 40, 70, 110, 160, 220 };
+
+        public static int LeagueIndex(int rating)
+        {
+            int index = 0;
+            for (int i = 0; i < LeagueFloors.Length; i++)
+                if (rating >= LeagueFloors[i]) index = i;
+            return index;
+        }
+
+        /// <summary>A season's end: the league's Laurels, and 100 more for the first, 50 for the second and third.</summary>
+        public static int SeasonReward(int rating, int rank) =>
+            SeasonLaurels[LeagueIndex(rating)] + (rank == 1 ? 100 : rank >= 2 && rank <= 3 ? 50 : 0);
+
+        /// <summary>The title a season's end gives, held through the next season (shown on the board).</summary>
+        public static string? Title(int rank) => rank == 1 ? "Champion of the Pits" : rank >= 2 && rank <= 3 ? "Pit Veteran" : null;
+
+        /// <summary>Ratings drift halfway back to the start at a season's end, so the ladder climbs again each week.</summary>
+        public static int SoftReset(int rating) => StartRating + (rating - StartRating) / 2;
 
         public static PitShopItem? ShopItem(int id)
         {

@@ -20,6 +20,7 @@ public sealed class GameDb : DbContext
     public DbSet<GuildRequest> GuildRequests => Set<GuildRequest>();
     public DbSet<GuildInvite> GuildInvites => Set<GuildInvite>();
     public DbSet<Friendship> Friendships => Set<Friendship>();
+    public DbSet<PitSeasonRecord> PitSeasons => Set<PitSeasonRecord>();
     public DbSet<MarketListing> MarketListings => Set<MarketListing>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<AdminAction> AdminActions => Set<AdminAction>();

@@ -378,6 +378,7 @@ public sealed partial class GameService
         await PairTonightAsync(ct);
         await SettleWarsAsync(ct);
         foreach (FortressDef def in Fortresses.All) await AdvanceKeepAsync(def.Id, ct);
+        await SettlePitSeasonAsync(ct);
     }
 
     // ---- Development: war nights and keep sieges on demand (the smoke test and screenshots) ----

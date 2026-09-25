@@ -595,6 +595,7 @@ public sealed partial class GameService
         account.Oathstones += Banners.ChangeOathstones;
         account.PinningWax += 2;
         account.Tallies += 100;
+        account.Laurels += 100;
         int[] shards = ParseShards(account.Korshards);
         for (int i = 0; i < shards.Length; i++) shards[i] += 3;
         account.Korshards = string.Join(';', shards);

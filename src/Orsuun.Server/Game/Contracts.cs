@@ -271,11 +271,16 @@ public sealed record TradeRequest(string RequestId, long TradeId);
 public sealed record TradeOfferRequest(string RequestId, long TradeId, Guid[] ItemIds, long Sorn);
 
 /// <summary>The Pits (Rules.Pits): the record, the three challengers, the board, the shop's currency.</summary>
+/// <summary>
+/// The Pits: rating and league, the lifetime record, Laurels, tickets; the season (Rules.Pits seasons): its record, the
+/// seconds to its end, the title held and the last season's end for this hero (rank 0: not ranked), and its champions.
+/// </summary>
 public sealed record PitsDto(int Rating, string League, int Wins, int Losses, int Laurels, int TicketsLeft, PitChallengerDto[] Challengers,
-    PitBoardDto[] Board, string Message = "");
+    PitBoardDto[] Board, string Message = "", int SeasonWins = 0, int SeasonLosses = 0, long SeasonSecondsLeft = 0, string Title = "",
+    int LastRank = 0, int LastRating = 0, int LastLaurels = 0, string LastChampions = "");
 /// <summary>A challenger: Id is an account id, or "shade:-1|0|1" for a Pit shade cut from the attacker's own gear.</summary>
 public sealed record PitChallengerDto(string Id, string Name, string Tag, int Rating, string League, HeroClass Class, string Weapon, int WinChancePercent, bool Shade);
-public sealed record PitBoardDto(int Rank, string Name, string Tag, int Rating, string League, int Wins, int Losses, string Weapon, bool Me);
+public sealed record PitBoardDto(int Rank, string Name, string Tag, int Rating, string League, int Wins, int Losses, string Weapon, bool Me, string Title = "");
 public sealed record PitFightRequest(string RequestId, string OpponentId);
 public sealed record PitShopRequest(string RequestId, int ItemId);
 public sealed record PitFightDto(StateDto State, DuelResultDto Duel, PitsDto Pits, int RatingBefore, int RatingAfter, int LaurelsGained);
