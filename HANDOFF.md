@@ -112,8 +112,9 @@ Waiting on the owner: the Hetzner Storage Box for database backups (they will bu
 Program (TestFlight, Sign in with Apple, no 7-day expiry); the monetization plan; a real domain before release.
 
 The maps 9 and 10 build and then Banner change and Oath Renewal went to the APK link and the owner's iPhone (25 Sep 2026,
-evening); Pit seasons after them are on the APK link (20:32), but the iPhone was unavailable for that install: it has the
-Banner change build. Reinstall with the xcodebuild + devicectl commands under "Next steps" once it is plugged in and unlocked.
+evening); Pit seasons went to the APK link. Skill grades and the inventory screen (26 Sep 2026, about 01:30) are deployed
+(migration `SkillBooksHonor`; database copy first: `~/orsuun-backups/playtest-before-skillgrades-2026-09-26.sql.gz`),
+on the APK link and installed on the owner's iPhone (build 26092522, which also carries Pit seasons).
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
