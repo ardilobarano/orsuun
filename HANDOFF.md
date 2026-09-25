@@ -37,6 +37,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Characters and the depot | Owner, 25 Sep 2026: "add character creation with name selection after signing up or loginning in like metin2 screen, total 4 char slots with a common depot of items to trade between each other". Answers: Amber is shared by the account's characters (everything else per character: sorn, level, gear, wardrobe, guild, Pits); the Banner is chosen per account (all four fight for it). |
 | Campaign Trail | Owner, 25 Sep 2026: asked "what to do next", picked "Campaign Trail (Recommended), Maps 5 and 6, Player-to-player trade, More dungeons" (built in that order). From the GDD: an 8 week season of 50 tiers; the day's missions (bounties) pay Trail XP; the free track pays Turnstones, Scrolls of Mercy and a Khan's Alloy every 10 tiers; the paid track the season costume, a mount, 300 Turnstones, 20 Khan's Alloys and 3 Anvil Wards; $9.99, "premium plus" $19.99. Assumptions (not stated by the owner): the paid track costs 650 Amber (the $9.99 pack's) and Trail Plus 1,400 (the $19.99 pack's) with 10 tiers at once, 750 from the Trail; each character climbs and buys its own Trail (only Amber is shared); 600 XP a tier, 100 per daily bounty and 500 per weekly (every daily and one weekly a week finish it in the 8 weeks, the dailies alone do not); free track 5 Turnstones on odd tiers and a Scroll of Mercy on the other even ones; the season's pieces are held until the season ends (at least 14 days) rather than the Caravan's 1-14 days; rewards left unclaimed are handed over when the next season starts; season 1 is "The Amber Road", Mon 21 Sep to Mon 16 Nov 2026 20:00, with the Amber Road Regalia (skin, +5% HP) at paid tier 1 and the Amber Road Courser (mount, +5% attack) at paid tier 50. The Trail does not add to offline yield yet (the GDD lists it among the B_afk sources). |
 | Direct trade | Owner, 25 Sep 2026: the third pick ("Player-to-player trade"), and while it was built: "at trade we need to see stats of items, maybe with clicking" (tapping a piece opens its stat card). From the GDD (section 8, "Direct trade window"): a two-step confirm with a 5 second lock after any change to the offer; level 30 and a 72 hour old account; a 2% tax on the sorn. Assumptions (not stated by the owner): up to 8 pieces and any sorn each side; both lock, then both confirm; an invitation lasts 3 minutes and an idle window 10; your own heroes cannot trade with each other (they share the depot); on the Development playtest server the level and age rules are off so it can be tried at once; the GDD's 12 hour hold for trades far off the Exchange median is not built (no price history yet). |
+| More dungeons | Owner, 25 Sep 2026: the fourth pick. From the world bible: Silkmother's Warren (under the Salt Sea, 2 levels, the Silkmother, drops Khan's Alloy) and the Carvers' Archive (a Sky Banner vault, puzzle-light, the main source of Master's Needles and Oathstones). Assumptions (not stated by the owner): the Warren opens after the Salt Sea (stage 30), 6 floors in two levels (the Upper Galleries, the Brood Deep, opened by an egg-nest rush), the Silkmother's chest always holds a Khan's Alloy; the Archive opens after Whitefang (stage 40), 5 floors, the puzzle is a rune lock on floor 3 (an original steppe riddle carved in the vault door, three runes to choose from), the right rune makes the Last Carver's chest hold a Master's Needle (10% otherwise); the Master's Needle now exists as an item and adds the fifth etching (it could not be added before); Oathstones wait for Oath Renewal (not built); the two free keys a day are shared by all three dungeons; every dungeon's top floor is 40% above its first (the Spire's 5% a floor is unchanged). |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -512,6 +513,24 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   OFFER IT / TAKE BACK for your own; LOCK OFFER / CONFIRM with the hold counted down; CANCEL TRADE; polls every 1.5 s),
   DIRECT TRADE on the Salt Exchange, a call on the HUD when someone asks or a window is open. Screenshot switches
   `-trade`, `-tradecard`.
+
+## Done 25 Sep 2026 (more dungeons)
+
+- Silkmother's Warren and the Carvers' Archive (decision row above). Rules: `Rules/Dungeons.cs` (`DungeonPause` None /
+  Smith / RuneLock on `DungeonDef`, `FloorName`, `Riddles` and `RiddleFor(runId)`: twelve original riddles, the run's
+  riddle and rune order follow from its id so the client draws the same, `WardenChest(..., dungeon, vaultOpen)`,
+  `TopFloorPercent`); `Inventory.MastersNeedles` and `EtchingActions` (the fifth etching takes a Master's Needle);
+  `DungeonTests`, `BountyTests`. Server: `Account.MastersNeedles`, `Account.DungeonPausedId` (the waiting run's
+  dungeon; migration `MoreDungeons` marks runs already at the smith as the Spire's), `DungeonSmithRequest.Rune`, the
+  run's `Pause`, `Riddle` and `Runes` in `DungeonResultDto`, `/v1/dev/gear?level=&upgrade=` (Development: a full worn
+  Rare set, for late dungeons and maps). `tools/smoke-dungeon.sh` now also clears the Warren and opens the Archive's
+  vault. Client: three dungeon cards on ZONES (`Thumbs/Dungeon<letters of the name>`), `RuneLockPanel` (the riddle and
+  three runes, LEAVE IT SHUT), CONTINUE reopens the right pause, the Warren's floors named by level, Master's Needles
+  on the Forge's ETCH and the bounty board. Art on fal.ai: the Silk Spider and the Silkmother (quadruped rigs), the
+  Stone Sentinel (biped, glaive) and the Last Carver (biped, staff swing: his chisel-hammer), sheets in
+  `docs/concept/mobs/`, meshes in `art/blender/mobs/`; backdrops `SilkWarren` and `CarversArchive`; the Warren also
+  fields bleached scorpions and ghouls, the Archive cold wights and dead vault thieves (tinted existing mobs).
+  Screenshot switches `-dungeon <id>`, `-runelock`.
 
 ## Store release, waiting on the owner's accounts
 

@@ -32,7 +32,7 @@ namespace Orsuun.Client
         private GameObject _canvas;
         private Text _message;
         private Row[] _zoneRows;
-        private Row _dungeonRow;
+        private readonly Row[] _dungeonRows = new Row[Dungeons.All.Length];
         private readonly Row[] _bossRows = new Row[BossRows];
 
         public bool IsOpen => _canvas.activeSelf;
@@ -51,10 +51,14 @@ namespace Orsuun.Client
             // Zone cards (zones mockup): the painting, the name, what it is, and HUNT HERE; the list scrolls. The dungeon
             // leads it: ENTER spends one of the day's two keys.
             Ui.Scroll("ZoneList", canvas, 0.03f, 0.462f, 0.97f, 0.895f, out RectTransform content);
-            RectTransform dungeonCard = new GameObject("Dungeon", typeof(RectTransform)).GetComponent<RectTransform>();
-            dungeonCard.SetParent(content, false);
-            dungeonCard.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
-            _dungeonRow = MakeCard(dungeonCard, "Dungeon", 1.45f, Palette.Danger, EnterDungeon);
+            for (int d = 0; d < Dungeons.All.Length; d++)
+            {
+                RectTransform dungeonCard = new GameObject("Dungeon" + d, typeof(RectTransform)).GetComponent<RectTransform>();
+                dungeonCard.SetParent(content, false);
+                dungeonCard.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
+                int id = Dungeons.All[d].Id;
+                _dungeonRows[d] = MakeCard(dungeonCard, "Dungeon", 1.45f, Palette.Danger, () => EnterDungeon(id));
+            }
             _zoneRows = new Row[ZoneRows];
             for (int i = 0; i < ZoneRows; i++)
             {
@@ -103,33 +107,46 @@ namespace Orsuun.Client
             return row;
         }
 
-        private void EnterDungeon()
+        private void EnterDungeon(int id)
         {
             if (_root.Replaying || _root.PushBusy) return;
             _canvas.SetActive(false);
             if (_root.Server.DungeonRunAtSmith != 0) _root.ContinueDungeon();
-            else _root.EnterDungeon(Dungeons.All[0].Id);
+            else _root.EnterDungeon(id);
         }
 
-        /// <summary>The Hollow Spire's card: keys left, locked until its stage, or CONTINUE at the smith.</summary>
+        /// <summary>What a dungeon's card says it holds (Rules.Dungeons): its floors, its pause and its Warden's prize.</summary>
+        private static string Holds(DungeonDef d) => d.Id switch
+        {
+            1 => "9 floors  ·  the Chained Smith on floor 6",
+            2 => "2 levels, 6 floors  ·  the Silkmother's Khan's Alloy",
+            _ => $"{d.Floors} floors  ·  a rune lock on floor {d.SmithFloor}  ·  Master's Needles",
+        };
+
+        /// <summary>The dungeon cards: keys left (shared), locked until their stage, or CONTINUE where a run waits.</summary>
         private void UpdateDungeon(PlayerSession session)
         {
-            DungeonDef spire = Dungeons.All[0];
-            Row row = _dungeonRow;
-            Ui.SetPicture(row.Picture, "Thumbs/DungeonHollowSpire");
-            row.Name.text = spire.Name;
             bool online = _root.Server.Online;
-            bool unlocked = session.HighestStageCleared >= spire.UnlockStage;
-            bool atSmith = online && _root.Server.DungeonRunAtSmith != 0;
             int keys = _root.Server.DungeonRunsLeft;
-            row.Label.text = !online ? "Dungeons need the server."
-                : !unlocked ? $"Clear {Content.StageName(spire.UnlockStage)} to open"
-                : atSmith ? "The Chained Smith is waiting on floor 6."
-                : $"Dungeon  ·  9 floors  ·  keys today {keys}/{Dungeons.FreeRunsPerDay}  ·  the Chained Smith on floor 6";
-            row.Name.color = unlocked ? Palette.Parchment : Palette.Muted;
-            row.ButtonLabel.text = atSmith ? "CONTINUE" : !unlocked ? "LOCKED" : keys <= 0 ? "NO KEYS" : "ENTER";
-            row.ButtonImage.color = atSmith ? Palette.Alloy : unlocked && keys > 0 ? Palette.Danger : Palette.ButtonIdle;
-            row.Button.interactable = online && unlocked && (atSmith || keys > 0) && !_root.Replaying && !_root.PushBusy;
+            int waiting = online && _root.Server.DungeonRunAtSmith != 0 ? _root.Server.DungeonPausedId : 0;
+            for (int d = 0; d < Dungeons.All.Length; d++)
+            {
+                DungeonDef dungeon = Dungeons.All[d];
+                Row row = _dungeonRows[d];
+                Ui.SetPicture(row.Picture, "Thumbs/Dungeon" + new string(System.Array.FindAll(dungeon.Name.Replace("The ", "").ToCharArray(), char.IsLetter)));
+                row.Name.text = dungeon.Name;
+                bool unlocked = session.HighestStageCleared >= dungeon.UnlockStage;
+                bool here = waiting == dungeon.Id;
+                row.Label.text = !online ? "Dungeons need the server."
+                    : !unlocked ? $"Clear {Content.StageName(dungeon.UnlockStage)} to open"
+                    : here ? (dungeon.Pause == DungeonPause.RuneLock ? $"The rune lock waits on floor {dungeon.SmithFloor}." : $"The Chained Smith is waiting on floor {dungeon.SmithFloor}.")
+                    : $"Dungeon  ·  {Holds(dungeon)}  ·  keys today {keys}/{Dungeons.FreeRunsPerDay}";
+                row.Name.color = unlocked ? Palette.Parchment : Palette.Muted;
+                row.Picture.color = unlocked ? Color.white : new Color(0.45f, 0.45f, 0.5f);
+                row.ButtonLabel.text = here ? "CONTINUE" : !unlocked ? "LOCKED" : waiting != 0 ? "RUN WAITING" : keys <= 0 ? "NO KEYS" : "ENTER";
+                row.ButtonImage.color = here ? Palette.Alloy : unlocked && keys > 0 && waiting == 0 ? Palette.Danger : Palette.ButtonIdle;
+                row.Button.interactable = online && unlocked && (here || (waiting == 0 && keys > 0)) && !_root.Replaying && !_root.PushBusy;
+            }
         }
 
         public void Open()

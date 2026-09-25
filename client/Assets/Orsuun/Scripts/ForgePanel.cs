@@ -367,7 +367,9 @@ namespace Orsuun.Client
             if (blocker != null) { ShowResult(blocker, Palette.Muted); return; }
             int chance = EtchingActions.EtchChanceBp(item) / 100;
             _confirm.Show("Add an etching?", $"{item.DisplayName} +{item.UpgradeLevel}\n\nEtching {item.Etchings.Count + 1} takes {ConfirmDialog.Tint(chance + "%", Palette.Good)} of the time.\n"
-                + ConfirmDialog.Tint("If it slips, only the needle is lost.", Palette.Muted) + $"\n\nYou have {s.Inventory.EtchingNeedles} Etching Needles.",
+                + ConfirmDialog.Tint("If it slips, only the needle is lost.", Palette.Muted)
+                + (item.Etchings.Count == ItemState.MaxEtchings - 1 ? $"\n\nThe fifth takes a Master's Needle: you have {s.Inventory.MastersNeedles}."
+                    : $"\n\nYou have {s.Inventory.EtchingNeedles} Etching Needles."),
                 "USE NEEDLE", Palette.Alloy, () =>
                 {
                     if (_root.Server.Online)
@@ -470,7 +472,9 @@ namespace Orsuun.Client
                 _etchRows[i].interactable = !Busy;
             }
             int etchChance = EtchingActions.EtchChanceBp(weapon) / 100;
-            _etchLabel.text = weapon.Etchings.Count >= ItemState.MaxEtchings - 1 ? $"ETCH\n<size=16>5th needs a\nMaster's Needle</size>"
+            // The fifth etching takes a Master's Needle (the Carvers' Archive).
+            _etchLabel.text = weapon.Etchings.Count >= ItemState.MaxEtchings ? "ETCH\n<size=16>all five\netchings</size>"
+                : weapon.Etchings.Count == ItemState.MaxEtchings - 1 ? $"ETCH\n<size=16>{etchChance}% chance\n{inv.MastersNeedles} Master's\nNeedles</size>"
                 : $"ETCH\n<size=16>{etchChance}% chance\n{inv.EtchingNeedles} needles\n{inv.PinningWax} wax</size>";
             _etchButton.interactable = !Busy && EtchingActions.EtchBlocker(weapon, inv) == null;
             _turnLabel.text = $"TURN  <size=18>({inv.Turnstones})</size>";

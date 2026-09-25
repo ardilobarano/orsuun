@@ -385,6 +385,7 @@ if (app.Environment.IsDevelopment())
     v1.MapPost("/dev/trail", (HttpContext ctx, int? xp, bool? lastSeason, GameService game, CancellationToken ct) =>
         game.DevTrailAsync(Me(ctx), xp ?? 0, lastSeason ?? false, ct));
     v1.MapPost("/dev/stage", (HttpContext ctx, int cleared, GameService game, CancellationToken ct) => game.DevStageAsync(Me(ctx), cleared, ct));
+    v1.MapPost("/dev/gear", (HttpContext ctx, int level, int upgrade, GameService game, CancellationToken ct) => game.DevGearAsync(Me(ctx), level, upgrade, ct));
     v1.MapPost("/dev/war-night", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevWarNightAsync(Me(ctx), minutes ?? 15, ct));
     v1.MapPost("/dev/war-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevWarEndAsync(Me(ctx), ct));
     v1.MapPost("/dev/keep-siege", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevKeepSiegeAsync(Me(ctx), minutes ?? 15, ct));

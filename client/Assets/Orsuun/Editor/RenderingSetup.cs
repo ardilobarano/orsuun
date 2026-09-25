@@ -219,7 +219,7 @@ namespace Orsuun.Client.EditorTools
                 bool ember = id == "Wolf" || id == "Boar" || id == "Greyjaw";   // the Hollowed; people and other beasts are not ember-veined
                 // The Cinder Marches burn from within; Whisperwood's dead glow cold (25 Sep 2026).
                 bool lava = id == "AshFiend" || id == "MagmaHound" || id == "Azhdar";
-                bool ghost = id == "HangingSpirit" || id == "LanternWisp" || id == "LanternWidow";
+                bool ghost = id == "HangingSpirit" || id == "LanternWisp" || id == "LanternWidow" || id == "StoneSentinel" || id == "LastCarver";   // and the Archive's glowing runes
                 // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
                 mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
                 mat.SetFloat("_Smoothness", 0.2f);
@@ -321,7 +321,7 @@ namespace Orsuun.Client.EditorTools
         private static void EnsureBackdrops()
         {
             Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
-            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood" })
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood", "SilkWarren", "CarversArchive" })
             {
                 string texPath = Res + "Backdrops/" + zone + ".jpg";
                 if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))

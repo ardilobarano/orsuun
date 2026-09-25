@@ -191,8 +191,8 @@ namespace Orsuun.Rules
     }
 
     /// <summary>
-    /// The player's two etching tools: an Etching Needle adds the next etching (1st to 4th, at the slot's add chance;
-    /// a failure only costs the needle), and Pinning Wax holds one etching through turns (GDD: one lock per item,
+    /// The player's etching tools: an Etching Needle adds the next etching (1st to 4th, at the slot's add chance; a
+    /// failure only costs the needle), a Master's Needle the fifth (the Carvers' Archive, 25 Sep 2026), and Pinning Wax holds one etching through turns (GDD: one lock per item,
     /// turns cost double while it holds). Unpinning is free but the wax is spent.
     /// </summary>
     public static class EtchingActions
@@ -201,7 +201,8 @@ namespace Orsuun.Rules
         {
             if (item.Destroyed) return "That piece is gone.";
             if (item.Etchings.Count >= ItemState.MaxEtchings) return "This piece has all five etchings.";
-            if (item.Etchings.Count == ItemState.MaxEtchings - 1) return "The fifth etching needs a Master's Needle.";
+            if (item.Etchings.Count == ItemState.MaxEtchings - 1)
+                return inventory.MastersNeedles < 1 ? "The fifth etching needs a Master's Needle (the Carvers' Archive)." : null;
             if (inventory.EtchingNeedles < 1) return "No Etching Needles.";
             return null;
         }
@@ -214,8 +215,11 @@ namespace Orsuun.Rules
         {
             string? blocker = EtchBlocker(item, inventory);
             if (blocker != null) throw new InvalidOperationException(blocker);
-            inventory.EtchingNeedles--;
-            return etchings.TryAdd(item, EtchingPool.For(item.Slot), NeedleKind.EtchingNeedle, rng);
+            // The fifth etching takes a Master's Needle; the first four an Etching Needle.
+            bool fifth = item.Etchings.Count == ItemState.MaxEtchings - 1;
+            if (fifth) inventory.MastersNeedles--;
+            else inventory.EtchingNeedles--;
+            return etchings.TryAdd(item, EtchingPool.For(item.Slot), fifth ? NeedleKind.MastersNeedle : NeedleKind.EtchingNeedle, rng);
         }
 
         public static string? PinBlocker(ItemState item, int index, Inventory inventory)

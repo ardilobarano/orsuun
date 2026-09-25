@@ -15,6 +15,8 @@ namespace Orsuun.Rules
         public int AnvilWards { get; set; }
         public int Turnstones { get; set; }
         public int EtchingNeedles { get; set; }
+        /// <summary>Adds the fifth etching (the Carvers' Archive's vault).</summary>
+        public int MastersNeedles { get; set; }
         public int SummoningMarkers { get; set; }
         /// <summary>Paid by bounties, spent in the Hunt Marks shop.</summary>
         public int HuntMarks { get; set; }
@@ -37,6 +39,7 @@ namespace Orsuun.Rules
             Sorn = other.Sorn; Potions = other.Potions; Materials = other.Materials; ScrollsOfMercy = other.ScrollsOfMercy;
             KhansAlloys = other.KhansAlloys; AnvilWards = other.AnvilWards; Turnstones = other.Turnstones;
             EtchingNeedles = other.EtchingNeedles; SummoningMarkers = other.SummoningMarkers; Xp = other.Xp;
+            MastersNeedles = other.MastersNeedles;
             HuntMarks = other.HuntMarks; PinningWax = other.PinningWax;
             Array.Copy(other.Korshards, Korshards, Korshards.Length);
             Skins.Clear();

@@ -50,6 +50,8 @@ public sealed class Account
     public int AnvilWards { get; set; }
     public int Turnstones { get; set; }
     public int EtchingNeedles { get; set; }
+    /// <summary>Master's Needles (the fifth etching), from the Carvers' Archive.</summary>
+    public int MastersNeedles { get; set; }
     public int SummoningMarkers { get; set; }
     public int HuntMarks { get; set; }
     public int PinningWax { get; set; }
@@ -65,8 +67,10 @@ public sealed class Account
     /// <summary>Dungeon runs entered in the bounty day DungeonDay (Rules.Bounties.DayKey), against the free keys.</summary>
     [MaxLength(16)] public string DungeonDay { get; set; } = "";
     public int DungeonRuns { get; set; }
-    /// <summary>The run waiting at the Chained Smith (DungeonRun.Id), 0 when none.</summary>
+    /// <summary>The run waiting at its pause floor, the Chained Smith or a rune lock (DungeonRun.Id), 0 when none.</summary>
     public long DungeonRunAtSmith { get; set; }
+    /// <summary>The dungeon of that waiting run (Rules.Dungeons), 0 when none.</summary>
+    public int DungeonPausedId { get; set; }
     /// <summary>The Pits (Rules.Pits): rating, record, Laurels, fights in the bounty day PitDay, and the challengers' roll.</summary>
     public int PitRating { get; set; } = Rules.Pits.StartRating;
     public int PitWins { get; set; }

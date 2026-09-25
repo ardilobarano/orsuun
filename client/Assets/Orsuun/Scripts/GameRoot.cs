@@ -44,6 +44,7 @@ namespace Orsuun.Client
         public CharacterPanel Characters { get; private set; }
         public DepotPanel Depot { get; private set; }
         public SmithPanel Smith { get; private set; }
+        public RuneLockPanel RuneLock { get; private set; }
         public ChatPanel Chat { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
@@ -119,6 +120,8 @@ namespace Orsuun.Client
             Depot.Init(this);
             Smith = new GameObject("SmithPanel").AddComponent<SmithPanel>();
             Smith.Init(this);
+            RuneLock = new GameObject("RuneLockPanel").AddComponent<RuneLockPanel>();
+            RuneLock.Init();
             Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
             Market.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
@@ -197,6 +200,9 @@ namespace Orsuun.Client
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
             // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
             _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
+            // Dev switch: -dungeon [id] enters that dungeon (1 the Hollow Spire, 2 Silkmother's Warren, 3 the Carvers' Archive).
+            _dungeonToEnter = int.TryParse(Arg("-dungeon"), out int dungeonToEnter) && Dungeons.Find(dungeonToEnter) != null ? dungeonToEnter : Dungeons.All[0].Id;
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-runelock") >= 0) RuneLock.Open(7, _ => { });
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
 
             // Dev switch: -stage <n> parks local play at campaign stage n with the ones before it cleared (screenshots of the maps).
@@ -256,6 +262,7 @@ namespace Orsuun.Client
         private bool _openTrail;
         private bool _openTrade;
         private bool _enterDungeon;
+        private int _dungeonToEnter = 1;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
         private bool _tutorialPending;
@@ -309,7 +316,7 @@ namespace Orsuun.Client
             if (Server.Online && _enterDungeon && Server.DungeonRunsLeft > 0)
             {
                 _enterDungeon = false;
-                EnterDungeon(Dungeons.All[0].Id);
+                EnterDungeon(_dungeonToEnter);
             }
             if (Server.Online && Server.Wardrobe != null && (_caravanTab >= 0 || _openWardrobe || _openDepot))
             {
@@ -494,7 +501,7 @@ namespace Orsuun.Client
         public void ContinueDungeon()
         {
             if (Replaying || PushBusy || !Server.Online || Server.DungeonRunAtSmith == 0) return;
-            StartCoroutine(SmithSequence(Server.DungeonRunAtSmith));
+            StartCoroutine(SmithSequence(Server.DungeonRunAtSmith, Server.DungeonPausedId));
         }
 
         private IEnumerator DungeonSequence(int dungeonId)
@@ -510,15 +517,15 @@ namespace Orsuun.Client
                 yield break;
             }
             yield return ReplayFloors(result);
-            if (result.atSmith) yield return AskSmith(result.runId);
+            if (result.atSmith) yield return AskSmith(result.runId, result.dungeonId);
             else yield return EndRun(result);
             PushBusy = false;
         }
 
-        private IEnumerator SmithSequence(long runId)
+        private IEnumerator SmithSequence(long runId, int dungeonId)
         {
             PushBusy = true;
-            yield return AskSmith(runId);
+            yield return AskSmith(runId, dungeonId);
             PushBusy = false;
         }
 
@@ -531,7 +538,7 @@ namespace Orsuun.Client
             foreach (Net.ServerLink.DungeonFloorDto floor in run.floors)
             {
                 _replay = StageRun.Create(Dungeons.Floor(dungeon, floor.floor, run.level), hero, new Inventory { Potions = floor.potionsAtStart }, floor.seed);
-                ReplayBanner = dungeon.Name.ToUpperInvariant() + "  ·  FLOOR " + floor.floor;
+                ReplayBanner = dungeon.Name.ToUpperInvariant() + "  ·  " + Dungeons.FloorName(dungeon, floor.floor).ToUpperInvariant();
                 int guard = StageRun.MaxTicks;
                 while (_replay.Clears == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
                 ReplayBanner = floor.cleared ? $"FLOOR {floor.floor} CLEARED" : $"FELL ON FLOOR {floor.floor}";
@@ -542,8 +549,14 @@ namespace Orsuun.Client
         }
 
         /// <summary>The Chained Smith: the player's choice goes to the server, then the rest of the run is replayed.</summary>
-        private IEnumerator AskSmith(long runId)
+        /// <summary>The run's pause: the Chained Smith, or the Carvers' rune lock (Rules.Dungeons.DungeonPause).</summary>
+        private IEnumerator AskSmith(long runId, int dungeonId)
         {
+            if (Dungeons.Find(dungeonId)?.Pause == DungeonPause.RuneLock)
+            {
+                yield return AskRuneLock(runId);
+                yield break;
+            }
             string answer = null;
             ReplayBanner = "THE CHAINED SMITH";
             Smith.Open(a => answer = a);
@@ -568,6 +581,32 @@ namespace Orsuun.Client
                 Hud.Log(result.text);
                 yield return new WaitForSecondsRealtime(2.2f);
             }
+            yield return ReplayFloors(result);
+            yield return EndRun(result);
+        }
+
+        /// <summary>The rune lock: the rune chosen (or none) goes to the server, then the rest of the run is replayed.</summary>
+        private IEnumerator AskRuneLock(long runId)
+        {
+            string rune = null;
+            ReplayBanner = "THE RUNE LOCK";
+            RuneLock.Open(runId, r => rune = r);
+            while (rune == null) yield return null;
+            ReplayBanner = "";
+
+            Net.ServerLink.DungeonResultDto result = null;
+            string failure = null;
+            yield return Server.DungeonSmith(runId, "", (r, e) => { result = r; failure = e; }, rune);
+            if (result == null)
+            {
+                // The run stays at the lock; ZONES offers CONTINUE.
+                Hud.Log(failure ?? "No answer from the server.");
+                yield break;
+            }
+            bool open = result.text != null && result.text.Contains("vault door opens");
+            ReplayBanner = open ? "THE VAULT OPENS" : rune.Length == 0 ? "THE VAULT STAYS SHUT" : "THE RUNE DOES NOT TURN";
+            GameAudio.Instance?.Play(open ? "ForgeSuccess" : "ForgeLost", 1f, 0.5f, 0f);
+            yield return new WaitForSecondsRealtime(2f);
             yield return ReplayFloors(result);
             yield return EndRun(result);
         }

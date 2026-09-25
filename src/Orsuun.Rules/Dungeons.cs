@@ -4,10 +4,15 @@ using Orsuun.Rules.Combat;
 
 namespace Orsuun.Rules
 {
+    /// <summary>What waits on a dungeon's pause floor: nothing, the Chained Smith, or the Carvers' rune lock.</summary>
+    public enum DungeonPause { None = 0, Smith = 1, RuneLock = 2 }
+
     public sealed class DungeonDef
     {
-        public DungeonDef(int id, string name, int floors, int smithFloor, int rushFloor, int unlockStage, string wardenName, string blurb)
+        public DungeonDef(int id, string name, int floors, int smithFloor, int rushFloor, int unlockStage, string wardenName, string blurb,
+            DungeonPause pause = DungeonPause.Smith)
         {
+            Pause = smithFloor > 0 ? pause : DungeonPause.None;
             Id = id;
             Name = name;
             Floors = floors;
@@ -21,8 +26,9 @@ namespace Orsuun.Rules
         public int Id { get; }
         public string Name { get; }
         public int Floors { get; }
-        /// <summary>The floor where the Chained Smith waits (0: none). It is not fought.</summary>
+        /// <summary>The floor where the run pauses (0: none): the Chained Smith or the rune lock. It is not fought.</summary>
         public int SmithFloor { get; }
+        public DungeonPause Pause { get; }
         /// <summary>The Korstone rush: an Elder Korstone the moment the floor opens.</summary>
         public int RushFloor { get; }
         /// <summary>Campaign stage that must be cleared first.</summary>
@@ -45,8 +51,11 @@ namespace Orsuun.Rules
         public const int FreeRunsPerDay = 2;
         /// <summary>Dungeon floors carry StageNumber 300 + dungeon * 10 + floor, clear of campaign stages and zone ids.</summary>
         public const int FloorStageBase = 300;
-        /// <summary>Each floor up is this much harder than the one below (percent of the stage's HP and attack).</summary>
-        public const int FloorStepPercent = 5;
+        /// <summary>
+        /// The top floor is this much harder than the first (percent of the stage's HP and attack), in even steps: the
+        /// Spire's nine floors climb 5% a floor, shorter dungeons faster, so every Warden asks the same.
+        /// </summary>
+        public const int TopFloorPercent = 40;
         /// <summary>The Warden has this share of the stage boss's HP and attack, on top of the floor step.</summary>
         public const int WardenPercent = 115;
         /// <summary>A floor's Korstone has this share of the stage's, so a floor takes about half a minute.</summary>
@@ -56,7 +65,55 @@ namespace Orsuun.Rules
         {
             new DungeonDef(1, "The Hollow Spire", 9, smithFloor: 6, rushFloor: 3, unlockStage: 10, "The Spire Warden",
                 "Nine floors pushed up from the grave plain. A Korstone rush on floor 3, the Chained Smith on floor 6, the Spire Warden on floor 9."),
+            // World bible section 6 (owner, 25 Sep 2026: "More dungeons"): under the Salt Sea, two levels, the Silkmother,
+            // Khan's Alloy.
+            new DungeonDef(2, "Silkmother's Warren", 6, smithFloor: 0, rushFloor: 4, unlockStage: 30, "The Silkmother",
+                "Under the Salt Sea, two levels deep: the Upper Galleries and the Brood Deep, opened by an egg-nest rush. The Silkmother waits at the bottom; her chest always holds a Khan's Alloy.",
+                DungeonPause.None),
+            // World bible: a Sky Banner vault, a puzzle-light run, the main source of Master's Needles (Oathstones wait for
+            // Oath Renewal, not built).
+            new DungeonDef(3, "The Carvers' Archive", 5, smithFloor: 3, rushFloor: 0, unlockStage: 40, "The Last Carver",
+                "A Sky Banner vault in the mountains. On floor 3 a rune lock asks the riddle carved in its door: the right rune opens the vault, and the Last Carver's chest then holds a Master's Needle.",
+                DungeonPause.RuneLock),
         };
+
+        /// <summary>The Warren's two levels: floors 1-3 the Upper Galleries, 4-6 the Brood Deep.</summary>
+        public static string FloorName(DungeonDef dungeon, int floor) =>
+            dungeon.Id == 2 ? (floor <= 3 ? "Upper Galleries " + floor : "Brood Deep " + (floor - 3)) : "Floor " + floor;
+
+        /// <summary>A Master's Needle in the Last Carver's chest when the rune lock was not opened.</summary>
+        public const int MastersNeedleShutBp = 1000;
+
+        /// <summary>
+        /// The Carvers' riddles, one carved in each rune lock (puzzle-light: the answer is one of three runes). Original
+        /// steppe riddles; a run's riddle and the order of its runes follow from its id, so both sides draw the same.
+        /// </summary>
+        public static readonly (string Text, string Answer, string DecoyA, string DecoyB)[] Riddles =
+        {
+            ("I have a mouth that never speaks and a bed where I never sleep; I run all my life and never leave home.", "River", "Wolf", "Tent"),
+            ("Higher than the Khan's banner I circle, and the whole steppe is my map.", "Hawk", "Horse", "Salt"),
+            ("White as bone and sold for gold, I was a sea before I was a road.", "Salt", "Birch", "Moon"),
+            ("Feathered at one end and sharp at the other, I fly once and never come home.", "Arrow", "Hawk", "Drum"),
+            ("I call the whole host without a mouth; strike my face and I answer.", "Drum", "Banner", "Wolf"),
+            ("I rise with no legs and set with no fall, and every rider turns to me at dawn.", "Sun", "Horse", "Arrow"),
+            ("My coat is white in summer and in winter, and in the red wood I bleed.", "Birch", "Salt", "Moon"),
+            ("One leg in the ground and a round roof on my head, I keep the sleepers dry.", "Tent", "River", "Drum"),
+            ("Four legs for the grass and a rider on my back, I drink where the river bends.", "Horse", "Wolf", "Tent"),
+            ("I hunt with my kin and sing to a silver face at night.", "Wolf", "Hawk", "Drum"),
+            ("I have no light of my own; I borrow the sun's to guide the night caravan.", "Moon", "Sun", "Salt"),
+            ("Every Banner flies me, yet I never leave my pole.", "Banner", "Arrow", "Hawk"),
+        };
+
+        /// <summary>The riddle of a run's rune lock and its three runes, in the order shown.</summary>
+        public static (string Text, string[] Runes, string Answer) RiddleFor(long runId)
+        {
+            long n = Math.Abs(runId);
+            var r = Riddles[(int)(n % Riddles.Length)];
+            string[] runes = { r.Answer, r.DecoyA, r.DecoyB };
+            int turn = (int)(n / Riddles.Length % 3);
+            string[] shown = { runes[turn % 3], runes[(turn + 1) % 3], runes[(turn + 2) % 3] };
+            return (r.Text, shown, r.Answer);
+        }
 
         public static DungeonDef? Find(int id)
         {
@@ -77,7 +134,7 @@ namespace Orsuun.Rules
         public static StageConfig Floor(DungeonDef dungeon, int floor, int level)
         {
             StageConfig c = Content.Stage(level);
-            int pct = 100 + FloorStepPercent * (floor - 1);
+            int pct = 100 + TopFloorPercent * (floor - 1) / Math.Max(1, dungeon.Floors - 1);
             c.StageNumber = FloorStageBase + dungeon.Id * 10 + floor;
             c.Zone = ZoneType.Campaign;
             c.MobHp = c.MobHp * pct / 100;
@@ -112,8 +169,11 @@ namespace Orsuun.Rules
             return c;
         }
 
-        /// <summary>The Warden's chest, into the inventory; returns what it held.</summary>
-        public static string WardenChest(Inventory inventory, int level, IRandom rng)
+        /// <summary>
+        /// The Warden's chest, into the inventory; returns what it held. The Silkmother's always holds a Khan's Alloy; the
+        /// Last Carver's a Master's Needle when the rune lock was opened (<paramref name="vaultOpen"/>), rarely otherwise.
+        /// </summary>
+        public static string WardenChest(Inventory inventory, int level, IRandom rng, DungeonDef? dungeon = null, bool vaultOpen = false)
         {
             int turnstones = 3 + level / 10;
             int rank = Math.Min(Content.KorshardRanks.Length - 1, level / 10);
@@ -122,6 +182,16 @@ namespace Orsuun.Rules
             inventory.Korshards[rank] += 1;
             inventory.HuntMarks += 3;
             string text = $"{turnstones} Turnstones, an Etching Needle, a {Content.KorshardRanks[rank]} Korshard, 3 Hunt Marks";
+            if (dungeon?.Id == 2)
+            {
+                inventory.KhansAlloys += 1;
+                text += ", the Silkmother's Khan's Alloy";
+            }
+            if (dungeon?.Pause == DungeonPause.RuneLock && (vaultOpen || rng.RollBp(MastersNeedleShutBp)))
+            {
+                inventory.MastersNeedles += 1;
+                text += ", a Master's Needle";
+            }
             if (rng.NextInt(10) == 0)
             {
                 inventory.KhansAlloys += 1;

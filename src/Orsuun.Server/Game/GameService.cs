@@ -589,6 +589,7 @@ public sealed partial class GameService
         account.Turnstones += 20;
         account.HuntMarks += 20;
         account.EtchingNeedles += 5;
+        account.MastersNeedles += 1;
         account.PinningWax += 2;
         account.Tallies += 100;
         int[] shards = ParseShards(account.Korshards);
@@ -746,7 +747,7 @@ public sealed partial class GameService
             account.Id,
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
-                account.HuntMarks, account.PinningWax, account.Tallies),
+                account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed && !i.OutOfBag).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -781,7 +782,9 @@ public sealed partial class GameService
             DungeonRunsLeft(account),
             account.DungeonRunAtSmith,
             WardrobeOf(account),
-            TrailOf(account));
+            TrailOf(account),
+            null,
+            account.DungeonRunAtSmith != 0 ? account.DungeonPausedId : 0);
     }
 
     private static ItemDto ToDto(Item item)
@@ -801,7 +804,7 @@ public sealed partial class GameService
             Sorn = a.Sorn, Potions = a.Potions, Materials = a.Materials, ScrollsOfMercy = a.ScrollsOfMercy,
             KhansAlloys = a.KhansAlloys, AnvilWards = a.AnvilWards, Turnstones = a.Turnstones,
             EtchingNeedles = a.EtchingNeedles, SummoningMarkers = a.SummoningMarkers, Xp = a.Xp,
-            HuntMarks = a.HuntMarks, PinningWax = a.PinningWax,
+            HuntMarks = a.HuntMarks, PinningWax = a.PinningWax, MastersNeedles = a.MastersNeedles,
         };
         int[] shards = ParseShards(a.Korshards);
         Array.Copy(shards, inventory.Korshards, Math.Min(shards.Length, inventory.Korshards.Length));
@@ -827,7 +830,7 @@ public sealed partial class GameService
         a.Sorn = i.Sorn; a.Potions = i.Potions; a.Materials = i.Materials; a.ScrollsOfMercy = i.ScrollsOfMercy;
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
         a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;
-        a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax;
+        a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax; a.MastersNeedles = i.MastersNeedles;
         a.Korshards = string.Join(';', i.Korshards);
         a.Skins = string.Join(';', i.Skins);
 

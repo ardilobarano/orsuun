@@ -46,7 +46,9 @@ public sealed partial class GameService
         DungeonDef dungeon = Dungeons.Find(request.DungeonId) ?? throw new GameException("no_dungeon", "Unknown dungeon.");
         if (account.HighestStageCleared < dungeon.UnlockStage)
             throw new GameException("stage_locked", $"Clear {Content.StageName(dungeon.UnlockStage)} first.");
-        if (account.DungeonRunAtSmith != 0) throw new GameException("run_open", "The Chained Smith is still waiting for your last run.");
+        if (account.DungeonRunAtSmith != 0)
+            throw new GameException("run_open", (Dungeons.Find(account.DungeonPausedId)?.Pause == DungeonPause.RuneLock ? "A rune lock" : "The Chained Smith")
+                + " is still waiting for your last run.");
         if (DungeonRunsLeft(account) <= 0) throw new GameException("no_keys", "Today's dungeon keys are used. New ones come at 20:00.");
 
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
@@ -60,26 +62,53 @@ public sealed partial class GameService
         run.FloorsCleared = fellOn > 0 ? fellOn - 1 : until;
         _db.DungeonRuns.Add(run);
 
-        bool atSmith = fellOn == 0 && dungeon.SmithFloor > 0;
+        bool atSmith = fellOn == 0 && dungeon.Pause != DungeonPause.None;
         string chest = "";
         string text;
-        if (fellOn > 0) text = $"You fell on floor {fellOn} of {dungeon.Name}.";
+        if (fellOn > 0) text = $"You fell on {Dungeons.FloorName(dungeon, fellOn).ToLowerInvariant()} of {dungeon.Name}.";
         else if (atSmith)
         {
             run.State = 0;
-            text = $"Floor {dungeon.SmithFloor}: the Chained Smith waits, hammer in his chained hands.";
+            text = dungeon.Pause == DungeonPause.RuneLock
+                ? $"Floor {dungeon.SmithFloor}: a vault door, sealed by a rune lock with a riddle carved in it."
+                : $"Floor {dungeon.SmithFloor}: the Chained Smith waits, hammer in his chained hands.";
         }
         else
         {
-            chest = Chest(account, level);
-            text = $"{dungeon.Name} is cleared! The Warden's chest: {chest}.";
+            chest = Chest(account, level, dungeon, false);
+            text = $"{dungeon.Name} is cleared! {dungeon.WardenName}'s chest: {chest}.";
         }
         await SaveAsync(ct);   // the run's id
-        if (atSmith) account.DungeonRunAtSmith = run.Id;
+        if (atSmith)
+        {
+            account.DungeonRunAtSmith = run.Id;
+            account.DungeonPausedId = dungeon.Id;
+        }
         _db.Ledger.Add(Entry(account.Id, null, "dungeon", $"run={run.Id} dungeon={dungeon.Id} level={level} floors={run.FloorsCleared} fell={fellOn} smith={atSmith}", 0, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
-        return new DungeonResultDto(ToState(account), run.Id, dungeon.Id, level, floors.ToArray(), atSmith, fellOn == 0 && !atSmith, fellOn, chest, null, "", text);
+        return WithPause(new DungeonResultDto(ToState(account), run.Id, dungeon.Id, level, floors.ToArray(), atSmith, fellOn == 0 && !atSmith, fellOn, chest, null, "", text),
+            atSmith ? dungeon : null);
+    }
+
+    /// <summary>
+    /// Development: a full worn set of Rare pieces at an item level and forge level (and the hero's XP to that level), so
+    /// late dungeons and maps can be tried without farming there. The pieces worn before go to the bag.
+    /// </summary>
+    public async Task<StateDto> DevGearAsync(Account account, int itemLevel, int upgrade, CancellationToken ct)
+    {
+        itemLevel = Math.Clamp(itemLevel, 1, Content.MaxLevel);
+        upgrade = Math.Clamp(upgrade, 0, ItemState.MaxUpgradeLevel);
+        foreach (Item worn in account.Items.Where(i => i.Equipped && !i.Destroyed)) worn.Equipped = false;
+        for (int s = 0; s < 8; s++)
+        {
+            var state = new ItemState(itemLevel, Rarity.Rare, (EquipSlot)s) { UpgradeLevel = upgrade };
+            account.Items.Add(Item.From(state, account.Id, equipped: true));
+        }
+        account.Xp = Math.Max(account.Xp, Content.XpForLevel(itemLevel));
+        _db.Ledger.Add(Entry(account.Id, null, "dev-gear", $"level={itemLevel} +{upgrade}", 0, Guid.NewGuid().ToString("N")));
+        await SaveAsync(ct);
+        return ToState(account);
     }
 
     /// <summary>Development: sets how far the campaign is cleared (dungeon and map tests without pushing there).</summary>
@@ -90,11 +119,20 @@ public sealed partial class GameService
         return ToState(account);
     }
 
+    /// <summary>A run stopped at its pause: what waits there (and a rune lock's riddle, drawn from the run's id).</summary>
+    private static DungeonResultDto WithPause(DungeonResultDto result, DungeonDef? paused)
+    {
+        if (paused == null) return result;
+        if (paused.Pause != DungeonPause.RuneLock) return result with { Pause = paused.Pause.ToString() };
+        var riddle = Dungeons.RiddleFor(result.RunId);
+        return result with { Pause = paused.Pause.ToString(), Riddle = riddle.Text, Runes = riddle.Runes };
+    }
+
     /// <summary>The Warden's chest, into the account.</summary>
-    private string Chest(Account account, int level)
+    private string Chest(Account account, int level, DungeonDef dungeon, bool vaultOpen)
     {
         var inventory = Snapshot(account);
-        string chest = Dungeons.WardenChest(inventory, level, _rng);
+        string chest = Dungeons.WardenChest(inventory, level, _rng, dungeon, vaultOpen);
         Apply(account, inventory);
         return chest;
     }
@@ -107,15 +145,25 @@ public sealed partial class GameService
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         if (account.DungeonRunAtSmith == 0 || account.DungeonRunAtSmith != request.RunId)
-            throw new GameException("no_run", "No run is waiting at the Chained Smith.");
+            throw new GameException("no_run", "No run is waiting on its pause floor.");
         DungeonRun run = await _db.DungeonRuns.FirstOrDefaultAsync(r => r.Id == request.RunId && r.AccountId == account.Id && r.State == 0, ct)
-            ?? throw new GameException("no_run", "No run is waiting at the Chained Smith.");
+            ?? throw new GameException("no_run", "No run is waiting on its pause floor.");
         DungeonDef dungeon = Dungeons.Find(run.DungeonId)!;
 
         ForgeResultDto? smith = null;
         string smithItem = "";
         string text = "";
-        if (!string.IsNullOrEmpty(request.ItemId))
+        bool vaultOpen = false;
+        if (dungeon.Pause == DungeonPause.RuneLock)
+        {
+            // The Carvers' rune lock: the right rune opens the vault (the Last Carver's chest then holds a Master's Needle).
+            var riddle = Dungeons.RiddleFor(run.Id);
+            vaultOpen = string.Equals(request.Rune, riddle.Answer, StringComparison.OrdinalIgnoreCase);
+            text = string.IsNullOrEmpty(request.Rune) ? "You leave the vault shut. "
+                : vaultOpen ? $"The {riddle.Answer} rune turns and the vault door opens. " : $"The {request.Rune} rune does not turn: the vault stays shut. ";
+            _db.Ledger.Add(Entry(account.Id, null, "rune-lock", $"run={run.Id} rune={request.Rune} open={vaultOpen}", 0, request.RequestId + ":rune"));
+        }
+        else if (!string.IsNullOrEmpty(request.ItemId))
         {
             if (!Guid.TryParse(request.ItemId, out Guid itemId)) throw new GameException("no_item", "You do not own that item.");
             Item item = AnvilItem(account, itemId, EquipSlot.Weapon);
@@ -153,12 +201,13 @@ public sealed partial class GameService
         run.State = 1;
         run.FloorsCleared = fellOn > 0 ? fellOn - 1 : dungeon.Floors;
         account.DungeonRunAtSmith = 0;
+        account.DungeonPausedId = 0;
         string chest = "";
         if (fellOn > 0) text += $"You fell on floor {fellOn}.";
         else
         {
-            chest = Chest(account, run.Level);
-            text += $"{dungeon.Name} is cleared! The Warden's chest: {chest}.";
+            chest = Chest(account, run.Level, dungeon, vaultOpen);
+            text += $"{dungeon.Name} is cleared! {dungeon.WardenName}'s chest: {chest}.";
         }
         _db.Ledger.Add(Entry(account.Id, null, "dungeon-end", $"run={run.Id} floors={run.FloorsCleared} fell={fellOn}", 0, request.RequestId));
         await SaveAsync(ct);

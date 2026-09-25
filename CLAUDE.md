@@ -122,3 +122,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - A piece on a direct trade's table has `Item.TradeId` and is out of the bag (`OutOfBag`), like a listed or depot piece;
   code that ends a trade must release it (`ReleasePiecesAsync`). Direct trade's level and age rules are off on a
   Development server.
+- A dungeon's pause floor (`DungeonDef.SmithFloor`) holds the Chained Smith or the Carvers' rune lock (`DungeonDef.Pause`);
+  the waiting run is `Account.DungeonRunAtSmith` and its dungeon `Account.DungeonPausedId`. A rune lock's riddle comes
+  from the run id (`Dungeons.RiddleFor`), so it needs no storage.

@@ -70,6 +70,9 @@ namespace Orsuun.Server.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<int>("DungeonPausedId")
+                        .HasColumnType("integer");
+
                     b.Property<long>("DungeonRunAtSmith")
                         .HasColumnType("bigint");
 
@@ -133,6 +136,9 @@ namespace Orsuun.Server.Migrations
 
                     b.Property<Guid>("LoginId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("MastersNeedles")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Materials")
                         .HasColumnType("integer");

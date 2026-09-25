@@ -60,7 +60,8 @@ public sealed record PushResultDto(int Stage, bool Cleared, ulong Seed, int Tick
 public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChanceBp);
 
 public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
-    int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0, int Tallies = 0);
+    int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0, int Tallies = 0,
+    int MastersNeedles = 0);
 
 /// <summary>One bounty with this account's count toward it (the server counts; the client only shows).</summary>
 public sealed record BountyDto(int Id, string Title, BountyPeriod Period, long Count, int Target, int Marks, bool Claimed);
@@ -212,7 +213,8 @@ public sealed record StateDto(
     long DungeonRunAtSmith = 0,
     WardrobeDto? Wardrobe = null,
     TrailDto? Trail = null,
-    TradeBriefDto? Trade = null);
+    TradeBriefDto? Trade = null,
+    int DungeonPausedId = 0);
 
 /// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
 public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);
@@ -260,15 +262,16 @@ public sealed record PitFightDto(StateDto State, DuelResultDto Duel, PitsDto Pit
 public sealed record DungeonEnterRequest(string RequestId, int DungeonId);
 /// <summary>ItemId empty walks past the smith; otherwise that piece is forged with ForgeMethod.ChainedSmith (a string: Unity's
 /// JSON writes a missing id as "").</summary>
-public sealed record DungeonSmithRequest(string RequestId, long RunId, string? ItemId);
+public sealed record DungeonSmithRequest(string RequestId, long RunId, string? ItemId, string? Rune = null);
 /// <summary>One fought floor: the client replays Dungeons.Floor(dungeon, floor, level) with the hero under Seed.</summary>
 public sealed record DungeonFloorDto(int Floor, ulong Seed, int PotionsAtStart, bool Cleared);
 /// <summary>
 /// A part of a run: the floors fought now, and whether it stopped at the smith (AtSmith), ended in a fall (FellOn, the
 /// floor) or cleared the dungeon (Cleared, with the Warden's Chest). Smith is the smith's forge when there was one.
 /// </summary>
+/// At a rune lock (Pause "RuneLock") Riddle and Runes are its riddle; the answer comes back as DungeonSmithRequest.Rune.
 public sealed record DungeonResultDto(StateDto State, long RunId, int DungeonId, int Level, DungeonFloorDto[] Floors, bool AtSmith, bool Cleared,
-    int FellOn, string Chest, ForgeResultDto? Smith, string SmithItem, string Text);
+    int FellOn, string Chest, ForgeResultDto? Smith, string SmithItem, string Text, string Pause = "", string Riddle = "", string[]? Runes = null);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 

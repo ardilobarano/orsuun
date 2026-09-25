@@ -72,6 +72,13 @@ namespace Orsuun.Client
 
         /// <summary>The Hollow Spire's floors: the hollowed dead of the grave plain, greyed and washed violet.</summary>
         private static readonly string[] SpireMobs = { "Ghoul#9C94B0", "Deserter#8E8AA0", "Wolf#8A8298" };
+        /// <summary>Silkmother's Warren: silk spiders, with salt scorpions and cocooned ghouls bleached pale in the caves.</summary>
+        private static readonly string[] WarrenMobs = { "SilkSpider", "Scorpion#D8D0E0", "Ghoul#D9D2C4" };
+        /// <summary>The Carvers' Archive: stone sentinels, the vault's cold wights and the thieves who died in it.</summary>
+        private static readonly string[] ArchiveMobs = { "StoneSentinel", "IceWight#9FB8D8", "Deserter#7F92B8" };
+
+        /// <summary>The dungeon a floor belongs to (Rules.Dungeons: stage 300 + id * 10 + floor), or 0.</summary>
+        private static int DungeonOf(int stageNumber) => Dungeons.IsFloor(stageNumber) ? (stageNumber - Dungeons.FloorStageBase) / 10 : 0;
 
         /// <summary>The campaign map of a stage (1 the Oathfields .. 6 Whisperwood), or 0 for a zone or a dungeon floor.</summary>
         private static int CampaignMap(int stageNumber) => Content.IsZone(stageNumber) ? 0 : Content.MapOfStage(stageNumber).Id;
@@ -83,7 +90,8 @@ namespace Orsuun.Client
         private static string[] MobSetFor(int stageNumber)
         {
             int map = CampaignMap(stageNumber);
-            string[] set = Dungeons.IsFloor(stageNumber) ? SpireMobs
+            int dungeon = DungeonOf(stageNumber);
+            string[] set = dungeon == 2 ? WarrenMobs : dungeon == 3 ? ArchiveMobs : dungeon != 0 ? SpireMobs
                 : map == 2 ? GorakMobs
                 : map == 5 ? CinderMobs
                 : map == 6 ? WhisperMobs
@@ -107,6 +115,8 @@ namespace Orsuun.Client
         /// </summary>
         private static string BackdropKey(ZoneType zone, int stageNumber)
         {
+            if (DungeonOf(stageNumber) == 2 && Resources.Load<Material>("Backdrops/BackdropSilkWarren") != null) return "SilkWarren";
+            if (DungeonOf(stageNumber) == 3 && Resources.Load<Material>("Backdrops/BackdropCarversArchive") != null) return "CarversArchive";
             if (Dungeons.IsFloor(stageNumber) && Resources.Load<Material>("Backdrops/BackdropHollowSpire") != null) return "HollowSpire";
             int map = CampaignMap(stageNumber);
             if ((stageNumber == 102 || map == 3) && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
@@ -235,6 +245,8 @@ namespace Orsuun.Client
                 "FrostPasture" => (new Color(0.60f, 0.67f, 0.76f), new Color(0.68f, 0.75f, 0.83f)),
                 "HollowSpire" => (new Color(0.24f, 0.23f, 0.26f), new Color(0.29f, 0.27f, 0.31f)),
                 "CinderMarches" => (new Color(0.22f, 0.19f, 0.18f), new Color(0.30f, 0.21f, 0.16f)),
+                "SilkWarren" => (new Color(0.34f, 0.31f, 0.38f), new Color(0.40f, 0.36f, 0.45f)),
+                "CarversArchive" => (new Color(0.27f, 0.30f, 0.36f), new Color(0.32f, 0.36f, 0.43f)),
                 "Whisperwood" => (new Color(0.20f, 0.25f, 0.22f), new Color(0.24f, 0.30f, 0.27f)),
                 _ => (new Color(0.52f, 0.48f, 0.22f), new Color(0.58f, 0.54f, 0.27f)),
             };
@@ -1190,7 +1202,8 @@ namespace Orsuun.Client
                     // Nine-Winters, Whitefang Range's map boss: the ice wight lord, an ice wight grown tall and pale.
                     if (boss.StartsWith("Nine-Winters")) { scale = 1.5f; name = "IceWight"; tint = new Color(0.78f, 0.9f, 1f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     name = boss.Contains("Greyjaw") ? "Greyjaw" : boss.Contains("Gorak") ? "Gorak" : boss.Contains("Mirage") ? "Queen"
-                        : boss.Contains("Azhdar") ? "Azhdar" : boss.Contains("Lantern Widow") ? "LanternWidow" : null;
+                        : boss.Contains("Azhdar") ? "Azhdar" : boss.Contains("Lantern Widow") ? "LanternWidow"
+                        : boss.Contains("Silkmother") ? "Silkmother" : boss.Contains("Last Carver") ? "LastCarver" : null;
                     MobArt own = name != null ? LoadMob(name) : null;
                     if (own != null) { scale = 1f; return own; }
                     if (boss.Contains("Greyjaw")) { scale = 1.8f; name = "Wolf"; return LoadMob("Wolf"); }
@@ -1312,7 +1325,8 @@ namespace Orsuun.Client
                 case "Queen": case "SnowHag": return "SpellVoid";
                 case "Scorpion": case "GlassSnake": return "MobBite";
                 case "FrostBear": return "MobGore";
-                case "MagmaHound": return "MobBite";
+                case "MagmaHound": case "SilkSpider": case "Silkmother": return "MobBite";
+                case "LastCarver": return "BossSlam";
                 case "Azhdar": return "BossSlam";
                 case "LanternWidow": case "HangingSpirit": case "FlameCultist": case "LanternWisp": return "SpellVoid";
                 default: return "MobClash";

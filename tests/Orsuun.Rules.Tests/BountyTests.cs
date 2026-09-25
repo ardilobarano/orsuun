@@ -71,6 +71,13 @@ public class BountyTests
         Assert.Equal(4, item.Etchings.Count);
         Assert.Contains("Master's Needle", EtchingActions.EtchBlocker(item, inv));
         Assert.Throws<InvalidOperationException>(() => EtchingActions.Etch(item, inv, service, rng));
+        // The Carvers' Archive's Master's Needle adds the fifth (at the fifth slot's chance), and only it.
+        int needles = inv.EtchingNeedles;
+        inv.MastersNeedles = 30;
+        while (item.Etchings.Count < 5 && inv.MastersNeedles > 0) EtchingActions.Etch(item, inv, service, rng);
+        Assert.Equal(5, item.Etchings.Count);
+        Assert.Equal(needles, inv.EtchingNeedles);
+        Assert.True(inv.MastersNeedles < 30);
 
         var empty = new Inventory();
         Assert.Contains("No Etching Needles", EtchingActions.EtchBlocker(new ItemState(30, Rarity.Epic), empty));

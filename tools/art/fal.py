@@ -81,7 +81,7 @@ def main():
         status_url = response_url + "/status"
     else:
         body = json.load(open(args)) if os.path.exists(args) else json.loads(args)
-        submitted = request("https://queue.fal.run/" + endpoint, inline_files(body), tries=1)
+        submitted = request("https://queue.fal.run/" + endpoint, inline_files(body), tries=3)
         status_url, response_url = submitted["status_url"], submitted["response_url"]
         print("submitted", response_url, flush=True)
     started = time.time()
