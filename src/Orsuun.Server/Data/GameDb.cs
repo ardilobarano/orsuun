@@ -21,6 +21,7 @@ public sealed class GameDb : DbContext
     public DbSet<GuildInvite> GuildInvites => Set<GuildInvite>();
     public DbSet<Friendship> Friendships => Set<Friendship>();
     public DbSet<PitSeasonRecord> PitSeasons => Set<PitSeasonRecord>();
+    public DbSet<BookStack> BookStacks => Set<BookStack>();
     public DbSet<MarketListing> MarketListings => Set<MarketListing>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<AdminAction> AdminActions => Set<AdminAction>();
@@ -50,6 +51,8 @@ public sealed class GameDb : DbContext
             e.Property(a => a.Version).IsRowVersion();
             e.HasMany(a => a.Items).WithOne().HasForeignKey(i => i.OwnerId);
             e.Navigation(a => a.Items).AutoInclude();
+            e.HasMany(a => a.Books).WithOne().HasForeignKey(b => b.AccountId);
+            e.Navigation(a => a.Books).AutoInclude();
             e.Ignore(a => a.Weapon);
         });
 
@@ -105,6 +108,8 @@ public sealed class GameDb : DbContext
             e.HasIndex(r => new { r.GuildId, r.AccountId }).IsUnique();
             e.HasIndex(r => r.AccountId);
         });
+
+        b.Entity<BookStack>(e => e.HasKey(k => new { k.AccountId, k.BookId }));
 
         b.Entity<Friendship>(e =>
         {

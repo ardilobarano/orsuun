@@ -58,6 +58,16 @@ public sealed class Account
     public int Oathstones { get; set; }
     /// <summary>Oath Renewals (Rules.OathRenewal): each +3% attack and HP, the level back to 1.</summary>
     public int Renewals { get; set; }
+    /// <summary>Skill grades by book id (class * 3 + slot), twelve numbers "g;g;.." (Rules.SkillGrades.Parse).</summary>
+    [MaxLength(64)] public string SkillGrades { get; set; } = "";
+    /// <summary>Successful reads toward each skill's next Mastered step, by book id.</summary>
+    [MaxLength(64)] public string SkillProgress { get; set; } = "";
+    /// <summary>When each skill last read a book (UTC ticks by book id): one read per 8 hours a skill.</summary>
+    [MaxLength(256)] public string SkillReads { get; set; } = "";
+    /// <summary>Honor (Rules.SkillGrades): earned by Korstones, Pit wins and dungeon Wardens, spent on Oathstone tries.</summary>
+    public long Honor { get; set; }
+    /// <summary>Technique Scrolls held, one row per book id (Rules.Books), loaded with the hero.</summary>
+    public List<BookStack> Books { get; set; } = new();
     public int SummoningMarkers { get; set; }
     public int HuntMarks { get; set; }
     public int PinningWax { get; set; }
@@ -469,6 +479,14 @@ public sealed class GuildRequest
     public DateTime Utc { get; set; }
 }
 
+/// <summary>A stack of one Technique Scroll (Rules.Books) held by a hero; trades move counts with guarded updates.</summary>
+public sealed class BookStack
+{
+    public Guid AccountId { get; set; }
+    public int BookId { get; set; }
+    public int Count { get; set; }
+}
+
 /// <summary>A settled Pit season (the key is unique, so only one settlement claims it) and its three best.</summary>
 public sealed class PitSeasonRecord
 {
@@ -517,6 +535,9 @@ public sealed class MarketListing
     public Rarity Rarity { get; set; }
     public int ItemLevel { get; set; }
     public int UpgradeLevel { get; set; }
+    /// <summary>A stack of Technique Scrolls instead of a piece (ItemId empty): its book id (Rules.Books) and count, held here until it closes.</summary>
+    public int BookId { get; set; } = -1;
+    public int BookCount { get; set; }
 }
 
 /// <summary>
@@ -572,9 +593,12 @@ public sealed class TradeSession
     public Guid ToId { get; set; }
     public TradeState State { get; set; }
     [MaxLength(400)] public string FromItems { get; set; } = "";
+    /// <summary>Technique Scrolls on the table, "bookId:count,.." (Rules.DirectTrade.FormatBooks).</summary>
+    [MaxLength(200)] public string FromBooks { get; set; } = "";
     public long FromSorn { get; set; }
     public TradeStep FromStep { get; set; }
     [MaxLength(400)] public string ToItems { get; set; } = "";
+    [MaxLength(200)] public string ToBooks { get; set; } = "";
     public long ToSorn { get; set; }
     public TradeStep ToStep { get; set; }
     public DateTime CreatedUtc { get; set; }

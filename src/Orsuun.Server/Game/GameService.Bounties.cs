@@ -59,7 +59,7 @@ public sealed partial class GameService
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         ShopItem item = HuntShop.Find(request.ShopItemId) ?? throw new GameException("no_item", "Unknown shop item.");
         var inventory = Snapshot(account);
-        try { HuntShop.Buy(inventory, item.Id, request.Count); }
+        try { HuntShop.Buy(inventory, item.Id, request.Count, account.Class, _rng); }
         catch (InvalidOperationException ex) { throw new GameException("shop", ex.Message); }
         Apply(account, inventory);
         _db.Ledger.Add(Entry(account.Id, null, "shop", $"{request.Count}x {item.Name} marks={item.Marks * request.Count}", 0, request.RequestId));

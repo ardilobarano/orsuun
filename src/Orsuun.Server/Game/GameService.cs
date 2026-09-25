@@ -593,6 +593,8 @@ public sealed partial class GameService
         account.EtchingNeedles += 5;
         account.MastersNeedles += 1;
         account.Oathstones += Banners.ChangeOathstones;
+        for (int slot = 0; slot < Rules.SkillGrades.Slots; slot++) AddBooks(account, Books.Id(account.Class, slot), 5);
+        account.Honor += 500;
         account.PinningWax += 2;
         account.Tallies += 100;
         account.Laurels += 100;
@@ -661,6 +663,8 @@ public sealed partial class GameService
         if (!offline) EveningBells.Apply(stage, _bells.Active);
         var inventory = Snapshot(account);
         HuntSettlement s = HuntYield.Settle(stage, Hero(account), seconds, cap, efficiency, inventory, _rng);
+        // Honor (Rules.SkillGrades): every Korstone broken, online or off.
+        account.Honor += s.Korstones * Rules.SkillGrades.HonorPerKorstone;
         // The War of Banners bonus: last season's winning Banner and each fortress a Banner holds add sorn.
         long bonusSorn = s.SornEarned * sornBonusPercent / 100;
         inventory.Sorn += bonusSorn;
@@ -708,7 +712,8 @@ public sealed partial class GameService
     }
 
     private static HeroStats Hero(Account a) =>
-        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class, WornPieces(a), a.Renewals);
+        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class, WornPieces(a), a.Renewals,
+            Rules.SkillGrades.ForClass(Rules.SkillGrades.Parse(a.SkillGrades), a.Class));
 
     private static int[] ParseShards(string s) => s.Split(';').Select(int.Parse).ToArray();
     private static string[] ParseSkins(string s) => s.Split(';', StringSplitOptions.RemoveEmptyEntries);
@@ -752,7 +757,7 @@ public sealed partial class GameService
             account.Id,
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
-                account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles, account.Oathstones),
+                account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles, account.Oathstones, BookCounts(account)),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed && !i.OutOfBag).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -790,7 +795,11 @@ public sealed partial class GameService
             TrailOf(account),
             null,
             account.DungeonRunAtSmith != 0 ? account.DungeonPausedId : 0,
-            Renewals: account.Renewals);
+            Renewals: account.Renewals,
+            SkillGrades: Rules.SkillGrades.Parse(account.SkillGrades),
+            SkillProgress: Rules.SkillGrades.Parse(account.SkillProgress, 99),
+            SkillReadySeconds: SkillReadySeconds(account),
+            Honor: account.Honor);
     }
 
     private static ItemDto ToDto(Item item)
@@ -803,6 +812,36 @@ public sealed partial class GameService
                 k.Dead ? "Dead Shard" : k.Type == null ? "empty" : SocketRules.Name(k.Type.Value) + " " + Content.KorshardRanks[k.Rank] + ": " + SocketRules.Describe(k.Type.Value, k.Rank))).ToArray());
     }
 
+    /// <summary>The hero's Technique Scrolls by book id.</summary>
+    private static int[] BookCounts(Account a)
+    {
+        var counts = new int[Books.Count];
+        foreach (BookStack b in a.Books)
+            if (Books.Valid(b.BookId)) counts[b.BookId] = b.Count;
+        return counts;
+    }
+
+    /// <summary>Sets a stack on the tracked hero (a row appears the first time a book is held).</summary>
+    private static void SetBooks(Account a, int bookId, int count)
+    {
+        BookStack? stack = a.Books.FirstOrDefault(b => b.BookId == bookId);
+        if (stack == null)
+        {
+            if (count <= 0) return;
+            a.Books.Add(new BookStack { AccountId = a.Id, BookId = bookId, Count = count });
+        }
+        else stack.Count = Math.Max(0, count);
+    }
+
+    private static void AddBooks(Account a, int bookId, int count) =>
+        SetBooks(a, bookId, (a.Books.FirstOrDefault(b => b.BookId == bookId)?.Count ?? 0) + count);
+
+    /// <summary>Adds to another hero's stack in one statement (the Exchange, trades): an upsert, safe under concurrent use.</summary>
+    private Task AddBooksElsewhereAsync(Guid accountId, int bookId, int count, CancellationToken ct) =>
+        _db.Database.ExecuteSqlInterpolatedAsync(
+            $@"INSERT INTO ""BookStacks"" (""AccountId"", ""BookId"", ""Count"") VALUES ({accountId}, {bookId}, {count})
+               ON CONFLICT (""AccountId"", ""BookId"") DO UPDATE SET ""Count"" = ""BookStacks"".""Count"" + EXCLUDED.""Count""", ct);
+
     private static Inventory Snapshot(Account a)
     {
         var inventory = new Inventory
@@ -814,6 +853,7 @@ public sealed partial class GameService
         };
         int[] shards = ParseShards(a.Korshards);
         Array.Copy(shards, inventory.Korshards, Math.Min(shards.Length, inventory.Korshards.Length));
+        Array.Copy(BookCounts(a), inventory.Books, Books.Count);
         inventory.Skins.AddRange(ParseSkins(a.Skins));
         return inventory;
     }
@@ -837,6 +877,7 @@ public sealed partial class GameService
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
         a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;
         a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax; a.MastersNeedles = i.MastersNeedles; a.Oathstones = i.Oathstones;
+        for (int b = 0; b < Books.Count; b++) SetBooks(a, b, i.Books[b]);
         a.Korshards = string.Join(';', i.Korshards);
         a.Skins = string.Join(';', i.Skins);
 

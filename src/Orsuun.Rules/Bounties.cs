@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Orsuun.Rules.Combat;
 using System.Globalization;
 using System.Text;
 
@@ -181,14 +182,18 @@ namespace Orsuun.Rules
 
     public sealed class ShopItem
     {
-        public ShopItem(int id, string name, int marks, string detail, Action<Inventory> grant)
+        public ShopItem(int id, string name, int marks, string detail, Action<Inventory> grant, bool classBook = false)
         {
             Id = id;
             Name = name;
             Marks = marks;
             Detail = detail;
             Grant = grant;
+            ClassBook = classBook;
         }
+
+        /// <summary>A Technique Scroll for one of the buyer's class skills, at random (Rules.Books).</summary>
+        public bool ClassBook { get; }
 
         public int Id { get; }
         public string Name { get; }
@@ -207,6 +212,7 @@ namespace Orsuun.Rules
             new ShopItem(3, "10 Turnstones", 3, "Turn etchings", i => i.Turnstones += 10),
             new ShopItem(4, "Scroll of Mercy", 8, "A failed Forge only loses a level", i => i.ScrollsOfMercy++),
             new ShopItem(5, "10 Draughts", 1, "Healing draughts for the hunt", i => i.Potions += 10),
+            new ShopItem(6, "Technique Scroll", 10, "A book of one of your class's skills", _ => { }, classBook: true),
         };
 
         public static ShopItem? Find(int id)
@@ -216,15 +222,19 @@ namespace Orsuun.Rules
             return null;
         }
 
-        /// <summary>Buys count of an item with Hunt Marks.</summary>
-        public static void Buy(Inventory inventory, int itemId, int count)
+        /// <summary>Buys count of an item with Hunt Marks (a class book goes to one of <paramref name="cls"/>'s skills at random).</summary>
+        public static void Buy(Inventory inventory, int itemId, int count, HeroClass cls = HeroClass.Vanguard, IRandom? rng = null)
         {
             ShopItem item = Find(itemId) ?? throw new InvalidOperationException("Unknown shop item.");
             if (count < 1 || count > 99) throw new InvalidOperationException("Buy 1 to 99 at a time.");
             int cost = item.Marks * count;
             if (inventory.HuntMarks < cost) throw new InvalidOperationException("Not enough Hunt Marks.");
             inventory.HuntMarks -= cost;
-            for (int i = 0; i < count; i++) item.Grant(inventory);
+            for (int i = 0; i < count; i++)
+            {
+                if (item.ClassBook) inventory.Books[Rules.Books.Id(cls, (rng ?? new XorShiftRandom(1)).NextInt(SkillGrades.Slots))]++;
+                else item.Grant(inventory);
+            }
         }
     }
 }

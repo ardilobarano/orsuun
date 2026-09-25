@@ -17,8 +17,10 @@ namespace Orsuun.Rules
         public int EtchingNeedles { get; set; }
         /// <summary>Adds the fifth etching (the Carvers' Archive's vault).</summary>
         public int MastersNeedles { get; set; }
-        /// <summary>A marker fragment that still holds a vow (the Carvers' Archive); pays for a change of Banner.</summary>
+        /// <summary>A marker fragment that still holds a vow (the Carvers' Archive); pays for a change of Banner and Grand skill grades.</summary>
         public int Oathstones { get; set; }
+        /// <summary>Technique Scrolls held, by book id (Rules.Books: class * 3 + skill slot); read to climb Mastered grades.</summary>
+        public int[] Books { get; } = new int[Rules.Books.Count];
         public int SummoningMarkers { get; set; }
         /// <summary>Paid by bounties, spent in the Hunt Marks shop.</summary>
         public int HuntMarks { get; set; }
@@ -42,6 +44,7 @@ namespace Orsuun.Rules
             KhansAlloys = other.KhansAlloys; AnvilWards = other.AnvilWards; Turnstones = other.Turnstones;
             EtchingNeedles = other.EtchingNeedles; SummoningMarkers = other.SummoningMarkers; Xp = other.Xp;
             MastersNeedles = other.MastersNeedles; Oathstones = other.Oathstones;
+            Array.Copy(other.Books, Books, Books.Length);
             HuntMarks = other.HuntMarks; PinningWax = other.PinningWax;
             Array.Copy(other.Korshards, Korshards, Korshards.Length);
             Skins.Clear();
@@ -62,8 +65,9 @@ namespace Orsuun.Rules
         /// </summary>
         /// <param name="worn">Wardrobe pieces worn with time left: a skin adds HP, a mount attack (after the class shape).</param>
         /// <param name="renewals">Oath Renewals: each adds OathRenewal.PercentPerRenewal to attack and HP.</param>
+        /// <param name="skillGrades">Skill grades by slot (Rules.SkillGrades); null for none.</param>
         public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level, HeroClass cls = HeroClass.Vanguard, IEnumerable<WardrobeDef>? worn = null,
-            int renewals = 0)
+            int renewals = 0, int[]? skillGrades = null)
         {
             long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
             int critBp = 500, critMult = 200, beast = 0, evasionBp = 0, haste = 0, warding = 0;
@@ -146,7 +150,15 @@ namespace Orsuun.Rules
                 EvasionBp = Math.Min(evasionBp, 5000),
                 AttackIntervalTicks = Math.Max(6, interval * 100 / (100 + haste)),
                 CommanderDamageTakenPercent = Math.Max(40, 100 - warding),
+                SkillGradeBonusPercent = GradeBonuses(skillGrades),
             };
+        }
+
+        private static int[] GradeBonuses(int[]? grades)
+        {
+            var bonus = new int[SkillGrades.Slots];
+            for (int i = 0; grades != null && i < bonus.Length && i < grades.Length; i++) bonus[i] = SkillGrades.BonusPercent(grades[i]);
+            return bonus;
         }
 
         /// <summary>How a class bends the shared stat model (percent of attack, defense and HP, crit, swing speed, weak point).</summary>
@@ -287,7 +299,23 @@ namespace Orsuun.Rules
         public bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
-        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class, _worn, Renewals);
+        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class, _worn, Renewals, SkillGrades.ForClass(_skillGrades, Class));
+
+        private int[] _skillGrades = new int[Books.Count];
+        /// <summary>Skill grades by book id, all twelve (online: from the server's state); the class played fights with its three.</summary>
+        public IReadOnlyList<int> SkillGradeList => _skillGrades;
+
+        /// <summary>Sets all twelve grades; a change rebuilds the hero like a change of gear.</summary>
+        public void SetSkillGrades(int[] grades)
+        {
+            var next = new int[Books.Count];
+            for (int i = 0; i < next.Length && grades != null && i < grades.Length; i++) next[i] = grades[i];
+            bool same = true;
+            for (int i = 0; i < next.Length; i++) same &= next[i] == _skillGrades[i];
+            if (same) return;
+            _skillGrades = next;
+            RefreshHero();
+        }
 
         /// <summary>Oath Renewals (online: from the server's state); a change rebuilds the hero like a change of gear.</summary>
         public int Renewals { get; private set; }

@@ -161,6 +161,10 @@ namespace Orsuun.Client
                     () => { if (!_root.Replaying) _root.Session.Cast(index); }, out _skillSweeps[i], out _skillLabels[i]);
                 _skillArt[i] = _skillButtons[i].transform.Find("Art").GetComponent<RawImage>();
                 _skillNames[i] = Ui.Title("SkillName" + i, canvas, cx - 0.15f, 0.212f, cx + 0.15f, 0.236f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
+                // The name opens the skill's grades (SKILLS).
+                _skillNames[i].supportRichText = true;
+                _skillNames[i].raycastTarget = true;
+                _skillNames[i].gameObject.AddComponent<Button>().onClick.AddListener(() => _root.Skills.Open(index));
                 Button auto = Ui.Button("Auto" + i, canvas, cx - 0.11f, 0.177f, cx + 0.11f, 0.21f, "", 18,
                     Palette.ButtonIdle, () => _root.Session.ToggleAutoCast(index), out _autoLabels[i]);
                 _autoImages[i] = auto.GetComponent<Image>();
@@ -176,7 +180,7 @@ namespace Orsuun.Client
 
             // The four actions as square lacquer tiles with big painted icons (hunt mockup).
             Ui.Tile("Forge", canvas, 0.025f, 0.077f, 0.25f, 0.164f, "FORGE", 26, Palette.ButtonForge, "NavForge", () => root.Forge.Open(), out _);
-            Ui.Tile("Gear", canvas, 0.265f, 0.077f, 0.49f, 0.164f, "GEAR", 26, new Color(0.2f, 0.3f, 0.55f), "NavGear", () => root.Gear.Open(), out _);
+            Ui.Tile("Gear", canvas, 0.265f, 0.077f, 0.49f, 0.164f, "INVENTORY", 24, new Color(0.2f, 0.3f, 0.55f), "NavGear", () => root.Gear.Open(), out _);
             Ui.Tile("Shards", canvas, 0.505f, 0.077f, 0.73f, 0.164f, "SHARDS", 26, Palette.Alloy, "NavShards", () => root.Sockets.Open(), out _);
             // A push goal tapped on the goal line lights the PUSH tile for a moment.
             _pushGlow = Ui.Sliced("PushGlow", canvas, 0.71f, 0.05f, 1f, 0.19f, "Glow", Palette.Sorn);
@@ -235,11 +239,14 @@ namespace Orsuun.Client
         }
 
         /// <summary>Resources/Icons/Skills name for a skill: its letters ("Kestrel's Dive" is KestrelsDive).</summary>
-        private static string SkillIcon(string name)
+        private static string SkillIcon(string name) => "Icons/Skills/" + SkillLetters(name);
+
+        /// <summary>A skill's icon name: the letters of its name (Resources/Icons/Skills).</summary>
+        public static string SkillLetters(string name)
         {
             var letters = new System.Text.StringBuilder();
             foreach (char c in name) if (char.IsLetter(c)) letters.Append(c);
-            return "Icons/Skills/" + letters;
+            return letters.ToString();
         }
 
         /// <summary>The screen area (canvas anchors) covering the named HUD elements, for the tutorial's highlight.</summary>
@@ -339,7 +346,9 @@ namespace Orsuun.Client
                     _skillArt[i].texture = Resources.Load<Texture2D>(SkillIcon(skill.Name));
                     _skillArt[i].enabled = _skillArt[i].texture != null;
                 }
-                _skillNames[i].text = skill.Name.ToUpperInvariant();
+                int book = Books.Id(session.Class, i);
+                int grade = book < session.SkillGradeList.Count ? session.SkillGradeList[book] : 0;
+                _skillNames[i].text = skill.Name.ToUpperInvariant() + (grade > 0 ? "  " + ConfirmDialog.Tint(SkillGrades.Name(grade), Palette.Sorn) : "");
                 _skillSweeps[i].fillAmount = skill.CooldownTicks > 0 ? Mathf.Clamp01(ticksLeft / (float)skill.CooldownTicks) : 0f;
                 _skillLabels[i].text = ticksLeft == 0 ? "" : $"{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}";
                 _autoLabels[i].text = lane.AutoCast[i] ? "AUTO ON" : "AUTO OFF";

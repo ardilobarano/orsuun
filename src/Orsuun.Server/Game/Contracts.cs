@@ -61,7 +61,7 @@ public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChan
 
 public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
     int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0, int Tallies = 0,
-    int MastersNeedles = 0, int Oathstones = 0);
+    int MastersNeedles = 0, int Oathstones = 0, int[]? Books = null);
 
 /// <summary>One bounty with this account's count toward it (the server counts; the client only shows).</summary>
 public sealed record BountyDto(int Id, string Title, BountyPeriod Period, long Count, int Target, int Marks, bool Claimed);
@@ -80,6 +80,10 @@ public sealed record BannerRequest(Banner Banner);
 public sealed record BannerChangeRequest(string RequestId, Banner Banner);
 /// <summary>Oath Renewal (Rules.OathRenewal): the hero back to level 1 for a lasting bonus.</summary>
 public sealed record RenewRequest(string RequestId);
+/// <summary>One try at a skill's next grade (Rules.SkillGrades) for the class played: Slot 0 burst, 1 area, 2 haste.</summary>
+public sealed record SkillTrainRequest(string RequestId, int Slot);
+/// <summary>The hero after a try, and how it went.</summary>
+public sealed record SkillTrainDto(StateDto State, int Slot, bool Success, int Grade, string Message);
 public sealed record BannerStandingDto(Banner Banner, string Name, long Points, int Fortresses);
 public sealed record FortressDto(int Id, string Name, string Region, Banner Holder, SiegePhase Phase, long Wall, long WallMax,
     long SiegeEmber, long SiegeSky, long SiegeGold, string LastEvent, string FlagGuild = "");
@@ -152,11 +156,12 @@ public sealed record ChatReportRequest(long MessageId, string Channel = "world")
 public sealed record ChatBlockRequest(Guid AccountId, bool Block, string Channel = "world");
 
 /// <summary>A piece on the Salt Exchange with its full details, its price and its seller.</summary>
-public sealed record ListingDto(long Id, ItemDto Item, long Price, string SellerName, Banner SellerBanner, bool Mine, int MinutesLeft,
-    ListingStatus Status = ListingStatus.Active);
+/// <summary>A listing: a piece (Item), or with BookId 0..11 a stack of BookCount Technique Scrolls (Item null).</summary>
+public sealed record ListingDto(long Id, ItemDto? Item, long Price, string SellerName, Banner SellerBanner, bool Mine, int MinutesLeft,
+    ListingStatus Status = ListingStatus.Active, int BookId = -1, int BookCount = 0);
 public sealed record MarketDto(StateDto State, ListingDto[] Listings, int Page, int Pages, int Total, ListingDto[] Mine, int TaxPercent,
     string Message = "");
-public sealed record MarketListRequest(string RequestId, Guid ItemId, long Price);
+public sealed record MarketListRequest(string RequestId, Guid ItemId, long Price, int BookId = -1, int BookCount = 0);
 public sealed record MarketBuyRequest(string RequestId, long ListingId);
 
 /// <summary>Sign up saves an email and password to the account being played; sign in moves this device to an account.</summary>
@@ -235,7 +240,11 @@ public sealed record StateDto(
     int DungeonPausedId = 0,
     int FriendAsks = 0,
     int GuildInvites = 0,
-    int Renewals = 0);
+    int Renewals = 0,
+    int[]? SkillGrades = null,
+    int[]? SkillProgress = null,
+    long[]? SkillReadySeconds = null,
+    long Honor = 0);
 
 /// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
 public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);
@@ -264,11 +273,14 @@ public sealed record TradeBriefDto(long Id, TradeState State, bool Incoming, str
 /// after the last change. Hero is the hero's state once the trade went through on this request.
 /// </summary>
 public sealed record TradeDto(long Id, TradeState State, bool Incoming, string OtherName, ItemDto[] MyItems, long MySorn, TradeStep MyStep,
-    ItemDto[] TheirItems, long TheirSorn, TradeStep TheirStep, int LockLeft, int TaxPercent, bool RulesRelaxed, string Message, StateDto? Hero = null);
+    ItemDto[] TheirItems, long TheirSorn, TradeStep TheirStep, int LockLeft, int TaxPercent, bool RulesRelaxed, string Message, StateDto? Hero = null,
+    BookOfferDto[]? MyBooks = null, BookOfferDto[]? TheirBooks = null);
 /// <summary>Asks a hero to trade, by name, or by id (chat, friends).</summary>
 public sealed record TradeInviteRequest(string RequestId, string Name, Guid? AccountId = null);
 public sealed record TradeRequest(string RequestId, long TradeId);
-public sealed record TradeOfferRequest(string RequestId, long TradeId, Guid[] ItemIds, long Sorn);
+/// <summary>A stack of Technique Scrolls on a trade's table.</summary>
+public sealed record BookOfferDto(int BookId, int Count);
+public sealed record TradeOfferRequest(string RequestId, long TradeId, Guid[] ItemIds, long Sorn, BookOfferDto[]? Books = null);
 
 /// <summary>The Pits (Rules.Pits): the record, the three challengers, the board, the shop's currency.</summary>
 /// <summary>

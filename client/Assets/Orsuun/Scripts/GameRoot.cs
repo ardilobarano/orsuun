@@ -25,6 +25,7 @@ namespace Orsuun.Client
         public Hud Hud { get; private set; }
         public ForgePanel Forge { get; private set; }
         public GearPanel Gear { get; private set; }
+        public SkillsPanel Skills { get; private set; }
         public ZonePanel Zones { get; private set; }
         public SocketPanel Sockets { get; private set; }
         public TurnHelperPanel TurnHelper { get; private set; }
@@ -91,6 +92,8 @@ namespace Orsuun.Client
             Forge.Init(this);
             Gear = new GameObject("GearPanel").AddComponent<GearPanel>();
             Gear.Init(this);
+            Skills = new GameObject("SkillsPanel").AddComponent<SkillsPanel>();
+            Skills.Init(this);
             Zones = new GameObject("ZonePanel").AddComponent<ZonePanel>();
             Zones.Init(this);
             Sockets = new GameObject("SocketPanel").AddComponent<SocketPanel>();
@@ -157,17 +160,23 @@ namespace Orsuun.Client
             string cls = Arg("-class") ?? (Array.IndexOf(Environment.GetCommandLineArgs(), "-kestrel") >= 0 ? "Kestrel" : null);
             if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
+            // -skills opens SKILLS; -bagtab <n> opens the inventory on a tab (1 gear, 2 books, 3 materials), -bagcard its first tile's card.
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-skills") >= 0) Skills.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-menu") >= 0) Menu.Open();
             // Screenshots: -oath shows the Banner oath, -war the War of Banners, -bounties the bounty board.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-oath") >= 0) Oath.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-war") >= 0) War.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-bounties") >= 0) Bounties.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-guild") >= 0) Guild.Open();
-            // -chat, -zones, -shards, -market (-sell, -mylistings) and -account open those screens for screenshots.
+            // -chat, -zones, -shards, -market (-sell, -mylistings, -marketbooks, -sellbook) and -account open those screens for screenshots.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-chat") >= 0) Chat.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-zones") >= 0) Zones.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-shards") >= 0) Sockets.Open();
-            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-market") >= 0) Market.Open();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-market") >= 0)
+            {
+                Market.Open();
+                Market.ShotView(Environment.GetCommandLineArgs());
+            }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-account") >= 0) _accountAsked = true;
             // -turnhelper [pick|add|demo|run] opens the turning helper over the Forge (with the etching list or the piece
             // list open, or three more pieces added; run also starts turning them locally with 600 Turnstones).

@@ -10,13 +10,16 @@ namespace Orsuun.Client
     /// <summary>
     /// SALT EXCHANGE (owner, 24 Sep 2026: "a global trading screen"): BUY pages through every player's listings by
     /// slot and order; SELL lists a bag piece for a price; MY LISTINGS shows what is up, sold, expired or taken back.
-    /// The server decides everything; the seller gets the price less the Exchange's 5%.
+    /// The server decides everything; the seller gets the price less the Exchange's 5%. Technique Scrolls (owner, 26 Sep
+    /// 2026: books trade) list as stacks, a count for one price, under their own BOOK filter.
     /// </summary>
     public sealed class MarketPanel : MonoBehaviour
     {
         private const int Rows = 8;
         private const float RefreshSeconds = 20f;
-        private static readonly string[] SlotChips = { "ALL", "WPN", "ARM", "HELM", "SHLD", "BRAC", "NECK", "EAR", "SHOE" };
+        private static readonly string[] SlotChips = { "ALL", "WPN", "ARM", "HELM", "SHLD", "BRAC", "NECK", "EAR", "SHOE", "BOOK" };
+        /// <summary>The slot filter's value for the BOOK chip.</summary>
+        private const int BookFilter = 8;
         private static readonly string[] Sorts = { "cheapest", "newest", "level" };
         private static readonly string[] SortLabels = { "CHEAPEST", "NEWEST", "HIGHEST +" };
 
@@ -52,13 +55,16 @@ namespace Orsuun.Client
         private float _nextFetch;
         private bool _offlineShown;
 
-        // SELL: the price box for one bag piece.
+        // SELL: the price box for one bag piece, or a count of one Technique Scroll.
         private GameObject _sellBox;
         private Text _sellTitle;
         private Text _sellInfo;
         private InputField _price;
         private Text _payout;
         private string _sellItemId;
+        private int _sellBook = -1;
+        private GameObject _countRow;
+        private InputField _count;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -84,8 +90,8 @@ namespace Orsuun.Client
             for (int i = 0; i < SlotChips.Length; i++)
             {
                 int slot = i - 1;
-                float x0 = 0.04f + i * 0.1022f;
-                _chips[i] = Ui.Button("Chip" + i, _filters.transform, x0, 0.795f, x0 + 0.097f, 0.835f, SlotChips[i], 18, Palette.ButtonIdle,
+                float x0 = 0.04f + i * 0.092f;
+                _chips[i] = Ui.Button("Chip" + i, _filters.transform, x0, 0.795f, x0 + 0.088f, 0.835f, SlotChips[i], 17, Palette.ButtonIdle,
                     () => { _slot = slot; _page = 0; Refresh(); }, out _);
             }
             for (int i = 0; i < Sorts.Length; i++)
@@ -127,8 +133,13 @@ namespace Orsuun.Client
             dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _sellBox.SetActive(false));
             Transform box = Ui.Framed("Box", _sellBox.transform, 0.06f, 0.3f, 0.94f, 0.72f, Palette.PanelDark).transform;
             _sellTitle = Ui.Title("Title", box, 0.05f, 0.84f, 0.95f, 0.97f, "", 32, TextAnchor.MiddleCenter, Palette.Parchment);
-            _sellInfo = Ui.Label("Info", box, 0.06f, 0.5f, 0.94f, 0.84f, "", 22, TextAnchor.UpperLeft, Palette.Parchment);
+            _sellInfo = Ui.Label("Info", box, 0.06f, 0.63f, 0.94f, 0.84f, "", 22, TextAnchor.UpperLeft, Palette.Parchment);
             _sellInfo.supportRichText = true;
+            // A scroll stack: how many of the held ones go up, for the one price.
+            _countRow = Ui.Rect("CountRow", box, 0f, 0f, 1f, 1f).gameObject;
+            Ui.Label("CountLabel", _countRow.transform, 0.06f, 0.5f, 0.4f, 0.61f, "How many", 24, TextAnchor.MiddleLeft, Palette.Muted);
+            _count = Ui.Input("Count", _countRow.transform, 0.42f, 0.49f, 0.94f, 0.62f, "1", 30, 3);
+            _count.contentType = InputField.ContentType.IntegerNumber;
             Ui.Label("PriceLabel", box, 0.06f, 0.37f, 0.4f, 0.48f, "Price in sorn", 24, TextAnchor.MiddleLeft, Palette.Muted);
             _price = Ui.Input("Price", box, 0.42f, 0.36f, 0.94f, 0.49f, "e.g. 50000", 30, 10);
             _price.contentType = InputField.ContentType.IntegerNumber;
@@ -148,6 +159,32 @@ namespace Orsuun.Client
             _sellBox.SetActive(false);
             _canvas.SetActive(true);
             SetTab(Tab.Buy);
+        }
+
+        /// <summary>Screenshots: -sell, -mylistings, -marketbooks (the BOOK filter), -sellbook (the first scroll's price box).</summary>
+        public void ShotView(string[] cmd)
+        {
+            if (System.Array.IndexOf(cmd, "-sell") >= 0) SetTab(Tab.Sell);
+            if (System.Array.IndexOf(cmd, "-mylistings") >= 0) SetTab(Tab.Mine);
+            if (System.Array.IndexOf(cmd, "-marketbooks") >= 0) { _slot = BookFilter; Refresh(); }
+            if (System.Array.IndexOf(cmd, "-sellbook") >= 0 && SellableBooks().Count > 0) OpenSellBook(SellableBooks()[0]);
+        }
+
+        /// <summary>Opens SELL with a bag piece's price box (the inventory's SELL).</summary>
+        public void OpenSell(string itemId)
+        {
+            Open();
+            SetTab(Tab.Sell);
+            foreach ((ItemState item, string id) in Sellable())
+                if (id == itemId) { ShowSellPiece(item, id); return; }
+        }
+
+        /// <summary>Opens SELL with a Technique Scroll's price box (the inventory's SELL on a scroll).</summary>
+        public void OpenSellBook(int book)
+        {
+            Open();
+            SetTab(Tab.Sell);
+            if (Books.Valid(book) && _root.Session.Inventory.Books[book] > 0) ShowSellBook(book);
         }
 
         public void Close()
@@ -187,6 +224,12 @@ namespace Orsuun.Client
         /// <summary>Name line for a piece: +level, rarity and name, tinted by rarity.</summary>
         private static string Title(ItemState item) => $"+{item.UpgradeLevel}  {item.DisplayName}";
 
+        private static string BookTitle(int book, int count) => $"{count} × {Books.Name(book)}";
+
+        private static string BookSummary(int book) => $"A {Books.ClassOf(book)} skill's Technique Scroll";
+
+        private static readonly Color BookColor = new Color(0.93f, 0.8f, 0.55f);
+
         private static string Summary(ItemState item)
         {
             int sockets = 0;
@@ -211,6 +254,14 @@ namespace Orsuun.Client
 
         private static string Left(int minutes) => minutes >= 60 ? $"{minutes / 60}h left" : $"{minutes}m left";
 
+        /// <summary>The scrolls held, by book id, that can be listed.</summary>
+        private List<int> SellableBooks()
+        {
+            var list = new List<int>();
+            for (int b = 0; b < Books.Count; b++) if (_root.Session.Inventory.Books[b] > 0) list.Add(b);
+            return list;
+        }
+
         /// <summary>The bag pieces that can be listed (the session's loot, with server ids).</summary>
         private List<(ItemState Item, string Id)> Sellable()
         {
@@ -230,48 +281,94 @@ namespace Orsuun.Client
             {
                 if (v?.listings == null || row >= v.listings.Length) return;
                 ListingDto l = v.listings[row];
-                ItemState item = ToState(l.item);
                 if (l.mine) { _message.text = "That is your own listing: take it back under MY LISTINGS."; return; }
                 bool afford = _root.Session.Inventory.Sorn >= l.price;
+                if (l.bookId >= 0)
+                {
+                    _confirm.Show(BookTitle(l.bookId, l.bookCount), BookSummary(l.bookId) + $".\n\nSold by {l.sellerName}  ·  {Left(l.minutesLeft)}"
+                                  + (afford ? "" : "\n" + ConfirmDialog.Tint("You do not have enough sorn.", Palette.Bad)),
+                        $"BUY  ·  {l.price:N0}", Palette.Safe, () => Call("buy", new MarketBuyRequest { requestId = NewRequestId(), listingId = l.id }));
+                    return;
+                }
+                ItemState item = ToState(l.item);
                 _confirm.Show(Title(item), Summary(item) + "\n\n" + Etchings(item) + $"\n\nSold by {l.sellerName}  ·  {Left(l.minutesLeft)}"
                               + (afford ? "" : "\n" + ConfirmDialog.Tint("You do not have enough sorn.", Palette.Bad)),
                     $"BUY  ·  {l.price:N0}", Palette.Safe, () => Call("buy", new MarketBuyRequest { requestId = NewRequestId(), listingId = l.id }));
             }
             else if (_tab == Tab.Sell)
             {
+                var books = SellableBooks();
                 var bag = Sellable();
                 int index = _sellPage * Rows + row;
+                if (index < books.Count) { ShowSellBook(books[index]); return; }
+                index -= books.Count;
                 if (index >= bag.Count) return;
                 (ItemState item, string id) = bag[index];
-                _sellItemId = id;
-                _sellTitle.text = Title(item);
-                _sellTitle.color = GearPanel.RarityColor(item.Rarity);
-                _sellInfo.text = Summary(item) + "\n" + Etchings(item);
-                _price.text = "";
-                _sellBox.SetActive(true);
+                ShowSellPiece(item, id);
             }
             else
             {
                 if (v?.mine == null || row >= v.mine.Length) return;
                 ListingDto l = v.mine[row];
                 if (l.status != nameof(ListingStatus.Active)) return;
-                ItemState item = ToState(l.item);
-                _confirm.Show("Take it back?", $"{Title(item)} comes off the Exchange and back into your bag.", "TAKE BACK", Palette.ButtonIdle,
+                string what = l.bookId >= 0 ? BookTitle(l.bookId, l.bookCount) : Title(ToState(l.item));
+                _confirm.Show("Take it back?", $"{what} comes off the Exchange and back to you.", "TAKE BACK", Palette.ButtonIdle,
                     () => Call("cancel", new MarketBuyRequest { requestId = NewRequestId(), listingId = l.id }));
             }
         }
 
+        private void ShowSellPiece(ItemState item, string id)
+        {
+            _sellItemId = id;
+            _sellBook = -1;
+            _sellTitle.text = Title(item);
+            _sellTitle.color = GearPanel.RarityColor(item.Rarity);
+            _sellInfo.text = Summary(item) + "\n" + Etchings(item);
+            _countRow.SetActive(false);
+            _sellInfo.rectTransform.anchorMin = new Vector2(0.06f, 0.5f);
+            _price.text = "";
+            _sellBox.SetActive(true);
+        }
+
+        private void ShowSellBook(int book)
+        {
+            int held = _root.Session.Inventory.Books[book];
+            _sellItemId = null;
+            _sellBook = book;
+            _sellTitle.text = Books.Name(book);
+            _sellTitle.color = BookColor;
+            _sellInfo.text = $"{BookSummary(book)}  ·  you hold {held}\nThe price is for the whole count listed.";
+            _countRow.SetActive(true);
+            _sellInfo.rectTransform.anchorMin = new Vector2(0.06f, 0.63f);
+            _count.text = held.ToString();
+            _price.text = "";
+            _sellBox.SetActive(true);
+        }
+
         private long PriceEntered() => long.TryParse(_price.text, out long p) ? p : 0;
+
+        private int CountEntered() => int.TryParse(_count.text, out int n) ? n : 0;
 
         private void AskList()
         {
             long price = PriceEntered();
             if (Market.PriceProblem(price) is string problem) { _payout.text = ConfirmDialog.Tint(problem, Palette.Bad); return; }
+            string terms = $"Price {price:N0} sorn. When it sells you receive {Market.Payout(price):N0} (the Exchange keeps {Market.TaxPercent}%).\n\n";
+            if (_sellBook >= 0)
+            {
+                int book = _sellBook, count = CountEntered(), held = _root.Session.Inventory.Books[book];
+                if (count < 1 || count > held) { _payout.text = ConfirmDialog.Tint($"You hold {held} of this scroll.", Palette.Bad); return; }
+                _sellBox.SetActive(false);
+                _confirm.Show("List " + BookTitle(book, count) + "?",
+                    terms + $"They leave you now and come back if nobody buys them within {Market.ListingHours} hours.",
+                    "LIST THEM", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = System.Guid.Empty.ToString(), bookId = book, bookCount = count, price = price }));
+                return;
+            }
             string id = _sellItemId;
             string title = _sellTitle.text;
             _sellBox.SetActive(false);
             _confirm.Show("List " + title + "?",
-                $"Price {price:N0} sorn. When it sells you receive {Market.Payout(price):N0} (the Exchange keeps {Market.TaxPercent}%).\n\nIt leaves your bag now and comes back if nobody buys it within {Market.ListingHours} hours.",
+                terms + $"It leaves your bag now and comes back if nobody buys it within {Market.ListingHours} hours.",
                 "LIST IT", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = id, price = price }));
         }
 
@@ -281,13 +378,13 @@ namespace Orsuun.Client
             if (_root.Server.Online && !_fetching && !_busy && Time.realtimeSinceStartup >= _nextFetch)
             {
                 _fetching = true;
-                string slot = _slot < 0 ? "" : ((EquipSlot)_slot).ToString();
+                string slot = _slot < 0 || _slot == BookFilter ? "" : ((EquipSlot)_slot).ToString();
                 StartCoroutine(_root.Server.FetchMarket(slot, Sorts[_sort], _page, error =>
                 {
                     _fetching = false;
                     _nextFetch = Time.realtimeSinceStartup + RefreshSeconds;
                     if (error != null) _message.text = ConfirmDialog.Tint(error, Palette.Bad);
-                }));
+                }, books: _slot == BookFilter));
             }
 
             _purse.text = $"You hold {_root.Session.Inventory.Sorn:N0} sorn  ·  the Exchange keeps {Market.TaxPercent}% of each sale";
@@ -313,11 +410,20 @@ namespace Orsuun.Client
                 for (; shown < list.Length && shown < Rows; shown++)
                 {
                     ListingDto l = list[shown];
-                    ItemState item = ToState(l.item);
                     Row r = _rows[shown];
-                    r.Name.text = Title(item);
-                    r.Name.color = GearPanel.RarityColor(item.Rarity);
-                    r.Detail.text = Summary(item) + $"\n{l.sellerName}  ·  {Left(l.minutesLeft)}";
+                    if (l.bookId >= 0)
+                    {
+                        r.Name.text = BookTitle(l.bookId, l.bookCount);
+                        r.Name.color = BookColor;
+                        r.Detail.text = BookSummary(l.bookId) + $"\n{l.sellerName}  ·  {Left(l.minutesLeft)}";
+                    }
+                    else
+                    {
+                        ItemState item = ToState(l.item);
+                        r.Name.text = Title(item);
+                        r.Name.color = GearPanel.RarityColor(item.Rarity);
+                        r.Detail.text = Summary(item) + $"\n{l.sellerName}  ·  {Left(l.minutesLeft)}";
+                    }
                     r.Price.text = $"{l.price:N0}\n<size=16>{(l.mine ? "YOURS" : "sorn")}</size>";
                     r.Price.color = _root.Session.Inventory.Sorn >= l.price || l.mine ? Palette.Sorn : Palette.Bad;
                 }
@@ -325,21 +431,35 @@ namespace Orsuun.Client
             }
             else if (_tab == Tab.Sell)
             {
+                // Scrolls first, then the bag's pieces.
+                var books = SellableBooks();
                 var bag = Sellable();
-                int pages = Mathf.Max(1, (bag.Count + Rows - 1) / Rows);
+                int total = books.Count + bag.Count;
+                int pages = Mathf.Max(1, (total + Rows - 1) / Rows);
                 _sellPage = Mathf.Clamp(_sellPage, 0, pages - 1);
                 _pageText.text = $"{_sellPage + 1} / {pages}";
-                for (; shown < Rows && _sellPage * Rows + shown < bag.Count; shown++)
+                for (; shown < Rows && _sellPage * Rows + shown < total; shown++)
                 {
-                    ItemState item = bag[_sellPage * Rows + shown].Item;
+                    int index = _sellPage * Rows + shown;
                     Row r = _rows[shown];
-                    r.Name.text = Title(item);
-                    r.Name.color = GearPanel.RarityColor(item.Rarity);
-                    r.Detail.text = Summary(item) + "\nTap to set a price";
+                    if (index < books.Count)
+                    {
+                        int book = books[index];
+                        r.Name.text = BookTitle(book, _root.Session.Inventory.Books[book]);
+                        r.Name.color = BookColor;
+                        r.Detail.text = BookSummary(book) + "\nTap to set a count and a price";
+                    }
+                    else
+                    {
+                        ItemState item = bag[index - books.Count].Item;
+                        r.Name.text = Title(item);
+                        r.Name.color = GearPanel.RarityColor(item.Rarity);
+                        r.Detail.text = Summary(item) + "\nTap to set a price";
+                    }
                     r.Price.text = "SELL";
                     r.Price.color = Palette.Sorn;
                 }
-                empty = "Your bag is empty. Worn pieces must be taken off (GEAR) before they can be sold.";
+                empty = "Nothing to sell. Worn pieces must be taken off (INVENTORY) before they can be sold.";
             }
             else
             {
@@ -348,16 +468,17 @@ namespace Orsuun.Client
                 for (; shown < mine.Length && shown < Rows; shown++)
                 {
                     ListingDto l = mine[shown];
-                    ItemState item = ToState(l.item);
                     Row r = _rows[shown];
-                    r.Name.text = Title(item);
-                    r.Name.color = GearPanel.RarityColor(item.Rarity);
+                    bool book = l.bookId >= 0;
+                    ItemState item = book ? null : ToState(l.item);
+                    r.Name.text = book ? BookTitle(l.bookId, l.bookCount) : Title(item);
+                    r.Name.color = book ? BookColor : GearPanel.RarityColor(item.Rarity);
                     bool active = l.status == nameof(ListingStatus.Active);
-                    r.Detail.text = Summary(item) + "\n" + (l.status switch
+                    r.Detail.text = (book ? BookSummary(l.bookId) : Summary(item)) + "\n" + (l.status switch
                     {
                         nameof(ListingStatus.Active) => $"On the Exchange  ·  {Left(l.minutesLeft)}  ·  tap to take it back",
                         nameof(ListingStatus.Sold) => ConfirmDialog.Tint($"Sold: you received {Market.Payout(l.price):N0} sorn", Palette.Good),
-                        nameof(ListingStatus.Expired) => "Nobody bought it: back in your bag",
+                        nameof(ListingStatus.Expired) => book ? "Nobody bought them: back with you" : "Nobody bought it: back in your bag",
                         _ => "Taken back",
                     });
                     r.Price.text = $"{l.price:N0}\n<size=16>{(active ? "ASKING" : l.status.ToUpperInvariant())}</size>";

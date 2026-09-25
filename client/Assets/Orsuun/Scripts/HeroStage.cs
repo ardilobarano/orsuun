@@ -39,6 +39,8 @@ namespace Orsuun.Client
         private float _spin;         // degrees a second, after letting go
         private float _touchedAt = -100f;
         private bool _held;
+        /// <summary>Above 1 the camera comes closer than the whole-figure framing (the inventory's smaller frame).</summary>
+        public float Zoom { get; set; } = 1f;
 
         public void Init(RectTransform box, Vector3? at = null)
         {
@@ -113,7 +115,7 @@ namespace Orsuun.Client
             // The slow sway fades out under the finger and back in once the hero is at rest.
             float sway = Mathf.Sin(Time.unscaledTime * 0.5f) * 28f * Mathf.Clamp01((idle - RestAfter) / 1.5f);
             _pivot.rotation = Quaternion.Euler(0f, 180f + _yaw + sway, 0f);
-            _camera.transform.position = _at + new Vector3(0f, _centreY, -_distance);
+            _camera.transform.position = _at + new Vector3(0f, _centreY, -_distance / Mathf.Max(0.1f, Zoom));
             _camera.transform.LookAt(_at + new Vector3(0f, _centreY, 0f));
         }
 

@@ -598,6 +598,30 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>Reads toward each skill's next Mastered step, and seconds of rest left (at SkillReadyAt), by book id.</summary>
+        public int[] SkillProgress { get; private set; } = new int[Rules.Books.Count];
+        public long[] SkillReadySeconds { get; private set; } = new long[Rules.Books.Count];
+        public float SkillReadyAt { get; private set; }
+        /// <summary>Honor (Rules.SkillGrades): spent on Oathstone tries.</summary>
+        public long Honor { get; private set; }
+
+        /// <summary>Seconds a skill (by book id) must still rest before its next read.</summary>
+        public long SkillRestLeft(int book) =>
+            book < SkillReadySeconds.Length ? Math.Max(0, SkillReadySeconds[book] - (long)(Time.realtimeSinceStartup - SkillReadyAt)) : 0;
+
+        /// <summary>One try at a skill's next grade (slot of the class played). Completes with (result, error).</summary>
+        public IEnumerator TrainSkill(int slot, Action<SkillTrainDto, string> done)
+        {
+            string failure = null;
+            SkillTrainDto result = null;
+            yield return Post("/v1/skills/train", JsonUtility.ToJson(new SkillTrainRequest { requestId = NewRequestId(), slot = slot }), true, json =>
+            {
+                result = JsonUtility.FromJson<SkillTrainDto>(json);
+                Apply(result.state);
+            }, error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         /// <summary>Oath Renewal (Rules.OathRenewal): back to level 1 with a lasting bonus.</summary>
         public IEnumerator Renew(Action<string> done)
         {
@@ -811,8 +835,10 @@ namespace Orsuun.Client.Net
         public IEnumerator TradeAct(string action, Action<string> done) =>
             TradeCall("/v1/trade/" + action, JsonUtility.ToJson(new TradeRequest { requestId = NewRequestId(), tradeId = Trade?.id ?? TradeBrief?.id ?? 0 }), done);
 
-        public IEnumerator TradeOffer(string[] itemIds, long sorn, Action<string> done) =>
-            TradeCall("/v1/trade/offer", JsonUtility.ToJson(new TradeOfferRequest { requestId = NewRequestId(), tradeId = Trade?.id ?? 0, itemIds = itemIds, sorn = sorn }), done);
+        /// <summary>Puts the whole offer on the table: pieces, sorn and Technique Scroll stacks (bookId, count).</summary>
+        public IEnumerator TradeOffer(string[] itemIds, long sorn, Action<string> done, BookOfferDto[] books = null) =>
+            TradeCall("/v1/trade/offer", JsonUtility.ToJson(new TradeOfferRequest { requestId = NewRequestId(), tradeId = Trade?.id ?? 0, itemIds = itemIds, sorn = sorn,
+                books = books ?? new BookOfferDto[0] }), done);
 
         /// <summary>The hero's state again (after a trade the other side finished).</summary>
         public IEnumerator RefreshState()
@@ -1016,10 +1042,10 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>Refreshes MarketView: one page of listings (slot empty = all; sort cheapest, newest or level) and mine.</summary>
-        public IEnumerator FetchMarket(string slot, string sort, int page, Action<string> done)
+        public IEnumerator FetchMarket(string slot, string sort, int page, Action<string> done, bool books = false)
         {
             string failure = null;
-            string path = $"/v1/market?sort={sort}&page={page}" + (string.IsNullOrEmpty(slot) ? "" : "&slot=" + slot);
+            string path = $"/v1/market?sort={sort}&page={page}" + (books ? "&books=true" : string.IsNullOrEmpty(slot) ? "" : "&slot=" + slot);
             yield return Send("GET", path, null, true, ApplyMarket, error => failure = error);
             done(failure);
         }
@@ -1089,6 +1115,15 @@ namespace Orsuun.Client.Net
                 _player.SetWorn(WornPieces());
             }
             _player.SetRenewals(s.renewals);
+            // Skill grades (Rules.SkillGrades): all twelve by book id, the reads toward the next step, the rests, Honor.
+            if (s.skillGrades != null && s.skillGrades.Length > 0)
+            {
+                SkillProgress = s.skillProgress ?? new int[Rules.Books.Count];
+                SkillReadySeconds = s.skillReadySeconds ?? new long[Rules.Books.Count];
+                SkillReadyAt = Time.realtimeSinceStartup;
+                _player.SetSkillGrades(s.skillGrades);
+            }
+            Honor = s.honor;
             var inventory = new Inventory
             {
                 Sorn = s.inventory.sorn, Potions = s.inventory.potions, Materials = s.inventory.materials,
@@ -1098,6 +1133,7 @@ namespace Orsuun.Client.Net
                 HuntMarks = s.inventory.huntMarks, PinningWax = s.inventory.pinningWax, MastersNeedles = s.inventory.mastersNeedles, Oathstones = s.inventory.oathstones,
             };
             if (s.inventory.korshards != null) Array.Copy(s.inventory.korshards, inventory.Korshards, Math.Min(5, s.inventory.korshards.Length));
+            if (s.inventory.books != null) Array.Copy(s.inventory.books, inventory.Books, Math.Min(Rules.Books.Count, s.inventory.books.Length));
             if (s.inventory.skins != null) inventory.Skins.AddRange(s.inventory.skins);
             if (s.bosses != null && s.bosses.Length > 0)
             {
@@ -1227,7 +1263,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
         [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
         [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }
-        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; public int oathstones; }
+        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; public int oathstones; public int[] books; }
         [Serializable] public class BountyDto { public int id; public string title; public string period; public long count; public int target; public int marks; public bool claimed; }
         [Serializable] public class BountyBoardDto { public BountyDto[] items; public int dailyResetSeconds; public int weeklyResetSeconds; }
         [Serializable] public class ClaimBountyRequest { public string requestId; public int bountyId; }
@@ -1265,7 +1301,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
@@ -1274,10 +1310,13 @@ namespace Orsuun.Client.Net
         [Serializable] public class TrailDto { public int season; public string name; public long secondsLeft; public long xp; public int tier; public int xpIntoTier; public int pass; public long freeClaimed; public long paidClaimed; public int owed; }
         [Serializable] public class TrailClaimRequest { public string requestId; public int tier; }
         [Serializable] public class TradeBriefDto { public long id; public string state; public bool incoming; public string otherName; }
-        [Serializable] public class TradeDto { public long id; public string state; public bool incoming; public string otherName; public ItemDto[] myItems; public long mySorn; public string myStep; public ItemDto[] theirItems; public long theirSorn; public string theirStep; public int lockLeft; public int taxPercent; public bool rulesRelaxed; public string message; public StateDto hero; }
+        [Serializable] public class TradeDto { public long id; public string state; public bool incoming; public string otherName; public ItemDto[] myItems; public long mySorn; public string myStep; public ItemDto[] theirItems; public long theirSorn; public string theirStep; public int lockLeft; public int taxPercent; public bool rulesRelaxed; public string message; public StateDto hero; public BookOfferDto[] myBooks; public BookOfferDto[] theirBooks; }
+        [Serializable] public class BookOfferDto { public int bookId; public int count; }
         [Serializable] public class TradeInviteRequest { public string requestId; public string name; public string accountId; }
         [Serializable] public class BannerChangeRequest { public string requestId; public string banner; }
         [Serializable] public class RenewRequest { public string requestId; }
+        [Serializable] public class SkillTrainRequest { public string requestId; public int slot; }
+        [Serializable] public class SkillTrainDto { public StateDto state; public int slot; public bool success; public int grade; public string message; }
         [Serializable] public class FriendDto { public string accountId; public string name; public string @class; public int level; public string banner; public string guildTag; public int minutesAway; }
         [Serializable] public class FriendsDto { public FriendDto[] friends; public FriendDto[] asking; public FriendDto[] asked; public int max; public bool canInvite; public string message; }
         [Serializable] public class FriendAddRequest { public string accountId; public string name; }
@@ -1286,7 +1325,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class GuildInviteRequest { public string requestId; public string accountId; public string name; }
         [Serializable] public class GuildInviteAnswerRequest { public string requestId; public string guildId; public bool accept; }
         [Serializable] public class TradeRequest { public string requestId; public long tradeId; }
-        [Serializable] public class TradeOfferRequest { public string requestId; public long tradeId; public string[] itemIds; public long sorn; }
+        [Serializable] public class TradeOfferRequest { public string requestId; public long tradeId; public string[] itemIds; public long sorn; public BookOfferDto[] books; }
         [Serializable] public class TrailBuyRequest { public string requestId; public bool plus; }
         [Serializable] public class PitChallengerDto { public string id; public string name; public string tag; public int rating; public string league; public string @class; public string weapon; public int winChancePercent; public bool shade; }
         [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; public string title; }
@@ -1315,9 +1354,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class ChatSayRequest { public string channel; public string text; public long after; }
         [Serializable] public class ChatReportRequest { public long messageId; public string channel; }
         [Serializable] public class ChatBlockRequest { public string accountId; public bool block; public string channel; }
-        [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; }
+        [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; public int bookId = -1; public int bookCount; }
         [Serializable] public class MarketDto { public StateDto state; public ListingDto[] listings; public int page; public int pages; public int total; public ListingDto[] mine; public int taxPercent; public string message; }
-        [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; }
+        /// <summary>A scroll stack sends the empty Guid as itemId (the server reads it as a Guid).</summary>
+        [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; public int bookId = -1; public int bookCount; }
         [Serializable] public class MarketBuyRequest { public string requestId; public long listingId; }
         [Serializable] public class RegisterRequest { public string email; public string password; }
         [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }

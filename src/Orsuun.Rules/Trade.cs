@@ -82,5 +82,38 @@ namespace Orsuun.Rules
                 if (Guid.TryParse(part, out Guid id) && !list.Contains(id)) list.Add(id);
             return list;
         }
+
+        /// <summary>Technique Scrolls on a table, "bookId:count,..": valid books, positive counts, one entry a book.</summary>
+        public static string FormatBooks(IEnumerable<KeyValuePair<int, int>> books)
+        {
+            var parts = new List<string>();
+            foreach (var b in Normalise(books)) parts.Add(b.Key + ":" + b.Value);
+            return string.Join(",", parts);
+        }
+
+        public static List<KeyValuePair<int, int>> ParseBooks(string? text)
+        {
+            var list = new List<KeyValuePair<int, int>>();
+            if (string.IsNullOrEmpty(text)) return list;
+            foreach (string part in text!.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string[] kv = part.Split(':');
+                if (kv.Length == 2 && int.TryParse(kv[0], out int id) && int.TryParse(kv[1], out int n)) list.Add(new KeyValuePair<int, int>(id, n));
+            }
+            return Normalise(list);
+        }
+
+        /// <summary>Sums repeated books, drops invalid ones and counts outside 1..Books.MaxStack.</summary>
+        public static List<KeyValuePair<int, int>> Normalise(IEnumerable<KeyValuePair<int, int>> books)
+        {
+            var sums = new SortedDictionary<int, int>();
+            foreach (var b in books)
+            {
+                if (!Books.Valid(b.Key) || b.Value <= 0) continue;
+                sums.TryGetValue(b.Key, out int n);
+                sums[b.Key] = Math.Min(Books.MaxStack, n + b.Value);
+            }
+            return new List<KeyValuePair<int, int>>(sums);
+        }
     }
 }

@@ -134,6 +134,7 @@ public sealed partial class GameService
             account.PitSeasonLosses = 0;
         }
         if (won) account.PitSeasonWins++; else account.PitSeasonLosses++;
+        if (won) account.Honor += Rules.SkillGrades.HonorPerPitWin;
         int laurels = won ? Pits.WinLaurels : Pits.LossLaurels;
         account.Laurels += laurels;
         string day = Rules.Bounties.DayKey(_bells.LocalNow);
@@ -165,7 +166,7 @@ public sealed partial class GameService
         if (account.Laurels < item.Laurels) throw new GameException("no_laurels", "Not enough Laurels.");
         account.Laurels -= item.Laurels;
         Inventory inventory = Snapshot(account);
-        item.GrantTo(inventory);
+        item.GrantTo(inventory, account.Class, _rng);
         Apply(account, inventory);
         _db.Ledger.Add(Entry(account.Id, null, "pit-shop", $"{item.Name} for {item.Laurels} Laurels", 0, request.RequestId));
         await SaveAsync(ct);

@@ -79,9 +79,11 @@ public sealed partial class GameService
         Dictionary<Guid, Item> items = all.Count == 0 ? new Dictionary<Guid, Item>()
             : await _db.Items.AsNoTracking().Where(i => all.Contains(i.Id)).ToDictionaryAsync(i => i.Id, ct);
         ItemDto[] Dtos(List<Guid> ids) => ids.Where(items.ContainsKey).Select(id => ToDto(items[id])).ToArray();
+        static BookOfferDto[] BookDtos(string text) => DirectTrade.ParseBooks(text).Select(b => new BookOfferDto(b.Key, b.Value)).ToArray();
         return new TradeDto(t.Id, t.State, !from, await NameOfAsync(from ? t.ToId : t.FromId, ct), Dtos(mine), from ? t.FromSorn : t.ToSorn,
             from ? t.FromStep : t.ToStep, Dtos(theirs), from ? t.ToSorn : t.FromSorn, from ? t.ToStep : t.FromStep,
-            DirectTrade.LockLeft(t.ChangedUtc, DateTime.UtcNow), DirectTrade.TaxPercent, relaxed, message, state);
+            DirectTrade.LockLeft(t.ChangedUtc, DateTime.UtcNow), DirectTrade.TaxPercent, relaxed, message, state,
+            BookDtos(from ? t.FromBooks : t.ToBooks), BookDtos(from ? t.ToBooks : t.FromBooks));
     }
 
     public async Task<TradeDto> TradeAsync(Account account, bool relaxed, CancellationToken ct) =>
@@ -146,6 +148,10 @@ public sealed partial class GameService
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         List<Guid> ids = (request.ItemIds ?? Array.Empty<Guid>()).Distinct().ToList();
         if (DirectTrade.OfferProblem(ids.Count, request.Sorn, account.Sorn) is string problem) throw new GameException("offer", problem);
+        var books = DirectTrade.Normalise((request.Books ?? Array.Empty<BookOfferDto>()).Select(b => new KeyValuePair<int, int>(b.BookId, b.Count)));
+        int[] held = BookCounts(account);
+        foreach (var b in books)
+            if (b.Value > held[b.Key]) throw new GameException("offer", $"You hold {held[b.Key]} {Books.Name(b.Key)}.");
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
         TradeSession t = await LockTradeAsync(request.TradeId, account.Id, ct);
         if (t.State != TradeState.Open) throw new GameException("not_open", "The window is not open.");
@@ -160,11 +166,11 @@ public sealed partial class GameService
         foreach (Item item in account.Items.Where(i => i.TradeId == t.Id && !ids.Contains(i.Id))) item.TradeId = null;
         foreach (Item item in account.Items.Where(i => ids.Contains(i.Id))) item.TradeId = t.Id;
         DateTime now = DateTime.UtcNow;
-        if (t.FromId == account.Id) { t.FromItems = DirectTrade.FormatIds(ids); t.FromSorn = request.Sorn; }
-        else { t.ToItems = DirectTrade.FormatIds(ids); t.ToSorn = request.Sorn; }
+        if (t.FromId == account.Id) { t.FromItems = DirectTrade.FormatIds(ids); t.FromSorn = request.Sorn; t.FromBooks = DirectTrade.FormatBooks(books); }
+        else { t.ToItems = DirectTrade.FormatIds(ids); t.ToSorn = request.Sorn; t.ToBooks = DirectTrade.FormatBooks(books); }
         t.FromStep = t.ToStep = TradeStep.Offering;
         t.ChangedUtc = t.TouchedUtc = now;
-        _db.Ledger.Add(Entry(account.Id, null, "trade-offer", $"trade={t.Id} pieces={ids.Count} sorn={request.Sorn}", 0, request.RequestId));
+        _db.Ledger.Add(Entry(account.Id, null, "trade-offer", $"trade={t.Id} pieces={ids.Count} sorn={request.Sorn} books={DirectTrade.FormatBooks(books)}", 0, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
         return await TradeViewAsync(account, t, relaxed, "", ct);
@@ -228,6 +234,19 @@ public sealed partial class GameService
         foreach (Guid id in theirs)
             if (!Tradable(locked.FirstOrDefault(i => i.Id == id), otherId)) return "One of their pieces changed. Check the offers again.";
         if (account.Sorn < mySorn) return "You no longer have that sorn.";
+        // Books are not held out of the stacks while on the table: both sides are checked now, theirs under a row lock.
+        var myBooks = DirectTrade.ParseBooks(from ? t.FromBooks : t.ToBooks);
+        var theirBooks = DirectTrade.ParseBooks(from ? t.ToBooks : t.FromBooks);
+        int[] myHeld = BookCounts(account);
+        foreach (var b in myBooks)
+            if (myHeld[b.Key] < b.Value) return "You no longer hold those books. Check the offers again.";
+        if (theirBooks.Count > 0)
+        {
+            List<BookStack> stacks = await _db.BookStacks.FromSql($@"SELECT * FROM ""BookStacks"" WHERE ""AccountId"" = {otherId} FOR UPDATE").ToListAsync(ct);
+            foreach (BookStack stack in stacks) await _db.Entry(stack).ReloadAsync(ct);
+            foreach (var b in theirBooks)
+                if ((stacks.FirstOrDefault(s => s.BookId == b.Key)?.Count ?? 0) < b.Value) return "They no longer hold those books. Check the offers again.";
+        }
 
         // Pieces on the table are out of both bags already.
         int myBag = account.Items.Count(i => !i.Equipped && !i.Destroyed && !i.OutOfBag);
@@ -242,6 +261,19 @@ public sealed partial class GameService
             .ExecuteUpdateAsync(s => s.SetProperty(a => a.Sorn, a => a.Sorn + theirDelta), ct);
         if (paid != 1) return "They no longer have that sorn.";
         account.Sorn += DirectTrade.Received(theirSorn) - mySorn;
+
+        // Books: theirs leave their locked stacks and join this side's; this side's go to theirs by upsert.
+        foreach (var b in theirBooks)
+        {
+            int take = b.Value;
+            await _db.BookStacks.Where(s => s.AccountId == otherId && s.BookId == b.Key).ExecuteUpdateAsync(s => s.SetProperty(x => x.Count, x => x.Count - take), ct);
+            AddBooks(account, b.Key, b.Value);
+        }
+        foreach (var b in myBooks)
+        {
+            AddBooks(account, b.Key, -b.Value);
+            await AddBooksElsewhereAsync(otherId, b.Key, b.Value, ct);
+        }
 
         // This side's pieces leave its tracked collection (detached first, so nothing reads them as orphans) and change
         // owner in one statement; theirs join it as on the Exchange.
@@ -265,7 +297,9 @@ public sealed partial class GameService
         t.State = TradeState.Done;
         t.ClosedUtc = now;
         t.ClosedReason = "traded";
-        string Pieces(List<Guid> ids) => ids.Count == 0 ? "none" : string.Join(",", ids.Select(id => id.ToString("N")[..8]));
+        string Pieces(List<Guid> ids) => ids.Count == 0 ? "none" : string.Join(",", ids.Select(id => id.ToString("N")[..8]))
+            + (ids == mine && myBooks.Count > 0 ? " books=" + DirectTrade.FormatBooks(myBooks) : "")
+            + (ids == theirs && theirBooks.Count > 0 ? " books=" + DirectTrade.FormatBooks(theirBooks) : "");
         long tax = DirectTrade.Tax(mySorn) + DirectTrade.Tax(theirSorn);
         _db.Ledger.Add(Entry(account.Id, null, "trade-done",
             $"trade={t.Id} with={otherId} gave={Pieces(mine)} sorn={mySorn} got={Pieces(theirs)} sorn={theirSorn} tax={tax}",

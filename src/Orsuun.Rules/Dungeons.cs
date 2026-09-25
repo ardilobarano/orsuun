@@ -205,6 +205,10 @@ namespace Orsuun.Rules
                 inventory.KhansAlloys += 1;
                 text += " and a Khan's Alloy";
             }
+            // A Technique Scroll of any class (owner, 26 Sep 2026: books drop for every class and trade).
+            int book = rng.NextInt(Books.Count);
+            inventory.Books[book]++;
+            text += ", a " + Books.Name(book);
             string? piece = Wardrobe.RollDrop(inventory, Wardrobe.WardenDropBp, rng);
             if (piece != null) text += "; " + piece;
             return text;

@@ -8,8 +8,8 @@ namespace Orsuun.Client
 {
     /// <summary>
     /// DIRECT TRADE (GDD section 8, the trade window; Rules.DirectTrade): ask a hero by name, and when they accept, both put
-    /// bag pieces and sorn on the table. LOCK the offer, then CONFIRM once both are locked; any change drops both back and
-    /// holds the button five seconds. The window lives on the server: leaving the screen keeps it (the HUD offers the
+    /// bag pieces, Technique Scrolls and sorn on the table. LOCK the offer, then CONFIRM once both are locked; any change
+    /// drops both back and holds the button five seconds. The window lives on the server: leaving the screen keeps it (the HUD offers the
     /// way back), CANCEL TRADE ends it. Polls the window while open.
     /// </summary>
     public sealed class TradePanel : MonoBehaviour
@@ -32,6 +32,8 @@ namespace Orsuun.Client
         // The stat card of a tapped piece (owner, 25 Sep 2026: "at trade we need to see stats of items, maybe with clicking").
         private GameObject _card;
         private Text _cardName, _cardInfo, _cardStats, _cardCompare, _cardEtchings;
+        private GameObject _cardCountRow;
+        private InputField _cardCount;
         private Button _cardAction;
         private Text _cardActionLabel;
         private System.Action _cardDo;
@@ -62,13 +64,13 @@ namespace Orsuun.Client
             Transform ask = _askView.transform;
             Ui.Framed("AskBack", ask, 0.05f, 0.52f, 0.95f, 0.86f, new Color(0.05f, 0.06f, 0.1f, 0.9f));
             Ui.Title("AskHead", ask, 0.08f, 0.79f, 0.92f, 0.845f, "TRADE WITH A HERO", 30, TextAnchor.MiddleCenter, Palette.Sorn);
-            Ui.Label("AskNote", ask, 0.08f, 0.72f, 0.92f, 0.79f, "Both of you put pieces from the bag and sorn on the table, lock, then confirm.", 21,
+            Ui.Label("AskNote", ask, 0.08f, 0.72f, 0.92f, 0.79f, "Both of you put pieces, scrolls and sorn on the table, lock, then confirm.", 21,
                 TextAnchor.MiddleCenter, Palette.Parchment);
             _name = Ui.Input("Name", ask, 0.1f, 0.645f, 0.9f, 0.705f, "The hero's name", 28, 16);
             Ui.Button("AskButton", ask, 0.25f, 0.56f, 0.75f, 0.625f, "ASK TO TRADE", 28, Palette.ButtonForge, Ask, out _);
             Ui.Label("Rules", ask, 0.06f, 0.42f, 0.94f, 0.51f,
                 $"Both need level {Rules.DirectTrade.MinLevel} and an account {Rules.DirectTrade.MinAccountAgeHours} hours old. {Rules.DirectTrade.TaxPercent}% of the sorn " +
-                "goes to the tax. Your own heroes share the depot instead.", 20, TextAnchor.MiddleCenter, Palette.Muted);
+                "goes to the tax. Technique Scrolls trade too. Your own heroes share the depot instead.", 20, TextAnchor.MiddleCenter, Palette.Muted);
 
             // Asked (either way): answer it, or wait.
             _answerView = Ui.Rect("Answer", canvas, 0f, 0f, 1f, 1f).gameObject;
@@ -109,6 +111,11 @@ namespace Orsuun.Client
             _cardEtchings = Ui.Label("Etchings", card, 0.08f, 0.17f, 0.92f, 0.61f, "", 22, TextAnchor.UpperLeft, Palette.Parchment);
             foreach (Text t in new[] { _cardStats, _cardCompare, _cardEtchings }) t.supportRichText = true;
             _cardEtchings.resizeTextForBestFit = false;
+            // A scroll stack offered: how many.
+            _cardCountRow = Ui.Rect("CountRow", card, 0f, 0f, 1f, 1f).gameObject;
+            Ui.Label("CountLabel", _cardCountRow.transform, 0.08f, 0.19f, 0.4f, 0.28f, "How many", 24, TextAnchor.MiddleLeft, Palette.Muted);
+            _cardCount = Ui.Input("Count", _cardCountRow.transform, 0.42f, 0.185f, 0.92f, 0.285f, "1", 30, 3);
+            _cardCount.contentType = InputField.ContentType.IntegerNumber;
             _cardAction = Ui.Button("Action", card, 0.06f, 0.03f, 0.48f, 0.14f, "", 24, Palette.Safe, () => { _card.SetActive(false); _cardDo?.Invoke(); }, out _cardActionLabel);
             Ui.Button("CardClose", card, 0.52f, 0.03f, 0.94f, 0.14f, "CLOSE", 24, Palette.ButtonIdle, () => _card.SetActive(false), out _);
             _card.SetActive(false);
@@ -166,12 +173,27 @@ namespace Orsuun.Client
             return ids;
         }
 
-        private void Offer(List<string> ids, long sorn)
+        /// <summary>The scrolls this side has on the table, by book id.</summary>
+        private Dictionary<int, int> OfferedBooks()
+        {
+            var books = new Dictionary<int, int>();
+            var mine = _root.Server.Trade?.myBooks;
+            if (mine != null) foreach (var b in mine) books[b.bookId] = b.count;
+            return books;
+        }
+
+        /// <summary>Puts the whole offer on the table: these pieces and sorn, and the scrolls (this side's current ones if null).</summary>
+        private void Offer(List<string> ids, long sorn, Dictionary<int, int> books = null)
         {
             if (_busy) return;
             _busy = true;
-            Run(_root.Server.TradeOffer(ids.ToArray(), sorn, Done));
+            var list = new List<Net.ServerLink.BookOfferDto>();
+            foreach (var b in books ?? OfferedBooks()) if (b.Value > 0) list.Add(new Net.ServerLink.BookOfferDto { bookId = b.Key, count = b.Value });
+            Run(_root.Server.TradeOffer(ids.ToArray(), sorn, Done, list.ToArray()));
         }
+
+        private static string BookLine(int book, int count) =>
+            $"<b><color=#EDCC8C>{count} × {Rules.Books.Name(book)}</color></b>  <color=#B9B3A8>· {Rules.Books.ClassOf(book)} skill</color>";
 
         private void PutSorn()
         {
@@ -257,6 +279,12 @@ namespace Orsuun.Client
             if (t.myItems != null) foreach (var i in t.myItems) key.Append(i.id).Append(',');
             key.Append('|');
             foreach (var i in BagItems()) key.Append(i.id).Append(',');
+            key.Append('|');
+            if (t.theirBooks != null) foreach (var b in t.theirBooks) key.Append(b.bookId).Append(':').Append(b.count).Append(',');
+            key.Append('|');
+            if (t.myBooks != null) foreach (var b in t.myBooks) key.Append(b.bookId).Append(':').Append(b.count).Append(',');
+            key.Append('|');
+            foreach (int n in _root.Session.Inventory.Books) key.Append(n).Append(',');
             if (_cardOnOpen && t.theirItems != null && t.theirItems.Length > 0)
             {
                 _cardOnOpen = false;
@@ -268,16 +296,25 @@ namespace Orsuun.Client
             foreach (Transform child in _theirList) Destroy(child.gameObject);
             foreach (Transform child in _myList) Destroy(child.gameObject);
             foreach (Transform child in _bagList) Destroy(child.gameObject);
-            if (t.theirItems == null || t.theirItems.Length == 0) Ui.ListRow("None", _theirList, 21, () => { }).text = "<color=#B9B3A8>No pieces yet.</color>";
-            else
+            bool theirBooks = t.theirBooks != null && t.theirBooks.Length > 0;
+            if ((t.theirItems == null || t.theirItems.Length == 0) && !theirBooks) Ui.ListRow("None", _theirList, 21, () => { }).text = "<color=#B9B3A8>Nothing yet.</color>";
+            if (t.theirItems != null)
                 foreach (var item in t.theirItems)
                 {
                     var piece = item;
                     Ui.ListRow("Theirs", _theirList, 22, () => ShowCard(piece, null, null)).text = "<color=#9FC7FF>STATS</color>   " + Line(item);
                 }
+            if (theirBooks)
+                foreach (var b in t.theirBooks)
+                {
+                    var stack = b;
+                    Ui.ListRow("TheirBook", _theirList, 22, () => ShowBookCard(stack.bookId, stack.count, null, null)).text = "<color=#9FC7FF>BOOK</color>   " + BookLine(b.bookId, b.count);
+                }
             var offered = OfferedIds();
-            if (offered.Count == 0) Ui.ListRow("None", _myList, 21, () => { }).text = "<color=#B9B3A8>Tap a piece in your bag to see it and offer it.</color>";
-            else
+            var offeredBooks = OfferedBooks();
+            if (offered.Count == 0 && offeredBooks.Count == 0)
+                Ui.ListRow("None", _myList, 21, () => { }).text = "<color=#B9B3A8>Tap a piece or a scroll below to see it and offer it.</color>";
+            if (t.myItems != null)
                 foreach (var item in t.myItems)
                 {
                     string id = item.id;
@@ -285,7 +322,31 @@ namespace Orsuun.Client
                     Ui.ListRow("Mine", _myList, 22, () => ShowCard(piece, "TAKE BACK", () => { var ids = OfferedIds(); ids.Remove(id); Offer(ids, _root.Server.Trade.mySorn); })).text =
                         "<color=#9FC7FF>STATS</color>   " + Line(item);
                 }
+            foreach (var b in offeredBooks)
+            {
+                int book = b.Key;
+                Ui.ListRow("MyBook", _myList, 22, () => ShowBookCard(book, b.Value, "TAKE BACK", _ =>
+                {
+                    var books = OfferedBooks();
+                    books.Remove(book);
+                    Offer(OfferedIds(), _root.Server.Trade.mySorn, books);
+                })).text = "<color=#9FC7FF>BOOK</color>   " + BookLine(book, b.Value);
+            }
             int shown = 0;
+            // Scrolls first (held beyond those already on the table), then the bag's pieces.
+            for (int b = 0; b < Rules.Books.Count; b++)
+            {
+                int spare = _root.Session.Inventory.Books[b] - (offeredBooks.TryGetValue(b, out int on) ? on : 0);
+                if (spare <= 0) continue;
+                int book = b;
+                Ui.ListRow("BagBook", _bagList, 22, () => ShowBookCard(book, spare, "OFFER THEM", count =>
+                {
+                    var books = OfferedBooks();
+                    books[book] = (books.TryGetValue(book, out int already) ? already : 0) + count;
+                    Offer(OfferedIds(), _root.Server.Trade.mySorn, books);
+                })).text = "<color=#9FC7FF>BOOK</color>   " + BookLine(book, spare);
+                shown++;
+            }
             foreach (var item in BagItems())
             {
                 if (offered.Contains(item.id)) continue;
@@ -337,6 +398,32 @@ namespace Orsuun.Client
             _cardEtchings.text = sb.ToString();
 
             _cardDo = act;
+            _cardAction.gameObject.SetActive(action != null);
+            _cardActionLabel.text = action ?? "";
+            _cardCountRow.SetActive(false);
+            _card.SetActive(true);
+        }
+
+        /// <summary>A scroll stack's card: what it is; offering asks how many (up to <paramref name="count"/>).</summary>
+        private void ShowBookCard(int book, int count, string action, System.Action<int> act)
+        {
+            Rules.Combat.HeroClass cls = Rules.Books.ClassOf(book);
+            _cardName.text = Rules.Books.Name(book);
+            _cardName.color = new Color(0.93f, 0.8f, 0.55f);
+            _cardInfo.text = $"A {cls} skill's Technique Scroll  ·  {count} here";
+            _cardStats.text = cls == _root.Session.Class ? ConfirmDialog.Tint("Your class reads it.", Palette.Good) : ConfirmDialog.Tint($"Only a {cls} reads it.", Palette.Muted);
+            _cardCompare.text = "";
+            _cardEtchings.text = $"Read at SKILLS to climb {Rules.Books.SkillName(book)}'s Mastered grades: {Rules.SkillGrades.ReadChanceBp / 100}% a read, "
+                                 + $"then {Rules.SkillGrades.ReadCooldownHours} hours of rest.";
+            bool asking = action == "OFFER THEM";
+            _cardCountRow.SetActive(asking);
+            _cardCount.text = count.ToString();
+            _cardDo = act == null ? null : () =>
+            {
+                int n = asking ? (int.TryParse(_cardCount.text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int typed) ? typed : 0) : count;
+                if (n < 1 || n > count) { _message.text = $"Between 1 and {count}."; return; }
+                act(n);
+            };
             _cardAction.gameObject.SetActive(action != null);
             _cardActionLabel.text = action ?? "";
             _card.SetActive(true);

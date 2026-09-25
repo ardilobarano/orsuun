@@ -134,6 +134,7 @@ public sealed partial class GameService
         var inventory = Snapshot(account);
         string chest = Dungeons.WardenChest(inventory, level, _rng, dungeon, vaultOpen);
         Apply(account, inventory);
+        account.Honor += Rules.SkillGrades.HonorPerWarden;
         return chest;
     }
 

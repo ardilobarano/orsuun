@@ -140,3 +140,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   server's `/opt/orsuun/downloads`, delete it afterwards) or `media_upload` (presigned PUT).
 - Lane floors are `Resources/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
   (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes.
+- Skill grades and Technique Scrolls (`Rules/SkillGrades.cs`) are kept for all twelve skills by book id (class * 3 +
+  slot); the hero fights with its class's three (`SkillGrades.ForClass`) on both sides, so a grade that rises settles
+  and reseeds the lane like a class change. Scroll stacks are `BookStacks` rows (`AddBooks` on the tracked hero,
+  `AddBooksElsewhereAsync` upsert for anyone else). `MarketListing.BookId` is -1 for a piece: client DTOs initialise
+  `bookId = -1` (JsonUtility leaves a missing int at 0), and a scroll listing sends the empty Guid as `itemId`.
+- The Gear screen is the INVENTORY (mockup D): `GearPanel` keeps its name; its `HeroStage` stands at `Below + (60,0,0)`
+  and switches off with the canvas (the panel lives on it). Material tiles come from `GearPanel.Goods`: a new material
+  or token gets a row there with its icon.

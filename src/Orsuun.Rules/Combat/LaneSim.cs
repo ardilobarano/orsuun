@@ -36,6 +36,8 @@ namespace Orsuun.Rules.Combat
         public int EvasionBp { get; set; }
         /// <summary>Damage from Commanders and their images is scaled by this (Warding shards). 100 = full.</summary>
         public int CommanderDamageTakenPercent { get; set; } = 100;
+        /// <summary>Skill grades (Rules.SkillGrades) by skill slot: extra power of a burst or area, half as much longer haste.</summary>
+        public int[] SkillGradeBonusPercent { get; set; } = new int[SkillGrades.Slots];
     }
 
     public enum SkillKind
@@ -371,6 +373,8 @@ namespace Orsuun.Rules.Combat
 
             SkillDef skill = Skills[skillIndex];
             _readyAtTick[skillIndex] = _tick + skill.CooldownTicks;
+            int grade = skillIndex < _hero.SkillGradeBonusPercent.Length ? _hero.SkillGradeBonusPercent[skillIndex] : 0;
+            int power = skill.PowerPercent * (100 + grade) / 100;
             _events.Add(new LaneEvent(LaneEventKind.SkillCast, amount: skillIndex, text: skill.Name));
 
             switch (skill.Kind)
@@ -378,16 +382,16 @@ namespace Orsuun.Rules.Combat
                 case SkillKind.Burst:
                     Enemy? target = aimed ? Toughest() : FrontTarget();
                     if (target != null)
-                        Hit(target, aimed && (target.IsKorstone || target.IsBoss) ? skill.PowerPercent * _hero.WeakPointPercent / 100 : skill.PowerPercent);
+                        Hit(target, aimed && (target.IsKorstone || target.IsBoss) ? power * _hero.WeakPointPercent / 100 : power);
                     break;
 
                 case SkillKind.Area:
                     foreach (Enemy e in _enemies.ToArray())
-                        if (e.Hp > 0) Hit(e, skill.PowerPercent);
+                        if (e.Hp > 0) Hit(e, power);
                     break;
 
                 case SkillKind.Haste:
-                    _hasteUntilTick = _tick + skill.DurationTicks;
+                    _hasteUntilTick = _tick + skill.DurationTicks * (100 + grade / 2) / 100;
                     break;
             }
 

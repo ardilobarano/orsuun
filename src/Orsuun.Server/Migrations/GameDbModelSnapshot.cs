@@ -105,6 +105,9 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("HighestStageCleared")
                         .HasColumnType("integer");
 
+                    b.Property<long>("Honor")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("HuntMarks")
                         .HasColumnType("integer");
 
@@ -226,6 +229,21 @@ namespace Orsuun.Server.Migrations
                     b.Property<string>("SessionToken")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SkillGrades")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SkillProgress")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SkillReads")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("Skins")
                         .IsRequired()
@@ -362,6 +380,22 @@ namespace Orsuun.Server.Migrations
                     b.HasKey("Season", "Banner");
 
                     b.ToTable("BannerScores");
+                });
+
+            modelBuilder.Entity("Orsuun.Server.Data.BookStack", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AccountId", "BookId");
+
+                    b.ToTable("BookStacks");
                 });
 
             modelBuilder.Entity("Orsuun.Server.Data.BossClock", b =>
@@ -1200,6 +1234,12 @@ namespace Orsuun.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<int>("BookCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
                     b.Property<Guid?>("BuyerId")
                         .HasColumnType("uuid");
 
@@ -1301,6 +1341,11 @@ namespace Orsuun.Server.Migrations
                     b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("FromBooks")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<Guid>("FromId")
                         .HasColumnType("uuid");
 
@@ -1317,6 +1362,11 @@ namespace Orsuun.Server.Migrations
 
                     b.Property<int>("State")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ToBooks")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("ToId")
                         .HasColumnType("uuid");
@@ -1344,6 +1394,15 @@ namespace Orsuun.Server.Migrations
                     b.ToTable("Trades");
                 });
 
+            modelBuilder.Entity("Orsuun.Server.Data.BookStack", b =>
+                {
+                    b.HasOne("Orsuun.Server.Data.Account", null)
+                        .WithMany("Books")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Orsuun.Server.Data.Item", b =>
                 {
                     b.HasOne("Orsuun.Server.Data.Account", null)
@@ -1355,6 +1414,8 @@ namespace Orsuun.Server.Migrations
 
             modelBuilder.Entity("Orsuun.Server.Data.Account", b =>
                 {
+                    b.Navigation("Books");
+
                     b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
