@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Orsuun.Rules;
 using Orsuun.Rules.Combat;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Orsuun.Client
@@ -10,7 +11,8 @@ namespace Orsuun.Client
     /// The character screen's hero (25 Sep 2026, Metin2's character select): one whole hero as the lane shows it (the
     /// class model for its armour band, the Vanguard's armour and glaive looks, or a worn skin's costume) standing in its
     /// idle, turning slowly, rendered by an offscreen camera far below the lane into a transparent texture that sits on
-    /// the screen's painted scene.
+    /// the screen's painted scene. A finger turns it all the way round (owner, 25 Sep 2026: "add turning characters with
+    /// sliding with hand"); let go, it spins on a little, and after a few seconds untouched it turns back to the front.
     /// </summary>
     public sealed class HeroStage : MonoBehaviour
     {
@@ -29,6 +31,14 @@ namespace Orsuun.Client
         private string _shown;
         private float _distance = 8f;
         private float _centreY = 1.1f;
+        /// <summary>A whole turn for a drag across this share of the screen's width.</summary>
+        private const float TurnPerWidth = 1.1f;
+        /// <summary>Seconds untouched before the hero turns back to the front and sways again.</summary>
+        private const float RestAfter = 3f;
+        private float _yaw;          // the finger's turn, degrees
+        private float _spin;         // degrees a second, after letting go
+        private float _touchedAt = -100f;
+        private bool _held;
 
         public void Init(RectTransform box, Vector3? at = null)
         {
@@ -39,7 +49,8 @@ namespace Orsuun.Client
             fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             fit.aspectRatio = Aspect;
             _view.texture = _texture;
-            _view.raycastTarget = false;
+            _view.raycastTarget = true;
+            _view.gameObject.AddComponent<Turner>().Stage = this;
 
             _camera = new GameObject("HeroStageCamera").AddComponent<Camera>();
             _camera.transform.SetParent(transform, false);
@@ -85,13 +96,93 @@ namespace Orsuun.Client
                 _shown = key;
                 Build(cls.Value, armorBand, weaponBand, string.IsNullOrEmpty(skinLook) ? null : skinLook);
             }
-            _pivot.rotation = Quaternion.Euler(0f, 180f + Mathf.Sin(Time.unscaledTime * 0.5f) * 28f, 0f);
+            float dt = Time.unscaledDeltaTime;
+            float idle = _held ? 0f : Time.unscaledTime - _touchedAt;
+            // A finger held still stops the turn it would hand on.
+            if (_held) _spin *= Mathf.Exp(-12f * dt);
+            else
+            {
+                _yaw += _spin * dt;
+                _spin *= Mathf.Exp(-3f * dt);
+                if (idle > RestAfter)
+                {
+                    _yaw = Mathf.DeltaAngle(0f, _yaw) * Mathf.Exp(-2.5f * dt);
+                    _spin = 0f;
+                }
+            }
+            // The slow sway fades out under the finger and back in once the hero is at rest.
+            float sway = Mathf.Sin(Time.unscaledTime * 0.5f) * 28f * Mathf.Clamp01((idle - RestAfter) / 1.5f);
+            _pivot.rotation = Quaternion.Euler(0f, 180f + _yaw + sway, 0f);
             _camera.transform.position = _at + new Vector3(0f, _centreY, -_distance);
             _camera.transform.LookAt(_at + new Vector3(0f, _centreY, 0f));
         }
 
+        private void Drag(float dx, bool held)
+        {
+            _held = held;
+            _touchedAt = Time.unscaledTime;
+            if (!held) return;
+            // A finger moving right carries the hero's near side right (a turn to the left, seen from above).
+            float turn = -dx / Mathf.Max(1f, Screen.width) * 360f / TurnPerWidth;
+            _yaw += turn;
+            float dt = Mathf.Max(0.001f, Time.unscaledDeltaTime);
+            _spin = Mathf.Lerp(_spin, turn / dt, 0.5f);
+        }
+
+        /// <summary>
+        /// Screenshots (-dragturn px): a finger dragged across the hero's middle through the event system, from whatever
+        /// the raycast finds on top there (logged), so a panel covering the hero would show up.
+        /// </summary>
+        public System.Collections.IEnumerator DragForShot(float dx)
+        {
+            var data = new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left };
+            var corners = new Vector3[4];
+            _view.rectTransform.GetWorldCorners(corners);
+            data.position = (corners[0] + corners[2]) / 2f;
+            var hits = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(data, hits);
+            GameObject top = hits.Count > 0 ? hits[0].gameObject : null;
+            GameObject target = ExecuteEvents.GetEventHandler<IDragHandler>(top);
+            Debug.Log("dragturn: top " + (top != null ? top.name : "none") + ", drag handler " + (target != null ? target.name : "none"));
+            if (target == null) yield break;
+            ExecuteEvents.Execute(target, data, ExecuteEvents.pointerDownHandler);
+            const int steps = 15;
+            for (int i = 0; i < steps; i++)
+            {
+                yield return null;
+                data.delta = new Vector2(dx / steps, 0f);
+                data.position += data.delta;
+                ExecuteEvents.Execute(target, data, ExecuteEvents.dragHandler);
+            }
+            ExecuteEvents.Execute(target, data, ExecuteEvents.pointerUpHandler);
+        }
+
+        /// <summary>Takes the finger on the hero's picture.</summary>
+        private sealed class Turner : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
+        {
+            public HeroStage Stage;
+
+            public void OnPointerDown(PointerEventData e)
+            {
+                Stage._spin = 0f;
+                Stage.Drag(0f, true);
+            }
+
+            public void OnDrag(PointerEventData e) => Stage.Drag(e.delta.x, true);
+
+            public void OnPointerUp(PointerEventData e) => Stage.Drag(0f, false);
+
+            // The screen closed under the finger: no pointer-up comes.
+            private void OnDisable()
+            {
+                if (Stage != null) Stage._held = false;
+            }
+        }
+
         private void Build(HeroClass cls, int armorBand, int weaponBand, string skinLook)
         {
+            _yaw = 0f;
+            _spin = 0f;
             if (_model != null) Destroy(_model);
             _model = new GameObject("StageHero");
             _model.transform.SetParent(_pivot, false);

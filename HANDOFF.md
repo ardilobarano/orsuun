@@ -584,6 +584,11 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   login row lock; the in-game `/v1/banner` stays for older accounts). Texts speak of the account and its heroes.
   `tools/smoke-characters.sh` swears at the character screen. Screenshots: `-firstrun [guest|oath]` runs the way in
   under `-shot` (with a fresh `orsuun.deviceToken`), playing as guest and swearing to the Sky Banner.
+- The character screen's hero turns under a finger (owner, 25 Sep 2026: "add turning characters with sliding with hand
+  as well"): `HeroStage` (also the Campaign Trail's showcase) takes a drag on its picture (a drag across 1.1 screen
+  widths is a whole turn), spins on a little after letting go, and after 3 s untouched turns back to the front and
+  sways again. Screenshots: `-dragturn <px>` drags through the event system two seconds after a hero shows (the log
+  names what the raycast hit).
 
 ## Store release, waiting on the owner's accounts
 

@@ -57,6 +57,9 @@ namespace Orsuun.Client
         private int _classIndex;
         private bool _busy;
         private int _lobbyGeneration = -1;
+        // Screenshots: -dragturn <px> drags a finger across the hero two seconds after it shows.
+        private float _dragTurn = float.NaN;
+        private float _shownAt;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -134,7 +137,7 @@ namespace Orsuun.Client
             _canvas.SetActive(visible);
             _stage.gameObject.SetActive(visible);
             // -createhero opens the create view (screenshots).
-            if (visible) { _message.text = ""; SetMode(Array.IndexOf(Environment.GetCommandLineArgs(), "-createhero") >= 0 ? Mode.Create : Mode.Select); }
+            if (visible) { _shownAt = Time.unscaledTime; _message.text = ""; SetMode(Array.IndexOf(Environment.GetCommandLineArgs(), "-createhero") >= 0 ? Mode.Create : Mode.Select); }
         }
 
         private Net.ServerLink.CharacterSlotDto InSlot(int slot)
@@ -231,6 +234,17 @@ namespace Orsuun.Client
             }
 
             var chosen = InSlot(_slot);
+            if (float.IsNaN(_dragTurn))
+            {
+                int at = Array.IndexOf(Environment.GetCommandLineArgs(), "-dragturn");
+                _dragTurn = at >= 0 && at + 1 < Environment.GetCommandLineArgs().Length
+                    && float.TryParse(Environment.GetCommandLineArgs()[at + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float px) ? px : 0f;
+            }
+            if (_dragTurn != 0f && chosen != null && Time.unscaledTime - _shownAt > 2f)
+            {
+                _stage.StartCoroutine(_stage.DragForShot(_dragTurn));
+                _dragTurn = 0f;
+            }
             if (_mode == Mode.Create)
             {
                 HeroClass cls = Classes[_classIndex];
