@@ -33,7 +33,7 @@ namespace Orsuun.Rules
         public int Tier { get; }
         public WardrobePerk Perk { get; }
         public int PerkPercent { get; }
-        /// <summary>On sale at the Caravan; the rest (the Commanders' trophies) only drop.</summary>
+        /// <summary>On sale at the Caravan; the rest (the Commanders' trophies, the Campaign Trail's pieces) are won.</summary>
         public bool Sold { get; }
         /// <summary>The client's look key (model and palette).</summary>
         public string Look { get; }
@@ -92,6 +92,8 @@ namespace Orsuun.Rules
                 "Shimmers like the Salt Sea at noon. Only the Mirage Queen drops it."),
             new WardrobeDef("greyjaw-pelt-cloak", "Greyjaw Pelt Cloak", WardrobeKind.Skin, 3, WardrobePerk.Hp, 4, false, "GreyjawPelt",
                 "Old Greyjaw's grey pelt. Only he drops it."),
+            new WardrobeDef("amber-road-regalia", "Amber Road Regalia", WardrobeKind.Skin, 4, WardrobePerk.Hp, 5, false, "AmberRoad",
+                "A caravan master's teal and bronze, set with steppe amber. The Campaign Trail's first season."),
 
             new WardrobeDef("steppe-pony", "Steppe Pony", WardrobeKind.Mount, 1, WardrobePerk.Attack, 2, true, "HorsePony",
                 "Small, shaggy and never tired."),
@@ -101,6 +103,8 @@ namespace Orsuun.Rules
                 "Barded in saffron and brass, as the caravan cities ride."),
             new WardrobeDef("hollow-steed", "Hollow Steed", WardrobeKind.Mount, 4, WardrobePerk.Attack, 6, true, "HorseHollow",
                 "One of the herds that went Hollow, tamed again."),
+            new WardrobeDef("amber-road-courser", "Amber Road Courser", WardrobeKind.Mount, 4, WardrobePerk.Attack, 5, false, "HorseAmber",
+                "Barded in honey amber and bronze for the salt roads. The Campaign Trail's first season."),
 
             new WardrobeDef("ember-fox", "Ember Fox", WardrobeKind.Companion, 1, WardrobePerk.Sorn, 3, true, "Fox",
                 "Finds the coins the dead forgot."),

@@ -206,6 +206,11 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("Tallies")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Trail")
+                        .IsRequired()
+                        .HasMaxLength(96)
+                        .HasColumnType("character varying(96)");
+
                     b.Property<int>("Turnstones")
                         .HasColumnType("integer");
 

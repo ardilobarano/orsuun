@@ -85,7 +85,9 @@ namespace Orsuun.Client
             }
 
             _message = Ui.Label("Message", canvas, 0.05f, 0.08f, 0.95f, 0.125f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
+            // Bounties pay the Campaign Trail's XP (GDD section 3): its screen is a tap away.
+            Ui.Button("Trail", canvas, 0.03f, 0.015f, 0.47f, 0.075f, "CAMPAIGN TRAIL", 26, Palette.Alloy, () => { _canvas.SetActive(false); _root.Trail.Open(); }, out _);
+            Ui.Button("Close", canvas, 0.5f, 0.015f, 0.97f, 0.075f, "BACK TO THE HUNT", 26, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
             _canvas.SetActive(false);
         }
 
@@ -155,7 +157,8 @@ namespace Orsuun.Client
                 r.Claim.gameObject.SetActive(true);
                 bool hunt = b.title.StartsWith("Hunt for");
                 string count = hunt ? $"{b.count / 60}/{b.target / 60} min" : $"{b.count}/{b.target}";
-                r.Label.text = $"{b.title}   ·   {count}   ·   {b.marks} marks";
+                int trailXp = b.period == "Daily" ? CampaignTrail.DailyBountyXp : CampaignTrail.WeeklyBountyXp;
+                r.Label.text = $"{b.title}   ·   {count}   ·   {b.marks} marks, {trailXp} Trail XP";
                 r.Label.color = b.claimed ? Palette.Muted : Palette.Parchment;
                 float done = b.target > 0 ? Mathf.Clamp01(b.count / (float)b.target) : 0f;
                 r.Fill.anchorMax = new Vector2(0.045f + 0.69f * done, r.Fill.anchorMax.y);

@@ -73,12 +73,14 @@ public sealed partial class GameService
         WardrobeDef def = Wardrobe.Find(request.PieceId) ?? throw new GameException("no_piece", "The Caravan has no such thing.");
         int price = Wardrobe.Price(def, request.Days);
         if (price < 0) throw new GameException("not_sold", "The Caravan does not sell that for so long.");
-        Login login = _login ?? throw new GameException("no_login", "Sign in again.");
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        Login login = await LockLoginAsync(ct);
         if (login.Amber < price) throw new GameException("no_amber", "Not enough Amber.");
         login.Amber -= price;           // Amber is the account's: any of its characters spends it (25 Sep 2026)
         Hold(account, def, request.Days);
         _db.Ledger.Add(Entry(account.Id, null, "caravan", $"{def.Id} {request.Days}d for {price} Amber", 0, request.RequestId));
         await SaveAsync(ct);
+        await tx.CommitAsync(ct);
         return ToState(account);
     }
 
@@ -110,12 +112,14 @@ public sealed partial class GameService
         if (!testStore) throw new GameException("store_closed", "Amber goes on sale with the App Store and Google Play release.");
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         AmberPack pack = Amber.Pack(request.PackId) ?? throw new GameException("no_pack", "No such pack.");
-        Login login = _login ?? throw new GameException("no_login", "Sign in again.");
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        Login login = await LockLoginAsync(ct);
         int paid = Amber.Paid(pack, login.AmberPurchases == 0);
         login.Amber += paid;
         login.AmberPurchases++;
         _db.Ledger.Add(Entry(account.Id, null, "amber-test", $"pack {pack.Id} ({pack.PriceText}) paid {paid} Amber, free on the playtest", 0, request.RequestId));
         await SaveAsync(ct);
+        await tx.CommitAsync(ct);
         return ToState(account);
     }
 }

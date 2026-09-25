@@ -210,7 +210,8 @@ public sealed record StateDto(
     string[]? Logins = null,
     int DungeonRunsLeft = 0,
     long DungeonRunAtSmith = 0,
-    WardrobeDto? Wardrobe = null);
+    WardrobeDto? Wardrobe = null,
+    TrailDto? Trail = null);
 
 /// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
 public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);
@@ -219,6 +220,18 @@ public sealed record CaravanBuyRequest(string RequestId, string PieceId, int Day
 /// <summary>Wears PieceId (a held piece with time left); an empty PieceId takes off the piece worn in Kind ("Skin", "Mount", "Companion").</summary>
 public sealed record WearRequest(string RequestId, string PieceId, string Kind);
 public sealed record AmberPackRequest(string RequestId, int PackId);
+
+/// <summary>
+/// The Campaign Trail (Rules.CampaignTrail): the season, its XP and tier, the pass bought (0 none, 1 Trail, 2 Plus) and the
+/// claimed tiers as bits (bit t-1 for tier t); Owed counts last season's rewards left unclaimed (the next claim hands
+/// them over). The client draws the reward table from the shared rules.
+/// </summary>
+public sealed record TrailDto(int Season, string Name, long SecondsLeft, long Xp, int Tier, int XpIntoTier, int Pass, long FreeClaimed, long PaidClaimed,
+    int Owed);
+/// <summary>Claims tier Tier's ready rewards on both tracks; Tier 0 claims every reward ready.</summary>
+public sealed record TrailClaimRequest(string RequestId, int Tier);
+/// <summary>Buys the paid track, or Plus (the paid track and ten tiers; from the Trail it costs the difference).</summary>
+public sealed record TrailBuyRequest(string RequestId, bool Plus);
 
 /// <summary>The Pits (Rules.Pits): the record, the three challengers, the board, the shop's currency.</summary>
 public sealed record PitsDto(int Rating, string League, int Wins, int Losses, int Laurels, int TicketsLeft, PitChallengerDto[] Challengers,

@@ -35,6 +35,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Guild war and fortress bids | Owner, 24 Sep 2026 (desktop app session): picked all four offered next steps, among them "guild war and fortress bids". Built asynchronous like the sieges (the GDD's live 20v20 and 50v50 are out of reach for now). Guild war: the leader signs up (3+ members), war nights Wednesday and Saturday 21:00 pair guilds by Elo rating for an hour; each member fights up to 6 duels, 2 min apart, on one of three lanes against a drawn member of the other guild; a win is a kill and pushes the lane (two steps under the war flag the leader or an officer plants), 5 steps break it; score = kills + 10 per broken lane; winner 150,000 treasury sorn + 100 guild XP (draw 50,000 + 60, loss 30 XP); a duel pays 5,000 sorn + 1 Hunt Mark (GDD: PvP pays currency, never upgrade protection). Duels follow the GDD's PvP balance: gear and level on a class-neutral frame, stats above the pair's median compressed by 30%, a seeded roll tuned so a +9 set beats a +7 set about 80% of the time (`Rules/GuildWar.cs`: `GuildWars`, `Duels`). Fortress keeps: the Banner sieges stay; the keep decides the guild flag. Leaders or officers bid treasury sorn on one keep a week (50,000+); Sunday 20:00 the top four bids contend (spent, the rest refunded) and storm the keep for an hour while its holders mend it; the best contender takes it past 150,000 + the mending. The holder flies its flag (+2% sorn) and earns 2% of the Exchange tax. All numbers are assumptions (not stated by the owner). |
 | The Caravan, Amber and the wardrobe | Owner, 25 Sep 2026: "add skins, mounts and companions that have expire time, like 1-3-5-7-14 days. equipabble and changeable at gear or a different screen. higher level bosses can drop these, and also we will add a new currency that is only buyable with real money"; a shop screen shown first as a Higgsfield mockup (`docs/concept/screens/mockup-caravan-*.jpg`, `mockup-wardrobe.jpg`). Answers: the currency is **Amber** (not the GDD's Aurels; real money only); **small stats, Metin2 style** (skin HP, mount attack, companion hunting XP or sorn); **mounted combat** (the hero rides and fights from the saddle); **the shop sells every duration, bosses drop short ones** (1-3 days, rarely 5-7), a piece held again adds its days. |
 | Characters and the depot | Owner, 25 Sep 2026: "add character creation with name selection after signing up or loginning in like metin2 screen, total 4 char slots with a common depot of items to trade between each other". Answers: Amber is shared by the account's characters (everything else per character: sorn, level, gear, wardrobe, guild, Pits); the Banner is chosen per account (all four fight for it). |
+| Campaign Trail | Owner, 25 Sep 2026: asked "what to do next", picked "Campaign Trail (Recommended), Maps 5 and 6, Player-to-player trade, More dungeons" (built in that order). From the GDD: an 8 week season of 50 tiers; the day's missions (bounties) pay Trail XP; the free track pays Turnstones, Scrolls of Mercy and a Khan's Alloy every 10 tiers; the paid track the season costume, a mount, 300 Turnstones, 20 Khan's Alloys and 3 Anvil Wards; $9.99, "premium plus" $19.99. Assumptions (not stated by the owner): the paid track costs 650 Amber (the $9.99 pack's) and Trail Plus 1,400 (the $19.99 pack's) with 10 tiers at once, 750 from the Trail; each character climbs and buys its own Trail (only Amber is shared); 600 XP a tier, 100 per daily bounty and 500 per weekly (every daily and one weekly a week finish it in the 8 weeks, the dailies alone do not); free track 5 Turnstones on odd tiers and a Scroll of Mercy on the other even ones; the season's pieces are held until the season ends (at least 14 days) rather than the Caravan's 1-14 days; rewards left unclaimed are handed over when the next season starts; season 1 is "The Amber Road", Mon 21 Sep to Mon 16 Nov 2026 20:00, with the Amber Road Regalia (skin, +5% HP) at paid tier 1 and the Amber Road Courser (mount, +5% attack) at paid tier 50. The Trail does not add to offline yield yet (the GDD lists it among the B_afk sources). |
 | Server authority | Every roll, reward and trade is decided by the server. The client sends intents and replays seeds. |
 | Storage | PostgreSQL from day one (dev runs it locally). |
 | Map roles | Hunting Grounds (sorn, levels), Korstone Fields (materials, Turnstones, Korshards), Commander Grounds (bosses, skins). Campaign stages are the unlock spine. GDD section 13. |
@@ -80,7 +81,7 @@ mounts and companions, Amber and a shop screen (the Caravan and the wardrobe: de
 the APK, 25 Sep; the iPhone was not connected), costume models for the skins (APK), and Metin2-style character select
 with four slots and a shared depot: pushed and deployed on 25 Sep (migration `Characters`, which reshaped every hero
 into slot 1 of its own login; copy first: `~/orsuun-backups/playtest-before-characters-2026-09-25.sql.gz`), APK on the
-download link. The owner's iPhone was not connected (devicectl "unavailable"): install the current build when it is.
+download link. Installed on the owner's iPhone on 25 Sep 2026 (after it was plugged in).
 The owner's first playtest hero (a guest from 24 Sep, Ember Banner, in a guild) was deleted from a device with MENU ->
 DELETE ACCOUNT between 22:31 and 22:57 UTC on 24 Sep; it is in `~/orsuun-backups/playtest-before-dungeons-pits-2026-09-25.sql.gz`
 if the owner wants it back (asked, not answered yet).
@@ -446,6 +447,30 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   the early push pace and aimed-play tests still hold (the Wraithsworn's weak point stays 700: at 600 an early loop
   outlasts the 20 minute cap). Duels are class-neutral, so PvP is unchanged. Rules changed on both sides: a client
   older than this build sends loop reports the server no longer matches, so testers need the new build.
+
+## Done 25 Sep 2026 (the Campaign Trail)
+
+- The Campaign Trail (decision row above). Rules: `Rules/Trail.cs` (`CampaignTrail`, `TrailProgress`, `TrailReward`,
+  `TrailSeason`; `TrailTests` pin the GDD's paid track, the Khan's Alloy every 10 free tiers, the season dates, the XP
+  pace and the Amber prices). Seasons are counted from `CampaignTrail.Epoch` (Mon 21 Sep 2026, 20:00 server time, a
+  bounty week start); a season's name, costume and mount come from `CampaignTrail.Themes` (a season past the list
+  repeats the last one, so season 2's pieces are needed before 16 Nov 2026). Stored per character in `Account.Trail`
+  ("season|xp|pass|free bits|paid bits", migration `CampaignTrail`). Server: `GameService.Trail.cs`; claiming a bounty
+  adds its Trail XP (`ClaimBountyAsync`); `POST /v1/trail/claim` (tier, 0 for all), `POST /v1/trail/buy` (plus);
+  `/v1/dev/trail?xp=&lastSeason=` on Development. A season left behind hands its ready rewards over at the next claim or
+  bounty (`RollTrail`); `TrailDto.Owed` counts them. Season pieces go through the wardrobe drops (`Hold`, worn at once
+  if the slot is empty). Amber spending (the Caravan, packs, the Trail) now locks the login row first
+  (`LockLoginAsync`, FOR UPDATE in a transaction): Amber is shared by up to four characters, and two of them buying at
+  once could both have spent the same Amber. Ledger lines longer than their 512-character column are clipped (a
+  claim of all 100 rewards failed the save before the tiers were written as ranges). `tools/smoke-trail.sh`.
+  Client: `TrailPanel` (the season, the hero turning in the season costume on a `HeroStage`, tier and XP bar, THE
+  TRAIL / PLUS buttons with a confirm, 50 rows of free and paid rewards, tap a row or CLAIM ALL), a round waystone
+  button on the HUD under the Caravan (TIER n, or CLAIM when a reward waits), CAMPAIGN TRAIL on the bounty board
+  (each bounty line shows its Trail XP). `HeroStage.Init` takes a spot so two stages never share one. Screenshot
+  switch `-trail`. Art: the Amber Road Regalia for the four classes (`docs/concept/skins/<class>-AmberRoad.jpg`, Tripo
+  multiview, `Skin_AmberRoad` and `<Class>_SkinAmberRoad`), the Amber Road Courser (the warhorse with teal barding on a
+  black coat, `MountWarhorseAmber`, a warm glow), Caravan cards for both, the Trail's scene (`Scenes/Trail.jpg`) and
+  icon (`Icons/Trail.png`). The Caravan lists the two pieces as "Campaign Trail" (not sold).
 
 ## Store release, waiting on the owner's accounts
 

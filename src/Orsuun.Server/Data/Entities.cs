@@ -83,6 +83,8 @@ public sealed class Account
     [MaxLength(64)] public string WornSkin { get; set; } = "";
     [MaxLength(64)] public string WornMount { get; set; } = "";
     [MaxLength(64)] public string WornCompanion { get; set; } = "";
+    /// <summary>The Campaign Trail this season (Rules.TrailProgress: "season|xp|pass|free|paid").</summary>
+    [MaxLength(96)] public string Trail { get; set; } = "";
 
     /// <summary>The guild this account belongs to, its rank there and when it joined.</summary>
     public Guid? GuildId { get; set; }

@@ -8,7 +8,7 @@ namespace Orsuun.Client
     /// THE CARAVAN (owner, 25 Sep 2026; docs/concept/screens/mockup-caravan-*.jpg): skins, mounts and companions for
     /// 1, 3, 5, 7 or 14 days, bought with Amber (Rules.Wardrobe), and the Amber packs (Rules.Amber, real money only; free on
     /// the playtest server until the stores are connected). A piece is picked in the grid, shown large, its duration
-    /// chosen, and bought after a confirm. The Commanders' trophies are shown too, as drops only.
+    /// chosen, and bought after a confirm. The Commanders' trophies and the Campaign Trail's pieces are shown too, not sold.
     /// </summary>
     public sealed class CaravanPanel : MonoBehaviour
     {
@@ -189,7 +189,7 @@ namespace Orsuun.Client
                 c.Def = def;
                 Ui.SetPicture(c.Picture, "Thumbs/Caravan/" + def.Id);
                 c.Name.text = def.Name;
-                c.Price.text = def.Sold ? Wardrobe.Price(def, 1) + "+ Amber" : "drops only";
+                c.Price.text = def.Sold ? Wardrobe.Price(def, 1) + "+ Amber" : CampaignTrail.IsTrailPiece(def.Id) ? "Campaign Trail" : "drops only";
             }
             for (int i = 0; i < GridCells; i++) _cells[i].Back.gameObject.SetActive(i < n);
             if (_selected == null || _selected.Kind != kind) Select(_cells[0].Def);
@@ -287,7 +287,7 @@ namespace Orsuun.Client
             _featureName.color = TierColor(_selected.Tier);
             long held = _root.Server.SecondsLeft(_selected.Id);
             bool worn = _root.Server.WornId(_selected.Kind) == _selected.Id;
-            _featureHeld.text = held > 0 ? (worn ? "Worn" : "Held") + $"  ·  {WardrobePanel.Left(held)} left" : _selected.Sold ? "" : "Only its Commander drops it.";
+            _featureHeld.text = held > 0 ? (worn ? "Worn" : "Held") + $"  ·  {WardrobePanel.Left(held)} left" : _selected.Sold ? "" : CampaignTrail.IsTrailPiece(_selected.Id) ? "Won on the Campaign Trail." : "Only its Commander drops it.";
             for (int i = 0; i < _dayButtons.Length; i++)
             {
                 int days = Wardrobe.Days[i];

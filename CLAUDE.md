@@ -115,3 +115,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   client `PlayerSession.SetWorn` from the state), so loop replays match; a companion's XP/sorn is added only by the
   server's `Apply(..., hunt: true)`. Duels/Pits (`Duels.Neutral`) ignore the wardrobe. Amber packs are free only on a
   Development server (`/v1/caravan/amber` answers "store_closed" elsewhere) until store purchases are built.
+- The Campaign Trail (`Rules/Trail.cs`) is each character's; seasons run 8 weeks from Mon 21 Sep 2026 20:00 server
+  time. A new season needs its costume (a model per class) and mount in `CampaignTrail.Themes` before it opens, or it
+  repeats the last one. Anything that spends or grants Amber locks the login row first (`LockLoginAsync`): four
+  characters share it.

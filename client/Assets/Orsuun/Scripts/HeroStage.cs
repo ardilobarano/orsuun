@@ -14,11 +14,13 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class HeroStage : MonoBehaviour
     {
-        private static readonly Vector3 Stage = new Vector3(0f, -800f, 0f);
+        /// <summary>Where a stage stands, far below the lane; each screen with a stage gives its own spot.</summary>
+        public static readonly Vector3 Below = new Vector3(0f, -800f, 0f);
         private static readonly Vector3 VanguardBuild = new Vector3(1.1f, 1.03f, 1.1f);
         private const float Fov = 24f;
         private const float Aspect = 0.8f;
 
+        private Vector3 _at = Below;   // this stage's spot
         private Camera _camera;
         private RenderTexture _texture;
         private RawImage _view;
@@ -28,8 +30,9 @@ namespace Orsuun.Client
         private float _distance = 8f;
         private float _centreY = 1.1f;
 
-        public void Init(RectTransform box)
+        public void Init(RectTransform box, Vector3? at = null)
         {
+            _at = at ?? Below;
             _texture = new RenderTexture(640, 800, 24, RenderTextureFormat.ARGB32) { name = "HeroStage", antiAliasing = 2 };
             _view = Ui.Rect("Hero", box, 0f, 0f, 1f, 1f).gameObject.AddComponent<RawImage>();
             var fit = _view.gameObject.AddComponent<AspectRatioFitter>();
@@ -51,14 +54,14 @@ namespace Orsuun.Client
 
             var key = new GameObject("HeroStageLight").AddComponent<Light>();
             key.transform.SetParent(transform, false);
-            key.transform.position = Stage + new Vector3(-2.5f, 3.5f, -4f);
+            key.transform.position = _at + new Vector3(-2.5f, 3.5f, -4f);
             key.type = LightType.Point;
             key.range = 30f;
             key.intensity = 3.2f;
             key.color = new Color(1f, 0.86f, 0.68f);
             var rim = new GameObject("HeroStageRim").AddComponent<Light>();
             rim.transform.SetParent(transform, false);
-            rim.transform.position = Stage + new Vector3(3f, 2.5f, 3f);
+            rim.transform.position = _at + new Vector3(3f, 2.5f, 3f);
             rim.type = LightType.Point;
             rim.range = 20f;
             rim.intensity = 2f;
@@ -66,7 +69,7 @@ namespace Orsuun.Client
 
             _pivot = new GameObject("HeroStagePivot").transform;
             _pivot.SetParent(transform, false);
-            _pivot.position = Stage;
+            _pivot.position = _at;
         }
 
         /// <summary>Shows a hero (null: none); call every frame while the screen is open.</summary>
@@ -83,8 +86,8 @@ namespace Orsuun.Client
                 Build(cls.Value, armorBand, weaponBand, string.IsNullOrEmpty(skinLook) ? null : skinLook);
             }
             _pivot.rotation = Quaternion.Euler(0f, 180f + Mathf.Sin(Time.unscaledTime * 0.5f) * 28f, 0f);
-            _camera.transform.position = Stage + new Vector3(0f, _centreY, -_distance);
-            _camera.transform.LookAt(Stage + new Vector3(0f, _centreY, 0f));
+            _camera.transform.position = _at + new Vector3(0f, _centreY, -_distance);
+            _camera.transform.LookAt(_at + new Vector3(0f, _centreY, 0f));
         }
 
         private void Build(HeroClass cls, int armorBand, int weaponBand, string skinLook)
@@ -143,9 +146,9 @@ namespace Orsuun.Client
             }
 
             // Feet on the stage floor, centred; the camera frames the whole figure.
-            Bounds b = Measure(renderers);
-            _model.transform.position += new Vector3(Stage.x - b.center.x, Stage.y - b.min.y, Stage.z - b.center.z);
-            b = Measure(renderers);
+            Bounds b = Measure(renderers, _at);
+            _model.transform.position += new Vector3(_at.x - b.center.x, _at.y - b.min.y, _at.z - b.center.z);
+            b = Measure(renderers, _at);
             float half = Mathf.Tan(Fov * 0.5f * Mathf.Deg2Rad);
             _centreY = b.extents.y;
             _distance = Mathf.Max(b.extents.y / half, Mathf.Max(b.extents.x, b.extents.z) / (half * Aspect)) * 1.12f + b.extents.z;
@@ -173,7 +176,7 @@ namespace Orsuun.Client
         }
 
         /// <summary>World bounds of the meshes at the bind pose (a skinned renderer's own bounds cover its skeleton).</summary>
-        private static Bounds Measure(List<Renderer> renderers)
+        private static Bounds Measure(List<Renderer> renderers, Vector3 stage)
         {
             bool first = true;
             Bounds b = default;
@@ -191,7 +194,7 @@ namespace Orsuun.Client
                     else b.Encapsulate(world);
                 }
             }
-            return first ? new Bounds(Stage + Vector3.up, Vector3.one * 2f) : b;
+            return first ? new Bounds(stage + Vector3.up, Vector3.one * 2f) : b;
         }
 
         private void OnDestroy()

@@ -780,7 +780,8 @@ public sealed partial class GameService
             LoginsOf(account),
             DungeonRunsLeft(account),
             account.DungeonRunAtSmith,
-            WardrobeOf(account));
+            WardrobeOf(account),
+            TrailOf(account));
     }
 
     private static ItemDto ToDto(Item item)
@@ -852,7 +853,9 @@ public sealed partial class GameService
 
     private static LedgerEntry Entry(Guid accountId, Guid? itemId, string kind, string detail, long sornDelta, string requestId) => new()
     {
-        AccountId = accountId, ItemId = itemId, Kind = kind, Detail = detail, SornDelta = sornDelta, RequestId = requestId, Utc = DateTime.UtcNow,
+        // The column holds 512 characters: a longer line is clipped rather than failing the whole save.
+        AccountId = accountId, ItemId = itemId, Kind = kind, Detail = detail.Length > 512 ? detail[..509] + "..." : detail, SornDelta = sornDelta,
+        RequestId = requestId, Utc = DateTime.UtcNow,
     };
 
     private static string NewToken() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');

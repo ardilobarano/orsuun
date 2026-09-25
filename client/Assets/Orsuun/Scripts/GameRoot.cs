@@ -38,6 +38,7 @@ namespace Orsuun.Client
         public GuildWarPanel GuildWar { get; private set; }
         public PitsPanel Pits { get; private set; }
         public CaravanPanel Caravan { get; private set; }
+        public TrailPanel Trail { get; private set; }
         public WardrobePanel Wardrobe { get; private set; }
         public CharacterPanel Characters { get; private set; }
         public DepotPanel Depot { get; private set; }
@@ -105,6 +106,8 @@ namespace Orsuun.Client
             Pits.Init(this);
             Caravan = new GameObject("CaravanPanel").AddComponent<CaravanPanel>();
             Caravan.Init(this);
+            Trail = new GameObject("TrailPanel").AddComponent<TrailPanel>();
+            Trail.Init(this);
             Wardrobe = new GameObject("WardrobePanel").AddComponent<WardrobePanel>();
             Wardrobe.Init(this);
             Characters = new GameObject("CharacterPanel").AddComponent<CharacterPanel>();
@@ -187,6 +190,7 @@ namespace Orsuun.Client
             _caravanTab = int.TryParse(Arg("-caravan"), out int caravanTab) ? caravanTab : -1;
             _openWardrobe = Array.IndexOf(Environment.GetCommandLineArgs(), "-wardrobe") >= 0;
             _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
+            _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
             // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
             _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-smith") >= 0) Smith.Open(_ => { });
@@ -245,6 +249,7 @@ namespace Orsuun.Client
         private int _caravanTab = -1;
         private bool _openWardrobe;
         private bool _openDepot;
+        private bool _openTrail;
         private bool _enterDungeon;
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
@@ -307,6 +312,12 @@ namespace Orsuun.Client
                 _caravanTab = -1;
                 _openWardrobe = false;
                 _openDepot = false;
+            }
+            // Dev switch: -trail opens the Campaign Trail (screenshots).
+            if (Server.Online && _openTrail && Server.Trail != null)
+            {
+                _openTrail = false;
+                Trail.Open();
             }
             if (Server.Online && _openPits)
             {

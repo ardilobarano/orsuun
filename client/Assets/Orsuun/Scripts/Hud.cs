@@ -22,6 +22,7 @@ namespace Orsuun.Client
         private Text _ticker;
         private Text _guildTag;
         private Text _amber;
+        private Text _trailTier;
         private Text _bountyLabel;
         private RawImage _flag;
         private int _lastLevel;
@@ -209,6 +210,9 @@ namespace Orsuun.Client
             // The Caravan under the flag: a round camel button with the Amber held beneath it.
             Ui.RoundButton("Caravan", canvas, 0.9f, 0.655f, 0.99f, 0.73f, "Caravan", new Color(0.55f, 0.3f, 0.08f), () => root.Caravan.Open(), out _, out _);
             _amber = Ui.Title("Amber", canvas, 0.86f, 0.632f, 1f, 0.656f, "", 20, TextAnchor.MiddleCenter, CaravanPanel.AmberColor);
+            // The Campaign Trail under it: a round waystone button with the tier beneath (CLAIM when a reward waits).
+            Ui.RoundButton("Trail", canvas, 0.9f, 0.553f, 0.99f, 0.628f, "Trail", new Color(0.1f, 0.35f, 0.36f), () => root.Trail.Open(), out _, out _);
+            _trailTier = Ui.Title("TrailTier", canvas, 0.86f, 0.53f, 1f, 0.554f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
         }
 
         /// <summary>Resources/Icons/Skills name for a skill: its letters ("Kestrel's Dive" is KestrelsDive).</summary>
@@ -335,6 +339,10 @@ namespace Orsuun.Client
             _ticker.text = _root.Chat.Ticker.Length > 0 ? _root.Chat.Ticker : ConfirmDialog.Tint(_root.Server.Online ? "Tap to talk with the steppe." : "Chat needs the server.", Palette.Muted);
             if (inGuild) _guildTag.color = GuildPanel.ColorOf(guild.color);
             _amber.text = _root.Server.Online ? _root.Server.Amber.ToString("N0") : "";
+            Net.ServerLink.TrailDto trail = _root.Server.Online ? _root.Server.Trail : null;
+            bool trailReady = trail != null && TrailPanel.AnyReady(trail);
+            _trailTier.text = trail == null ? "" : trailReady ? "CLAIM" : "TIER " + trail.tier;
+            _trailTier.color = trailReady ? Palette.Sorn : Palette.Parchment;
             bool claim = _root.Bounties.AnyClaimable;
             _navBadges[2].gameObject.SetActive(claim);
             BannerLook.Show(_flag, _root.Server.Banner);

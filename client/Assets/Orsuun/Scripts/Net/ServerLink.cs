@@ -641,6 +641,11 @@ namespace Orsuun.Client.Net
             done(failure == null ? War?.message : null, failure);
         }
 
+        /// <summary>The Campaign Trail from the last state (Rules.CampaignTrail); null until a server that has one answers.</summary>
+        public TrailDto Trail { get; private set; }
+        private float _trailAt;
+        public long TrailSecondsLeft => Trail == null ? 0 : Math.Max(0, Trail.secondsLeft - (long)(Time.realtimeSinceStartup - _trailAt));
+
         /// <summary>Amber and the wardrobe from the last state (Rules.Wardrobe); SecondsLeft counts down from its arrival.</summary>
         public WardrobeDto Wardrobe { get; private set; }
         private float _wardrobeAt;
@@ -693,6 +698,24 @@ namespace Orsuun.Client.Net
         {
             string failure = null;
             yield return Post("/v1/wardrobe/wear", JsonUtility.ToJson(new WearRequest { requestId = NewRequestId(), pieceId = pieceId ?? "", kind = kind.ToString() }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Claims tier <paramref name="tier"/>'s ready rewards on both tracks (0: every reward ready, and last season's).</summary>
+        public IEnumerator TrailClaim(int tier, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/trail/claim", JsonUtility.ToJson(new TrailClaimRequest { requestId = NewRequestId(), tier = tier }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Buys this hero the Trail's paid track, or Trail Plus (ten tiers more), with the account's Amber.</summary>
+        public IEnumerator TrailBuy(bool plus, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/trail/buy", JsonUtility.ToJson(new TrailBuyRequest { requestId = NewRequestId(), plus = plus }), true,
                 json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
             done(failure);
         }
@@ -931,6 +954,11 @@ namespace Orsuun.Client.Net
         {
             DungeonRunsLeft = s.dungeonRunsLeft;
             DungeonRunAtSmith = s.dungeonRunAtSmith;
+            if (s.trail != null && s.trail.season > 0)
+            {
+                Trail = s.trail;
+                _trailAt = Time.realtimeSinceStartup;
+            }
             if (s.wardrobe != null && s.wardrobe.pieces != null)
             {
                 Wardrobe = s.wardrobe;
@@ -1108,12 +1136,15 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
         [Serializable] public class WearRequest { public string requestId; public string pieceId; public string kind; }
         [Serializable] public class AmberPackRequest { public string requestId; public int packId; }
+        [Serializable] public class TrailDto { public int season; public string name; public long secondsLeft; public long xp; public int tier; public int xpIntoTier; public int pass; public long freeClaimed; public long paidClaimed; public int owed; }
+        [Serializable] public class TrailClaimRequest { public string requestId; public int tier; }
+        [Serializable] public class TrailBuyRequest { public string requestId; public bool plus; }
         [Serializable] public class PitChallengerDto { public string id; public string name; public string tag; public int rating; public string league; public string @class; public string weapon; public int winChancePercent; public bool shade; }
         [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; }
         [Serializable] public class PitsDto { public int rating; public string league; public int wins; public int losses; public int laurels; public int ticketsLeft; public PitChallengerDto[] challengers; public PitBoardDto[] board; public string message; }

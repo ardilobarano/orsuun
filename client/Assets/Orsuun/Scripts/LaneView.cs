@@ -718,6 +718,7 @@ namespace Orsuun.Client
             ["TulGorak"] = (2, new Color(0.92f, 0.76f, 0.7f)),
             ["MirageVeil"] = (3, new Color(1f, 0.92f, 0.66f)),
             ["GreyjawPelt"] = (2, new Color(0.78f, 0.78f, 0.8f)),
+            ["AmberRoad"] = (4, new Color(0.8f, 0.95f, 0.95f)),
         };
 
         private static readonly Dictionary<string, (string Model, float Scale)> MountLooks = new Dictionary<string, (string, float)>
@@ -726,6 +727,7 @@ namespace Orsuun.Client
             ["HorseEmber"] = ("MountWarhorse", 0.88f),
             ["HorseGold"] = ("MountWarhorseGold", 0.9f),
             ["HorseHollow"] = ("MountWarhorseHollow", 0.92f),
+            ["HorseAmber"] = ("MountWarhorseAmber", 0.91f),
         };
 
         private static readonly Dictionary<string, (string Model, float Scale, bool Flies)> CompanionLooks = new Dictionary<string, (string, float, bool)>

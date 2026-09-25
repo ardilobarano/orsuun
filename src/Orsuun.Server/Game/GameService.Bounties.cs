@@ -44,7 +44,12 @@ public sealed partial class GameService
         int marks = p.Claim(bounty);
         account.HuntMarks += marks;
         account.Bounties = p.Serialize();
-        _db.Ledger.Add(Entry(account.Id, null, "bounty", $"id={bounty.Id} {bounty.Title} marks={marks}", 0, request.RequestId));
+        // The day's missions pay Campaign Trail XP (GDD section 3).
+        TrailProgress trail = RollTrail(account, out _);
+        int trailXp = CampaignTrail.BountyXp(bounty);
+        trail.AddXp(trailXp);
+        account.Trail = trail.Serialize();
+        _db.Ledger.Add(Entry(account.Id, null, "bounty", $"id={bounty.Id} {bounty.Title} marks={marks} trailXp={trailXp}", 0, request.RequestId));
         await SaveAsync(ct);
         return ToState(account);
     }
