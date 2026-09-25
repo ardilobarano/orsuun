@@ -39,6 +39,7 @@ namespace Orsuun.Client
         private GameObject _canvas;
         private Text _season;
         private Text _mine;
+        private Button _change;
         private RawImage _myFlag;
         private Text _message;
         private readonly Standing[] _standings = new Standing[3];
@@ -75,7 +76,9 @@ namespace Orsuun.Client
 
             Ui.Framed("MineBack", canvas, 0.04f, 0.658f, 0.96f, 0.71f, new Color(0.07f, 0.07f, 0.14f, 0.95f));
             _myFlag = BannerLook.FlagImage("MyFlag", canvas, 0.05f, 0.662f, 0.1f, 0.706f);
-            _mine = Ui.Label("Mine", canvas, 0.11f, 0.662f, 0.95f, 0.706f, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
+            _mine = Ui.Label("Mine", canvas, 0.11f, 0.662f, 0.77f, 0.706f, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
+            // A change of Banner (once a season, for Oathstones): the oath screen in its change mode.
+            _change = Ui.Button("ChangeBanner", canvas, 0.78f, 0.664f, 0.955f, 0.704f, "CHANGE", 20, Palette.Alloy, () => _root.Oath.OpenChange(), out _);
 
             // The three fortresses as tall tiles: the painting under a gold frame, the holder's flag, the wall under
             // siege, the damage each Banner has done, and ATTACK or DEFEND.
@@ -304,6 +307,7 @@ namespace Orsuun.Client
 
             Banner winner = BannerLook.Parse(war.lastWinner);
             BannerLook.Show(_myFlag, mine);
+            _change.gameObject.SetActive(mine != Banner.None);
             _mine.text = (mine == Banner.None ? "You have sworn to no Banner yet." : $"You ride for the {BannerLook.Name(mine)}  ·  hunting bonus +{war.mySornBonusPercent}% sorn")
                          + "\n" + (winner == Banner.None ? "Last season: no winner." : $"Last season's winner: the {BannerLook.Name(winner)} (+{Banners.WinnerBonusPercent}% sorn this season)");
 

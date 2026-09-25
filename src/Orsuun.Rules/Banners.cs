@@ -79,6 +79,24 @@ namespace Orsuun.Rules
         /// <summary>A season of the War of Banners: the bounty week in the playtest.</summary>
         public static string SeasonKey(DateTime local) => Bounties.WeekKey(local);
 
+        /// <summary>
+        /// Changing Banners (world bible: "a player can defect once per season at a cost"; owner, 25 Sep 2026): the
+        /// account's Banner changes once a season, paid with Oathstones (the Carvers' Archive) by the hero who swears anew.
+        /// Points already won stay with the Banner that won them.
+        /// </summary>
+        public const int ChangeOathstones = 5;
+
+        /// <summary>Why the Banner cannot change now, or null.</summary>
+        public static string? ChangeProblem(Banner current, Banner next, string? changedSeason, string season, int oathstones)
+        {
+            if (current == Banner.None) return "Swear to a Banner first.";
+            if (next == Banner.None) return "Choose one of the three Banners.";
+            if (next == current) return "You ride under that Banner already.";
+            if (changedSeason == season) return "The Banner changes once a season. Wait for the next one.";
+            if (oathstones < ChangeOathstones) return $"Changing Banners costs {ChangeOathstones} Oathstones (the Carvers' Archive).";
+            return null;
+        }
+
         /// <summary>The Banner with the most points, or None on a tie for first or an empty season.</summary>
         public static Banner Leader(long ember, long sky, long gold)
         {
@@ -204,6 +222,28 @@ namespace Orsuun.Rules
             int k = id - 201;
             if (k < 0 || k >= All.Length * 3) return null;
             return (All[k / 3], (SiegePhase)(k % 3));
+        }
+    }
+
+    /// <summary>
+    /// Oath Renewal (GDD section 12: "at level 105 a character may renew, returning to level 1 with a permanent +3%
+    /// attack and HP per renewal, up to 10"). The bonus is counted with the gear in HeroFactory on both sides; duels and
+    /// the Pits (GuildWar.Neutral) leave it out, like the wardrobe.
+    /// </summary>
+    public static class OathRenewal
+    {
+        public const int MaxRenewals = 10;
+        public const int PercentPerRenewal = 3;
+        public static int RequiredLevel => Content.MaxLevel;
+
+        public static int BonusPercent(int renewals) => PercentPerRenewal * Math.Max(0, Math.Min(MaxRenewals, renewals));
+
+        /// <summary>Why the hero cannot renew now, or null.</summary>
+        public static string? Problem(int level, int renewals)
+        {
+            if (renewals >= MaxRenewals) return $"Your oath is renewed {MaxRenewals} times: it holds for ever.";
+            if (level < RequiredLevel) return $"Oath Renewal opens at level {RequiredLevel}.";
+            return null;
         }
     }
 }

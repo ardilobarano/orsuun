@@ -592,6 +592,7 @@ public sealed partial class GameService
         account.HuntMarks += 20;
         account.EtchingNeedles += 5;
         account.MastersNeedles += 1;
+        account.Oathstones += Banners.ChangeOathstones;
         account.PinningWax += 2;
         account.Tallies += 100;
         int[] shards = ParseShards(account.Korshards);
@@ -706,7 +707,7 @@ public sealed partial class GameService
     }
 
     private static HeroStats Hero(Account a) =>
-        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class, WornPieces(a));
+        HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class, WornPieces(a), a.Renewals);
 
     private static int[] ParseShards(string s) => s.Split(';').Select(int.Parse).ToArray();
     private static string[] ParseSkins(string s) => s.Split(';', StringSplitOptions.RemoveEmptyEntries);
@@ -750,7 +751,7 @@ public sealed partial class GameService
             account.Id,
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
-                account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles),
+                account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles, account.Oathstones),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed && !i.OutOfBag).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -787,7 +788,8 @@ public sealed partial class GameService
             WardrobeOf(account),
             TrailOf(account),
             null,
-            account.DungeonRunAtSmith != 0 ? account.DungeonPausedId : 0);
+            account.DungeonRunAtSmith != 0 ? account.DungeonPausedId : 0,
+            Renewals: account.Renewals);
     }
 
     private static ItemDto ToDto(Item item)
@@ -807,7 +809,7 @@ public sealed partial class GameService
             Sorn = a.Sorn, Potions = a.Potions, Materials = a.Materials, ScrollsOfMercy = a.ScrollsOfMercy,
             KhansAlloys = a.KhansAlloys, AnvilWards = a.AnvilWards, Turnstones = a.Turnstones,
             EtchingNeedles = a.EtchingNeedles, SummoningMarkers = a.SummoningMarkers, Xp = a.Xp,
-            HuntMarks = a.HuntMarks, PinningWax = a.PinningWax, MastersNeedles = a.MastersNeedles,
+            HuntMarks = a.HuntMarks, PinningWax = a.PinningWax, MastersNeedles = a.MastersNeedles, Oathstones = a.Oathstones,
         };
         int[] shards = ParseShards(a.Korshards);
         Array.Copy(shards, inventory.Korshards, Math.Min(shards.Length, inventory.Korshards.Length));
@@ -833,7 +835,7 @@ public sealed partial class GameService
         a.Sorn = i.Sorn; a.Potions = i.Potions; a.Materials = i.Materials; a.ScrollsOfMercy = i.ScrollsOfMercy;
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
         a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;
-        a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax; a.MastersNeedles = i.MastersNeedles;
+        a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax; a.MastersNeedles = i.MastersNeedles; a.Oathstones = i.Oathstones;
         a.Korshards = string.Join(';', i.Korshards);
         a.Skins = string.Join(';', i.Skins);
 

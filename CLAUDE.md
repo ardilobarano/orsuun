@@ -117,8 +117,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   Google / Apple links). Show names with `NameOf(account)` / `ShownName(id, name)`, never `Banners.GeneratedName(id)`
   (older rows only). Items in the depot (`DepotLoginId`) are out of the bag: filter bag pieces with `Item.OutOfBag`.
   `/v1/auth/guest` without `lobby` keeps making a first character for older clients; online screenshots need `-autoselect`.
-- Wardrobe stats: HP and attack are in `HeroFactory.FromEquipment(..., worn)` on both sides (server `Hero(account)`,
-  client `PlayerSession.SetWorn` from the state), so loop replays match; a companion's XP/sorn is added only by the
+- Wardrobe stats and Oath Renewals: HP and attack are in `HeroFactory.FromEquipment(..., worn, renewals)` on both sides (server `Hero(account)`,
+  client `PlayerSession.SetWorn` / `SetRenewals` from the state), so loop replays match; a companion's XP/sorn is added only by the
   server's `Apply(..., hunt: true)`. Duels/Pits (`Duels.Neutral`) ignore the wardrobe. Amber packs are free only on a
   Development server (`/v1/caravan/amber` answers "store_closed" elsewhere) until store purchases are built.
 - The Campaign Trail (`Rules/Trail.cs`) is each character's; seasons run 8 weeks from Mon 21 Sep 2026 20:00 server

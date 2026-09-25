@@ -73,7 +73,7 @@ namespace Orsuun.Rules
             // World bible: a Sky Banner vault, a puzzle-light run, the main source of Master's Needles (Oathstones wait for
             // Oath Renewal, not built).
             new DungeonDef(3, "The Carvers' Archive", 5, smithFloor: 3, rushFloor: 0, unlockStage: 40, "The Last Carver",
-                "A Sky Banner vault in the mountains. On floor 3 a rune lock asks the riddle carved in its door: the right rune opens the vault, and the Last Carver's chest then holds a Master's Needle.",
+                "A Sky Banner vault in the mountains. On floor 3 a rune lock asks the riddle carved in its door: the right rune opens the vault, and the Last Carver's chest then holds a Master's Needle. His chest always holds an Oathstone (two with the vault open).",
                 DungeonPause.RuneLock),
         };
 
@@ -171,7 +171,8 @@ namespace Orsuun.Rules
 
         /// <summary>
         /// The Warden's chest, into the inventory; returns what it held. The Silkmother's always holds a Khan's Alloy; the
-        /// Last Carver's a Master's Needle when the rune lock was opened (<paramref name="vaultOpen"/>), rarely otherwise.
+        /// Last Carver's a Master's Needle when the rune lock was opened (<paramref name="vaultOpen"/>), rarely otherwise,
+        /// and an Oathstone (two with the vault open).
         /// </summary>
         public static string WardenChest(Inventory inventory, int level, IRandom rng, DungeonDef? dungeon = null, bool vaultOpen = false)
         {
@@ -191,6 +192,13 @@ namespace Orsuun.Rules
             {
                 inventory.MastersNeedles += 1;
                 text += ", a Master's Needle";
+            }
+            if (dungeon?.Pause == DungeonPause.RuneLock)
+            {
+                // World bible: the Archive is the main source of Oathstones; an opened vault holds a second one.
+                int oathstones = vaultOpen ? 2 : 1;
+                inventory.Oathstones += oathstones;
+                text += oathstones == 1 ? ", an Oathstone" : ", 2 Oathstones";
             }
             if (rng.NextInt(10) == 0)
             {

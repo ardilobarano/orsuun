@@ -201,8 +201,9 @@ namespace Orsuun.Client
             _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
             _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
-            // -friends opens FRIENDS once online (screenshots).
+            // -friends opens FRIENDS once online (screenshots); -oathchange the change of Banner.
             _openFriends = Array.IndexOf(cmd, "-friends") >= 0;
+            _openOathChange = Array.IndexOf(cmd, "-oathchange") >= 0;
             // Screenshots of the way in: -firstrun shows the sign-in screen, the oath and the character screen even with
             // -shot; "-firstrun guest" then plays as a guest, "-firstrun oath" also swears to the Sky Banner.
             _firstRun = Array.IndexOf(cmd, "-firstrun") >= 0 ? Arg("-firstrun") ?? "" : null;
@@ -285,6 +286,7 @@ namespace Orsuun.Client
         private bool _accountAsked;
         private string _firstRun;
         private bool _openFriends;
+        private bool _openOathChange;
         private bool _firstRunGuest;
         private bool _firstRunSworn;
         private bool _accountShown;
@@ -376,6 +378,11 @@ namespace Orsuun.Client
             {
                 _openFriends = false;
                 Friends.Open();
+            }
+            if (Server.Online && _openOathChange && Server.Banner != Rules.Banner.None)
+            {
+                _openOathChange = false;
+                Oath.OpenChange();
             }
             // Dev switch: -trade opens the trade window (screenshots).
             if (Server.Online && _openTrade && Server.Trail != null)

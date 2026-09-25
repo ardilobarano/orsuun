@@ -589,6 +589,24 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>Changes the account's Banner (once a season, Rules.Banners.ChangeOathstones from this hero).</summary>
+        public IEnumerator ChangeBanner(Banner banner, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/banner/change", JsonUtility.ToJson(new BannerChangeRequest { requestId = NewRequestId(), banner = banner.ToString() }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>Oath Renewal (Rules.OathRenewal): back to level 1 with a lasting bonus.</summary>
+        public IEnumerator Renew(Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/renew", JsonUtility.ToJson(new RenewRequest { requestId = NewRequestId() }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
         /// <summary>The oath to a Banner (once, for the whole account): at the character screen, or in the game for older accounts.</summary>
         public IEnumerator Swear(Banner banner, Action<string> done)
         {
@@ -1070,13 +1088,14 @@ namespace Orsuun.Client.Net
                 _wardrobeAt = Time.realtimeSinceStartup;
                 _player.SetWorn(WornPieces());
             }
+            _player.SetRenewals(s.renewals);
             var inventory = new Inventory
             {
                 Sorn = s.inventory.sorn, Potions = s.inventory.potions, Materials = s.inventory.materials,
                 ScrollsOfMercy = s.inventory.scrollsOfMercy, KhansAlloys = s.inventory.khansAlloys,
                 AnvilWards = s.inventory.anvilWards, Turnstones = s.inventory.turnstones,
                 EtchingNeedles = s.inventory.etchingNeedles, SummoningMarkers = s.inventory.summoningMarkers, Xp = s.inventory.xp,
-                HuntMarks = s.inventory.huntMarks, PinningWax = s.inventory.pinningWax, MastersNeedles = s.inventory.mastersNeedles,
+                HuntMarks = s.inventory.huntMarks, PinningWax = s.inventory.pinningWax, MastersNeedles = s.inventory.mastersNeedles, Oathstones = s.inventory.oathstones,
             };
             if (s.inventory.korshards != null) Array.Copy(s.inventory.korshards, inventory.Korshards, Math.Min(5, s.inventory.korshards.Length));
             if (s.inventory.skins != null) inventory.Skins.AddRange(s.inventory.skins);
@@ -1208,7 +1227,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
         [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
         [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }
-        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; }
+        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; public int oathstones; }
         [Serializable] public class BountyDto { public int id; public string title; public string period; public long count; public int target; public int marks; public bool claimed; }
         [Serializable] public class BountyBoardDto { public BountyDto[] items; public int dailyResetSeconds; public int weeklyResetSeconds; }
         [Serializable] public class ClaimBountyRequest { public string requestId; public int bountyId; }
@@ -1246,7 +1265,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
@@ -1257,6 +1276,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class TradeBriefDto { public long id; public string state; public bool incoming; public string otherName; }
         [Serializable] public class TradeDto { public long id; public string state; public bool incoming; public string otherName; public ItemDto[] myItems; public long mySorn; public string myStep; public ItemDto[] theirItems; public long theirSorn; public string theirStep; public int lockLeft; public int taxPercent; public bool rulesRelaxed; public string message; public StateDto hero; }
         [Serializable] public class TradeInviteRequest { public string requestId; public string name; public string accountId; }
+        [Serializable] public class BannerChangeRequest { public string requestId; public string banner; }
+        [Serializable] public class RenewRequest { public string requestId; }
         [Serializable] public class FriendDto { public string accountId; public string name; public string @class; public int level; public string banner; public string guildTag; public int minutesAway; }
         [Serializable] public class FriendsDto { public FriendDto[] friends; public FriendDto[] asking; public FriendDto[] asked; public int max; public bool canInvite; public string message; }
         [Serializable] public class FriendAddRequest { public string accountId; public string name; }

@@ -228,6 +228,8 @@ v1.MapPost("/shop/buy", (HttpContext ctx, ShopBuyRequest req, GameService game, 
 v1.MapPost("/etch", (HttpContext ctx, EtchRequest req, GameService game, CancellationToken ct) => game.EtchAsync(Me(ctx), req, ct));
 v1.MapPost("/pin", (HttpContext ctx, PinRequest req, GameService game, CancellationToken ct) => game.PinAsync(Me(ctx), req, ct));
 v1.MapPost("/banner", (HttpContext ctx, BannerRequest req, GameService game, CancellationToken ct) => game.SwearAsync(Me(ctx), req, ct));
+v1.MapPost("/banner/change", (HttpContext ctx, BannerChangeRequest req, GameService game, CancellationToken ct) => game.ChangeBannerAsync(Me(ctx), req, ct));
+v1.MapPost("/renew", (HttpContext ctx, RenewRequest req, GameService game, CancellationToken ct) => game.RenewAsync(Me(ctx), req, ct));
 v1.MapGet("/war", (HttpContext ctx, GameService game, CancellationToken ct) => game.WarAsync(Me(ctx), ct));
 v1.MapPost("/siege", (HttpContext ctx, SiegeRequest req, GameService game, CancellationToken ct) => game.SiegeAsync(Me(ctx), req, ct));
 v1.MapGet("/guild", (HttpContext ctx, string? q, GameService game, CancellationToken ct) => game.GuildAsync(Me(ctx), q, ct));
@@ -390,6 +392,7 @@ mod.MapGet("/log", (GameService game, CancellationToken ct) => game.AdminLogAsyn
 if (app.Environment.IsDevelopment())
 {
     v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
+    v1.MapPost("/dev/level", (HttpContext ctx, int level, GameService game, CancellationToken ct) => game.DevLevelAsync(Me(ctx), level, ct));
     v1.MapPost("/dev/trail", (HttpContext ctx, int? xp, bool? lastSeason, GameService game, CancellationToken ct) =>
         game.DevTrailAsync(Me(ctx), xp ?? 0, lastSeason ?? false, ct));
     v1.MapPost("/dev/stage", (HttpContext ctx, int cleared, GameService game, CancellationToken ct) => game.DevStageAsync(Me(ctx), cleared, ct));

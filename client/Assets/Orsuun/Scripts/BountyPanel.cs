@@ -137,7 +137,8 @@ namespace Orsuun.Client
         {
             if (_root == null || !_canvas.activeSelf) return;
             Inventory inv = _root.Session.Inventory;
-            _marks.text = $"{inv.HuntMarks} Hunt Marks  ·  {inv.EtchingNeedles} Needles  ·  {inv.PinningWax} Wax" + (inv.MastersNeedles > 0 ? $"  ·  {inv.MastersNeedles} Master's" : "");
+            _marks.text = $"{inv.HuntMarks} Hunt Marks  ·  {inv.EtchingNeedles} Needles  ·  {inv.PinningWax} Wax" + (inv.MastersNeedles > 0 ? $"  ·  {inv.MastersNeedles} Master's" : "")
+                          + (inv.Oathstones > 0 ? $"  ·  {inv.Oathstones} Oathstones" : "");
             var board = _root.Server.Bounties;
             int age = (int)(Time.realtimeSinceStartup - _root.Server.BountiesReceivedAt);
             _dailyTitle.text = board == null ? "DAILY" : "DAILY  ·  new bounties in " + Clock(board.dailyResetSeconds - age);

@@ -22,6 +22,8 @@ public sealed class Login
     public int AmberPurchases { get; set; }
     public Banner Banner { get; set; } = Banner.None;
     public DateTime? SwornUtc { get; set; }
+    /// <summary>The War season (Rules.Banners.SeasonKey) of the last change of Banner: one a season.</summary>
+    [MaxLength(16)] public string? BannerChangedSeason { get; set; }
 }
 
 public sealed class Account
@@ -52,6 +54,10 @@ public sealed class Account
     public int EtchingNeedles { get; set; }
     /// <summary>Master's Needles (the fifth etching), from the Carvers' Archive.</summary>
     public int MastersNeedles { get; set; }
+    /// <summary>Oathstones (the Carvers' Archive): a change of Banner costs Rules.Banners.ChangeOathstones.</summary>
+    public int Oathstones { get; set; }
+    /// <summary>Oath Renewals (Rules.OathRenewal): each +3% attack and HP, the level back to 1.</summary>
+    public int Renewals { get; set; }
     public int SummoningMarkers { get; set; }
     public int HuntMarks { get; set; }
     public int PinningWax { get; set; }

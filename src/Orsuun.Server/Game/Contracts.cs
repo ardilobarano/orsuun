@@ -61,7 +61,7 @@ public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChan
 
 public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
     int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0, int Tallies = 0,
-    int MastersNeedles = 0);
+    int MastersNeedles = 0, int Oathstones = 0);
 
 /// <summary>One bounty with this account's count toward it (the server counts; the client only shows).</summary>
 public sealed record BountyDto(int Id, string Title, BountyPeriod Period, long Count, int Target, int Marks, bool Claimed);
@@ -76,6 +76,10 @@ public sealed record EtchResultDto(bool Took, int ChanceBp, string Text);
 
 /// <summary>The oath: once, to one of the three Banners.</summary>
 public sealed record BannerRequest(Banner Banner);
+/// <summary>Changes the account's Banner (once a season, Rules.Banners.ChangeOathstones from this hero).</summary>
+public sealed record BannerChangeRequest(string RequestId, Banner Banner);
+/// <summary>Oath Renewal (Rules.OathRenewal): the hero back to level 1 for a lasting bonus.</summary>
+public sealed record RenewRequest(string RequestId);
 public sealed record BannerStandingDto(Banner Banner, string Name, long Points, int Fortresses);
 public sealed record FortressDto(int Id, string Name, string Region, Banner Holder, SiegePhase Phase, long Wall, long WallMax,
     long SiegeEmber, long SiegeSky, long SiegeGold, string LastEvent, string FlagGuild = "");
@@ -230,7 +234,8 @@ public sealed record StateDto(
     TradeBriefDto? Trade = null,
     int DungeonPausedId = 0,
     int FriendAsks = 0,
-    int GuildInvites = 0);
+    int GuildInvites = 0,
+    int Renewals = 0);
 
 /// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
 public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);

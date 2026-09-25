@@ -48,6 +48,7 @@ namespace Orsuun.Client
         private Text _name;
         private Text _info;
         private Text _stats;
+        private ConfirmDialog _confirm;
         private Text _compare;
         private Text _etchings;
         private Text _sockets;
@@ -86,6 +87,15 @@ namespace Orsuun.Client
             // The title sits left of the class switch, so its ribbon stays clear of it.
             Ui.Title("Title", canvas, 0.04f, 0.94f, 0.64f, 0.978f, "GEAR", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _hero = Ui.Label("Hero", canvas, 0.04f, 0.91f, 0.96f, 0.937f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
+            // Tap the hero line for Oath Renewal (GDD section 12): at level 105, back to level 1 for a lasting bonus.
+            _hero.supportRichText = true;
+            _hero.resizeTextForBestFit = true;
+            _hero.resizeTextMinSize = 16;
+            _hero.resizeTextMaxSize = 26;
+            _hero.raycastTarget = true;
+            _hero.gameObject.AddComponent<Button>().onClick.AddListener(AskRenew);
+            _confirm = new GameObject("GearConfirm").AddComponent<ConfirmDialog>();
+            _confirm.Init();
             Ui.Button("Class", canvas, 0.66f, 0.944f, 0.96f, 0.976f, "", 22, Palette.Alloy, SwitchClass, out _classLabel);
 
             // Worn: two rows of four.
@@ -261,7 +271,10 @@ namespace Orsuun.Client
             if (_root == null || !_canvas.activeSelf) return;
             PlayerSession session = _root.Session;
             HeroStats hero = session.Hero;
-            _hero.text = $"Level {session.Level}  ·  Attack {hero.Attack}  ·  Defense {hero.Defense}  ·  HP {hero.MaxHp}  ·  Crit {hero.CritChanceBp / 100}%";
+            string oath = session.Renewals > 0 ? $" (oath {session.Renewals}/{OathRenewal.MaxRenewals})" : "";
+            bool canRenew = _root.Server.Online && OathRenewal.Problem(session.Level, session.Renewals) == null;
+            _hero.text = $"Level {session.Level}{oath}  ·  Attack {hero.Attack}  ·  Defense {hero.Defense}  ·  HP {hero.MaxHp}  ·  Crit {hero.CritChanceBp / 100}%"
+                         + (canRenew ? "  ·  " + ConfirmDialog.Tint("RENEW YOUR OATH ›", Palette.Sorn) : "");
             ItemState selected = Selected();
             _classLabel.text = "CLASS: " + session.Class.ToString().ToUpperInvariant() + "  >";
 
@@ -327,7 +340,7 @@ namespace Orsuun.Client
             else
             {
                 IEnumerable<ItemState> swapped = session.Equipment.Where(e => e.Slot != item.Slot).Append(item);
-                string delta = Stats(HeroFactory.FromEquipment(swapped, session.Level), session.Hero, signed: true);
+                string delta = Stats(HeroFactory.FromEquipment(swapped, session.Level, session.Class, session.Worn, session.Renewals), session.Hero, signed: true);
                 _compare.text = "If worn:  " + (delta.Length == 0 ? ConfirmDialog.Tint("no change", Palette.Muted) : delta);
             }
 
@@ -370,6 +383,27 @@ namespace Orsuun.Client
             Add("Crit", (a.CritChanceBp - b.CritChanceBp) / 100, "%");
             if (!signed && parts.Count == 0) return ConfirmDialog.Tint("No stats", Palette.Muted);
             return string.Join("   ", parts);
+        }
+
+        /// <summary>Oath Renewal: what it does, and at level 105 the renewal itself (asked first).</summary>
+        private void AskRenew()
+        {
+            PlayerSession session = _root.Session;
+            string body = $"At level {OathRenewal.RequiredLevel} a hero may renew the oath: back to level 1, with +{OathRenewal.PercentPerRenewal}% attack and HP for good, "
+                          + $"up to {OathRenewal.MaxRenewals} times.\n\nYour oath: {session.Renewals}/{OathRenewal.MaxRenewals} renewals (+{OathRenewal.BonusPercent(session.Renewals)}% now).";
+            string problem = !_root.Server.Online ? "Offline: renewal needs the server." : OathRenewal.Problem(session.Level, session.Renewals);
+            if (problem != null)
+            {
+                _confirm.Show("Oath Renewal", body + "\n\n" + ConfirmDialog.Tint(problem, Palette.Muted), "OK", Palette.ButtonIdle, null);
+                return;
+            }
+            _confirm.Show("Renew your oath?", body + "\n\n" + ConfirmDialog.Tint("Your level goes back to 1. Your gear, sorn and stages stay.", Palette.Bad),
+                "RENEW", Palette.ButtonForge, () => StartCoroutine(_root.Server.Renew(error =>
+                {
+                    if (error != null) { _root.Hud.Log(error); return; }
+                    GameAudio.Instance?.Play("LaneLevelUp", 0.9f, 1f, 0f);
+                    _root.Hud.Log($"Your oath is renewed ({_root.Session.Renewals}/{OathRenewal.MaxRenewals}): +{OathRenewal.BonusPercent(_root.Session.Renewals)}% attack and HP.");
+                })));
         }
     }
 }

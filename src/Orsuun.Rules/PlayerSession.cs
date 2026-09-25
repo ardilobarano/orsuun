@@ -17,6 +17,8 @@ namespace Orsuun.Rules
         public int EtchingNeedles { get; set; }
         /// <summary>Adds the fifth etching (the Carvers' Archive's vault).</summary>
         public int MastersNeedles { get; set; }
+        /// <summary>A marker fragment that still holds a vow (the Carvers' Archive); pays for a change of Banner.</summary>
+        public int Oathstones { get; set; }
         public int SummoningMarkers { get; set; }
         /// <summary>Paid by bounties, spent in the Hunt Marks shop.</summary>
         public int HuntMarks { get; set; }
@@ -39,7 +41,7 @@ namespace Orsuun.Rules
             Sorn = other.Sorn; Potions = other.Potions; Materials = other.Materials; ScrollsOfMercy = other.ScrollsOfMercy;
             KhansAlloys = other.KhansAlloys; AnvilWards = other.AnvilWards; Turnstones = other.Turnstones;
             EtchingNeedles = other.EtchingNeedles; SummoningMarkers = other.SummoningMarkers; Xp = other.Xp;
-            MastersNeedles = other.MastersNeedles;
+            MastersNeedles = other.MastersNeedles; Oathstones = other.Oathstones;
             HuntMarks = other.HuntMarks; PinningWax = other.PinningWax;
             Array.Copy(other.Korshards, Korshards, Korshards.Length);
             Skins.Clear();
@@ -59,7 +61,9 @@ namespace Orsuun.Rules
         /// +2 attack and +40 HP so Hunting Grounds pay off in power, not only in sorn.
         /// </summary>
         /// <param name="worn">Wardrobe pieces worn with time left: a skin adds HP, a mount attack (after the class shape).</param>
-        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level, HeroClass cls = HeroClass.Vanguard, IEnumerable<WardrobeDef>? worn = null)
+        /// <param name="renewals">Oath Renewals: each adds OathRenewal.PercentPerRenewal to attack and HP.</param>
+        public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level, HeroClass cls = HeroClass.Vanguard, IEnumerable<WardrobeDef>? worn = null,
+            int renewals = 0)
         {
             long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
             int critBp = 500, critMult = 200, beast = 0, evasionBp = 0, haste = 0, warding = 0;
@@ -124,6 +128,8 @@ namespace Orsuun.Rules
             maxHp = maxHp * shape.HpPercent / 100;
             attack = attack * (100 + Wardrobe.Bonus(worn, WardrobePerk.Attack)) / 100;
             maxHp = maxHp * (100 + Wardrobe.Bonus(worn, WardrobePerk.Hp)) / 100;
+            attack = attack * (100 + OathRenewal.BonusPercent(renewals)) / 100;
+            maxHp = maxHp * (100 + OathRenewal.BonusPercent(renewals)) / 100;
             critBp += shape.CritBonusBp;
             int interval = shape.AttackIntervalTicks, weakPoint = shape.WeakPointPercent;
 
@@ -281,7 +287,17 @@ namespace Orsuun.Rules
         public bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
-        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class, _worn);
+        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class, _worn, Renewals);
+
+        /// <summary>Oath Renewals (online: from the server's state); a change rebuilds the hero like a change of gear.</summary>
+        public int Renewals { get; private set; }
+
+        public void SetRenewals(int renewals)
+        {
+            if (renewals == Renewals) return;
+            Renewals = renewals;
+            RefreshHero();
+        }
 
         private readonly List<WardrobeDef> _worn = new List<WardrobeDef>();
         /// <summary>The wardrobe pieces worn with time left (online: from the server's state).</summary>
