@@ -213,7 +213,7 @@ namespace Orsuun.Client.Net
                 yield break;
             }
             string name = result.provider == "apple" ? "Apple" : result.provider == "google" ? "Google" : "the test sign-in";
-            string message = result.switched ? $"Signed in with {name}. Welcome back." : $"Your hero is now saved with {name}.";
+            string message = result.switched ? $"Signed in with {name}. Welcome back." : $"Your account is now saved with {name}.";
             // This device now points at that hero (switched or not): log in again to load it.
             Restart();
             ExternalFinished?.Invoke(message, null);
@@ -230,6 +230,10 @@ namespace Orsuun.Client.Net
 
         /// <summary>At the character screen: signed in, no character chosen yet (CharacterPanel shows).</summary>
         public bool InLobby { get; private set; }
+        /// <summary>The server answers: a character is played (Online) or the character screen has loaded.</summary>
+        public bool Connected => Online || InLobby && Lobby != null;
+        /// <summary>Signing in or at the character screen: no hero is played yet (the game stays covered).</summary>
+        public bool WaitingForHero => !Online && (InLobby || Status == "connecting");
         /// <summary>The login's characters, Banner and Amber, from the last lobby call.</summary>
         public LobbyDto Lobby { get; private set; }
         private bool _chosen;
@@ -582,12 +586,15 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
-        /// <summary>The oath to a Banner (once).</summary>
+        /// <summary>The oath to a Banner (once, for the whole account): at the character screen, or in the game for older accounts.</summary>
         public IEnumerator Swear(Banner banner, Action<string> done)
         {
             string failure = null;
-            yield return Post("/v1/banner", JsonUtility.ToJson(new BannerRequest { banner = banner.ToString() }), true,
-                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            string body = JsonUtility.ToJson(new BannerRequest { banner = banner.ToString() });
+            if (InLobby)
+                yield return Post("/v1/lobby/banner", body, true, json => ApplyLobby(JsonUtility.FromJson<LobbyDto>(json)), error => failure = error ?? "No answer from the server.");
+            else
+                yield return Post("/v1/banner", body, true, json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
             done(failure);
         }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Characters smoke test (25 Sep 2026): a new device signs in with the character screen (lobby), makes two characters,
-# plays the first (Amber pack, a push for a drop, the oath), puts a piece in the depot, plays the second (the same
+# Characters smoke test (25 Sep 2026): a new device signs in with the character screen (lobby), swears the account's
+# oath there, makes two characters, plays the first (Amber pack, a push for a drop), puts a piece in the depot, plays the second (the same
 # Amber and Banner, takes the piece), then deletes the second by name and the account. Needs curl, jq.
 #   tools/smoke-characters.sh [http://localhost:5080]
 set -u
@@ -17,6 +17,8 @@ S=$(echo "$LOGIN" | jq -r .sessionToken)
 echo "sign in: $(echo "$LOGIN" | jq -c '{accountId, created, characters}')"
 echo "/me before a character: $(g "$S" /v1/me | jq -c .code)"
 echo "lobby: $(g "$S" /v1/lobby | jq -c "$L")"
+echo "oath at the character screen: $(p "$S" /v1/lobby/banner '{"banner":"Sky"}' | jq -c '{banner, message}')"
+echo "swear again: $(p "$S" /v1/lobby/banner '{"banner":"Gold"}' | jq -c .code)"
 echo "bad name: $(p "$S" /v1/lobby/create "$(j '{name:"No Spaces", heroClass:"Vanguard"}')" | jq -c .code)"
 A=$(p "$S" /v1/lobby/create "$(j --arg n "Arslan$TAG" '{name:$n, heroClass:"Vanguard"}')")
 echo "create Arslan$TAG: $(echo "$A" | jq -c "$L")"
@@ -24,9 +26,9 @@ echo "same name again: $(p "$S" /v1/lobby/create "$(j --arg n "ARSLAN$TAG" '{nam
 B=$(p "$S" /v1/lobby/create "$(j --arg n "Borte$TAG" '{name:$n, heroClass:"Kestrel", slot:3}')")
 echo "create Borte$TAG in slot 4: $(echo "$B" | jq -c "$L")"
 ID1=$(echo "$B" | jq -r '.characters[0].id'); ID2=$(echo "$B" | jq -r '.characters[1].id')
-echo "play the first: $(p "$S" /v1/lobby/select "$(j --arg c "$ID1" '{characterId:$c}')" | jq -c '{name, heroClass}')"
+echo "play the first: $(p "$S" /v1/lobby/select "$(j --arg c "$ID1" '{characterId:$c}')" | jq -c '{name, heroClass, banner}')"
 echo "Amber pack: $(p "$S" /v1/caravan/amber "$(j --arg r "$(rid)" '{requestId:$r, packId:2}')" | jq -c .wardrobe.amber)"
-echo "oath: $(p "$S" /v1/banner '{"banner":"Sky"}' | jq -c .banner)"
+echo "in-game oath after it: $(p "$S" /v1/banner '{"banner":"Ember"}' | jq -c .code)"
 for i in 1 2 3 4 5 6; do p "$S" /v1/push "$(j --arg r "$(rid)" '{requestId:$r}')" > /dev/null; done
 ITEM=$(g "$S" /v1/me | jq -r '[.items[] | select(.equipped | not)][0].id')
 echo "a drop in the bag: $ITEM"

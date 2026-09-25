@@ -107,6 +107,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - This Mac's locale writes decimals with a comma: parse and format numbers with `CultureInfo.InvariantCulture`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).
+- The way in (owner, 25 Sep 2026): title, sign-in screen (new install or signed out: `AccountPanel.FirstScreen`), the
+  account's Banner oath (`/v1/lobby/banner`), then the character screen, all driven from `GameRoot.LateUpdate`. The
+  character screen covers the lane while `ServerLink.WaitingForHero`: the game must never show before a hero is chosen.
 - Characters: `Account` is a character; `Login` is the player's account (email, password, Amber, Banner, devices,
   Google / Apple links). Show names with `NameOf(account)` / `ShownName(id, name)`, never `Banners.GeneratedName(id)`
   (older rows only). Items in the depot (`DepotLoginId`) are out of the bag: filter bag pieces with `Item.OutOfBag`.

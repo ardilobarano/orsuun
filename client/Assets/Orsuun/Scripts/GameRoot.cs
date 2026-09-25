@@ -198,6 +198,9 @@ namespace Orsuun.Client
             _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
             _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
+            // Screenshots of the way in: -firstrun shows the sign-in screen, the oath and the character screen even with
+            // -shot; "-firstrun guest" then plays as a guest, "-firstrun oath" also swears to the Sky Banner.
+            _firstRun = Array.IndexOf(cmd, "-firstrun") >= 0 ? Arg("-firstrun") ?? "" : null;
             // -dungeon enters the Hollow Spire once online; -smith opens the Chained Smith with a dummy run (screenshots).
             _enterDungeon = Array.IndexOf(Environment.GetCommandLineArgs(), "-dungeon") >= 0;
             // Dev switch: -dungeon [id] enters that dungeon (1 the Hollow Spire, 2 Silkmother's Warren, 3 the Carvers' Archive).
@@ -218,7 +221,7 @@ namespace Orsuun.Client
 
             // Dev switch: -shot <png> [-shotAfter seconds] saves the screen and quits (tools/screenshot-mac.sh).
             string shot = Arg("-shot");
-            if (shot != null) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), out float after) ? after : 8f));
+            if (shot != null) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float after) ? after : 8f));
         }
 
         /// <summary>Local-only demo bag: a spread of slots and rarities, some with etchings and levels.</summary>
@@ -268,36 +271,57 @@ namespace Orsuun.Client
         private bool _tutorialPending;
         private bool _oathAsked;
         private bool _accountAsked;
+        private string _firstRun;
+        private bool _firstRunGuest;
+        private bool _firstRunSworn;
         private bool _accountShown;
         private int _accountGeneration;
 
-        private void Update()
+        /// <summary>
+        /// The way in: title, sign-in screen, oath, character screen. Run after the coroutines of the frame (LateUpdate), so a
+        /// screen closed by a server answer is followed by the next one in the same frame, with no flash of the lane between.
+        /// </summary>
+        private void LateUpdate()
         {
-            // Another account on this device (sign in, sign out, deletion): its oath is asked afresh.
+            // Another account on this device (sign in, sign out, deletion): the sign-in screen and the oath are asked afresh.
             if (_accountGeneration != Server.AccountGeneration)
             {
                 _accountGeneration = Server.AccountGeneration;
                 _oathAsked = false;
+                _accountShown = false;
             }
-            bool shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") >= 0;
-            // A guest's first launch: sign up, sign in or play as guest, once the title screen is gone (-account forces it).
-            // Since characters (25 Sep 2026) this comes before the character screen: sign up or in first, then choose a hero.
-            if (!Title.Showing && (Server.Online || Server.InLobby && Server.Lobby != null) && !Account.Showing
-                && (_accountAsked ? !_accountShown : !AccountPanel.Chosen && !Server.Registered && !shot && !_accountShown))
+            bool shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") >= 0 && _firstRun == null;
+            // The way in (owner, 25 Sep 2026): a new install (or a phone signed out) starts at the sign-in screen, the
+            // oath follows for an account not yet sworn, then the character screen. -account forces the sign-in screen.
+            if (!Title.Waiting && Server.Connected && !Account.Showing && !_accountShown
+                && (_accountAsked || AccountPanel.FirstScreen(Server) && !shot))
             {
                 _accountShown = true;
                 Account.Open();
             }
-            // Online and not yet sworn: the oath comes next, once the title and account screens are gone.
-            if (!_oathAsked && !Title.Showing && !Account.Showing && Server.Online && Server.Banner == Rules.Banner.None && !shot)
+            if ((_firstRun == "guest" || _firstRun == "oath") && Account.Showing && !_firstRunGuest)
+            {
+                _firstRunGuest = true;
+                Account.PlayAsGuestForShot();
+            }
+            // Not yet sworn: the oath comes next, once the title and account screens are gone (at the character screen;
+            // in the game only for accounts sworn before that).
+            if (!_oathAsked && !Title.Waiting && !Account.Showing && Server.Connected && Server.Banner == Rules.Banner.None && !shot)
             {
                 _oathAsked = true;
                 Oath.Open();
             }
+            if (_firstRun == "oath" && Oath.Showing && !_firstRunSworn)
+            {
+                _firstRunSworn = true;
+                Oath.SwearForShot(Rules.Banner.Sky);
+            }
+            // The character screen (25 Sep 2026): after the title, the account screen and the oath, until a hero is chosen.
+            // It covers the game from the moment the title starts to fade, "Connecting..." until the server answers, so
+            // the lane never shows before a hero is chosen (owner, 25 Sep 2026).
+            Characters.SetVisible(Server.WaitingForHero && !Title.Waiting && !Account.Showing && !Oath.Showing);
             // The first session's guide starts once the title screen (and the oath) is gone; the notification
             // permission is asked then too, once.
-            // The character screen (25 Sep 2026): after the title and the account screen, until a hero is chosen.
-            Characters.SetVisible(Server.InLobby && !Title.Showing && !Account.Showing);
             if (_tutorialPending && !Title.Showing && !Account.Showing && !Oath.Showing && !Characters.IsOpen)
             {
                 Notifications.AskOnce();
@@ -306,6 +330,10 @@ namespace Orsuun.Client
                 Tutorial.Begin(int.TryParse(Arg("-tutorialStep"), out int step) ? step : 0);
             }
 
+        }
+
+        private void Update()
+        {
             if (Server.Online && Server.InGuild && (_openGuildWar || _duelLane >= 0))
             {
                 if (_openGuildWar) GuildWar.Open();

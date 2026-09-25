@@ -5,11 +5,12 @@ using UnityEngine.UI;
 namespace Orsuun.Client
 {
     /// <summary>
-    /// SIGN UP / SIGN IN (owner, 24 Sep 2026). Shown once after the title screen on a guest's first launch, and from
-    /// MENU (ACCOUNT). CONTINUE WITH APPLE / GOOGLE links the hero being played to that login, or switches this phone to
-    /// the hero already linked to it; CREATE ACCOUNT saves an email and password to the hero; SIGN IN switches this phone
-    /// to an account made elsewhere; PLAY AS GUEST carries on without one. Signed in, it shows how, links the other
-    /// provider, and signs out.
+    /// SIGN UP / SIGN IN (owner, 24 Sep 2026). The first screen of a new install, straight after the title (owner,
+    /// 25 Sep 2026: sign in or up, then the Banner, then the character screen), again after SIGN OUT, and from MENU or the
+    /// character screen (ACCOUNT). CONTINUE WITH APPLE / GOOGLE links this account to that login, or switches this phone
+    /// to the account already linked to it; CREATE ACCOUNT saves an email and password to the account; SIGN IN switches
+    /// this phone to an account made elsewhere; PLAY AS GUEST carries on without one. Signed in, it shows how, links the
+    /// other provider, and signs out.
     /// </summary>
     public sealed class AccountPanel : MonoBehaviour
     {
@@ -40,7 +41,8 @@ namespace Orsuun.Client
         private Button _google;
         private Button _linkApple;
         private Button _linkGoogle;
-        private Text _orLabel;
+        private Text _switchNote;
+        private Text _doneLabel;
 
         public bool Showing => _canvas != null && _canvas.activeSelf;
 
@@ -52,6 +54,16 @@ namespace Orsuun.Client
         private static void MarkChosen()
         {
             PlayerPrefs.SetInt(ChosenKey, 1);
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>Whether this screen is the way in: a phone that has not chosen yet (a new install, or signed out) with a guest account.</summary>
+        public static bool FirstScreen(Net.ServerLink server) => !Chosen && !server.Registered;
+
+        /// <summary>After SIGN OUT the phone starts over at this screen.</summary>
+        private static void ClearChosen()
+        {
+            PlayerPrefs.DeleteKey(ChosenKey);
             PlayerPrefs.Save();
         }
 
@@ -78,13 +90,11 @@ namespace Orsuun.Client
             _google = Ui.Button("Google", c, 0.15f, 0.51f, 0.85f, 0.57f, "CONTINUE WITH GOOGLE", 30, new Color(0.97f, 0.97f, 0.97f), () => External("google"), out Text googleLabel);
             googleLabel.color = new Color(0.15f, 0.15f, 0.18f);
             googleLabel.GetComponent<Shadow>().enabled = false;
-            _orLabel = Ui.Label("Or", c, 0.15f, 0.47f, 0.85f, 0.505f, "or with an email", 22, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Label("Or", c, 0.15f, 0.47f, 0.85f, 0.505f, "or with an email", 22, TextAnchor.MiddleCenter, Palette.Muted);
             Ui.Button("Create", c, 0.15f, 0.405f, 0.49f, 0.465f, "CREATE ACCOUNT", 24, Palette.ButtonForge, () => SetMode(Mode.Create), out _);
             Ui.Button("SignIn", c, 0.51f, 0.405f, 0.85f, 0.465f, "SIGN IN", 24, Palette.Safe, () => SetMode(Mode.SignIn), out _);
             Ui.Button("Guest", c, 0.15f, 0.32f, 0.85f, 0.38f, "PLAY AS GUEST", 28, Palette.ButtonIdle, PlayAsGuest, out _);
-            Ui.Label("Switch", c, 0.1f, 0.24f, 0.9f, 0.31f,
-                "If that Apple or Google login already has a hero, this phone switches to it. If not, it is linked to the hero you play now.",
-                20, TextAnchor.MiddleCenter, Palette.Muted);
+            _switchNote = Ui.Label("Switch", c, 0.1f, 0.24f, 0.9f, 0.31f, "", 20, TextAnchor.MiddleCenter, Palette.Muted);
 
             _form = Ui.Rect("Form", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform f = _form.transform;
@@ -107,7 +117,7 @@ namespace Orsuun.Client
             linkGoogleLabel.color = new Color(0.15f, 0.15f, 0.18f);
             linkGoogleLabel.GetComponent<Shadow>().enabled = false;
             Ui.Button("SignOut", s, 0.15f, 0.345f, 0.85f, 0.405f, "SIGN OUT", 30, Palette.Danger, AskSignOut, out _);
-            Ui.Button("Done", s, 0.15f, 0.265f, 0.85f, 0.325f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Close, out _);
+            Ui.Button("Done", s, 0.15f, 0.265f, 0.85f, 0.325f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Close, out _doneLabel);
 
             _message = Ui.Label("Message", canvas, 0.08f, 0.1f, 0.92f, 0.17f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
@@ -130,7 +140,13 @@ namespace Orsuun.Client
         private void External(string provider)
         {
             if (_busy) return;
-            if (!_root.Server.Online) { Say("Offline: accounts need the server."); return; }
+            if (!_root.Server.Connected) { Say("Offline: accounts need the server."); return; }
+            if (!Offered(provider))
+            {
+                Say(provider == "apple" ? "Sign in with Apple opens once the game's App Store account is set up. Use Google or an email for now."
+                    : "Sign in with Google is not set up on this server yet. Use an email for now.", Palette.Muted);
+                return;
+            }
             string actual = provider == "google" && DevAuth && !Has("google") ? "dev" : provider;
             _busy = true;
             Say("Finish signing in on the page that opens...", Palette.Muted);
@@ -157,9 +173,10 @@ namespace Orsuun.Client
         private void Update()
         {
             if (!_canvas.activeSelf) return;
-            _apple.gameObject.SetActive(Offered("apple"));
-            _google.gameObject.SetActive(Offered("google"));
-            _orLabel.gameObject.SetActive(Offered("apple") || Offered("google"));
+            // The first screen always shows both (owner, 25 Sep 2026: "login sign up screen with google apple etc"); one
+            // not set up yet says so when tapped.
+            _apple.gameObject.SetActive(true);
+            _google.gameObject.SetActive(true);
             _linkApple.gameObject.SetActive(Offered("apple") && !Linked("apple"));
             _linkGoogle.gameObject.SetActive(Offered("google") && !Linked("google"));
             _apple.interactable = _google.interactable = !_busy;
@@ -187,18 +204,24 @@ namespace Orsuun.Client
             switch (mode)
             {
                 case Mode.Choose:
-                    _heading.text = "Keep your hero safe";
-                    _lead.text = "A guest hero lives only on this phone. With an account you can play it on any phone, and get it back if this one is lost.";
+                    // At the character screen (a new install, or after SIGN OUT) this is the way in; in the game, a guest's
+                    // way to keep the account.
+                    bool gate = _root.Server.InLobby;
+                    _heading.text = gate ? "Sign in or sign up" : "Keep your heroes safe";
+                    _lead.text = gate ? "Your account keeps up to four heroes, your Banner and your Amber, on any phone."
+                        : "A guest account lives only on this phone. With an account you can play your heroes on any phone, and get them back if this one is lost.";
+                    _switchNote.text = gate ? "If that Apple or Google login already has an account, this phone switches to it. If not, it signs you up."
+                        : "If that Apple or Google login already has an account, this phone switches to it. If not, it is linked to the account you play now.";
                     break;
                 case Mode.Create:
                     _heading.text = "Create an account";
-                    _lead.text = "Your email and a password are saved to the hero you are playing now. Nothing is lost.";
+                    _lead.text = "Your email and a password are saved to this account: sign in with them on any phone. Nothing is lost.";
                     _submitLabel.text = "CREATE ACCOUNT";
                     _switchLabel.text = "I already have an account";
                     break;
                 case Mode.SignIn:
                     _heading.text = "Sign in";
-                    _lead.text = "This phone switches to the hero saved with that email.";
+                    _lead.text = "This phone switches to the account saved with that email.";
                     _submitLabel.text = "SIGN IN";
                     _switchLabel.text = "I need a new account";
                     break;
@@ -208,8 +231,9 @@ namespace Orsuun.Client
                     if (Linked("apple")) ways.Add("Apple");
                     if (Linked("google")) ways.Add("Google");
                     if (!string.IsNullOrEmpty(_root.Server.Email)) ways.Add(_root.Server.Email);
-                    _lead.text = "This hero is saved. Sign in with it on any phone.";
+                    _lead.text = "This account and its heroes are saved. Sign in with it on any phone.";
                     _who.text = "Saved with " + string.Join(" and ", ways);
+                    _doneLabel.text = _root.Server.InLobby ? "BACK TO THE HEROES" : "BACK TO THE HUNT";
                     break;
             }
         }
@@ -220,6 +244,9 @@ namespace Orsuun.Client
             else SetMode(Mode.Choose);
         }
 
+        /// <summary>Screenshots of the way in (-firstrun guest).</summary>
+        public void PlayAsGuestForShot() => PlayAsGuest();
+
         private void PlayAsGuest()
         {
             MarkChosen();
@@ -229,30 +256,32 @@ namespace Orsuun.Client
         /// <summary>Whether the guest on this phone has anything that signing in elsewhere would leave behind.</summary>
         private bool GuestHasProgress()
         {
+            if (_root.Server.Registered) return false;
+            if (_root.Server.InLobby) return _root.Server.Lobby?.characters != null && _root.Server.Lobby.characters.Length > 0;
             Inventory inv = _root.Session.Inventory;
-            return !_root.Server.Registered && (inv.Level > 1 || _root.Session.HighestStageCleared > 0 || inv.Loot.Count > 0);
+            return inv.Level > 1 || _root.Session.HighestStageCleared > 0 || inv.Loot.Count > 0;
         }
 
         private void Submit()
         {
             if (_busy) return;
-            if (!_root.Server.Online) { Say("Offline: accounts need the server."); return; }
+            if (!_root.Server.Connected) { Say("Offline: accounts need the server."); return; }
             string email = AccountRules.NormaliseEmail(_email.text);
             if (AccountRules.EmailProblem(email) is string emailProblem) { Say(emailProblem); return; }
             if (_mode == Mode.Create)
             {
                 if (AccountRules.PasswordProblem(_password.text) is string passwordProblem) { Say(passwordProblem); return; }
                 if (_password.text != _repeat.text) { Say("The two passwords differ."); return; }
-                Run(_root.Server.Register(email, _password.text, Done("Account created. Your hero is safe.", newHero: false)));
+                Run(_root.Server.Register(email, _password.text, Done("Account created. Your heroes are safe.", newHero: false)));
                 return;
             }
             if (string.IsNullOrEmpty(_password.text)) { Say("Enter your password."); return; }
             string password = _password.text;
             if (GuestHasProgress())
             {
-                _confirm.Show("Leave this guest hero?",
-                    "Signing in switches this phone to your account. The guest hero you are playing now has no account and cannot be reached again.\n\n"
-                    + ConfirmDialog.Tint("To keep it, create an account for it first.", Palette.Bad),
+                _confirm.Show("Leave this guest account?",
+                    "Signing in switches this phone to your account. The guest heroes on this phone have no account and cannot be reached again.\n\n"
+                    + ConfirmDialog.Tint("To keep them, create an account for them first.", Palette.Bad),
                     "SIGN IN", Palette.Danger, () => Run(_root.Server.SignIn(email, password, Done("Signed in. Welcome back.", newHero: false))));
                 return;
             }
@@ -261,8 +290,8 @@ namespace Orsuun.Client
 
         private void AskSignOut()
         {
-            _confirm.Show("Sign out?", "This phone starts over with a new guest hero. Your account stays safe: sign in again with your email.",
-                "SIGN OUT", Palette.Danger, () => Run(_root.Server.SignOut(Done("Signed out. A new hunt begins.", newHero: true))));
+            _confirm.Show("Sign out?", "This phone goes back to the sign-in screen. Your account stays safe: sign in again with it.",
+                "SIGN OUT", Palette.Danger, () => Run(_root.Server.SignOut(Done("Signed out.", newHero: true))));
         }
 
         private void Run(System.Collections.IEnumerator call)
@@ -273,14 +302,18 @@ namespace Orsuun.Client
             StartCoroutine(call);
         }
 
-        /// <summary>newHero: a brand-new guest follows (sign out), so the first-session guide runs again.</summary>
+        /// <summary>newHero: a brand-new guest follows (sign out): the sign-in screen and the first-session guide come again.</summary>
         private System.Action<string> Done(string success, bool newHero) => error =>
         {
             _busy = false;
             _submit.interactable = true;
             if (error != null) { Say(error); return; }
-            MarkChosen();
-            if (newHero) Tutorial.Reset();
+            if (newHero)
+            {
+                ClearChosen();
+                Tutorial.Reset();
+            }
+            else MarkChosen();
             _root.Hud.Log(success);
             Close();
         };

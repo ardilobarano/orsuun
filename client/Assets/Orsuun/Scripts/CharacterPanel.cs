@@ -248,7 +248,8 @@ namespace Orsuun.Client
                 _stage.Show(null, 0, 0, null);
                 _name.text = lobby == null ? "" : "AN EMPTY SLOT";
                 _line.text = lobby == null ? "" : $"{(lobby.characters?.Length ?? 0)} of {lobby.maxSlots} heroes";
-                _detail.text = "Amber and the Banner are shared by the account's heroes; so is the depot.";
+                _detail.text = (server.Banner == Banner.None ? "" : "Sworn to the " + Banners.Def(server.Banner).Name + ". ")
+                               + "Amber and the Banner are shared by the account's heroes; so is the depot.";
                 _start.gameObject.SetActive(false);
                 _delete.gameObject.SetActive(false);
                 _create.gameObject.SetActive(lobby != null);

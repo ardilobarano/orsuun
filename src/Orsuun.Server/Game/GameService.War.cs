@@ -37,6 +37,28 @@ public sealed partial class GameService
         return ToState(account);
     }
 
+    /// <summary>
+    /// The oath at the character screen (owner, 25 Sep 2026: sign up, then the Banner, then the heroes): the login's
+    /// Banner, for every character it has and makes. Locks the login row, so two phones cannot swear it twice.
+    /// </summary>
+    public async Task<LobbyDto> SwearLoginAsync(Login login, BannerRequest request, CancellationToken ct)
+    {
+        if (request.Banner == Banner.None || !Enum.IsDefined(request.Banner)) throw new GameException("bad_banner", "Choose one of the three Banners.");
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        Login locked = await LockLoginAsync(ct);
+        if (locked.Banner != Banner.None) throw new GameException("sworn", "You are already sworn to the " + Banners.Def(locked.Banner).Name + ".");
+        DateTime now = DateTime.UtcNow;
+        locked.Banner = request.Banner;
+        locked.SwornUtc = now;
+        await _db.Accounts.Where(a => a.LoginId == locked.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.Banner, request.Banner).SetProperty(a => a.SwornUtc, now), ct);
+        Guid? first = await _db.Accounts.Where(a => a.LoginId == locked.Id).OrderBy(a => a.Slot).Select(a => (Guid?)a.Id).FirstOrDefaultAsync(ct);
+        if (first is Guid id) _db.Ledger.Add(Entry(id, null, "oath", request.Banner.ToString(), 0, Guid.NewGuid().ToString("N")));
+        await _db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+        return await LobbyAsync(locked, "You swore to the " + Banners.Def(request.Banner).Name + ".", ct);
+    }
+
     private string Season(int weeksBack = 0) => Banners.SeasonKey(_bells.LocalNow.AddDays(-7 * weeksBack));
 
     /// <summary>Adds War of Banners points to a Banner's season total (an upsert, safe under concurrent fights).</summary>

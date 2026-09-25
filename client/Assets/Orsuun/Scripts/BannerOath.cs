@@ -6,7 +6,9 @@ namespace Orsuun.Client
 {
     /// <summary>
     /// The oath (world bible: "a new character swears to one Banner"): the three flags side by side with their creed and
-    /// culture. Tap one, then SWEAR. Shown once, online, after the title screen and before the first-session guide.
+    /// culture. Tap one, then SWEAR. The Banner is the account's (every hero rides under it): a new account swears at the
+    /// character screen, after signing in or up and before its first hero (owner, 25 Sep 2026); an older account not yet
+    /// sworn is asked in the game.
     /// </summary>
     public sealed class BannerOath : MonoBehaviour
     {
@@ -55,7 +57,7 @@ namespace Orsuun.Client
 
             _choice = Ui.Label("Choice", canvas, 0.05f, 0.21f, 0.95f, 0.27f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
             _swear = Ui.Button("Swear", canvas, 0.2f, 0.12f, 0.8f, 0.2f, "SWEAR THE OATH", 36, Palette.ButtonForge, Swear, out _);
-            _status = Ui.Label("Status", canvas, 0.05f, 0.05f, 0.95f, 0.11f, "The oath holds for the season.", 22, TextAnchor.MiddleCenter, Palette.Muted);
+            _status = Ui.Label("Status", canvas, 0.05f, 0.05f, 0.95f, 0.11f, "Every hero of your account rides under it. The oath holds for the season.", 22, TextAnchor.MiddleCenter, Palette.Muted);
             _canvas.SetActive(false);
         }
 
@@ -63,6 +65,13 @@ namespace Orsuun.Client
         {
             _picked = Banner.None;
             _canvas.SetActive(true);
+        }
+
+        /// <summary>Screenshots of the way in (-firstrun oath).</summary>
+        public void SwearForShot(Banner banner)
+        {
+            _picked = banner;
+            Swear();
         }
 
         private void Swear()

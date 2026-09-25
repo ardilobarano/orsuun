@@ -167,7 +167,8 @@ lobby.MapPost("/select", async (HttpContext ctx, CharacterRequest req, GameServi
     StateDto state = await game.SelectCharacterAsync(MyLogin(ctx), (Device)ctx.Items["device"]!, req, ct);
     return state;
 });
-lobby.MapPost("/delete", (HttpContext ctx, CharacterRequest req, GameService game, CancellationToken ct) => game.DeleteCharacterAsync(MyLogin(ctx), req, ct));
+lobby.MapPost("/banner", (HttpContext ctx, BannerRequest req, GameService game, CancellationToken ct) => game.SwearLoginAsync(MyLogin(ctx), req, ct));
+lobby.MapPost("/delete",(HttpContext ctx, CharacterRequest req, GameService game, CancellationToken ct) => game.DeleteCharacterAsync(MyLogin(ctx), req, ct));
 lobby.MapPost("/signout", async (HttpContext ctx, GameService game, CancellationToken ct) =>
 {
     await game.SignOutAsync(ctx.Request.Headers["X-Session"], ct);
