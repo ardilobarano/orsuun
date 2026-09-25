@@ -2,6 +2,7 @@
 # Banner change and Oath Renewal smoke test (25 Sep 2026; needs a Development server for the dev grant and level). A fresh
 # hero swears to the Ember Banner, cannot change without Oathstones, changes to Sky with the grant's five, cannot change
 # twice a season; cannot renew below level 105, renews at 105 (level 1, +3% attack and HP), and is deleted. Needs curl, jq.
+# It leaves two system lines in world chat (the change and the renewal): delete them after a run on the playtest server.
 #   tools/smoke-oaths.sh [http://localhost:5080]
 set -u
 BASE="${1:-http://localhost:5080}"
