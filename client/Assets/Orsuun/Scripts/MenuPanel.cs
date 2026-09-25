@@ -35,7 +35,12 @@ namespace Orsuun.Client
             Ui.Title("Title", canvas, 0.05f, 0.84f, 0.95f, 0.91f, "MENU", 60, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Trim("Rule", canvas, 0.25f, 0.835f, 0.75f, 0.838f);
 
-            Ui.Button("Characters", canvas, 0.15f, 0.83f, 0.85f, 0.89f, "CHARACTERS", 32, Palette.Alloy, () =>
+            Ui.Button("Friends", canvas, 0.51f, 0.83f, 0.85f, 0.89f, "FRIENDS", 30, Palette.Safe, () =>
+            {
+                Close();
+                _root.Friends.Open();
+            }, out _);
+            Ui.Button("Characters", canvas, 0.15f, 0.83f, 0.49f, 0.89f, "CHARACTERS", 30, Palette.Alloy, () =>
             {
                 if (!_root.Server.Online) return;
                 Close();

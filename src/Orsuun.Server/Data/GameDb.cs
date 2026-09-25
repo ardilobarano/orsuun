@@ -18,6 +18,8 @@ public sealed class GameDb : DbContext
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<ChatReport> ChatReports => Set<ChatReport>();
     public DbSet<GuildRequest> GuildRequests => Set<GuildRequest>();
+    public DbSet<GuildInvite> GuildInvites => Set<GuildInvite>();
+    public DbSet<Friendship> Friendships => Set<Friendship>();
     public DbSet<MarketListing> MarketListings => Set<MarketListing>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<AdminAction> AdminActions => Set<AdminAction>();
@@ -95,6 +97,18 @@ public sealed class GameDb : DbContext
         {
             e.HasIndex(r => new { r.GuildId, r.AccountId }).IsUnique();
             e.HasIndex(r => r.AccountId);
+        });
+
+        b.Entity<GuildInvite>(e =>
+        {
+            e.HasIndex(r => new { r.GuildId, r.AccountId }).IsUnique();
+            e.HasIndex(r => r.AccountId);
+        });
+
+        b.Entity<Friendship>(e =>
+        {
+            e.HasIndex(f => new { f.FromId, f.ToId }).IsUnique();
+            e.HasIndex(f => f.ToId);
         });
         b.Entity<MarketListing>(e =>
         {

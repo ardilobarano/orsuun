@@ -242,6 +242,7 @@ public sealed partial class GameService
             .SetProperty(a => a.GuildId, (Guid?)null).SetProperty(a => a.GuildRank, GuildRank.Member)
             .SetProperty(a => a.GuildJoinedUtc, (DateTime?)null).SetProperty(a => a.GuildDonated, 0L), ct);
         await _db.GuildRequests.Where(r => r.GuildId == id).ExecuteDeleteAsync(ct);
+        await _db.GuildInvites.Where(r => r.GuildId == id).ExecuteDeleteAsync(ct);
         string channel = Chat.GuildChannel(id);
         await _db.ChatMessages.Where(m => m.Channel == channel).ExecuteDeleteAsync(ct);
         await _db.Fortresses.Where(f => f.FlagGuildId == id).ExecuteUpdateAsync(s => s.SetProperty(f => f.FlagGuildId, (Guid?)null), ct);

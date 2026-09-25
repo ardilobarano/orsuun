@@ -59,6 +59,13 @@ namespace Orsuun.Rules
         public const int MaxOfficers = 4;
         /// <summary>Guilds with shut gates one player may ask to join at once.</summary>
         public const int MaxRequests = 5;
+        /// <summary>
+        /// Guild invites (owner, 25 Sep 2026: "guild invite from chat"): the leader or an officer invites a player by name,
+        /// from chat or from the friend list; the invite lets them in even when the gates are shut. A guild holds at most
+        /// this many unanswered invites; an invite lapses after InviteDays.
+        /// </summary>
+        public const int MaxInvites = 20;
+        public const int InviteDays = 3;
         /// <summary>A guild's members hunt with this much more sorn for each fortress flying the guild's flag.</summary>
         public const int FlagBonusPercent = 2;
         /// <summary>GDD: the guild of a Commander's rank 1 gets 50 Guild Tallies (paid to that fighter) and XP.</summary>

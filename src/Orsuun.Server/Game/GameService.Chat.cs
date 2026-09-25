@@ -105,6 +105,9 @@ public sealed partial class GameService
             {
                 if (blocked.Count >= Chat.MaxBlocked) throw new GameException("block_full", $"You can block at most {Chat.MaxBlocked} players.");
                 blocked.Add(request.AccountId);
+                // Blocking a friend (or one asking) ends it.
+                await _db.Friendships.Where(f => (f.FromId == account.Id && f.ToId == request.AccountId) || (f.FromId == request.AccountId && f.ToId == account.Id))
+                    .ExecuteDeleteAsync(ct);
             }
         }
         else if (request.AccountId == Guid.Empty) blocked.Clear();

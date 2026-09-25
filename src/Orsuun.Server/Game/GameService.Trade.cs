@@ -91,9 +91,7 @@ public sealed partial class GameService
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         if (await TradeProblemAsync(account.Id, relaxed, ct) is string mine) throw new GameException("trade_rules", mine);
-        string key = Characters.NameKey(request.Name ?? "");
-        var other = await _db.Accounts.AsNoTracking().Where(a => a.NameKey == key && key != "").Select(a => new { a.Id, a.LoginId }).FirstOrDefaultAsync(ct)
-            ?? throw new GameException("no_hero", "No hero goes by that name.");
+        HeroRef other = await FindHeroAsync(request.AccountId ?? Guid.Empty, request.Name, ct);
         if (other.Id == account.Id) throw new GameException("self", "You cannot trade with yourself.");
         if (other.LoginId == account.LoginId) throw new GameException("own_hero", "Your own heroes share the depot: use DEPOT in GEAR.");
         if (await TradeProblemAsync(other.Id, relaxed, ct) is string theirs)

@@ -107,6 +107,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - This Mac's locale writes decimals with a comma: parse and format numbers with `CultureInfo.InvariantCulture`.
 - Enemies are rigged (`art/blender/mobrig.py`); a new mob goes through `looks.mob_model(..., rig=plan)` or it will have
   no clips (LaneView then falls back to the old procedural bob and keel-over).
+- Friends (`Friendships`, one row per pair: asked by From, `Accepted` once taken) and guild invites (`GuildInvites`) are
+  each hero's; code that deletes a hero or disbands a guild removes them, and blocking removes a friendship. Requests
+  that name another hero send an id or, with `ServerLink.NoId`, a name (`FindHeroAsync`).
 - The way in (owner, 25 Sep 2026): title, sign-in screen (new install or signed out: `AccountPanel.FirstScreen`), the
   account's Banner oath (`/v1/lobby/banner`), then the character screen, all driven from `GameRoot.LateUpdate`. The
   character screen covers the lane while `ServerLink.WaitingForHero`: the game must never show before a hero is chosen.

@@ -452,6 +452,26 @@ public sealed class GuildRequest
     public DateTime Utc { get; set; }
 }
 
+/// <summary>A guild's invitation to a player (Rules.Guilds.MaxInvites): taking it lets them in through shut gates.</summary>
+public sealed class GuildInvite
+{
+    public long Id { get; set; }
+    public Guid GuildId { get; set; }
+    public Guid AccountId { get; set; }
+    public Guid InviterId { get; set; }
+    public DateTime Utc { get; set; }
+}
+
+/// <summary>Two heroes' friendship (Rules.Friends): asked by From, waiting until To takes it (Accepted).</summary>
+public sealed class Friendship
+{
+    public long Id { get; set; }
+    public Guid FromId { get; set; }
+    public Guid ToId { get; set; }
+    public bool Accepted { get; set; }
+    public DateTime Utc { get; set; }
+}
+
 /// <summary>A piece on the Salt Exchange. The item row keeps its owner (the seller) with Listed set until it closes.</summary>
 public sealed class MarketListing
 {

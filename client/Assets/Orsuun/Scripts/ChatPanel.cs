@@ -9,8 +9,9 @@ namespace Orsuun.Client
 {
     /// <summary>
     /// CHAT: the world channel and the guild channel (whose system lines are the guild log). Polls the world channel
-    /// all the time for the lane's ticker, and the open channel quickly while the screen is up. Tap someone's line to
-    /// report it or block them.
+    /// all the time for the lane's ticker, and the open channel quickly while the screen is up. Tap someone's line to add
+    /// them as a friend, ask them to trade, invite them to your guild (leader or officer; owner, 25 Sep 2026: "sending
+    /// trade invite, guild invite from chat also add adding friends"), report the line or block them.
     /// </summary>
     public sealed class ChatPanel : MonoBehaviour
     {
@@ -73,6 +74,8 @@ namespace Orsuun.Client
         private GameObject _actions;
         private Text _actionsTitle;
         private ChatLineDto _picked;
+        private Button _inviteButton;
+        private bool _pickForShot = Array.IndexOf(Environment.GetCommandLineArgs(), "-chatpick") >= 0;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -100,16 +103,20 @@ namespace Orsuun.Client
             Button unblock = _blocked.gameObject.AddComponent<Button>();
             _blocked.raycastTarget = true;
             unblock.onClick.AddListener(AskUnblockAll);
-            Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
+            Ui.Button("Friends", canvas, 0.04f, 0.015f, 0.3f, 0.075f, "FRIENDS", 26, Palette.Safe, () => { Close(); _root.Friends.Open(); }, out _);
+            Ui.Button("Close", canvas, 0.32f, 0.015f, 0.96f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
 
             _actions = Ui.Rect("Actions", canvas, 0f, 0f, 1f, 1f).gameObject;
             Image dim = Ui.Panel("Dim", _actions.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f));
             dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _actions.SetActive(false));
-            Transform box = Ui.Framed("Box", _actions.transform, 0.1f, 0.4f, 0.9f, 0.6f, Palette.PanelDark).transform;
-            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.7f, 0.95f, 0.95f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
-            Ui.Button("Report", box, 0.06f, 0.38f, 0.48f, 0.64f, "REPORT", 26, Palette.Danger, ReportPicked, out _);
-            Ui.Button("Block", box, 0.52f, 0.38f, 0.94f, 0.64f, "BLOCK", 26, Palette.ButtonIdle, AskBlockPicked, out _);
-            Ui.Button("Cancel", box, 0.3f, 0.06f, 0.7f, 0.3f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
+            Transform box = Ui.Framed("Box", _actions.transform, 0.1f, 0.33f, 0.9f, 0.67f, Palette.PanelDark).transform;
+            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.82f, 0.95f, 0.97f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
+            Ui.Button("Friend", box, 0.06f, 0.63f, 0.48f, 0.79f, "ADD FRIEND", 24, Palette.Safe, AddFriendPicked, out _);
+            Ui.Button("Trade", box, 0.52f, 0.63f, 0.94f, 0.79f, "TRADE", 24, Palette.Alloy, TradePicked, out _);
+            _inviteButton = Ui.Button("Invite", box, 0.06f, 0.45f, 0.94f, 0.61f, "INVITE TO MY GUILD", 24, Palette.ButtonForge, InvitePicked, out _);
+            Ui.Button("Report", box, 0.06f, 0.25f, 0.48f, 0.41f, "REPORT", 24, Palette.Danger, ReportPicked, out _);
+            Ui.Button("Block", box, 0.52f, 0.25f, 0.94f, 0.41f, "BLOCK", 24, Palette.ButtonIdle, AskBlockPicked, out _);
+            Ui.Button("Cancel", box, 0.3f, 0.05f, 0.7f, 0.19f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
             _actions.SetActive(false);
 
             _canvas.SetActive(false);
@@ -177,7 +184,42 @@ namespace Orsuun.Client
             if (line.system || line.mine) return;
             _picked = line;
             _actionsTitle.text = line.name;
+            // Guild invites are the leader's and officers' (a member of a guild shows its tag before the name).
+            string rank = _root.Server.Guild?.rank;
+            bool manager = System.Enum.TryParse(rank, out GuildRank r) && Guilds.CanManage(r);
+            _inviteButton.gameObject.SetActive(manager);
             _actions.SetActive(true);
+        }
+
+        private void AddFriendPicked()
+        {
+            ChatLineDto line = _picked;
+            _actions.SetActive(false);
+            if (line == null) return;
+            StartCoroutine(_root.Server.AddFriend(line.accountId, null, (message, error) =>
+                _message.text = error != null ? ConfirmDialog.Tint(error, Palette.Bad) : message));
+        }
+
+        private void TradePicked()
+        {
+            ChatLineDto line = _picked;
+            _actions.SetActive(false);
+            if (line == null) return;
+            StartCoroutine(_root.Server.TradeInvite(null, error =>
+            {
+                if (error != null) { _message.text = ConfirmDialog.Tint(error, Palette.Bad); return; }
+                Close();
+                _root.Trade.Open();
+            }, line.accountId));
+        }
+
+        private void InvitePicked()
+        {
+            ChatLineDto line = _picked;
+            _actions.SetActive(false);
+            if (line == null) return;
+            StartCoroutine(_root.Server.InviteToGuild(line.accountId, null, (message, error) =>
+                _message.text = error != null ? ConfirmDialog.Tint(error, Palette.Bad) : message));
         }
 
         private void ReportPicked()
@@ -283,6 +325,12 @@ namespace Orsuun.Client
             if (!_root.Server.Online && !_offlineShown) { _message.text = "Offline: chat needs the server."; _offlineShown = true; }
             else if (_root.Server.Online && _offlineShown) { _message.text = ""; _offlineShown = false; }
 
+            // Screenshots: -chatpick opens the actions of the newest line someone else wrote.
+            if (_pickForShot && _shown.Lines.Count > 0)
+            {
+                int other = _shown.Lines.FindLastIndex(l => !l.system && !l.mine);
+                if (other >= 0) { _pickForShot = false; Pick(other); }
+            }
             if (!_shown.Dirty) return;
             _shown.Dirty = false;
             bool atBottom = _stickToBottom || _scroll.verticalNormalizedPosition < 0.02f;

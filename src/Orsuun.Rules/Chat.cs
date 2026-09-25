@@ -41,4 +41,29 @@ namespace Orsuun.Rules
         /// <summary>What is stored and shown: normalised, bad words starred out.</summary>
         public static string Clean(string? text) => WordFilter.Mask(Normalise(text));
     }
+
+    /// <summary>
+    /// Friends (owner, 25 Sep 2026: "adding friends and friend list"): each hero keeps its own list. A friend request
+    /// waits until the other hero takes it (both then see each other), is turned down, or taken back. Neither side may
+    /// have blocked the other.
+    /// </summary>
+    public static class Friends
+    {
+        public const int MaxFriends = 50;
+        /// <summary>Requests one hero may have waiting at once.</summary>
+        public const int MaxAsked = 20;
+        /// <summary>A hero counts as online while its heartbeat (every 30 s) is this fresh.</summary>
+        public const int OnlineMinutes = 2;
+
+        public static bool Online(int minutesAway) => minutesAway < OnlineMinutes;
+
+        /// <summary>"online", "5 min ago", "3 h ago", "2 days ago".</summary>
+        public static string Seen(int minutesAway)
+        {
+            if (Online(minutesAway)) return "online";
+            if (minutesAway < 60) return minutesAway + " min ago";
+            if (minutesAway < 48 * 60) return minutesAway / 60 + " h ago";
+            return minutesAway / (24 * 60) + " days ago";
+        }
+    }
 }

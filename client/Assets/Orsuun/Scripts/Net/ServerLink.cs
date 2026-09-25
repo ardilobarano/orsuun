@@ -136,6 +136,9 @@ namespace Orsuun.Client.Net
             Email = "";
             Logins = new string[0];
             GuildView = null;
+            Friends = null;
+            FriendAsks = 0;
+            GuildInvites = 0;
             MarketView = null;
             War = null;
             Guild = null;
@@ -739,8 +742,53 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
-        public IEnumerator TradeInvite(string name, Action<string> done) =>
-            TradeCall("/v1/trade/invite", JsonUtility.ToJson(new TradeInviteRequest { requestId = NewRequestId(), name = name }), done);
+        /// <summary>Asks a hero to trade by name, or by id (<paramref name="accountId"/>, from chat or the friend list).</summary>
+        public IEnumerator TradeInvite(string name, Action<string> done, string accountId = null) =>
+            TradeCall("/v1/trade/invite", JsonUtility.ToJson(new TradeInviteRequest { requestId = NewRequestId(), name = name ?? "", accountId = accountId ?? NoId }), done);
+
+        /// <summary>The empty id: a request that names a hero instead.</summary>
+        public const string NoId = "00000000-0000-0000-0000-000000000000";
+
+        /// <summary>Friend requests waiting for this hero, and guild invites (from the last /me or heartbeat, or friend and guild calls).</summary>
+        public int FriendAsks { get; private set; }
+        public int GuildInvites { get; private set; }
+        /// <summary>The friend list as the server last showed it (Rules.Friends).</summary>
+        public FriendsDto Friends { get; private set; }
+
+        private void ApplyFriends(string json)
+        {
+            Friends = JsonUtility.FromJson<FriendsDto>(json);
+            FriendAsks = Friends.asking?.Length ?? 0;
+        }
+
+        public IEnumerator FetchFriends(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/friends", null, true, ApplyFriends, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>A friend call (add, answer, remove); completes with (message, error).</summary>
+        private IEnumerator FriendCall(string path, string body, Action<string, string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/friends/" + path, body, true, ApplyFriends, error => failure = error ?? "No answer from the server.");
+            done(failure == null ? Friends?.message : null, failure);
+        }
+
+        /// <summary>Asks a hero to be friends, by id (chat) or by name.</summary>
+        public IEnumerator AddFriend(string accountId, string name, Action<string, string> done) =>
+            FriendCall("add", JsonUtility.ToJson(new FriendAddRequest { accountId = string.IsNullOrEmpty(accountId) ? NoId : accountId, name = name ?? "" }), done);
+
+        public IEnumerator AnswerFriend(string accountId, bool accept, Action<string, string> done) =>
+            FriendCall("answer", JsonUtility.ToJson(new FriendAnswerRequest { accountId = accountId, accept = accept }), done);
+
+        public IEnumerator RemoveFriend(string accountId, Action<string, string> done) =>
+            FriendCall("remove", JsonUtility.ToJson(new FriendRemoveRequest { accountId = accountId }), done);
+
+        /// <summary>The leader or an officer invites a hero to the guild, by id (chat, friends) or by name.</summary>
+        public IEnumerator InviteToGuild(string accountId, string name, Action<string, string> done) =>
+            GuildCall("invite", new GuildInviteRequest { requestId = NewRequestId(), accountId = string.IsNullOrEmpty(accountId) ? NoId : accountId, name = name ?? "" }, done);
 
         public IEnumerator TradeAct(string action, Action<string> done) =>
             TradeCall("/v1/trade/" + action, JsonUtility.ToJson(new TradeRequest { requestId = NewRequestId(), tradeId = Trade?.id ?? TradeBrief?.id ?? 0 }), done);
@@ -908,6 +956,7 @@ namespace Orsuun.Client.Net
         {
             GuildViewDto view = JsonUtility.FromJson<GuildViewDto>(json);
             GuildView = view;
+            GuildInvites = view.mine != null && !string.IsNullOrEmpty(view.mine.id) ? 0 : view.invites?.Length ?? 0;
             if (view.state != null && view.state.inventory != null && view.state.items != null) Apply(view.state);
         }
 
@@ -1035,6 +1084,8 @@ namespace Orsuun.Client.Net
             {
                 // Only /me and the heartbeat carry the Commanders, and with them the live trade (none: id 0).
                 TradeBrief = s.trade != null && s.trade.id > 0 ? s.trade : null;
+                FriendAsks = s.friendAsks;
+                GuildInvites = s.guildInvites;
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
             }
@@ -1195,7 +1246,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
@@ -1205,7 +1256,14 @@ namespace Orsuun.Client.Net
         [Serializable] public class TrailClaimRequest { public string requestId; public int tier; }
         [Serializable] public class TradeBriefDto { public long id; public string state; public bool incoming; public string otherName; }
         [Serializable] public class TradeDto { public long id; public string state; public bool incoming; public string otherName; public ItemDto[] myItems; public long mySorn; public string myStep; public ItemDto[] theirItems; public long theirSorn; public string theirStep; public int lockLeft; public int taxPercent; public bool rulesRelaxed; public string message; public StateDto hero; }
-        [Serializable] public class TradeInviteRequest { public string requestId; public string name; }
+        [Serializable] public class TradeInviteRequest { public string requestId; public string name; public string accountId; }
+        [Serializable] public class FriendDto { public string accountId; public string name; public string @class; public int level; public string banner; public string guildTag; public int minutesAway; }
+        [Serializable] public class FriendsDto { public FriendDto[] friends; public FriendDto[] asking; public FriendDto[] asked; public int max; public bool canInvite; public string message; }
+        [Serializable] public class FriendAddRequest { public string accountId; public string name; }
+        [Serializable] public class FriendAnswerRequest { public string accountId; public bool accept; }
+        [Serializable] public class FriendRemoveRequest { public string accountId; }
+        [Serializable] public class GuildInviteRequest { public string requestId; public string accountId; public string name; }
+        [Serializable] public class GuildInviteAnswerRequest { public string requestId; public string guildId; public bool accept; }
         [Serializable] public class TradeRequest { public string requestId; public long tradeId; }
         [Serializable] public class TradeOfferRequest { public string requestId; public long tradeId; public string[] itemIds; public long sorn; }
         [Serializable] public class TrailBuyRequest { public string requestId; public bool plus; }
@@ -1227,9 +1285,9 @@ namespace Orsuun.Client.Net
         [Serializable] public class GuildBriefDto { public string tag; public string name; public string color; public string rank; }
         [Serializable] public class GuildDto { public string id; public string name; public string tag; public string color; public bool open; public int level; public long xp; public long nextLevelXp; public long treasury; public int plunder; public int muster; public int members; public int maxMembers; public int sornBonusPercent; public string[] fortresses; public string lastEvent; }
         [Serializable] public class GuildMemberDto { public string accountId; public string name; public string banner; public string rank; public int level; public long donated; public int lastSeenMinutes; public bool me; }
-        [Serializable] public class GuildListItemDto { public string id; public string name; public string tag; public string color; public int level; public int members; public int maxMembers; public bool open; public bool requested; }
+        [Serializable] public class GuildListItemDto { public string id; public string name; public string tag; public string color; public int level; public int members; public int maxMembers; public bool open; public bool requested; public string invitedBy; }
         /// <summary>mine is never null after JsonUtility: an empty id means no guild.</summary>
-        [Serializable] public class GuildViewDto { public StateDto state; public GuildDto mine; public GuildMemberDto[] members; public GuildListItemDto[] browse; public long donatedToday; public long donationCap; public string message; public GuildMemberDto[] requests; public string[] log; }
+        [Serializable] public class GuildViewDto { public StateDto state; public GuildDto mine; public GuildMemberDto[] members; public GuildListItemDto[] browse; public long donatedToday; public long donationCap; public string message; public GuildMemberDto[] requests; public string[] log; public GuildListItemDto[] invites; public GuildMemberDto[] invited; }
         [Serializable] public class GuildAnswerRequest { public string requestId; public string accountId; public bool accept; }
         [Serializable] public class ChatLineDto { public long id; public string accountId; public string name; public string banner; public string text; public string utc; public bool system; public bool mine; }
         [Serializable] public class ChatDto { public string channel; public ChatLineDto[] lines; public long latestId; public int blocked; }

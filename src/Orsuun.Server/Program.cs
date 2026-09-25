@@ -275,6 +275,13 @@ v1.MapPost("/guild/skill", (HttpContext ctx, GuildSkillRequest req, GameService 
 v1.MapPost("/guild/shop", (HttpContext ctx, GuildShopRequest req, GameService game, CancellationToken ct) => game.GuildBuyAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/settings", (HttpContext ctx, GuildSettingsRequest req, GameService game, CancellationToken ct) => game.GuildSettingsAsync(Me(ctx), req, ct));
 v1.MapPost("/guild/answer", (HttpContext ctx, GuildAnswerRequest req, GameService game, CancellationToken ct) => game.AnswerRequestAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/invite", (HttpContext ctx, GuildInviteRequest req, GameService game, CancellationToken ct) => game.GuildInviteAsync(Me(ctx), req, ct));
+v1.MapPost("/guild/invite/answer", (HttpContext ctx, GuildInviteAnswerRequest req, GameService game, CancellationToken ct) => game.AnswerGuildInviteAsync(Me(ctx), req, ct));
+// Friends (25 Sep 2026): each hero's list, requests, and taking one off.
+v1.MapGet("/friends", (HttpContext ctx, GameService game, CancellationToken ct) => game.FriendsAsync(Me(ctx), "", ct));
+v1.MapPost("/friends/add", (HttpContext ctx, FriendAddRequest req, GameService game, CancellationToken ct) => game.AddFriendAsync(Me(ctx), req, ct));
+v1.MapPost("/friends/answer", (HttpContext ctx, FriendAnswerRequest req, GameService game, CancellationToken ct) => game.AnswerFriendAsync(Me(ctx), req, ct));
+v1.MapPost("/friends/remove", (HttpContext ctx, FriendRemoveRequest req, GameService game, CancellationToken ct) => game.RemoveFriendAsync(Me(ctx), req, ct));
 v1.MapGet("/chat", (HttpContext ctx, string? channel, long? after, GameService game, CancellationToken ct) => game.ChatAsync(Me(ctx), channel, after ?? 0, ct));
 v1.MapPost("/chat", (HttpContext ctx, ChatSayRequest req, GameService game, CancellationToken ct) => game.SayAsync(Me(ctx), req, ct));
 v1.MapPost("/chat/report", (HttpContext ctx, ChatReportRequest req, GameService game, CancellationToken ct) => game.ReportAsync(Me(ctx), req, ct));

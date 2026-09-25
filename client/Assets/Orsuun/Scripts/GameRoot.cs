@@ -46,6 +46,7 @@ namespace Orsuun.Client
         public SmithPanel Smith { get; private set; }
         public RuneLockPanel RuneLock { get; private set; }
         public ChatPanel Chat { get; private set; }
+        public FriendsPanel Friends { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
         public GameNotifications Notifications { get; private set; }
@@ -124,6 +125,8 @@ namespace Orsuun.Client
             RuneLock.Init();
             Market = new GameObject("MarketPanel").AddComponent<MarketPanel>();
             Market.Init(this);
+            Friends = new GameObject("FriendsPanel").AddComponent<FriendsPanel>();
+            Friends.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
             Chat.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
@@ -198,6 +201,8 @@ namespace Orsuun.Client
             _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
             _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
+            // -friends opens FRIENDS once online (screenshots).
+            _openFriends = Array.IndexOf(cmd, "-friends") >= 0;
             // Screenshots of the way in: -firstrun shows the sign-in screen, the oath and the character screen even with
             // -shot; "-firstrun guest" then plays as a guest, "-firstrun oath" also swears to the Sky Banner.
             _firstRun = Array.IndexOf(cmd, "-firstrun") >= 0 ? Arg("-firstrun") ?? "" : null;
@@ -272,6 +277,7 @@ namespace Orsuun.Client
         private bool _oathAsked;
         private bool _accountAsked;
         private string _firstRun;
+        private bool _openFriends;
         private bool _firstRunGuest;
         private bool _firstRunSworn;
         private bool _accountShown;
@@ -358,6 +364,11 @@ namespace Orsuun.Client
             {
                 _openTrail = false;
                 Trail.Open();
+            }
+            if (Server.Online && _openFriends && Server.Trail != null)
+            {
+                _openFriends = false;
+                Friends.Open();
             }
             // Dev switch: -trade opens the trade window (screenshots).
             if (Server.Online && _openTrade && Server.Trail != null)

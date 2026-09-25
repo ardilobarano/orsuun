@@ -24,6 +24,9 @@ namespace Orsuun.Client
         private Text _amber;
         private Text _trailTier;
         private Button _tradeCall;
+        private Button _socialCall;
+        private Text _socialCallLabel;
+        private int _seenGuildInvites;
         private Text _tradeCallLabel;
         private Text _bountyLabel;
         private RawImage _flag;
@@ -216,9 +219,19 @@ namespace Orsuun.Client
             _tradeCall = Ui.Button("TradeCall", canvas, 0.02f, 0.778f, 0.8f, 0.818f, "", 20, Palette.Alloy, () => root.Trade.Open(), out _tradeCallLabel);
             _tradeCallLabel.supportRichText = true;
             _tradeCall.gameObject.SetActive(false);
+            // Friend requests or a guild invite waiting (and not seen yet): a call in the same place, when no trade calls.
+            _socialCall = Ui.Button("SocialCall", canvas, 0.02f, 0.778f, 0.8f, 0.818f, "", 20, Palette.Safe, OpenSocial, out _socialCallLabel);
+            _socialCallLabel.supportRichText = true;
+            _socialCall.gameObject.SetActive(false);
             // The Campaign Trail under it: a round waystone button with the tier beneath (CLAIM when a reward waits).
             Ui.RoundButton("Trail", canvas, 0.9f, 0.553f, 0.99f, 0.628f, "Trail", new Color(0.1f, 0.35f, 0.36f), () => root.Trail.Open(), out _, out _);
             _trailTier = Ui.Title("TrailTier", canvas, 0.86f, 0.53f, 1f, 0.554f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
+        }
+
+        private void OpenSocial()
+        {
+            if (_root.Server.GuildInvites > _seenGuildInvites) _root.Guild.Open();
+            else _root.Friends.Open();
         }
 
         /// <summary>Resources/Icons/Skills name for a skill: its letters ("Kestrel's Dive" is KestrelsDive).</summary>
@@ -353,6 +366,17 @@ namespace Orsuun.Client
             bool calling = trade != null && !_root.Trade.IsOpen && (trade.state == "Open" || trade.incoming);
             if (_tradeCall.gameObject.activeSelf != calling) _tradeCall.gameObject.SetActive(calling);
             if (calling) _tradeCallLabel.text = trade.state == "Open" ? $"TRADE WITH {trade.otherName.ToUpperInvariant()}: BACK TO THE WINDOW" : $"{trade.otherName.ToUpperInvariant()} ASKS TO TRADE: ANSWER";
+            int asks = _root.Server.Online ? _root.Server.FriendAsks : 0;
+            int invites = _root.Server.Online ? _root.Server.GuildInvites : 0;
+            if (_root.Guild.IsOpen) _seenGuildInvites = invites;
+            if (invites < _seenGuildInvites) _seenGuildInvites = invites;
+            if (asks < _root.Friends.SeenAsks) _root.Friends.SeenAsks = asks;
+            bool newAsks = asks > _root.Friends.SeenAsks && !_root.Friends.IsOpen;
+            bool newInvites = invites > _seenGuildInvites && !_root.Guild.IsOpen;
+            bool social = !calling && (newAsks || newInvites);
+            if (_socialCall.gameObject.activeSelf != social) _socialCall.gameObject.SetActive(social);
+            if (social) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
+                : asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER";
             bool claim = _root.Bounties.AnyClaimable;
             _navBadges[2].gameObject.SetActive(claim);
             BannerLook.Show(_flag, _root.Server.Banner);

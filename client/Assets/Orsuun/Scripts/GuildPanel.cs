@@ -8,7 +8,9 @@ namespace Orsuun.Client
     /// <summary>
     /// GUILD. Without a guild: search and JOIN open guilds, or found one (name, tag, colour; 100,000 sorn). In a guild:
     /// the emblem, level and treasury, the daily donation (Guild Tallies for the donor), the two guild skills, the
-    /// guild shop and the member list; tap a member to promote, demote, hand over the lead or send them away.
+    /// guild shop and the member list; tap a member to promote, demote, hand over the lead or send them away. Guild
+    /// invites (owner, 25 Sep 2026): the leader or an officer invites a hero by name under ASKING / INVITE (or from chat
+    /// and the friend list); a hero without a guild answers its invites under INVITES, which let it in through shut gates.
     /// Everything is decided by the server; the panel refreshes while open.
     /// </summary>
     public sealed class GuildPanel : MonoBehaviour
@@ -49,7 +51,8 @@ namespace Orsuun.Client
         private Text _empty;
         private InputField _name;
         private InputField _tag;
-        private readonly Outline[] _swatchRims = new Outline[Guilds.Colors.Length];
+        // The kit's framed buttons have no Outline: the chosen colour stands a little larger than the rest.
+        private readonly Transform[] _swatches = new Transform[Guilds.Colors.Length];
         private int _color;
         private Button _create;
 
@@ -77,6 +80,21 @@ namespace Orsuun.Client
         private Text _gatesLabel;
         private Button _requestsButton;
         private Text _requestsLabel;
+
+        // Invites to this hero (no guild), answered under INVITES.
+        private const int InviteRows = 6;
+        private Button _invitesButton;
+        private Text _invitesLabel;
+        private GameObject _invites;
+        private readonly Text[] _inviteNames = new Text[InviteRows];
+        private readonly GameObject[] _inviteRows = new GameObject[InviteRows];
+        private Text _invitesEmpty;
+        private bool _invitesShownOnce;
+        private bool _popupForShot = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-guildpopup") >= 0;
+
+        // Invites sent by the leader or an officer (under ASKING / INVITE).
+        private InputField _inviteName;
+        private Text _invited;
 
         // Join requests (shut gates), answered by the leader or an officer.
         private const int RequestRows = 6;
@@ -114,6 +132,7 @@ namespace Orsuun.Client
             _message.supportRichText = true;
             BuildManage(canvas);
             BuildRequests(canvas);
+            BuildInvites(canvas);
             _canvas.SetActive(false);
             _confirm = new GameObject("GuildConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
@@ -126,8 +145,9 @@ namespace Orsuun.Client
             Ui.Title("Title", b, 0.05f, 0.935f, 0.95f, 0.98f, "GUILDS", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Label("Lead", b, 0.05f, 0.895f, 0.95f, 0.935f, "Any Banner may join any guild. Donate each day, earn Guild Tallies, raise the guild together.",
                 22, TextAnchor.MiddleCenter, Palette.Muted);
-            _search = Ui.Input("Search", b, 0.04f, 0.835f, 0.7f, 0.885f, "Search by name or tag", 28, 20);
-            Ui.Button("SearchGo", b, 0.72f, 0.835f, 0.96f, 0.885f, "SEARCH", 26, Palette.ButtonIdle, Refresh, out _);
+            _search = Ui.Input("Search", b, 0.04f, 0.835f, 0.54f, 0.885f, "Search by name or tag", 28, 20);
+            Ui.Button("SearchGo", b, 0.56f, 0.835f, 0.75f, 0.885f, "SEARCH", 24, Palette.ButtonIdle, Refresh, out _);
+            _invitesButton = Ui.Button("Invites", b, 0.77f, 0.835f, 0.96f, 0.885f, "INVITES", 22, Palette.Alloy, OpenInvites, out _invitesLabel);
 
             for (int i = 0; i < BrowseRows; i++)
             {
@@ -160,7 +180,7 @@ namespace Orsuun.Client
                 int index = i;
                 float x0 = 0.04f + i * 0.116f;
                 Button swatch = Ui.Button("Swatch" + i, b, x0, 0.225f, x0 + 0.1f, 0.28f, "", 20, ColorOf(Guilds.Colors[i]), () => _color = index, out _);
-                _swatchRims[i] = swatch.GetComponent<Outline>();
+                _swatches[i] = swatch.transform;
             }
             _create = Ui.Button("Create", b, 0.25f, 0.14f, 0.75f, 0.205f, "FOUND THE GUILD", 30, Palette.ButtonForge, AskCreate, out _);
             Ui.Button("Close", b, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
@@ -237,25 +257,109 @@ namespace Orsuun.Client
             Transform m = _requests.transform;
             Image dim = Ui.Panel("Dim", m, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f));
             dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _requests.SetActive(false));
-            Transform box = Ui.Framed("Box", m, 0.06f, 0.25f, 0.94f, 0.75f, Palette.PanelDark).transform;
-            Ui.Title("Title", box, 0.05f, 0.88f, 0.95f, 0.98f, "ASKING TO JOIN", 30, TextAnchor.MiddleCenter, Palette.Sorn);
+            Transform box = Ui.Framed("Box", m, 0.06f, 0.16f, 0.94f, 0.84f, Palette.PanelDark).transform;
+            Ui.Title("Title", box, 0.05f, 0.92f, 0.95f, 0.985f, "ASKING TO JOIN", 30, TextAnchor.MiddleCenter, Palette.Sorn);
             for (int i = 0; i < RequestRows; i++)
             {
                 int index = i;
-                float y1 = 0.86f - i * 0.12f;
-                _requestRows[i] = Ui.Rect("Row" + i, box, 0.03f, y1 - 0.11f, 0.97f, y1).gameObject;
+                float y1 = 0.91f - i * 0.083f;
+                _requestRows[i] = Ui.Rect("Row" + i, box, 0.03f, y1 - 0.076f, 0.97f, y1).gameObject;
                 Transform row = _requestRows[i].transform;
                 _requestNames[i] = Ui.Label("Name", row, 0.02f, 0f, 0.56f, 1f, "", 22, TextAnchor.MiddleLeft, Palette.Parchment);
                 _requestNames[i].supportRichText = true;
                 Ui.Button("Accept", row, 0.58f, 0.08f, 0.78f, 0.92f, "LET IN", 20, Palette.Safe, () => Answer(index, true), out _);
                 Ui.Button("Decline", row, 0.8f, 0.08f, 0.99f, 0.92f, "TURN AWAY", 18, Palette.Danger, () => Answer(index, false), out _);
             }
-            _requestsEmpty = Ui.Label("Empty", box, 0.05f, 0.4f, 0.95f, 0.6f, "Nobody is asking to join.", 24, TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Button("Close", box, 0.3f, 0.02f, 0.7f, 0.11f, "CLOSE", 22, Palette.ButtonIdle, () => _requests.SetActive(false), out _);
+            _requestsEmpty = Ui.Label("Empty", box, 0.05f, 0.62f, 0.95f, 0.72f, "Nobody is asking to join.", 24, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Trim("InviteRule", box, 0.04f, 0.4f, 0.96f, 0.403f);
+            Ui.Title("InviteTitle", box, 0.04f, 0.33f, 0.96f, 0.39f, "INVITE A HERO", 26, TextAnchor.MiddleLeft, Palette.Sorn);
+            _inviteName = Ui.Input("InviteName", box, 0.03f, 0.245f, 0.68f, 0.32f, "The hero's name", 26, Characters.NameMax);
+            _inviteName.lineType = InputField.LineType.SingleLine;
+            Ui.Button("InviteGo", box, 0.7f, 0.245f, 0.97f, 0.32f, "INVITE", 24, Palette.Safe, InviteByName, out _);
+            _invited = Ui.Label("Invited", box, 0.04f, 0.115f, 0.96f, 0.235f, "", 20, TextAnchor.UpperLeft, Palette.Muted);
+            Ui.Button("Close", box, 0.3f, 0.02f, 0.7f, 0.1f, "CLOSE", 22, Palette.ButtonIdle, () => _requests.SetActive(false), out _);
             _requests.SetActive(false);
         }
 
         private void OpenRequests() => _requests.SetActive(true);
+
+        private void InviteByName()
+        {
+            string name = (_inviteName.text ?? "").Trim();
+            if (name.Length == 0 || _busy || !_root.Server.Online) return;
+            _busy = true;
+            StartCoroutine(_root.Server.InviteToGuild(null, name, (message, error) =>
+            {
+                _busy = false;
+                Say(message, error);
+                if (error == null) _inviteName.text = "";
+            }));
+        }
+
+        private void BuildInvites(Transform canvas)
+        {
+            _invites = Ui.Rect("Invites", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Transform m = _invites.transform;
+            Image dim = Ui.Panel("Dim", m, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f));
+            dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _invites.SetActive(false));
+            Transform box = Ui.Framed("Box", m, 0.06f, 0.25f, 0.94f, 0.75f, Palette.PanelDark).transform;
+            Ui.Title("Title", box, 0.05f, 0.88f, 0.95f, 0.98f, "GUILD INVITES", 30, TextAnchor.MiddleCenter, Palette.Sorn);
+            for (int i = 0; i < InviteRows; i++)
+            {
+                int index = i;
+                float y1 = 0.86f - i * 0.12f;
+                _inviteRows[i] = Ui.Rect("Row" + i, box, 0.03f, y1 - 0.11f, 0.97f, y1).gameObject;
+                Transform row = _inviteRows[i].transform;
+                _inviteNames[i] = Ui.Label("Name", row, 0.02f, 0f, 0.6f, 1f, "", 20, TextAnchor.MiddleLeft, Palette.Parchment);
+                _inviteNames[i].supportRichText = true;
+                Ui.Button("Accept", row, 0.62f, 0.08f, 0.8f, 0.92f, "JOIN", 22, Palette.Safe, () => AnswerInvite(index, true), out _);
+                Ui.Button("Decline", row, 0.82f, 0.08f, 0.99f, 0.92f, "NO", 22, Palette.Danger, () => AnswerInvite(index, false), out _);
+            }
+            _invitesEmpty = Ui.Label("Empty", box, 0.05f, 0.4f, 0.95f, 0.6f, "No guild has invited you. A guild's leader or officers can, from chat or their friend list.",
+                22, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Button("Close", box, 0.3f, 0.02f, 0.7f, 0.11f, "CLOSE", 22, Palette.ButtonIdle, () => _invites.SetActive(false), out _);
+            _invites.SetActive(false);
+        }
+
+        private void OpenInvites() => _invites.SetActive(true);
+
+        private void AnswerInvite(int index, bool accept)
+        {
+            GuildListItemDto[] invites = _root.Server.GuildView?.invites;
+            if (invites == null || index >= invites.Length) return;
+            Call("invite/answer", new GuildInviteAnswerRequest { requestId = NewRequestId(), guildId = invites[index].id, accept = accept }, () =>
+            {
+                if (accept)
+                {
+                    _invites.SetActive(false);
+                    GameAudio.Instance?.Play("LaneLevelUp", 0.9f, 1f, 0f);
+                }
+            });
+        }
+
+        private void ShowInvites(GuildViewDto v)
+        {
+            GuildListItemDto[] invites = v?.invites ?? new GuildListItemDto[0];
+            _invitesLabel.text = invites.Length > 0 ? $"INVITES ({invites.Length})" : "INVITES";
+            _invitesButton.GetComponent<Image>().color = invites.Length > 0 ? Palette.ButtonForge : Palette.Alloy;
+            // The first time the screen shows an invite, it opens by itself.
+            if (invites.Length > 0 && !_invitesShownOnce)
+            {
+                _invitesShownOnce = true;
+                _invites.SetActive(true);
+            }
+            if (!_invites.activeSelf) return;
+            for (int i = 0; i < InviteRows; i++)
+            {
+                bool has = i < invites.Length;
+                _inviteRows[i].SetActive(has);
+                if (!has) continue;
+                GuildListItemDto g = invites[i];
+                string tint = ColorUtility.ToHtmlStringRGB(ColorOf(g.color));
+                _inviteNames[i].text = $"<color=#{tint}><b>[{g.tag}]</b></color> {g.name}   Lv {g.level}   {g.members}/{g.maxMembers}\n<size=17><color=#8C857A>invited by {g.invitedBy}</color></size>";
+            }
+            _invitesEmpty.gameObject.SetActive(invites.Length == 0);
+        }
 
         private void Answer(int index, bool accept)
         {
@@ -277,6 +381,11 @@ namespace Orsuun.Client
                 _requestNames[i].text = $"<color=#{mark}>■</color>  {a.name}   Lv {a.level}   ·   {Ago(a.lastSeenMinutes)}";
             }
             _requestsEmpty.gameObject.SetActive(asking.Length == 0);
+            GuildMemberDto[] invited = v.invited ?? new GuildMemberDto[0];
+            var names = new System.Collections.Generic.List<string>();
+            foreach (GuildMemberDto a in invited) names.Add(a.name);
+            _invited.text = invited.Length == 0 ? $"Invites wait {Guilds.InviteDays} days for an answer, and let the hero in even through shut gates."
+                : $"Invited ({invited.Length}/{Guilds.MaxInvites}): " + string.Join(", ", names);
         }
 
         private void BuildManage(Transform canvas)
@@ -301,6 +410,8 @@ namespace Orsuun.Client
             _page = 0;
             _manage.SetActive(false);
             _requests.SetActive(false);
+            _invites.SetActive(false);
+            _invitesShownOnce = false;
             _canvas.SetActive(true);
         }
 
@@ -468,6 +579,13 @@ namespace Orsuun.Client
             _home.SetActive(home);
             _browse.SetActive(!home);
             if (home) ShowHome(v); else ShowBrowse(v);
+            if (home) _invites.SetActive(false); else ShowInvites(v);
+            // Screenshots: -guildpopup opens ASKING / INVITE (in a guild) once the guild has loaded.
+            if (_popupForShot && home && v.mine != null)
+            {
+                _popupForShot = false;
+                OpenRequests();
+            }
         }
 
         private void ShowBrowse(GuildViewDto v)
@@ -491,11 +609,7 @@ namespace Orsuun.Client
             }
             _empty.text = v == null ? (_root.Server.Online ? "Gathering word of the guilds..." : "")
                 : list.Length == 0 ? (string.IsNullOrEmpty(_search.text) ? "No guilds yet. Found the first one below." : "No guild by that name.") : "";
-            for (int i = 0; i < _swatchRims.Length; i++)
-            {
-                _swatchRims[i].effectColor = i == _color ? Palette.Parchment : Palette.Trim;
-                _swatchRims[i].effectDistance = i == _color ? new Vector2(5f, -5f) : new Vector2(2f, -2f);
-            }
+            for (int i = 0; i < _swatches.Length; i++) _swatches[i].localScale = Vector3.one * (i == _color ? 1.15f : 0.85f);
             _create.interactable = !_busy && _root.Server.Online;
         }
 
@@ -547,7 +661,7 @@ namespace Orsuun.Client
 
             int asking = v.requests?.Length ?? 0;
             _requestsButton.gameObject.SetActive(manager);
-            _requestsLabel.text = asking > 0 ? $"ASKING ({asking})" : "REQUESTS";
+            _requestsLabel.text = asking > 0 ? $"ASKING ({asking})" : "INVITE";
             _requestsButton.GetComponent<Image>().color = asking > 0 ? Palette.ButtonForge : Palette.Alloy;
             if (_requests.activeSelf) ShowRequests(v);
             _gates.gameObject.SetActive(manager);

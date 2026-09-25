@@ -52,4 +52,19 @@ public class SocialTests
     [InlineData("12345678", false)]
     [InlineData("aaaaaaaa", false)]
     public void Passwords_are_checked(string password, bool ok) => Assert.Equal(ok, AccountRules.PasswordProblem(password) == null);
+
+    [Fact]
+    public void Friends_and_guild_invites_have_their_limits()
+    {
+        Assert.Equal(50, Friends.MaxFriends);
+        Assert.Equal(20, Friends.MaxAsked);
+        Assert.Equal(20, Guilds.MaxInvites);
+        Assert.Equal(3, Guilds.InviteDays);
+        Assert.True(Friends.Online(1));
+        Assert.False(Friends.Online(2));
+        Assert.Equal("online", Friends.Seen(0));
+        Assert.Equal("5 min ago", Friends.Seen(5));
+        Assert.Equal("3 h ago", Friends.Seen(185));
+        Assert.Equal("2 days ago", Friends.Seen(2 * 24 * 60 + 30));
+    }
 }

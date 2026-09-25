@@ -98,10 +98,20 @@ public sealed partial class GameService
                 requests = asking.Select(a => new GuildMemberDto(a.Id, ShownName(a.Id, a.Name), a.Banner, GuildRank.Member, Content.LevelFor(a.Xp), 0,
                     (int)Math.Max(0, (now - a.LastHeartbeatUtc).TotalMinutes), false)).ToArray();
             }
+            GuildMemberDto[] invited = Array.Empty<GuildMemberDto>();
+            if (Guilds.CanManage(account.GuildRank))
+            {
+                DateTime lapsed = now.AddDays(-Guilds.InviteDays);
+                var pending = await _db.GuildInvites.AsNoTracking().Where(i => i.GuildId == g.Id && i.Utc > lapsed).OrderBy(i => i.Utc).Take(Guilds.MaxInvites)
+                    .Join(_db.Accounts, i => i.AccountId, a => a.Id, (i, a) => new { a.Id, a.Name, a.Banner, a.Xp, a.LastHeartbeatUtc }).ToListAsync(ct);
+                invited = pending.Select(a => new GuildMemberDto(a.Id, ShownName(a.Id, a.Name), a.Banner, GuildRank.Member, Content.LevelFor(a.Xp), 0,
+                    (int)Math.Max(0, (now - a.LastHeartbeatUtc).TotalMinutes), false)).ToArray();
+            }
             string channel = Chat.GuildChannel(g.Id);
             string[] log = (await _db.ChatMessages.AsNoTracking().Where(m => m.Channel == channel && m.AccountId == Guid.Empty)
                 .OrderByDescending(m => m.Id).Take(6).Select(m => m.Text).ToListAsync(ct)).ToArray();
-            return new GuildViewDto(state, mine, members, Array.Empty<GuildListItemDto>(), today, Guilds.DailyDonationCap, message, requests, log);
+            return new GuildViewDto(state, mine, members, Array.Empty<GuildListItemDto>(), today, Guilds.DailyDonationCap, message, requests, log,
+                Invited: invited);
         }
 
         IQueryable<Guild> query = _db.Guilds.AsNoTracking();
@@ -119,7 +129,19 @@ public sealed partial class GameService
         var asked = await _db.GuildRequests.AsNoTracking().Where(r => r.AccountId == account.Id).Select(r => r.GuildId).ToListAsync(ct);
         GuildListItemDto[] browse = guilds.Select(g => new GuildListItemDto(g.Id, g.Name, g.Tag, g.Color, Guilds.Level(g.Xp),
             counts.Where(c => c.Key == g.Id).Select(c => c.Count).FirstOrDefault(), Guilds.MaxMembers(g.Muster), g.Open, asked.Contains(g.Id))).ToArray();
-        return new GuildViewDto(state, null, Array.Empty<GuildMemberDto>(), browse, today, Guilds.DailyDonationCap, message);
+        // Invitations first: the guilds that asked this hero in (Rules.Guilds.InviteDays).
+        DateTime since = DateTime.UtcNow.AddDays(-Guilds.InviteDays);
+        var invites = await _db.GuildInvites.AsNoTracking().Where(i => i.AccountId == account.Id && i.Utc > since).OrderByDescending(i => i.Utc)
+            .Join(_db.Guilds, i => i.GuildId, g => g.Id, (i, g) => new { Guild = g, i.InviterId }).ToListAsync(ct);
+        var inviteGuildIds = invites.Select(i => (Guid?)i.Guild.Id).ToList();
+        var inviteCounts = await _db.Accounts.AsNoTracking().Where(a => inviteGuildIds.Contains(a.GuildId)).GroupBy(a => a.GuildId)
+            .Select(x => new { x.Key, Count = x.Count() }).ToListAsync(ct);
+        var inviters = invites.Select(i => i.InviterId).Distinct().ToList();
+        var inviterNames = await _db.Accounts.AsNoTracking().Where(a => inviters.Contains(a.Id)).Select(a => new { a.Id, a.Name }).ToListAsync(ct);
+        GuildListItemDto[] invitations = invites.Select(i => new GuildListItemDto(i.Guild.Id, i.Guild.Name, i.Guild.Tag, i.Guild.Color, Guilds.Level(i.Guild.Xp),
+            inviteCounts.Where(c => c.Key == i.Guild.Id).Select(c => c.Count).FirstOrDefault(), Guilds.MaxMembers(i.Guild.Muster), i.Guild.Open, false,
+            ShownName(i.InviterId, inviterNames.Where(n => n.Id == i.InviterId).Select(n => n.Name).FirstOrDefault()))).ToArray();
+        return new GuildViewDto(state, null, Array.Empty<GuildMemberDto>(), browse, today, Guilds.DailyDonationCap, message, Invites: invitations);
     }
 
     public async Task<GuildViewDto> CreateGuildAsync(Account account, GuildCreateRequest request, CancellationToken ct)
@@ -204,6 +226,7 @@ public sealed partial class GameService
         {
             await _db.Fortresses.Where(f => f.FlagGuildId == id).ExecuteUpdateAsync(s => s.SetProperty(f => f.FlagGuildId, (Guid?)null), ct);
             await _db.GuildRequests.Where(r => r.GuildId == id).ExecuteDeleteAsync(ct);
+            await _db.GuildInvites.Where(r => r.GuildId == id).ExecuteDeleteAsync(ct);
             string channel = Chat.GuildChannel(id);
             await _db.ChatMessages.Where(m => m.Channel == channel).ExecuteDeleteAsync(ct);
             _db.Guilds.Remove(guild);
@@ -408,5 +431,68 @@ public sealed partial class GameService
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
         return await ViewAsync(account, null, guild.Open ? "The gates are open: anyone may join." : "The gates are shut: no one new may join.", ct);
+    }
+
+    /// <summary>
+    /// The leader or an officer invites a hero (owner, 25 Sep 2026: "guild invite from chat"), by id from chat or the
+    /// friend list, or by name from the guild screen. The invite lets them in even through shut gates.
+    /// </summary>
+    public async Task<GuildViewDto> GuildInviteAsync(Account account, GuildInviteRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        RequireManager(account);
+        Guid id = account.GuildId!.Value;
+        HeroRef other = await FindHeroAsync(request.AccountId, request.Name, ct);
+        if (other.Id == account.Id) throw new GameException("self", "That is you.");
+        if (other.GuildId == id) throw new GameException("member", other.Name + " is in your guild already.");
+        if (other.GuildId != null) throw new GameException("in_guild", other.Name + " is in another guild.");
+        if (Blocks(other.Blocked, account.Id)) throw new GameException("not_taking", "They are not taking invites.");
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        Guild guild = await LockGuildAsync(id, ct);
+        DateTime now = DateTime.UtcNow;
+        DateTime lapsed = now.AddDays(-Guilds.InviteDays);
+        await _db.GuildInvites.Where(i => i.GuildId == id && i.Utc <= lapsed).ExecuteDeleteAsync(ct);
+        if (await _db.GuildInvites.AnyAsync(i => i.GuildId == id && i.AccountId == other.Id, ct)) throw new GameException("invited", other.Name + " is invited already.");
+        if (await _db.GuildInvites.CountAsync(i => i.GuildId == id, ct) >= Guilds.MaxInvites)
+            throw new GameException("invites_full", $"{guild.Name} has {Guilds.MaxInvites} invites waiting.");
+        if (await MemberCountAsync(id, ct) >= Guilds.MaxMembers(guild.Muster)) throw new GameException("guild_full", guild.Name + " is full.");
+        _db.GuildInvites.Add(new GuildInvite { GuildId = id, AccountId = other.Id, InviterId = account.Id, Utc = now });
+        SystemLine(Chat.GuildChannel(id), $"{NameOf(account)} invited {other.Name}.");
+        _db.Ledger.Add(Entry(account.Id, null, "guild-invite", $"guild={id} hero={other.Id}", 0, request.RequestId));
+        await SaveAsync(ct);
+        await tx.CommitAsync(ct);
+        return await ViewAsync(account, null, $"{other.Name} is invited: they will find it on their guild screen.", ct);
+    }
+
+    /// <summary>Takes a guild's invite (joining it, even through shut gates) or turns it down.</summary>
+    public async Task<GuildViewDto> AnswerGuildInviteAsync(Account account, GuildInviteAnswerRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        GuildInvite invite = await _db.GuildInvites.FirstOrDefaultAsync(i => i.GuildId == request.GuildId && i.AccountId == account.Id, ct)
+            ?? throw new GameException("no_invite", "That invite is gone.");
+        if (invite.Utc <= DateTime.UtcNow.AddDays(-Guilds.InviteDays) || !request.Accept)
+        {
+            bool lapsed = request.Accept;
+            _db.GuildInvites.Remove(invite);
+            await SaveAsync(ct);
+            if (lapsed) throw new GameException("lapsed", "That invite has lapsed.");
+            return await ViewAsync(account, null, "Invite turned down.", ct);
+        }
+        if (account.GuildId != null) throw new GameException("in_guild", "Leave your guild first.");
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        Guild guild = await LockGuildAsync(request.GuildId, ct);
+        if (await MemberCountAsync(guild.Id, ct) >= Guilds.MaxMembers(guild.Muster)) throw new GameException("guild_full", guild.Name + " is full.");
+        account.GuildId = guild.Id;
+        account.GuildRank = GuildRank.Member;
+        account.GuildJoinedUtc = DateTime.UtcNow;
+        account.GuildDonated = 0;
+        GuildEvent(guild, $"{NameOf(account)} joined, invited by {await NameOfAsync(invite.InviterId, ct)}.");
+        await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.GuildInvites.Where(i => i.AccountId == account.Id).ExecuteDeleteAsync(ct);
+        _db.Entry(invite).State = EntityState.Detached;
+        _db.Ledger.Add(Entry(account.Id, null, "guild-join", $"guild={guild.Id} invited-by={invite.InviterId}", 0, request.RequestId));
+        await SaveAsync(ct);
+        await tx.CommitAsync(ct);
+        return await ViewAsync(account, null, "Welcome to " + guild.Name + ".", ct);
     }
 }

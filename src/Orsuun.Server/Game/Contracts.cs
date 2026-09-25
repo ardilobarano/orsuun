@@ -116,13 +116,27 @@ public sealed record GuildBriefDto(string Tag, string Name, string Color, GuildR
 public sealed record GuildDto(Guid Id, string Name, string Tag, string Color, bool Open, int Level, long Xp, long NextLevelXp, long Treasury,
     int Plunder, int Muster, int Members, int MaxMembers, int SornBonusPercent, string[] Fortresses, string LastEvent);
 public sealed record GuildMemberDto(Guid AccountId, string Name, Banner Banner, GuildRank Rank, int Level, long Donated, int LastSeenMinutes, bool Me);
-public sealed record GuildListItemDto(Guid Id, string Name, string Tag, string Color, int Level, int Members, int MaxMembers, bool Open, bool Requested = false);
+public sealed record GuildListItemDto(Guid Id, string Name, string Tag, string Color, int Level, int Members, int MaxMembers, bool Open, bool Requested = false,
+    string InvitedBy = "");
 /// <summary>
 /// The GUILD screen: the account's guild with its members, or (no guild) guilds to join. Every guild call returns it,
 /// with the account's state inside.
 /// </summary>
 public sealed record GuildViewDto(StateDto State, GuildDto? Mine, GuildMemberDto[] Members, GuildListItemDto[] Browse, long DonatedToday,
-    long DonationCap, string Message = "", GuildMemberDto[]? Requests = null, string[]? Log = null);
+    long DonationCap, string Message = "", GuildMemberDto[]? Requests = null, string[]? Log = null, GuildListItemDto[]? Invites = null,
+    GuildMemberDto[]? Invited = null);
+/// <summary>The leader or an officer invites a hero, by id (chat, friends) or by name.</summary>
+public sealed record GuildInviteRequest(string RequestId, Guid AccountId, string? Name = null);
+public sealed record GuildInviteAnswerRequest(string RequestId, Guid GuildId, bool Accept);
+
+/// <summary>A hero on the friend list (or asking, or asked): MinutesAway since its last heartbeat (Rules.Friends.Seen).</summary>
+public sealed record FriendDto(Guid AccountId, string Name, HeroClass Class, int Level, Banner Banner, string GuildTag, int MinutesAway);
+public sealed record FriendsDto(FriendDto[] Friends, FriendDto[] Asking, FriendDto[] Asked, int Max, bool CanInvite, string Message = "");
+/// <summary>Asks a hero, by id (chat) or by name, to be friends; asking one who already asked you makes you friends.</summary>
+public sealed record FriendAddRequest(Guid AccountId, string? Name = null);
+public sealed record FriendAnswerRequest(Guid AccountId, bool Accept);
+/// <summary>Takes a friend off the list, takes back a request, or turns one down.</summary>
+public sealed record FriendRemoveRequest(Guid AccountId);
 public sealed record GuildAnswerRequest(string RequestId, Guid AccountId, bool Accept);
 
 /// <summary>One chat line; System lines (guild and world events) have no speaker.</summary>
@@ -214,7 +228,9 @@ public sealed record StateDto(
     WardrobeDto? Wardrobe = null,
     TrailDto? Trail = null,
     TradeBriefDto? Trade = null,
-    int DungeonPausedId = 0);
+    int DungeonPausedId = 0,
+    int FriendAsks = 0,
+    int GuildInvites = 0);
 
 /// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
 public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);
@@ -244,7 +260,8 @@ public sealed record TradeBriefDto(long Id, TradeState State, bool Incoming, str
 /// </summary>
 public sealed record TradeDto(long Id, TradeState State, bool Incoming, string OtherName, ItemDto[] MyItems, long MySorn, TradeStep MyStep,
     ItemDto[] TheirItems, long TheirSorn, TradeStep TheirStep, int LockLeft, int TaxPercent, bool RulesRelaxed, string Message, StateDto? Hero = null);
-public sealed record TradeInviteRequest(string RequestId, string Name);
+/// <summary>Asks a hero to trade, by name, or by id (chat, friends).</summary>
+public sealed record TradeInviteRequest(string RequestId, string Name, Guid? AccountId = null);
 public sealed record TradeRequest(string RequestId, long TradeId);
 public sealed record TradeOfferRequest(string RequestId, long TradeId, Guid[] ItemIds, long Sorn);
 
