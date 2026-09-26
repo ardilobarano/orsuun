@@ -1,4 +1,5 @@
 using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 using Xunit;
 
 namespace Orsuun.Rules.Tests;
@@ -33,6 +34,21 @@ public class ItemLooksTests
         Assert.Equal(WeaponKind.Greatsword, ItemLooks.KindOf(25));
         Assert.Equal("Epic Glaive of the Nine Oaths", new ItemState(105, Rarity.Epic).DisplayName);
         Assert.Equal(WeaponKind.Glaive, ItemLooks.KindOf(105));
+    }
+
+    [Fact]
+    public void Each_class_names_pieces_after_its_own_look()
+    {
+        // Owner, 26 Sep 2026: "Names per class". A piece has no class; its name follows who holds it.
+        var knives = new ItemState(55, Rarity.Epic);
+        Assert.Equal("Epic Hawkwing Knives", Content.ItemName(knives, HeroClass.Kestrel));
+        Assert.Equal("Epic Duskreaver", Content.ItemName(knives, HeroClass.Wraithsworn));
+        Assert.Equal("Epic Skycrystal Staff", Content.ItemName(knives, HeroClass.Drumcaller));
+        Assert.Equal("Epic Banner Greatsword", Content.ItemName(knives, HeroClass.Vanguard));
+        Assert.Equal("Rare Raiment of the Nine Oaths", Content.ItemName(new ItemState(105, Rarity.Rare, EquipSlot.Armor), HeroClass.Kestrel));
+        // Stat-only slots keep one name for everyone.
+        Assert.Equal(Content.ItemName(new ItemState(55, Rarity.Rare, EquipSlot.Helmet), HeroClass.Kestrel),
+            Content.ItemName(new ItemState(55, Rarity.Rare, EquipSlot.Helmet), HeroClass.Vanguard));
     }
 
     [Fact]

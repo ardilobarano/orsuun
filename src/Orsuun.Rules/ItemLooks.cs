@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Orsuun.Rules.Combat;
 
 namespace Orsuun.Rules
 {
@@ -38,6 +40,52 @@ namespace Orsuun.Rules
 
         public static WeaponKind KindOf(int itemLevel) => WeaponKinds[Tier(itemLevel)];
 
+        /// <summary>
+        /// The other classes' names (owner, 26 Sep 2026: "Names per class"), matching the looks they wear since their
+        /// redesign: the Kestrel's knives and outfits, the Wraithsworn's sabres and plate, the Drumcaller's staves and robes.
+        /// A piece has no class: its name follows whoever holds it (ShownClass on the client, the hero on the server).
+        /// </summary>
+        private static readonly Dictionary<HeroClass, string[]> ClassWeaponNames = new Dictionary<HeroClass, string[]>
+        {
+            [HeroClass.Kestrel] = new[]
+            {
+                "Twin Skinning Knives", "Rider's Talons", "Bronze Fangs", "Wolf-Fang Knives", "Silver Talons", "Hawkwing Knives",
+                "Emberwake Talons", "Oathkeeper Knives", "Bone Talons", "Khan's Twin Crescents", "Talons of the Nine Oaths",
+            },
+            [HeroClass.Wraithsworn] = new[]
+            {
+                "Herder's Sabre", "Rider's Sabre", "Bronze Sabre", "Rune Sabre", "Voidedge Sabre", "Duskreaver",
+                "Emberwake Sabre", "Oathkeeper Sabre", "Gravebone Sabre", "Khan's Nightblade", "Sabre of the Nine Oaths",
+            },
+            [HeroClass.Drumcaller] = new[]
+            {
+                "Feathered Staff", "Bone Charm Staff", "Bronze Bell Staff", "Wolf-Fang Staff", "Silver Crescent Staff", "Skycrystal Staff",
+                "Emberorb Staff", "Eagle Staff", "Carved Bone Staff", "Dragon Crystal Staff", "Staff of the Nine Oaths",
+            },
+        };
+
+        private static readonly Dictionary<HeroClass, string[]> ClassArmorNames = new Dictionary<HeroClass, string[]>
+        {
+            [HeroClass.Kestrel] = new[]
+            {
+                "Leather Jerkin", "Rider's Leathers", "Bronzescale Bodice", "Wolfhide Jerkin", "Silverplate Bodice", "Hawkwing Harness",
+                "Emberweave Harness", "Oathsworn Leathers", "Gravewrought Bodice", "Khan's Silks", "Raiment of the Nine Oaths",
+            },
+            [HeroClass.Wraithsworn] = new[]
+            {
+                "Void Robe", "Padded Coat", "Bronzebound Leathers", "Wolfcollar Lamellar", "Voidsteel Plate", "Horned Plate",
+                "Emberplate", "Oathsworn Plate", "Gravewrought Plate", "Khan's Nightplate", "Plate of the Nine Oaths",
+            },
+            [HeroClass.Drumcaller] = new[]
+            {
+                "Beaded Hides", "Dyed Leathers", "Bronze-Studded Hides", "Wolfskin Mantle", "Silverthread Robes", "Skysilk Regalia",
+                "Emberweave Robes", "Oathsworn Mantle", "Gravebone Regalia", "Khan's Stormsilk", "Regalia of the Nine Oaths",
+            },
+        };
+
+        /// <summary>The class whose names a piece shows when no class is given (the client keeps it on the playing hero).</summary>
+        public static HeroClass ShownClass { get; set; } = HeroClass.Vanguard;
+
         public static readonly string[] ArmorNames =
         {
             "Quilted Coat", "Lamellar Coat", "Bronzescale Lamellar", "Wolfhide Lamellar", "Riveted Cuirass", "Banner Lamellar",
@@ -52,9 +100,11 @@ namespace Orsuun.Rules
         /// <summary>Level band of an item level: 1-9 is 0, 10-19 is 1, ... capped at the last band.</summary>
         public static int Tier(int itemLevel) => Math.Max(0, Math.Min(MaxTier, itemLevel / LevelsPerLook));
 
-        public static string BaseName(EquipSlot slot, int itemLevel) =>
-            slot == EquipSlot.Weapon ? WeaponNames[Tier(itemLevel)]
-            : slot == EquipSlot.Armor ? ArmorNames[Tier(itemLevel)]
+        public static string BaseName(EquipSlot slot, int itemLevel) => BaseName(slot, itemLevel, ShownClass);
+
+        public static string BaseName(EquipSlot slot, int itemLevel, HeroClass cls) =>
+            slot == EquipSlot.Weapon ? (ClassWeaponNames.TryGetValue(cls, out string[]? w) ? w : WeaponNames)[Tier(itemLevel)]
+            : slot == EquipSlot.Armor ? (ClassArmorNames.TryGetValue(cls, out string[]? a) ? a : ArmorNames)[Tier(itemLevel)]
             : Content.SlotBaseNames[(int)slot];
 
         /// <summary>The model the client shows for an item, e.g. "Weapon_T2"; null for stat-only slots.</summary>

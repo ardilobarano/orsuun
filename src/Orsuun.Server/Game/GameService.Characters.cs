@@ -133,9 +133,9 @@ public sealed partial class GameService
         int held = await _db.Items.CountAsync(i => i.DepotLoginId == account.LoginId && !i.Destroyed, ct);
         if (held >= Characters.DepotSlots) throw new GameException("depot_full", $"The depot holds {Characters.DepotSlots} pieces.");
         item.DepotLoginId = account.LoginId;
-        _db.Ledger.Add(Entry(account.Id, item.Id, "depot-put", item.ToState().DisplayName, 0, request.RequestId));
+        _db.Ledger.Add(Entry(account.Id, item.Id, "depot-put", Content.ItemName(item.ToState(), account.Class), 0, request.RequestId));
         await SaveAsync(ct);
-        return await DepotAsync(account, item.ToState().DisplayName + " is in the depot.", ct);
+        return await DepotAsync(account, Content.ItemName(item.ToState(), account.Class) + " is in the depot.", ct);
     }
 
     /// <summary>A depot piece into this character's bag; it becomes this character's.</summary>
@@ -160,9 +160,9 @@ public sealed partial class GameService
             if (!account.Items.Contains(loaded)) account.Items.Add(loaded);
         }
         Item taken = account.Items.Single(i => i.Id == request.ItemId);
-        _db.Ledger.Add(Entry(account.Id, taken.Id, "depot-take", taken.ToState().DisplayName, 0, request.RequestId));
+        _db.Ledger.Add(Entry(account.Id, taken.Id, "depot-take", Content.ItemName(taken.ToState(), account.Class), 0, request.RequestId));
         await SaveAsync(ct);
-        return await DepotAsync(account, taken.ToState().DisplayName + " is in your bag.", ct);
+        return await DepotAsync(account, Content.ItemName(taken.ToState(), account.Class) + " is in your bag.", ct);
     }
 
     /// <summary>

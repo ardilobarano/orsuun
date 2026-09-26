@@ -100,7 +100,7 @@ public sealed partial class GameService
         });
         _db.Ledger.Add(Entry(account.Id, item.Id, "market-list", $"price={request.Price}", 0, request.RequestId));
         await SaveAsync(ct);
-        string name = item.ToState().DisplayName;
+        string name = Content.ItemName(item.ToState(), account.Class);
         return await MarketViewAsync(account, null, null, 0, $"{name} +{item.UpgradeLevel} is on the Exchange for {request.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn.", ct);
     }
 
@@ -172,7 +172,7 @@ public sealed partial class GameService
         listing.ClosedUtc = now;
         await _db.Accounts.Where(a => a.Id == listing.SellerId).ExecuteUpdateAsync(s => s.SetProperty(a => a.Sorn, a => a.Sorn + payout), ct);
         await PayKeepHoldersAsync(Market.Tax(listing.Price), ct);
-        string name = item.ToState().DisplayName + " +" + item.UpgradeLevel;
+        string name = Content.ItemName(item.ToState(), account.Class) + " +" + item.UpgradeLevel;
         _db.Ledger.Add(Entry(account.Id, item.Id, "market-buy", $"listing={listing.Id} price={listing.Price} seller={listing.SellerId}", -listing.Price, request.RequestId));
         _db.Ledger.Add(Entry(listing.SellerId, item.Id, "market-sale", $"listing={listing.Id} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id}",
             payout, "sale-" + listing.Id));

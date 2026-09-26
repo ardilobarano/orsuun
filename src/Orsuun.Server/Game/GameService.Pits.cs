@@ -23,10 +23,10 @@ public sealed partial class GameService
 
     private static List<ItemState> Worn(Account a) => a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()).ToList();
 
-    private static string WeaponLine(List<ItemState> gear)
+    private static string WeaponLine(List<ItemState> gear, HeroClass cls)
     {
         ItemState? weapon = gear.FirstOrDefault(i => i.Slot == EquipSlot.Weapon);
-        return weapon == null ? "no weapon" : $"{weapon.DisplayName} +{weapon.UpgradeLevel}";
+        return weapon == null ? "no weapon" : $"{Content.ItemName(weapon, cls)} +{weapon.UpgradeLevel}";
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public sealed partial class GameService
         string season = PitSeasonNow(), last = PitSeasonLast();
         List<Challenger> challengers = await ChallengersAsync(account, ct);
         PitChallengerDto[] offered = challengers.Select(c => new PitChallengerDto(c.Id, c.Name, c.Tag, c.Rating, Pits.League(c.Rating), c.Class,
-            WeaponLine(c.Gear), (int)Math.Round(Duels.WinChance(Edge(account, c)) * 100), c.Account == null)).ToArray();
+            WeaponLine(c.Gear, c.Class), (int)Math.Round(Duels.WinChance(Edge(account, c)) * 100), c.Account == null)).ToArray();
 
         // The board is the season's: heroes who fought in it.
         List<Account> top = await _db.Accounts.AsNoTracking().Where(a => a.PitSeason == season && a.PitSeasonWins + a.PitSeasonLosses > 0 && a.BannedUtc == null)
@@ -87,7 +87,7 @@ public sealed partial class GameService
         var tags = await _db.Guilds.AsNoTracking().Where(g => guildIds.Contains(g.Id)).Select(g => new { g.Id, g.Tag }).ToListAsync(ct);
         PitBoardDto[] board = top.Select((a, i) => new PitBoardDto(i + 1, NameOf(a),
             tags.Where(t => t.Id == a.GuildId).Select(t => t.Tag).FirstOrDefault() ?? "", a.PitRating, Pits.League(a.PitRating), a.PitSeasonWins, a.PitSeasonLosses,
-            WeaponLine(Worn(a)), a.Id == account.Id, a.PitTitle ?? "")).ToArray();
+            WeaponLine(Worn(a), a.Class), a.Id == account.Id, a.PitTitle ?? "")).ToArray();
 
         bool inSeason = account.PitSeason == season;
         bool ranked = account.PitLastSeason == last;

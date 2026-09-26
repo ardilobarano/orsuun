@@ -176,7 +176,7 @@ public sealed partial class GameService
             if (account.Materials < materials) throw new GameException("no_materials", "Not enough materials for the smith.");
             account.Sorn -= cost;
             account.Materials -= materials;
-            smithItem = state.DisplayName;
+            smithItem = Content.ItemName(state, account.Class);
             ForgeResult result = _forge.Attempt(state, ForgeMethod.ChainedSmith, _rng);
             item.ApplyState(state);
             if (result.Outcome == ForgeOutcome.Oathbreak)
@@ -189,7 +189,7 @@ public sealed partial class GameService
             }
             Count(account, BountyMetric.ForgeAttempts, 1);
             if (result.LevelAfter > result.LevelBefore && result.LevelAfter >= 8)
-                SystemLine(Chat.World, $"{DisplayName(account)} forged {state.DisplayName} to +{result.LevelAfter} at the Chained Smith!");
+                SystemLine(Chat.World, $"{DisplayName(account)} forged {Content.ItemName(state, account.Class)} to +{result.LevelAfter} at the Chained Smith!");
             _db.Ledger.Add(Entry(account.Id, item.Id, "smith",
                 $"run={run.Id} +{result.LevelBefore}->+{result.LevelAfter} chance={result.ChanceBp} outcome={result.Outcome}", -cost, request.RequestId + ":smith"));
             smith = new ForgeResultDto(result.Outcome, result.ChanceBp, result.LevelBefore, result.LevelAfter);

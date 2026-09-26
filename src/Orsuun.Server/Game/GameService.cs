@@ -292,7 +292,7 @@ public sealed partial class GameService
 
         Count(account, BountyMetric.ForgeAttempts, 1);
         if (result.LevelAfter > result.LevelBefore && result.LevelAfter >= 8)
-            SystemLine(Chat.World, $"{DisplayName(account)} forged {state.DisplayName} to +{result.LevelAfter}!");
+            SystemLine(Chat.World, $"{DisplayName(account)} forged {Content.ItemName(state, account.Class)} to +{result.LevelAfter}!");
         _db.Ledger.Add(Entry(account.Id, item.Id, "forge",
             $"{request.Method} +{result.LevelBefore}->+{result.LevelAfter} chance={result.ChanceBp} outcome={result.Outcome}", -cost, request.RequestId));
         await SaveAsync(ct);

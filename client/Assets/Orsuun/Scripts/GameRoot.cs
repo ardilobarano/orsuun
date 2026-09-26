@@ -480,6 +480,7 @@ namespace Orsuun.Client
             int band = tinted ? skinLook.Band : armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0;
             Lane.SetHeroClass(Session.Class, band, Session.Class == HeroClass.Vanguard ? null : skinModel);
             Ui.IconClass = Session.Class;
+            ItemLooks.ShownClass = Session.Class;   // pieces carry the playing class's names (knives for a Kestrel)
             Lane.SetLooks(skinModel != null && Session.Class == HeroClass.Vanguard ? skinModel : tinted ? "Armor_T" + band : armor?.LookId, Session.Weapon.LookId);
             Lane.SetWardrobe(mount?.Look, companion?.Look, skinLook.Tint);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
