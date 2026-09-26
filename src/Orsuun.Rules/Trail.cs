@@ -93,6 +93,7 @@ namespace Orsuun.Rules
         private static readonly (string Name, string Costume, string Mount)[] Themes =
         {
             ("The Amber Road", "amber-road-regalia", "amber-road-courser"),
+            ("The White Steppe", "white-steppe-regalia", "white-steppe-courser"),
         };
 
         public static TrailSeason Season(DateTime local)

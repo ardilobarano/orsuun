@@ -124,7 +124,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   Development server (`/v1/caravan/amber` answers "store_closed" elsewhere) until store purchases are built.
 - The Campaign Trail (`Rules/Trail.cs`) is each character's; seasons run 8 weeks from Mon 21 Sep 2026 20:00 server
   time. A new season needs its costume (a model per class) and mount in `CampaignTrail.Themes` before it opens, or it
-  repeats the last one. Anything that spends or grants Amber locks the login row first (`LockLoginAsync`): four
+  repeats the last one (the Caravan shows the running season's two pieces only: its grid holds eight a tab). Anything that spends or grants Amber locks the login row first (`LockLoginAsync`): four
   characters share it.
 - A piece on a direct trade's table has `Item.TradeId` and is out of the bag (`OutOfBag`), like a listed or depot piece;
   code that ends a trade must release it (`ReleasePiecesAsync`). Direct trade's level and age rules are off on a

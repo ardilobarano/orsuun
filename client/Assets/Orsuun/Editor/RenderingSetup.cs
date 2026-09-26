@@ -243,6 +243,7 @@ namespace Orsuun.Client.EditorTools
                     : court ? new Color(0.3f, 0.22f, 0.1f)
                     : id == "MountWarhorseHollow" ? new Color(0.3f, 0.4f, 0.55f)
                     : id == "MountWarhorseAmber" ? new Color(0.26f, 0.2f, 0.12f)     // the Trail's courser, warm on its bronze
+                    : id == "MountWarhorseWhite" ? new Color(0.05f, 0.07f, 0.1f)     // the second season's courser, a breath of frost on its scales
                     : id == "PetFox" ? new Color(0.22f, 0.16f, 0.1f)
                     : id == "PetFalcon" || id == "PetEagle" ? new Color(0.3f, 0.28f, 0.25f) : (Color?)null;   // birds fly in the shade side
                 if (glow.HasValue)
@@ -594,15 +595,52 @@ namespace Orsuun.Client.EditorTools
                     CaptureSkinned(cam, "../artifacts/iconref/" + cls + "-T" + band + ".png", rig.transform);
                 }
             }
+            // Each wardrobe skin's own models, one per class, to check a new costume (26 Sep 2026).
+            Directory.CreateDirectory("../artifacts/iconref/skins");
+            foreach (Orsuun.Rules.WardrobeDef def in Orsuun.Rules.Wardrobe.All)
+            {
+                if (def.Kind != Orsuun.Rules.WardrobeKind.Skin) continue;
+                foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Vanguard, Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
+                {
+                    string model = Orsuun.Client.LaneView.SkinModel(cls, def.Look);
+                    if (model == null) continue;
+                    if (cls == Orsuun.Rules.Combat.HeroClass.Vanguard)
+                    {
+                        view.SetHeroClass(cls);
+                        view.SetLooks(model, "Weapon_T5");
+                        view.SetGear(none);
+                    }
+                    else
+                    {
+                        view.SetHeroClass(cls, 5, model);
+                        view.PoseHero("Idle", 0f);
+                    }
+                    Frame(rig, 0.7f);
+                    CaptureSkinned(cam, "../artifacts/iconref/skins/" + cls + "-" + def.Look + ".png", rig.transform);
+                }
+            }
+
+            // And each mount under the Vanguard (standing where the lane's Update would lift him into the saddle).
+            view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
+            view.SetLooks("Armor_T5", "Weapon_T5");
+            foreach (Orsuun.Rules.WardrobeDef def in Orsuun.Rules.Wardrobe.All)
+            {
+                if (def.Kind != Orsuun.Rules.WardrobeKind.Mount) continue;
+                view.SetWardrobe(def.Look, null, Color.white);
+                Frame(rig, 1.2f);
+                CaptureSkinned(cam, "../artifacts/iconref/skins/Mount-" + def.Look + ".png", rig.transform);
+            }
+            view.SetWardrobe(null, null, Color.white);
+
             // The glaives alone, lying across the frame.
             view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
             rig.SetActive(false);
             for (int band = 0; band <= Orsuun.Rules.ItemLooks.MaxTier; band++)
             {
-                var prefab = Resources.Load<GameObject>("Models/Looks/Weapon_T" + band);
+                var prefab = Orsuun.Client.Art.Load<GameObject>("Models/Looks/Weapon_T" + band);
                 if (prefab == null) continue;
                 var glaive = (GameObject)Object.Instantiate(prefab);
-                var mat = Resources.Load<Material>("Looks/Weapon_T" + band);
+                var mat = Orsuun.Client.Art.Load<Material>("Looks/Weapon_T" + band);
                 if (mat != null) foreach (Renderer r in glaive.GetComponentsInChildren<Renderer>()) r.sharedMaterial = mat;
                 glaive.transform.position = new Vector3(100f, 0f, 0f);
                 // Lying along x, turned about its length so the flat of the blade faces the camera (thinnest in z).

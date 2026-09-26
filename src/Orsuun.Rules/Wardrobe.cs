@@ -94,6 +94,8 @@ namespace Orsuun.Rules
                 "Old Greyjaw's grey pelt. Only he drops it."),
             new WardrobeDef("amber-road-regalia", "Amber Road Regalia", WardrobeKind.Skin, 4, WardrobePerk.Hp, 5, false, "AmberRoad",
                 "A caravan master's teal and bronze, set with steppe amber. The Campaign Trail's first season."),
+            new WardrobeDef("white-steppe-regalia", "White Steppe Regalia", WardrobeKind.Skin, 4, WardrobePerk.Hp, 5, false, "WhiteSteppe",
+                "Snow-leopard fur over pale silver lamellar and sky-blue silk. The Campaign Trail's second season."),
 
             new WardrobeDef("steppe-pony", "Steppe Pony", WardrobeKind.Mount, 1, WardrobePerk.Attack, 2, true, "HorsePony",
                 "Small, shaggy and never tired."),
@@ -105,6 +107,8 @@ namespace Orsuun.Rules
                 "One of the herds that went Hollow, tamed again."),
             new WardrobeDef("amber-road-courser", "Amber Road Courser", WardrobeKind.Mount, 4, WardrobePerk.Attack, 5, false, "HorseAmber",
                 "Barded in honey amber and bronze for the salt roads. The Campaign Trail's first season."),
+            new WardrobeDef("white-steppe-courser", "White Steppe Courser", WardrobeKind.Mount, 4, WardrobePerk.Attack, 5, false, "HorseWhite",
+                "A grey-white charger in frost-blue scale barding, furred for the winter steppe. The Campaign Trail's second season."),
 
             new WardrobeDef("ember-fox", "Ember Fox", WardrobeKind.Companion, 1, WardrobePerk.Sorn, 3, true, "Fox",
                 "Finds the coins the dead forgot."),

@@ -182,9 +182,12 @@ namespace Orsuun.Client
             if (tab == AmberTab) return;
             var kind = (WardrobeKind)tab;
             int n = 0;
+            // The Campaign Trail's pieces are shown for the running season only (one skin and one mount a season).
+            TrailSeason season = CampaignTrail.Season(_root.Server.Trail?.season ?? CampaignTrail.Season(System.DateTime.Now).Number);
             foreach (WardrobeDef def in Wardrobe.All)
             {
                 if (def.Kind != kind || n >= GridCells) continue;
+                if (CampaignTrail.IsTrailPiece(def.Id) && def.Id != season.Costume && def.Id != season.Mount) continue;
                 Cell c = _cells[n++];
                 c.Def = def;
                 Ui.SetPicture(c.Picture, "Thumbs/Caravan/" + def.Id);

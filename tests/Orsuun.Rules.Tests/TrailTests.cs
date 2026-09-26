@@ -38,6 +38,22 @@ public class TrailTests
     }
 
     [Fact]
+    public void The_second_season_is_the_white_steppe_with_its_own_costume_and_mount()
+    {
+        TrailSeason two = CampaignTrail.Season(new DateTime(2026, 11, 16, 20, 0, 0));
+        Assert.Equal(2, two.Number);
+        Assert.Equal("The White Steppe", two.Name);
+        Assert.Equal("white-steppe-regalia", two.Costume);
+        Assert.Equal("white-steppe-courser", two.Mount);
+        Assert.Equal(WardrobeKind.Skin, Wardrobe.Find(two.Costume)!.Kind);
+        Assert.Equal(WardrobeKind.Mount, Wardrobe.Find(two.Mount)!.Kind);
+        Assert.False(Wardrobe.Find(two.Costume)!.Sold);
+        Assert.False(Wardrobe.Find(two.Mount)!.Sold);
+        Assert.True(CampaignTrail.IsTrailPiece(two.Costume));
+        Assert.Equal("amber-road-regalia", One.Costume);
+    }
+
+    [Fact]
     public void The_free_track_pays_turnstones_scrolls_and_a_khans_alloy_every_ten_tiers()
     {
         var free = Track(false);

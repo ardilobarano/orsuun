@@ -17,6 +17,7 @@ namespace Orsuun.Client
         private Text _link;
         private Text _banner;
         private Text _weapon;
+        private RawImage _weaponIcon;
         // Owner, 26 Sep 2026: on a mount the hero only makes plain attacks; this dismounts, or mounts up again.
         private Button _mountButton;
         private Text _mountLabel;
@@ -140,7 +141,7 @@ namespace Orsuun.Client
             Image plate = Ui.Framed("HeroPlate", canvas, 0.03f, 0.386f, 0.97f, 0.444f, new Color(0.13f, 0.12f, 0.2f));
             Ui.SlotTile("WeaponSlot", plate.transform, 0.012f, 0.06f, 0.16f, 0.94f, new Color(0.08f, 0.08f, 0.14f));
             RectTransform weaponBox = Ui.Rect("WeaponIconBox", plate.transform, 0.025f, 0.12f, 0.147f, 0.88f);
-            Ui.Icon("WeaponIcon", weaponBox, 0f, 0f, 1f, 1f, "Weapon");
+            _weaponIcon = Ui.Icon("WeaponIcon", weaponBox, 0f, 0f, 1f, 1f, "Weapon");
             _weapon = Ui.Title("Weapon", plate.transform, 0.18f, 0.05f, 0.77f, 0.95f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
             _mountButton = Ui.Button("Mount", plate.transform, 0.78f, 0.1f, 0.99f, 0.9f, "", 20, Palette.Alloy, ToggleMount, out _mountLabel);
             _mountButton.gameObject.SetActive(false);
@@ -379,6 +380,7 @@ namespace Orsuun.Client
             HeroStats stats = session.Hero;
             _weapon.text = $"{session.Weapon.DisplayName} +{session.Weapon.UpgradeLevel}\n<size=20><color=#C2BAAD>Attack {stats.Attack}   ·   Defense {stats.Defense}   ·   Crit {stats.CritChanceBp / 100}%</color></size>";
             _weapon.color = ForgePanel.LevelColor(session.Weapon.UpgradeLevel);
+            Ui.SetIcon(_weaponIcon, Ui.ItemIcon(session.Weapon));   // the weapon's own picture for its level band and the class
 
             _logAge += Time.deltaTime;
             Color logColor = Palette.Sorn;

@@ -469,7 +469,8 @@ def class_look(glb, name, height, tris=TRIS, weapon="knives", attack=None, yaw_d
             o.parent = root
         _arm, layout = rigging.rig_humanoid([objs[name + "_Armor"]], root, height, name + "Rig",
                                              weapon=objs[name + "_Weapon"], weapon_bone=bone,
-                                             attack=attack, layout=layout)
+                                             attack=attack, layout=layout,
+                                             loose_hand="hand.L" if weapon == "sword" else None)
         _export_rigged(root, name)
     finally:
         OUT = looks_out

@@ -173,6 +173,76 @@ def skin(mesh_obj, arm, radii, only=None):
     mod.object = arm
 
 
+def hold_loose(mesh_obj, arm, height, hand):
+    """A Wraithsworn's palm flame (26 Sep 2026): Tripo sometimes sets it floating off the hand (behind the body, or out
+    past the fingers), where it was weighted to the chest and hung in the air when the arm swung. A sizeable piece
+    floating free of the body at hand height is moved into the off hand (`hand`, e.g. "hand.L") and rides it whole."""
+    from mathutils.kdtree import KDTree
+    me = mesh_obj.data
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.verts.ensure_lookup_table()
+    island = [-1] * len(bm.verts)
+    islands = []
+    for start in bm.verts:
+        if island[start.index] >= 0:
+            continue
+        members, stack = [], [start]
+        island[start.index] = len(islands)
+        while stack:
+            v = stack.pop()
+            members.append(v.index)
+            for e in v.link_edges:
+                o = e.other_vert(v)
+                if island[o.index] < 0:
+                    island[o.index] = len(islands)
+                    stack.append(o)
+        islands.append(members)
+    bm.free()
+    body = max(islands, key=len)
+    tree = KDTree(len(body))
+    for i in body:
+        tree.insert(me.vertices[i].co, i)
+    tree.balance()
+    bone = arm.data.bones[hand]
+    grip = (bone.head_local + bone.tail_local) / 2
+    side = 1.0 if grip.x > 0 else -1.0
+    group = mesh_obj.vertex_groups.get(hand)
+    total = len(me.vertices)
+    floating = []
+    for members in islands:
+        if members is body or len(members) > 0.08 * total:
+            continue
+        if min(tree.find(me.vertices[i].co)[2] for i in members) < 0.02 * height:
+            continue
+        centre = sum((me.vertices[i].co for i in members), Vector()) / len(members)
+        if 0.35 * height < centre.z < 0.85 * height:
+            floating.append((members, centre))
+    # The flame itself, moved beside the palm, a little in front of the hand and out from the hip; its loose tips (and
+    # any other shred at hand height out past the hands) go with it.
+    flames = [(m, c, grip + Vector((0.05 * height * side, -0.04 * height, 0.0)) - c)
+              for m, c in floating if len(m) >= 0.01 * total]
+    reach = max(abs(grip.x), abs(arm.data.bones["hand.R" if hand == "hand.L" else "hand.L"].head_local.x))
+    moved = 0
+    for members, centre in floating:
+        shift = next((f[2] for f in flames if f[0] is members), None)
+        if shift is None:
+            near = [f for f in flames if (f[1] - centre).length < 0.25 * height]
+            if near:
+                shift = min(near, key=lambda f: (f[1] - centre).length)[2]
+            elif abs(centre.x) > reach:
+                shift = grip + Vector((0.05 * height * side, -0.04 * height, 0.0)) - centre
+            else:
+                continue
+        for i in members:
+            me.vertices[i].co += shift
+            for g in list(me.vertices[i].groups):
+                mesh_obj.vertex_groups[g.group].remove([i])
+            group.add([i], 1.0, 'REPLACE')
+        moved += len(members)
+    print("loose pieces: %d vertices moved into %s" % (moved, hand))
+
+
 def attach_to_bone(obj, arm, bone):
     """Keeps obj where it is and makes it follow the bone."""
     world = obj.matrix_world.copy()
@@ -360,7 +430,8 @@ def humanoid_layout(verts, height):
     }
 
 
-def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapon_bone=None, attack=None, layout=None):
+def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapon_bone=None, attack=None, layout=None,
+                 loose_hand=None):
     """Rigs an A-pose class model with the shared bone names, so the same five actions play on it. staff=True finds a
     long straight staff in the right hand (the straightest near-vertical line on that side) and pins it to hand.R,
     so it swings as one piece instead of bending with the head and shoulder."""
@@ -378,6 +449,8 @@ def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapo
     arm, radii = build_from_layout(root, layout, rig_name)
     for m in meshes:
         skin(m, arm, radii)
+        if loose_hand:
+            hold_loose(m, arm, height, loose_hand)
         if staff:
             group = m.vertex_groups.get("hand.R")
             pinned = 0
