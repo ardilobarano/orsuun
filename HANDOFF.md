@@ -155,8 +155,9 @@ rival wears his band's armour look with its weapon (`ArmRival`; a steel deserter
 about 16:25) is on the APK link and the iPhone (build 26092613). The Master's Needle in the Pit shop, the Exchange's goods and prices, the
 120-piece bag with the merchant (build 26092615) followed on both. The second looks (26 Sep 2026, about 19:50; server
 deployed at the same commit, migration `Figures` applied, content bundles uploaded, 178 MB now) are on the APK link;
-their iOS build 26092616 is built in `client/Builds/iOS-derived` but not installed yet (the iPhone was away): install it
-with the `devicectl` line above once the phone is unlocked near the Mac.
+The bulk sale, the second-look costumes (24 of 36)
+and the daily gifts (27 Sep 2026, about 01:30; server deployed at the same commit, migration `DailyLogin` applied,
+content bundles uploaded, 202 MB now) are on the APK link and the iPhone (build 26092622).
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
