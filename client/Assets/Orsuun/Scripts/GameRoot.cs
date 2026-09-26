@@ -48,6 +48,7 @@ namespace Orsuun.Client
         public RuneLockPanel RuneLock { get; private set; }
         public ChatPanel Chat { get; private set; }
         public FriendsPanel Friends { get; private set; }
+        public MessagesPanel Messages { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
         public GameNotifications Notifications { get; private set; }
@@ -130,6 +131,8 @@ namespace Orsuun.Client
             Market.Init(this);
             Friends = new GameObject("FriendsPanel").AddComponent<FriendsPanel>();
             Friends.Init(this);
+            Messages = new GameObject("MessagesPanel").AddComponent<MessagesPanel>();
+            Messages.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
             Chat.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
@@ -162,6 +165,12 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             // -skills opens SKILLS; -bagtab <n> opens the inventory on a tab (1 gear, 2 books, 3 materials), -bagcard its first tile's card.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-skills") >= 0) Skills.Open();
+            // -messages opens MESSAGES (-messagesto <name> the conversation with that hero).
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-messages") >= 0)
+            {
+                if (Arg("-messagesto") != null) _messagesTo = Arg("-messagesto");
+                else Messages.Open();
+            }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-menu") >= 0) Menu.Open();
             // Screenshots: -oath shows the Banner oath, -war the War of Banners, -bounties the bounty board.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-oath") >= 0) Oath.Open();
@@ -249,6 +258,7 @@ namespace Orsuun.Client
             if (shot != null && _castShow >= 0) _castFallback = StartCoroutine(ShotAndQuit(shot, 60f));   // gives up after a minute
         }
 
+        private string _messagesTo;
         private int _castShow = -1;
         private bool _castShot;
         private Coroutine _castFallback;
@@ -380,6 +390,12 @@ namespace Orsuun.Client
         private void Update()
         {
             CastShow();
+            // Screenshots: the conversation opens once the hero is on line (its id comes from the server).
+            if (_messagesTo != null && Server.Online && !Server.WaitingForHero)
+            {
+                Messages.OpenWith(null, _messagesTo);
+                _messagesTo = null;
+            }
             if (Server.Online && Server.InGuild && (_openGuildWar || _duelLane >= 0))
             {
                 if (_openGuildWar) GuildWar.Open();

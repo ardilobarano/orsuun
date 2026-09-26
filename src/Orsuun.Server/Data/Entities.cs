@@ -462,6 +462,18 @@ public sealed class AdminAction
     [MaxLength(300)] public string Detail { get; set; } = "";
 }
 
+/// <summary>A private message between two heroes (Rules.Whispers): kept with no expiry.</summary>
+public sealed class PrivateMessage
+{
+    public long Id { get; set; }
+    public Guid FromId { get; set; }
+    public Guid ToId { get; set; }
+    [MaxLength(200)] public string Text { get; set; } = "";
+    public DateTime Utc { get; set; }
+    /// <summary>The recipient has opened the conversation since it arrived.</summary>
+    public bool Read { get; set; }
+}
+
 public sealed class ChatReport
 {
     public long Id { get; set; }

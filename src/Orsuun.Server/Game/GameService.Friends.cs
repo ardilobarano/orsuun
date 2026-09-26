@@ -123,13 +123,14 @@ public sealed partial class GameService
         return await FriendsAsync(account, gone > 0 ? them + " is off your list." : "", ct);
     }
 
-    /// <summary>Waiting friend requests and guild invites, for the HUD (on /me and the heartbeat).</summary>
-    private async Task<(int friendAsks, int guildInvites)> SocialCountsAsync(Account account, CancellationToken ct)
+    /// <summary>Waiting friend requests, guild invites and unread messages, for the HUD (on /me and the heartbeat).</summary>
+    private async Task<(int friendAsks, int guildInvites, int whispers)> SocialCountsAsync(Account account, CancellationToken ct)
     {
         int asks = await _db.Friendships.CountAsync(f => f.ToId == account.Id && !f.Accepted, ct);
-        if (account.GuildId != null) return (asks, 0);
+        int whispers = await _db.PrivateMessages.CountAsync(m => m.ToId == account.Id && !m.Read, ct);
+        if (account.GuildId != null) return (asks, 0, whispers);
         DateTime lapsed = DateTime.UtcNow.AddDays(-Guilds.InviteDays);
         int invites = await _db.GuildInvites.CountAsync(i => i.AccountId == account.Id && i.Utc > lapsed, ct);
-        return (asks, invites);
+        return (asks, invites, whispers);
     }
 }

@@ -43,6 +43,22 @@ namespace Orsuun.Rules
     }
 
     /// <summary>
+    /// Private messages (owner, 26 Sep 2026: "go for private messages", "they need to stay after days and days", "make it
+    /// a screen"): hero to hero, on their own MESSAGES screen, kept with no expiry (only a conversation past
+    /// KeepPerConversation loses its oldest). The chat's text rules, flood limit, mutes and blocks apply; a reported
+    /// message goes to the moderators' queue.
+    /// </summary>
+    public static class Whispers
+    {
+        public const int PageSize = 50;
+        public const int KeepPerConversation = 1000;
+        /// <summary>Conversations listed, newest first.</summary>
+        public const int MaxConversations = 60;
+        /// <summary>Stored as a moderation line in this channel prefix plus the recipient's id (never shown in chat).</summary>
+        public const string ReportChannel = "w:";
+    }
+
+    /// <summary>
     /// Friends (owner, 25 Sep 2026: "adding friends and friend list"): each hero keeps its own list. A friend request
     /// waits until the other hero takes it (both then see each other), is turned down, or taken back. Neither side may
     /// have blocked the other.

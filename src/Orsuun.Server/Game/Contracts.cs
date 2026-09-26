@@ -244,7 +244,17 @@ public sealed record StateDto(
     int[]? SkillGrades = null,
     int[]? SkillProgress = null,
     long[]? SkillReadySeconds = null,
-    long Honor = 0);
+    long Honor = 0,
+    int Whispers = 0);
+
+/// <summary>Private messages (Rules.Whispers): one conversation in the list.</summary>
+public sealed record WhisperConversationDto(Guid AccountId, string Name, string Class, int Level, int MinutesAway, string LastText, DateTime LastUtc, bool LastMine, int Unread);
+public sealed record WhispersDto(WhisperConversationDto[] Conversations, int Unread, string Message);
+public sealed record WhisperLineDto(long Id, bool Mine, string Text, DateTime Utc);
+/// <summary>A conversation's page: new lines after After, or older ones before Before; Blocked when you blocked them.</summary>
+public sealed record WhisperThreadDto(Guid AccountId, string Name, string Class, int Level, int MinutesAway, WhisperLineDto[] Lines, long Latest, bool HasOlder, bool Blocked, string Message);
+public sealed record WhisperSendRequest(Guid AccountId, string? Name, string Text, long After);
+public sealed record WhisperReportRequest(long MessageId);
 
 /// <summary>Amber and the wardrobe (Rules.Wardrobe): pieces held with the seconds they have left, and the one worn per slot.</summary>
 public sealed record WardrobeDto(long Amber, WardrobePieceDto[] Pieces, string Skin, string Mount, string Companion, bool FirstPurchase);

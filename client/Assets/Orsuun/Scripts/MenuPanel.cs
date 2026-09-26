@@ -46,7 +46,12 @@ namespace Orsuun.Client
                 Close();
                 _root.Server.ChangeCharacter();
             }, out _);
-            Ui.Button("HowToPlay", canvas, 0.15f, 0.755f, 0.85f, 0.815f, "HOW TO PLAY", 32, Palette.ButtonIdle, HowToPlay, out _);
+            Ui.Button("HowToPlay", canvas, 0.15f, 0.755f, 0.49f, 0.815f, "HOW TO PLAY", 28, Palette.ButtonIdle, HowToPlay, out _);
+            Ui.Button("Messages", canvas, 0.51f, 0.755f, 0.85f, 0.815f, "MESSAGES", 30, Palette.Safe, () =>
+            {
+                Close();
+                _root.Messages.Open();
+            }, out _);
             Ui.Button("Account", canvas, 0.15f, 0.68f, 0.85f, 0.74f, "", 30, Palette.Safe, OpenAccount, out _accountLabel);
             Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.85f, 0.665f, "", 32, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
             Ui.Button("Sound", canvas, 0.15f, 0.53f, 0.85f, 0.59f, "", 32, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);

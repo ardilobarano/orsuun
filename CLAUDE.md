@@ -157,3 +157,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `Resources/Fx` (white on alpha) at `SkillFx.Brightness`: layers stack under the bloom, so keep new ones dim.
 - The lane camera is at (1.5, 5.4, -19.5) looking at (1.5, 1.9, 0) in `GameRoot.BuildCameras` and three editor
   previews in `RenderingSetup`, with the backdrop at y -1.2: change them together.
+- Private messages (`PrivateMessages`, owner 26 Sep 2026: kept "after days and days") have no expiry job: only a
+  conversation past `Whispers.KeepPerConversation` loses its oldest lines. Deleting a hero deletes its messages both
+  ways. A reported one is copied into `ChatMessages` (channel "w:" + the recipient's id, hidden) so the moderation page
+  handles it; no chat reads "w:" channels, keep it that way. Sending shares chat's flood limit (`LastChatUtc`) and mutes.

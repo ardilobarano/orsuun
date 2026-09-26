@@ -803,6 +803,60 @@ namespace Orsuun.Client.Net
             FriendAsks = Friends.asking?.Length ?? 0;
         }
 
+        // ---- Private messages (Rules.Whispers): kept with no expiry, on the MESSAGES screen.
+
+        /// <summary>Unread messages for this hero (from the last /me or heartbeat, and the message calls).</summary>
+        public int WhisperUnread { get; private set; }
+        /// <summary>The conversation list as the server last showed it.</summary>
+        public WhispersDto Whispers { get; private set; }
+
+        public IEnumerator FetchWhispers(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/whispers", null, true, json =>
+            {
+                Whispers = JsonUtility.FromJson<WhispersDto>(json);
+                WhisperUnread = Whispers.unread;
+            }, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>
+        /// One conversation: the newest page (after 0, before 0), new lines after the last id held, or the page before an
+        /// id. Completes with (thread, error); opening it marks what they sent as read.
+        /// </summary>
+        public IEnumerator FetchWhisperThread(string accountId, long after, long before, Action<WhisperThreadDto, string> done, string name = null)
+        {
+            string failure = null;
+            WhisperThreadDto thread = null;
+            string who = !string.IsNullOrEmpty(accountId) ? "id=" + accountId : "name=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(name ?? "");
+            string path = $"/v1/whispers/thread?{who}" + (after > 0 ? $"&after={after}" : "") + (before > 0 ? $"&before={before}" : "");
+            yield return Send("GET", path, null, true, json => thread = JsonUtility.FromJson<WhisperThreadDto>(json), error => failure = error ?? "No answer from the server.");
+            done(thread, failure);
+        }
+
+        /// <summary>Sends a message to a hero by id, or by name with NoId; returns the conversation's lines after <paramref name="after"/>.</summary>
+        public IEnumerator SendWhisper(string accountId, string name, string text, long after, Action<WhisperThreadDto, string> done)
+        {
+            string failure = null;
+            WhisperThreadDto thread = null;
+            string body = JsonUtility.ToJson(new WhisperSendRequest { accountId = accountId ?? NoId, name = name ?? "", text = text, after = after });
+            yield return Post("/v1/whispers/send", body, true, json => thread = JsonUtility.FromJson<WhisperThreadDto>(json), error => failure = error ?? "No answer from the server.");
+            done(thread, failure);
+        }
+
+        public IEnumerator ReportWhisper(long messageId, Action<WhisperThreadDto, string> done)
+        {
+            string failure = null;
+            WhisperThreadDto thread = null;
+            yield return Post("/v1/whispers/report", JsonUtility.ToJson(new WhisperReportRequest { messageId = messageId }), true,
+                json => thread = JsonUtility.FromJson<WhisperThreadDto>(json), error => failure = error ?? "No answer from the server.");
+            done(thread, failure);
+        }
+
+        /// <summary>The HUD's count drops as soon as a conversation is opened (the server marked it read).</summary>
+        public void WhispersRead(int count) => WhisperUnread = Math.Max(0, WhisperUnread - count);
+
         public IEnumerator FetchFriends(Action<string> done)
         {
             string failure = null;
@@ -1141,6 +1195,7 @@ namespace Orsuun.Client.Net
                 TradeBrief = s.trade != null && s.trade.id > 0 ? s.trade : null;
                 FriendAsks = s.friendAsks;
                 GuildInvites = s.guildInvites;
+                WhisperUnread = s.whispers;
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
             }
@@ -1301,7 +1356,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
@@ -1318,6 +1373,12 @@ namespace Orsuun.Client.Net
         [Serializable] public class SkillTrainRequest { public string requestId; public int slot; }
         [Serializable] public class SkillTrainDto { public StateDto state; public int slot; public bool success; public int grade; public string message; }
         [Serializable] public class FriendDto { public string accountId; public string name; public string @class; public int level; public string banner; public string guildTag; public int minutesAway; }
+        [Serializable] public class WhisperConversationDto { public string accountId; public string name; public string @class; public int level; public int minutesAway; public string lastText; public string lastUtc; public bool lastMine; public int unread; }
+        [Serializable] public class WhispersDto { public WhisperConversationDto[] conversations; public int unread; public string message; }
+        [Serializable] public class WhisperLineDto { public long id; public bool mine; public string text; public string utc; }
+        [Serializable] public class WhisperThreadDto { public string accountId; public string name; public string @class; public int level; public int minutesAway; public WhisperLineDto[] lines; public long latest; public bool hasOlder; public bool blocked; public string message; }
+        [Serializable] public class WhisperSendRequest { public string accountId; public string name; public string text; public long after; }
+        [Serializable] public class WhisperReportRequest { public long messageId; }
         [Serializable] public class FriendsDto { public FriendDto[] friends; public FriendDto[] asking; public FriendDto[] asked; public int max; public bool canInvite; public string message; }
         [Serializable] public class FriendAddRequest { public string accountId; public string name; }
         [Serializable] public class FriendAnswerRequest { public string accountId; public bool accept; }

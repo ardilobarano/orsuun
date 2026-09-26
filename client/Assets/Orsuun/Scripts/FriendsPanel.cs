@@ -76,15 +76,16 @@ namespace Orsuun.Client
             _actions = Ui.Rect("Actions", canvas, 0f, 0f, 1f, 1f).gameObject;
             Image dim = Ui.Panel("Dim", _actions.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f));
             dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _actions.SetActive(false));
-            Transform box = Ui.Framed("Box", _actions.transform, 0.1f, 0.38f, 0.9f, 0.62f, Palette.PanelDark).transform;
-            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.74f, 0.95f, 0.96f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
+            Transform box = Ui.Framed("Box", _actions.transform, 0.1f, 0.35f, 0.9f, 0.65f, Palette.PanelDark).transform;
+            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.78f, 0.95f, 0.96f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
             _actionsTitle.supportRichText = true;
 
             _friendActions = Ui.Rect("Friend", box, 0f, 0f, 1f, 1f).gameObject;
-            Ui.Button("Trade", _friendActions.transform, 0.06f, 0.46f, 0.48f, 0.7f, "TRADE", 26, Palette.Alloy, TradePicked, out _);
-            _invite = Ui.Button("Invite", _friendActions.transform, 0.52f, 0.46f, 0.94f, 0.7f, "GUILD INVITE", 24, Palette.Safe, InvitePicked, out _);
-            Ui.Button("Remove", _friendActions.transform, 0.06f, 0.2f, 0.48f, 0.42f, "TAKE OFF", 24, Palette.Danger, AskRemovePicked, out _);
-            Ui.Button("Cancel", _friendActions.transform, 0.52f, 0.2f, 0.94f, 0.42f, "CLOSE", 24, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
+            Ui.Button("Message", _friendActions.transform, 0.06f, 0.55f, 0.48f, 0.74f, "MESSAGE", 26, Palette.Safe, MessagePicked, out _);
+            Ui.Button("Trade", _friendActions.transform, 0.52f, 0.55f, 0.94f, 0.74f, "TRADE", 26, Palette.Alloy, TradePicked, out _);
+            _invite = Ui.Button("Invite", _friendActions.transform, 0.06f, 0.31f, 0.48f, 0.5f, "GUILD INVITE", 24, Palette.ButtonForge, InvitePicked, out _);
+            Ui.Button("Remove", _friendActions.transform, 0.52f, 0.31f, 0.94f, 0.5f, "TAKE OFF", 24, Palette.Danger, AskRemovePicked, out _);
+            Ui.Button("Cancel", _friendActions.transform, 0.3f, 0.06f, 0.7f, 0.25f, "CLOSE", 24, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
 
             _askingActions = Ui.Rect("Asking", box, 0f, 0f, 1f, 1f).gameObject;
             Ui.Button("Take", _askingActions.transform, 0.06f, 0.46f, 0.48f, 0.7f, "BE FRIENDS", 24, Palette.Safe, () => AnswerPicked(true), out _);
@@ -153,6 +154,15 @@ namespace Orsuun.Client
             // Guild invites are the leader's and officers' (the server says whether this hero may).
             _invite.interactable = _root.Server.Friends != null && _root.Server.Friends.canInvite && string.IsNullOrEmpty(hero.guildTag);
             _actions.SetActive(true);
+        }
+
+        /// <summary>A private message to the friend picked (MESSAGES).</summary>
+        private void MessagePicked()
+        {
+            FriendDto hero = _picked?.Hero;
+            _actions.SetActive(false);
+            if (hero == null) return;
+            _root.Messages.OpenWith(hero.accountId, hero.name);
         }
 
         private void TradePicked()

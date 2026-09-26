@@ -350,6 +350,7 @@ public sealed partial class GameService
         await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.GuildInvites.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
         await _db.Friendships.Where(f => f.FromId == account.Id || f.ToId == account.Id).ExecuteDeleteAsync(ct);
+        await _db.PrivateMessages.Where(m => m.FromId == account.Id || m.ToId == account.Id).ExecuteDeleteAsync(ct);
         await _db.MarketListings.Where(l => l.SellerId == account.Id).ExecuteDeleteAsync(ct);
         await _db.MarketListings.Where(l => l.BuyerId == account.Id).ExecuteUpdateAsync(s => s.SetProperty(l => l.BuyerId, (Guid?)null), ct);
         await _db.Ledger.Where(l => l.AccountId == account.Id).ExecuteDeleteAsync(ct);
@@ -740,8 +741,8 @@ public sealed partial class GameService
             list.Add(BossStatus(boss, clock, fought, boss.Hp * freshPool, top, now));
         }
         await _db.SaveChangesAsync(ct);
-        var (friendAsks, guildInvites) = await SocialCountsAsync(account, ct);
-        return state with { Bosses = list.ToArray(), Trade = await TradeBriefAsync(account, ct), FriendAsks = friendAsks, GuildInvites = guildInvites };
+        var (friendAsks, guildInvites, whispers) = await SocialCountsAsync(account, ct);
+        return state with { Bosses = list.ToArray(), Trade = await TradeBriefAsync(account, ct), FriendAsks = friendAsks, GuildInvites = guildInvites, Whispers = whispers };
     }
 
     private StateDto ToState(Account account, SettlementDto? settlement = null, ForgeResultDto? forge = null, PushResultDto? push = null, BossFightResultDto? bossFight = null, SocketResultDto? socket = null, TurnResultDto? turn = null,

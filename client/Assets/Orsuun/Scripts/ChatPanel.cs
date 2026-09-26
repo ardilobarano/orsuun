@@ -112,8 +112,9 @@ namespace Orsuun.Client
             Transform box = Ui.Framed("Box", _actions.transform, 0.1f, 0.33f, 0.9f, 0.67f, Palette.PanelDark).transform;
             _actionsTitle = Ui.Title("Title", box, 0.05f, 0.82f, 0.95f, 0.97f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
             Ui.Button("Friend", box, 0.06f, 0.63f, 0.48f, 0.79f, "ADD FRIEND", 24, Palette.Safe, AddFriendPicked, out _);
-            Ui.Button("Trade", box, 0.52f, 0.63f, 0.94f, 0.79f, "TRADE", 24, Palette.Alloy, TradePicked, out _);
-            _inviteButton = Ui.Button("Invite", box, 0.06f, 0.45f, 0.94f, 0.61f, "INVITE TO MY GUILD", 24, Palette.ButtonForge, InvitePicked, out _);
+            Ui.Button("Message", box, 0.52f, 0.63f, 0.94f, 0.79f, "MESSAGE", 24, Palette.Safe, MessagePicked, out _);
+            Ui.Button("Trade", box, 0.06f, 0.45f, 0.48f, 0.61f, "TRADE", 24, Palette.Alloy, TradePicked, out _);
+            _inviteButton = Ui.Button("Invite", box, 0.52f, 0.45f, 0.94f, 0.61f, "GUILD INVITE", 22, Palette.ButtonForge, InvitePicked, out _);
             Ui.Button("Report", box, 0.06f, 0.25f, 0.48f, 0.41f, "REPORT", 24, Palette.Danger, ReportPicked, out _);
             Ui.Button("Block", box, 0.52f, 0.25f, 0.94f, 0.41f, "BLOCK", 24, Palette.ButtonIdle, AskBlockPicked, out _);
             Ui.Button("Cancel", box, 0.3f, 0.05f, 0.7f, 0.19f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
@@ -198,6 +199,16 @@ namespace Orsuun.Client
             if (line == null) return;
             StartCoroutine(_root.Server.AddFriend(line.accountId, null, (message, error) =>
                 _message.text = error != null ? ConfirmDialog.Tint(error, Palette.Bad) : message));
+        }
+
+        /// <summary>A private message to the hero picked (MESSAGES).</summary>
+        private void MessagePicked()
+        {
+            ChatLineDto line = _picked;
+            _actions.SetActive(false);
+            if (line == null) return;
+            Close();
+            _root.Messages.OpenWith(line.accountId, line.name);
         }
 
         private void TradePicked()

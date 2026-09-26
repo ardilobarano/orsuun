@@ -81,7 +81,7 @@ public sealed partial class GameService
     }
 
     private static AdminLineDto LineDto(ChatMessage m) =>
-        new(m.Id, m.Channel == Chat.World ? "world" : "guild", m.AccountId, m.AccountId == Guid.Empty ? "(system)" : m.Name, m.Text, m.Utc, m.Reports, m.Hidden, m.Reviewed);
+        new(m.Id, m.Channel == Chat.World ? "world" : m.Channel.StartsWith(Whispers.ReportChannel) ? "message" : "guild", m.AccountId, m.AccountId == Guid.Empty ? "(system)" : m.Name, m.Text, m.Utc, m.Reports, m.Hidden, m.Reviewed);
 
     /// <summary>Reported lines no moderator has looked at yet, most reported first.</summary>
     public async Task<AdminLineDto[]> AdminReportsAsync(CancellationToken ct) =>
