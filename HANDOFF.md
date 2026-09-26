@@ -140,7 +140,11 @@ about 12:30; migration `WeaponDamageRolls`, copy first: `~/orsuun-backups/playte
 and then the redesigned Vanguard with weapons by band and the weapon halo (about 15:00; no migration) are deployed, on the
 APK link (410 MB) and on the iPhone (build 26092610). The download-on-first-launch build (26 Sep 2026, about 14:50) is on the APK link (45 MB; the
 phones fetch about 130 MB of art from `/downloads/content/<platform>/` on first launch) and on the iPhone (build
-26092611, seen online right after its first start).
+26092611, seen online right after its first start). The build with the other classes' new style, Trail season 2, the per-class names and the weapon icon on the
+hero plate (26 Sep 2026, about 15:45; server deployed at the same commit, content bundles uploaded) is on the APK link
+(the previous APK kept as `Orsuun-prev.apk`). Its iOS build 26092612 is built in `client/Builds/iOS-derived` but not
+installed: the iPhone was locked or away ("unavailable"); install it with the `devicectl` line below once it is
+unlocked and on the Mac's network or cable.
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
