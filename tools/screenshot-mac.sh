@@ -10,6 +10,6 @@ case "$OUT" in /*) ;; *) OUT="$ROOT/$OUT" ;; esac
 rm -f "$OUT"
 "$ROOT/client/Builds/Mac/Orsuun.app/Contents/MacOS/"* -screen-fullscreen 0 -screen-width 540 -screen-height 960 -local -shot "$OUT" -shotAfter "${SHOT_AFTER:-8}" "$@" >/dev/null 2>&1 &
 PID=$!
-for _ in $(seq 1 60); do [ -f "$OUT" ] && break; sleep 1; done
+for _ in $(seq 1 ${SHOT_WAIT:-60}); do [ -f "$OUT" ] && break; sleep 1; done
 sleep 1; kill "$PID" 2>/dev/null || true
 [ -f "$OUT" ] && echo "saved $OUT" || { echo "no screenshot"; exit 1; }

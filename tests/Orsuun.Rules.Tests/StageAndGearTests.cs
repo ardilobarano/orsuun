@@ -8,9 +8,9 @@ namespace Orsuun.Rules.Tests;
 public class StageAndGearTests
 {
     [Fact]
-    public void Ten_maps_of_ten_stages_each_end_at_their_boss()
+    public void Twelve_maps_of_ten_stages_each_end_at_their_boss()
     {
-        Assert.Equal(100, Content.TotalStages);
+        Assert.Equal(120, Content.TotalStages);
         Assert.Equal(FinalEncounter.Korstone, Content.Stage(1).FinalEncounter);
         Assert.Equal(FinalEncounter.Boss, Content.Stage(10).FinalEncounter);
         Assert.Equal("The Oathfields 7", Content.StageName(7));
@@ -40,16 +40,26 @@ public class StageAndGearTests
         Assert.Equal("The Last Merchant-Prince", Content.Stage(100).BossName);
         Assert.Equal("Gilded Cog", Content.Stage(95).MaterialName);
         Assert.Equal(90, Content.Stage(100).GearItemLevel);
-        // Stage 100 is the campaign's; the zones start at 101.
-        Assert.False(Content.IsZone(100));
-        Assert.True(Content.IsZone(101));
-        Assert.Equal("Ember Steppe", Content.StageName(101));
+        // The Thousand Markers (Varkesh of the Left Wing, levels 90-98) and the Hollow Throne (the Khan's Shadow, 98-105).
+        Assert.Equal("The Thousand Markers 1", Content.StageName(101));
+        Assert.Equal("Varkesh of the Left Wing", Content.Stage(110).BossName);
+        Assert.Equal("Marker Dust", Content.Stage(105).MaterialName);
+        Assert.Equal("The Hollow Throne 10", Content.StageName(120));
+        Assert.Equal("The Khan's Shadow", Content.Stage(120).BossName);
+        Assert.Equal("Throne Shard", Content.Stage(115).MaterialName);
+        Assert.Equal(Content.MaxLevel, Content.Stage(120).GearItemLevel);
+        // Stage 120 is the campaign's; the zones start at 201 (they were 101-121 before maps 11 and 12).
+        Assert.False(Content.IsZone(120));
+        Assert.False(Content.IsZone(200));
+        Assert.True(Content.IsZone(201));
+        Assert.Equal("Ember Steppe", Content.StageName(Content.EmberSteppe));
+        Assert.False(Content.IsUnlocked(121, 200));
         Assert.Equal(FinalEncounter.Korstone, Content.Stage(35).FinalEncounter);
         // Each map's gear levels continue the last: Gorak Pass drops item level 10 to 20.
         Assert.Equal(10, Content.Stage(11).GearItemLevel);
         Assert.Equal(40, Content.Stage(40).GearItemLevel);
         // A new map opens a little above the last boss stage's mobs, never below.
-        for (int map = 2; map <= 10; map++)
+        for (int map = 2; map <= 12; map++)
             Assert.True(Content.Stage(map * 10 - 9).MobHp >= Content.Stage(map * 10 - 10).MobHp * 9 / 10);
     }
 

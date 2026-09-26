@@ -100,7 +100,7 @@ public class SocketTests
 
         int Kills(ItemState w)
         {
-            var lane = new LaneSim(Content.Stage(101), HeroFactory.FromWeapon(w), SkillDef.VanguardWrath(), new Inventory { Potions = 50 }, new XorShiftRandom(5));
+            var lane = new LaneSim(Content.Stage(Content.EmberSteppe), HeroFactory.FromWeapon(w), SkillDef.VanguardWrath(), new Inventory { Potions = 50 }, new XorShiftRandom(5));
             for (int i = 0; i < lane.AutoCast.Length; i++) lane.AutoCast[i] = true;
             for (int t = 0; t < 300 * LaneSim.TicksPerSecond; t++) { lane.Tick(); lane.DrainEvents(); }
             return lane.MobsKilled;

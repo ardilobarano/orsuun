@@ -37,9 +37,9 @@ public class BellsAndBulkTurnTests
     {
         var inventory = new Inventory();
         var plain = new Inventory();
-        StageConfig bell = EveningBells.Apply(Content.Stage(111), Bell.KorstoneBell);
+        StageConfig bell = EveningBells.Apply(Content.Stage(Content.KorstoneFieldI), Bell.KorstoneBell);
         HuntYield.LootKorstone(bell, inventory, new XorShiftRandom(1));
-        HuntYield.LootKorstone(Content.Stage(111), plain, new XorShiftRandom(1));
+        HuntYield.LootKorstone(Content.Stage(Content.KorstoneFieldI), plain, new XorShiftRandom(1));
         Assert.Equal(plain.Sorn * 2, inventory.Sorn);
         Assert.True(inventory.Turnstones >= plain.Turnstones * 2 - 1);
 

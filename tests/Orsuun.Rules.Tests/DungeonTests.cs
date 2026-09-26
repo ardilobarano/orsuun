@@ -31,7 +31,7 @@ public class DungeonTests
         Assert.Equal("The Spire Warden", warden.BossName);
         Assert.Equal(Rarity.Legendary, warden.GearRarityCap);              // GDD: Legendary from dungeons
         Assert.True(Dungeons.Floor(Spire, 8, 20).MobHp > Dungeons.Floor(Spire, 1, 20).MobHp);
-        Assert.True(Dungeons.IsFloor(warden.StageNumber) && !Dungeons.IsFloor(40) && !Dungeons.IsFloor(121));
+        Assert.True(Dungeons.IsFloor(warden.StageNumber) && !Dungeons.IsFloor(40) && !Dungeons.IsFloor(Content.GorakWarCamp));
         Assert.Equal("The Hollow Spire, floor 9", Content.StageName(warden.StageNumber));
     }
 

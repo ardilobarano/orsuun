@@ -213,7 +213,7 @@ namespace Orsuun.Rules
             // The Gate's warden fights alone, the Yard's captain calls the garrison, and the lord of the Hall hides
             // behind his captains: the last wall is the hardest.
             BossMechanic mechanic = phase == SiegePhase.Gate ? BossMechanic.None : phase == SiegePhase.Yard ? BossMechanic.PackCaller : BossMechanic.CaptainShield;
-            return new BossDef(id, 121, name, 1, hp, attack, mechanic, 0, "");
+            return new BossDef(id, Content.GorakWarCamp, name, 1, hp, attack, mechanic, 0, "");
         }
 
         /// <summary>The fortress and phase a champion id belongs to (for replays), or null.</summary>

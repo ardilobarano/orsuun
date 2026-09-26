@@ -45,6 +45,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Five skills a class, effects and animations | Owner, 26 Sep 2026: "we need to have total 5 skills at each hero maybe other ones can unlocked at higher levels. also we need good and different effects and animations for each of the 20 skills. work on them and show me results before implementing them", then "also make skills effect better for master and grand levels and of course coolest for perfect"; the Skill Codex (https://claude.ai/artifact/RR175CzDeGFtnuUTkt4X2h) was approved: "the decisions are good, build them". Built: the world bible's fourth and fifth skills of each branch, at levels 30 and 60: Vanguard Honed Edge (attack +25% for 8 s) and Bull Rush (180% to every enemy, a 2 s stun), Kestrel Venom Cloud (45% a second to every enemy for 6 s, never crits) and Shadow Stoop (500% on the mark, double below 30% health), Wraithsworn Grave Chains (6 s: enemies strike half as often, +30% damage taken) and Shroud of Night (a veil taking 25% of max HP for 8 s), Drumcaller Hunter's Blessing (+20% crit for 8 s) and Mirror Ward (8 s: blows 20% lighter, 40% returned). Map bosses and Commanders shrug off the stun and the slow. Twenty Technique Scrolls. A cast animation per skill and an effect per skill that grows with the grade (Mastered: echo and ground glow; Grand: gold, the rune circle, a follow-up and shafts of light; Peerless: the class spirit, the hero's own model larger in ghost light, a white-gold core, cracks, the crown and a shake). Assumptions (not stated by the owner): all the numbers; bosses immune to stun and slow; map bosses whose map ends at level 30 or more have 12% more health, 60 or more 25% (the new skills' damage, so the gear checks hold). |
 | Mounts and skills | Owner, 26 Sep 2026: "at mount make char only autoattacking, off the mount it can use skills." Built: a hero wearing a mount makes plain attacks only (no skill, manual or AUTO; the offline hunt counts no skills either); the hero plate has DISMOUNT / MOUNT UP (the last mount ridden, or the held one with the most time). |
 | Lane camera | Owner, 26 Sep 2026: "we can put the char and the mobs a bit lower as well". The lane camera sits 0.8 m higher (heads, bosses and skill effects clear the goal plate and banners); the backdrop moved with it. |
+| Maps 11 and 12 | Owner, 26 Sep 2026: "finish maps then" (the queued step after private messages). Built from the world bible: the Thousand Markers (levels 90-98: the Hollow Khan's buried army risen, troopers, riders and captains; Marker Dust; Varkesh of the Left Wing, the bible's "General Varkesh of the Left Wing") and the Hollow Throne (98-105: the Guard of the Khan, as throne guards, the Khan's hounds and oath chanters; Throne Shard; the Khan's Shadow, the Khan himself saved for a later season), campaign to 120 stages; weapon and armour looks for item levels 100-105 (band 10, every class). Floors: the owner turned down the first six ("they all look unrelated to background"); the second six were made from each backdrop's own foreground ground and colour-matched to it, and the owner picked the Markers' trodden stone road and the Throne's worn flagstones (C and C). Assumptions (not stated by the owner): the mob and boss designs (violet oath-light for the risen army, molten gold for the Khan's court), both bosses 105% like the last three; Varkesh falls to every class with an Epic +9 set of level 98 (15-19 of 20), the Khan's Shadow, whom heroes meet at the level cap, to an Epic +9 set at 105 about half the time (10-15 of 20) and a Legendary +9 set nearly always (18-20). |
 | Private messages | Owner, 26 Sep 2026: "go for private messages" (the queued step), then "they need to stay after days and days" and "make it a screen". Built: a MESSAGES screen (MENU, or MESSAGE on a name in CHAT or the friend list, or the HUD's call): the conversations newest first (online dot, class and level, the last line, how many are new), a name box to write to any hero, and a conversation view (their lines left, yours right in gold, times, LOAD OLDER, updates every 3 s while open). Messages are kept with no expiry. The HUD calls "A NEW MESSAGE: READ IT" (after guild invites and friend requests). Assumptions (not stated by the owner): any hero can write to any hero by name, not only friends; the chat's rules hold (the word filter, 200 letters, the flood limit shared with chat, moderator mutes); a block works both ways (neither side can write) and shows in the conversation; your own login's heroes cannot write to each other; a very long conversation keeps its newest 1,000 lines; tapping a line they sent offers REPORT, which puts a copy in the moderation page's chat queue (channel "message"); deleting a hero deletes its messages both ways. |
 | Campaign Trail | Owner, 25 Sep 2026: asked "what to do next", picked "Campaign Trail (Recommended), Maps 5 and 6, Player-to-player trade, More dungeons" (built in that order). From the GDD: an 8 week season of 50 tiers; the day's missions (bounties) pay Trail XP; the free track pays Turnstones, Scrolls of Mercy and a Khan's Alloy every 10 tiers; the paid track the season costume, a mount, 300 Turnstones, 20 Khan's Alloys and 3 Anvil Wards; $9.99, "premium plus" $19.99. Assumptions (not stated by the owner): the paid track costs 650 Amber (the $9.99 pack's) and Trail Plus 1,400 (the $19.99 pack's) with 10 tiers at once, 750 from the Trail; each character climbs and buys its own Trail (only Amber is shared); 600 XP a tier, 100 per daily bounty and 500 per weekly (every daily and one weekly a week finish it in the 8 weeks, the dailies alone do not); free track 5 Turnstones on odd tiers and a Scroll of Mercy on the other even ones; the season's pieces are held until the season ends (at least 14 days) rather than the Caravan's 1-14 days; rewards left unclaimed are handed over when the next season starts; season 1 is "The Amber Road", Mon 21 Sep to Mon 16 Nov 2026 20:00, with the Amber Road Regalia (skin, +5% HP) at paid tier 1 and the Amber Road Courser (mount, +5% attack) at paid tier 50. The Trail does not add to offline yield yet (the GDD lists it among the B_afk sources). |
 | Direct trade | Owner, 25 Sep 2026: the third pick ("Player-to-player trade"), and while it was built: "at trade we need to see stats of items, maybe with clicking" (tapping a piece opens its stat card). From the GDD (section 8, "Direct trade window"): a two-step confirm with a 5 second lock after any change to the offer; level 30 and a 72 hour old account; a 2% tax on the sorn. Assumptions (not stated by the owner): up to 8 pieces and any sorn each side; both lock, then both confirm; an invitation lasts 3 minutes and an idle window 10; your own heroes cannot trade with each other (they share the depot); on the Development playtest server the level and age rules are off so it can be tried at once; the GDD's 12 hour hold for trades far off the Exchange median is not built (no price history yet). |
@@ -58,7 +59,7 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
 | Playtest | Phase 0 grey-box playtest done, owner reported it fine. First on-device playtest against the live server on the owner's iPhone, 23 Sep 2026: owner reported it good. |
 | Art direction | B, modernized classic (GDD section 14), picked by the owner on 23 Sep 2026. D (ink and ember) was the runner-up. |
 | Upgrade glow and looks | Owner, 23 Sep 2026: only the weapon and the body armour are visible on the character and glow, each by its own level from +7 up, in classic MMO upgrade shine (aura, flowing light, sweep; pale gold +7, gold +8, ember-gold +9). Helmet, shield, bracelet, necklace, earrings and shoes are stats only: forged like the weapon, no look, no glow. |
-| Item looks | Owner, 23 Sep 2026: weapon and body armour looks change every 10 item levels (`ItemLooks`: 11 bands, Vanguard names from Herder's Glaive / Quilted Coat up to Glaive / Harness of the Nine Oaths). Art exists for bands 0-5 (levels 1-59); higher bands show the nearest existing look. No armour equipped shows the band-0 Quilted Coat. |
+| Item looks | Owner, 23 Sep 2026: weapon and body armour looks change every 10 item levels (`ItemLooks`: 11 bands, Vanguard names from Herder's Glaive / Quilted Coat up to Glaive / Harness of the Nine Oaths). Art exists for every band since 26 Sep 2026 (band 10, levels 100-105, came with maps 11 and 12). No armour equipped shows the band-0 Quilted Coat. |
 | Active play | "Do all of them", 23 Sep 2026 (after the skill-timing options): a tapped skill is aimed (Burst goes to the toughest enemy) while auto-cast has no target logic (GDD section 4), and aimed bursts hit the Korstone or a boss for 500% (`LaneSim.AimedWeakPointPercent`). Measured 128-132% of auto-cast pace for a present player; the server pays it only for loops it replays. |
 | Reference sheets | Chosen by the owner on 23 Sep 2026, all in `docs/concept/`: `vanguard-1`, `korstone-1`, `kestrel-1`, `wraithsworn-2`, `drumcaller-2`, `wolf-2`, `glow-1` (`-sheet.jpg`). The other variant of each is kept for comparison only. Every sheet after the Vanguard was generated with `vanguard-1` as the style reference; keep doing that for new sheets. |
 
@@ -127,9 +128,14 @@ up), on the APK link and on the iPhone (build 26092601).
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
-was built; see the two decision rows), then maps 11 and 12 (the Thousand Markers, the Hollow Throne; zone ids move
-first), private messages (whispers; done 26 Sep 2026, see its decision row), a smaller download (the APK is 366 MB; Google Play's limit is 200 MB), in that
+was built; see the two decision rows), then maps 11 and 12 (the Thousand Markers, the Hollow Throne; done 26 Sep 2026, see its decision row), private messages (whispers; done 26 Sep 2026, see its decision row), a smaller download (the APK is 366 MB; Google Play's limit is 200 MB), in that
 order. The owner will not top up fal.ai: art runs on Higgsfield (see CLAUDE.md).
+**Asked while maps 11 and 12 were built (owner, 26 Sep 2026), to do next in this order:** "we need different images for
+all levels different items" (an icon per item for every level band, not one per slot); "after level 30 we need to add
+'ortalama zarar +%...' like metin 2 to all weapons, it will be nearly impossible to have +%60, it will be from -%30 to
++%60. and also we will have same for 'skill damage +%30' to be impossible from -15 to 30" (average damage and skill
+damage rolled on weapons of item level 30 and up, both skewed so the top is nearly impossible); "our +7,8,9 effects are
+so bad, make it more like metin2 like glitter" (the upgrade glow of the weapon and armour).
 **Asked next, ahead of maps 11 and 12 (owner, 26 Sep 2026; built and shipped the same night, see the decision rows):** "we need to have total 5 skills at each hero maybe other ones
 can unlocked at higher levels. also we need good and different effects and animations for each of the 20 skills. work on
 them and show me results before implementing them", then "also make skills effect better for master and grand levels and
@@ -141,10 +147,10 @@ Peerless and a Kling clip of each; the Peerless class spirits). Wait for the own
 and numbers through the simulator, `SkillGrades.Slots` 5 and 20 scrolls (grades and `BookStacks`/listings renumbered
 from class * 3 + slot to class * 5 + slot in a migration), five HUD buttons with locks, a cast clip per skill in
 Blender, and the effects per tier in `LaneView`.
-Could come next: maps 11 and 12 (the Thousand Markers, the Hollow Throne; move the zone ids first, see the maps 9 and 10 row; band 10 of looks with them), Oath Renewal (Oathstones for the Archive),
+Could come next: Oath Renewal (Oathstones for the Archive),
 the Exchange's price history (the direct trade 10:1 hold needs it), Campaign Trail season 2 art before 16 Nov 2026, name frames in the Pit shop, the Mirage Queen's presence (a mirage shimmer,
 ghostlier images, a little taller), Free Lances and the fortress aura for keeps, password reset by email
-(needs a mail service), bands 6-10 of looks.
+(needs a mail service).
 
 ## Done since the first handoff (same day)
 
@@ -611,6 +617,25 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
   `art/blender/<class>_T6|7-tripo.glb` and `look-weapon-t6|7-tripo.glb`. Bands 8-10 still show band 7.
   RenderPreview renders bands 3-7 (`artifacts/hero-T*.png`, `<class>-T*-Idle.png`).
 
+## Done 26 Sep 2026 (maps 11 and 12, looks for levels 100-105)
+
+- Decision row above. Rules: `Content.Maps` 11 and 12 (120 stages); the zones moved from 101-121 to 201-221
+  (`Content.FirstZoneId` 201, named constants `Content.EmberSteppe` .. `Content.GorakWarCamp` used everywhere instead
+  of numbers), migration `MoveZones` (moves `Accounts.ParkedStage`). Tests: `StageAndGearTests.Twelve_maps_...`,
+  `ClassBalanceTests.The_last_two_map_bosses_ask_for_the_best_gear`. Old clients park by the old zone numbers, so
+  install the new build with the deploy.
+- Art on Higgsfield: sheets with gpt_image_2_5 (the Vanguard sheet and Hurm's as style references; the class looks
+  from each class's band 9 sheet), Tripo H3.1 multiview (front/side/back crops; note: pass `face_limit: 40000` or
+  the GLB comes back at ~1.4M faces and 45 MB; these were decimated to 40k in headless Blender before keeping them),
+  then `looks.mob_model(..., yaw_degrees=-90)` in headless Blender (`Blender -b -P script.py`): RisenTrooper (biped,
+  glaive chop), RisenCaptain (biped, sword), Varkesh (biped, sword, 3.6 m), ThroneGuard (biped, glaive chop),
+  KhanShadow (biped, sword, 3.6 m), RisenRider and KhanHound (quadrupeds), OathChanter (not rigged, floats); sheets
+  in `docs/concept/mobs/`, meshes in `art/blender/mobs/`. Band 10: `Armor_T10`, `Weapon_T10` (armor_look /
+  weapon_look), `Kestrel_T10`, `Wraithsworn_T10`, `Drumcaller_T10` (class_look), sheets in `docs/concept/looks/`.
+  Backdrops `ThousandMarkers`, `HollowThrone` (`docs/concept/env-*.jpg`), floors in `Resources/Floors` (candidates
+  in `docs/concept/floors`). `LaneView`: `MarkersMobs`, `ThroneMobs`, the two bosses, sounds; the risen glow violet,
+  the Khan's court gold (`RenderingSetup.EnsureMobs`). RenderPreview renders every band up to 10.
+
 ## Done 26 Sep 2026 (private messages)
 
 - Decision row above. Rules: `Whispers` in `Chat.cs` (page 50, 1,000 kept a conversation, 60 conversations listed,
@@ -782,8 +807,8 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
 2. Art direction is B; turnaround sheets for all four classes, the Korstone and the Hollowed wolf are done and chosen
    (`docs/concept/`). The upgrade-glow progression sheet is done too. The full remaining art backlog (second-sex class variants, Forgemaster, more
    Hollowed mobs, Commander sheets, three environment keys, Oathfields backdrops, town vistas, gear and consumable and
-   Korshard icons, Banner emblems, Forge VFX boards, store screenshots) is the checklist in GDD section 14.1. Done since: bands 3-5
-   of item looks, boar and deserter sheets and models, a first UI colour pass. Open: bands 6-10 of looks. (The Mirage
+   Korshard icons, Banner emblems, Forge VFX boards, store screenshots) is the checklist in GDD section 14.1. Done since: bands 3-10
+   of item looks (all eleven), boar and deserter sheets and models, a first UI colour pass. (The Mirage
    Queen, mob rigs and the other three classes are done: see the sections above.)
 3. Later: second class (Wraithsworn Voidpact), Bannerkin companion, sixth etching, Temper, Oath Renewal (GDD section 12),
    real shared boss HP pools, Hunt Marks and the Hearthfire subscription (Bulk Turn's 10/50 split depends on it).

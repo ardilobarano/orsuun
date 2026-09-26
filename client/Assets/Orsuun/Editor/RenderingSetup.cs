@@ -222,6 +222,9 @@ namespace Orsuun.Client.EditorTools
                 bool lava = id == "AshFiend" || id == "MagmaHound" || id == "Azhdar" || id == "SapHorror";   // and the Bloodbirch's glowing sap
                 bool ghost = id == "HangingSpirit" || id == "LanternWisp" || id == "LanternWidow" || id == "StoneSentinel" || id == "LastCarver"   // and the Archive's glowing runes
                              || id == "Hurm" || id == "DebtWraith";   // Hurm's pale cracks and the debt wraiths (25 Sep 2026)
+                // The Thousand Markers' risen army burns with violet oath-light; the Hollow Throne's court with molten gold (26 Sep 2026).
+                bool oath = id == "RisenTrooper" || id == "RisenRider" || id == "RisenCaptain" || id == "Varkesh";
+                bool court = id == "ThroneGuard" || id == "KhanHound" || id == "OathChanter" || id == "KhanShadow";
                 // The Hollowed read darker than their bright sheet textures: corrupted beasts, not farm animals.
                 mat.SetColor("_BaseColor", ember ? new Color(0.72f, 0.68f, 0.68f) : Color.white);
                 mat.SetFloat("_Smoothness", 0.2f);
@@ -229,6 +232,8 @@ namespace Orsuun.Client.EditorTools
                 Color? glow = ember ? new Color(0.32f, 0.26f, 0.2f)
                     : lava ? new Color(0.55f, 0.32f, 0.16f)
                     : ghost ? new Color(0.22f, 0.3f, 0.38f)
+                    : oath ? new Color(0.26f, 0.2f, 0.34f)
+                    : court ? new Color(0.3f, 0.22f, 0.1f)
                     : id == "MountWarhorseHollow" ? new Color(0.3f, 0.4f, 0.55f)
                     : id == "MountWarhorseAmber" ? new Color(0.26f, 0.2f, 0.12f)     // the Trail's courser, warm on its bronze
                     : id == "PetFox" ? new Color(0.22f, 0.16f, 0.1f)
@@ -323,7 +328,7 @@ namespace Orsuun.Client.EditorTools
         private static void EnsureBackdrops()
         {
             Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
-            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood", "SilkWarren", "CarversArchive", "Bloodbirch", "DrownedSteppe", "ColossusGraves", "SunkenBazaar" })
+            foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood", "SilkWarren", "CarversArchive", "Bloodbirch", "DrownedSteppe", "ColossusGraves", "SunkenBazaar", "ThousandMarkers", "HollowThrone" })
             {
                 string texPath = Res + "Backdrops/" + zone + ".jpg";
                 if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))
@@ -403,13 +408,14 @@ namespace Orsuun.Client.EditorTools
             view.SetLooks("Armor_T3", "Weapon_T3");
             var places = new (string key, Orsuun.Rules.Combat.ZoneType zone, int stage)[]
             {
-                ("HuntingGround", Orsuun.Rules.Combat.ZoneType.Campaign, 5), ("KorstoneField", Orsuun.Rules.Combat.ZoneType.KorstoneField, 111),
-                ("CommanderGround", Orsuun.Rules.Combat.ZoneType.Campaign, 15), ("SaltFlats", Orsuun.Rules.Combat.ZoneType.HuntingGround, 102),
-                ("FrostPasture", Orsuun.Rules.Combat.ZoneType.HuntingGround, 103), ("HollowSpire", Orsuun.Rules.Combat.ZoneType.Campaign, 311),
+                ("HuntingGround", Orsuun.Rules.Combat.ZoneType.Campaign, 5), ("KorstoneField", Orsuun.Rules.Combat.ZoneType.KorstoneField, Orsuun.Rules.Content.KorstoneFieldI),
+                ("CommanderGround", Orsuun.Rules.Combat.ZoneType.Campaign, 15), ("SaltFlats", Orsuun.Rules.Combat.ZoneType.HuntingGround, Orsuun.Rules.Content.SaltFlats),
+                ("FrostPasture", Orsuun.Rules.Combat.ZoneType.HuntingGround, Orsuun.Rules.Content.FrostPasture), ("HollowSpire", Orsuun.Rules.Combat.ZoneType.Campaign, 311),
                 ("CinderMarches", Orsuun.Rules.Combat.ZoneType.Campaign, 45), ("Whisperwood", Orsuun.Rules.Combat.ZoneType.Campaign, 55),
                 ("SilkWarren", Orsuun.Rules.Combat.ZoneType.Campaign, 321), ("CarversArchive", Orsuun.Rules.Combat.ZoneType.Campaign, 331),
                 ("Bloodbirch", Orsuun.Rules.Combat.ZoneType.Campaign, 65), ("DrownedSteppe", Orsuun.Rules.Combat.ZoneType.Campaign, 75),
                 ("ColossusGraves", Orsuun.Rules.Combat.ZoneType.Campaign, 85), ("SunkenBazaar", Orsuun.Rules.Combat.ZoneType.Campaign, 95),
+                ("ThousandMarkers", Orsuun.Rules.Combat.ZoneType.Campaign, 105), ("HollowThrone", Orsuun.Rules.Combat.ZoneType.Campaign, 115),
             };
             Directory.CreateDirectory("../artifacts");
             // ORSUUN_FLOOR_KEYS limits the maps ("HuntingGround,SaltFlats"), ORSUUN_FLOOR_VARIANTS the candidates ("_C,_D").
@@ -642,9 +648,9 @@ namespace Orsuun.Client.EditorTools
                 view.SetZone((Orsuun.Rules.Combat.ZoneType)System.Enum.Parse(typeof(Orsuun.Rules.Combat.ZoneType), zone));
                 Capture(cam, "../artifacts/lane-" + zone + ".png", 1080, 1056);
             }
-            view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, 102);
+            view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, Orsuun.Rules.Content.SaltFlats);
             Capture(cam, "../artifacts/lane-SaltFlats.png", 1080, 1056);
-            view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, 103);
+            view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, Orsuun.Rules.Content.FrostPasture);
             Capture(cam, "../artifacts/lane-FrostPasture.png", 1080, 1056);
             view.SetZone(Orsuun.Rules.Combat.ZoneType.HuntingGround, 1);
             view.SetGear(new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f });
@@ -673,8 +679,8 @@ namespace Orsuun.Client.EditorTools
                 view.SetGear(glow);
                 Capture(cam, "../artifacts/hero-" + name + ".png", 700, 1000);
             }
-            // The later bands, 30 to 99: armour and weapon of the same band.
-            for (int t = 3; t <= 9; t++)
+            // The later bands, 30 to 105: armour and weapon of the same band.
+            for (int t = 3; t <= Orsuun.Rules.ItemLooks.MaxTier; t++)
             {
                 view.SetLooks("Armor_T" + t, "Weapon_T" + t);
                 view.SetGear(none);
@@ -693,7 +699,7 @@ namespace Orsuun.Client.EditorTools
 
             // The other classes, each armour band drawn so far: idle, wind-up and strike, and a run stride on band 0.
             foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
-                for (int band = 0; band <= 9; band++)
+                for (int band = 0; band <= Orsuun.Rules.ItemLooks.MaxTier; band++)
                 {
                     view.SetHeroClass(cls, band);
                     foreach ((string clip, float at) in new[] { ("Idle", 0f), ("Attack", 0.4f), ("Attack", 0.57f), ("Run", 0.25f) })
@@ -743,7 +749,7 @@ namespace Orsuun.Client.EditorTools
             view.PlaceEnemies(1f);
             Capture(cam, "../artifacts/lane-mobs.png", 1080, 1056);
             // The Salt Flats and Frost Pasture packs on their own grounds.
-            foreach ((int zone, string label) in new[] { (102, "SaltFlats"), (103, "FrostPasture") })
+            foreach ((int zone, string label) in new[] { (Orsuun.Rules.Content.SaltFlats, "SaltFlats"), (Orsuun.Rules.Content.FrostPasture, "FrostPasture") })
             {
                 var hunt = Orsuun.Rules.Combat.ActivePlay.NewLoop(Orsuun.Rules.Content.Stage(zone), heroStats, skills, new Orsuun.Rules.Inventory { Potions = 5 }, 7UL, 0);
                 for (int i = 0; i < 4000 && !(hunt.Phase == Orsuun.Rules.Combat.LanePhase.Fighting && hunt.Enemies.Count >= 6); i++) { hunt.Tick(); hunt.DrainEvents(); }

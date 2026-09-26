@@ -200,7 +200,7 @@ namespace Orsuun.Client
             }
 
             // Commanders: from the server when online, otherwise always up in local mode.
-            bool campOpen = Content.IsUnlocked(121, session.HighestStageCleared);
+            bool campOpen = Content.IsUnlocked(Content.GorakWarCamp, session.HighestStageCleared);
             float age = Time.realtimeSinceStartup - _root.Server.BossesReceivedAt;
             for (int i = 0; i < BossRows; i++)
             {
@@ -246,10 +246,10 @@ namespace Orsuun.Client
         {
             // Campaign maps: the Oathfields, then Gorak Pass, the Salt Sea and Whitefang Range on their grounds' pictures.
             < 100 => Content.MapOfStage(id).Id switch { 2 => "ZoneWarCamp", 3 => "ZoneSaltFlats", 4 => "ZoneFrostPasture", _ => "ZoneCampaign" },
-            101 => "ZoneEmberSteppe",
-            102 => "ZoneSaltFlats",
-            103 => "ZoneFrostPasture",
-            121 => "ZoneWarCamp",
+            Content.EmberSteppe => "ZoneEmberSteppe",
+            Content.SaltFlats => "ZoneSaltFlats",
+            Content.FrostPasture => "ZoneFrostPasture",
+            Content.GorakWarCamp => "ZoneWarCamp",
             _ => "ZoneKorstoneField",
         };
 

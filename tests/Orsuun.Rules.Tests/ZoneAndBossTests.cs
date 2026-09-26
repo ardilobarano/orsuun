@@ -20,8 +20,8 @@ public class ZoneAndBossTests
     [Fact]
     public void Hunting_ground_pays_more_sorn_and_xp_and_no_materials()
     {
-        Inventory hunt = Farm(101, 600, 1);
-        Inventory field = Farm(111, 600, 1);
+        Inventory hunt = Farm(Content.EmberSteppe, 600, 1);
+        Inventory field = Farm(Content.KorstoneFieldI, 600, 1);
 
         Assert.True(hunt.Sorn > field.Sorn * 2, $"hunt {hunt.Sorn} vs field {field.Sorn}");
         Assert.True(hunt.Xp > field.Xp);
@@ -33,13 +33,13 @@ public class ZoneAndBossTests
     [Fact]
     public void Korstone_field_pays_materials_turnstones_and_shards_of_its_tier()
     {
-        Inventory field1 = Farm(111, 600, 2);
+        Inventory field1 = Farm(Content.KorstoneFieldI, 600, 2);
         Assert.True(field1.Turnstones >= 10, $"turnstones {field1.Turnstones}");
         Assert.True(field1.Materials >= 5);
         Assert.True(field1.Korshards[0] >= 5, $"trooper shards {field1.Korshards[0]}");
         Assert.Equal(0, field1.Korshards[1]);
 
-        Inventory field3 = Farm(113, 600, 2, upgradeLevel: 9);
+        Inventory field3 = Farm(Content.KorstoneFieldIII, 600, 2, upgradeLevel: 9);
         Assert.True(field3.Korshards[2] >= 1, $"captain shards {field3.Korshards[2]}");
     }
 
@@ -48,7 +48,7 @@ public class ZoneAndBossTests
     {
         var inventory = new Inventory { Potions = 50 };
         var weapon = new ItemState(10, Rarity.Rare) { UpgradeLevel = 9 };
-        var lane = new LaneSim(Content.Stage(111), HeroFactory.FromWeapon(weapon), SkillDef.VanguardWrath(), inventory, new XorShiftRandom(3));
+        var lane = new LaneSim(Content.Stage(Content.KorstoneFieldI), HeroFactory.FromWeapon(weapon), SkillDef.VanguardWrath(), inventory, new XorShiftRandom(3));
         for (int i = 0; i < lane.AutoCast.Length; i++) lane.AutoCast[i] = true;
         int elders = 0;
         for (int t = 0; t < 20 * 60 * LaneSim.TicksPerSecond && lane.KorstonesDestroyed < 12; t++)
@@ -65,11 +65,11 @@ public class ZoneAndBossTests
     [Fact]
     public void Zone_unlocks_follow_campaign_progress()
     {
-        Assert.True(Content.IsUnlocked(101, 1));
-        Assert.True(Content.IsUnlocked(111, 1));
-        Assert.False(Content.IsUnlocked(121, 4));
-        Assert.True(Content.IsUnlocked(121, 5));
-        Assert.False(Content.IsUnlocked(115, 9));
+        Assert.True(Content.IsUnlocked(Content.EmberSteppe, 1));
+        Assert.True(Content.IsUnlocked(Content.KorstoneFieldI, 1));
+        Assert.False(Content.IsUnlocked(Content.GorakWarCamp, 4));
+        Assert.True(Content.IsUnlocked(Content.GorakWarCamp, 5));
+        Assert.False(Content.IsUnlocked(Content.KorstoneFieldV, 9));
         Assert.False(Content.IsUnlocked(999, 10));
     }
 

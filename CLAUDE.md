@@ -134,8 +134,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   from the run id (`Dungeons.RiddleFor`), so it needs no storage.
 - Pit seasons are settled by `WorldClock` (`SettlePitSeasonAsync`, claimed by the `PitSeasons` row). Never call the
   Development `/v1/dev/pit-season-end` on the playtest server: it settles the running season and halves every rating.
-- Campaign stages run 1..100 (ten maps) and zone ids start at 101 (`Content.FirstZoneId`): maps 11 and 12 must move the
-  zones (and migrate `Accounts.ParkedStage`) before they are added. Dungeon floors are 301-399.
+- Campaign stages run 1..120 (twelve maps, all of the world bible's) and zone ids start at 201 (`Content.FirstZoneId`;
+  they were 101-121 until migration `MoveZones` moved `Accounts.ParkedStage`, 26 Sep 2026). Name zones by their
+  constants (`Content.EmberSteppe` .. `Content.GorakWarCamp`), never by number. Dungeon floors are 301-399.
 - Higgsfield takes local images through `media_import_url` (stage them briefly in a random folder under the playtest
   server's `/opt/orsuun/downloads`, delete it afterwards) or `media_upload` (presigned PUT).
 - Lane floors are `Resources/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor

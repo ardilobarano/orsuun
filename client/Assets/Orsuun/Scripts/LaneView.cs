@@ -71,6 +71,10 @@ namespace Orsuun.Client
         private static readonly string[] GravesMobs = { "StoneGiant", "BonePicker", "SiegeBeast" };
         /// <summary>The Sunken Bazaar (campaign map 10): Khan cultists, gilded constructs, debt wraiths.</summary>
         private static readonly string[] BazaarMobs = { "KhanCultist", "GildedConstruct", "DebtWraith" };
+        /// <summary>The Thousand Markers (campaign map 11): the Hollow Khan's buried army, risen troopers, riders and captains.</summary>
+        private static readonly string[] MarkersMobs = { "RisenTrooper", "RisenRider", "RisenCaptain" };
+        /// <summary>The Hollow Throne (campaign map 12): the Guard of the Khan, throne guards, the Khan's hounds, oath chanters.</summary>
+        private static readonly string[] ThroneMobs = { "ThroneGuard", "KhanHound", "OathChanter" };
 
         /// <summary>
         /// Gorak Pass (campaign map 2): war hounds and Gorak marauders, the Oathfields' wolf and deserter in the warlord's
@@ -88,11 +92,11 @@ namespace Orsuun.Client
         /// <summary>The dungeon a floor belongs to (Rules.Dungeons: stage 300 + id * 10 + floor), or 0.</summary>
         private static int DungeonOf(int stageNumber) => Dungeons.IsFloor(stageNumber) ? (stageNumber - Dungeons.FloorStageBase) / 10 : 0;
 
-        /// <summary>The campaign map of a stage (1 the Oathfields .. 10 the Sunken Bazaar), or 0 for a zone or a dungeon floor.</summary>
+        /// <summary>The campaign map of a stage (1 the Oathfields .. 12 the Hollow Throne), or 0 for a zone or a dungeon floor.</summary>
         private static int CampaignMap(int stageNumber) => Content.IsZone(stageNumber) ? 0 : Content.MapOfStage(stageNumber).Id;
 
         /// <summary>
-        /// Which mob set a stage or zone fields (zone ids from Content: 102 Salt Flats, 103 Frost Pasture, 113-115 Fields
+        /// Which mob set a stage or zone fields (zone ids from Content: Salt Flats, Frost Pasture, Korstone Fields
         /// III-V; campaign maps 2-6 are Gorak Pass, the Salt Sea, Whitefang Range, the Cinder Marches and Whisperwood).
         /// </summary>
         private static string[] MobSetFor(int stageNumber)
@@ -107,8 +111,10 @@ namespace Orsuun.Client
                 : map == 8 ? DrownedMobs
                 : map == 9 ? GravesMobs
                 : map == 10 ? BazaarMobs
-                : stageNumber == 102 || stageNumber == 113 || map == 3 ? SaltMobs
-                : stageNumber == 103 || stageNumber == 114 || stageNumber == 115 || map == 4 ? FrostMobs : MobModels;
+                : map == 11 ? MarkersMobs
+                : map == 12 ? ThroneMobs
+                : stageNumber == Content.SaltFlats || stageNumber == Content.KorstoneFieldIII || map == 3 ? SaltMobs
+                : stageNumber == Content.FrostPasture || stageNumber == Content.KorstoneFieldIV || stageNumber == Content.KorstoneFieldV || map == 4 ? FrostMobs : MobModels;
             // Older builds without the new models keep the Oathfields set.
             return LoadMob(ModelOf(set[0])) != null ? set : MobModels;
         }
@@ -131,14 +137,16 @@ namespace Orsuun.Client
             if (DungeonOf(stageNumber) == 3 && Resources.Load<Material>("Backdrops/BackdropCarversArchive") != null) return "CarversArchive";
             if (Dungeons.IsFloor(stageNumber) && Resources.Load<Material>("Backdrops/BackdropHollowSpire") != null) return "HollowSpire";
             int map = CampaignMap(stageNumber);
-            if ((stageNumber == 102 || map == 3) && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
-            if ((stageNumber == 103 || map == 4) && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
+            if ((stageNumber == Content.SaltFlats || map == 3) && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
+            if ((stageNumber == Content.FrostPasture || map == 4) && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
             if (map == 5 && Resources.Load<Material>("Backdrops/BackdropCinderMarches") != null) return "CinderMarches";
             if (map == 6 && Resources.Load<Material>("Backdrops/BackdropWhisperwood") != null) return "Whisperwood";
             if (map == 7 && Resources.Load<Material>("Backdrops/BackdropBloodbirch") != null) return "Bloodbirch";
             if (map == 8 && Resources.Load<Material>("Backdrops/BackdropDrownedSteppe") != null) return "DrownedSteppe";
             if (map == 9 && Resources.Load<Material>("Backdrops/BackdropColossusGraves") != null) return "ColossusGraves";
             if (map == 10 && Resources.Load<Material>("Backdrops/BackdropSunkenBazaar") != null) return "SunkenBazaar";
+            if (map == 11 && Resources.Load<Material>("Backdrops/BackdropThousandMarkers") != null) return "ThousandMarkers";
+            if (map == 12 && Resources.Load<Material>("Backdrops/BackdropHollowThrone") != null) return "HollowThrone";
             if (map == 2) return ZoneType.CommanderGround.ToString();
             return (zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone).ToString();
         }
@@ -291,6 +299,8 @@ namespace Orsuun.Client
                 "DrownedSteppe" => (new Color(0.24f, 0.28f, 0.22f), new Color(0.29f, 0.33f, 0.26f)),
                 "ColossusGraves" => (new Color(0.36f, 0.35f, 0.33f), new Color(0.42f, 0.41f, 0.38f)),
                 "SunkenBazaar" => (new Color(0.55f, 0.45f, 0.30f), new Color(0.62f, 0.51f, 0.34f)),
+                "ThousandMarkers" => (new Color(0.33f, 0.30f, 0.29f), new Color(0.39f, 0.35f, 0.33f)),
+                "HollowThrone" => (new Color(0.16f, 0.14f, 0.13f), new Color(0.22f, 0.19f, 0.15f)),
                 "CarversArchive" => (new Color(0.27f, 0.30f, 0.36f), new Color(0.32f, 0.36f, 0.43f)),
                 "Whisperwood" => (new Color(0.20f, 0.25f, 0.22f), new Color(0.24f, 0.30f, 0.27f)),
                 _ => (new Color(0.52f, 0.48f, 0.22f), new Color(0.58f, 0.54f, 0.27f)),
@@ -1437,7 +1447,8 @@ namespace Orsuun.Client
                         : boss.Contains("Azhdar") ? "Azhdar" : boss.Contains("Lantern Widow") ? "LanternWidow"
                         : boss.Contains("Silkmother") ? "Silkmother" : boss.Contains("Last Carver") ? "LastCarver"
                         : boss.Contains("Rootfather") ? "Rootfather" : boss.Contains("Coil Mother") ? "CoilMother"
-                        : boss.Contains("Hurm") ? "Hurm" : boss.Contains("Merchant-Prince") ? "MerchantPrince" : null;
+                        : boss.Contains("Hurm") ? "Hurm" : boss.Contains("Merchant-Prince") ? "MerchantPrince"
+                        : boss.Contains("Varkesh") ? "Varkesh" : boss.Contains("Khan's Shadow") ? "KhanShadow" : null;
                     MobArt own = name != null ? LoadMob(name) : null;
                     if (own != null) { scale = 1f; return own; }
                     if (boss.Contains("Greyjaw")) { scale = 1.8f; name = "Wolf"; return LoadMob("Wolf"); }
@@ -1564,6 +1575,10 @@ namespace Orsuun.Client
                 case "BirchStalker": case "MarshSerpent": case "CoilMother": case "LeechSwarm": case "SapHorror": return "MobBite";
                 case "StoneGiant": case "Hurm": case "SiegeBeast": case "GildedConstruct": return "BossSlam";
                 case "DebtWraith": case "MerchantPrince": return "SpellVoid";
+                case "RisenTrooper": case "RisenCaptain": case "ThroneGuard": return "MobClash";
+                case "Varkesh": case "KhanShadow": return "BossSlam";
+                case "RisenRider": case "KhanHound": return "MobBite";
+                case "OathChanter": return "SpellVoid";
                 case "Azhdar": return "BossSlam";
                 case "LanternWidow": case "HangingSpirit": case "FlameCultist": case "LanternWisp": return "SpellVoid";
                 default: return "MobClash";

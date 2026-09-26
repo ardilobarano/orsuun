@@ -29,8 +29,8 @@ goal='{"requestId":"'$(rid)'","count":20,"targets":[{"entryId":1,"minTier":1}]}'
 echo "turn toward a goal: $(post /v1/turn "$goal" | jq -c .lastTurn)"
 bad='{"requestId":"'$(rid)'","count":5,"targets":[{"entryId":1,"minTier":1},{"entryId":1,"minTier":2}]}' 
 echo "goal out of reach: $(post /v1/turn "$bad" | jq -c .)"
-echo "park hunting ground: parked=$(post /v1/park '{"stage":101}' | jq .parkedStage)"
-echo "park field I: parked=$(post /v1/park '{"stage":111}' | jq .parkedStage)"
+echo "park hunting ground: parked=$(post /v1/park '{"stage":201}' | jq .parkedStage)"
+echo "park field I: parked=$(post /v1/park '{"stage":211}' | jq .parkedStage)"
 post /v1/dev/bosses-up '{}' > /dev/null
 for id in 1 2 3; do
   bf=$(post /v1/boss/fight "{\"requestId\":\"$(rid)\",\"bossId\":$id}")

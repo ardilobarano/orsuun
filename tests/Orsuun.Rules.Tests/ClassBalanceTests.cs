@@ -183,4 +183,40 @@ public class ClassBalanceTests
         Assert.True(s90 >= 14 && s100 >= 14, $"{cls}: {s90}/20, {s100}/20");
         Assert.True(low <= 4, $"{cls} with Bloodbirch gear: {low}/20");
     }
+
+    /// <summary>
+    /// The Thousand Markers and the Hollow Throne (26 Sep 2026, 105% like the last three): Varkesh of the Left Wing falls
+    /// to every class with an Epic +9 set of the map's level and rarely to Colossus Graves' set. The Khan's Shadow, the
+    /// campaign's last boss, meets heroes who can no longer level: an Epic +9 set at level 105 wins about half the time,
+    /// a Legendary +9 set nearly always.
+    /// </summary>
+    [Theory]
+    [InlineData(HeroClass.Vanguard)]
+    [InlineData(HeroClass.Kestrel)]
+    [InlineData(HeroClass.Wraithsworn)]
+    [InlineData(HeroClass.Drumcaller)]
+    public void The_last_two_map_bosses_ask_for_the_best_gear(HeroClass cls)
+    {
+        HeroStats Set(int level, Rarity rarity)
+        {
+            var items = new List<ItemState>();
+            for (int s = 0; s < 8; s++) items.Add(new ItemState(level, rarity, (EquipSlot)s) { UpgradeLevel = 9 });
+            return HeroFactory.FromEquipment(items, level, cls);
+        }
+        int varkesh = 0, varkeshLow = 0, epic = 0, legendary = 0, shadowLow = 0;
+        for (ulong seed = 1; seed <= 20; seed++)
+        {
+            if (StageRun.Simulate(Content.Stage(110), Set(98, Rarity.Epic), new Inventory { Potions = 5 }, seed).Cleared) varkesh++;
+            if (StageRun.Simulate(Content.Stage(110), Set(82, Rarity.Epic), new Inventory { Potions = 5 }, seed).Cleared) varkeshLow++;
+            if (StageRun.Simulate(Content.Stage(120), Set(Content.MaxLevel, Rarity.Epic), new Inventory { Potions = 5 }, seed).Cleared) epic++;
+            if (StageRun.Simulate(Content.Stage(120), Set(Content.MaxLevel, Rarity.Legendary), new Inventory { Potions = 5 }, seed).Cleared) legendary++;
+            if (StageRun.Simulate(Content.Stage(120), Set(98, Rarity.Epic), new Inventory { Potions = 5 }, seed).Cleared) shadowLow++;
+        }
+        _out.WriteLine($"{cls}: Varkesh at Epic +9 {varkesh}/20, with Colossus Graves' {varkeshLow}/20; the Khan's Shadow at Epic +9 {epic}/20, Legendary +9 {legendary}/20, the Markers' Epic {shadowLow}/20");
+        Assert.True(varkesh >= 14, $"{cls}: Varkesh {varkesh}/20");
+        Assert.True(varkeshLow <= 4, $"{cls} with Colossus Graves gear: {varkeshLow}/20");
+        Assert.True(legendary >= 17, $"{cls}: the Khan's Shadow with Legendary {legendary}/20");
+        Assert.InRange(epic, 6, 16);
+        Assert.True(shadowLow <= 6, $"{cls} with the Markers' gear: {shadowLow}/20");
+    }
 }

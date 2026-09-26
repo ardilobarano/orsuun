@@ -32,7 +32,7 @@ namespace Orsuun.Rules
         public const int StagesPerMap = 10;
     }
 
-    /// <summary>A farm destination outside the campaign (GDD section 13). Ids start at 100; campaign stages are 1..N.</summary>
+    /// <summary>A farm destination outside the campaign (GDD section 13). Ids start at Content.FirstZoneId (201); campaign stages are 1..N.</summary>
     public sealed class ZoneDef
     {
         public ZoneDef(int id, string name, ZoneType type, int tier, int unlockStage, int levelMin, int levelMax, bool offlineAllowed, bool pvp)
@@ -96,16 +96,20 @@ namespace Orsuun.Rules
     public static class Content
     {
         /// <summary>
-        /// Zone ids start here (101 the Ember Steppe). Campaign stages run 1..TotalStages (100 with ten maps); maps 11 and 12
-        /// would reach 120 and must move the zones first (a data migration of Accounts.ParkedStage).
+        /// Zone ids start here (201 the Ember Steppe). Campaign stages run 1..TotalStages (120 with twelve maps). The zones
+        /// were 101-121 until maps 11 and 12 (26 Sep 2026, migration MoveZones moved Accounts.ParkedStage); campaign
+        /// stages may now reach 200 before they move again. Dungeon floors are 301-399.
         /// </summary>
-        public const int FirstZoneId = 101;
+        public const int FirstZoneId = 201;
+
+        public const int EmberSteppe = 201, SaltFlats = 202, FrostPasture = 203;
+        public const int KorstoneFieldI = 211, KorstoneFieldII = 212, KorstoneFieldIII = 213, KorstoneFieldIV = 214, KorstoneFieldV = 215;
+        public const int GorakWarCamp = 221;
         public const int MaxLevel = 105;
 
         /// <summary>
-        /// The campaign maps (world bible section 6: twelve at launch, ten stages each). The first six are built: their
-        /// enemies and backdrops exist (the Salt Sea and Whitefang Range share the Salt Flats' and Frost Pasture's; the
-        /// Cinder Marches and Whisperwood, 25 Sep 2026, have their own).
+        /// The campaign maps (world bible section 6: twelve at launch, ten stages each). All twelve are built (maps 11 and 12 on
+        /// 26 Sep 2026); the Salt Sea and Whitefang Range share the Salt Flats' and Frost Pasture's enemies and backdrops.
         /// </summary>
         public static readonly MapDef[] Maps =
         {
@@ -119,26 +123,28 @@ namespace Orsuun.Rules
             new MapDef(8, "The Drowned Steppe", 66, 74, "Serpent Scale", "The Coil Mother", new[] { "Marsh Serpent", "Bog Rider", "Leech Swarm" }, bossPercent: 105),
             new MapDef(9, "Colossus Graves", 74, 82, "Giant's Knuckle", "Hurm the Unburied", new[] { "Stone Giant", "Bone Picker", "Siege Beast" }, bossPercent: 105),
             new MapDef(10, "The Sunken Bazaar", 82, 90, "Gilded Cog", "The Last Merchant-Prince", new[] { "Khan Cultist", "Gilded Construct", "Debt Wraith" }, bossPercent: 105),
+            new MapDef(11, "The Thousand Markers", 90, 98, "Marker Dust", "Varkesh of the Left Wing", new[] { "Risen Trooper", "Risen Rider", "Risen Captain" }, bossPercent: 105),
+            new MapDef(12, "The Hollow Throne", 98, 105, "Throne Shard", "The Khan's Shadow", new[] { "Throne Guard", "Khan's Hound", "Oath Chanter" }, bossPercent: 105),
         };
 
         public static readonly ZoneDef[] Zones =
         {
-            new ZoneDef(101, "Ember Steppe", ZoneType.HuntingGround, 1, 1, 1, 40, offlineAllowed: true, pvp: false),
-            new ZoneDef(102, "Salt Flats", ZoneType.HuntingGround, 2, 4, 40, 75, offlineAllowed: true, pvp: false),
-            new ZoneDef(103, "Frost Pasture", ZoneType.HuntingGround, 3, 8, 75, 105, offlineAllowed: true, pvp: false),
-            new ZoneDef(111, "Korstone Field I", ZoneType.KorstoneField, 1, 1, 1, 30, offlineAllowed: true, pvp: false),
-            new ZoneDef(112, "Korstone Field II", ZoneType.KorstoneField, 2, 3, 30, 55, offlineAllowed: true, pvp: false),
-            new ZoneDef(113, "Korstone Field III", ZoneType.KorstoneField, 3, 6, 55, 75, offlineAllowed: true, pvp: true),
-            new ZoneDef(114, "Korstone Field IV", ZoneType.KorstoneField, 4, 9, 75, 90, offlineAllowed: false, pvp: true),
-            new ZoneDef(115, "Korstone Field V", ZoneType.KorstoneField, 5, 10, 90, 105, offlineAllowed: false, pvp: true),
-            new ZoneDef(121, "Gorak War Camp", ZoneType.CommanderGround, 1, 5, 20, 40, offlineAllowed: false, pvp: true),
+            new ZoneDef(EmberSteppe, "Ember Steppe", ZoneType.HuntingGround, 1, 1, 1, 40, offlineAllowed: true, pvp: false),
+            new ZoneDef(SaltFlats, "Salt Flats", ZoneType.HuntingGround, 2, 4, 40, 75, offlineAllowed: true, pvp: false),
+            new ZoneDef(FrostPasture, "Frost Pasture", ZoneType.HuntingGround, 3, 8, 75, 105, offlineAllowed: true, pvp: false),
+            new ZoneDef(KorstoneFieldI, "Korstone Field I", ZoneType.KorstoneField, 1, 1, 1, 30, offlineAllowed: true, pvp: false),
+            new ZoneDef(KorstoneFieldII, "Korstone Field II", ZoneType.KorstoneField, 2, 3, 30, 55, offlineAllowed: true, pvp: false),
+            new ZoneDef(KorstoneFieldIII, "Korstone Field III", ZoneType.KorstoneField, 3, 6, 55, 75, offlineAllowed: true, pvp: true),
+            new ZoneDef(KorstoneFieldIV, "Korstone Field IV", ZoneType.KorstoneField, 4, 9, 75, 90, offlineAllowed: false, pvp: true),
+            new ZoneDef(KorstoneFieldV, "Korstone Field V", ZoneType.KorstoneField, 5, 10, 90, 105, offlineAllowed: false, pvp: true),
+            new ZoneDef(GorakWarCamp, "Gorak War Camp", ZoneType.CommanderGround, 1, 5, 20, 40, offlineAllowed: false, pvp: true),
         };
 
         public static readonly BossDef[] Bosses =
         {
-            new BossDef(1, 121, "Warlord Tul-Gorak", 1, 60_000, 90, BossMechanic.CaptainShield, 45 * 60, "Tul-Gorak's Warmask"),
-            new BossDef(2, 121, "The Mirage Queen", 1, 50_000, 70, BossMechanic.MirrorImages, 45 * 60, "Mirage Veil"),
-            new BossDef(3, 121, "Old Greyjaw", 1, 45_000, 60, BossMechanic.PackCaller, 45 * 60, "Greyjaw Pelt Cloak"),
+            new BossDef(1, GorakWarCamp, "Warlord Tul-Gorak", 1, 60_000, 90, BossMechanic.CaptainShield, 45 * 60, "Tul-Gorak's Warmask"),
+            new BossDef(2, GorakWarCamp, "The Mirage Queen", 1, 50_000, 70, BossMechanic.MirrorImages, 45 * 60, "Mirage Veil"),
+            new BossDef(3, GorakWarCamp, "Old Greyjaw", 1, 45_000, 60, BossMechanic.PackCaller, 45 * 60, "Greyjaw Pelt Cloak"),
         };
 
         /// <summary>Base names of the stat-only slots; weapon and armour names come from ItemLooks by level band.</summary>

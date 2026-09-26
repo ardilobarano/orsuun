@@ -49,9 +49,9 @@ while (($me = Invoke-RestMethod "$BaseUrl/v1/me" -Headers $h).highestStageCleare
     if (-not $pu.lastPush.cleared) { "push to $($pu.lastPush.stage) failed, granting"; Invoke-RestMethod "$BaseUrl/v1/dev/grant" -Method Post -Headers $h | Out-Null; $f2 = Invoke-RestMethod "$BaseUrl/v1/forge" -Method Post -Headers $h -Body (@{ requestId = (Rid); method = 'ScrollOfMercy' } | ConvertTo-Json) }
 }
 "campaign: highest=$($me.highestStageCleared)"
-"park hunting ground:"; $pk = Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 101 } | ConvertTo-Json); "  parked=$($pk.parkedStage)"
-"park field IV while locked:"; Fail { Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 114 } | ConvertTo-Json) }
-$pk = Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 111 } | ConvertTo-Json); "park field I: parked=$($pk.parkedStage)"
+"park hunting ground:"; $pk = Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 201 } | ConvertTo-Json); "  parked=$($pk.parkedStage)"
+"park field IV while locked:"; Fail { Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 214 } | ConvertTo-Json) }
+$pk = Invoke-RestMethod "$BaseUrl/v1/park" -Method Post -Headers $h -Body (@{ stage = 211 } | ConvertTo-Json); "park field I: parked=$($pk.parkedStage)"
 "bosses:"; $me.bosses | ForEach-Object { "  $($_.name)  up=$($_.up)  secondsLeft=$($_.secondsLeft)  mechanic=$($_.mechanic)" }
 "boss fight while down:"; Fail { Invoke-RestMethod "$BaseUrl/v1/boss/fight" -Method Post -Headers $h -Body (@{ requestId = (Rid); bossId = 1 } | ConvertTo-Json) }
 $up = Invoke-RestMethod "$BaseUrl/v1/dev/bosses-up" -Method Post -Headers $h

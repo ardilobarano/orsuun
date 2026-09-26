@@ -197,13 +197,13 @@ namespace Orsuun.Rules
 
             int end = death >= 0 ? death : trace.Length - 1;
             long hp = win ? Math.Max(1, trace[Math.Max(0, end * 3 / 4)]) : trace[end] * 5 / 4 + 1;
-            var champion = new BossDef(ChampionId, 121, name, 1, hp, attack, BossMechanic.None, 0, "");
+            var champion = new BossDef(ChampionId, Content.GorakWarCamp, name, 1, hp, attack, BossMechanic.None, 0, "");
             for (int check = 0; check < 4; check++)
             {
                 bool killed = BossRun.Simulate(champion, attacker, new Inventory(), seed).Killed;
                 if (killed == win) return champion;
                 hp = win ? Math.Max(1, hp / 2) : hp * 2;
-                champion = new BossDef(ChampionId, 121, name, 1, hp, attack, BossMechanic.None, 0, "");
+                champion = new BossDef(ChampionId, Content.GorakWarCamp, name, 1, hp, attack, BossMechanic.None, 0, "");
             }
             return champion;
         }
@@ -211,7 +211,7 @@ namespace Orsuun.Rules
         /// <summary>Damage dealt by each tick against an unbreakable champion; <paramref name="death"/> is the tick the hero fell (-1: never).</summary>
         private static long[] Trace(HeroStats attacker, long attack, ulong seed, out int death)
         {
-            var dummy = new BossDef(ChampionId, 121, "", 1, 1_000_000_000_000L, attack, BossMechanic.None, 0, "");
+            var dummy = new BossDef(ChampionId, Content.GorakWarCamp, "", 1, 1_000_000_000_000L, attack, BossMechanic.None, 0, "");
             LaneSim lane = BossRun.Create(dummy, attacker, new Inventory(), seed);
             var trace = new List<long>();
             death = -1;

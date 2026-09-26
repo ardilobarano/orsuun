@@ -744,7 +744,7 @@ namespace Orsuun.Client
             }
             GuildWar.Close();
             // The champion the server shaped for this duel, dressed as the defender; no draughts, no bell.
-            var champion = new BossDef(Duels.ChampionId, 121, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
+            var champion = new BossDef(Duels.ChampionId, Content.GorakWarCamp, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
             Lane.SetRival(Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard, duel.defenderBand);
             _replay = BossRun.Create(champion, hero, new Inventory(), duel.seed);
             ReplayBanner = "WAR  ·  " + duel.champion;
@@ -784,7 +784,7 @@ namespace Orsuun.Client
             }
             Pits.Close();
             Net.ServerLink.DuelResultDto duel = fight.duel;
-            var champion = new BossDef(Duels.ChampionId, 121, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
+            var champion = new BossDef(Duels.ChampionId, Content.GorakWarCamp, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
             Lane.SetRival(Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard, duel.defenderBand);
             _replay = BossRun.Create(champion, hero, new Inventory(), duel.seed);
             ReplayBanner = "THE PITS  ·  " + duel.champion;
