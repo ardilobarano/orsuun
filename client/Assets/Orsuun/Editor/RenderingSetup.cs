@@ -619,21 +619,24 @@ namespace Orsuun.Client.EditorTools
                 if (def.Kind != Orsuun.Rules.WardrobeKind.Skin) continue;
                 foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Vanguard, Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
                 {
-                    string model = Orsuun.Client.LaneView.SkinModel(cls, def.Look);
-                    if (model == null) continue;
-                    if (cls == Orsuun.Rules.Combat.HeroClass.Vanguard)
+                    foreach (bool second in new[] { false, true })
                     {
-                        view.SetHeroClass(cls);
-                        view.SetLooks(model, "Weapon_T5");
-                        view.SetGear(none);
+                        string model = Orsuun.Client.LaneView.SkinModel(cls, def.Look, second);
+                        if (model == null) continue;
+                        if (cls == Orsuun.Rules.Combat.HeroClass.Vanguard)
+                        {
+                            view.SetHeroClass(cls, 0, null, second);
+                            view.SetLooks(model, "Weapon_T5");
+                            view.SetGear(none);
+                        }
+                        else
+                        {
+                            view.SetHeroClass(cls, 5, model, second);
+                            view.PoseHero("Idle", 0f);
+                        }
+                        Frame(rig, 0.7f);
+                        CaptureSkinned(cam, "../artifacts/iconref/skins/" + cls + "-" + def.Look + (second ? "-alt" : "") + ".png", rig.transform);
                     }
-                    else
-                    {
-                        view.SetHeroClass(cls, 5, model);
-                        view.PoseHero("Idle", 0f);
-                    }
-                    Frame(rig, 0.7f);
-                    CaptureSkinned(cam, "../artifacts/iconref/skins/" + cls + "-" + def.Look + ".png", rig.transform);
                 }
             }
 
