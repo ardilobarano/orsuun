@@ -142,8 +142,11 @@ APK link (410 MB) and on the iPhone (build 26092610). The download-on-first-laun
 phones fetch about 130 MB of art from `/downloads/content/<platform>/` on first launch) and on the iPhone (build
 26092611, seen online right after its first start). The build with the other classes' new style, Trail season 2, the per-class names and the weapon icon on the
 hero plate (26 Sep 2026, about 15:45; server deployed at the same commit, content bundles uploaded) is on the APK link
-(the previous APK kept as `Orsuun-prev.apk`). Its iOS build 26092612 is on the iPhone (installed fresh after the owner
-deleted the old app, so it starts from the sign-in screen and downloads the art again).
+(the previous APK kept as `Orsuun-prev.apk`). Its iOS build 26092612 went on the iPhone (fresh, after the owner deleted
+the old app). Then the owner saw a Pit opponent drawn as a pink capsule: the replay dressed the champion as the
+defender only for guild war duels (a "[TAG]" name); `LaneView.SetRival` now takes the champion's name, and a Vanguard
+rival wears his band's armour look with its weapon (`ArmRival`; a steel deserter before). That build (26 Sep 2026,
+about 16:25) is on the APK link and the iPhone (build 26092613).
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
