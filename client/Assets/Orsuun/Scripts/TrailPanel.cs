@@ -236,7 +236,8 @@ namespace Orsuun.Client
 
             // The hero in the season's costume, as the paid track's tier 1 gives it.
             ItemState armor = _root.Session.Equipped(EquipSlot.Armor);
-            _stage.Show(_root.Session.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, ItemLooks.Tier(_root.Session.Weapon.ItemLevel), costume?.Look);
+            _stage.Show(_root.Session.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, ItemLooks.Tier(_root.Session.Weapon.ItemLevel), costume?.Look,
+                secondLook: _root.Session.SecondLook);
 
             _season.text = $"Season {season.Number} · {season.Name}";
             _left.text = t == null ? "" : $"Ends in {Left(_root.Server.TrailSecondsLeft)}.";

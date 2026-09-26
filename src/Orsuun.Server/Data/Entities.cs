@@ -153,6 +153,8 @@ public sealed class Account
 
     /// <summary>The class being played; it picks the hero's stat shape and skill kit.</summary>
     public HeroClass Class { get; set; } = HeroClass.Vanguard;
+    /// <summary>Man or woman (Rules.Figure), chosen when the character was made; the class's other figure wears its second look.</summary>
+    public Figure Figure { get; set; } = Figure.Man;
 
     /// <summary>All items the account owns, equipped or in the loot list. Loaded with the account.</summary>
     public List<Item> Items { get; set; } = new();

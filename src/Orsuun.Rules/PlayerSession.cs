@@ -355,6 +355,12 @@ namespace Orsuun.Rules
         /// <summary>The class being played. Changing it rebuilds the farm lane with that class's kit.</summary>
         public HeroClass Class { get; private set; } = HeroClass.Vanguard;
 
+        /// <summary>Man or woman (the server's, or the class's first look offline); it stays through class changes.</summary>
+        public Figure Figure { get; set; } = Figure.Man;
+
+        /// <summary>True when the hero wears the class's second look (ItemLooks.SecondLook).</summary>
+        public bool SecondLook => ItemLooks.SecondLook(Class, Figure);
+
         public void SetClass(HeroClass cls)
         {
             if (cls == Class) return;

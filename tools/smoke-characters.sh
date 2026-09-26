@@ -9,7 +9,7 @@ rid() { uuidgen | tr -d '-' | tr 'A-Z' 'a-z'; }
 p() { curl -s -X POST "$BASE$2" -H 'Content-Type: application/json' -H "X-Session: $1" -d "$3"; }
 g() { curl -s "$BASE$2" -H "X-Session: $1"; }
 j() { jq -nc "$@"; }
-L='{characters: [.characters[] | "\(.slot) \(.name) \(.class) L\(.level)"], banner, amber, message}'
+L='{characters: [.characters[] | "\(.slot) \(.name) \(.class) \(.figure) L\(.level)"], banner, amber, message}'
 TAG=$(rid | tr -d 'a-f' | cut -c1-5)
 
 LOGIN=$(curl -s -X POST "$BASE/v1/auth/guest" -H 'Content-Type: application/json' -d "$(j --arg d "smoke-chars-$(rid)" '{deviceToken:$d, lobby:true}')")
@@ -20,7 +20,7 @@ echo "lobby: $(g "$S" /v1/lobby | jq -c "$L")"
 echo "oath at the character screen: $(p "$S" /v1/lobby/banner '{"banner":"Sky"}' | jq -c '{banner, message}')"
 echo "swear again: $(p "$S" /v1/lobby/banner '{"banner":"Gold"}' | jq -c .code)"
 echo "bad name: $(p "$S" /v1/lobby/create "$(j '{name:"No Spaces", heroClass:"Vanguard"}')" | jq -c .code)"
-A=$(p "$S" /v1/lobby/create "$(j --arg n "Arslan$TAG" '{name:$n, heroClass:"Vanguard"}')")
+A=$(p "$S" /v1/lobby/create "$(j --arg n "Arslan$TAG" '{name:$n, heroClass:"Vanguard", figure:"Woman"}')")
 echo "create Arslan$TAG: $(echo "$A" | jq -c "$L")"
 echo "same name again: $(p "$S" /v1/lobby/create "$(j --arg n "ARSLAN$TAG" '{name:$n, heroClass:"Kestrel"}')" | jq -c .code)"
 B=$(p "$S" /v1/lobby/create "$(j --arg n "Borte$TAG" '{name:$n, heroClass:"Kestrel", slot:3}')")

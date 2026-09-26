@@ -40,7 +40,8 @@ public sealed partial class GameService
             string skin = WornPieces(a).FirstOrDefault(p => p.Kind == WardrobeKind.Skin)?.Look ?? "";
             string tag = tags.Where(t => t.Id == a.GuildId).Select(t => t.Tag).FirstOrDefault() ?? "";
             return new CharacterSlotDto(a.Id, a.Slot, NameOf(a), a.Class, Content.LevelFor(a.Xp), armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0,
-                weapon != null ? ItemLooks.Tier(weapon.ItemLevel) : 0, weapon?.UpgradeLevel ?? 0, skin, a.HighestStageCleared, a.LastHeartbeatUtc, tag, a.BannedUtc != null);
+                weapon != null ? ItemLooks.Tier(weapon.ItemLevel) : 0, weapon?.UpgradeLevel ?? 0, skin, a.HighestStageCleared, a.LastHeartbeatUtc, tag, a.BannedUtc != null,
+                a.Figure);
         }).ToArray();
         int links = await _db.ExternalLogins.CountAsync(l => l.LoginId == login.Id, ct);
         return new LobbyDto(login.Id, slots, Characters.MaxSlots, login.Banner, login.Amber, login.Email, message, links);
@@ -51,13 +52,16 @@ public sealed partial class GameService
         string name = (request.Name ?? "").Trim();
         if (Characters.NameProblem(name) is string problem) throw new GameException("bad_name", problem);
         if (!Enum.TryParse(request.HeroClass, out HeroClass cls) || !Enum.IsDefined(cls)) throw new GameException("bad_class", "Choose a class.");
+        Figure figure = ItemLooks.NativeFigure(cls);
+        if (!string.IsNullOrEmpty(request.Figure) && (!Enum.TryParse(request.Figure, out figure) || !Enum.IsDefined(figure)))
+            throw new GameException("bad_figure", "Choose a man or a woman.");
         var taken = await _db.Accounts.Where(a => a.LoginId == login.Id).Select(a => a.Slot).ToListAsync(ct);
         if (taken.Count >= Characters.MaxSlots) throw new GameException("slots_full", $"All {Characters.MaxSlots} slots are taken.");
         int slot = request.Slot >= 0 && request.Slot < Characters.MaxSlots && !taken.Contains(request.Slot)
             ? request.Slot : Enumerable.Range(0, Characters.MaxSlots).First(s => !taken.Contains(s));
         string key = Characters.NameKey(name);
         if (await _db.Accounts.AnyAsync(a => a.NameKey == key, ct)) throw new GameException("name_taken", "That name is taken.");
-        NewCharacter(login, name, cls, slot);
+        NewCharacter(login, name, cls, slot).Figure = figure;
         try { await _db.SaveChangesAsync(ct); }
         catch (DbUpdateException) { throw new GameException("name_taken", "That name is taken."); }
         return await LobbyAsync(login, $"{name} steps onto the steppe.", ct);

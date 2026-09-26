@@ -512,7 +512,7 @@ namespace Orsuun.Client
             string skin = null;
             foreach (WardrobeDef piece in session.Worn) if (piece.Kind == WardrobeKind.Skin) skin = piece.Look;
             _stage.Show(session.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, ItemLooks.Tier(session.Weapon.ItemLevel), skin,
-                armor != null ? UpgradeGlow.ForLevel(armor.UpgradeLevel) : 0f, UpgradeGlow.ForLevel(session.Weapon.UpgradeLevel));
+                armor != null ? UpgradeGlow.ForLevel(armor.UpgradeLevel) : 0f, UpgradeGlow.ForLevel(session.Weapon.UpgradeLevel), session.SecondLook);
 
             bool canRenew = _root.Server.Online && OathRenewal.Problem(session.Level, session.Renewals) == null;
             _level.text = $"LEVEL {session.Level}"

@@ -595,6 +595,23 @@ namespace Orsuun.Client.EditorTools
                     CaptureSkinned(cam, "../artifacts/iconref/" + cls + "-T" + band + ".png", rig.transform);
                 }
             }
+            // The second looks (owner, 26 Sep 2026: a man and a woman of every class), band by band.
+            Directory.CreateDirectory("../artifacts/iconref/alt");
+            for (int band = 0; band <= Orsuun.Rules.ItemLooks.MaxTier; band++)
+                foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Vanguard, Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
+                {
+                    view.SetHeroClass(cls, band, null, secondLook: true);
+                    if (cls == Orsuun.Rules.Combat.HeroClass.Vanguard)
+                    {
+                        view.SetLooks("Armor_T" + band, "Weapon_T" + band);
+                        view.SetGear(none);
+                    }
+                    else view.PoseHero("Idle", 0f);
+                    Frame(rig, 0.7f);
+                    CaptureSkinned(cam, "../artifacts/iconref/alt/" + cls + "-T" + band + ".png", rig.transform);
+                }
+            view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
+
             // Each wardrobe skin's own models, one per class, to check a new costume (26 Sep 2026).
             Directory.CreateDirectory("../artifacts/iconref/skins");
             foreach (Orsuun.Rules.WardrobeDef def in Orsuun.Rules.Wardrobe.All)

@@ -93,17 +93,17 @@ namespace Orsuun.Client
         /// Shows a hero (null: none); call every frame while the screen is open. The glows (UpgradeGlow.ForLevel of the
         /// worn armour and weapon) light the pieces as the lane does, sparkles and all.
         /// </summary>
-        public void Show(HeroClass? cls, int armorBand, int weaponBand, string skinLook, float armorGlow = 0f, float weaponGlow = 0f)
+        public void Show(HeroClass? cls, int armorBand, int weaponBand, string skinLook, float armorGlow = 0f, float weaponGlow = 0f, bool secondLook = false)
         {
             bool visible = cls.HasValue && gameObject.activeInHierarchy;
             _camera.enabled = visible;
             _view.enabled = visible;
             if (!visible) return;
-            string key = cls + "/" + armorBand + "/" + weaponBand + "/" + skinLook;
+            string key = cls + "/" + armorBand + "/" + weaponBand + "/" + skinLook + "/" + secondLook;
             if (key != _shown)
             {
                 _shown = key;
-                Build(cls.Value, armorBand, weaponBand, string.IsNullOrEmpty(skinLook) ? null : skinLook);
+                Build(cls.Value, armorBand, weaponBand, string.IsNullOrEmpty(skinLook) ? null : skinLook, secondLook);
             }
             if (!Mathf.Approximately(armorGlow, _armorGlow) || !Mathf.Approximately(weaponGlow, _weaponGlow)) Glow(armorGlow, weaponGlow);
             float dt = Time.unscaledDeltaTime;
@@ -189,7 +189,7 @@ namespace Orsuun.Client
             }
         }
 
-        private void Build(HeroClass cls, int armorBand, int weaponBand, string skinLook)
+        private void Build(HeroClass cls, int armorBand, int weaponBand, string skinLook, bool secondLook)
         {
             _yaw = 0f;
             _spin = 0f;
@@ -200,12 +200,15 @@ namespace Orsuun.Client
             _model.transform.SetParent(_pivot, false);
             var renderers = new List<Renderer>();
             Animation anim = null;
-            string skin = LaneView.SkinModel(cls, skinLook);
+            // Costumes are drawn for each class's first look only; a second look shows its armour for the band.
+            string skin = secondLook ? null : LaneView.SkinModel(cls, skinLook);
 
             if (cls == HeroClass.Vanguard)
             {
                 _model.transform.localScale = VanguardBuild;
-                GameObject armorPrefab = LaneView.LoadLook(skin ?? "Armor_T" + armorBand, out string armorUsed);
+                string armorUsed = null;
+                GameObject armorPrefab = skin == null && secondLook ? LaneView.LoadLook(LaneView.AltName("Armor_T" + armorBand), out armorUsed) : null;
+                if (armorPrefab == null) armorPrefab = LaneView.LoadLook(skin ?? "Armor_T" + armorBand, out armorUsed);
                 GameObject weaponPrefab = LaneView.LoadLook("Weapon_T" + weaponBand, out string weaponUsed);
                 if (armorPrefab == null) return;
                 GameObject armor = Instantiate(armorPrefab, _model.transform);
@@ -224,7 +227,7 @@ namespace Orsuun.Client
             }
             else
             {
-                string name = skin ?? LaneView.ClassLookName(cls, armorBand);
+                string name = skin ?? LaneView.ClassLookName(cls, armorBand, secondLook);
                 var prefab = name == null ? null : Art.Load<GameObject>("Models/Classes/" + name);
                 if (prefab == null) return;
                 GameObject body = Instantiate(prefab, _model.transform);

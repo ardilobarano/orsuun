@@ -5,6 +5,17 @@ using Orsuun.Rules.Combat;
 namespace Orsuun.Rules
 {
     /// <summary>
+    /// A character's figure (owner, 26 Sep 2026: "Second look per class"): every class has a man and a woman. The
+    /// Vanguard and the Wraithsworn were drawn first as men, the Kestrel and the Drumcaller as women; the other figure
+    /// wears the class's second look ("Alt" models). Chosen when a character is made; it stays through class changes.
+    /// </summary>
+    public enum Figure
+    {
+        Man = 0,
+        Woman = 1,
+    }
+
+    /// <summary>
     /// Item catalog for the visible slots (owner, 23 Sep 2026): only the weapon and the body armour show on the
     /// character, and their look changes with the item's level band, a new look every <see cref="LevelsPerLook"/>
     /// levels (1-9, 10-19, ... 100-105). Stat-only slots keep one base name each and have no look.
@@ -93,6 +104,12 @@ namespace Orsuun.Rules
         };
 
         public static int MaxTier => WeaponNames.Length - 1;
+
+        /// <summary>The figure a class was first drawn as.</summary>
+        public static Figure NativeFigure(HeroClass cls) => cls == HeroClass.Kestrel || cls == HeroClass.Drumcaller ? Figure.Woman : Figure.Man;
+
+        /// <summary>True when a character of this figure wears the class's second look.</summary>
+        public static bool SecondLook(HeroClass cls, Figure figure) => figure != NativeFigure(cls);
 
         /// <summary>True for the slots whose look changes and shows on the character.</summary>
         public static bool HasLooks(EquipSlot slot) => slot == EquipSlot.Weapon || slot == EquipSlot.Armor;

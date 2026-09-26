@@ -82,6 +82,9 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("EtchingNeedles")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Figure")
+                        .HasColumnType("integer");
+
                     b.Property<long>("GuildDonated")
                         .HasColumnType("bigint");
 

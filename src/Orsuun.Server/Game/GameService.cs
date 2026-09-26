@@ -120,6 +120,7 @@ public sealed partial class GameService
             Name = name,
             NameKey = Characters.NameKey(name),
             Class = cls,
+            Figure = ItemLooks.NativeFigure(cls),
             Banner = login.Banner,
             SwornUtc = login.SwornUtc,
             CreatedUtc = now,
@@ -825,7 +826,8 @@ public sealed partial class GameService
             SkillGrades: Rules.SkillGrades.Parse(account.SkillGrades),
             SkillProgress: Rules.SkillGrades.Parse(account.SkillProgress, 99),
             SkillReadySeconds: SkillReadySeconds(account),
-            Honor: account.Honor);
+            Honor: account.Honor,
+            Figure: account.Figure);
     }
 
     private static ItemDto ToDto(Item item)

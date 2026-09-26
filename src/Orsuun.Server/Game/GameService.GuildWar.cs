@@ -238,7 +238,7 @@ public sealed partial class GameService
         Item? armor = defender.Items.FirstOrDefault(i => i.Equipped && !i.Destroyed && i.Slot == EquipSlot.Armor);
         int band = armor != null ? ItemLooks.Tier(armor.ToState().ItemLevel) : 0;
         var duel = new DuelResultDto(lane, seed, champion.Name, champion.Hp, champion.Attack, won, (int)Math.Round(Duels.WinChance(edge) * 100), text,
-            defender.Class, band);
+            defender.Class, band, defender.Figure);
         return new GuildWarFightDto(ToState(account), duel, await GuildWarAsync(account, "", ct));
     }
 

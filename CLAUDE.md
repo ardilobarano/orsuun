@@ -191,3 +191,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Exchange goods (`Rules.TradeGoods`, stored as `MarketListing.GoodId`/`GoodCount`; -1 means none, 0 is the Draught):
   ids are on listings, so append goods, never renumber. A good returned to someone else (a listing that ran out on
   another hero's read) goes through `AddGoodElsewhereAsync` (single UPDATEs; Korshards rewrite their "n;n;n;n;n" place in SQL).
+- Every character is a man or a woman (`Rules.Figure`, since 26 Sep 2026); `ItemLooks.SecondLook(class, figure)` says
+  when the class's other figure is shown: second-look models are named with "Alt" (`LaneView.AltName`: `ArmorAlt_T3`,
+  `KestrelAlt_T3`), and `ClassLookName` / `SetLooks` / `HeroStage` fall back to the first look when one is missing.
+  Pass the flag wherever a hero is drawn (lane, HeroStage, rivals: `DuelResultDto.DefenderFigure`).

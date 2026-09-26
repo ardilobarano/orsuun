@@ -257,10 +257,10 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>A new character in a slot (-1: the first free one). Completes with (message, error).</summary>
-        public IEnumerator CreateCharacter(string name, HeroClass cls, int slot, Action<string, string> done)
+        public IEnumerator CreateCharacter(string name, HeroClass cls, int slot, Figure figure, Action<string, string> done)
         {
             string failure = null;
-            yield return Post("/v1/lobby/create", JsonUtility.ToJson(new CreateCharacterRequest { name = name, heroClass = cls.ToString(), slot = slot }), true,
+            yield return Post("/v1/lobby/create", JsonUtility.ToJson(new CreateCharacterRequest { name = name, heroClass = cls.ToString(), slot = slot, figure = figure.ToString() }), true,
                 json => ApplyLobby(JsonUtility.FromJson<LobbyDto>(json)), error => failure = error ?? "No answer from the server.");
             done(failure == null ? Lobby?.message : null, failure);
         }
@@ -1248,6 +1248,7 @@ namespace Orsuun.Client.Net
                 foreach (KeyValuePair<ItemState, string> pair in ItemIds)
                     if (pair.Value == anvilId) { _player.PutOnAnvil(pair.Key); break; }
             if (!string.IsNullOrEmpty(s.heroClass) && Enum.TryParse(s.heroClass, out HeroClass cls)) _player.SetClass(cls);
+            if (!string.IsNullOrEmpty(s.figure) && Enum.TryParse(s.figure, out Figure figure)) _player.Figure = figure;
             if (s.bounties != null && s.bounties.items != null)
             {
                 Bounties = s.bounties;
@@ -1318,9 +1319,9 @@ namespace Orsuun.Client.Net
         // JsonUtility mirrors of the server contracts. Enums travel as strings.
         [Serializable] public class GuestLoginRequest { public string deviceToken; public bool lobby; }
         [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; public string loginId; public int characters; }
-        [Serializable] public class CharacterSlotDto { public string id; public int slot; public string name; public string @class; public int level; public int armorBand; public int weaponBand; public int weaponUpgrade; public string skin; public int highestStageCleared; public string lastPlayedUtc; public string guildTag; public bool banned; }
+        [Serializable] public class CharacterSlotDto { public string id; public int slot; public string name; public string @class; public int level; public int armorBand; public int weaponBand; public int weaponUpgrade; public string skin; public int highestStageCleared; public string lastPlayedUtc; public string guildTag; public bool banned; public string figure; }
         [Serializable] public class LobbyDto { public string loginId; public CharacterSlotDto[] characters; public int maxSlots; public string banner; public long amber; public string email; public string message; public int links; }
-        [Serializable] public class CreateCharacterRequest { public string name; public string heroClass; public int slot; }
+        [Serializable] public class CreateCharacterRequest { public string name; public string heroClass; public int slot; public string figure; }
         [Serializable] public class CharacterRequest { public string characterId; public string name; }
         [Serializable] public class DepotDto { public StateDto state; public ItemDto[] items; public int capacity; public string message; }
         [Serializable] public class DepotRequest { public string requestId; public string itemId; }
@@ -1363,7 +1364,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class GuildWarSignupRequest { public bool join; }
         [Serializable] public class GuildWarFlagRequest { public int lane; }
         [Serializable] public class GuildWarFightRequest { public string requestId; public int lane; }
-        [Serializable] public class DuelResultDto { public int lane; public ulong seed; public string champion; public long championHp; public long championAttack; public bool won; public int winChancePercent; public string text; public string defenderClass; public int defenderBand; }
+        [Serializable] public class DuelResultDto { public int lane; public ulong seed; public string champion; public long championHp; public long championAttack; public bool won; public int winChancePercent; public string text; public string defenderClass; public int defenderBand; public string defenderFigure; }
         [Serializable] public class GuildWarFightDto { public StateDto state; public DuelResultDto duel; public GuildWarDto war; }
         [Serializable] public class SiegeRequest { public string requestId; public int fortressId; }
         [Serializable] public class SiegeResultDto { public int fortressId; public int bossId; public bool defending; public ulong seed; public long damage; public int potionsAtStart; public string bell; public string phase; public long wallLeft; public bool phaseBroken; public bool captured; public string holder; public string text; }
@@ -1378,7 +1379,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }

@@ -155,7 +155,7 @@ public sealed partial class GameService
         string text = won ? $"You beat {foeName} in the pit: rating {before} → {mine}, +{laurels} Laurels."
             : $"{foeName} threw you down: rating {before} → {mine}, +{laurels} Laurels.";
         var duel = new DuelResultDto(0, seed, champion.Name, champion.Hp, champion.Attack, won, (int)Math.Round(Duels.WinChance(edge) * 100), text,
-            foe.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0);
+            foe.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, foe.Account?.Figure ?? ItemLooks.NativeFigure(foe.Class));
         return new PitFightDto(ToState(account), duel, await PitsAsync(account, "", ct), before, mine, laurels);
     }
 

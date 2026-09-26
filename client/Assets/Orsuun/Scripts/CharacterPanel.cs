@@ -55,6 +55,9 @@ namespace Orsuun.Client
         private Mode _mode;
         private int _slot;
         private int _classIndex;
+        /// <summary>Man or woman for the hero being made (owner, 26 Sep 2026: a second look per class); each class starts on its first look.</summary>
+        private Figure _figure = Figure.Man;
+        private readonly Button[] _figureButtons = new Button[2];
         private bool _busy;
         private int _lobbyGeneration = -1;
         // Screenshots: -dragturn <px> drags a finger across the hero two seconds after it shows.
@@ -110,7 +113,16 @@ namespace Orsuun.Client
             {
                 int index = i;
                 float x0 = 0.03f + i * 0.2375f;
-                _classButtons[i] = Ui.Button("Class" + i, cg, x0, 0.25f, x0 + 0.225f, 0.305f, Classes[i].ToString().ToUpperInvariant(), 17, Palette.ButtonIdle, () => _classIndex = index, out _);
+                _classButtons[i] = Ui.Button("Class" + i, cg, x0, 0.25f, x0 + 0.225f, 0.305f, Classes[i].ToString().ToUpperInvariant(), 17, Palette.ButtonIdle,
+                    () => { _classIndex = index; _figure = ItemLooks.NativeFigure(Classes[index]); }, out _);
+            }
+            // A man or a woman of the class: the class's two looks, on either side of the hero.
+            for (int i = 0; i < 2; i++)
+            {
+                var figure = (Figure)i;
+                float x0 = i == 0 ? 0.03f : 0.77f;
+                _figureButtons[i] = Ui.Button("Figure" + i, cg, x0, 0.6f, x0 + 0.2f, 0.645f, figure == Figure.Man ? "MAN" : "WOMAN", 18, Palette.ButtonIdle,
+                    () => _figure = figure, out _);
             }
             _classBlurb = Ui.Label("Blurb", cg, 0.05f, 0.2f, 0.95f, 0.248f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
             _nameField = Ui.Input("NameField", cg, 0.1f, 0.14f, 0.9f, 0.195f, $"A name: {Characters.NameMin}-{Characters.NameMax} letters or digits", 28, Characters.NameMax);
@@ -185,7 +197,7 @@ namespace Orsuun.Client
             string name = (_nameField.text ?? "").Trim();
             if (Characters.NameProblem(name) is string problem) { _message.text = problem; return; }
             _busy = true;
-            StartCoroutine(_root.Server.CreateCharacter(name, Classes[_classIndex], _slot, (message, error) =>
+            StartCoroutine(_root.Server.CreateCharacter(name, Classes[_classIndex], _slot, _figure, (message, error) =>
             {
                 _busy = false;
                 _message.text = error ?? message ?? "";
@@ -248,7 +260,8 @@ namespace Orsuun.Client
             if (_mode == Mode.Create)
             {
                 HeroClass cls = Classes[_classIndex];
-                _stage.Show(cls, 0, 0, null);
+                _stage.Show(cls, 0, 0, null, secondLook: ItemLooks.SecondLook(cls, _figure));
+                for (int i = 0; i < _figureButtons.Length; i++) _figureButtons[i].targetGraphic.color = i == (int)_figure ? Palette.ButtonForge : Palette.ButtonIdle;
                 _name.text = "A NEW HERO";
                 _line.text = cls.ToString();
                 _detail.text = "Sworn to the " + (server.Banner == Banner.None ? "Banner you choose next" : Banners.Def(server.Banner).Name);
@@ -272,7 +285,8 @@ namespace Orsuun.Client
             }
 
             Enum.TryParse(chosen.@class, out HeroClass chosenClass);
-            _stage.Show(chosenClass, chosen.armorBand, chosen.weaponBand, chosen.skin);
+            Figure chosenFigure = Enum.TryParse(chosen.figure, out Figure f) ? f : ItemLooks.NativeFigure(chosenClass);
+            _stage.Show(chosenClass, chosen.armorBand, chosen.weaponBand, chosen.skin, secondLook: ItemLooks.SecondLook(chosenClass, chosenFigure));
             _name.text = (string.IsNullOrEmpty(chosen.guildTag) ? "" : "[" + chosen.guildTag + "] ") + chosen.name;
             _line.text = $"Level {chosen.level} {chosen.@class}";
             _detail.text = chosen.highestStageCleared > 0 ? "Reached " + Content.StageName(Math.Min(Content.TotalStages, chosen.highestStageCleared + 1)) : "Fresh on the steppe";

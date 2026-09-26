@@ -427,10 +427,14 @@ namespace Orsuun.Client
             if (_rig == null) return false;
             if (_class != HeroClass.Vanguard) return true;   // other classes wear their own model (SetHeroClass)
             armorLookId ??= BareArmorLook;
-            if (armorLookId == _armorLookId && weaponLookId == _weaponLookId) return true;
+            if (armorLookId == _armorLookId && weaponLookId == _weaponLookId && _second == _armorSecond) return true;
             if (_heroDown) return true; // lying down: swap once back on his feet
 
-            GameObject armorPrefab = LoadLook(armorLookId, out string armorUsed);
+            // The Vanguard's second look (owner, 26 Sep 2026) wears the same armour cut for her: "ArmorAlt_T3" for "Armor_T3".
+            string armorUsed = null;
+            GameObject armorPrefab = _second && armorLookId.StartsWith("Armor_T", System.StringComparison.Ordinal)
+                ? LoadLook(AltName(armorLookId), out armorUsed) : null;
+            if (armorPrefab == null) armorPrefab = LoadLook(armorLookId, out armorUsed);
             if (armorPrefab == null) return false;
             string weaponUsed = null;
             GameObject weaponPrefab = weaponLookId != null ? LoadLook(weaponLookId, out weaponUsed) : null;
@@ -477,7 +481,19 @@ namespace Orsuun.Client
 
             _armorLookId = armorLookId;
             _weaponLookId = weaponLookId;
+            _armorSecond = _second;
             return true;
+        }
+
+        /// <summary>The hero wears the class's second look (the other figure: ItemLooks.SecondLook).</summary>
+        private bool _second;
+        private bool _armorSecond;
+
+        /// <summary>A look's second-look model: "Armor_T3" -> "ArmorAlt_T3", "Kestrel_T3" -> "KestrelAlt_T3".</summary>
+        internal static string AltName(string look)
+        {
+            int split = look.LastIndexOf("_T", System.StringComparison.Ordinal);
+            return split < 0 ? look + "Alt" : look.Substring(0, split) + "Alt" + look.Substring(split);
         }
 
         /// <summary>
@@ -1092,11 +1108,12 @@ namespace Orsuun.Client
         /// The class's body for an armour band, or a wardrobe skin's own model when <paramref name="skinModel"/> names one
         /// that exists (Models/Classes/&lt;Class&gt;_Skin&lt;Look&gt;; the Vanguard's skins are armour looks, SetLooks).
         /// </summary>
-        public void SetHeroClass(HeroClass cls, int band = 0, string skinModel = null)
+        public void SetHeroClass(HeroClass cls, int band = 0, string skinModel = null, bool secondLook = false)
         {
-            if (_rig == null || (cls == _class && (cls == HeroClass.Vanguard || (band == _classBand && skinModel == _classSkin)))) return;
+            if (_rig == null || (cls == _class && secondLook == _second && (cls == HeroClass.Vanguard || (band == _classBand && skinModel == _classSkin)))) return;
             if (_hero.rotation != Quaternion.identity || _heroDown) return;   // swap once back on the feet
             _class = cls;
+            _second = secondLook;
             _classBand = band;
             _classSkin = skinModel;
             if (_armorLook != null) Kill(_armorLook);
@@ -1110,7 +1127,7 @@ namespace Orsuun.Client
             _rig.localScale = cls == HeroClass.Vanguard ? VanguardBuild : Vector3.one;
             if (cls == HeroClass.Vanguard) return;   // GameRoot's next SetLooks rebuilds him
 
-            string name = skinModel ?? ClassLookName(cls, band);
+            string name = skinModel ?? ClassLookName(cls, band, secondLook);
             if (name == null) return;
             var prefab = Art.Load<GameObject>("Models/Classes/" + name);
             _classLook = Instantiate(prefab, _rig);
@@ -1137,14 +1154,23 @@ namespace Orsuun.Client
             Play("Idle", 0f);
         }
 
-        /// <summary>The class model for a band, or the nearest band drawn so far.</summary>
-        internal static string ClassLookName(HeroClass cls, int band)
+        /// <summary>
+        /// The class model for a band, or the nearest band drawn so far; the second look's ("KestrelAlt_T3") when asked
+        /// and drawn, else the first look's.
+        /// </summary>
+        internal static string ClassLookName(HeroClass cls, int band, bool secondLook = false)
+        {
+            if (secondLook && NearestClassLook(cls + "Alt", band) is string alt) return alt;
+            return NearestClassLook(cls.ToString(), band);
+        }
+
+        private static string NearestClassLook(string kind, int band)
         {
             for (int step = 0; step <= ItemLooks.MaxTier; step++)
                 foreach (int t in new[] { band - step, band + step })
                 {
                     if (t < 0 || t > ItemLooks.MaxTier) continue;
-                    string name = cls + "_T" + t;
+                    string name = kind + "_T" + t;
                     if (Art.Load<GameObject>("Models/Classes/" + name) != null) return name;
                 }
             return null;
@@ -1383,7 +1409,7 @@ namespace Orsuun.Client
                 s = Vector3.one * artScale;
                 barHeight = art.Height + 0.3f / artScale;
                 root.rotation = Quaternion.Euler(0f, EnemyYaw, 0f);
-                if (artName != null && artName.StartsWith("Armor_T", System.StringComparison.Ordinal))
+                if (artName != null && artName.StartsWith("Armor", System.StringComparison.Ordinal))
                 {
                     ArmRival(root, artName);
                     s = Vector3.Scale(s, VanguardBuild);   // as broad as the hero Vanguard
@@ -1485,9 +1511,15 @@ namespace Orsuun.Client
                     // fist when he is spawned (ArmRival). A deserter in steel if the look is missing.
                     if (boss.StartsWith("[") || (_rivalName != null && boss == _rivalName))
                     {
-                        string look = _rivalClass != HeroClass.Vanguard ? ClassLookName(_rivalClass, _rivalBand)
+                        string look = _rivalClass != HeroClass.Vanguard ? ClassLookName(_rivalClass, _rivalBand, _rivalSecond)
                             : "Armor_T" + Mathf.Clamp(_rivalBand, 0, ItemLooks.MaxTier);
-                        MobArt rival = look == null ? null : _rivalClass == HeroClass.Vanguard ? LoadVanguardLook(look) : LoadClass(look);
+                        MobArt rival = null;
+                        if (look != null && _rivalClass == HeroClass.Vanguard && _rivalSecond && LoadVanguardLook(AltName(look)) is MobArt her)
+                        {
+                            rival = her;
+                            look = AltName(look);
+                        }
+                        else if (look != null) rival = _rivalClass == HeroClass.Vanguard ? LoadVanguardLook(look) : LoadClass(look);
                         if (rival != null) { scale = 1f; name = look; return rival; }
                         scale = 1.15f; name = "Deserter"; tint = new Color(0.72f, 0.78f, 0.92f);
                         return LoadMob(name);
@@ -1641,15 +1673,17 @@ namespace Orsuun.Client
         private HeroClass _rivalClass;
         private int _rivalBand;
         private string _rivalName;
+        private bool _rivalSecond;
 
         /// <summary>
         /// Who the next duel's champion (a guild war's or the Pits') is dressed as, and the champion's name as the replay's
         /// boss carries it (GameRoot sets it before the replay).
         /// </summary>
-        public void SetRival(HeroClass cls, int band, string name)
+        public void SetRival(HeroClass cls, int band, string name, bool secondLook = false)
         {
             _rivalClass = cls;
             _rivalBand = band;
+            _rivalSecond = secondLook;
             _rivalName = string.IsNullOrEmpty(name) ? null : name;
         }
 

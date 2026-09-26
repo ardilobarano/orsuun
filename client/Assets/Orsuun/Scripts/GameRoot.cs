@@ -163,6 +163,8 @@ namespace Orsuun.Client
             // -class <Name> starts local play as that class (-kestrel kept for old scripts).
             string cls = Arg("-class") ?? (Array.IndexOf(Environment.GetCommandLineArgs(), "-kestrel") >= 0 ? "Kestrel" : null);
             if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
+            // -figure Man|Woman plays a class's second look locally (the class's first look otherwise).
+            if (!Server.Online) Session.Figure = Enum.TryParse(Arg("-figure"), out Figure figure) ? figure : ItemLooks.NativeFigure(Session.Class);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             // -skills opens SKILLS; -bagtab <n> opens the inventory on a tab (1 gear, 2 books, 3 materials), -bagcard its first tile's card.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-skills") >= 0) Skills.Open();
@@ -475,11 +477,13 @@ namespace Orsuun.Client
             foreach (WardrobeDef piece in Session.Worn)
                 if (piece.Kind == WardrobeKind.Skin) skin = piece; else if (piece.Kind == WardrobeKind.Mount) mount = piece; else companion = piece;
             // A skin shows its own costume model where one has been made, otherwise an armour band in the skin's tint.
-            string skinModel = skin != null ? LaneView.SkinModel(Session.Class, skin.Look) : null;
+            // A second look (the class's other figure) has no costume models yet: its skins tint the band armour.
+            bool second = Session.SecondLook;
+            string skinModel = skin != null && !second ? LaneView.SkinModel(Session.Class, skin.Look) : null;
             bool tinted = skin != null && skinModel == null && LaneView.SkinLooks.ContainsKey(skin.Look);
             (int Band, Color Tint) skinLook = tinted ? LaneView.SkinLooks[skin.Look] : (0, Color.white);
             int band = tinted ? skinLook.Band : armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0;
-            Lane.SetHeroClass(Session.Class, band, Session.Class == HeroClass.Vanguard ? null : skinModel);
+            Lane.SetHeroClass(Session.Class, band, Session.Class == HeroClass.Vanguard ? null : skinModel, second);
             Ui.IconClass = Session.Class;
             ItemLooks.ShownClass = Session.Class;   // pieces carry the playing class's names (knives for a Kestrel)
             Lane.SetLooks(skinModel != null && Session.Class == HeroClass.Vanguard ? skinModel : tinted ? "Armor_T" + band : armor?.LookId, Session.Weapon.LookId);
@@ -755,7 +759,9 @@ namespace Orsuun.Client
             GuildWar.Close();
             // The champion the server shaped for this duel, dressed as the defender; no draughts, no bell.
             var champion = new BossDef(Duels.ChampionId, Content.GorakWarCamp, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
-            Lane.SetRival(Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard, duel.defenderBand, duel.champion);
+            HeroClass rivalClass = Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard;
+            Lane.SetRival(rivalClass, duel.defenderBand, duel.champion,
+                Enum.TryParse(duel.defenderFigure, out Figure rivalFigure) && ItemLooks.SecondLook(rivalClass, rivalFigure));
             _replay = BossRun.Create(champion, hero, new Inventory(), duel.seed);
             ReplayBanner = "WAR  ·  " + duel.champion;
             int guard = BossRun.MaxTicks;
@@ -795,7 +801,9 @@ namespace Orsuun.Client
             Pits.Close();
             Net.ServerLink.DuelResultDto duel = fight.duel;
             var champion = new BossDef(Duels.ChampionId, Content.GorakWarCamp, duel.champion, 1, duel.championHp, duel.championAttack, BossMechanic.None, 0, "");
-            Lane.SetRival(Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard, duel.defenderBand, duel.champion);
+            HeroClass rivalClass = Enum.TryParse(duel.defenderClass, out HeroClass rival) ? rival : HeroClass.Vanguard;
+            Lane.SetRival(rivalClass, duel.defenderBand, duel.champion,
+                Enum.TryParse(duel.defenderFigure, out Figure rivalFigure) && ItemLooks.SecondLook(rivalClass, rivalFigure));
             _replay = BossRun.Create(champion, hero, new Inventory(), duel.seed);
             ReplayBanner = "THE PITS  ·  " + duel.champion;
             int guard = BossRun.MaxTicks;

@@ -116,7 +116,7 @@ public sealed record GuildWarFlagRequest(int Lane);
 public sealed record GuildWarFightRequest(string RequestId, int Lane);
 /// <summary>One duel: the replay is the attacker's hero against Champion (HP, attack) under Seed, with no draughts.</summary>
 public sealed record DuelResultDto(int Lane, ulong Seed, string Champion, long ChampionHp, long ChampionAttack, bool Won, int WinChancePercent, string Text,
-    HeroClass DefenderClass = HeroClass.Vanguard, int DefenderBand = 0);
+    HeroClass DefenderClass = HeroClass.Vanguard, int DefenderBand = 0, Figure DefenderFigure = Figure.Man);
 public sealed record GuildWarFightDto(StateDto State, DuelResultDto Duel, GuildWarDto War);
 public sealed record SiegeRequest(string RequestId, int FortressId);
 public sealed record SiegeResultDto(int FortressId, int BossId, bool Defending, ulong Seed, long Damage, int PotionsAtStart, Bell Bell,
@@ -257,7 +257,8 @@ public sealed record StateDto(
     int[]? SkillProgress = null,
     long[]? SkillReadySeconds = null,
     long Honor = 0,
-    int Whispers = 0);
+    int Whispers = 0,
+    Figure Figure = Figure.Man);
 
 /// <summary>Private messages (Rules.Whispers): one conversation in the list.</summary>
 public sealed record WhisperConversationDto(Guid AccountId, string Name, string Class, int Level, int MinutesAway, string LastText, DateTime LastUtc, bool LastMine, int Unread);
@@ -357,9 +358,9 @@ public sealed record AdminActionDto(DateTime Utc, string Admin, string Action, s
 public sealed record LobbyDto(Guid LoginId, CharacterSlotDto[] Characters, int MaxSlots, Banner Banner, long Amber, string? Email, string Message = "", int Links = 0);
 /// <summary>One character: enough to stand its model on the stage (class, armour and weapon bands, worn skin look).</summary>
 public sealed record CharacterSlotDto(Guid Id, int Slot, string Name, HeroClass Class, int Level, int ArmorBand, int WeaponBand, int WeaponUpgrade,
-    string Skin, int HighestStageCleared, DateTime LastPlayedUtc, string GuildTag, bool Banned);
-/// <summary>HeroClass as its name ("Vanguard"); Slot -1 takes the first free one.</summary>
-public sealed record CreateCharacterRequest(string Name, string HeroClass, int Slot = -1);
+    string Skin, int HighestStageCleared, DateTime LastPlayedUtc, string GuildTag, bool Banned, Figure Figure = Figure.Man);
+/// <summary>HeroClass as its name ("Vanguard"); Slot -1 takes the first free one; Figure "Man" or "Woman", empty for the class's first look.</summary>
+public sealed record CreateCharacterRequest(string Name, string HeroClass, int Slot = -1, string? Figure = null);
 /// <summary>Select or delete; delete needs the character's name typed as Name.</summary>
 public sealed record CharacterRequest(Guid CharacterId, string Name = "");
 public sealed record DepotDto(StateDto State, ItemDto[] Items, int Capacity, string Message = "");
