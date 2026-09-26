@@ -67,8 +67,9 @@ namespace Orsuun.Client
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot()
         {
+            // The heavy art comes first (downloaded on a phone's first launch, ArtLoader), then the game.
             if (FindFirstObjectByType<GameRoot>() == null)
-                new GameObject("GameRoot").AddComponent<GameRoot>();
+                ArtLoader.Begin(() => new GameObject("GameRoot").AddComponent<GameRoot>());
         }
 
         private void Awake()

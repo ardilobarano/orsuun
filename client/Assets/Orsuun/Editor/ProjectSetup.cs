@@ -114,6 +114,8 @@ namespace Orsuun.Client.EditorTools
             });
             Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
             if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
+            // The downloadable art for phones (ArtLoader): tools/build-mobile.sh uploads it to the server.
+            ContentBundles.Build(BuildTarget.Android, "Builds/Content/Android");
         }
 
         /// <summary>
@@ -151,6 +153,7 @@ namespace Orsuun.Client.EditorTools
             });
             Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
             if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
+            ContentBundles.Build(BuildTarget.iOS, "Builds/Content/iOS");
         }
 
         /// <summary>Bakes ORSUUN_SERVER_URL into Resources/server-url.txt so the player knows its server without arguments.</summary>
@@ -186,6 +189,9 @@ namespace Orsuun.Client.EditorTools
             });
             Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
             if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
+            // The Mac player (screenshots, local play) carries the downloadable art itself.
+            ContentBundles.CopyInto(ContentBundles.Build(BuildTarget.StandaloneOSX, "Builds/Content/OSX"),
+                "Builds/Mac/Orsuun.app/Contents/Resources/Data/StreamingAssets");
         }
 
         /// <summary>Windows playtest build: -executeMethod Orsuun.Client.EditorTools.ProjectSetup.BuildWindows</summary>

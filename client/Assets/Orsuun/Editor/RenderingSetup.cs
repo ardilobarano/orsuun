@@ -19,6 +19,8 @@ namespace Orsuun.Client.EditorTools
         private const string PipelinePath = Dir + "/OrsuunURP.asset";
         private const string RendererPath = Dir + "/OrsuunURP_Renderer.asset";
         private const string Res = "Assets/Orsuun/Resources/";
+        /// <summary>The downloaded art (models, their materials, backdrops, floors; Orsuun.Client.Art), outside Resources.</summary>
+        private const string Con = "Assets/Orsuun/Content/";
         private const string GlowShader = "Orsuun/EmberGlow";
 
         public static readonly Color HeroColor = new Color(0.25f, 0.55f, 0.95f);
@@ -106,7 +108,8 @@ namespace Orsuun.Client.EditorTools
 
         private static Material EnsureGlowMaterial(string name, Color baseColor, float crackScale, float crackWidth, float intensity, float rim)
         {
-            string path = Res + name + ".mat";
+            // The looks' and Korstone shapes' materials ride with their models in the downloaded Content; the rest stay in Resources.
+            string path = (name.StartsWith("Looks/") || name.StartsWith("Korstones/") ? Con : Res) + name + ".mat";
             Shader shader = Shader.Find(GlowShader);
             if (shader == null) throw new System.Exception("Shader " + GlowShader + " not found or failed to compile.");
             foreach (ShaderMessage m in ShaderUtil.GetShaderMessages(shader))
@@ -132,9 +135,9 @@ namespace Orsuun.Client.EditorTools
         /// </summary>
         private static void EnsureLooks()
         {
-            const string models = Res + "Models/Looks/";
+            const string models = Con + "Models/Looks/";
             if (!Directory.Exists(models)) return;
-            Directory.CreateDirectory(Res + "Looks");
+            Directory.CreateDirectory(Con + "Looks");
             foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
             {
                 string id = Path.GetFileNameWithoutExtension(fbx);
@@ -161,7 +164,7 @@ namespace Orsuun.Client.EditorTools
         /// </summary>
         private static void EnsureClassLooks()
         {
-            const string models = Res + "Models/Classes/";
+            const string models = Con + "Models/Classes/";
             if (!Directory.Exists(models)) return;
             foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
             {
@@ -182,9 +185,9 @@ namespace Orsuun.Client.EditorTools
         /// </summary>
         private static void EnsureKorstones()
         {
-            const string models = Res + "Models/Korstones/";
+            const string models = Con + "Models/Korstones/";
             if (!Directory.Exists(models)) return;
-            Directory.CreateDirectory(Res + "Korstones");
+            Directory.CreateDirectory(Con + "Korstones");
             foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
             {
                 string id = Path.GetFileNameWithoutExtension(fbx);
@@ -206,16 +209,16 @@ namespace Orsuun.Client.EditorTools
         /// </summary>
         private static void EnsureMobs()
         {
-            const string models = Res + "Models/Mobs/";
+            const string models = Con + "Models/Mobs/";
             if (!Directory.Exists(models)) return;
-            Directory.CreateDirectory(Res + "Mobs");
+            Directory.CreateDirectory(Con + "Mobs");
             Shader lit = Shader.Find("Universal Render Pipeline/Lit");
             foreach (string fbx in Directory.GetFiles(models, "*.fbx"))
             {
                 string id = Path.GetFileNameWithoutExtension(fbx);
                 // Mobs are rigged with their own clips since 24 Sep 2026 (art/blender/mobrig.py).
                 EnsureAnimatedImport(models + id + ".fbx");
-                string matPath = Res + "Mobs/" + id + ".mat";
+                string matPath = Con + "Mobs/" + id + ".mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
                 if (mat == null) { mat = new Material(lit); AssetDatabase.CreateAsset(mat, matPath); }
                 mat.shader = lit;
@@ -334,7 +337,7 @@ namespace Orsuun.Client.EditorTools
             Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
             foreach (string zone in new[] { "HuntingGround", "KorstoneField", "CommanderGround", "SaltFlats", "FrostPasture", "HollowSpire", "CinderMarches", "Whisperwood", "SilkWarren", "CarversArchive", "Bloodbirch", "DrownedSteppe", "ColossusGraves", "SunkenBazaar", "ThousandMarkers", "HollowThrone" })
             {
-                string texPath = Res + "Backdrops/" + zone + ".jpg";
+                string texPath = Con + "Backdrops/" + zone + ".jpg";
                 if (AssetImporter.GetAtPath(texPath) is TextureImporter ti && (ti.wrapMode != TextureWrapMode.Clamp || ti.maxTextureSize != 2048))
                 {
                     ti.wrapMode = TextureWrapMode.Clamp;
@@ -343,7 +346,7 @@ namespace Orsuun.Client.EditorTools
                 }
                 var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
                 if (tex == null) { Debug.LogWarning("Backdrop texture missing: " + texPath); continue; }
-                string matPath = Res + "Backdrops/Backdrop" + zone + ".mat";
+                string matPath = Con + "Backdrops/Backdrop" + zone + ".mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
                 if (mat == null) { mat = new Material(unlit); AssetDatabase.CreateAsset(mat, matPath); }
                 mat.shader = unlit;
@@ -359,7 +362,7 @@ namespace Orsuun.Client.EditorTools
         /// </summary>
         private static void EnsureFloors()
         {
-            string dir = Res + "Floors/";
+            string dir = Con + "Floors/";
             if (!Directory.Exists(dir)) return;
             foreach (string file in Directory.GetFiles(dir))
             {
@@ -463,7 +466,7 @@ namespace Orsuun.Client.EditorTools
 
         private static void EnsureKorstoneImport()
         {
-            EnsureModelImport(Res + "Models/Korstone.fbx");
+            EnsureModelImport(Con + "Models/Korstone.fbx");
             // Class models for later (Kestrel, Wraithsworn, Drumcaller) live in Assets/Orsuun/Models/Classes, outside the build.
             EnsureModelImport("Assets/Orsuun/Models/Classes/Kestrel.fbx");
             EnsureModelImport("Assets/Orsuun/Models/Classes/Wraithsworn.fbx");
@@ -653,7 +656,7 @@ namespace Orsuun.Client.EditorTools
                 glaive.GetComponent<Renderer>().sharedMaterial = blade;
             }
 
-            var model = AssetDatabase.LoadAssetAtPath<GameObject>(Res + "Models/Korstone.fbx");
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(Con + "Models/Korstone.fbx");
             if (model != null)
             {
                 var kor = (GameObject)Object.Instantiate(model);

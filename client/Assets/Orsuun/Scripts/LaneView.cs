@@ -133,20 +133,20 @@ namespace Orsuun.Client
         /// </summary>
         private static string BackdropKey(ZoneType zone, int stageNumber)
         {
-            if (DungeonOf(stageNumber) == 2 && Resources.Load<Material>("Backdrops/BackdropSilkWarren") != null) return "SilkWarren";
-            if (DungeonOf(stageNumber) == 3 && Resources.Load<Material>("Backdrops/BackdropCarversArchive") != null) return "CarversArchive";
-            if (Dungeons.IsFloor(stageNumber) && Resources.Load<Material>("Backdrops/BackdropHollowSpire") != null) return "HollowSpire";
+            if (DungeonOf(stageNumber) == 2 && Art.Load<Material>("Backdrops/BackdropSilkWarren") != null) return "SilkWarren";
+            if (DungeonOf(stageNumber) == 3 && Art.Load<Material>("Backdrops/BackdropCarversArchive") != null) return "CarversArchive";
+            if (Dungeons.IsFloor(stageNumber) && Art.Load<Material>("Backdrops/BackdropHollowSpire") != null) return "HollowSpire";
             int map = CampaignMap(stageNumber);
-            if ((stageNumber == Content.SaltFlats || map == 3) && Resources.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
-            if ((stageNumber == Content.FrostPasture || map == 4) && Resources.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
-            if (map == 5 && Resources.Load<Material>("Backdrops/BackdropCinderMarches") != null) return "CinderMarches";
-            if (map == 6 && Resources.Load<Material>("Backdrops/BackdropWhisperwood") != null) return "Whisperwood";
-            if (map == 7 && Resources.Load<Material>("Backdrops/BackdropBloodbirch") != null) return "Bloodbirch";
-            if (map == 8 && Resources.Load<Material>("Backdrops/BackdropDrownedSteppe") != null) return "DrownedSteppe";
-            if (map == 9 && Resources.Load<Material>("Backdrops/BackdropColossusGraves") != null) return "ColossusGraves";
-            if (map == 10 && Resources.Load<Material>("Backdrops/BackdropSunkenBazaar") != null) return "SunkenBazaar";
-            if (map == 11 && Resources.Load<Material>("Backdrops/BackdropThousandMarkers") != null) return "ThousandMarkers";
-            if (map == 12 && Resources.Load<Material>("Backdrops/BackdropHollowThrone") != null) return "HollowThrone";
+            if ((stageNumber == Content.SaltFlats || map == 3) && Art.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
+            if ((stageNumber == Content.FrostPasture || map == 4) && Art.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
+            if (map == 5 && Art.Load<Material>("Backdrops/BackdropCinderMarches") != null) return "CinderMarches";
+            if (map == 6 && Art.Load<Material>("Backdrops/BackdropWhisperwood") != null) return "Whisperwood";
+            if (map == 7 && Art.Load<Material>("Backdrops/BackdropBloodbirch") != null) return "Bloodbirch";
+            if (map == 8 && Art.Load<Material>("Backdrops/BackdropDrownedSteppe") != null) return "DrownedSteppe";
+            if (map == 9 && Art.Load<Material>("Backdrops/BackdropColossusGraves") != null) return "ColossusGraves";
+            if (map == 10 && Art.Load<Material>("Backdrops/BackdropSunkenBazaar") != null) return "SunkenBazaar";
+            if (map == 11 && Art.Load<Material>("Backdrops/BackdropThousandMarkers") != null) return "ThousandMarkers";
+            if (map == 12 && Art.Load<Material>("Backdrops/BackdropHollowThrone") != null) return "HollowThrone";
             if (map == 2) return ZoneType.CommanderGround.ToString();
             return (zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone).ToString();
         }
@@ -282,7 +282,7 @@ namespace Orsuun.Client
             if (_backdropKey == key) return;
             _backdropKey = key;
             _zone = zone;
-            var mat = Resources.Load<Material>("Backdrops/Backdrop" + key);
+            var mat = Art.Load<Material>("Backdrops/Backdrop" + key);
             if (mat != null) _backdrop.sharedMaterial = mat;
             _backdrop.enabled = mat != null;
 
@@ -344,7 +344,7 @@ namespace Orsuun.Client
         public void RefreshFloor()
         {
             if (_groundMaterial == null) return;
-            var floor = _backdropKey == null ? null : Resources.Load<Texture2D>("Floors/" + _backdropKey + FloorVariant);
+            var floor = _backdropKey == null ? null : Art.Load<Texture2D>("Floors/" + _backdropKey + FloorVariant);
             _hasFloor = floor != null;
             _groundMaterial.SetTexture("_BaseMap", floor);
             if (_hasFloor)
@@ -445,11 +445,11 @@ namespace Orsuun.Client
             _anim = _armorLook.GetComponent<Animation>();
             if (_anim != null && _anim.GetClip("Idle") == null) _anim = null;
             CastClips.Ensure(_anim, HeroClass.Vanguard);
-            Material armorMat = Resources.Load<Material>("Looks/" + armorUsed);
+            Material armorMat = Art.Load<Material>("Looks/" + armorUsed);
             _lookPrefab = armorPrefab;
             _lookMaterial = armorMat;
             _weaponPrefab = weaponPrefab;
-            _weaponMaterial = weaponUsed != null ? Resources.Load<Material>("Looks/" + weaponUsed) : null;
+            _weaponMaterial = weaponUsed != null ? Art.Load<Material>("Looks/" + weaponUsed) : null;
             _weaponKind = KindOfLook(weaponUsed);
             Bounds b = default;
             bool first = true;
@@ -537,7 +537,7 @@ namespace Orsuun.Client
         internal static GameObject LoadLook(string lookId, out string used)
         {
             used = lookId;
-            var model = Resources.Load<GameObject>("Models/Looks/" + lookId);
+            var model = Art.Load<GameObject>("Models/Looks/" + lookId);
             if (model != null) return model;
             int split = lookId.LastIndexOf("_T", System.StringComparison.Ordinal);
             if (split < 0 || !int.TryParse(lookId.Substring(split + 2), out int tier)) return null;
@@ -546,7 +546,7 @@ namespace Orsuun.Client
                 foreach (int t in new[] { tier - step, tier + step })
                 {
                     if (t < 0 || t > ItemLooks.MaxTier) continue;
-                    model = Resources.Load<GameObject>("Models/Looks/" + kind + "_T" + t);
+                    model = Art.Load<GameObject>("Models/Looks/" + kind + "_T" + t);
                     if (model != null) { used = kind + "_T" + t; return model; }
                 }
             return null;
@@ -892,7 +892,7 @@ namespace Orsuun.Client
             if (SkinModels.TryGetValue(key, out string found)) return found;
             string name = cls == HeroClass.Vanguard ? "Skin_" + look : cls + "_Skin" + look;
             string folder = cls == HeroClass.Vanguard ? "Models/Looks/" : "Models/Classes/";
-            found = Resources.Load<GameObject>(folder + name) != null ? name : null;
+            found = Art.Load<GameObject>(folder + name) != null ? name : null;
             SkinModels[key] = found;
             return found;
         }
@@ -1110,12 +1110,12 @@ namespace Orsuun.Client
 
             string name = skinModel ?? ClassLookName(cls, band);
             if (name == null) return;
-            var prefab = Resources.Load<GameObject>("Models/Classes/" + name);
+            var prefab = Art.Load<GameObject>("Models/Classes/" + name);
             _classLook = Instantiate(prefab, _rig);
             _anim = _classLook.GetComponent<Animation>();
             if (_anim != null && _anim.GetClip("Idle") == null) _anim = null;
             CastClips.Ensure(_anim, cls);
-            var material = Resources.Load<Material>("Looks/" + name);
+            var material = Art.Load<Material>("Looks/" + name);
             _lookPrefab = prefab;
             _lookMaterial = material;
             _weaponPrefab = null;
@@ -1143,7 +1143,7 @@ namespace Orsuun.Client
                 {
                     if (t < 0 || t > ItemLooks.MaxTier) continue;
                     string name = cls + "_T" + t;
-                    if (Resources.Load<GameObject>("Models/Classes/" + name) != null) return name;
+                    if (Art.Load<GameObject>("Models/Classes/" + name) != null) return name;
                 }
             return null;
         }
@@ -1293,7 +1293,7 @@ namespace Orsuun.Client
         {
             if (_sparks == null)
             {
-                var material = Resources.Load<Material>("FxSpark");
+                var material = Art.Load<Material>("FxSpark");
                 if (material == null) return;
                 var go = new GameObject("HitSparks");
                 go.transform.SetParent(transform, false);
@@ -1433,7 +1433,7 @@ namespace Orsuun.Client
             };
             if (korstoneFx != null)
             {
-                korstoneFx.Init(_korstoneStone, KorstoneLook.Tiers[_korstoneTier], korstoneHeight, _korstoneTier, Resources.Load<Material>("FxSpark"));
+                korstoneFx.Init(_korstoneStone, KorstoneLook.Tiers[_korstoneTier], korstoneHeight, _korstoneTier, Art.Load<Material>("FxSpark"));
                 korstoneFx.Wave(90, 9f);
                 GameAudio.Instance?.Play("KorstoneAwaken", 1f, 1f, 0.03f);
             }
@@ -1524,8 +1524,8 @@ namespace Orsuun.Client
             height = 0f;
             _korstoneTier = KorstoneLook.TierFor(level);
             string shape = KorstoneLook.ShapeFor(_korstoneTier, elder);
-            var prefab = Resources.Load<GameObject>("Models/Korstones/" + shape);
-            var baseMaterial = Resources.Load<Material>("Korstones/" + shape);
+            var prefab = Art.Load<GameObject>("Models/Korstones/" + shape);
+            var baseMaterial = Art.Load<Material>("Korstones/" + shape);
             if (prefab == null || baseMaterial == null) return false;
             KorstoneLook.Tier tier = KorstoneLook.Tiers[_korstoneTier];
             _korstoneStone = new Material(baseMaterial);
@@ -1551,7 +1551,7 @@ namespace Orsuun.Client
             if (!TryKorstone(elder, level, out Transform root, out KorstoneFx fx, out float height)) return null;
             root.SetParent(transform, false);
             root.position = position;
-            fx.Init(_korstoneStone, KorstoneLook.Tiers[_korstoneTier], height, _korstoneTier, Resources.Load<Material>("FxSpark"));
+            fx.Init(_korstoneStone, KorstoneLook.Tiers[_korstoneTier], height, _korstoneTier, Art.Load<Material>("FxSpark"));
             fx.Settle();
             return root;
         }
@@ -1644,8 +1644,8 @@ namespace Orsuun.Client
         {
             string key = "Class/" + look;
             if (MobArts.TryGetValue(key, out MobArt art)) return art;
-            var model = Resources.Load<GameObject>("Models/Classes/" + look);
-            var material = Resources.Load<Material>("Looks/" + look);
+            var model = Art.Load<GameObject>("Models/Classes/" + look);
+            var material = Art.Load<Material>("Looks/" + look);
             art = model != null && material != null ? new MobArt { Model = model, Material = material, Height = -1f } : null;
             MobArts[key] = art;
             return art;
@@ -1654,8 +1654,8 @@ namespace Orsuun.Client
         private static MobArt LoadMob(string name)
         {
             if (MobArts.TryGetValue(name, out MobArt art)) return art;
-            var model = Resources.Load<GameObject>("Models/Mobs/" + name);
-            var material = Resources.Load<Material>("Mobs/" + name);
+            var model = Art.Load<GameObject>("Models/Mobs/" + name);
+            var material = Art.Load<Material>("Mobs/" + name);
             art = null;
             if (model != null && material != null) art = new MobArt { Model = model, Material = material, Height = -1f };
             MobArts[name] = art;
@@ -1688,8 +1688,8 @@ namespace Orsuun.Client
             if (!_korstoneLoaded)
             {
                 _korstoneLoaded = true;
-                _korstoneModel = Resources.Load<GameObject>("Models/Korstone");
-                _korstoneMaterial = Resources.Load<Material>("KorstoneEmber");
+                _korstoneModel = Art.Load<GameObject>("Models/Korstone");
+                _korstoneMaterial = Art.Load<Material>("KorstoneEmber");
                 if (_korstoneModel == null || _korstoneMaterial == null) _korstoneModel = null;
             }
             return _korstoneModel;
@@ -1698,7 +1698,7 @@ namespace Orsuun.Client
         /// <summary>Swaps a renderer onto an instance of a Resources material, keeping the tint.</summary>
         private static void UseMaterial(Renderer renderer, string resource, Color color)
         {
-            var shared = Resources.Load<Material>(resource);
+            var shared = Art.Load<Material>(resource);
             if (shared == null) return;
             renderer.sharedMaterial = shared;
             renderer.material.color = color;
@@ -1712,7 +1712,7 @@ namespace Orsuun.Client
             else DestroyImmediate(go.GetComponent<Collider>());
 
             var renderer = go.GetComponent<Renderer>();
-            _greyBox ??= Resources.Load<Material>("GreyBox");
+            _greyBox ??= Art.Load<Material>("GreyBox");
             if (_greyBox != null) renderer.sharedMaterial = _greyBox;
             renderer.material.color = color;
             return go.transform;

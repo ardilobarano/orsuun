@@ -225,7 +225,7 @@ namespace Orsuun.Client
             else
             {
                 string name = skin ?? LaneView.ClassLookName(cls, armorBand);
-                var prefab = name == null ? null : Resources.Load<GameObject>("Models/Classes/" + name);
+                var prefab = name == null ? null : Art.Load<GameObject>("Models/Classes/" + name);
                 if (prefab == null) return;
                 GameObject body = Instantiate(prefab, _model.transform);
                 Dress(body, "Looks/" + name, renderers);
@@ -268,7 +268,7 @@ namespace Orsuun.Client
 
         private static void Dress(GameObject part, string material, List<Renderer> renderers)
         {
-            var shared = Resources.Load<Material>(material);
+            var shared = Art.Load<Material>(material);
             foreach (Renderer r in part.GetComponentsInChildren<Renderer>())
             {
                 if (shared != null) r.sharedMaterial = shared;

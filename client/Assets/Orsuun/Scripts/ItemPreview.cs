@@ -134,7 +134,7 @@ namespace Orsuun.Client
                 return look;
             }
             material = LaneView.ClassLookName(cls, ItemLooks.Tier(item.ItemLevel));
-            return material == null ? null : Resources.Load<GameObject>("Models/Classes/" + material);
+            return material == null ? null : Art.Load<GameObject>("Models/Classes/" + material);
         }
 
         private void Build(ItemState item, HeroClass cls, bool looks)
@@ -157,7 +157,7 @@ namespace Orsuun.Client
             _model = Instantiate(prefab, _pivot);
             _model.transform.localPosition = Vector3.zero;
             _model.transform.localRotation = Quaternion.identity;
-            var shared = Resources.Load<Material>("Looks/" + materialName);
+            var shared = Art.Load<Material>("Looks/" + materialName);
 
             // The other classes' blades and staves are part of their model (knives sit in both hands), so they show whole:
             // only the parts of the piece on the anvil glow.

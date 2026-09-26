@@ -139,7 +139,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   constants (`Content.EmberSteppe` .. `Content.GorakWarCamp`), never by number. Dungeon floors are 301-399.
 - Higgsfield takes local images through `media_import_url` (stage them briefly in a random folder under the playtest
   server's `/opt/orsuun/downloads`, delete it afterwards) or `media_upload` (presigned PUT).
-- Lane floors are `Resources/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
+- Lane floors are `Content/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
   (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes.
 - Skill grades and Technique Scrolls (`Rules/SkillGrades.cs`) are kept for all twenty skills by book id (class * 5 +
   slot, since migration `FiveSkills`); the hero fights with its class's five (`SkillGrades.ForClass`) on both sides, so
@@ -176,3 +176,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   pole that is cut away; a `WeaponGrip` empty marks his fist), weapons through `looks.weapon_look`. The weapon kind of a
   band (`ItemLooks.WeaponKinds`) decides the fit in `LaneView.LayWeapon`: a glaive stretches along the pole, a sword
   rises from the fist at a share of the pole's length (`SwordSpan`). Weapon models import readable (particles need it).
+- Downloaded art (owner, 26 Sep 2026: download on first launch like other games): the 3D models, their materials, the
+  lane backdrops and floors live in `client/Assets/Orsuun/Content/` (not Resources), are packed per platform into asset
+  bundles by `ContentBundles` during every player build, and phones fetch them from the server's
+  `/downloads/content/<platform>/` on first launch (`ArtLoader`, a progress bar on the title art; later only changed
+  bundles). `tools/build-mobile.sh` uploads Android/iOS bundles (bundles first, manifest last); the Mac build carries
+  its own in StreamingAssets. Load that art only with `Art.Load<T>("Models/Looks/Armor_T3")` (bundle, else Resources,
+  in the editor the project), never `Resources.Load`. New models export to `Content/Models/...` (looks.py). An app
+  build whose asset keys change needs its bundles uploaded before testers open it.

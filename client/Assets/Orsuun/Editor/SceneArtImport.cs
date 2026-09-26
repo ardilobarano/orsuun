@@ -8,7 +8,7 @@ namespace Orsuun.Client.EditorTools
     /// Unity's default import would scale a non-power-of-two texture to the nearest power of two, squashing a scene and
     /// breaking the kit's nine-slice borders. Clamped, full quality; the kit keeps mipmaps for small buttons.
     /// A smaller download (owner, 26 Sep 2026, the APK was 410 MB against Google Play's 200 MB): phones get ASTC for these
-    /// (a non-power-of-two picture otherwise stayed uncompressed), and the 3D models (Resources/Models) import their
+    /// (a non-power-of-two picture otherwise stayed uncompressed), and the 3D models (Content/Models, downloaded by the app) import their
     /// textures at 1024 in ASTC 6x6 (enemies at 512) and their meshes compressed without tangents (no shader here uses
     /// normal maps). The player data is packed with LZ4HC (ProjectSetup).
     /// Raising GetVersion reimports every texture and model under these rules.
@@ -21,10 +21,10 @@ namespace Orsuun.Client.EditorTools
         {
             string path = assetPath.Replace('\\', '/');
             var importer = (TextureImporter)assetImporter;
-            if (path.Contains("/Resources/Models/"))
+            if (path.Contains("/Content/Models/"))
             {
                 // Enemies stand small on a phone's lane: 512 is plenty; heroes, shown large on their stages, keep 1024.
-                int size = path.Contains("/Resources/Models/Mobs/") ? 512 : 1024;
+                int size = path.Contains("/Content/Models/Mobs/") ? 512 : 1024;
                 importer.maxTextureSize = size;
                 Phones(importer, TextureImporterFormat.ASTC_6x6, size);
                 return;
@@ -45,7 +45,7 @@ namespace Orsuun.Client.EditorTools
         private void OnPreprocessModel()
         {
             string path = assetPath.Replace('\\', '/');
-            if (!path.Contains("/Resources/Models/")) return;
+            if (!path.Contains("/Content/Models/")) return;
             var importer = (ModelImporter)assetImporter;
             importer.meshCompression = ModelImporterMeshCompression.Medium;
             importer.importTangents = ModelImporterTangents.None;

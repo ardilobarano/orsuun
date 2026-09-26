@@ -19,16 +19,33 @@ unity_run() {
   "$UNITY" -batchmode -quit -projectPath "$ROOT/client" -buildTarget "$platform" -executeMethod "$method" -logFile "$log"
 }
 
+# The downloadable art (client/Builds/Content/<platform>, built with the player) goes to the server's
+# /downloads/content/<platform>/, where the app fetches it on first launch (ArtLoader). The bundles go first and the
+# manifest last, so a phone never reads a manifest whose bundles are not there yet. ORSUUN_CONTENT_SSH=none skips it.
+CONTENT_SSH="${ORSUUN_CONTENT_SSH:-root@65.108.221.210}"
+CONTENT_DIR="${ORSUUN_CONTENT_DIR:-/opt/orsuun/downloads/content}"
+upload_content() {
+  local platform="$1" src="$ROOT/client/Builds/Content/$1"
+  [ "$CONTENT_SSH" = "none" ] && { echo "content upload skipped ($platform)"; return; }
+  [ -f "$src/manifest.json" ] || { echo "no content bundles for $platform"; return 1; }
+  ssh "$CONTENT_SSH" "mkdir -p $CONTENT_DIR/$platform"
+  rsync -a --delete --exclude manifest.json "$src/" "$CONTENT_SSH:$CONTENT_DIR/$platform/"
+  scp -q "$src/manifest.json" "$CONTENT_SSH:$CONTENT_DIR/$platform/manifest.json"
+  echo "content uploaded: $platform ($(du -sh "$src" | cut -f1))"
+}
+
 build_android() {
   echo "== Android"
   unity_run Orsuun.Client.EditorTools.ProjectSetup.BuildAndroid "$ROOT/artifacts/unity-android.log" Android
   ls -la "$ROOT/client/Builds/Android/Orsuun.apk"
+  upload_content Android
   echo "Install: adb install -r client/Builds/Android/Orsuun.apk (or share the file; testers enable 'install unknown apps')"
 }
 
 build_ios() {
   echo "== iOS: exporting the Xcode project"
   unity_run Orsuun.Client.EditorTools.ProjectSetup.BuildIos "$ROOT/artifacts/unity-ios.log" iOS
+  upload_content iOS
   local proj="$ROOT/client/Builds/iOS/Unity-iPhone.xcodeproj"
   if [ -z "${ORSUUN_APPLE_TEAM_ID:-}" ]; then
     echo "ORSUUN_APPLE_TEAM_ID not set: open $proj in Xcode, pick your team under Signing, and run on a connected iPhone."

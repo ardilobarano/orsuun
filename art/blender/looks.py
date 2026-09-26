@@ -8,9 +8,9 @@ weapon look, see src/Orsuun.Rules/ItemLooks.cs. This module turns Rodin models i
                                 empties WeaponBase and WeaponTip mark where the hand holds the pole.
   weapon_look(glb, "Weapon_T0") a standing glaive -> base at the origin, pole along +Z, blade on top.
   mob_model(glb, "Wolf", 1.1)   an enemy -> feet on the ground, centred, facing -Y like the Rodin output, scaled to
-                                the given height; exports to Resources/Models/Mobs/.
+                                the given height; exports to Content/Models/Mobs/.
 
-Both export FBX + base-colour PNG into client/Assets/Orsuun/Resources/Models/Looks/. In Unity the weapon is scaled
+Both export FBX + base-colour PNG into client/Assets/Orsuun/Content/Models/Looks/. In Unity the weapon is scaled
 from WeaponBase to WeaponTip of whichever armour is worn, so any glaive fits any armour.
 """
 import bmesh
@@ -19,7 +19,7 @@ import os
 from mathutils import Matrix, Vector
 
 HOME = os.path.expanduser("~/orsuun")
-OUT = HOME + "/client/Assets/Orsuun/Resources/Models/Looks/"
+OUT = HOME + "/client/Assets/Orsuun/Content/Models/Looks/"
 TRIS = 12000          # GDD hero budget 8-12k
 ARMOR_HEIGHT = 2.5    # total height with the glaive raised, as the first Vanguard
 
@@ -355,9 +355,9 @@ def weapon_look(glb, look_id):
     return info
 
 
-MOBS = HOME + "/client/Assets/Orsuun/Resources/Models/Mobs/"
+MOBS = HOME + "/client/Assets/Orsuun/Content/Models/Mobs/"
 MOB_TRIS = 6000       # up to 16 on screen at once
-KORSTONES = HOME + "/client/Assets/Orsuun/Resources/Models/Korstones/"   # korstone shapes: mob_model(..., out_dir=KORSTONES)
+KORSTONES = HOME + "/client/Assets/Orsuun/Content/Models/Korstones/"   # korstone shapes: mob_model(..., out_dir=KORSTONES)
 
 
 def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None, rig=None, attack=None):
@@ -405,13 +405,13 @@ def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None, r
                 texture=size)
 
 
-CLASSES = HOME + "/client/Assets/Orsuun/Resources/Models/Classes/"
+CLASSES = HOME + "/client/Assets/Orsuun/Content/Models/Classes/"
 
 
 def class_look(glb, name, height, tris=TRIS, weapon="knives", attack=None, yaw_degrees=0.0):
     """Another playable class (A-pose sheet, weapon in hand): decimated, standing `height` tall, facing -Y, split
     into <name>_Armor and <name>_Weapon so each glows with its own item's level, rigged by rig.rig_humanoid with the
-    shared actions and the class's own attack, exported to Resources/Models/Classes with its texture.
+    shared actions and the class's own attack, exported to Content/Models/Classes with its texture.
     weapon: "knives" (a blade below each hand, also twin swords), "sword" (a blade below the right hand) or "staff"
     (a straight staff in the right hand, found as a line and pinned to that hand). yaw_degrees turns the mesh about Z
     first so it faces -Y (Tripo exports face +X: -90)."""
