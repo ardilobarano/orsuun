@@ -6,7 +6,7 @@ using Orsuun.Rules.Combat;
 namespace Orsuun.Rules
 {
     /// <summary>What a Pit shop line hands over.</summary>
-    public enum PitGood { Korshard = 0, Turnstones = 1, EtchingNeedle = 2, PinningWax = 3, Oathstone = 4, TechniqueScroll = 5 }
+    public enum PitGood { Korshard = 0, Turnstones = 1, EtchingNeedle = 2, PinningWax = 3, Oathstone = 4, TechniqueScroll = 5, MastersNeedle = 6 }
 
     public sealed class PitShopItem
     {
@@ -40,6 +40,7 @@ namespace Orsuun.Rules
                 case PitGood.EtchingNeedle: inventory.EtchingNeedles += Amount; break;
                 case PitGood.PinningWax: inventory.PinningWax += Amount; break;
                 case PitGood.Oathstone: inventory.Oathstones += Amount; break;
+                case PitGood.MastersNeedle: inventory.MastersNeedles += Amount; break;
                 case PitGood.TechniqueScroll:
                     for (int i = 0; i < Amount; i++) inventory.Books[Books.Id(cls, (rng ?? new XorShiftRandom(1)).NextInt(SkillGrades.Slots))]++;
                     break;
@@ -107,7 +108,8 @@ namespace Orsuun.Rules
         /// <summary>
         /// The Pit shop (GDD: Technique Scrolls, Korshards and frames; Pit rewards are currency and cosmetics, never
         /// upgrade protection). Korshards, and since the seasons (25 Sep 2026) Turnstones, Etching Needles, Pinning Wax
-        /// and Oathstones, and since skill grades (26 Sep 2026) Technique Scrolls; frames wait for name frames.
+        /// and Oathstones, since skill grades (26 Sep 2026) Technique Scrolls, and a Master's Needle (26 Sep 2026: its second
+        /// source beside the Carvers' Archive, about two days of Pit fights); frames wait for name frames.
         /// </summary>
         public static readonly PitShopItem[] Shop =
         {
@@ -119,6 +121,7 @@ namespace Orsuun.Rules
             new PitShopItem(6, "Pinning Wax", 25, PitGood.PinningWax, 1),
             new PitShopItem(7, "Oathstone", 45, PitGood.Oathstone, 1),
             new PitShopItem(8, "Technique Scroll", 30, PitGood.TechniqueScroll, 1),
+            new PitShopItem(9, "Master's Needle", 90, PitGood.MastersNeedle, 1),
         };
 
         // ---- Pit seasons (owner, 25 Sep 2026; GDD: the Pit ladder resets weekly and pays titles and season currency) ----

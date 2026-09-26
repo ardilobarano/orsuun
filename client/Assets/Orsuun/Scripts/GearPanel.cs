@@ -77,7 +77,7 @@ namespace Orsuun.Client
                 new Good("AnvilWard", "Anvil Ward", "Laid on a Forge attempt: a failure keeps the level.", r => r.Session.Inventory.AnvilWards),
                 new Good("Turnstone", "Turnstones", "Turn a piece's etchings at the Forge, one turn a stone.", r => r.Session.Inventory.Turnstones),
                 new Good("EtchingNeedle", "Etching Needle", "Adds an etching to a piece, the first to the fourth.", r => r.Session.Inventory.EtchingNeedles),
-                new Good("MastersNeedle", "Master's Needle", "Adds a piece's fifth etching (the Carvers' Archive's vault).", r => r.Session.Inventory.MastersNeedles),
+                new Good("MastersNeedle", "Master's Needle", "Adds a piece's fifth etching (the Carvers' Archive's vault, or 90 Laurels in the Pit shop).", r => r.Session.Inventory.MastersNeedles),
                 new Good("PinningWax", "Pinning Wax", "Holds one etching of a piece through its turns.", r => r.Session.Inventory.PinningWax),
                 new Good("Oathstone", "Oathstone", "A marker fragment that still holds a vow: it pays for Grand skill grades (SKILLS) and a change of Banner.",
                     r => r.Session.Inventory.Oathstones),

@@ -73,32 +73,32 @@ namespace Orsuun.Client
             }
 
             Ui.Section("ShopHead", canvas, 0.2f, 0.465f, 0.8f, 0.5f, "PIT SHOP", 26);
-            // Two rows: the three Korshards, then the goods added with the seasons.
+            // Three rows of three: the Korshards, then the goods added with the seasons, skill grades and the Master's Needle.
             for (int i = 0; i < _shop.Length; i++)
             {
                 PitShopItem item = Pits.Shop[i];
-                bool top = i < 3;
-                int col = top ? i : i - 3;
-                float width = top ? 0.3f : 0.222f, step = top ? 0.31f : 0.232f;
-                float x0 = 0.04f + col * step, y0 = top ? 0.418f : 0.372f;
+                int row = i / 3, col = i % 3;
+                float x0 = 0.04f + col * 0.31f, y0 = 0.418f - row * 0.046f;
                 string icon = item.Good switch
                 {
                     PitGood.Turnstones => "Turnstone",
                     PitGood.EtchingNeedle => "EtchingNeedle",
                     PitGood.PinningWax => "PinningWax",
                     PitGood.Oathstone => "Oathstone",
+                    PitGood.TechniqueScroll => "Book" + _root.Session.Class,
+                    PitGood.MastersNeedle => "MastersNeedle",
                     _ => SocketPanel.RankIcons[item.KorshardRank],
                 };
-                _shop[i] = Ui.IconButton("Shop" + i, canvas, x0, y0, x0 + width, y0 + 0.042f, $"{item.Name.Replace(" Korshard", "")}\n<size=15>{item.Laurels} Laurels</size>",
-                    top ? 20 : 17, Palette.Alloy, icon, () => Buy(item.Id), out _);
+                _shop[i] = Ui.IconButton("Shop" + i, canvas, x0, y0, x0 + 0.3f, y0 + 0.042f, $"{item.Name.Replace(" Korshard", "")}\n<size=15>{item.Laurels} Laurels</size>",
+                    18, Palette.Alloy, icon, () => Buy(item.Id), out _);
             }
 
-            Ui.Section("BoardHead", canvas, 0.2f, 0.33f, 0.8f, 0.365f, "THE SEASON'S BOARD", 26);
-            Ui.Framed("BoardBack", canvas, 0.04f, 0.085f, 0.96f, 0.325f, new Color(0.06f, 0.06f, 0.12f, 0.9f));
+            Ui.Section("BoardHead", canvas, 0.2f, 0.284f, 0.8f, 0.319f, "THE SEASON'S BOARD", 26);
+            Ui.Framed("BoardBack", canvas, 0.04f, 0.085f, 0.96f, 0.279f, new Color(0.06f, 0.06f, 0.12f, 0.9f));
             for (int i = 0; i < _board.Length; i++)
             {
-                float y1 = 0.317f - i * 0.029f;
-                _board[i] = Ui.Label("Board" + i, canvas, 0.07f, y1 - 0.029f, 0.93f, y1, "", 20, TextAnchor.MiddleLeft, Palette.Parchment);
+                float y1 = 0.272f - i * 0.0232f;
+                _board[i] = Ui.Label("Board" + i, canvas, 0.07f, y1 - 0.0232f, 0.93f, y1, "", 18, TextAnchor.MiddleLeft, Palette.Parchment);
                 _board[i].supportRichText = true;
             }
             Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO WAR", 28, Palette.ButtonIdle, () => { Close(); _root.War.Open(); }, out _);

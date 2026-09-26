@@ -202,7 +202,7 @@ namespace Orsuun.Rules
             if (item.Destroyed) return "That piece is gone.";
             if (item.Etchings.Count >= ItemState.MaxEtchings) return "This piece has all five etchings.";
             if (item.Etchings.Count == ItemState.MaxEtchings - 1)
-                return inventory.MastersNeedles < 1 ? "The fifth etching needs a Master's Needle (the Carvers' Archive)." : null;
+                return inventory.MastersNeedles < 1 ? "The fifth etching needs a Master's Needle (the Carvers' Archive or the Pit shop)." : null;
             if (inventory.EtchingNeedles < 1) return "No Etching Needles.";
             return null;
         }

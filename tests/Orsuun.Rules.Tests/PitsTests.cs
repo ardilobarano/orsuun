@@ -49,7 +49,7 @@ public class PitsTests
         PitShopItem rider = Pits.ShopItem(2)!;
         Assert.Equal(1, rider.KorshardRank);
         Assert.True(rider.Laurels > Pits.ShopItem(1)!.Laurels);
-        Assert.Null(Pits.ShopItem(9));
+        Assert.Null(Pits.ShopItem(10));
     }
 
     [Fact]
@@ -71,6 +71,15 @@ public class PitsTests
     }
 
     [Fact]
+    public void The_Pit_shop_sells_a_Masters_Needle_the_dearest_good()
+    {
+        PitShopItem needle = Pits.ShopItem(9)!;
+        Assert.Equal(PitGood.MastersNeedle, needle.Good);
+        Assert.Equal(90, needle.Laurels);
+        foreach (PitShopItem item in Pits.Shop) Assert.True(item.Laurels <= needle.Laurels);
+    }
+
+    [Fact]
     public void The_Pit_shop_sells_currencies_never_upgrade_protection()
     {
         var inv = new Inventory();
@@ -80,6 +89,7 @@ public class PitsTests
         Assert.Equal(1, inv.EtchingNeedles);
         Assert.Equal(1, inv.PinningWax);
         Assert.Equal(1, inv.Oathstones);
+        Assert.Equal(1, inv.MastersNeedles);
         Assert.Equal(0, inv.AnvilWards);
         Assert.Equal(0, inv.ScrollsOfMercy);
         Assert.Equal(0, inv.KhansAlloys);

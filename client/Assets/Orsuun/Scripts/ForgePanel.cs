@@ -473,7 +473,7 @@ namespace Orsuun.Client
                 _etchRows[i].interactable = !Busy;
             }
             int etchChance = EtchingActions.EtchChanceBp(weapon) / 100;
-            // The fifth etching takes a Master's Needle (the Carvers' Archive).
+            // The fifth etching takes a Master's Needle (the Carvers' Archive, the Pit shop).
             _etchLabel.text = weapon.Etchings.Count >= ItemState.MaxEtchings ? "ETCH\n<size=16>all five\netchings</size>"
                 : weapon.Etchings.Count == ItemState.MaxEtchings - 1 ? $"ETCH\n<size=16>{etchChance}% chance\n{inv.MastersNeedles} Master's\nNeedles</size>"
                 : $"ETCH\n<size=16>{etchChance}% chance\n{inv.EtchingNeedles} needles\n{inv.PinningWax} wax</size>";
