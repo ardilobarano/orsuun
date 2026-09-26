@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -193,10 +195,30 @@ namespace Orsuun.Client
             return image;
         }
 
+        /// <summary>The playing hero's class: it picks the weapon and armour icons (GameRoot keeps it current).</summary>
+        public static HeroClass IconClass = HeroClass.Vanguard;
+        private static readonly Dictionary<string, bool> IconExists = new Dictionary<string, bool>();
+
+        /// <summary>
+        /// A piece's icon (owner, 26 Sep 2026: "we need different images for all levels different items"):
+        /// Icons/Items/&lt;Slot&gt;_T&lt;band&gt;, the weapon and armour as the playing class wears them
+        /// (Items/KestrelWeapon_T3), or the slot's own icon where a band has none.
+        /// </summary>
+        public static string ItemIcon(ItemState item) => ItemIcon(item.Slot, item.ItemLevel);
+
+        public static string ItemIcon(EquipSlot slot, int itemLevel)
+        {
+            string cls = ItemLooks.HasLooks(slot) && IconClass != HeroClass.Vanguard ? IconClass.ToString() : "";
+            string name = "Items/" + cls + slot + "_T" + ItemLooks.Tier(itemLevel);
+            if (!IconExists.TryGetValue(name, out bool exists))
+                IconExists[name] = exists = Resources.Load<Texture2D>("Icons/" + name) != null;
+            return exists ? name : slot.ToString();
+        }
+
         /// <summary>Points an Icon at another Resources/Icons texture (loads only when it changes).</summary>
         public static void SetIcon(RawImage image, string icon)
         {
-            if (image.texture != null && image.texture.name == icon) return;
+            if (image.texture != null && image.texture.name == icon.Substring(icon.LastIndexOf('/') + 1)) return;
             image.texture = Resources.Load<Texture2D>("Icons/" + icon);
             image.enabled = image.texture != null;
         }

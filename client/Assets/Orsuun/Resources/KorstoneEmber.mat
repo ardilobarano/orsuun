@@ -40,10 +40,13 @@ Material:
     - _Debug: 0
     - _FlowScale: 3.5
     - _FlowSpeed: 0.6
+    - _GlitterIntensity: 7
+    - _GlitterScale: 28
     - _Glow: 0
     - _Intensity: 2.2
     - _RimPower: 3
     - _Roughness: 0.3
+    - _SheenScale: 3
     m_Colors:
     - _BaseColor: {r: 0.035, g: 0.03, b: 0.03, a: 1}
     - _Color7: {r: 1, g: 0.92, b: 0.72, a: 1}

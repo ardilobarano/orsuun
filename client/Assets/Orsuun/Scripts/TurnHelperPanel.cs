@@ -200,7 +200,7 @@ namespace Orsuun.Client
 
         private static void FillTile(Tile t, ItemState item, bool selected)
         {
-            Texture2D icon = item == null ? null : Resources.Load<Texture2D>("Icons/" + item.Slot);
+            Texture2D icon = item == null ? null : Resources.Load<Texture2D>("Icons/" + Ui.ItemIcon(item));
             if (t.Icon.texture != icon) t.Icon.texture = icon;
             t.Icon.enabled = icon != null;
             Color glow = item == null ? Color.clear : GearPanel.RarityColor(item.Rarity);
@@ -684,7 +684,7 @@ namespace Orsuun.Client
                 bool worn = s.Equipped(piece.Slot) == piece;
                 _name.text = $"{piece.DisplayName} +{piece.UpgradeLevel}";
                 _name.color = GearPanel.RarityColor(piece.Rarity);
-                Ui.SetIcon(_picture, piece.Slot.ToString());
+                Ui.SetIcon(_picture, Ui.ItemIcon(piece));
                 _info.text = $"{piece.Rarity}  ·  {(worn ? "worn" : "in your bag")}  ·  up to T{cap}  ·  "
                              + $"{cost} Turnstone{(cost == 1 ? "" : "s")} a turn  ·  you have {s.Inventory.Turnstones:N0}";
 

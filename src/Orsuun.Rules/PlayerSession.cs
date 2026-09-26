@@ -72,6 +72,7 @@ namespace Orsuun.Rules
         {
             long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
             int critBp = 500, critMult = 200, beast = 0, evasionBp = 0, haste = 0, warding = 0;
+            int averageDamage = 0, skillDamage = 0;
 
             foreach (ItemState item in equipped)
             {
@@ -94,6 +95,11 @@ namespace Orsuun.Rules
                     }
                 }
                 long scale = ForgeRules.StatPercent(item.UpgradeLevel) * RarityPercent(item.Rarity);
+                if (WeaponRolls.Applies(item))
+                {
+                    averageDamage += item.AverageDamagePercent;
+                    skillDamage += item.SkillDamagePercent;
+                }
                 switch (item.Slot)
                 {
                     case EquipSlot.Weapon: attack += (20 + item.ItemLevel * 4) * scale / 10000; break;
@@ -154,6 +160,8 @@ namespace Orsuun.Rules
                 SkillGradeBonusPercent = GradeBonuses(skillGrades),
                 Level = level,
                 Mounted = worn != null && worn.Any(w => w.Kind == WardrobeKind.Mount),
+                AverageDamagePercent = averageDamage,
+                SkillDamagePercent = skillDamage,
             };
         }
 

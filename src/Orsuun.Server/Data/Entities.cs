@@ -182,6 +182,9 @@ public sealed class Item
     /// <summary>Sockets as "-" (empty), "x" (Dead Shard) or "type:rank", semicolon separated, in socket order.</summary>
     [MaxLength(64)] public string Sockets { get; set; } = "";
     public bool Destroyed { get; set; }
+    /// <summary>A weapon's average damage and skill damage rolls in percent (Rules.WeaponRolls; item level 30 and up).</summary>
+    public int AverageDamage { get; set; }
+    public int SkillDamage { get; set; }
     public DateTime CreatedUtc { get; set; }
     /// <summary>On the Salt Exchange: out of the bag, cannot be worn, forged or turned until sold, cancelled or expired.</summary>
     public bool Listed { get; set; }
@@ -208,6 +211,8 @@ public sealed class Item
             PatienceBp = PatienceBp,
             LockedEtchingIndex = LockedEtchingIndex,
             Destroyed = Destroyed,
+            AverageDamagePercent = AverageDamage,
+            SkillDamagePercent = SkillDamage,
         };
         foreach (string triple in Etchings.Split(';', StringSplitOptions.RemoveEmptyEntries))
         {
@@ -240,6 +245,8 @@ public sealed class Item
         PatienceBp = state.PatienceBp;
         LockedEtchingIndex = state.LockedEtchingIndex;
         Destroyed = state.Destroyed;
+        AverageDamage = state.AverageDamagePercent;
+        SkillDamage = state.SkillDamagePercent;
         Etchings = string.Join(';', state.Etchings.Select(e => $"{e.EntryId}:{e.Tier}:{e.Value}"));
         Sockets = string.Join(';', state.Sockets.Select(s => s.Dead ? "x" : s.Type == null ? "-" : $"{(int)s.Type.Value}:{s.Rank}"));
     }

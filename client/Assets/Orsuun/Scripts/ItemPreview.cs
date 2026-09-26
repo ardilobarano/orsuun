@@ -26,6 +26,7 @@ namespace Orsuun.Client
         private Transform _pivot;
         private GameObject _model;
         private Material[] _materials = new Material[0];
+        private Renderer[] _glowing = new Renderer[0];
         private HeroClass _shownClass;
         private EquipSlot _shownSlot;
         private int _shownTier = -1;
@@ -104,7 +105,7 @@ namespace Orsuun.Client
             _icon.enabled = !model;
             if (!model)
             {
-                Ui.SetIcon(_icon, item.Slot.ToString());
+                Ui.SetIcon(_icon, Ui.ItemIcon(item));
                 return;
             }
 
@@ -113,6 +114,8 @@ namespace Orsuun.Client
             {
                 _glow = glow;
                 foreach (Material m in _materials) m.SetFloat(UpgradeGlow.GlowId, glow);
+                foreach (Renderer r in _glowing)
+                    if (glow > 0f || r.GetComponentInChildren<GearSparkle>() != null) GearSparkle.On(r, _weapon).Set(glow);
             }
 
             // The glaive lies across the picture and sways; armour stands and turns.
@@ -143,6 +146,7 @@ namespace Orsuun.Client
             }
             _model = null;
             _materials = new Material[0];
+            _glowing = new Renderer[0];
             _glow = -1f;
             if (!looks) return;
 
@@ -160,16 +164,18 @@ namespace Orsuun.Client
             _lying = _weapon && cls == HeroClass.Vanguard;
             var kept = new System.Collections.Generic.List<Renderer>();
             var glowing = new System.Collections.Generic.List<Material>();
+            var glowingRenderers = new System.Collections.Generic.List<Renderer>();
             foreach (Renderer r in _model.GetComponentsInChildren<Renderer>())
             {
                 if (shared != null) r.sharedMaterial = shared;
                 kept.Add(r);
                 bool isWeapon = LaneView.SlotOf(r.name) == (int)EquipSlot.Weapon;
-                if (cls == HeroClass.Vanguard || isWeapon == _weapon) glowing.Add(r.material);
+                if (cls == HeroClass.Vanguard || isWeapon == _weapon) { glowing.Add(r.material); glowingRenderers.Add(r); }
                 else r.material.SetFloat(UpgradeGlow.GlowId, 0f);
             }
             if (kept.Count == 0) { Destroy(_model); _model = null; return; }
             _materials = glowing.ToArray();
+            _glowing = glowingRenderers.ToArray();
 
             var anim = _model.GetComponent<Animation>();
             if (anim != null && anim.GetClip("Idle") != null) anim.Play("Idle");

@@ -1077,6 +1077,9 @@ namespace Orsuun.Server.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("AverageDamage")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -1110,6 +1113,9 @@ namespace Orsuun.Server.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Rarity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SkillDamage")
                         .HasColumnType("integer");
 
                     b.Property<int>("Slot")

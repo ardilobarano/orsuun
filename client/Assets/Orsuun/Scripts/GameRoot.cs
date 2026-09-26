@@ -234,11 +234,14 @@ namespace Orsuun.Client
 
             // Dev switch: -stage <n> parks local play at campaign stage n with the ones before it cleared, the hero at the
             // stage's level in an Epic +9 set of its item level, so the fight stays on screen (screenshots of the maps).
+            // -plus <n> forges the set to +n instead (screenshots of the upgrade glow); the weapon carries sample rolls.
             if (int.TryParse(Arg("-stage"), out int parkAt) && !Server.Online && parkAt >= 1 && parkAt <= Content.TotalStages)
             {
                 int gearLevel = Math.Max(1, Content.Stage(parkAt).GearItemLevel);
+                int plus = int.TryParse(Arg("-plus"), out int p) ? Math.Max(0, Math.Min(ItemState.MaxUpgradeLevel, p)) : 9;
                 var set = new System.Collections.Generic.List<ItemState>();
-                for (int slot = 0; slot < 8; slot++) set.Add(new ItemState(gearLevel, Rarity.Epic, (EquipSlot)slot) { UpgradeLevel = 9 });
+                for (int slot = 0; slot < 8; slot++) set.Add(new ItemState(gearLevel, Rarity.Epic, (EquipSlot)slot) { UpgradeLevel = plus });
+                WeaponRolls.Roll(set[0], new XorShiftRandom((ulong)parkAt));
                 Session.Inventory.Xp = Content.XpPerLevelSquare * gearLevel * gearLevel;
                 Session.ApplyRemote(Session.Inventory, set, 0, parkAt - 1, parkAt);
             }
@@ -475,6 +478,7 @@ namespace Orsuun.Client
             (int Band, Color Tint) skinLook = tinted ? LaneView.SkinLooks[skin.Look] : (0, Color.white);
             int band = tinted ? skinLook.Band : armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0;
             Lane.SetHeroClass(Session.Class, band, Session.Class == HeroClass.Vanguard ? null : skinModel);
+            Ui.IconClass = Session.Class;
             Lane.SetLooks(skinModel != null && Session.Class == HeroClass.Vanguard ? skinModel : tinted ? "Armor_T" + band : armor?.LookId, Session.Weapon.LookId);
             Lane.SetWardrobe(mount?.Look, companion?.Look, skinLook.Tint);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));

@@ -42,6 +42,10 @@ namespace Orsuun.Rules.Combat
         public int Level { get; set; } = 1;
         /// <summary>Riding a wardrobe mount (owner, 26 Sep 2026): plain attacks only, no skills until he dismounts.</summary>
         public bool Mounted { get; set; }
+        /// <summary>The weapon's average damage roll (WeaponRolls): plain attacks deal this much more (or less), in percent.</summary>
+        public int AverageDamagePercent { get; set; }
+        /// <summary>The weapon's skill damage roll: every skill's damage, its poison included, this much more (or less).</summary>
+        public int SkillDamagePercent { get; set; }
     }
 
     public enum SkillKind
@@ -570,7 +574,7 @@ namespace Orsuun.Rules.Combat
 
             if (_tick >= _heroNextAttackTick && _enemies.Count > 0)
             {
-                Hit(FrontTarget()!, 100);
+                Hit(FrontTarget()!, 100, plain: true);
                 int interval = HasteActive ? Math.Max(1, _hero.AttackIntervalTicks / 2) : _hero.AttackIntervalTicks;
                 _heroNextAttackTick = _tick + interval;
             }
@@ -733,13 +737,16 @@ namespace Orsuun.Rules.Combat
         }
 
         /// <param name="canCrit">False for poison ticks: a cloud does not find weak points.</param>
-        private void Hit(Enemy enemy, int powerPercent, bool canCrit = true)
+        /// <param name="plain">A plain attack, which the weapon's average damage roll changes; every other hit is a skill's.</param>
+        private void Hit(Enemy enemy, int powerPercent, bool canCrit = true, bool plain = false)
         {
             if (Shielded(enemy)) return;
 
             long attack = EmpowerActive ? _hero.Attack * (100 + _empowerPercent) / 100 : _hero.Attack;
             bool crit = canCrit && _rng.RollBp(_hero.CritChanceBp + (FocusActive ? _focusBp : 0));
             long damage = attack * powerPercent / 100 * _stage.DamagePercent / 100;
+            int roll = plain ? _hero.AverageDamagePercent : _hero.SkillDamagePercent;
+            if (roll != 0) damage = damage * (100 + roll) / 100;
             if (crit) damage = damage * _hero.CritMultiplierPercent / 100;
             if (!enemy.IsBoss && _hero.BeastDamagePercent > 0) damage = damage * (100 + _hero.BeastDamagePercent) / 100;
             damage = Math.Max(1, damage * (90 + _rng.NextInt(21)) / 100);

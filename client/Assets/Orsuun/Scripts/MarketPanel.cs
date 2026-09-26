@@ -241,7 +241,7 @@ namespace Orsuun.Client
         private static string Etchings(ItemState item)
         {
             EtchingPool pool = EtchingPool.For(item.Slot);
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(GearPanel.RollLines(item));
             foreach (Etching e in item.Etchings)
             {
                 string line = $"T{e.Tier}  {pool.Entries[e.EntryId].Name}  +{e.Value}";

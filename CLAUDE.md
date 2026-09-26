@@ -162,3 +162,12 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   conversation past `Whispers.KeepPerConversation` loses its oldest lines. Deleting a hero deletes its messages both
   ways. A reported one is copied into `ChatMessages` (channel "w:" + the recipient's id, hidden) so the moderation page
   handles it; no chat reads "w:" channels, keep it that way. Sending shares chat's flood limit (`LastChatUtc`) and mutes.
+- Item icons are per level band (`Resources/Icons/Items/<Slot>_T<band>`, weapon and armour per class as
+  `<Class><Slot>_T<band>` except the Vanguard's): use `Ui.ItemIcon(item)` (it follows `Ui.IconClass`, which GameRoot keeps
+  on the playing hero's class, and falls back to the slot icon), never `item.Slot.ToString()`.
+- Weapons of item level 30+ carry `AverageDamagePercent` / `SkillDamagePercent` (`WeaponRolls`, rolled in
+  `HuntYield.DropGear`: two extra draws on the lane's RNG for such a weapon, so seeded balance tests use 60 seeds).
+  They travel on `Item.AverageDamage` / `SkillDamage` and `ItemDto`; anything that copies an ItemState must copy them.
+- The upgrade glow is the shader (sheen, rim, glitter; `_GlitterScale` per material, glaives finer) plus `GearSparkle`
+  particles on each glowing piece (made by `GearSparkle.On`, on the piece's layer). Shared look materials (HeroStage)
+  take the glow through property blocks; the lane and ItemPreview use instanced materials.

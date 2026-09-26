@@ -95,6 +95,7 @@ namespace Orsuun.Client
                 _levels[i].text = item == null ? "" : "+" + item.UpgradeLevel;
                 _levels[i].color = item == null ? Palette.Muted : ForgePanel.LevelColor(item.UpgradeLevel);
                 _icons[i].color = item == null ? new Color(1f, 1f, 1f, 0.22f) : Color.white;
+                Ui.SetIcon(_icons[i], item != null ? Ui.ItemIcon(item) : ((EquipSlot)i).ToString());
                 _slots[i].interactable = item != null;
                 _tiles[i].color = i == _slot ? new Color(0.85f, 0.62f, 0.2f) : item == null ? new Color(0.06f, 0.06f, 0.09f) : Palette.PanelDark;
             }

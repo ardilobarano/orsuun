@@ -1,8 +1,10 @@
 // Orsuun gear and Korstone shader (art direction B).
 // Gear upgrade glow, in the manner of classic MMO upgrade shine (owner, 23 Sep 2026): every piece glows by its own
-//   level. _Glow 0 = off (+0..+6), 0.35 = +7, 0.65 = +8, 1 = +9. Three layers, all scaled by the level: a soft aura
-//   around the silhouette (second pass), light that flows up over the surface, and a sweep of shine running up the
-//   piece. Colour steps from pale gold (+7) to gold (+8) to hot ember-gold (+9). The weapon material is hotter.
+//   level. _Glow 0 = off (+0..+6), 0.35 = +7, 0.65 = +8, 1 = +9. Since 26 Sep 2026 ("our +7,8,9 effects are so bad,
+//   make it more like metin2 like glitter") the piece keeps its own look, polished: a band of sheen slides over it, the
+//   rim glows in the level's colour, and glitter twinkles across the surface, more and brighter each level; a soft aura
+//   hugs the silhouette (second pass) and GearSparkle (UpgradeGlow.cs) adds star sparkles off the piece. Colour steps
+//   from pale gold (+7) to gold (+8) to hot ember-gold (+9). The weapon material is hotter.
 // Korstone: _CrackAlways = 1 lights warped 3D Voronoi cracks in object space and fades them toward the top.
 Shader "Orsuun/EmberGlow"
 {
@@ -29,6 +31,9 @@ Shader "Orsuun/EmberGlow"
         _FlowSpeed ("Flow Speed", Float) = 0.6
         _AuraWidth ("Aura Width (object units at +9)", Float) = 0.035
         _AuraStrength ("Aura Strength", Float) = 1.2
+        _SheenScale ("Sheen Band Frequency", Float) = 3
+        _GlitterScale ("Glitter Cells per Object Unit", Float) = 20
+        _GlitterIntensity ("Glitter Intensity", Float) = 9
         [HideInInspector] _Debug ("Debug output (0 off)", Float) = 0
     }
 
@@ -67,6 +72,9 @@ Shader "Orsuun/EmberGlow"
             float _FlowSpeed;
             float _AuraWidth;
             float _AuraStrength;
+            float _SheenScale;
+            float _GlitterScale;
+            float _GlitterIntensity;
         CBUFFER_END
 
         // Level colour: pale gold at +7, gold at +8, hot ember-gold at +9.
@@ -208,22 +216,31 @@ Shader "Orsuun/EmberGlow"
                 half flicker = 0.86 + 0.14 * sin(_Time.y * 5.0 - i.positionOS.y * 3.0);
                 half3 crackLight = lerp(_GlowColor.rgb, _HotColor.rgb, 0.2) * _Intensity * flicker;
 
-                // Gear shine by level: rim light, energy flowing up the surface, and a sweep of shine running upward.
+                // Gear shine by level: the rim in the level's colour, a sheen sliding over the piece, a little slow flow,
+                // and glitter. The piece's own colours stay: no flat wash of light over it.
                 half glow = saturate(_Glow);
                 half3 emission = 0;
                 if (glow > 0.001)
                 {
                     half3 levelColor = LevelColor(glow);
                     half rim = pow(saturate(1 - dot(N, V)), _RimPower);
+                    // A narrow band of shine sweeping diagonally, as polished metal catches the light.
+                    half sheen = pow(saturate(sin(dot(i.positionOS, float3(0.55, 1.6, 0.35)) * _SheenScale - _Time.y * (1.1 + glow)) * 0.5 + 0.5), 30);
                     float3 q = i.positionOS * _FlowScale + float3(0, -_Time.y * _FlowSpeed * (0.6 + glow), 0);
-                    half flow = Noise3(q) * 0.65 + Noise3(q * 2.3 + 7.1) * 0.35;
-                    half streak = smoothstep(0.52, 0.9, flow);
-                    half sweep = pow(saturate(sin(i.positionOS.y * 2.6 - _Time.y * (1.4 + glow * 1.6)) * 0.5 + 0.5), 10);
-                    half pulse = 0.9 + 0.1 * sin(_Time.y * 3.0);
+                    half flow = smoothstep(0.58, 0.95, Noise3(q));
+                    // Glitter: one point per object-space cell; a share of the cells (more each level) twinkles, each on
+                    // its own clock, bright enough to bloom into a star.
+                    float3 gp = i.positionOS * _GlitterScale;
+                    float3 cell = floor(gp);
+                    float3 at = float3(Hash31(cell + 3.1), Hash31(cell + 5.7), Hash31(cell + 9.2)) - 0.5;
+                    half dot3 = saturate(1 - length(frac(gp) - 0.5 - at * 0.7) / 0.32);
+                    half chosen = step(Hash31(cell), lerp(0.22, 0.5, glow));
+                    half twinkle = pow(saturate(sin(_Time.y * (2.5 + 5.0 * Hash31(cell + 17.3)) + Hash31(cell + 23.9) * 6.2832)), 6);
+                    half glitter = dot3 * dot3 * chosen * twinkle;
                     half body = glow * _BodyGlow;
-                    // Kept below full cover so the piece's own detail reads through the shine even at +9.
-                    half strength = rim * 1.0 + streak * (0.2 + 0.45 * glow) + sweep * 0.75 * glow + 0.04 + body * 0.5;
-                    emission = levelColor * _Intensity * glow * strength * pulse;
+                    // The rim and sheen rise with the square root of the level, so +7 already reads as upgraded.
+                    emission = levelColor * _Intensity * sqrt(glow) * (rim * 0.8 + sheen * (0.35 + 0.65 * glow) + flow * 0.15 * glow + 0.02 + body * 0.2)
+                             + lerp(levelColor, half3(1, 1, 1), 0.55) * glitter * _GlitterIntensity * (0.35 + glow);
                 }
 
                 half3 color = lerp(lit + emission, crackLight * bakedHeat, max(crackAmount, baked));

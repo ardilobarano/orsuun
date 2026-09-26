@@ -95,7 +95,12 @@ namespace Orsuun.Rules
         {
             var gear = new List<ItemState>();
             foreach (ItemState item in equipped)
-                gear.Add(new ItemState(item.ItemLevel, item.Rarity, item.Slot) { UpgradeLevel = Math.Max(0, Math.Min(ItemState.MaxUpgradeLevel, item.UpgradeLevel + step)) });
+                gear.Add(new ItemState(item.ItemLevel, item.Rarity, item.Slot)
+                {
+                    UpgradeLevel = Math.Max(0, Math.Min(ItemState.MaxUpgradeLevel, item.UpgradeLevel + step)),
+                    AverageDamagePercent = item.AverageDamagePercent,
+                    SkillDamagePercent = item.SkillDamagePercent,
+                });
             return gear;
         }
 

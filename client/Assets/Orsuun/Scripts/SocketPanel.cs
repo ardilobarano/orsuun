@@ -187,7 +187,7 @@ namespace Orsuun.Client
             if (item == null) { Step(1); item = Current; }
             if (item == null) return;
 
-            Ui.SetIcon(_itemIcon, item.Slot.ToString());
+            Ui.SetIcon(_itemIcon, Ui.ItemIcon(item));
             _itemLabel.text = $"{item.DisplayName} +{item.UpgradeLevel}";
             _itemLabel.color = ForgePanel.LevelColor(item.UpgradeLevel);
             if (_socket >= item.Sockets.Length) _socket = 0;

@@ -463,7 +463,8 @@ namespace Orsuun.Client
             ItemState armor = session.Equipped(EquipSlot.Armor);
             string skin = null;
             foreach (WardrobeDef piece in session.Worn) if (piece.Kind == WardrobeKind.Skin) skin = piece.Look;
-            _stage.Show(session.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, ItemLooks.Tier(session.Weapon.ItemLevel), skin);
+            _stage.Show(session.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, ItemLooks.Tier(session.Weapon.ItemLevel), skin,
+                armor != null ? UpgradeGlow.ForLevel(armor.UpgradeLevel) : 0f, UpgradeGlow.ForLevel(session.Weapon.UpgradeLevel));
 
             bool canRenew = _root.Server.Online && OathRenewal.Problem(session.Level, session.Renewals) == null;
             _level.text = $"LEVEL {session.Level}"
@@ -520,7 +521,7 @@ namespace Orsuun.Client
         private void FillGear(Tile t, ItemState item, EquipSlot slot)
         {
             t.Entry = item == null ? null : new Entry { Item = item, Count = 1 };
-            Ui.SetIcon(t.Icon, slot.ToString());
+            Ui.SetIcon(t.Icon, item != null ? Ui.ItemIcon(item) : slot.ToString());
             t.Icon.color = item == null ? new Color(1f, 1f, 1f, 0.18f) : Color.white;
             Color glow = item == null ? Color.clear : RarityColor(item.Rarity);
             glow.a = item == null ? 0f : 0.55f;
@@ -592,7 +593,7 @@ namespace Orsuun.Client
             _name.color = RarityColor(item.Rarity);
             Color glow = RarityColor(item.Rarity);
             glow.a = item.Rarity == Rarity.Common ? 0.15f : 0.55f;
-            Picture(item.Slot.ToString(), glow, item.UpgradeLevel == 0 ? "" : "+" + item.UpgradeLevel, ForgePanel.LevelColor(item.UpgradeLevel));
+            Picture(Ui.ItemIcon(item), glow, item.UpgradeLevel == 0 ? "" : "+" + item.UpgradeLevel, ForgePanel.LevelColor(item.UpgradeLevel));
             _info.text = $"{SlotNames[(int)item.Slot]}  ·  Item level {item.ItemLevel}  ·  {item.Rarity}  ·  " + (worn ? "worn" : "in your bag");
 
             HeroStats bare = HeroFactory.FromEquipment(Array.Empty<ItemState>(), session.Level);
@@ -607,7 +608,7 @@ namespace Orsuun.Client
             }
 
             EtchingPool pool = EtchingPool.For(item.Slot);
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(RollLines(item));
             if (item.Etchings.Count == 0) sb.Append(ConfirmDialog.Tint("No etchings yet.", Palette.Muted));
             for (int i = 0; i < item.Etchings.Count; i++)
             {
@@ -686,7 +687,22 @@ namespace Orsuun.Client
             SetAction(2, null, Color.white, false, null);
         }
 
-        /// <summary>Attack, Defense, HP and Crit of a against b: the item's own share, or signed changes in green and red.</summary>
+        /// <summary>
+        /// A weapon's average damage and skill damage (item level 30 and up), one line each ending in a newline, or "":
+        /// gold near the top of the range, red below zero.
+        /// </summary>
+        public static string RollLines(ItemState item)
+        {
+            if (!WeaponRolls.Applies(item)) return "";
+            string Line(string name, int value, int high)
+            {
+                string text = $"{name} {(value > 0 ? "+" : "")}{value}%";
+                return (value < 0 ? ConfirmDialog.Tint(text, Palette.Bad) : value >= high ? ConfirmDialog.Tint(text, Palette.Sorn) : text) + "\n";
+            }
+            return Line("Average damage", item.AverageDamagePercent, 30) + Line("Skill damage", item.SkillDamagePercent, 15);
+        }
+
+        /// <summary>Attack, Defense, HP, Crit and the weapon's rolls of a against b: the item's own share, or signed changes in green and red.</summary>
         public static string Stats(HeroStats a, HeroStats b, bool signed)
         {
             var parts = new List<string>();
@@ -700,6 +716,8 @@ namespace Orsuun.Client
             Add("Defense", a.Defense - b.Defense);
             Add("HP", a.MaxHp - b.MaxHp);
             Add("Crit", (a.CritChanceBp - b.CritChanceBp) / 100, "%");
+            Add("Average damage", a.AverageDamagePercent - b.AverageDamagePercent, "%");
+            Add("Skill damage", a.SkillDamagePercent - b.SkillDamagePercent, "%");
             if (!signed && parts.Count == 0) return ConfirmDialog.Tint("No stats", Palette.Muted);
             return string.Join("   ", parts);
         }

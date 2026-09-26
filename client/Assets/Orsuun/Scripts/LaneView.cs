@@ -555,6 +555,8 @@ namespace Orsuun.Client
                 if (Mathf.Approximately(glow, _partGlow[p]) && _partGlow[p] >= 0f) continue;
                 _partGlow[p] = glow;
                 r.material.SetFloat(UpgradeGlow.GlowId, glow);
+                // Star sparkles off the piece from +7 (made the first time a piece glows).
+                if (glow > 0f || r.GetComponentInChildren<GearSparkle>() != null) GearSparkle.On(r, slot == (int)EquipSlot.Weapon).Set(glow);
             }
         }
 

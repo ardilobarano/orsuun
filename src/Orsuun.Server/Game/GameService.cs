@@ -810,7 +810,8 @@ public sealed partial class GameService
         return new ItemDto(item.Id, s.Slot, item.Equipped, s.DisplayName, s.ItemLevel, s.Rarity, s.UpgradeLevel, s.PatienceBp, s.LockedEtchingIndex,
             s.Etchings.Select(e => new EtchingDto(e.EntryId, pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray(),
             s.Sockets.Select(k => new SocketDto(k.Dead, k.Type?.ToString(), k.Rank,
-                k.Dead ? "Dead Shard" : k.Type == null ? "empty" : SocketRules.Name(k.Type.Value) + " " + Content.KorshardRanks[k.Rank] + ": " + SocketRules.Describe(k.Type.Value, k.Rank))).ToArray());
+                k.Dead ? "Dead Shard" : k.Type == null ? "empty" : SocketRules.Name(k.Type.Value) + " " + Content.KorshardRanks[k.Rank] + ": " + SocketRules.Describe(k.Type.Value, k.Rank))).ToArray(),
+            s.AverageDamagePercent, s.SkillDamagePercent);
     }
 
     /// <summary>The hero's Technique Scrolls by book id.</summary>

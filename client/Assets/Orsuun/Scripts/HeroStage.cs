@@ -39,6 +39,10 @@ namespace Orsuun.Client
         private float _spin;         // degrees a second, after letting go
         private float _touchedAt = -100f;
         private bool _held;
+        /// <summary>The shown hero's pieces with their slot (weapon or armour), and the glow each was last given.</summary>
+        private readonly List<(Renderer renderer, bool weapon)> _pieces = new List<(Renderer, bool)>();
+        private float _armorGlow = -1f, _weaponGlow = -1f;
+        private MaterialPropertyBlock _block;
         /// <summary>Above 1 the camera comes closer than the whole-figure framing (the inventory's smaller frame).</summary>
         public float Zoom { get; set; } = 1f;
 
@@ -85,8 +89,11 @@ namespace Orsuun.Client
             _pivot.position = _at;
         }
 
-        /// <summary>Shows a hero (null: none); call every frame while the screen is open.</summary>
-        public void Show(HeroClass? cls, int armorBand, int weaponBand, string skinLook)
+        /// <summary>
+        /// Shows a hero (null: none); call every frame while the screen is open. The glows (UpgradeGlow.ForLevel of the
+        /// worn armour and weapon) light the pieces as the lane does, sparkles and all.
+        /// </summary>
+        public void Show(HeroClass? cls, int armorBand, int weaponBand, string skinLook, float armorGlow = 0f, float weaponGlow = 0f)
         {
             bool visible = cls.HasValue && gameObject.activeInHierarchy;
             _camera.enabled = visible;
@@ -98,6 +105,7 @@ namespace Orsuun.Client
                 _shown = key;
                 Build(cls.Value, armorBand, weaponBand, string.IsNullOrEmpty(skinLook) ? null : skinLook);
             }
+            if (!Mathf.Approximately(armorGlow, _armorGlow) || !Mathf.Approximately(weaponGlow, _weaponGlow)) Glow(armorGlow, weaponGlow);
             float dt = Time.unscaledDeltaTime;
             float idle = _held ? 0f : Time.unscaledTime - _touchedAt;
             // A finger held still stops the turn it would hand on.
@@ -185,6 +193,8 @@ namespace Orsuun.Client
         {
             _yaw = 0f;
             _spin = 0f;
+            _pieces.Clear();
+            _armorGlow = _weaponGlow = -1f;
             if (_model != null) Destroy(_model);
             _model = new GameObject("StageHero");
             _model.transform.SetParent(_pivot, false);
@@ -200,11 +210,14 @@ namespace Orsuun.Client
                 if (armorPrefab == null) return;
                 GameObject armor = Instantiate(armorPrefab, _model.transform);
                 Dress(armor, "Looks/" + armorUsed, renderers);
+                // A skin's costume is no armour look: it does not glow.
+                if (skin == null) foreach (Renderer r in armor.GetComponentsInChildren<Renderer>()) _pieces.Add((r, false));
                 anim = armor.GetComponent<Animation>();
                 if (weaponPrefab != null)
                 {
                     GameObject weapon = Instantiate(weaponPrefab, _model.transform);
                     Dress(weapon, "Looks/" + weaponUsed, renderers);
+                    foreach (Renderer r in weapon.GetComponentsInChildren<Renderer>()) _pieces.Add((r, true));
                     Transform grip = FindDeep(armor.transform, "WeaponBase"), tip = FindDeep(armor.transform, "WeaponTip");
                     Renderer[] blade = weapon.GetComponentsInChildren<Renderer>();
                     if (grip != null && tip != null && blade.Length > 0)
@@ -230,6 +243,9 @@ namespace Orsuun.Client
                 if (prefab == null) return;
                 GameObject body = Instantiate(prefab, _model.transform);
                 Dress(body, "Looks/" + name, renderers);
+                if (skin == null)
+                    foreach (Renderer r in body.GetComponentsInChildren<Renderer>())
+                        if (LaneView.SlotOf(r.name) is int slot && slot >= 0) _pieces.Add((r, slot == (int)EquipSlot.Weapon));
                 anim = body.GetComponent<Animation>();
             }
             if (anim != null && anim.GetClip("Idle") != null)
@@ -245,6 +261,23 @@ namespace Orsuun.Client
             float half = Mathf.Tan(Fov * 0.5f * Mathf.Deg2Rad);
             _centreY = b.extents.y;
             _distance = Mathf.Max(b.extents.y / half, Mathf.Max(b.extents.x, b.extents.z) / (half * Aspect)) * 1.12f + b.extents.z;
+        }
+
+        /// <summary>Lights the pieces by their glow through property blocks (the looks' materials are shared) and sparkles.</summary>
+        private void Glow(float armorGlow, float weaponGlow)
+        {
+            _armorGlow = armorGlow;
+            _weaponGlow = weaponGlow;
+            if (_block == null) _block = new MaterialPropertyBlock();
+            foreach ((Renderer r, bool weapon) in _pieces)
+            {
+                if (r == null) continue;
+                float glow = weapon ? weaponGlow : armorGlow;
+                r.GetPropertyBlock(_block);
+                _block.SetFloat(UpgradeGlow.GlowId, glow);
+                r.SetPropertyBlock(_block);
+                if (glow > 0f || r.GetComponentInChildren<GearSparkle>() != null) GearSparkle.On(r, weapon).Set(glow);
+            }
         }
 
         private static void Dress(GameObject part, string material, List<Renderer> renderers)

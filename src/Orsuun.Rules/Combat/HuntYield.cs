@@ -141,6 +141,7 @@ namespace Orsuun.Rules.Combat
             if (rarity < minimum) rarity = minimum;
             var slot = (EquipSlot)rng.NextInt(8);
             var item = new ItemState(Math.Max(1, stage.GearItemLevel), rarity, slot);
+            WeaponRolls.Roll(item, rng);
 
             EtchingPool pool = EtchingPool.For(slot);
             int count = Content.EtchingsAtDrop(rarity, rng);
@@ -169,10 +170,12 @@ namespace Orsuun.Rules.Combat
             // Auto-cast skills add about half again over plain attacks in the live lane (measured by Orsuun.Sim);
             // the run-in is added on top. Re-measure this constant whenever the skill kit changes. A mounted hero
             // casts nothing (owner, 26 Sep 2026), so he hunts at his plain attacks' pace.
-            int skillsPercent = hero.Mounted ? 100 : AutoCastMultiplierPercent;
+            // The weapon's rolls (WeaponRolls) scale each share: average damage the plain attacks, skill damage the rest.
+            int skillsPercent = (100 + hero.AverageDamagePercent)
+                                + (hero.Mounted ? 0 : (AutoCastMultiplierPercent - 100) * (100 + hero.SkillDamagePercent) / 100);
             long ticksPerPack = hero.Attack <= 0
                 ? long.MaxValue
-                : packHp * hero.AttackIntervalTicks * 100 / (hero.Attack * skillsPercent) + stage.RunTicks;
+                : packHp * hero.AttackIntervalTicks * 100 / (hero.Attack * Math.Max(1, skillsPercent)) + stage.RunTicks;
             long packs = ticksPerPack == long.MaxValue ? 0 : counted * LaneSim.TicksPerSecond * efficiencyBp / RandomExtensions.FullBp / ticksPerPack;
 
             long finals = 0;

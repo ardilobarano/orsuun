@@ -1249,6 +1249,7 @@ namespace Orsuun.Client.Net
             var item = new ItemState(dto.itemLevel, (Rarity)Enum.Parse(typeof(Rarity), dto.rarity), (EquipSlot)Enum.Parse(typeof(EquipSlot), dto.slot))
             {
                 UpgradeLevel = dto.upgradeLevel, PatienceBp = dto.patienceBp, LockedEtchingIndex = dto.lockedEtchingIndex,
+                AverageDamagePercent = dto.averageDamage, SkillDamagePercent = dto.skillDamage,
             };
             foreach (EtchingDto e in dto.etchings) item.Etchings.Add(new Etching(e.entryId, e.tier, e.value));
             if (dto.sockets != null)
@@ -1314,7 +1315,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class ClientLogRequest { public string platform; public string version; public string message; public string stack; }
         [Serializable] public class EtchingDto { public int entryId; public string name; public int tier; public int value; }
         [Serializable] public class SocketDto { public bool dead; public string type; public int rank; public string text; }
-        [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; public SocketDto[] sockets; }
+        [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; public SocketDto[] sockets; public int averageDamage; public int skillDamage; }
         [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
         [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
         [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }

@@ -383,7 +383,7 @@ namespace Orsuun.Client
             string delta = GearPanel.Stats(Rules.HeroFactory.FromEquipment(swapped, session.Level, session.Class, session.Worn), session.Hero, signed: true);
             _cardCompare.text = "If you wore it:  " + (delta.Length == 0 ? ConfirmDialog.Tint("no change", Palette.Muted) : delta);
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(GearPanel.RollLines(item));
             Rules.EtchingPool pool = Rules.EtchingPool.For(item.Slot);
             if (item.Etchings.Count == 0) sb.Append(ConfirmDialog.Tint("No etchings.", Palette.Muted)).Append('\n');
             foreach (Rules.Etching e in item.Etchings)

@@ -39,7 +39,7 @@ public sealed record SocketDto(bool Dead, string? Type, int Rank, string Text);
 
 public sealed record ItemDto(
     Guid Id, EquipSlot Slot, bool Equipped, string Name, int ItemLevel, Rarity Rarity, int UpgradeLevel, int PatienceBp, int LockedEtchingIndex,
-    EtchingDto[] Etchings, SocketDto[] Sockets);
+    EtchingDto[] Etchings, SocketDto[] Sockets, int AverageDamage = 0, int SkillDamage = 0);
 
 public sealed record SocketInsertRequest(string RequestId, Guid ItemId, int SocketIndex, ShardType Type, int Rank);
 public sealed record SocketClearRequest(string RequestId, Guid ItemId, int SocketIndex);

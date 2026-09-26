@@ -122,9 +122,9 @@ namespace Orsuun.Client
         }
 
         /// <summary>The item appears and the hammer falls: two beats on an ordinary attempt, five on +7 and above.</summary>
-        public IEnumerator Beats(EquipSlot slot, int levelBefore, float duration, string line)
+        public IEnumerator Beats(EquipSlot slot, int levelBefore, float duration, string line, string icon = null)
         {
-            Show(slot, levelBefore);
+            Show(slot, levelBefore, icon);
             _subline.text = line;
             _subline.color = Palette.Muted;
             int beats = duration >= 2f ? 5 : 2;
@@ -213,7 +213,7 @@ namespace Orsuun.Client
             yield return Fade();
         }
 
-        private void Show(EquipSlot slot, int level)
+        private void Show(EquipSlot slot, int level, string icon = null)
         {
             _canvas.SetActive(true);
             _tapped = false;
@@ -221,7 +221,7 @@ namespace Orsuun.Client
             _raysAlpha = 0f;
             _flashAlpha = 0f;
             _ringAge = 1f;
-            _item.texture = Resources.Load<Texture2D>("Icons/" + slot);
+            _item.texture = Resources.Load<Texture2D>("Icons/" + (icon ?? slot.ToString()));
             _item.color = Color.white;
             _item.enabled = _item.texture != null;
             _item.rectTransform.localScale = Vector3.one;

@@ -142,11 +142,15 @@ namespace Orsuun.Client.EditorTools
                 if (weapon) EnsureModelImport(models + id + ".fbx");
                 else EnsureAnimatedImport(models + id + ".fbx");
                 Material mat = EnsureGlowMaterial("Looks/" + id, Color.white, crackScale: 5f, crackWidth: 0.025f,
-                    intensity: weapon ? 2.0f : 1.15f, rim: weapon ? 2f : 2.5f);
+                    intensity: weapon ? 1.4f : 1.15f, rim: weapon ? 3f : 2.5f);   // a thin glaive is nearly all rim: kept lower
                 mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(models + id + "BaseColor.png"));
                 mat.SetFloat("_BodyGlow", weapon ? 1f : 0f);
                 // Armour meshes are many small fragments: a wide aura hull splits into shards, so armour keeps it thin.
                 mat.SetFloat("_AuraWidth", weapon ? 0.035f : 0.01f);
+                // A glaive is modelled one unit long and scaled to the armour's hands: its glitter cells and sheen bands are
+                // set finer so they come out the size of the armour's (26 Sep 2026).
+                mat.SetFloat("_GlitterScale", weapon ? 50f : 20f);
+                mat.SetFloat("_SheenScale", weapon ? 6f : 3f);
                 EditorUtility.SetDirty(mat);
             }
         }
@@ -524,6 +528,91 @@ namespace Orsuun.Client.EditorTools
             importer.materialImportMode = ModelImporterMaterialImportMode.None;
             importer.importAnimation = false;
             if (changed) importer.SaveAndReimport();
+        }
+
+        /// <summary>
+        /// References for the item icons (owner, 26 Sep 2026: "we need different images for all levels different items"):
+        /// every class's look for every band standing whole, and the Vanguard's glaive of each band alone, in
+        /// artifacts/iconref/. Unity -batchmode -executeMethod Orsuun.Client.EditorTools.RenderingSetup.RenderIconRefs
+        /// </summary>
+        public static void RenderIconRefs()
+        {
+            ShaderUtil.allowAsyncCompilation = false;
+            Ensure();
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var sun = new GameObject("Sun").AddComponent<Light>();
+            sun.type = LightType.Directional;
+            sun.intensity = 1.2f;
+            sun.transform.rotation = Quaternion.Euler(35f, -20f, 0f);
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.55f, 0.55f, 0.58f);
+            var sh = new SphericalHarmonicsL2(); sh.AddAmbientLight(RenderSettings.ambientLight);
+            RenderSettings.ambientProbe = sh;
+            var cam = new GameObject("IconRefCamera").AddComponent<Camera>();
+            cam.fieldOfView = 25f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.42f, 0.41f, 0.39f);
+            var rig = new GameObject("Lane");
+            var view = rig.AddComponent<Orsuun.Client.LaneView>();
+            view.BuildHero();
+            // Frames whatever stands on the rig, tall side filling nine tenths of the shot.
+            void Frame(GameObject root, float aspect)
+            {
+                bool any = false;
+                Bounds b = default;
+                foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
+                {
+                    if (!r.enabled || r is ParticleSystemRenderer) continue;
+                    if (!any) { b = r.bounds; any = true; } else b.Encapsulate(r.bounds);
+                }
+                if (!any) return;
+                float half = Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                float dist = Mathf.Max(b.extents.y / half, b.extents.x / (half * aspect)) / 0.9f + b.extents.z;
+                cam.transform.position = b.center + new Vector3(0f, 0f, -dist);
+                cam.transform.LookAt(b.center);
+            }
+            Directory.CreateDirectory("../artifacts/iconref");
+            float[] none = new float[8];
+            for (int band = 0; band <= Orsuun.Rules.ItemLooks.MaxTier; band++)
+            {
+                view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
+                view.SetLooks("Armor_T" + band, "Weapon_T" + band);
+                view.SetGear(none);
+                Frame(rig, 0.7f);
+                CaptureSkinned(cam, "../artifacts/iconref/Vanguard-T" + band + ".png", rig.transform);
+                foreach (var cls in new[] { Orsuun.Rules.Combat.HeroClass.Kestrel, Orsuun.Rules.Combat.HeroClass.Wraithsworn, Orsuun.Rules.Combat.HeroClass.Drumcaller })
+                {
+                    view.SetHeroClass(cls, band);
+                    view.PoseHero("Idle", 0f);
+                    Frame(rig, 0.7f);
+                    CaptureSkinned(cam, "../artifacts/iconref/" + cls + "-T" + band + ".png", rig.transform);
+                }
+            }
+            // The glaives alone, lying across the frame.
+            view.SetHeroClass(Orsuun.Rules.Combat.HeroClass.Vanguard);
+            rig.SetActive(false);
+            for (int band = 0; band <= Orsuun.Rules.ItemLooks.MaxTier; band++)
+            {
+                var prefab = Resources.Load<GameObject>("Models/Looks/Weapon_T" + band);
+                if (prefab == null) continue;
+                var glaive = (GameObject)Object.Instantiate(prefab);
+                var mat = Resources.Load<Material>("Looks/Weapon_T" + band);
+                if (mat != null) foreach (Renderer r in glaive.GetComponentsInChildren<Renderer>()) r.sharedMaterial = mat;
+                glaive.transform.position = new Vector3(100f, 0f, 0f);
+                // Lying along x, turned about its length so the flat of the blade faces the camera (thinnest in z).
+                float bestTurn = 0f, thinnest = float.MaxValue;
+                for (float turn = 0f; turn < 180f; turn += 15f)
+                {
+                    glaive.transform.rotation = Quaternion.Euler(turn, 0f, 0f) * Quaternion.Euler(0f, 0f, -90f);
+                    Bounds tb = default; bool f = true;
+                    foreach (Renderer r in glaive.GetComponentsInChildren<Renderer>()) { if (f) { tb = r.bounds; f = false; } else tb.Encapsulate(r.bounds); }
+                    if (tb.size.z < thinnest) { thinnest = tb.size.z; bestTurn = turn; }
+                }
+                glaive.transform.rotation = Quaternion.Euler(bestTurn, 0f, 0f) * Quaternion.Euler(0f, 0f, -90f);
+                Frame(glaive, 2.8f);
+                Capture(cam, "../artifacts/iconref/Glaive-T" + band + ".png", 1400, 500);
+                Object.DestroyImmediate(glaive);
+            }
         }
 
         /// <summary>Renders the four glow steps and the Korstone to artifacts/glow-preview.png, no Play mode needed.</summary>

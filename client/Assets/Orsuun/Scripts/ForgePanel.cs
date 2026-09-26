@@ -265,7 +265,7 @@ namespace Orsuun.Client
             ShowResult("", Palette.Muted);
 
             // The hammer beats run on unscaled time: the speed button must never shorten the wait.
-            yield return _fx.Beats(anvilSlot, target - 1, duration, line);
+            yield return _fx.Beats(anvilSlot, target - 1, duration, line, Ui.ItemIcon(_root.Session.OnAnvil));
             _fx.Hold();
 
             ForgeResult? result = null;
@@ -448,6 +448,7 @@ namespace Orsuun.Client
                 bool onAnvil = session.AnvilWorn && (EquipSlot)i == session.AnvilSlot;
                 _slotTiles[i].color = onAnvil ? new Color(0.85f, 0.62f, 0.2f) : piece == null ? new Color(0.06f, 0.06f, 0.09f) : Palette.PanelDark;
                 _slotIcons[i].color = piece == null ? new Color(1f, 1f, 1f, 0.22f) : Color.white;
+                Ui.SetIcon(_slotIcons[i], piece != null ? Ui.ItemIcon(piece) : ((EquipSlot)i).ToString());
             }
             _preview.Show(weapon, session.Class);
 

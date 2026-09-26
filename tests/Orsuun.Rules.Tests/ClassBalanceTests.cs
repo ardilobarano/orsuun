@@ -91,16 +91,17 @@ public class ClassBalanceTests
     [InlineData(HeroClass.Drumcaller)]
     public void Late_map_bosses_ask_every_class_for_about_the_same_forge_level(HeroClass cls)
     {
+        // Sixty seeds (ten until 26 Sep 2026, when weapon drops began to draw their rolls), the same share to pass.
         int s30 = 0, s40 = 0, s40Low = 0;
-        for (ulong seed = 1; seed <= 10; seed++)
+        for (ulong seed = 1; seed <= 60; seed++)
         {
             if (StageRun.Simulate(Content.Stage(30), Geared(30, 6, cls), new Inventory { Potions = 5 }, seed).Cleared) s30++;
             if (StageRun.Simulate(Content.Stage(40), Geared(40, 7, cls), new Inventory { Potions = 5 }, seed).Cleared) s40++;
             if (StageRun.Simulate(Content.Stage(40), Geared(40, 4, cls), new Inventory { Potions = 5 }, seed).Cleared) s40Low++;
         }
-        _out.WriteLine($"{cls}: Mirage Queen at +6 {s30}/10, Nine-Winters at +7 {s40}/10, at +4 {s40Low}/10");
-        Assert.True(s30 >= 7 && s40 >= 7, $"{cls}: {s30}/10, {s40}/10");
-        Assert.True(s40Low <= 3, $"{cls} at +4: {s40Low}/10");
+        _out.WriteLine($"{cls}: Mirage Queen at +6 {s30}/60, Nine-Winters at +7 {s40}/60, at +4 {s40Low}/60");
+        Assert.True(s30 >= 42 && s40 >= 42, $"{cls}: {s30}/60, {s40}/60");
+        Assert.True(s40Low <= 18, $"{cls} at +4: {s40Low}/60");
     }
 
     /// <summary>

@@ -77,5 +77,80 @@ namespace Orsuun.Rules
 
         /// <summary>True after an Oathbreak. A destroyed item accepts no further operations.</summary>
         public bool Destroyed { get; set; }
+
+        /// <summary>A weapon's average damage roll in percent (WeaponRolls): plain attacks hit this much harder or softer.</summary>
+        public int AverageDamagePercent { get; set; }
+
+        /// <summary>A weapon's skill damage roll in percent (WeaponRolls): skills hit this much harder or softer.</summary>
+        public int SkillDamagePercent { get; set; }
+    }
+
+    /// <summary>
+    /// Average damage and skill damage (owner, 26 Sep 2026, Metin2's "ortalama zarar" and skill damage): every weapon of
+    /// item level 30 and up rolls both when it drops and keeps them. Average damage runs from -30% to +60% and skill damage
+    /// from -15% to +30%, weighted so that the top is nearly impossible: average damage centres on +10% (a quarter of
+    /// weapons roll below zero, 6% reach +30%, one in a thousand +50%, about one in 60,000 +60%); skill damage the same
+    /// at half the scale (one in 30,000 reaches +30%). The weights are a split bell curve, fixed here as integers.
+    /// </summary>
+    public static class WeaponRolls
+    {
+        public const int FromItemLevel = 30;
+        public const int AverageMin = -30, AverageMax = 60;
+        public const int SkillMin = -15, SkillMax = 30;
+
+        /// <summary>Weights of -30% .. +60% average damage (mode +10%, spread 16 below and 13 above).</summary>
+        private static readonly int[] AverageWeights =
+        {
+            4394, 5127, 5959, 6899, 7956, 9139, 10458, 11920, 13534, 15306, 17242, 19348, 21627, 24079, 26705, 29502, 32465,
+            35587, 38856, 42260, 45783, 49407, 53110, 56867, 60653, 64439, 68194, 71887, 75484, 78952, 82258, 85368, 88250,
+            90873, 93210, 95234, 96923, 98258, 99222, 99805, 100000, 99705, 98824, 97372, 95377, 92870, 89897, 86505, 82750,
+            78691, 74389, 69908, 65309, 60653, 55996, 51392, 46889, 42527, 38344, 34368, 30623, 27124, 23884, 20907, 18193,
+            15738, 13534, 11569, 9832, 8306, 6976, 5824, 4834, 3988, 3271, 2667, 2162, 1742, 1395, 1111, 879, 692, 541, 421,
+            325, 250, 191, 145, 110, 82, 61,
+        };
+
+        /// <summary>Weights of -15% .. +30% skill damage (mode +5%, spread 8 below and 6.5 above).</summary>
+        private static readonly int[] SkillWeights =
+        {
+            4394, 5959, 7956, 10458, 13534, 17242, 21627, 26705, 32465, 38856, 45783, 53110, 60653, 68194, 75484, 82258, 88250,
+            93210, 96923, 99222, 100000, 98824, 95377, 89897, 82750, 74389, 65309, 55996, 46889, 38344, 30623, 23884, 18193,
+            13534, 9832, 6976, 4834, 3271, 2162, 1395, 879, 541, 325, 191, 110, 61,
+        };
+
+        public static bool Applies(ItemState item) => item.Slot == EquipSlot.Weapon && item.ItemLevel >= FromItemLevel;
+
+        /// <summary>Rolls both on a weapon of item level 30 or more (nothing else changes, nothing is drawn otherwise).</summary>
+        public static void Roll(ItemState item, IRandom rng)
+        {
+            if (!Applies(item)) return;
+            item.AverageDamagePercent = AverageMin + Pick(AverageWeights, rng);
+            item.SkillDamagePercent = SkillMin + Pick(SkillWeights, rng);
+        }
+
+        /// <summary>The chance of a roll of exactly <paramref name="value"/>, in parts per million (for tests and odds).</summary>
+        public static int AveragePpm(int value) => Ppm(AverageWeights, value - AverageMin);
+
+        public static int SkillPpm(int value) => Ppm(SkillWeights, value - SkillMin);
+
+        private static int Pick(int[] weights, IRandom rng)
+        {
+            int total = 0;
+            foreach (int w in weights) total += w;
+            int roll = rng.NextInt(total);
+            for (int i = 0; i < weights.Length; i++)
+            {
+                roll -= weights[i];
+                if (roll < 0) return i;
+            }
+            return weights.Length - 1;
+        }
+
+        private static int Ppm(int[] weights, int index)
+        {
+            if (index < 0 || index >= weights.Length) return 0;
+            long total = 0;
+            foreach (int w in weights) total += w;
+            return (int)(weights[index] * 1_000_000L / total);
+        }
     }
 }
