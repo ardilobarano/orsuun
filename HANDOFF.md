@@ -124,11 +124,14 @@ class with their effects, mounts without skills and the lower lane (26 Sep 2026,
 `FiveSkills`; copy first: `~/orsuun-backups/playtest-before-fiveskills-2026-09-26.sql.gz`), on the APK link and on the
 iPhone (build 26092600). Private messages (26 Sep 2026, about 04:40) are deployed (migration `PrivateMessages`;
 copy first: `~/orsuun-backups/playtest-before-messages-2026-09-26.sql.gz`; `smoke-whispers.sh` passed live and cleaned
-up), on the APK link and on the iPhone (build 26092601).
+up), on the APK link and on the iPhone (build 26092601). Maps 11 and 12 with the looks for levels 100-105 (26 Sep
+2026, about 06:30) are deployed (migration `MoveZones`; copy first:
+`~/orsuun-backups/playtest-before-maps11-2026-09-26.sql.gz`; the one hero parked in a zone moved from 111 to 211), on
+the APK link and on the iPhone (build 26092608). The APK is now 399 MB.
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
-was built; see the two decision rows), then maps 11 and 12 (the Thousand Markers, the Hollow Throne; done 26 Sep 2026, see its decision row), private messages (whispers; done 26 Sep 2026, see its decision row), a smaller download (the APK is 366 MB; Google Play's limit is 200 MB), in that
+was built; see the two decision rows), then maps 11 and 12 (the Thousand Markers, the Hollow Throne; done 26 Sep 2026, see its decision row), private messages (whispers; done 26 Sep 2026, see its decision row), a smaller download (the APK is 399 MB since maps 11 and 12; Google Play's limit is 200 MB), in that
 order. The owner will not top up fal.ai: art runs on Higgsfield (see CLAUDE.md).
 **Asked while maps 11 and 12 were built (owner, 26 Sep 2026), to do next in this order:** "we need different images for
 all levels different items" (an icon per item for every level band, not one per slot); "after level 30 we need to add
