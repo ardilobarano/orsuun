@@ -131,7 +131,10 @@ copy first: `~/orsuun-backups/playtest-before-messages-2026-09-26.sql.gz`; `smok
 up), on the APK link and on the iPhone (build 26092601). Maps 11 and 12 with the looks for levels 100-105 (26 Sep
 2026, about 06:30) are deployed (migration `MoveZones`; copy first:
 `~/orsuun-backups/playtest-before-maps11-2026-09-26.sql.gz`; the one hero parked in a zone moved from 111 to 211), on
-the APK link and on the iPhone (build 26092608). The APK is now 399 MB.
+the APK link and on the iPhone (build 26092608). The APK is now 399 MB. Item icons by level, weapon damage rolls and the glitter shine (26 Sep 2026,
+about 12:30; migration `WeaponDamageRolls`, copy first: `~/orsuun-backups/playtest-before-weaponrolls-2026-09-26.sql.gz`)
+and then the redesigned Vanguard with weapons by band and the weapon halo (about 15:00; no migration) are deployed, on the
+APK link (410 MB) and on the iPhone (build 26092610).
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
