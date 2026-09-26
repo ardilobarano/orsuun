@@ -1383,6 +1383,11 @@ namespace Orsuun.Client
                 s = Vector3.one * artScale;
                 barHeight = art.Height + 0.3f / artScale;
                 root.rotation = Quaternion.Euler(0f, EnemyYaw, 0f);
+                if (artName != null && artName.StartsWith("Armor_T", System.StringComparison.Ordinal))
+                {
+                    ArmRival(root, artName);
+                    s = Vector3.Scale(s, VanguardBuild);   // as broad as the hero Vanguard
+                }
             }
             else if (korstone && TryKorstone(kind == EnemyKind.ElderKorstone, _sim.Stage.GearItemLevel, out root, out korstoneFx, out korstoneHeight))
             {
@@ -1475,12 +1480,14 @@ namespace Orsuun.Client
                     if (boss.StartsWith("Gate Warden")) { scale = 1.15f; name = "IceWight"; tint = new Color(0.85f, 0.8f, 0.75f); return LoadMob(name) ?? LoadMob("Deserter"); }
                     if (boss.StartsWith("Yard Captain")) { scale = 1.3f; name = "Deserter"; tint = new Color(0.7f, 0.75f, 0.85f); return LoadMob(name); }
                     if (boss.StartsWith("Lord of")) { scale = 1.05f; name = "Gorak"; tint = new Color(0.55f, 0.5f, 0.6f); return LoadMob(name) ?? LoadMob("Deserter"); }
-                    // A guild war duel ("[TAG] Name"): the defender in their class's look for their band. The Vanguard's glaive
-                    // belongs to the hero rig, so a Vanguard rival fights as a deserter in steel.
-                    if (boss.StartsWith("["))
+                    // A duel's champion (a guild war's "[TAG] Name", or the Pits' opponent, named by SetRival): the defender in
+                    // their class's look for their band; a Vanguard in his armour for the band, his weapon laid in his
+                    // fist when he is spawned (ArmRival). A deserter in steel if the look is missing.
+                    if (boss.StartsWith("[") || (_rivalName != null && boss == _rivalName))
                     {
-                        string look = _rivalClass != HeroClass.Vanguard ? ClassLookName(_rivalClass, _rivalBand) : null;
-                        MobArt rival = look != null ? LoadClass(look) : null;
+                        string look = _rivalClass != HeroClass.Vanguard ? ClassLookName(_rivalClass, _rivalBand)
+                            : "Armor_T" + Mathf.Clamp(_rivalBand, 0, ItemLooks.MaxTier);
+                        MobArt rival = look == null ? null : _rivalClass == HeroClass.Vanguard ? LoadVanguardLook(look) : LoadClass(look);
                         if (rival != null) { scale = 1f; name = look; return rival; }
                         scale = 1.15f; name = "Deserter"; tint = new Color(0.72f, 0.78f, 0.92f);
                         return LoadMob(name);
@@ -1633,12 +1640,41 @@ namespace Orsuun.Client
 
         private HeroClass _rivalClass;
         private int _rivalBand;
+        private string _rivalName;
 
-        /// <summary>Who the next guild war duel's champion is dressed as (GameRoot sets it before the replay).</summary>
-        public void SetRival(HeroClass cls, int band)
+        /// <summary>
+        /// Who the next duel's champion (a guild war's or the Pits') is dressed as, and the champion's name as the replay's
+        /// boss carries it (GameRoot sets it before the replay).
+        /// </summary>
+        public void SetRival(HeroClass cls, int band, string name)
         {
             _rivalClass = cls;
             _rivalBand = band;
+            _rivalName = string.IsNullOrEmpty(name) ? null : name;
+        }
+
+        /// <summary>A Vanguard armour look (Models/Looks/Armor_T&lt;band&gt;) as an enemy: rigged with the same five clips.</summary>
+        private static MobArt LoadVanguardLook(string look)
+        {
+            string key = "Look/" + look;
+            if (MobArts.TryGetValue(key, out MobArt art)) return art;
+            var model = Art.Load<GameObject>("Models/Looks/" + look);
+            var material = Art.Load<Material>("Looks/" + look);
+            art = model != null && material != null ? new MobArt { Model = model, Material = material, Height = -1f } : null;
+            MobArts[key] = art;
+            return art;
+        }
+
+        /// <summary>A Vanguard rival's weapon for his band, laid in his fist as on the hero, riding his hand.</summary>
+        private static void ArmRival(Transform body, string armorLook)
+        {
+            string band = armorLook.Substring(armorLook.LastIndexOf("_T", System.StringComparison.Ordinal));
+            var prefab = Art.Load<GameObject>("Models/Looks/Weapon" + band);
+            if (prefab == null) return;
+            GameObject weapon = Instantiate(prefab, body, false);
+            var material = Art.Load<Material>("Looks/Weapon" + band);
+            if (material != null) foreach (Renderer r in weapon.GetComponentsInChildren<Renderer>()) r.sharedMaterial = material;
+            LayWeapon(weapon, body, body, body.GetComponent<Animation>() != null, KindOfLook("Weapon" + band));
         }
 
         /// <summary>A class look (Models/Classes) as an enemy: rigged with the same five clips as the mobs.</summary>
