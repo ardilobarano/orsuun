@@ -500,6 +500,15 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>Sells the picked bag pieces to the merchant in one request (all or nothing). Completes with an error, or null.</summary>
+        public IEnumerator SellPieces(string[] itemIds, Action<string> done)
+        {
+            string failure = null;
+            var request = new BagSellRequest { requestId = Guid.NewGuid().ToString("N"), itemId = Guid.Empty.ToString(), itemIds = itemIds };
+            yield return Post("/v1/bag/sell", JsonUtility.ToJson(request), true, json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
         /// <summary>Sells a bag piece to the merchant for sorn (Rules.Bag.SellPrice). Completes with an error, or null.</summary>
         public IEnumerator SellPiece(string itemId, Action<string> done)
         {
@@ -1442,6 +1451,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class PriceHistoryDto { public string what; public int sales; public long average; public long low; public long high; public long last; public int lastMinutesAgo; public int days; public long[] recent; }
         [Serializable] public class MarketDto { public StateDto state; public ListingDto[] listings; public int page; public int pages; public int total; public ListingDto[] mine; public int taxPercent; public string message; }
         /// <summary>A scroll stack sends the empty Guid as itemId (the server reads it as a Guid).</summary>
+        [Serializable] public class BagSellRequest { public string requestId; public string itemId; public string[] itemIds; }
         [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; }
         [Serializable] public class MarketBuyRequest { public string requestId; public long listingId; }
         [Serializable] public class RegisterRequest { public string email; public string password; }

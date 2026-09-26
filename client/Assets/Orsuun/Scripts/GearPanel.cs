@@ -241,7 +241,7 @@ namespace Orsuun.Client
             {
                 Tile t = MakeTile(content, "Tile" + i, withCaption: false);
                 int index = i;
-                t.Button.onClick.AddListener(() => Open(_grid[index].Entry));
+                t.Button.onClick.AddListener(() => Tap(_grid[index].Entry));
                 t.Rect.gameObject.SetActive(false);
                 _grid.Add(t);
             }
@@ -250,13 +250,23 @@ namespace Orsuun.Client
             _message = Ui.Label("Message", canvas, 0.04f, 0.127f, 0.96f, 0.148f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
             // Sorn, Amber and Honor along the bottom.
-            Ui.Framed("Purse", canvas, 0.02f, 0.078f, 0.98f, 0.125f, new Color(0.04f, 0.04f, 0.09f, 0.92f)).raycastTarget = false;
-            _sorn = Purse(canvas, 0, "Sorn", "Sorn");
-            _amber = Purse(canvas, 1, "Amber", "Amber");
-            _honor = Purse(canvas, 2, "Honor", "Honor");
-            Ui.Button("Wardrobe", canvas, 0.03f, 0.012f, 0.3f, 0.07f, "WARDROBE", 24, Palette.Alloy, () => { _canvas.SetActive(false); _root.Wardrobe.Open(); }, out _);
-            Ui.Button("Depot", canvas, 0.32f, 0.012f, 0.56f, 0.07f, "DEPOT", 24, Palette.Safe, () => { _canvas.SetActive(false); _root.Depot.Open(); }, out _);
-            Ui.Button("Close", canvas, 0.58f, 0.012f, 0.97f, 0.07f, "BACK TO THE HUNT", 22, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
+            _purse = Ui.Rect("PurseRow", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Ui.Framed("Purse", _purse.transform, 0.02f, 0.078f, 0.98f, 0.125f, new Color(0.04f, 0.04f, 0.09f, 0.92f)).raycastTarget = false;
+            _sorn = Purse(_purse.transform, 0, "Sorn", "Sorn");
+            _amber = Purse(_purse.transform, 1, "Amber", "Amber");
+            _honor = Purse(_purse.transform, 2, "Honor", "Honor");
+            Ui.Button("Wardrobe", canvas, 0.03f, 0.012f, 0.27f, 0.07f, "WARDROBE", 22, Palette.Alloy, () => { _canvas.SetActive(false); _root.Wardrobe.Open(); }, out _);
+            Ui.Button("Depot", canvas, 0.28f, 0.012f, 0.5f, 0.07f, "DEPOT", 22, Palette.Safe, () => { _canvas.SetActive(false); _root.Depot.Open(); }, out _);
+            _pickToggle = Ui.Button("Pick", canvas, 0.51f, 0.012f, 0.73f, 0.07f, "SELECT", 22, Palette.Danger, TogglePicking, out _pickToggleLabel);
+            Ui.Button("Close", canvas, 0.74f, 0.012f, 0.97f, 0.07f, "BACK", 22, Palette.ButtonIdle, () => { StopPicking(); _canvas.SetActive(false); }, out _);
+
+            // Bulk sale (owner, 26 Sep 2026: "we need a bulk sell but user can select items then press sell all"): SELECT
+            // turns taps on bag pieces into picks; this bar, over the purse, counts them and sells them all at once.
+            _pickBar = Ui.Framed("PickBar", canvas, 0.02f, 0.078f, 0.98f, 0.125f, new Color(0.14f, 0.06f, 0.05f, 0.97f)).gameObject;
+            _pickLabel = Ui.Label("PickLabel", _pickBar.transform, 0.04f, 0.05f, 0.62f, 0.95f, "", 21, TextAnchor.MiddleLeft, Palette.Parchment);
+            _pickLabel.supportRichText = true;
+            _pickSell = Ui.Button("PickSell", _pickBar.transform, 0.64f, 0.1f, 0.97f, 0.9f, "SELL ALL", 22, Palette.Danger, AskSellPicked, out _);
+            _pickBar.SetActive(false);
 
             BuildCard(canvas);
             // Lives on the canvas so it hears the canvas close (the hero's stage stops with it).
@@ -318,12 +328,18 @@ namespace Orsuun.Client
             _message.text = "";
             CloseCard();
             _canvas.SetActive(true);
-            // Screenshots: -bagtab <n> opens a tab, -bagcard the first tile's card.
+            // Screenshots: -bagtab <n> opens a tab, -bagcard the first tile's card, -bagpick select mode.
             string[] cmd = Environment.GetCommandLineArgs();
             int at = Array.IndexOf(cmd, "-bagtab");
             if (at >= 0 && at + 1 < cmd.Length && int.TryParse(cmd[at + 1], out int tab)) _tab = (Tab)Mathf.Clamp(tab, 0, 3);
             _cardOnOpen = Array.IndexOf(cmd, "-bagcard") >= 0;
+            StopPicking();
+            // -bagpick: select mode with the first five bag pieces picked (once the bag has come from the server).
+            _pickOnOpen = Array.IndexOf(cmd, "-bagpick") >= 0;
+            if (_pickOnOpen) TogglePicking();
         }
+
+        private bool _pickOnOpen;
 
         private bool _cardOnOpen;
 
@@ -358,6 +374,81 @@ namespace Orsuun.Client
             t.Badge = Ui.Title("Badge", inner.transform, 0.3f, 0.0f, 0.98f, 0.36f, "", 28, TextAnchor.LowerRight, Palette.Parchment);
             t.Caption = withCaption ? Ui.Label("Caption", inner.transform, 0.05f, 0.02f, 0.95f, 0.22f, "", 16, TextAnchor.LowerCenter, Palette.Muted) : null;
             return t;
+        }
+
+        private bool _picking;
+        /// <summary>The picked pieces by server id (on line; the server remakes every item object at each refresh) or the piece itself.</summary>
+        private readonly HashSet<object> _picked = new HashSet<object>();
+        private Button _pickToggle;
+        private Text _pickToggleLabel;
+        private GameObject _pickBar;
+        private GameObject _purse;
+        private Text _pickLabel;
+        private Button _pickSell;
+
+        private object PickKey(ItemState item) => (object)_root.Server.IdOf(item) ?? item;
+
+        private void Tap(Entry e)
+        {
+            if (e == null) return;
+            if (!_picking) { Open(e); return; }
+            if (e.Item == null) return;   // only pieces go to the merchant
+            object key = PickKey(e.Item);
+            if (!_picked.Remove(key)) _picked.Add(key);
+        }
+
+        private void TogglePicking()
+        {
+            if (_picking) { StopPicking(); return; }
+            CloseCard();
+            _picking = true;
+            _picked.Clear();
+            _tab = Tab.Gear;
+            _message.text = "Tap the pieces to sell, then SELL ALL.";
+        }
+
+        private void StopPicking()
+        {
+            _picking = false;
+            _picked.Clear();
+            if (_message != null) _message.text = "";
+        }
+
+        /// <summary>The bag's pieces that are picked (worn ones never are: they are not in the bag).</summary>
+        private List<ItemState> PickedPieces() =>
+            _root.Session.Inventory.Loot.Where(x => !x.Destroyed && _picked.Contains(PickKey(x))).ToList();
+
+        private void AskSellPicked()
+        {
+            List<ItemState> pieces = PickedPieces();
+            if (pieces.Count == 0) { _message.text = "Pick the pieces to sell first."; return; }
+            long total = pieces.Sum(Bag.SellPrice);
+            int dear = pieces.Count(x => x.UpgradeLevel > 0 || x.Rarity >= Rarity.Epic);
+            string warn = dear > 0 ? "\n\n" + ConfirmDialog.Tint($"{dear} of them {(dear == 1 ? "is" : "are")} forged or Epic and above: the Exchange may pay far more.", Palette.Warn) : "";
+            _confirm.Show($"Sell {pieces.Count} piece{(pieces.Count == 1 ? "" : "s")}?",
+                $"The merchant pays {total:N0} sorn for them. They are gone for good.{warn}", $"SELL  ·  {total:N0}", Palette.Danger, () =>
+                {
+                    if (_root.Server.Online)
+                    {
+                        string[] ids = pieces.Select(x => _root.Server.IdOf(x)).Where(id => id != null).ToArray();
+                        if (ids.Length != pieces.Count) { _message.text = "Some of those pieces changed: pick them again."; return; }
+                        _pickSell.interactable = false;
+                        StartCoroutine(_root.Server.SellPieces(ids, error =>
+                        {
+                            _pickSell.interactable = true;
+                            if (error != null) { _message.text = error; return; }
+                            StopPicking();
+                            _message.text = $"Sold {ids.Length} piece{(ids.Length == 1 ? "" : "s")} for {total:N0} sorn.";
+                        }));
+                    }
+                    else
+                    {
+                        foreach (ItemState piece in pieces) _root.Session.SellPiece(piece);
+                        StopPicking();
+                        _message.text = $"Sold {pieces.Count} piece{(pieces.Count == 1 ? "" : "s")} for {total:N0} sorn.";
+                    }
+                    GameAudio.Instance?.Play("LaneLoot", 0.9f, 0.1f, 0f);
+                });
         }
 
         private void Open(Entry e)
@@ -565,6 +656,23 @@ namespace Orsuun.Client
                 Open(entries[0]);
             }
             if (_card.activeSelf) ShowDetail(session);
+
+            if (_pickOnOpen && session.Inventory.Loot.Count > 0 && (!_root.Server.Online || _root.Server.IdOf(session.Inventory.Loot[0]) != null))
+            {
+                _pickOnOpen = false;
+                foreach (Entry e in Entries(out _, out _).Where(x => x.Item != null).Take(5)) _picked.Add(PickKey(e.Item));
+            }
+            // Picking: the bar over the purse counts the picks and their price.
+            _pickBar.SetActive(_picking);
+            _purse.SetActive(!_picking);
+            _pickToggleLabel.text = _picking ? "DONE" : "SELECT";
+            if (_picking)
+            {
+                List<ItemState> picked = PickedPieces();
+                _pickLabel.text = picked.Count == 0 ? ConfirmDialog.Tint("Tap pieces to pick them", Palette.Muted)
+                    : $"{picked.Count} picked  ·  {ConfirmDialog.Tint(picked.Sum(Bag.SellPrice).ToString("N0") + " sorn", Palette.Sorn)}";
+                _pickSell.interactable = picked.Count > 0;
+            }
         }
 
         private void FillGear(Tile t, ItemState item, EquipSlot slot)
@@ -574,16 +682,24 @@ namespace Orsuun.Client
             t.Icon.color = item == null ? new Color(1f, 1f, 1f, 0.18f) : Color.white;
             Color glow = item == null ? Color.clear : RarityColor(item.Rarity);
             glow.a = item == null ? 0f : 0.55f;
+            // A picked piece glows gold under a gold outline.
+            bool picked = _picking && item != null && _root.Session.Equipped(item.Slot) != item && _picked.Contains(PickKey(item));
+            if (picked) glow = new Color(1f, 0.8f, 0.3f, 0.95f);
             t.Glow.color = glow;
             t.Badge.text = item == null || item.UpgradeLevel == 0 ? "" : "+" + item.UpgradeLevel;
             t.Badge.color = item == null ? Palette.Muted : ForgePanel.LevelColor(item.UpgradeLevel);
-            t.Selected.enabled = item != null && _cardKind == CardKind.Gear && item == _selected;
+            t.Selected.enabled = picked || (item != null && _cardKind == CardKind.Gear && item == _selected);
+            // The slot behind a picked piece fills with gold, so picks read at a glance across the grid.
+            t.Button.targetGraphic.color = picked ? new Color(0.75f, 0.52f, 0.12f) : new Color(0.07f, 0.07f, 0.11f);
+            t.Selected.effectDistance = picked ? new Vector2(6f, -6f) : new Vector2(4f, -4f);
             t.Button.interactable = item != null;
         }
 
         private void Fill(Tile t, Entry e)
         {
             t.Entry = e;
+            t.Button.targetGraphic.color = new Color(0.07f, 0.07f, 0.11f);
+            t.Selected.effectDistance = new Vector2(4f, -4f);
             bool book = e.Book >= 0;
             Ui.SetIcon(t.Icon, book ? BookIcon(e.Book) : Goods[e.Good].Icon);
             t.Icon.color = Color.white;

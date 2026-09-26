@@ -46,8 +46,8 @@ public sealed record SocketClearRequest(string RequestId, Guid ItemId, int Socke
 public sealed record SocketResultDto(bool Success, int SocketIndex, string Text);
 
 public sealed record EquipRequest(string RequestId, Guid ItemId);
-/// <summary>Sells a bag piece to the merchant for sorn (Rules.Bag.SellPrice).</summary>
-public sealed record BagSellRequest(string RequestId, Guid ItemId);
+/// <summary>Sells bag pieces to the merchant for sorn (Rules.Bag.SellPrice): ItemId, or the pieces picked in ItemIds.</summary>
+public sealed record BagSellRequest(string RequestId, Guid ItemId, Guid[]? ItemIds = null);
 public sealed record ParkRequest(int Stage);
 /// <summary>An error the client caught; stored for the team, at most ClientLogsPerHour per account.</summary>
 public sealed record ClientLogRequest(string Platform, string Version, string Message, string? Stack = null);

@@ -446,22 +446,38 @@ public sealed partial class GameService
     }
 
     /// <summary>
-    /// Sells a bag piece to the merchant (owner, 26 Sep 2026: "selling mechanic ... for sorns but not automatically"): by
-    /// hand, one piece a request, for Rules.Bag.SellPrice; worn, listed, traded or depot pieces cannot be sold.
+    /// Sells bag pieces to the merchant (owner, 26 Sep 2026: "selling mechanic ... for sorns but not automatically", then
+    /// "we need a bulk sell but user can select items then press sell all"): by hand, one piece or the pieces picked, for
+    /// Rules.Bag.SellPrice each; worn, listed, traded or depot pieces cannot be sold. All or nothing.
     /// </summary>
     public async Task<StateDto> SellPieceAsync(Account account, BagSellRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
-        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.OutOfBag)
-            ?? throw new GameException("no_item", "You do not own that piece.");
-        if (item.Equipped) throw new GameException("worn", "Take the piece off before you sell it.");
-        ItemState state = item.ToState();
-        long price = Bag.SellPrice(state);
-        account.Sorn += price;
-        _db.Items.Remove(item);
-        account.Items.Remove(item);
-        _db.Ledger.Add(Entry(account.Id, item.Id, "bag-sell",
-            $"slot={state.Slot} rarity={state.Rarity} itemLevel={state.ItemLevel} plus={state.UpgradeLevel}", price, request.RequestId));
+        Guid[] ids = (request.ItemIds is { Length: > 0 } picked ? picked : new[] { request.ItemId }).Distinct().ToArray();
+        if (ids.Length > Bag.Size) throw new GameException("too_many", $"At most {Bag.Size} pieces at once.");
+        var items = new List<Item>();
+        foreach (Guid id in ids)
+        {
+            Item item = account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed && !i.OutOfBag)
+                ?? throw new GameException("no_item", "You do not own that piece.");
+            if (item.Equipped) throw new GameException("worn", "Take the piece off before you sell it.");
+            items.Add(item);
+        }
+        long total = 0;
+        for (int n = 0; n < items.Count; n++)
+        {
+            Item item = items[n];
+            ItemState state = item.ToState();
+            long price = Bag.SellPrice(state);
+            total += price;
+            _db.Items.Remove(item);
+            account.Items.Remove(item);
+            // One ledger row a piece; the request id is unique per account, so the others carry their number.
+            string rid = n == 0 ? request.RequestId : request.RequestId[..Math.Min(request.RequestId.Length, 56)] + "#" + n;
+            _db.Ledger.Add(Entry(account.Id, item.Id, "bag-sell",
+                $"slot={state.Slot} rarity={state.Rarity} itemLevel={state.ItemLevel} plus={state.UpgradeLevel}", price, rid));
+        }
+        account.Sorn += total;
         await SaveAsync(ct);
         return ToState(account);
     }
