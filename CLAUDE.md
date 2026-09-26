@@ -171,3 +171,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - The upgrade glow is the shader (sheen, rim, glitter; `_GlitterScale` per material, glaives finer) plus `GearSparkle`
   particles on each glowing piece (made by `GearSparkle.On`, on the piece's layer). Shared look materials (HeroStage)
   take the glow through property blocks; the lane and ItemPreview use instanced materials.
+- The Vanguard since 26 Sep 2026 (`docs/concept/looks/vanguard2-T*.jpg`, sources `art/blender/vanguard2_T*-tripo.glb`,
+  `look-weapon2-t*-tripo.glb`): armour through `looks.armor_look(..., yaw_degrees=-90, plain_pole=True)` (he holds a bare
+  pole that is cut away; a `WeaponGrip` empty marks his fist), weapons through `looks.weapon_look`. The weapon kind of a
+  band (`ItemLooks.WeaponKinds`) decides the fit in `LaneView.LayWeapon`: a glaive stretches along the pole, a sword
+  rises from the fist at a share of the pole's length (`SwordSpan`). Weapon models import readable (particles need it).

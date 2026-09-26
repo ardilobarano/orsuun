@@ -237,9 +237,12 @@ def _export_rigged(root, look_id):
                                  bake_anim_force_startend_keying=True, bake_anim_simplify_factor=0.0)
 
 
-def armor_look(glb, look_id, pole=None, rig=True, yaw_degrees=0.0):
+def armor_look(glb, look_id, pole=None, rig=True, yaw_degrees=0.0, plain_pole=False):
     """yaw_degrees turns the mesh about Z first so it faces -Y like Rodin's output (Tripo faces +X: -90). Also used for
-    the Vanguard's wardrobe skins (look ids Skin_<Look>, 25 Sep 2026)."""
+    the Vanguard's wardrobe skins (look ids Skin_<Look>, 25 Sep 2026).
+    plain_pole: the redesigned Vanguard (26 Sep 2026) holds a bare pole and carries no banner: only the pole is cut
+    (his great pauldrons stand close to it), everything else is armour. Every rigged look also gets a WeaponGrip empty
+    on the fist, where a sword's grip goes."""
     import math
     _clear()
     mesh = _import(glb)
@@ -259,8 +262,20 @@ def armor_look(glb, look_id, pole=None, rig=True, yaw_degrees=0.0):
     cx = (min(body_x) + max(body_x)) / 2
     cy = sum(v.y for v in vs) / len(vs)
 
+    fist_z = None
+    if plain_pole:
+        import importlib
+        import rig as rigging_probe
+        importlib.reload(rigging_probe)
+        fist_z = rigging_probe.measure_hands(vs, a + (b - a) * ((0.0 - a.z) / (b.z - a.z)),
+                                             a + (b - a) * ((ARMOR_HEIGHT - a.z) / (b.z - a.z)))[0].z
+
     def classify(p):
         d = _distance_to_axis(p, a, b)
+        if plain_pole:
+            # The pole runs about 0.06 thick: cut to 0.075, but keep the boot beside its foot and the fingers around it.
+            reach = 0.05 if p.z < 0.4 else 0.045 if abs(p.z - fist_z) < 0.14 else 0.075
+            return "Weapon" if d < reach else "Vanguard_Armor"
         if d < 0.05 or (p.z > 0.74 * ARMOR_HEIGHT and d < 0.22 and p.x < cx - 0.17) or (p.z > 0.6 * ARMOR_HEIGHT and d < 0.16):
             return "Weapon"                              # pole along its line, the blade beside the head, tassels under it
         if p.z > 0.74 * ARMOR_HEIGHT and p.x - cx > 0.17:
@@ -293,6 +308,12 @@ def armor_look(glb, look_id, pole=None, rig=True, yaw_degrees=0.0):
             bpy.data.actions.remove(a)
         _arm, hand_r, hand_l = rigging.rig_vanguard([objs["Vanguard_Armor"]], root, base + shift, tip + shift, body=objs["Vanguard_Body"])
         hands = (tuple(round(c, 3) for c in hand_r), tuple(round(c, 3) for c in hand_l))
+        fist = bpy.data.objects.new("WeaponGrip", None)
+        bpy.context.scene.collection.objects.link(fist)
+        fist.location = rigging._pole_at(base + shift, tip + shift, hand_r.z)
+        fist.parent = root
+        bpy.context.view_layer.update()          # attach_to_bone keeps matrix_world, stale until the scene updates
+        rigging.attach_to_bone(fist, _arm, "hand.R")
         _export_rigged(root, look_id)
     else:
         _export([objs["Vanguard_Armor"], objs["Vanguard_Body"]] + [c for c in root.children if c.type == 'EMPTY'], root, look_id)

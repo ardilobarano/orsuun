@@ -521,12 +521,15 @@ namespace Orsuun.Client.EditorTools
             importer.SaveAndReimport();
         }
 
+        /// <summary>A still model (the weapon looks): no materials, no clips, and readable, since GearSparkle's particles are
+        /// emitted from its surface (an unreadable mesh sends them all to its origin).</summary>
         private static void EnsureModelImport(string path)
         {
             if (!(AssetImporter.GetAtPath(path) is ModelImporter importer)) return;
-            bool changed = importer.materialImportMode != ModelImporterMaterialImportMode.None || importer.importAnimation;
+            bool changed = importer.materialImportMode != ModelImporterMaterialImportMode.None || importer.importAnimation || !importer.isReadable;
             importer.materialImportMode = ModelImporterMaterialImportMode.None;
             importer.importAnimation = false;
+            importer.isReadable = true;
             if (changed) importer.SaveAndReimport();
         }
 

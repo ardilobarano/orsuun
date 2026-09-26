@@ -365,6 +365,7 @@ namespace Orsuun.Client
         private Transform _rig;
         private GameObject _armorLook;
         private GameObject _weaponLook;
+        private WeaponKind _weaponKind;
         // The skills' casts (owner, 26 Sep 2026): effects, the clip playing, and what the Peerless spirit is built from.
         private SkillFx _skillFx;
         private float _castUntil;
@@ -449,6 +450,7 @@ namespace Orsuun.Client
             _lookMaterial = armorMat;
             _weaponPrefab = weaponPrefab;
             _weaponMaterial = weaponUsed != null ? Resources.Load<Material>("Looks/" + weaponUsed) : null;
+            _weaponKind = KindOfLook(weaponUsed);
             Bounds b = default;
             bool first = true;
             foreach (Renderer r in _armorLook.GetComponentsInChildren<Renderer>())
@@ -469,7 +471,7 @@ namespace Orsuun.Client
                     if (_weaponMaterial != null) r.sharedMaterial = _weaponMaterial;
                     _heroParts.Add((r, (int)EquipSlot.Weapon));
                 }
-                LayWeapon(_weaponLook, _armorLook.transform, _rig, _anim != null);
+                LayWeapon(_weaponLook, _armorLook.transform, _rig, _anim != null, _weaponKind);
             }
             Play("Idle", 0f);
 
@@ -483,10 +485,16 @@ namespace Orsuun.Client
         /// along the pole only (Rodin makes thin objects chunky, so girth stays as modelled). On rigged looks the grip
         /// rides the hand bone, so the glaive swings with the arm.
         /// </summary>
-        private static void LayWeapon(GameObject weapon, Transform body, Transform rig, bool rigged)
+        /// <summary>
+        /// Puts a weapon look in the armour's hand. The armour marks its pole (WeaponBase at the foot, WeaponTip past the head)
+        /// and, since the Vanguard's redesign, the fist on it (WeaponGrip). A glaive is stretched from foot to tip; a sword
+        /// rises from the fist at its own length, a share of the pole's (owner, 26 Sep 2026: weapons mixed by level).
+        /// </summary>
+        internal static void LayWeapon(GameObject weapon, Transform body, Transform rig, bool rigged, WeaponKind kind)
         {
             Transform grip = FindDeep(body, "WeaponBase");
             Transform tip = FindDeep(body, "WeaponTip");
+            Transform fist = FindDeep(body, "WeaponGrip");
             Renderer[] renderers = weapon.GetComponentsInChildren<Renderer>();
             if (grip == null || tip == null || renderers.Length == 0) return;
             Transform w = weapon.transform;
@@ -496,9 +504,34 @@ namespace Orsuun.Client
             float length = renderers[0].bounds.size.y;
             Vector3 axis = tip.position - grip.position;
             w.rotation = Quaternion.FromToRotation(Vector3.up, axis.normalized) * rig.rotation;
-            w.localScale = new Vector3(1f, length > 0.01f ? axis.magnitude / length : 1f, 1f);
-            w.position = grip.position;
+            if (kind == WeaponKind.Glaive || length <= 0.01f)
+            {
+                w.localScale = new Vector3(1f, length > 0.01f ? axis.magnitude / length : 1f, 1f);
+                w.position = grip.position;
+            }
+            else
+            {
+                (float share, float held) = SwordSpan(kind);
+                float reach = axis.magnitude * share;
+                Vector3 hand = fist != null ? fist.position : grip.position + axis * 0.56f;
+                w.localScale = Vector3.one * (reach / length);
+                w.position = hand - axis.normalized * reach * held;
+            }
             if (rigged) w.SetParent(grip, true);
+        }
+
+        /// <summary>
+        /// A sword's length as a share of the armour's pole, and where the fist holds it (a share of its length from the
+        /// pommel): a one-handed sword about 1.15 m against the 2.5 m pole, a greatsword 1.7 m.
+        /// </summary>
+        private static (float Share, float Held) SwordSpan(WeaponKind kind) => kind == WeaponKind.Sword ? (0.46f, 0.1f) : (0.68f, 0.14f);
+
+        /// <summary>The kind of a weapon look ("Weapon_T3" is band 3's), the glaive for anything else.</summary>
+        internal static WeaponKind KindOfLook(string lookId)
+        {
+            int split = lookId == null ? -1 : lookId.LastIndexOf("_T", System.StringComparison.Ordinal);
+            return split >= 0 && int.TryParse(lookId.Substring(split + 2), out int tier) && tier >= 0 && tier < ItemLooks.WeaponKinds.Length
+                ? ItemLooks.WeaponKinds[tier] : WeaponKind.Glaive;
         }
 
         internal static GameObject LoadLook(string lookId, out string used)
@@ -1191,6 +1224,15 @@ namespace Orsuun.Client
             {
                 Transform body = _armorLook != null ? _armorLook.transform : _classLook != null ? _classLook.transform : null;
                 Transform grip = body != null ? FindDeep(body, "WeaponBase") : null, tip = body != null ? FindDeep(body, "WeaponTip") : null;
+                Transform fist = body != null && _armorLook != null ? FindDeep(body, "WeaponGrip") : null;
+                if (grip != null && tip != null && fist != null && _weaponKind != WeaponKind.Glaive)
+                {
+                    // A sword: from the fist to its point.
+                    (float share, float held) = SwordSpan(_weaponKind);
+                    Vector3 axis = tip.position - grip.position;
+                    float reach = axis.magnitude * share;
+                    return (fist.position, fist.position + axis.normalized * reach * (1f - held));
+                }
                 if (grip != null && tip != null) return (grip.position, tip.position);
                 Vector3 hand = HandPosition;
                 return (hand, hand + new Vector3(0.3f, 1.3f, 0f));
@@ -1227,7 +1269,7 @@ namespace Orsuun.Client
             {
                 GameObject weapon = Instantiate(_weaponPrefab, holder, false);
                 if (_weaponMaterial != null) foreach (Renderer r in weapon.GetComponentsInChildren<Renderer>()) r.sharedMaterial = _weaponMaterial;
-                LayWeapon(weapon, body.transform, holder, anim != null);
+                LayWeapon(weapon, body.transform, holder, anim != null, _weaponKind);
             }
             return body;
         }

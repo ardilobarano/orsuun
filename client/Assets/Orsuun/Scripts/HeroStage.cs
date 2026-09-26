@@ -218,22 +218,8 @@ namespace Orsuun.Client
                     GameObject weapon = Instantiate(weaponPrefab, _model.transform);
                     Dress(weapon, "Looks/" + weaponUsed, renderers);
                     foreach (Renderer r in weapon.GetComponentsInChildren<Renderer>()) _pieces.Add((r, true));
-                    Transform grip = FindDeep(armor.transform, "WeaponBase"), tip = FindDeep(armor.transform, "WeaponTip");
-                    Renderer[] blade = weapon.GetComponentsInChildren<Renderer>();
-                    if (grip != null && tip != null && blade.Length > 0)
-                    {
-                        // As the lane lays it: from the grip to the tip of this armour's pole, stretched along it only.
-                        Transform w = weapon.transform;
-                        w.rotation = Quaternion.identity;
-                        w.localScale = Vector3.one;
-                        w.position = Vector3.zero;
-                        float length = blade[0].bounds.size.y;
-                        Vector3 axis = tip.position - grip.position;
-                        w.rotation = Quaternion.FromToRotation(Vector3.up, axis.normalized) * _model.transform.rotation;
-                        w.localScale = new Vector3(1f, length > 0.01f ? axis.magnitude / length : 1f, 1f);
-                        w.position = grip.position;
-                        if (anim != null) w.SetParent(grip, true);
-                    }
+                    // As the lane lays it: a glaive along this armour's pole, a sword rising from its fist.
+                    LaneView.LayWeapon(weapon, armor.transform, _model.transform, anim != null, LaneView.KindOfLook(weaponUsed));
                 }
             }
             else

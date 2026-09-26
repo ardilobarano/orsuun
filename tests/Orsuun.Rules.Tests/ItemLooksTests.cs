@@ -23,6 +23,19 @@ public class ItemLooksTests
     }
 
     [Fact]
+    public void Vanguard_weapons_take_turns_by_band()
+    {
+        // Owner, 26 Sep 2026: "glaive sword one handed two handed", mixed by level.
+        Assert.Equal(ItemLooks.WeaponNames.Length, ItemLooks.WeaponKinds.Length);
+        Assert.Equal("Common Herder's Sword", new ItemState(5, Rarity.Common).DisplayName);
+        Assert.Equal(WeaponKind.Sword, ItemLooks.KindOf(5));
+        Assert.Equal(WeaponKind.Glaive, ItemLooks.KindOf(15));
+        Assert.Equal(WeaponKind.Greatsword, ItemLooks.KindOf(25));
+        Assert.Equal("Epic Glaive of the Nine Oaths", new ItemState(105, Rarity.Epic).DisplayName);
+        Assert.Equal(WeaponKind.Glaive, ItemLooks.KindOf(105));
+    }
+
+    [Fact]
     public void Armour_names_and_looks_follow_the_band()
     {
         Assert.Equal("Common Quilted Coat", new ItemState(3, Rarity.Common, EquipSlot.Armor).DisplayName);
