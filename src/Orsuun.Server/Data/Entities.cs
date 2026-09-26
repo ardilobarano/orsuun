@@ -24,6 +24,9 @@ public sealed class Login
     public DateTime? SwornUtc { get; set; }
     /// <summary>The War season (Rules.Banners.SeasonKey) of the last change of Banner: one a season.</summary>
     [MaxLength(16)] public string? BannerChangedSeason { get; set; }
+    /// <summary>The login calendar (Rules.DailyLogin): the last day claimed, 1..7 (0 before the first), and the bounty day it was claimed on.</summary>
+    public int DailyDay { get; set; }
+    [MaxLength(10)] public string DailyClaimedOn { get; set; } = "";
 }
 
 public sealed class Account

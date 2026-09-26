@@ -195,3 +195,5 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   when the class's other figure is shown: second-look models are named with "Alt" (`LaneView.AltName`: `ArmorAlt_T3`,
   `KestrelAlt_T3`), and `ClassLookName` / `SetLooks` / `HeroStage` fall back to the first look when one is missing.
   Pass the flag wherever a hero is drawn (lane, HeroStage, rivals: `DuelResultDto.DefenderFigure`).
+- The login calendar (`Rules.DailyLogin`) is the account's: `Login.DailyDay` / `DailyClaimedOn` change only under
+  `LockLoginAsync` (four characters share it), and a claim is keyed by `Bounties.DayKey` (the 20:00 bounty day).

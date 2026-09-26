@@ -40,6 +40,7 @@ namespace Orsuun.Client
         public PitsPanel Pits { get; private set; }
         public CaravanPanel Caravan { get; private set; }
         public TrailPanel Trail { get; private set; }
+        public DailyPanel Daily { get; private set; }
         public TradePanel Trade { get; private set; }
         public WardrobePanel Wardrobe { get; private set; }
         public CharacterPanel Characters { get; private set; }
@@ -116,6 +117,8 @@ namespace Orsuun.Client
             Caravan.Init(this);
             Trail = new GameObject("TrailPanel").AddComponent<TrailPanel>();
             Trail.Init(this);
+            Daily = new GameObject("DailyPanel").AddComponent<DailyPanel>();
+            Daily.Init(this);
             Trade = new GameObject("TradePanel").AddComponent<TradePanel>();
             Trade.Init(this);
             Wardrobe = new GameObject("WardrobePanel").AddComponent<WardrobePanel>();
@@ -323,6 +326,7 @@ namespace Orsuun.Client
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
+        private bool _dailyShown;
         private bool _openTrade;
         private bool _enterDungeon;
         private int _dungeonToEnter = 1;
@@ -384,6 +388,16 @@ namespace Orsuun.Client
             Characters.SetVisible(Server.WaitingForHero && !Title.Waiting && !Account.Showing && !Oath.Showing);
             // The first session's guide starts once the title screen (and the oath) is gone; the notification
             // permission is asked then too, once.
+            // The login calendar opens itself once a session when a gift waits (not over the first session's guide, nor
+            // over screenshots unless -daily asks for it).
+            if (!_dailyShown && Server.Online && !Server.WaitingForHero && Server.Daily != null && Server.Daily.claimable
+                && !Title.Showing && !Account.Showing && !Oath.Showing && !Characters.IsOpen && !_tutorialPending
+                && (Array.IndexOf(Environment.GetCommandLineArgs(), "-daily") >= 0
+                    || (Tutorial.Finished && Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") < 0)))
+            {
+                _dailyShown = true;
+                Daily.Open();
+            }
             if (_tutorialPending && !Title.Showing && !Account.Showing && !Oath.Showing && !Characters.IsOpen)
             {
                 Notifications.AskOnce();
@@ -477,9 +491,9 @@ namespace Orsuun.Client
             foreach (WardrobeDef piece in Session.Worn)
                 if (piece.Kind == WardrobeKind.Skin) skin = piece; else if (piece.Kind == WardrobeKind.Mount) mount = piece; else companion = piece;
             // A skin shows its own costume model where one has been made, otherwise an armour band in the skin's tint.
-            // A second look (the class's other figure) has no costume models yet: its skins tint the band armour.
+            // A second look (the class's other figure) wears its own cut of a costume; one not drawn yet tints the band armour.
             bool second = Session.SecondLook;
-            string skinModel = skin != null && !second ? LaneView.SkinModel(Session.Class, skin.Look) : null;
+            string skinModel = skin != null ? LaneView.SkinModel(Session.Class, skin.Look, second) : null;
             bool tinted = skin != null && skinModel == null && LaneView.SkinLooks.ContainsKey(skin.Look);
             (int Band, Color Tint) skinLook = tinted ? LaneView.SkinLooks[skin.Look] : (0, Color.white);
             int band = tinted ? skinLook.Band : armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0;

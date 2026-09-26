@@ -489,11 +489,15 @@ namespace Orsuun.Client
         private bool _second;
         private bool _armorSecond;
 
-        /// <summary>A look's second-look model: "Armor_T3" -> "ArmorAlt_T3", "Kestrel_T3" -> "KestrelAlt_T3".</summary>
+        /// <summary>
+        /// A look's second-look model: "Armor_T3" -> "ArmorAlt_T3", "Kestrel_T3" -> "KestrelAlt_T3"; a costume
+        /// ("Skin_TulGorak", "Kestrel_SkinAmberRoad") takes "Alt" at the end.
+        /// </summary>
         internal static string AltName(string look)
         {
             int split = look.LastIndexOf("_T", System.StringComparison.Ordinal);
-            return split < 0 ? look + "Alt" : look.Substring(0, split) + "Alt" + look.Substring(split);
+            bool band = split >= 0 && split + 2 < look.Length && int.TryParse(look.Substring(split + 2), out _);
+            return band ? look.Substring(0, split) + "Alt" + look.Substring(split) : look + "Alt";
         }
 
         /// <summary>
@@ -900,13 +904,29 @@ namespace Orsuun.Client
         private HeroClass _class = HeroClass.Vanguard;
         private string _classSkin;
 
-        /// <summary>A wardrobe skin's own model for a class, when it has been made (Vanguard: an armour look id).</summary>
-        public static string SkinModel(HeroClass cls, string look)
+        /// <summary>
+        /// A wardrobe skin's own model for a class, when it has been made (Vanguard: an armour look id); for a second look
+        /// its own cut of the costume ("...Alt"), or null (the lane then tints the band armour).
+        /// </summary>
+        public static string SkinModel(HeroClass cls, string look, bool secondLook = false)
         {
             if (look == null) return null;
+            if (secondLook)
+            {
+                string first = SkinModelName(cls, look);
+                string alt = AltName(first);
+                string altKey = cls + "/" + look + "/alt";
+                if (!SkinModels.TryGetValue(altKey, out string altFound))
+                {
+                    string altFolder = cls == HeroClass.Vanguard ? "Models/Looks/" : "Models/Classes/";
+                    altFound = Art.Load<GameObject>(altFolder + alt) != null ? alt : null;
+                    SkinModels[altKey] = altFound;
+                }
+                return altFound;
+            }
             string key = cls + "/" + look;
             if (SkinModels.TryGetValue(key, out string found)) return found;
-            string name = cls == HeroClass.Vanguard ? "Skin_" + look : cls + "_Skin" + look;
+            string name = SkinModelName(cls, look);
             string folder = cls == HeroClass.Vanguard ? "Models/Looks/" : "Models/Classes/";
             found = Art.Load<GameObject>(folder + name) != null ? name : null;
             SkinModels[key] = found;
@@ -914,6 +934,9 @@ namespace Orsuun.Client
         }
 
         private static readonly Dictionary<string, string> SkinModels = new Dictionary<string, string>();
+
+        /// <summary>A costume's first-look model name: "Skin_AmberRoad" for the Vanguard, "Kestrel_SkinAmberRoad" for the others.</summary>
+        internal static string SkinModelName(HeroClass cls, string look) => cls == HeroClass.Vanguard ? "Skin_" + look : cls + "_Skin" + look;
         private GameObject _classLook;
         private int _classBand = -1;
 

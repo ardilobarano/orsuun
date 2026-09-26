@@ -258,7 +258,15 @@ public sealed record StateDto(
     long[]? SkillReadySeconds = null,
     long Honor = 0,
     int Whispers = 0,
-    Figure Figure = Figure.Man);
+    Figure Figure = Figure.Man,
+    DailyDto? Daily = null);
+
+/// <summary>
+/// The login calendar: the day a claim now takes (1..7), whether today's is still to claim, the seven gifts for this
+/// hero, and the seconds until the next bounty day.
+/// </summary>
+public sealed record DailyDto(int Day, bool Claimable, string[] Gifts, long SecondsToNext);
+public sealed record DailyClaimRequest(string RequestId);
 
 /// <summary>Private messages (Rules.Whispers): one conversation in the list.</summary>
 public sealed record WhisperConversationDto(Guid AccountId, string Name, string Class, int Level, int MinutesAway, string LastText, DateTime LastUtc, bool LastMine, int Unread);

@@ -200,8 +200,8 @@ namespace Orsuun.Client
             _model.transform.SetParent(_pivot, false);
             var renderers = new List<Renderer>();
             Animation anim = null;
-            // Costumes are drawn for each class's first look only; a second look shows its armour for the band.
-            string skin = secondLook ? null : LaneView.SkinModel(cls, skinLook);
+            // A second look wears its own cut of a costume; one not drawn yet shows its armour for the band.
+            string skin = LaneView.SkinModel(cls, skinLook, secondLook);
 
             if (cls == HeroClass.Vanguard)
             {

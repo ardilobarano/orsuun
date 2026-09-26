@@ -54,7 +54,12 @@ namespace Orsuun.Client
             }, out _);
             Ui.Button("Account", canvas, 0.15f, 0.68f, 0.85f, 0.74f, "", 30, Palette.Safe, OpenAccount, out _accountLabel);
             Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.85f, 0.665f, "", 32, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
-            Ui.Button("Sound", canvas, 0.15f, 0.53f, 0.85f, 0.59f, "", 32, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
+            Ui.Button("Sound", canvas, 0.15f, 0.53f, 0.49f, 0.59f, "", 28, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
+            Ui.Button("Daily", canvas, 0.51f, 0.53f, 0.85f, 0.59f, "DAILY GIFTS", 28, Palette.ButtonForge, () =>
+            {
+                Close();
+                _root.Daily.Open();
+            }, out _);
             Ui.Button("Privacy", canvas, 0.15f, 0.455f, 0.85f, 0.515f, "PRIVACY POLICY", 32, Palette.ButtonIdle,
                 () => Application.OpenURL(_root.Server.BaseUrl + "/privacy"), out _);
             Ui.Button("Delete", canvas, 0.15f, 0.38f, 0.85f, 0.44f, "DELETE ACCOUNT", 32, Palette.Danger, AskDelete, out _);

@@ -843,7 +843,8 @@ public sealed partial class GameService
             SkillProgress: Rules.SkillGrades.Parse(account.SkillProgress, 99),
             SkillReadySeconds: SkillReadySeconds(account),
             Honor: account.Honor,
-            Figure: account.Figure);
+            Figure: account.Figure,
+            Daily: DailyOf(account));
     }
 
     private static ItemDto ToDto(Item item)

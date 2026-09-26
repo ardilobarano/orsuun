@@ -237,4 +237,68 @@ namespace Orsuun.Rules
             }
         }
     }
+
+    /// <summary>One day's gift on the login calendar.</summary>
+    public sealed class DailyReward
+    {
+        public long Sorn { get; set; }
+        public int Potions { get; set; }
+        public int Turnstones { get; set; }
+        public int ScrollsOfMercy { get; set; }
+        /// <summary>A Korshard of this rank (Content.KorshardRanks), or -1 for none.</summary>
+        public int KorshardRank { get; set; } = -1;
+
+        public string Text
+        {
+            get
+            {
+                var parts = new List<string>();
+                if (Sorn > 0) parts.Add(Sorn.ToString("N0", CultureInfo.InvariantCulture) + " sorn");
+                if (Potions > 0) parts.Add(Potions + " draughts");
+                if (Turnstones > 0) parts.Add(Turnstones + " Turnstones");
+                if (ScrollsOfMercy > 0) parts.Add(ScrollsOfMercy == 1 ? "a Scroll of Mercy" : ScrollsOfMercy + " Scrolls of Mercy");
+                if (KorshardRank >= 0) parts.Add("a " + Content.KorshardRanks[KorshardRank] + " Korshard");
+                return string.Join(", ", parts);
+            }
+        }
+
+        public void GrantTo(Inventory inventory)
+        {
+            inventory.Sorn += Sorn;
+            inventory.Potions += Potions;
+            inventory.Turnstones += Turnstones;
+            inventory.ScrollsOfMercy += ScrollsOfMercy;
+            if (KorshardRank >= 0) inventory.Korshards[KorshardRank]++;
+        }
+    }
+
+    /// <summary>
+    /// The daily login calendar (owner, 27 Sep 2026, picked "Daily login rewards": "A 7-day login calendar (sorn,
+    /// Turnstones, draughts, a Scroll of Mercy, a Korshard on day 7), repeating each week"). One claim a bounty day (20:00
+    /// to 20:00, server time), per account like Amber, so its four characters share it; each claim takes the next of the
+    /// seven days and day 7 goes back to day 1. A missed day loses nothing: the calendar waits. Sorn days pay the hunt's
+    /// sorn for a number of mobs at the furthest stage the hero has cleared, so they stay worth taking at every level.
+    /// </summary>
+    public static class DailyLogin
+    {
+        public const int Days = 7;
+
+        /// <summary>The day a claim after <paramref name="lastDay"/> (0 before the first) takes: 1..7, then 1 again.</summary>
+        public static int NextDay(int lastDay) => lastDay < 1 || lastDay >= Days ? 1 : lastDay + 1;
+
+        public static DailyReward Reward(int day, int highestStageCleared)
+        {
+            long mob = Content.Stage(Math.Max(1, Math.Min(Content.TotalStages, highestStageCleared))).SornPerMob;
+            return day switch
+            {
+                1 => new DailyReward { Sorn = mob * 40 },
+                2 => new DailyReward { Turnstones = 5 },
+                3 => new DailyReward { Potions = 10 },
+                4 => new DailyReward { Sorn = mob * 100 },
+                5 => new DailyReward { ScrollsOfMercy = 1 },
+                6 => new DailyReward { Turnstones = 10 },
+                _ => new DailyReward { KorshardRank = 1 },
+            };
+        }
+    }
 }

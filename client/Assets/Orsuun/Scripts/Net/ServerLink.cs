@@ -715,6 +715,8 @@ namespace Orsuun.Client.Net
 
         /// <summary>The Campaign Trail from the last state (Rules.CampaignTrail); null until a server that has one answers.</summary>
         public TrailDto Trail { get; private set; }
+        /// <summary>The login calendar (Rules.DailyLogin), from the last state; null before one came or from older servers.</summary>
+        public DailyDto Daily { get; private set; }
         private float _trailAt;
         public long TrailSecondsLeft => Trail == null ? 0 : Math.Max(0, Trail.secondsLeft - (long)(Time.realtimeSinceStartup - _trailAt));
 
@@ -928,6 +930,15 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>Buys this hero the Trail's paid track, or Trail Plus (ten tiers more), with the account's Amber.</summary>
+        /// <summary>Takes today's gift from the login calendar. Completes with an error, or null.</summary>
+        public IEnumerator ClaimDaily(Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/daily/claim", JsonUtility.ToJson(new DailyClaimRequest { requestId = NewRequestId() }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
         public IEnumerator TrailBuy(bool plus, Action<string> done)
         {
             string failure = null;
@@ -1187,6 +1198,7 @@ namespace Orsuun.Client.Net
             DungeonRunAtSmith = s.dungeonRunAtSmith;
             // Older servers send no dungeon for the waiting run: it was the Hollow Spire's.
             DungeonPausedId = s.dungeonRunAtSmith != 0 ? (s.dungeonPausedId > 0 ? s.dungeonPausedId : 1) : 0;
+            if (s.daily != null && s.daily.gifts != null && s.daily.gifts.Length > 0) Daily = s.daily;
             if (s.trail != null && s.trail.season > 0)
             {
                 Trail = s.trail;
@@ -1388,7 +1400,9 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; }
+        [Serializable] public class DailyDto { public int day; public bool claimable; public string[] gifts; public long secondsToNext; }
+        [Serializable] public class DailyClaimRequest { public string requestId; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }
         [Serializable] public class CaravanBuyRequest { public string requestId; public string pieceId; public int days; }
