@@ -1,4 +1,7 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Orsuun.Rules
 {
@@ -33,6 +36,115 @@ namespace Orsuun.Rules
             if (price < MinPrice) return $"The lowest price is {MinPrice:N0} sorn.";
             if (price > MaxPrice) return $"The highest price is {MaxPrice:N0} sorn.";
             return null;
+        }
+
+        /// <summary>Price history (owner, 26 Sep 2026: "Exchange: materials + prices"): sales of the last two weeks.</summary>
+        public const int HistoryDays = 14;
+        /// <summary>At most this many recent sales are read for a price history.</summary>
+        public const int HistorySales = 50;
+
+        /// <summary>A stack's price for one of its count (a piece's, and a stack of one's, is its price).</summary>
+        public static long UnitPrice(long price, int count) => count > 1 ? price / count : price;
+
+        /// <summary>
+        /// The pieces a price history compares: the same slot, rarity and forge level, and the same look band (ten item
+        /// levels: ItemLooks.Tier), so a +7 Epic level 60 sabre is priced against its own kind.
+        /// </summary>
+        public static (int Low, int High) BandLevels(int band)
+        {
+            int low = band * ItemLooks.LevelsPerLook;
+            return (low, band >= ItemLooks.MaxTier ? int.MaxValue : low + ItemLooks.LevelsPerLook - 1);
+        }
+    }
+
+    /// <summary>
+    /// Stackable goods on the Exchange (owner, 26 Sep 2026: "Exchange: materials + prices"): draughts, hunt materials, the
+    /// Forge's scrolls and wards, Turnstones, needles, Pinning Wax, Oathstones, Summoning Markers and Korshards by rank,
+    /// each listed as a count for one price, like Technique Scrolls. Ids are stored on listings: append, never renumber.
+    /// Hunt Marks, Laurels, Guild Tallies and Honor stay with whoever earned them.
+    /// </summary>
+    public static class TradeGoods
+    {
+        public const int FirstKorshard = 11;
+
+        private static readonly string[] Names =
+        {
+            "Draught", "Hunt material", "Scroll of Mercy", "Khan's Alloy", "Anvil Ward", "Turnstone", "Etching Needle",
+            "Master's Needle", "Pinning Wax", "Oathstone", "Summoning Marker",
+        };
+
+        public static int Count => FirstKorshard + Content.KorshardRanks.Length;
+
+        public static bool Valid(int id) => id >= 0 && id < Count;
+
+        public static string Name(int id) =>
+            !Valid(id) ? "?" : id < FirstKorshard ? Names[id] : Content.KorshardRanks[id - FirstKorshard] + " Korshard";
+
+        public static int Held(Inventory inventory, int id) => id switch
+        {
+            0 => inventory.Potions,
+            1 => inventory.Materials,
+            2 => inventory.ScrollsOfMercy,
+            3 => inventory.KhansAlloys,
+            4 => inventory.AnvilWards,
+            5 => inventory.Turnstones,
+            6 => inventory.EtchingNeedles,
+            7 => inventory.MastersNeedles,
+            8 => inventory.PinningWax,
+            9 => inventory.Oathstones,
+            10 => inventory.SummoningMarkers,
+            _ => Valid(id) ? inventory.Korshards[id - FirstKorshard] : 0,
+        };
+
+        /// <summary>Adds (or with a negative count takes) goods of one kind.</summary>
+        public static void Add(Inventory inventory, int id, int count)
+        {
+            switch (id)
+            {
+                case 0: inventory.Potions += count; break;
+                case 1: inventory.Materials += count; break;
+                case 2: inventory.ScrollsOfMercy += count; break;
+                case 3: inventory.KhansAlloys += count; break;
+                case 4: inventory.AnvilWards += count; break;
+                case 5: inventory.Turnstones += count; break;
+                case 6: inventory.EtchingNeedles += count; break;
+                case 7: inventory.MastersNeedles += count; break;
+                case 8: inventory.PinningWax += count; break;
+                case 9: inventory.Oathstones += count; break;
+                case 10: inventory.SummoningMarkers += count; break;
+                default:
+                    if (!Valid(id)) throw new ArgumentOutOfRangeException(nameof(id));
+                    inventory.Korshards[id - FirstKorshard] += count;
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The bag (owner, 26 Sep 2026: "Bigger bag, Leave new drops behind, and add selling mechanic for them for sorns but not
+    /// automatically"): 120 loose pieces (worn gear and the depot apart). When it is full, new drops are left behind and
+    /// nothing already in it is touched; a piece can be sold to the merchant for sorn, one at a time, by hand.
+    /// </summary>
+    public static class Bag
+    {
+        public const int Size = 120;
+
+        /// <summary>Mobs' worth of sorn a piece fetches from the merchant, by rarity (Common .. Legendary).</summary>
+        private static readonly int[] RarityMobs = { 2, 4, 8, 20, 50 };
+
+        /// <summary>
+        /// What the merchant pays: the hunt's sorn for a few mobs of the piece's level (150 + 30 a level, near the lane's
+        /// pay), more by rarity, and a quarter more for each forge level. A sink for junk, far below the Forge's cost.
+        /// </summary>
+        public static long SellPrice(ItemState item) =>
+            (150L + 30L * Math.Max(1, item.ItemLevel)) * RarityMobs[Math.Max(0, Math.Min(RarityMobs.Length - 1, (int)item.Rarity))] * (4 + item.UpgradeLevel) / 4;
+
+        /// <summary>The new drops that fit a bag holding <paramref name="held"/> pieces: the best rarity first, then as they fell.</summary>
+        public static List<ItemState> Fitting(int held, IEnumerable<ItemState> drops)
+        {
+            int room = Math.Max(0, Size - held);
+            return drops.Select((d, i) => (Drop: d, Order: i)).OrderByDescending(x => (int)x.Drop.Rarity).ThenBy(x => x.Order)
+                .Take(room).OrderBy(x => x.Order).Select(x => x.Drop).ToList();
         }
     }
 }

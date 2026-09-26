@@ -18,6 +18,7 @@ namespace Orsuun.Client
         private Text _banner;
         private Text _weapon;
         private RawImage _weaponIcon;
+        private Text _bagFull;
         // Owner, 26 Sep 2026: on a mount the hero only makes plain attacks; this dismounts, or mounts up again.
         private Button _mountButton;
         private Text _mountLabel;
@@ -191,7 +192,10 @@ namespace Orsuun.Client
 
             // The four actions as square lacquer tiles with big painted icons (hunt mockup).
             Ui.Tile("Forge", canvas, 0.025f, 0.077f, 0.25f, 0.164f, "FORGE", 26, Palette.ButtonForge, "NavForge", () => root.Forge.Open(), out _);
-            Ui.Tile("Gear", canvas, 0.265f, 0.077f, 0.49f, 0.164f, "INVENTORY", 24, new Color(0.2f, 0.3f, 0.55f), "NavGear", () => root.Gear.Open(), out _);
+            Button gearTile = Ui.Tile("Gear", canvas, 0.265f, 0.077f, 0.49f, 0.164f, "INVENTORY", 24, new Color(0.2f, 0.3f, 0.55f), "NavGear", () => root.Gear.Open(), out _);
+            // A full bag leaves new drops behind: the tile says so.
+            _bagFull = Ui.Title("BagFull", gearTile.transform, 0.04f, 0.78f, 0.96f, 0.97f, "BAG FULL", 17, TextAnchor.MiddleCenter, Palette.Bad);
+            _bagFull.gameObject.SetActive(false);
             Ui.Tile("Shards", canvas, 0.505f, 0.077f, 0.73f, 0.164f, "SHARDS", 26, Palette.Alloy, "NavShards", () => root.Sockets.Open(), out _);
             // A push goal tapped on the goal line lights the PUSH tile for a moment.
             _pushGlow = Ui.Sliced("PushGlow", canvas, 0.71f, 0.05f, 1f, 0.19f, "Glow", Palette.Sorn);
@@ -364,7 +368,8 @@ namespace Orsuun.Client
             if (settled != null && settled != _shownSettlement && settled.offline)
             {
                 _shownSettlement = settled;
-                Log($"Welcome back: {settled.countedSeconds / 3600f:0.0} h away, {settled.korstones} Korstones, +{settled.sornEarned:N0} sorn");
+                Log($"Welcome back: {settled.countedSeconds / 3600f:0.0} h away, {settled.korstones} Korstones, +{settled.sornEarned:N0} sorn"
+                    + (settled.leftBehind > 0 ? $"  ·  the bag was full: {settled.leftBehind} drop{(settled.leftBehind == 1 ? "" : "s")} left behind" : ""));
             }
             else if (settled != null && settled != _shownSettlement && settled.loopsVerified > 0)
             {
@@ -380,6 +385,7 @@ namespace Orsuun.Client
             HeroStats stats = session.Hero;
             _weapon.text = $"{session.Weapon.DisplayName} +{session.Weapon.UpgradeLevel}\n<size=20><color=#C2BAAD>Attack {stats.Attack}   ·   Defense {stats.Defense}   ·   Crit {stats.CritChanceBp / 100}%</color></size>";
             _weapon.color = ForgePanel.LevelColor(session.Weapon.UpgradeLevel);
+            _bagFull.gameObject.SetActive(session.Inventory.Loot.Count >= Bag.Size);
             Ui.SetIcon(_weaponIcon, Ui.ItemIcon(session.Weapon));   // the weapon's own picture for its level band and the class
 
             _logAge += Time.deltaTime;

@@ -21,7 +21,7 @@ public sealed partial class GameService
     /// <summary>Gaps longer than this count as offline time at the offline rate.</summary>
     public static readonly TimeSpan OnlineGrace = TimeSpan.FromMinutes(3);
     /// <summary>Loot list cap; the oldest common pieces are dropped past it.</summary>
-    public const int MaxLoot = 60;
+    public const int MaxLoot = Bag.Size;
 
     private readonly GameDb _db;
     private readonly IRandom _rng;
@@ -444,6 +444,27 @@ public sealed partial class GameService
         return ToState(account);
     }
 
+    /// <summary>
+    /// Sells a bag piece to the merchant (owner, 26 Sep 2026: "selling mechanic ... for sorns but not automatically"): by
+    /// hand, one piece a request, for Rules.Bag.SellPrice; worn, listed, traded or depot pieces cannot be sold.
+    /// </summary>
+    public async Task<StateDto> SellPieceAsync(Account account, BagSellRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.OutOfBag)
+            ?? throw new GameException("no_item", "You do not own that piece.");
+        if (item.Equipped) throw new GameException("worn", "Take the piece off before you sell it.");
+        ItemState state = item.ToState();
+        long price = Bag.SellPrice(state);
+        account.Sorn += price;
+        _db.Items.Remove(item);
+        account.Items.Remove(item);
+        _db.Ledger.Add(Entry(account.Id, item.Id, "bag-sell",
+            $"slot={state.Slot} rarity={state.Rarity} itemLevel={state.ItemLevel} plus={state.UpgradeLevel}", price, request.RequestId));
+        await SaveAsync(ct);
+        return ToState(account);
+    }
+
     public async Task<StateDto> ParkAsync(Account account, ParkRequest request, CancellationToken ct)
     {
         if (!Content.IsUnlocked(request.Stage, account.HighestStageCleared))
@@ -647,8 +668,12 @@ public sealed partial class GameService
             current ? clock.HpLeft : freshPool, current ? clock.HpMax : freshPool, slain, slain ? clock.SlainBy : null, slain ? clock.SlainBanner : Banner.None, top);
     }
 
+    /// <summary>New drops this request could not fit in a full bag (Apply counts them).</summary>
+    private int LeftBehind { get; set; }
+
     private SettlementDto Settle(Account account, DateTime now, int onlineEfficiencyBp = RandomExtensions.FullBp, int loopsVerified = 0, int sornBonusPercent = 0)
     {
+        int leftBefore = LeftBehind;
         TimeSpan gap = now - account.LastHeartbeatUtc;
         bool offline = gap > OnlineGrace;
         long seconds = (long)gap.TotalSeconds;
@@ -675,7 +700,7 @@ public sealed partial class GameService
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
                 $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones} efficiencyBp={efficiency} loopsVerified={loopsVerified} bannerBonus={sornBonusPercent}%", s.SornEarned + bonusSorn, Guid.NewGuid().ToString("N")));
 
-        return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned + bonusSorn, offline);
+        return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned + bonusSorn, offline, LeftBehind: LeftBehind - leftBefore);
     }
 
     private async Task EnsureFreshRequestAsync(Account account, string requestId, CancellationToken ct)
@@ -885,21 +910,12 @@ public sealed partial class GameService
 
         if (i.Loot.Count == 0) return;
 
-        // Keep the best MaxLoot loose pieces: new drops compete with what is already stored by rarity, then age.
-        // Pieces the player has forged up are never pushed out (bag items can be forged since 24 Sep 2026).
-        var stored = a.Items.Where(x => !x.Equipped && !x.Destroyed && !x.OutOfBag).ToList();
-        var keptDrops = new List<ItemState>();
-        var candidates = stored.Select(x => (Rarity: x.Rarity, Worked: x.UpgradeLevel > 0 || x.PatienceBp > 0, Stored: (Item?)x, Drop: (ItemState?)null))
-            .Concat(i.Loot.Select(d => (Rarity: d.Rarity, Worked: false, Stored: (Item?)null, Drop: (ItemState?)d)))
-            .OrderByDescending(c => c.Worked).ThenByDescending(c => (int)c.Rarity).ThenBy(c => c.Stored == null ? 0 : 1)
-            .ToList();
-
-        foreach (var c in candidates.Take(MaxLoot))
-            if (c.Drop != null) keptDrops.Add(c.Drop);
-        foreach (var c in candidates.Skip(MaxLoot))
-            if (c.Stored != null) { _db.Items.Remove(c.Stored); a.Items.Remove(c.Stored); }
-
-        foreach (ItemState drop in keptDrops) a.Items.Add(Item.From(drop, a.Id, equipped: false));
+        // The bag (owner, 26 Sep 2026): new drops fill what room is left, the best rarity first; when it is full they are
+        // left behind. Nothing already in the bag is ever removed to make room.
+        int held = a.Items.Count(x => !x.Equipped && !x.Destroyed && !x.OutOfBag);
+        List<ItemState> fitting = Bag.Fitting(held, i.Loot);
+        LeftBehind += i.Loot.Count - fitting.Count;
+        foreach (ItemState drop in fitting) a.Items.Add(Item.From(drop, a.Id, equipped: false));
         i.Loot.Clear();
     }
 

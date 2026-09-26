@@ -218,6 +218,7 @@ v1.MapPost("/boss/fight", async (HttpContext ctx, BossFightRequest req, GameServ
 v1.MapPost("/forge", (HttpContext ctx, ForgeRequest req, GameService game, CancellationToken ct) => game.ForgeAsync(Me(ctx), req, ct));
 v1.MapPost("/turn", (HttpContext ctx, TurnRequest req, GameService game, CancellationToken ct) => game.TurnAsync(Me(ctx), req, ct));
 v1.MapPost("/equip", (HttpContext ctx, EquipRequest req, GameService game, CancellationToken ct) => game.EquipAsync(Me(ctx), req, ct));
+v1.MapPost("/bag/sell", (HttpContext ctx, BagSellRequest req, GameService game, CancellationToken ct) => game.SellPieceAsync(Me(ctx), req, ct));
 v1.MapPost("/socket/insert", (HttpContext ctx, SocketInsertRequest req, GameService game, CancellationToken ct) => game.SocketInsertAsync(Me(ctx), req, ct));
 v1.MapPost("/socket/clear", (HttpContext ctx, SocketClearRequest req, GameService game, CancellationToken ct) => game.SocketClearAsync(Me(ctx), req, ct));
 v1.MapPost("/park", (HttpContext ctx, ParkRequest req, GameService game, CancellationToken ct) => game.ParkAsync(Me(ctx), req, ct));
@@ -295,8 +296,10 @@ v1.MapGet("/chat", (HttpContext ctx, string? channel, long? after, GameService g
 v1.MapPost("/chat", (HttpContext ctx, ChatSayRequest req, GameService game, CancellationToken ct) => game.SayAsync(Me(ctx), req, ct));
 v1.MapPost("/chat/report", (HttpContext ctx, ChatReportRequest req, GameService game, CancellationToken ct) => game.ReportAsync(Me(ctx), req, ct));
 v1.MapPost("/chat/block", (HttpContext ctx, ChatBlockRequest req, GameService game, CancellationToken ct) => game.BlockAsync(Me(ctx), req, ct));
-v1.MapGet("/market", (HttpContext ctx, EquipSlot? slot, string? sort, int? page, bool? books, GameService game, CancellationToken ct) =>
-    game.MarketAsync(Me(ctx), slot, sort, page ?? 0, ct, books ?? false));
+v1.MapGet("/market", (HttpContext ctx, EquipSlot? slot, string? sort, int? page, bool? books, bool? goods, GameService game, CancellationToken ct) =>
+    game.MarketAsync(Me(ctx), slot, sort, page ?? 0, ct, books ?? false, goods ?? false));
+v1.MapGet("/market/history", (HttpContext ctx, string? kind, int? id, EquipSlot? slot, int? band, int? plus, Rarity? rarity, GameService game, CancellationToken ct) =>
+    game.PriceHistoryAsync(Me(ctx), kind ?? "piece", id ?? -1, slot, band ?? 0, plus ?? 0, rarity, ct));
 v1.MapPost("/market/list", (HttpContext ctx, MarketListRequest req, GameService game, CancellationToken ct) => game.ListItemAsync(Me(ctx), req, ct));
 v1.MapPost("/market/buy", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.BuyListingAsync(Me(ctx), req, ct));
 v1.MapPost("/market/cancel", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.CancelListingAsync(Me(ctx), req, ct));

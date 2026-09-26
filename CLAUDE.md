@@ -184,3 +184,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   its own in StreamingAssets. Load that art only with `Art.Load<T>("Models/Looks/Armor_T3")` (bundle, else Resources,
   in the editor the project), never `Resources.Load`. New models export to `Content/Models/...` (looks.py). An app
   build whose asset keys change needs its bundles uploaded before testers open it.
+- The bag is `Rules.Bag.Size` (120) loose pieces (owner, 26 Sep 2026): the server's `Apply` never removes a stored piece;
+  new drops that do not fit are left behind (`Bag.Fitting`, counted in `SettlementDto.LeftBehind`), and the client's
+  `PlayerSession.LeaveBehindOverflow` drops only pieces without a server id. Pieces are sold to the merchant by hand
+  (`/v1/bag/sell`, `Bag.SellPrice`), never automatically.
+- Exchange goods (`Rules.TradeGoods`, stored as `MarketListing.GoodId`/`GoodCount`; -1 means none, 0 is the Draught):
+  ids are on listings, so append goods, never renumber. A good returned to someone else (a listing that ran out on
+  another hero's read) goes through `AddGoodElsewhereAsync` (single UPDATEs; Korshards rewrite their "n;n;n;n;n" place in SQL).

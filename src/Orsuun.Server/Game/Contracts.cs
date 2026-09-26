@@ -46,6 +46,8 @@ public sealed record SocketClearRequest(string RequestId, Guid ItemId, int Socke
 public sealed record SocketResultDto(bool Success, int SocketIndex, string Text);
 
 public sealed record EquipRequest(string RequestId, Guid ItemId);
+/// <summary>Sells a bag piece to the merchant for sorn (Rules.Bag.SellPrice).</summary>
+public sealed record BagSellRequest(string RequestId, Guid ItemId);
 public sealed record ParkRequest(int Stage);
 /// <summary>An error the client caught; stored for the team, at most ClientLogsPerHour per account.</summary>
 public sealed record ClientLogRequest(string Platform, string Version, string Message, string? Stack = null);
@@ -156,12 +158,20 @@ public sealed record ChatReportRequest(long MessageId, string Channel = "world")
 public sealed record ChatBlockRequest(Guid AccountId, bool Block, string Channel = "world");
 
 /// <summary>A piece on the Salt Exchange with its full details, its price and its seller.</summary>
-/// <summary>A listing: a piece (Item), or with BookId 0..11 a stack of BookCount Technique Scrolls (Item null).</summary>
+/// <summary>
+/// A listing: a piece (Item), or with BookId a stack of BookCount Technique Scrolls, or with GoodId a stack of GoodCount
+/// goods (Rules.TradeGoods; Item null for both).
+/// </summary>
 public sealed record ListingDto(long Id, ItemDto? Item, long Price, string SellerName, Banner SellerBanner, bool Mine, int MinutesLeft,
-    ListingStatus Status = ListingStatus.Active, int BookId = -1, int BookCount = 0);
+    ListingStatus Status = ListingStatus.Active, int BookId = -1, int BookCount = 0, int GoodId = -1, int GoodCount = 0);
 public sealed record MarketDto(StateDto State, ListingDto[] Listings, int Page, int Pages, int Total, ListingDto[] Mine, int TaxPercent,
     string Message = "");
-public sealed record MarketListRequest(string RequestId, Guid ItemId, long Price, int BookId = -1, int BookCount = 0);
+public sealed record MarketListRequest(string RequestId, Guid ItemId, long Price, int BookId = -1, int BookCount = 0, int GoodId = -1, int GoodCount = 0);
+/// <summary>
+/// What a kind of thing sold for over Market.HistoryDays: sales, the average, lowest and highest price for one (a stack's
+/// price over its count), the last sale and how long ago, and up to ten recent prices for one, newest first.
+/// </summary>
+public sealed record PriceHistoryDto(string What, int Sales, long Average, long Low, long High, long Last, int LastMinutesAgo, int Days, long[] Recent);
 public sealed record MarketBuyRequest(string RequestId, long ListingId);
 
 /// <summary>Sign up saves an email and password to the account being played; sign in moves this device to an account.</summary>
@@ -200,7 +210,9 @@ public sealed record BossFightResultDto(int BossId, ulong Seed, long Damage, boo
 
 public sealed record ForgePreviewDto(long Cost, int Materials, int ChanceAloneBp, int ChanceAlloyBp, bool OathbreakPossible);
 
-public sealed record SettlementDto(long CountedSeconds, long Packs, long Korstones, long SornEarned, bool Offline, int ActiveBp = 10000, int LoopsVerified = 0);
+/// <summary>A settled stretch of hunting; LeftBehind counts the drops a full bag could not take.</summary>
+public sealed record SettlementDto(long CountedSeconds, long Packs, long Korstones, long SornEarned, bool Offline, int ActiveBp = 10000, int LoopsVerified = 0,
+    int LeftBehind = 0);
 
 /// <summary>Everything the client needs to draw the HUD and the Forge. Returned by every mutating call.</summary>
 public sealed record StateDto(

@@ -494,6 +494,32 @@ namespace Orsuun.Rules
             _sockets.Clear(item, socketIndex, Inventory);
         }
 
+        /// <summary>Sells a bag piece to the merchant for Bag.SellPrice (local play; online the server decides it).</summary>
+        public void SellPiece(ItemState item)
+        {
+            if (!Inventory.Loot.Remove(item)) throw new InvalidOperationException("Item is not in the bag.");
+            Inventory.Sorn += Bag.SellPrice(item);
+        }
+
+        /// <summary>
+        /// The drops a full bag cannot take (owner, 26 Sep 2026: left behind, nothing in the bag touched): the newest pieces
+        /// past Bag.Size leave the loot list and are returned for the log. <paramref name="stored"/> marks pieces already
+        /// in the bag (online: those with a server id), which are never taken; the server keeps its own count and its state
+        /// replaces this list at each heartbeat.
+        /// </summary>
+        public List<ItemState> LeaveBehindOverflow(Predicate<ItemState>? stored = null)
+        {
+            var left = new List<ItemState>();
+            for (int i = Inventory.Loot.Count - 1; i >= 0 && Inventory.Loot.Count > Bag.Size; i--)
+            {
+                ItemState piece = Inventory.Loot[i];
+                if (stored != null && stored(piece)) continue;
+                Inventory.Loot.RemoveAt(i);
+                left.Add(piece);
+            }
+            return left;
+        }
+
         /// <summary>Equips a piece from the loot list; the previous piece in that slot goes back to loot.</summary>
         public void Equip(ItemState item)
         {

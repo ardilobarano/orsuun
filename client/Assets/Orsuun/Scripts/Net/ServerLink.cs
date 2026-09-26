@@ -500,6 +500,15 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>Sells a bag piece to the merchant for sorn (Rules.Bag.SellPrice). Completes with an error, or null.</summary>
+        public IEnumerator SellPiece(string itemId, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/bag/sell", JsonUtility.ToJson(new EquipRequest { requestId = Guid.NewGuid().ToString("N"), itemId = itemId }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error);
+            done(failure);
+        }
+
         /// <summary>Server shard insert. Completes with the result text, or an error message.</summary>
         public IEnumerator SocketInsert(string itemId, int socketIndex, ShardType type, int rank, Action<bool, string> done)
         {
@@ -1096,10 +1105,11 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>Refreshes MarketView: one page of listings (slot empty = all; sort cheapest, newest or level) and mine.</summary>
-        public IEnumerator FetchMarket(string slot, string sort, int page, Action<string> done, bool books = false)
+        public IEnumerator FetchMarket(string slot, string sort, int page, Action<string> done, bool books = false, bool goods = false)
         {
             string failure = null;
-            string path = $"/v1/market?sort={sort}&page={page}" + (books ? "&books=true" : string.IsNullOrEmpty(slot) ? "" : "&slot=" + slot);
+            string path = $"/v1/market?sort={sort}&page={page}"
+                          + (books ? "&books=true" : goods ? "&goods=true" : string.IsNullOrEmpty(slot) ? "" : "&slot=" + slot);
             yield return Send("GET", path, null, true, ApplyMarket, error => failure = error);
             done(failure);
         }
@@ -1110,6 +1120,17 @@ namespace Orsuun.Client.Net
             string failure = null;
             yield return Post("/v1/market/" + path, JsonUtility.ToJson(request), true, ApplyMarket, error => failure = error);
             done(failure == null ? MarketView?.message : null, failure);
+        }
+
+        /// <summary>
+        /// What a kind of thing sold for lately: query "kind=good&amp;id=5", "kind=book&amp;id=3" or
+        /// "kind=piece&amp;slot=Weapon&amp;band=6&amp;plus=7&amp;rarity=Epic". Completes with the history, or null when it failed.
+        /// </summary>
+        public IEnumerator FetchPriceHistory(string query, Action<PriceHistoryDto> done)
+        {
+            PriceHistoryDto history = null;
+            yield return Send("GET", "/v1/market/history?" + query, null, true, json => history = JsonUtility.FromJson<PriceHistoryDto>(json), _ => { });
+            done(history);
         }
 
         private void ApplyMarket(string json)
@@ -1350,7 +1371,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class BossFightRequest { public string requestId; public int bossId; }
         [Serializable] public class BossStatusDto { public int bossId; public string name; public string mechanic; public bool up; public long secondsLeft; public bool foughtThisSpawn; public long hpLeft; public long hpMax; public bool slain; public string slainBy; public string slainBanner; public BossHitDto[] top; }
         [Serializable] public class BossFightResultDto { public int bossId; public ulong seed; public long damage; public bool killed; public int rank; public string chest; public int potionsAtStart; public string bell; public long poolLeft; public bool slew; }
-        [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; public int activeBp; public int loopsVerified; }
+        [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; public int activeBp; public int loopsVerified; public int leftBehind; }
         [Serializable] public class LaneDto { public string seed; public int loop; }
         [Serializable] public class CastDto { public int tick; public int skill; }
         [Serializable] public class LoopReportDto { public int loop; public int ticks; public int potions; public bool[] autoCast; public CastDto[] casts; }
@@ -1416,10 +1437,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class ChatSayRequest { public string channel; public string text; public long after; }
         [Serializable] public class ChatReportRequest { public long messageId; public string channel; }
         [Serializable] public class ChatBlockRequest { public string accountId; public bool block; public string channel; }
-        [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; public int bookId = -1; public int bookCount; }
+        [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; }
+        [Serializable] public class PriceHistoryDto { public string what; public int sales; public long average; public long low; public long high; public long last; public int lastMinutesAgo; public int days; public long[] recent; }
         [Serializable] public class MarketDto { public StateDto state; public ListingDto[] listings; public int page; public int pages; public int total; public ListingDto[] mine; public int taxPercent; public string message; }
         /// <summary>A scroll stack sends the empty Guid as itemId (the server reads it as a Guid).</summary>
-        [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; public int bookId = -1; public int bookCount; }
+        [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; }
         [Serializable] public class MarketBuyRequest { public string requestId; public long listingId; }
         [Serializable] public class RegisterRequest { public string email; public string password; }
         [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }

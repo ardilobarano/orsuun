@@ -52,12 +52,15 @@ namespace Orsuun.Client
         {
             public readonly string Icon, Name, Blurb;
             public readonly Func<GameRoot, long> Count;
+            /// <summary>Its Rules.TradeGoods id, for the Exchange's SELL; -1 for what stays with whoever earned it.</summary>
+            public readonly int Trade;
 
-            public Good(string icon, string name, string blurb, Func<GameRoot, long> count)
+            public Good(string icon, string name, string blurb, Func<GameRoot, long> count, int trade = -1)
             {
                 Icon = icon;
                 Name = name;
                 Blurb = blurb;
+                Trade = trade;
                 Count = count;
             }
         }
@@ -69,30 +72,45 @@ namespace Orsuun.Client
             var goods = new List<Good>
             {
                 new Good("Draught", "Draughts", "Healing draughts: the hero drinks one on the lane when his HP runs low. The Hunt Marks shop sells ten for a mark.",
-                    r => r.Session.Inventory.Potions),
+                    r => r.Session.Inventory.Potions, 0),
                 new Good("WolfSinew", "Hunt materials", "What the hunt's beasts leave behind (Wolf Sinew and the like). The Chained Smith takes them for his work.",
-                    r => r.Session.Inventory.Materials),
-                new Good("ScrollOfMercy", "Scroll of Mercy", "Laid on a Forge attempt: a failure only loses a level instead of the piece.", r => r.Session.Inventory.ScrollsOfMercy),
-                new Good("KhansAlloy", "Khan's Alloy", "Laid on a Forge attempt: +10 points of success, and a failure only loses a level.", r => r.Session.Inventory.KhansAlloys),
-                new Good("AnvilWard", "Anvil Ward", "Laid on a Forge attempt: a failure keeps the level.", r => r.Session.Inventory.AnvilWards),
-                new Good("Turnstone", "Turnstones", "Turn a piece's etchings at the Forge, one turn a stone.", r => r.Session.Inventory.Turnstones),
-                new Good("EtchingNeedle", "Etching Needle", "Adds an etching to a piece, the first to the fourth.", r => r.Session.Inventory.EtchingNeedles),
-                new Good("MastersNeedle", "Master's Needle", "Adds a piece's fifth etching (the Carvers' Archive's vault, or 90 Laurels in the Pit shop).", r => r.Session.Inventory.MastersNeedles),
-                new Good("PinningWax", "Pinning Wax", "Holds one etching of a piece through its turns.", r => r.Session.Inventory.PinningWax),
+                    r => r.Session.Inventory.Materials, 1),
+                new Good("ScrollOfMercy", "Scroll of Mercy", "Laid on a Forge attempt: a failure only loses a level instead of the piece.", r => r.Session.Inventory.ScrollsOfMercy, 2),
+                new Good("KhansAlloy", "Khan's Alloy", "Laid on a Forge attempt: +10 points of success, and a failure only loses a level.", r => r.Session.Inventory.KhansAlloys, 3),
+                new Good("AnvilWard", "Anvil Ward", "Laid on a Forge attempt: a failure keeps the level.", r => r.Session.Inventory.AnvilWards, 4),
+                new Good("Turnstone", "Turnstones", "Turn a piece's etchings at the Forge, one turn a stone.", r => r.Session.Inventory.Turnstones, 5),
+                new Good("EtchingNeedle", "Etching Needle", "Adds an etching to a piece, the first to the fourth.", r => r.Session.Inventory.EtchingNeedles, 6),
+                new Good("MastersNeedle", "Master's Needle", "Adds a piece's fifth etching (the Carvers' Archive's vault, or 90 Laurels in the Pit shop).", r => r.Session.Inventory.MastersNeedles, 7),
+                new Good("PinningWax", "Pinning Wax", "Holds one etching of a piece through its turns.", r => r.Session.Inventory.PinningWax, 8),
                 new Good("Oathstone", "Oathstone", "A marker fragment that still holds a vow: it pays for Grand skill grades (SKILLS) and a change of Banner.",
-                    r => r.Session.Inventory.Oathstones),
+                    r => r.Session.Inventory.Oathstones, 9),
                 new Good("HuntMark", "Hunt Marks", "Paid by bounties; spent in the Hunt Marks shop (BOUNTIES).", r => r.Session.Inventory.HuntMarks),
                 new Good("Laurel", "Laurels", "Won in the Pits; spent in the Pit shop.", r => r.Server.Pits?.laurels ?? 0),
                 new Good("GuildTally", "Guild Tallies", "Earned for your guild (donations, the Commander's first place); spent in the guild shop.", r => r.Server.Tallies),
-                new Good("SummoningMarker", "Summoning Marker", "A marker an Elder Korstone let fall.", r => r.Session.Inventory.SummoningMarkers),
+                new Good("SummoningMarker", "Summoning Marker", "A marker an Elder Korstone let fall.", r => r.Session.Inventory.SummoningMarkers, 10),
             };
             for (int rank = 0; rank < Content.KorshardRanks.Length; rank++)
             {
                 int r0 = rank;
                 goods.Add(new Good(SocketPanel.RankIcons[rank], Content.KorshardRanks[rank] + " Korshard",
-                    "Set in a piece's socket at SHARDS: the higher the rank, the stronger the shard.", r => r.Session.Inventory.Korshards[r0]));
+                    "Set in a piece's socket at SHARDS: the higher the rank, the stronger the shard.", r => r.Session.Inventory.Korshards[r0],
+                    TradeGoods.FirstKorshard + rank));
             }
             return goods.ToArray();
+        }
+
+        /// <summary>The icon of an Exchange good (Rules.TradeGoods id), as its inventory tile shows it.</summary>
+        public static string GoodIcon(int trade)
+        {
+            foreach (Good g in Goods) if (g.Trade == trade) return g.Icon;
+            return "Turnstone";
+        }
+
+        /// <summary>What an Exchange good is for, as its inventory tile says it.</summary>
+        public static string GoodBlurb(int trade)
+        {
+            foreach (Good g in Goods) if (g.Trade == trade) return g.Blurb;
+            return "";
         }
 
         private GameRoot _root;
@@ -124,9 +142,9 @@ namespace Orsuun.Client
         private Image _pictureGlow;
         private Text _pictureLevel;
         private Text _name, _info, _stats, _compare, _body, _sockets;
-        private readonly Button[] _actions = new Button[3];
-        private readonly Text[] _actionLabels = new Text[3];
-        private readonly Action[] _actionDo = new Action[3];
+        private readonly Button[] _actions = new Button[4];
+        private readonly Text[] _actionLabels = new Text[4];
+        private readonly Action[] _actionDo = new Action[4];
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -195,6 +213,7 @@ namespace Orsuun.Client
                 var tab = (Tab)i;
                 float x0 = 0.035f + i * 0.2325f;
                 _tabs[i] = Ui.Button("Tab" + i, canvas, x0, 0.507f, x0 + 0.225f, 0.547f, tabs[i], 22, Palette.ButtonIdle, () => _tab = tab, out _tabLabels[i]);
+                _tabLabels[i].supportRichText = true;
             }
             _gridView = Ui.Rect("GridView", canvas, 0.03f, 0.152f, 0.97f, 0.502f);
             Image viewBack = _gridView.gameObject.AddComponent<Image>();
@@ -283,13 +302,14 @@ namespace Orsuun.Client
             _body.resizeTextForBestFit = false;
             _sockets = Ui.Label("Sockets", c, 0.05f, 0.125f, 0.95f, 0.2f, "", 21, TextAnchor.MiddleLeft, Palette.Muted);
             foreach (Text t in new[] { _stats, _compare, _body, _sockets }) t.supportRichText = true;
+            // Four actions and CLOSE (a piece: EQUIP, FORGE / TURN, the Exchange, the merchant); two-line labels.
             for (int i = 0; i < _actions.Length; i++)
             {
                 int index = i;
-                float x0 = 0.025f + i * 0.24f;
-                _actions[i] = Ui.Button("Action" + i, c, x0, 0.02f, x0 + 0.23f, 0.11f, "", 22, Palette.Safe, () => _actionDo[index]?.Invoke(), out _actionLabels[i]);
+                float x0 = 0.02f + i * 0.19f;
+                _actions[i] = Ui.Button("Action" + i, c, x0, 0.02f, x0 + 0.18f, 0.11f, "", 19, Palette.Safe, () => _actionDo[index]?.Invoke(), out _actionLabels[i]);
             }
-            Ui.Button("CardClose", c, 0.745f, 0.02f, 0.975f, 0.11f, "CLOSE", 22, Palette.ButtonIdle, CloseCard, out _);
+            Ui.Button("CardClose", c, 0.78f, 0.02f, 0.975f, 0.11f, "CLOSE", 20, Palette.ButtonIdle, CloseCard, out _);
             _card.SetActive(false);
         }
 
@@ -400,6 +420,34 @@ namespace Orsuun.Client
             }
         }
 
+        /// <summary>
+        /// The merchant (owner, 26 Sep 2026: "selling mechanic ... for sorns but not automatically"): one piece, asked first,
+        /// for Bag.SellPrice. It is gone for good.
+        /// </summary>
+        private void AskSell(ItemState item)
+        {
+            long price = Bag.SellPrice(item);
+            string warn = item.UpgradeLevel > 0 || item.Rarity >= Rarity.Epic
+                ? "\n\n" + ConfirmDialog.Tint($"A {item.Rarity} +{item.UpgradeLevel}: the Exchange may pay far more.", Palette.Warn) : "";
+            _confirm.Show($"Sell +{item.UpgradeLevel} {item.DisplayName}?",
+                $"The merchant pays {price:N0} sorn. The piece is gone for good.{warn}", $"SELL  ·  {price:N0}", Palette.Danger, () =>
+                {
+                    CloseCard();
+                    if (_root.Server.Online)
+                    {
+                        string id = _root.Server.IdOf(item);
+                        if (id == null) return;
+                        StartCoroutine(_root.Server.SellPiece(id, error => _message.text = error ?? $"Sold for {price:N0} sorn."));
+                    }
+                    else
+                    {
+                        _root.Session.SellPiece(item);
+                        _message.text = $"Sold for {price:N0} sorn.";
+                    }
+                    GameAudio.Instance?.Play("LaneLoot", 0.9f, 0.1f, 0f);
+                });
+        }
+
         private void SendToForge(ItemState item)
         {
             CloseCard();
@@ -502,7 +550,8 @@ namespace Orsuun.Client
                 Tab.Materials => "Nothing yet: Korstones, bounties and dungeons pay in these.",
                 _ => "The bag is empty. Drops from the hunt land here.",
             };
-            _tabLabels[1].text = gear > 0 ? $"GEAR  {gear}" : "GEAR";
+            // The bag's count against its size, gold when full (new drops are then left behind; gold reads on either tab colour).
+            _tabLabels[1].text = gear >= Bag.Size ? ConfirmDialog.Tint($"GEAR  {gear}/{Bag.Size}", Palette.Sorn) : gear > 0 ? $"GEAR  {gear}/{Bag.Size}" : "GEAR";
             _tabLabels[2].text = books > 0 ? $"BOOKS  {books}" : "BOOKS";
             for (int i = 0; i < _tabs.Length; i++) _tabs[i].targetGraphic.color = (int)_tab == i ? Palette.Danger : Palette.ButtonIdle;
 
@@ -625,9 +674,10 @@ namespace Orsuun.Client
             _sockets.text = sockets.Count == 0 ? "No sockets" : "Sockets: " + string.Join("  ·  ", sockets);
 
             SetAction(0, worn ? "WORN" : "EQUIP", Palette.Safe, !worn, () => Equip(item));
-            SetAction(1, "FORGE / TURN", Palette.ButtonForge, !_root.Forge.Busy, () => SendToForge(item));
+            SetAction(1, "FORGE\nTURN", Palette.ButtonForge, !_root.Forge.Busy, () => SendToForge(item));
             string id = _root.Server.IdOf(item);
-            SetAction(2, "SELL", Palette.Alloy, !worn && id != null && _root.Server.Online, () => { CloseCard(); _canvas.SetActive(false); _root.Market.OpenSell(id); });
+            SetAction(2, "LIST ON\nEXCHANGE", Palette.Alloy, !worn && id != null && _root.Server.Online, () => { CloseCard(); _canvas.SetActive(false); _root.Market.OpenSell(id); });
+            SetAction(3, "SELL FOR\nSORN", Palette.Danger, !worn && (id != null || !_root.Server.Online), () => AskSell(item));
         }
 
         private void ShowBookDetail(PlayerSession session, int book)
@@ -667,6 +717,7 @@ namespace Orsuun.Client
             SetAction(0, mine ? "READ" : "NOT YOUR CLASS", Palette.ButtonForge, mine && SkillGrades.NeedsBooks(grade), () => { CloseCard(); _root.Skills.Open(slot); });
             SetAction(1, "SELL", Palette.Alloy, _root.Server.Online, () => { CloseCard(); _canvas.SetActive(false); _root.Market.OpenSellBook(book); });
             SetAction(2, null, Color.white, false, null);
+            SetAction(3, null, Color.white, false, null);
         }
 
         private void ShowGoodDetail(int index)
@@ -680,11 +731,14 @@ namespace Orsuun.Client
             _info.text = $"You hold {n:N0}";
             _stats.text = "";
             _compare.text = "";
-            _body.text = good.Blurb;
+            _body.text = good.Blurb + (good.Trade >= 0 ? "" : ConfirmDialog.Tint("\n\nIt stays with whoever earned it: the Exchange does not take it.", Palette.Muted));
             _sockets.text = "";
-            SetAction(0, null, Color.white, false, null);
+            int trade = good.Trade;
+            SetAction(0, trade >= 0 ? "SELL" : null, Palette.Alloy, trade >= 0 && _root.Server.Online,
+                () => { CloseCard(); _canvas.SetActive(false); _root.Market.OpenSellGood(trade); });
             SetAction(1, null, Color.white, false, null);
             SetAction(2, null, Color.white, false, null);
+            SetAction(3, null, Color.white, false, null);
         }
 
         /// <summary>

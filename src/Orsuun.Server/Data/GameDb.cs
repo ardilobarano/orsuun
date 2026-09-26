@@ -126,6 +126,7 @@ public sealed class GameDb : DbContext
         {
             e.HasIndex(l => new { l.Status, l.Slot, l.Price });
             e.HasIndex(l => new { l.Status, l.ExpiresUtc });
+            e.HasIndex(l => new { l.Status, l.ClosedUtc });   // price histories read the recent sales
             e.HasIndex(l => new { l.SellerId, l.Status });
             e.HasIndex(l => l.ItemId);
             e.Property(l => l.Slot).HasConversion<int>();

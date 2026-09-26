@@ -178,7 +178,8 @@ namespace Orsuun.Client
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-war") >= 0) War.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-bounties") >= 0) Bounties.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-guild") >= 0) Guild.Open();
-            // -chat, -zones, -shards, -market (-sell, -mylistings, -marketbooks, -sellbook) and -account open those screens for screenshots.
+            // -chat, -zones, -shards, -market (-sell, -mylistings, -marketbooks, -sellbook, -marketgoods, -sellgood) and -account open
+            // those screens for screenshots.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-chat") >= 0) Chat.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-zones") >= 0) Zones.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-shards") >= 0) Sockets.Open();
@@ -504,6 +505,9 @@ namespace Orsuun.Client
                     Lane.Bind(lane);
                 }
             }
+            // A full bag leaves new drops behind (owner, 26 Sep 2026).
+            foreach (ItemState left in Session.LeaveBehindOverflow(piece => Server.Online && Server.IdOf(piece) != null))
+                Hud.Log($"Bag full: {left.DisplayName} left behind");
         }
 
         /// <summary>Moves the farm lane to an unlocked stage or zone, on the server when connected.</summary>
