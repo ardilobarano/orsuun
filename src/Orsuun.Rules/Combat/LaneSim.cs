@@ -38,6 +38,10 @@ namespace Orsuun.Rules.Combat
         public int CommanderDamageTakenPercent { get; set; } = 100;
         /// <summary>Skill grades (Rules.SkillGrades) by skill slot: extra power of a burst or area, half as much longer haste.</summary>
         public int[] SkillGradeBonusPercent { get; set; } = new int[SkillGrades.Slots];
+        /// <summary>The hero's level: the fourth and fifth skills unlock by it (SkillDef.UnlockLevel).</summary>
+        public int Level { get; set; } = 1;
+        /// <summary>Riding a wardrobe mount (owner, 26 Sep 2026): plain attacks only, no skills until he dismounts.</summary>
+        public bool Mounted { get; set; }
     }
 
     public enum SkillKind
@@ -48,17 +52,38 @@ namespace Orsuun.Rules.Combat
         Area,
         /// <summary>Halves the attack interval for a while.</summary>
         Haste,
+        /// <summary>Attack rises by PowerPercent for the duration (Honed Edge).</summary>
+        Empower,
+        /// <summary>Hits every enemy for PowerPercent, and none of them but a boss strikes for the duration (Bull Rush).</summary>
+        Charge,
+        /// <summary>Every enemy takes PowerPercent each second for the duration (Venom Cloud).</summary>
+        Poison,
+        /// <summary>PowerPercent on the toughest (aimed) or the front enemy, doubled below LaneSim.ExecuteBelowPercent health (Shadow Stoop).</summary>
+        Execute,
+        /// <summary>For the duration enemies (not a boss) strike half as often, and all take PowerPercent more damage (Grave Chains).</summary>
+        Bind,
+        /// <summary>A veil takes damage up to PowerPercent of max HP for the duration (Shroud of Night).</summary>
+        Shield,
+        /// <summary>Crit chance rises by PowerPercent points for the duration (Hunter's Blessing).</summary>
+        Focus,
+        /// <summary>For the duration blows land LaneSim.WardReductionPercent lighter and PowerPercent of each returns to its striker (Mirror Ward).</summary>
+        Ward,
     }
 
     public sealed class SkillDef
     {
-        public SkillDef(string name, SkillKind kind, int cooldownTicks, int powerPercent, int durationTicks = 0)
+        /// <summary>Owner, 26 Sep 2026: five skills a class; the fourth unlocks at level 30, the fifth at level 60.</summary>
+        public const int FourthSkillLevel = 30;
+        public const int FifthSkillLevel = 60;
+
+        public SkillDef(string name, SkillKind kind, int cooldownTicks, int powerPercent, int durationTicks = 0, int unlockLevel = 1)
         {
             Name = name;
             Kind = kind;
             CooldownTicks = cooldownTicks;
             PowerPercent = powerPercent;
             DurationTicks = durationTicks;
+            UnlockLevel = unlockLevel;
         }
 
         public string Name { get; }
@@ -66,6 +91,8 @@ namespace Orsuun.Rules.Combat
         public int CooldownTicks { get; }
         public int PowerPercent { get; }
         public int DurationTicks { get; }
+        /// <summary>The hero level the skill unlocks at (1: from the start).</summary>
+        public int UnlockLevel { get; }
 
         /// <summary>The kit a class fights with.</summary>
         public static SkillDef[] For(HeroClass cls)
@@ -88,6 +115,8 @@ namespace Orsuun.Rules.Combat
             new SkillDef("Void Lance", SkillKind.Burst, 8 * LaneSim.TicksPerSecond, 750),
             new SkillDef("Grave Tide", SkillKind.Area, 10 * LaneSim.TicksPerSecond, 170),
             new SkillDef("Pact Frenzy", SkillKind.Haste, 16 * LaneSim.TicksPerSecond, 0, 5 * LaneSim.TicksPerSecond),
+            new SkillDef("Grave Chains", SkillKind.Bind, 16 * LaneSim.TicksPerSecond, 30, 6 * LaneSim.TicksPerSecond, FourthSkillLevel),
+            new SkillDef("Shroud of Night", SkillKind.Shield, 20 * LaneSim.TicksPerSecond, 25, 8 * LaneSim.TicksPerSecond, FifthSkillLevel),
         };
 
         /// <summary>
@@ -99,6 +128,8 @@ namespace Orsuun.Rules.Combat
             new SkillDef("Sky Hammer", SkillKind.Burst, 7 * LaneSim.TicksPerSecond, 450),
             new SkillDef("Storm Drum", SkillKind.Area, 8 * LaneSim.TicksPerSecond, 200),
             new SkillDef("War Rhythm", SkillKind.Haste, 14 * LaneSim.TicksPerSecond, 0, 7 * LaneSim.TicksPerSecond),
+            new SkillDef("Hunter's Blessing", SkillKind.Focus, 18 * LaneSim.TicksPerSecond, 20, 8 * LaneSim.TicksPerSecond, FourthSkillLevel),
+            new SkillDef("Mirror Ward", SkillKind.Ward, 20 * LaneSim.TicksPerSecond, 40, 8 * LaneSim.TicksPerSecond, FifthSkillLevel),
         };
 
         /// <summary>
@@ -111,14 +142,18 @@ namespace Orsuun.Rules.Combat
             new SkillDef("Heartseeker", SkillKind.Burst, 6 * LaneSim.TicksPerSecond, 600),
             new SkillDef("Knife Fan", SkillKind.Area, 10 * LaneSim.TicksPerSecond, 130),
             new SkillDef("Kestrel's Dive", SkillKind.Haste, 14 * LaneSim.TicksPerSecond, 0, 5 * LaneSim.TicksPerSecond),
+            new SkillDef("Venom Cloud", SkillKind.Poison, 15 * LaneSim.TicksPerSecond, 45, 6 * LaneSim.TicksPerSecond, FourthSkillLevel),
+            new SkillDef("Shadow Stoop", SkillKind.Execute, 16 * LaneSim.TicksPerSecond, 500, 0, FifthSkillLevel),
         };
 
-        /// <summary>Grey-box kit of the Vanguard, Wrath branch.</summary>
+        /// <summary>The Vanguard, Wrath branch (world bible): the three first kit, then Honed Edge and Bull Rush.</summary>
         public static SkillDef[] VanguardWrath() => new[]
         {
             new SkillDef("Rending Arc", SkillKind.Burst, 6 * LaneSim.TicksPerSecond, 400),
             new SkillDef("Iron Whirl", SkillKind.Area, 9 * LaneSim.TicksPerSecond, 180),
             new SkillDef("Blood Fury", SkillKind.Haste, 15 * LaneSim.TicksPerSecond, 0, 5 * LaneSim.TicksPerSecond),
+            new SkillDef("Honed Edge", SkillKind.Empower, 20 * LaneSim.TicksPerSecond, 25, 8 * LaneSim.TicksPerSecond, FourthSkillLevel),
+            new SkillDef("Bull Rush", SkillKind.Charge, 14 * LaneSim.TicksPerSecond, 180, 2 * LaneSim.TicksPerSecond, FifthSkillLevel),
         };
     }
 
@@ -289,6 +324,11 @@ namespace Orsuun.Rules.Combat
         /// </summary>
         public const int AimedWeakPointPercent = 500;
 
+        /// <summary>An Execute (Shadow Stoop) hits twice as hard on an enemy below this share of its health.</summary>
+        public const int ExecuteBelowPercent = 30;
+        /// <summary>A Ward (Mirror Ward) takes this share off every blow while it stands.</summary>
+        public const int WardReductionPercent = 20;
+
         private readonly StageConfig _stage;
         private readonly Inventory _inventory;
         private readonly IRandom _rng;
@@ -301,6 +341,15 @@ namespace Orsuun.Rules.Combat
         private int _phaseTicksLeft;
         private int _heroNextAttackTick;
         private int _hasteUntilTick;
+        // The fourth and fifth skills (owner, 26 Sep 2026): each a timed state of the lane.
+        private int _empowerUntilTick, _empowerPercent;
+        private int _focusUntilTick, _focusBp;
+        private int _poisonUntilTick, _poisonPercent, _poisonNextTick;
+        private int _bindUntilTick, _bindPercent;
+        private int _shieldUntilTick;
+        private long _shieldHp;
+        private int _wardUntilTick, _wardPercent;
+        private readonly List<(Enemy Striker, long Amount)> _reflected = new List<(Enemy, long)>();
         private int _potionReadyAtTick;
         private int _nextEnemyId = 1;
         private int _nextPackCallTick;
@@ -325,6 +374,8 @@ namespace Orsuun.Rules.Combat
 
         public SkillDef[] Skills { get; }
         public bool[] AutoCast { get; }
+        /// <summary>The hero fighting this lane (read only: SetHero swaps it).</summary>
+        public HeroStats Hero => _hero;
         public LanePhase Phase { get; private set; }
         public long HeroHp { get; private set; }
         public long HeroMaxHp => _hero.MaxHp;
@@ -348,6 +399,16 @@ namespace Orsuun.Rules.Combat
         public bool IsBossEncounter => IsKorstoneEncounter && _stage.FinalEncounter == FinalEncounter.Boss;
         public bool IsElderNext => _stage.ElderEvery > 0 && (KorstonesDestroyed + 1) % _stage.ElderEvery == 0;
         public bool HasteActive => _tick < _hasteUntilTick;
+        public bool EmpowerActive => _tick < _empowerUntilTick;
+        public bool FocusActive => _tick < _focusUntilTick;
+        public bool PoisonActive => _tick < _poisonUntilTick;
+        public bool BindActive => _tick < _bindUntilTick;
+        public bool ShieldActive => _tick < _shieldUntilTick && _shieldHp > 0;
+        public bool WardActive => _tick < _wardUntilTick;
+        /// <summary>Whether this hero's level has reached the skill (SkillDef.UnlockLevel).</summary>
+        public bool IsUnlocked(int skillIndex) => Skills[skillIndex].UnlockLevel <= _hero.Level;
+        /// <summary>On a mount the hero only makes plain attacks (owner, 26 Sep 2026); skills wait until he dismounts.</summary>
+        public bool Mounted => _hero.Mounted;
         /// <summary>Damage landed on bosses, for Commander damage brackets.</summary>
         public long BossDamageDealt { get; private set; }
 
@@ -369,7 +430,7 @@ namespace Orsuun.Rules.Combat
         /// </summary>
         private bool Cast(int skillIndex, bool aimed)
         {
-            if (Phase != LanePhase.Fighting || CooldownTicksLeft(skillIndex) > 0) return false;
+            if (Phase != LanePhase.Fighting || _hero.Mounted || CooldownTicksLeft(skillIndex) > 0 || !IsUnlocked(skillIndex)) return false;
 
             SkillDef skill = Skills[skillIndex];
             _readyAtTick[skillIndex] = _tick + skill.CooldownTicks;
@@ -392,6 +453,52 @@ namespace Orsuun.Rules.Combat
 
                 case SkillKind.Haste:
                     _hasteUntilTick = _tick + skill.DurationTicks * (100 + grade / 2) / 100;
+                    break;
+
+                // Grades raise the power of the newer kinds too; a stun or a bind lasts half as much longer.
+                case SkillKind.Empower:
+                    _empowerUntilTick = _tick + skill.DurationTicks;
+                    _empowerPercent = power;
+                    break;
+
+                case SkillKind.Charge:
+                    foreach (Enemy e in _enemies.ToArray())
+                        if (e.Hp > 0 && _enemies.Contains(e)) Hit(e, power);
+                    int stunUntil = _tick + skill.DurationTicks * (100 + grade / 2) / 100;
+                    // Map bosses and Commanders shrug off the stun (their captains and images do not).
+                    foreach (Enemy e in _enemies)
+                        if (!e.IsKorstone && !e.IsBoss) e.NextAttackTick = Math.Max(e.NextAttackTick, stunUntil);
+                    break;
+
+                case SkillKind.Poison:
+                    _poisonUntilTick = _tick + skill.DurationTicks;
+                    _poisonPercent = power;
+                    _poisonNextTick = _tick + TicksPerSecond;
+                    break;
+
+                case SkillKind.Execute:
+                    Enemy? mark = aimed ? Toughest() : FrontTarget();
+                    if (mark != null) Hit(mark, mark.Hp * 100 < mark.MaxHp * ExecuteBelowPercent ? power * 2 : power);
+                    break;
+
+                case SkillKind.Bind:
+                    _bindUntilTick = _tick + skill.DurationTicks * (100 + grade / 2) / 100;
+                    _bindPercent = power;
+                    break;
+
+                case SkillKind.Shield:
+                    _shieldUntilTick = _tick + skill.DurationTicks;
+                    _shieldHp = _hero.MaxHp * power / 100;
+                    break;
+
+                case SkillKind.Focus:
+                    _focusUntilTick = _tick + skill.DurationTicks;
+                    _focusBp = power * 100;
+                    break;
+
+                case SkillKind.Ward:
+                    _wardUntilTick = _tick + skill.DurationTicks;
+                    _wardPercent = power;
                     break;
             }
 
@@ -454,6 +561,13 @@ namespace Orsuun.Rules.Combat
             for (int i = 0; i < Skills.Length; i++)
                 if (AutoCast[i]) Cast(i, aimed: false);
 
+            if (PoisonActive && _tick >= _poisonNextTick)
+            {
+                _poisonNextTick += TicksPerSecond;
+                foreach (Enemy e in _enemies.ToArray())
+                    if (e.Hp > 0 && _enemies.Contains(e)) Hit(e, _poisonPercent, canCrit: false);
+            }
+
             if (_tick >= _heroNextAttackTick && _enemies.Count > 0)
             {
                 Hit(FrontTarget()!, 100);
@@ -466,7 +580,8 @@ namespace Orsuun.Rules.Combat
             {
                 if (e.IsBoss) boss = e;
                 if (e.IsKorstone || _tick < e.NextAttackTick) continue;
-                e.NextAttackTick = _tick + _stage.MobAttackIntervalTicks;
+                // Chains slow everything but a boss, which breaks them (it still takes the extra damage).
+                e.NextAttackTick = _tick + (BindActive && !e.IsBoss ? _stage.MobAttackIntervalTicks * 2 : _stage.MobAttackIntervalTicks);
                 if (_hero.EvasionBp > 0 && _rng.RollBp(_hero.EvasionBp))
                 {
                     _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, e.Id, 0, text: "evaded"));
@@ -475,9 +590,18 @@ namespace Orsuun.Rules.Combat
                 long damage = Math.Max(1, e.Attack - _hero.Defense);
                 if (e.IsBoss || e.Kind == EnemyKind.Image || e.Kind == EnemyKind.Captain)
                     damage = Math.Max(1, damage * _hero.CommanderDamageTakenPercent / 100);
+                damage = Mitigate(e, damage, out bool veiled);
                 HeroHp -= damage;
-                _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, e.Id, damage));
+                _events.Add(new LaneEvent(LaneEventKind.HeroDamaged, e.Id, damage, text: veiled ? "veiled" : null));
                 if (HeroHp <= 0) break;
+            }
+
+            // A Ward's returned blows land once the strikers are done (they may kill them).
+            if (_reflected.Count > 0)
+            {
+                foreach ((Enemy striker, long amount) in _reflected.ToArray())
+                    if (striker.Hp > 0 && _enemies.Contains(striker) && !Shielded(striker)) Wound(striker, amount, false);
+                _reflected.Clear();
             }
 
             if (boss != null && _stage.BossMechanic == BossMechanic.PackCaller && _tick >= _nextPackCallTick)
@@ -509,6 +633,9 @@ namespace Orsuun.Rules.Combat
 
             if (_enemies.Count == 0)
             {
+                // A cloud or chains stay with the pack they were cast on.
+                _poisonUntilTick = 0;
+                _bindUntilTick = 0;
                 _events.Add(new LaneEvent(LaneEventKind.EncounterCleared));
                 if (IsKorstoneEncounter) Clears++;
                 int loop = _stage.FinalEncounter == FinalEncounter.None ? _stage.PacksBeforeKorstone : _stage.PacksBeforeKorstone + 1;
@@ -573,23 +700,56 @@ namespace Orsuun.Rules.Combat
             _events.Add(new LaneEvent(LaneEventKind.EnemySpawned, enemy.Id));
         }
 
-        private void Hit(Enemy enemy, int powerPercent)
+        /// <summary>The captains' shield on their boss: a blow on it is turned aside (said once per blow).</summary>
+        private bool Shielded(Enemy enemy)
         {
-            if (enemy.IsBoss && _stage.BossMechanic == BossMechanic.CaptainShield)
+            if (!enemy.IsBoss || _stage.BossMechanic != BossMechanic.CaptainShield) return false;
+            foreach (Enemy e in _enemies)
             {
-                foreach (Enemy e in _enemies)
-                {
-                    if (e.Kind != EnemyKind.Captain) continue;
-                    _events.Add(new LaneEvent(LaneEventKind.Shielded, enemy.Id, text: "Shielded by captains"));
-                    return;
-                }
+                if (e.Kind != EnemyKind.Captain) continue;
+                _events.Add(new LaneEvent(LaneEventKind.Shielded, enemy.Id, text: "Shielded by captains"));
+                return true;
             }
+            return false;
+        }
 
-            bool crit = _rng.RollBp(_hero.CritChanceBp);
-            long damage = _hero.Attack * powerPercent / 100 * _stage.DamagePercent / 100;
+        /// <summary>A Ward softens a blow and queues its return; a Shield then takes what it can. Returns what reaches the hero.</summary>
+        private long Mitigate(Enemy striker, long damage, out bool veiled)
+        {
+            veiled = false;
+            if (WardActive)
+            {
+                damage = Math.Max(1, damage * (100 - WardReductionPercent) / 100);
+                _reflected.Add((striker, Math.Max(1, damage * _wardPercent / 100)));
+            }
+            if (ShieldActive)
+            {
+                long absorbed = Math.Min(_shieldHp, damage);
+                _shieldHp -= absorbed;
+                damage -= absorbed;
+                veiled = absorbed > 0;
+            }
+            return damage;
+        }
+
+        /// <param name="canCrit">False for poison ticks: a cloud does not find weak points.</param>
+        private void Hit(Enemy enemy, int powerPercent, bool canCrit = true)
+        {
+            if (Shielded(enemy)) return;
+
+            long attack = EmpowerActive ? _hero.Attack * (100 + _empowerPercent) / 100 : _hero.Attack;
+            bool crit = canCrit && _rng.RollBp(_hero.CritChanceBp + (FocusActive ? _focusBp : 0));
+            long damage = attack * powerPercent / 100 * _stage.DamagePercent / 100;
             if (crit) damage = damage * _hero.CritMultiplierPercent / 100;
             if (!enemy.IsBoss && _hero.BeastDamagePercent > 0) damage = damage * (100 + _hero.BeastDamagePercent) / 100;
             damage = Math.Max(1, damage * (90 + _rng.NextInt(21)) / 100);
+            if (BindActive) damage = damage * (100 + _bindPercent) / 100;
+            Wound(enemy, damage, crit);
+        }
+
+        /// <summary>Damage that has landed: the enemy loses it, and dies, drops, splits or calls a wave as it must.</summary>
+        private void Wound(Enemy enemy, long damage, bool crit)
+        {
             damage = Math.Min(damage, enemy.Hp);
 
             enemy.Hp -= damage;

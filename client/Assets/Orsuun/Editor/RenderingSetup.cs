@@ -393,8 +393,8 @@ namespace Orsuun.Client.EditorTools
             cam.fieldOfView = 25f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.16f, 0.19f, 0.24f);
-            cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);
-            cam.transform.LookAt(new Vector3(1.5f, 1.1f, 0f));
+            cam.transform.position = new Vector3(1.5f, 5.4f, -19.5f);
+            cam.transform.LookAt(new Vector3(1.5f, 1.9f, 0f));
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
             var rig = new GameObject("Lane"); rig.transform.SetParent(root.transform);
             var view = rig.AddComponent<Orsuun.Client.LaneView>();
@@ -630,8 +630,8 @@ namespace Orsuun.Client.EditorTools
             cam.fieldOfView = 25f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.16f, 0.19f, 0.24f);
-            cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);
-            cam.transform.LookAt(new Vector3(1.5f, 1.1f, 0f));
+            cam.transform.position = new Vector3(1.5f, 5.4f, -19.5f);
+            cam.transform.LookAt(new Vector3(1.5f, 1.9f, 0f));
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
             var rig = new GameObject("Lane"); rig.transform.SetParent(root.transform);
             var view = rig.AddComponent<Orsuun.Client.LaneView>();
@@ -732,8 +732,8 @@ namespace Orsuun.Client.EditorTools
             }
 
             // Enemies from a live lane: a stage-1 pack, then each Commander (the boss stage has no packs).
-            cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);
-            cam.transform.LookAt(new Vector3(1.5f, 1.1f, 0f));
+            cam.transform.position = new Vector3(1.5f, 5.4f, -19.5f);
+            cam.transform.LookAt(new Vector3(1.5f, 1.9f, 0f));
             view.SetLooks("Armor_T1", "Weapon_T1");
             var heroStats = Orsuun.Rules.HeroFactory.FromWeapon(new Orsuun.Rules.ItemState(10, Orsuun.Rules.Rarity.Rare));
             var skills = Orsuun.Rules.Combat.SkillDef.VanguardWrath();

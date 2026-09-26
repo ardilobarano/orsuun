@@ -192,6 +192,10 @@ namespace Orsuun.Rules
         /// <summary>Lane configuration for a campaign stage or a zone id.</summary>
         public static StageConfig Stage(int parkId) => IsZone(parkId) ? ZoneStage(parkId) : CampaignStage(parkId);
 
+        /// <summary>A map boss's health (percent) where heroes meet it with four skills, and with five (SkillDef unlocks).</summary>
+        public const int BossHpWithFourthSkill = 112;
+        public const int BossHpWithFifthSkill = 125;
+
         private static StageConfig CampaignStage(int stage)
         {
             int s = ClampStage(stage);
@@ -206,6 +210,9 @@ namespace Orsuun.Rules
             int early = Math.Min(s, MapDef.StagesPerMap) - 1;
             int hpPct = 100 + 12 * early + 197 * past / 10;
             int atkPct = 100 + 9 * early + 138 * past / 10;
+            // The fourth and fifth skills (owner, 26 Sep 2026) add about a tenth, then a quarter, to a hero's damage by
+            // the map boss's level; the boss has as much more health, so its gear check holds.
+            int skillPct = map.LevelMax >= SkillDef.FifthSkillLevel ? BossHpWithFifthSkill : map.LevelMax >= SkillDef.FourthSkillLevel ? BossHpWithFourthSkill : 100;
             return new StageConfig
             {
                 StageNumber = s,
@@ -216,7 +223,7 @@ namespace Orsuun.Rules
                 SornPerMob = 150 * hpPct / 100,
                 XpPerMob = 10 * hpPct / 100,
                 FinalEncounter = inMap == MapDef.StagesPerMap ? FinalEncounter.Boss : FinalEncounter.Korstone,
-                BossHp = 9000L * hpPct / 100 * map.BossPercent / 100,
+                BossHp = 9000L * hpPct / 100 * map.BossPercent / 100 * skillPct / 100,
                 BossAttack = 95L * atkPct / 100 * map.BossPercent / 100,
                 BossName = map.BossName,
                 MaterialName = map.Material,

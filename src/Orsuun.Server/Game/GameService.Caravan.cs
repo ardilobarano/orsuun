@@ -87,6 +87,12 @@ public sealed partial class GameService
     public async Task<StateDto> WearAsync(Account account, WearRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        // A piece changes the hero (skin HP, mount attack, and a mounted hero casts no skills): the time on the old
+        // hero is settled first and the lane gets a fresh seed, as with a class change.
+        DateTime now = DateTime.UtcNow;
+        Settle(account, now);
+        account.LastHeartbeatUtc = now;
+        NewLane(account);
         if (string.IsNullOrEmpty(request.PieceId))
         {
             if (!Enum.TryParse(request.Kind, out WardrobeKind kind)) throw new GameException("no_slot", "No such wardrobe slot.");

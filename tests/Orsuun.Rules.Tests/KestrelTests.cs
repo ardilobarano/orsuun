@@ -23,7 +23,7 @@ public class KestrelTests
         Assert.True(k.AttackIntervalTicks < v.AttackIntervalTicks);
         Assert.Equal(v.CritChanceBp + 700, k.CritChanceBp);
         Assert.True(k.MaxHp < v.MaxHp);
-        Assert.Equal(new[] { "Heartseeker", "Knife Fan", "Kestrel's Dive" }, SkillDef.For(HeroClass.Kestrel).Select(s => s.Name).ToArray());
+        Assert.Equal(new[] { "Heartseeker", "Knife Fan", "Kestrel's Dive", "Venom Cloud", "Shadow Stoop" }, SkillDef.For(HeroClass.Kestrel).Select(s => s.Name).ToArray());
         Assert.Equal("Rending Arc", SkillDef.For(HeroClass.Vanguard)[0].Name);
     }
 

@@ -9,12 +9,13 @@ namespace Orsuun.Rules
 
     /// <summary>
     /// Skill books (owner, 26 Sep 2026: "each classes each skill need a seperate book"): one Technique Scroll per skill of
-    /// each class, twelve in all (world bible: "Technique Scroll: Iron Whirl"). Book id = class * 3 + skill slot. Books
-    /// drop for any class and trade on the Salt Exchange and in direct trade, stacked.
+    /// each class, twenty in all since every class has five skills (world bible: "Technique Scroll: Iron Whirl"). Book id =
+    /// class * 5 + skill slot. Books drop for any class and trade on the Salt Exchange and in direct trade, stacked.
     /// </summary>
     public static class Books
     {
-        public const int Count = 12;
+        public const int Classes = 4;
+        public const int Count = Classes * SkillGrades.Slots;
         public const int MaxStack = 999;
 
         public static int Id(HeroClass cls, int slot) => (int)cls * SkillGrades.Slots + slot;
@@ -38,7 +39,8 @@ namespace Orsuun.Rules
     /// </summary>
     public static class SkillGrades
     {
-        public const int Slots = 3;
+        /// <summary>Skills a class has (owner, 26 Sep 2026: five; the fourth and fifth unlock at levels 30 and 60).</summary>
+        public const int Slots = 5;
         public const int MasteredSteps = 10;
         public const int GrandSteps = 10;
         /// <summary>0 Normal, 1-10 M1-M10, 11-20 G1-G10, 21 Peerless.</summary>
@@ -119,7 +121,7 @@ namespace Orsuun.Rules
             return reads + 1 >= ReadsNeeded(grade) ? (grade + 1, 0) : (grade, reads + 1);
         }
 
-        /// <summary>The three grades of a class's skills out of all twelve (by book id).</summary>
+        /// <summary>The grades of a class's five skills out of all twenty (by book id).</summary>
         public static int[] ForClass(IReadOnlyList<int> all, HeroClass cls)
         {
             var grades = new int[Slots];
@@ -131,7 +133,7 @@ namespace Orsuun.Rules
             return grades;
         }
 
-        /// <summary>Twelve numbers stored as "n;n;..".</summary>
+        /// <summary>Twenty numbers (one per book id) stored as "n;n;..".</summary>
         public static int[] Parse(string? text, int max = Max)
         {
             var values = new int[Books.Count];

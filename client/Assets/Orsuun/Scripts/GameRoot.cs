@@ -241,9 +241,30 @@ namespace Orsuun.Client
             string fxDemo = Arg("-fxdemo");
             if (fxDemo != null) StartCoroutine(Forge.Demo(fxDemo));
 
-            // Dev switch: -shot <png> [-shotAfter seconds] saves the screen and quits (tools/screenshot-mac.sh).
+            // Dev switch: -shot <png> [-shotAfter seconds] saves the screen and quits (tools/screenshot-mac.sh). With
+            // -castshow <slot> the shot waits for that skill's cast instead (-castdelay: seconds after its strike).
             string shot = Arg("-shot");
-            if (shot != null) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float after) ? after : 8f));
+            _castShow = int.TryParse(Arg("-castshow"), out int castSlot) ? castSlot : -1;
+            if (shot != null && _castShow < 0) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float after) ? after : 8f));
+            if (shot != null && _castShow >= 0) _castFallback = StartCoroutine(ShotAndQuit(shot, 60f));   // gives up after a minute
+        }
+
+        private int _castShow = -1;
+        private bool _castShot;
+        private Coroutine _castFallback;
+
+        /// <summary>Screenshots of a skill (-castshow): cast it once the hero fights, and shoot just after its strike.</summary>
+        private void CastShow()
+        {
+            if (_castShow < 0 || _castShot || Time.realtimeSinceStartup < 7f || Replaying) return;
+            LaneSim lane = Session.Lane;
+            if (lane.Phase != LanePhase.Fighting || _castShow >= lane.Skills.Length || !lane.IsUnlocked(_castShow)) return;
+            if (!Session.Cast(_castShow)) return;
+            _castShot = true;
+            string shot = Arg("-shot");
+            float delay = float.TryParse(Arg("-castdelay"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float d) ? d : 0.12f;
+            if (_castFallback != null) StopCoroutine(_castFallback);
+            if (shot != null) StartCoroutine(ShotAndQuit(shot, CastClips.ImpactSeconds(Session.Class, _castShow) + delay));
         }
 
         /// <summary>Local-only demo bag: a spread of slots and rarities, some with etchings and levels.</summary>
@@ -358,6 +379,7 @@ namespace Orsuun.Client
 
         private void Update()
         {
+            CastShow();
             if (Server.Online && Server.InGuild && (_openGuildWar || _duelLane >= 0))
             {
                 if (_openGuildWar) GuildWar.Open();
@@ -869,9 +891,11 @@ namespace Orsuun.Client
             cam.fieldOfView = 25f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.16f, 0.19f, 0.24f);
-            // Frames x from about -3 to 6: hero on the left, a full pack and the Korstone on the right.
-            cam.transform.position = new Vector3(1.5f, 4.6f, -19.5f);
-            cam.transform.LookAt(new Vector3(1.5f, 1.1f, 0f));
+            // Frames x from about -3 to 6: hero on the left, a full pack and the Korstone on the right. Raised 0.8 m
+            // (owner, 26 Sep 2026: "put the char and the mobs a bit lower") so heads, bosses and skill effects clear
+            // the HUD's goal plate and banners.
+            cam.transform.position = new Vector3(1.5f, 5.4f, -19.5f);
+            cam.transform.LookAt(new Vector3(1.5f, 1.9f, 0f));
 
             var sun = new GameObject("Sun").AddComponent<Light>();
             sun.type = LightType.Directional;

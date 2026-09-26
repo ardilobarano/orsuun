@@ -225,6 +225,9 @@ namespace Orsuun.Client
             BuildScenery();
             BuildHero();
             SetZone(sim.Stage.Zone, sim.Stage.StageNumber);
+            _skillFx = new GameObject("SkillFx").AddComponent<SkillFx>();
+            _skillFx.transform.SetParent(transform, false);
+            _skillFx.Init(this);
         }
 
         /// <summary>Ground, scrolling stripes and the zone backdrop. Public so the editor preview can frame it.</summary>
@@ -252,7 +255,7 @@ namespace Orsuun.Client
             // upper three quarters (grass band, hills, sky) show above it.
             Transform backdrop = Primitive(PrimitiveType.Quad, "Backdrop", Color.white);
             backdrop.SetParent(transform, false);
-            backdrop.position = new Vector3(1.5f, -2f, 40f);
+            backdrop.position = new Vector3(1.5f, -1.2f, 40f);   // its top at the view's top (the camera sits 0.8 m higher since 26 Sep 2026)
             backdrop.localScale = new Vector3(32.7f, 18.4f, 1f);
             _backdrop = backdrop.GetComponent<Renderer>();
             _backdrop.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -352,6 +355,14 @@ namespace Orsuun.Client
         private Transform _rig;
         private GameObject _armorLook;
         private GameObject _weaponLook;
+        // The skills' casts (owner, 26 Sep 2026): effects, the clip playing, and what the Peerless spirit is built from.
+        private SkillFx _skillFx;
+        private float _castUntil;
+        private GameObject _lookPrefab, _weaponPrefab;
+        private Material _lookMaterial, _weaponMaterial;
+        private float _blinkUntil, _blinkX;
+        private bool _blinking;
+        private static readonly Color EmpowerTint = new Color(1.7f, 1.3f, 0.6f);
         private string _armorLookId;
         private string _weaponLookId;
 
@@ -422,7 +433,12 @@ namespace Orsuun.Client
             // Measured below at the bind pose: the clips only start sampling on the next frame.
             _anim = _armorLook.GetComponent<Animation>();
             if (_anim != null && _anim.GetClip("Idle") == null) _anim = null;
+            CastClips.Ensure(_anim, HeroClass.Vanguard);
             Material armorMat = Resources.Load<Material>("Looks/" + armorUsed);
+            _lookPrefab = armorPrefab;
+            _lookMaterial = armorMat;
+            _weaponPrefab = weaponPrefab;
+            _weaponMaterial = weaponUsed != null ? Resources.Load<Material>("Looks/" + weaponUsed) : null;
             Bounds b = default;
             bool first = true;
             foreach (Renderer r in _armorLook.GetComponentsInChildren<Renderer>())
@@ -438,37 +454,41 @@ namespace Orsuun.Client
             if (weaponPrefab != null)
             {
                 _weaponLook = Instantiate(weaponPrefab, _rig);
-                Transform grip = FindDeep(_armorLook.transform, "WeaponBase");
-                Transform tip = FindDeep(_armorLook.transform, "WeaponTip");
-                Material weaponMat = Resources.Load<Material>("Looks/" + weaponUsed);
-                Renderer[] renderers = _weaponLook.GetComponentsInChildren<Renderer>();
-                foreach (Renderer r in renderers)
+                foreach (Renderer r in _weaponLook.GetComponentsInChildren<Renderer>())
                 {
-                    if (weaponMat != null) r.sharedMaterial = weaponMat;
+                    if (_weaponMaterial != null) r.sharedMaterial = _weaponMaterial;
                     _heroParts.Add((r, (int)EquipSlot.Weapon));
                 }
-                if (grip != null && tip != null && renderers.Length > 0)
-                {
-                    // Measure the glaive standing upright, then lay it from the grip to the tip of this armour's pole.
-                    Transform w = _weaponLook.transform;
-                    w.rotation = Quaternion.identity;
-                    w.localScale = Vector3.one;
-                    w.position = Vector3.zero;
-                    float length = renderers[0].bounds.size.y;
-                    Vector3 axis = tip.position - grip.position;
-                    w.rotation = Quaternion.FromToRotation(Vector3.up, axis.normalized) * _rig.rotation;
-                    // Stretch along the pole only: Rodin makes thin objects chunky, so girth stays as modelled.
-                    w.localScale = new Vector3(1f, length > 0.01f ? axis.magnitude / length : 1f, 1f);
-                    w.position = grip.position;
-                    // The grip rides the hand bone on rigged looks, so the glaive swings with the arm.
-                    if (_anim != null) w.SetParent(grip, true);
-                }
+                LayWeapon(_weaponLook, _armorLook.transform, _rig, _anim != null);
             }
             Play("Idle", 0f);
 
             _armorLookId = armorLookId;
             _weaponLookId = weaponLookId;
             return true;
+        }
+
+        /// <summary>
+        /// Lays a glaive look from an armour's grip to the tip of its pole: measured standing upright, then stretched
+        /// along the pole only (Rodin makes thin objects chunky, so girth stays as modelled). On rigged looks the grip
+        /// rides the hand bone, so the glaive swings with the arm.
+        /// </summary>
+        private static void LayWeapon(GameObject weapon, Transform body, Transform rig, bool rigged)
+        {
+            Transform grip = FindDeep(body, "WeaponBase");
+            Transform tip = FindDeep(body, "WeaponTip");
+            Renderer[] renderers = weapon.GetComponentsInChildren<Renderer>();
+            if (grip == null || tip == null || renderers.Length == 0) return;
+            Transform w = weapon.transform;
+            w.rotation = Quaternion.identity;
+            w.localScale = Vector3.one;
+            w.position = Vector3.zero;
+            float length = renderers[0].bounds.size.y;
+            Vector3 axis = tip.position - grip.position;
+            w.rotation = Quaternion.FromToRotation(Vector3.up, axis.normalized) * rig.rotation;
+            w.localScale = new Vector3(1f, length > 0.01f ? axis.magnitude / length : 1f, 1f);
+            w.position = grip.position;
+            if (rigged) w.SetParent(grip, true);
         }
 
         internal static GameObject LoadLook(string lookId, out string used)
@@ -599,6 +619,9 @@ namespace Orsuun.Client
                 case LaneEventKind.HeroDamaged:
                     _heroHurt = 1f;
                     Flinch();
+                    if (e.Text == "veiled") _skillFx?.Veiled();
+                    if (_sim.WardActive && _views.TryGetValue(e.EnemyId, out EnemyView warded) && !warded.IsKorstone)
+                        _skillFx?.Warded(warded.Root.position + Vector3.up * warded.HitHeight);
                     GameAudio.Instance?.Play("LaneHeroHurt", 0.4f, 0.3f);
                     // The attacker lunges; the blow lands on the hero with a spray of red, or whiffs on an evade.
                     if (_views.TryGetValue(e.EnemyId, out EnemyView attacker) && !attacker.IsKorstone)
@@ -654,8 +677,12 @@ namespace Orsuun.Client
                     if (e.Amount >= 0 && e.Amount < _sim.Skills.Length)
                     {
                         SkillKind kind = _sim.Skills[(int)e.Amount].Kind;
-                        GameAudio.Instance?.Play(kind == SkillKind.Burst ? "LaneSkillBurst" : kind == SkillKind.Area ? "LaneSkillArea" : "LaneSkillHaste", 0.85f, 0.2f);
-                        if (kind == SkillKind.Haste) Sparks(_hero.position + Vector3.up * 1.2f, 30, new Color(1f, 0.4f, 0.15f), 1.6f);
+                        GameAudio.Instance?.Play(kind == SkillKind.Burst || kind == SkillKind.Execute ? "LaneSkillBurst"
+                            : kind == SkillKind.Area || kind == SkillKind.Charge || kind == SkillKind.Poison ? "LaneSkillArea" : "LaneSkillHaste", 0.85f, 0.2f);
+                        int slot = (int)e.Amount;
+                        int[] bonus = _sim.Hero.SkillGradeBonusPercent;
+                        _skillFx?.Cast(slot, _sim.Skills[slot], _sim.Hero.Class, slot < bonus.Length ? bonus[slot] : 0);
+                        PlayCast(slot);
                     }
                     break;
             }
@@ -709,8 +736,15 @@ namespace Orsuun.Client
                 {
                     // In the saddle the mount does the running.
                     string loop = _sim.Phase == LanePhase.Running && _mount == null ? "Run" : "Idle";
-                    if (!_anim.IsPlaying("Attack") && !_anim.IsPlaying("Hit") && !_anim.IsPlaying(loop)) Play(loop, 0.15f);
-                    _hero.position = new Vector3(HeroX + RideShift + _heroPunch * 0.12f, _heroY + RideY, 0f);
+                    if (Time.time >= _castUntil && !_anim.IsPlaying("Attack") && !_anim.IsPlaying("Hit") && !_anim.IsPlaying(loop)) Play(loop, 0.15f);
+                    // Shadow Stoop: for a moment the hero stands behind her mark, facing back at it.
+                    bool blink = Time.time < _blinkUntil;
+                    if (blink != _blinking && _rig != null)
+                    {
+                        _blinking = blink;
+                        _rig.localRotation = Quaternion.Euler(0f, blink ? -125f : 125f, 0f);
+                    }
+                    _hero.position = new Vector3(blink ? _blinkX : HeroX + RideShift + _heroPunch * 0.12f, _heroY + RideY, 0f);
                 }
             }
             else if (_sim.Phase != LanePhase.Dead)
@@ -719,7 +753,10 @@ namespace Orsuun.Client
             Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : _anim != null ? _skinTint : _heroTint;
             // Textured looks only flush a little when struck; the grey-box capsule flashes hard.
             Color tint = Color.Lerp(heroBase, Color.red, _heroHurt * (_anim != null ? 0.3f : 0.7f));
-            foreach ((Renderer r, int _) in _heroParts) r.material.color = tint;
+            // Honed Edge: the blade burns white-gold while it lasts.
+            bool empowered = _sim.EmpowerActive;
+            foreach ((Renderer r, int slot) in _heroParts)
+                r.material.color = empowered && slot == (int)EquipSlot.Weapon ? EmpowerTint : tint;
 
             for (int i = _texts.Count - 1; i >= 0; i--)
             {
@@ -1032,7 +1069,12 @@ namespace Orsuun.Client
             _classLook = Instantiate(prefab, _rig);
             _anim = _classLook.GetComponent<Animation>();
             if (_anim != null && _anim.GetClip("Idle") == null) _anim = null;
+            CastClips.Ensure(_anim, cls);
             var material = Resources.Load<Material>("Looks/" + name);
+            _lookPrefab = prefab;
+            _lookMaterial = material;
+            _weaponPrefab = null;
+            _weaponMaterial = null;
             Bounds b = default;
             bool first = true;
             foreach (Renderer r in _classLook.GetComponentsInChildren<Renderer>())
@@ -1071,7 +1113,7 @@ namespace Orsuun.Client
         /// <summary>A glaive chop per landed hit; a new one waits until the last is past its strike frame.</summary>
         private void Strike()
         {
-            if (_anim == null || _heroDown) return;
+            if (_anim == null || _heroDown || Time.time < _castUntil) return;
             AnimationState attack = _anim["Attack"];
             if (attack != null && _anim.IsPlaying("Attack") && attack.normalizedTime < 0.6f) return;
             _anim.CrossFade("Attack", 0.05f);
@@ -1080,8 +1122,102 @@ namespace Orsuun.Client
 
         private void Flinch()
         {
-            if (_anim == null || _heroDown || _anim.IsPlaying("Attack")) return;
+            if (_anim == null || _heroDown || _anim.IsPlaying("Attack") || Time.time < _castUntil) return;
             _anim.CrossFade("Hit", 0.05f);
+        }
+
+        /// <summary>A skill's cast clip (CastClips); plain blows and flinches wait until it is done.</summary>
+        private void PlayCast(int slot)
+        {
+            if (_anim == null || _heroDown) return;
+            string clip = CastClips.ClipName(slot);
+            if (_anim.GetClip(clip) == null) return;
+            _anim.CrossFade(clip, 0.06f);
+            _anim[clip].time = 0f;
+            _castUntil = Time.time + CastClips.LengthSeconds(_class, slot);
+        }
+
+        /// <summary>An enemy where the skills' effects find it: feet, the height blows land at, the top of the head.</summary>
+        internal struct Spot
+        {
+            public int Id;
+            public Vector3 Base;
+            public Vector3 Centre;
+            public Vector3 Top;
+            public bool Boss;
+            public bool Korstone;
+            public long Hp;
+        }
+
+        internal List<Spot> EnemySpots()
+        {
+            var spots = new List<Spot>();
+            if (_sim == null) return spots;
+            foreach (Enemy enemy in _sim.Enemies)
+            {
+                if (!_views.TryGetValue(enemy.Id, out EnemyView view) || view.Root == null) continue;
+                Vector3 p = view.Root.position;
+                spots.Add(new Spot
+                {
+                    Id = enemy.Id, Base = new Vector3(p.x, 0f, p.z), Centre = p + Vector3.up * view.HitHeight,
+                    Top = p + Vector3.up * (view.HitHeight * 1.5f + 0.2f), Boss = enemy.IsBoss, Korstone = enemy.IsKorstone, Hp = enemy.Hp,
+                });
+            }
+            return spots;
+        }
+
+        internal HeroClass HeroClassShown => _class;
+        internal Vector3 HeroGround => new Vector3(_hero.position.x, 0f, _hero.position.z);
+        internal Vector3 HandPoint => HandPosition;
+        internal Vector3 DrumPoint => _hero.position + new Vector3(0.35f, 1.2f, -0.35f);
+        internal Vector3 WardPoint => new Vector3(_hero.position.x + 1.05f, 1.15f, _hero.position.z - 0.3f);
+
+        /// <summary>The weapon from grip to tip (the Vanguard's glaive bones), or a line up from the hand.</summary>
+        internal (Vector3 Grip, Vector3 Tip) WeaponLine
+        {
+            get
+            {
+                Transform body = _armorLook != null ? _armorLook.transform : _classLook != null ? _classLook.transform : null;
+                Transform grip = body != null ? FindDeep(body, "WeaponBase") : null, tip = body != null ? FindDeep(body, "WeaponTip") : null;
+                if (grip != null && tip != null) return (grip.position, tip.position);
+                Vector3 hand = HandPosition;
+                return (hand, hand + new Vector3(0.3f, 1.3f, 0f));
+            }
+        }
+
+        /// <summary>Shadow Stoop: the hero stands at x for a moment, turned back toward the lane's start.</summary>
+        internal void Blink(float x, float seconds)
+        {
+            _blinkX = x;
+            _blinkUntil = Time.time + seconds;
+        }
+
+        /// <summary>
+        /// The Peerless spirit: a fresh copy of the hero's model under <paramref name="parent"/>, built from the same look
+        /// prefabs, facing as he does, with its own cast clips and (for the Vanguard) the glaive laid on its grip.
+        /// </summary>
+        internal GameObject BuildSpirit(Transform parent)
+        {
+            GameObject look = _classLook != null ? _classLook : _armorLook;
+            if (_lookPrefab == null || _rig == null || look == null) return null;
+            var holder = new GameObject("SpiritRig").transform;
+            holder.SetParent(parent, false);
+            holder.localRotation = _rig.localRotation;
+            holder.localScale = _rig.localScale;
+            GameObject body = Instantiate(_lookPrefab, holder, false);
+            body.transform.localPosition = look.transform.localPosition;
+            body.transform.localRotation = look.transform.localRotation;
+            body.transform.localScale = look.transform.localScale;
+            if (_lookMaterial != null) foreach (Renderer r in body.GetComponentsInChildren<Renderer>()) r.sharedMaterial = _lookMaterial;
+            var anim = body.GetComponent<Animation>();
+            if (anim != null && anim.GetClip("Idle") != null) CastClips.Ensure(anim, _class);
+            if (_weaponPrefab != null)
+            {
+                GameObject weapon = Instantiate(_weaponPrefab, holder, false);
+                if (_weaponMaterial != null) foreach (Renderer r in weapon.GetComponentsInChildren<Renderer>()) r.sharedMaterial = _weaponMaterial;
+                LayWeapon(weapon, body.transform, holder, anim != null);
+            }
+            return body;
         }
 
         /// <summary>Editor preview: poses the hero at a clip's normalised time (no Play mode, so no Animation update).</summary>

@@ -9,6 +9,7 @@ namespace Orsuun.Server.Game;
 /// step reads that skill's book (one spent a read, 70%, the skill rests 8 hours; the step needs 1, 1, 2 .. 9 good reads);
 /// a Grand step or Peerless burns an Oathstone and pays Honor (60%). A grade that rises changes the hero (skill power), so
 /// the time on the old hero is settled first and the lane gets a fresh seed, as with Oath Renewal and a change of class.
+/// The fourth and fifth skills train only once the hero has reached their level (SkillDef.UnlockLevel).
 /// </summary>
 public sealed partial class GameService
 {
@@ -34,6 +35,9 @@ public sealed partial class GameService
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         if (request.Slot < 0 || request.Slot >= SkillGrades.Slots) throw new GameException("bad_slot", "No such skill.");
+        SkillDef kit = SkillDef.For(account.Class)[request.Slot];
+        if (Content.LevelFor(account.Xp) < kit.UnlockLevel)
+            throw new GameException("skill_locked", $"{kit.Name} unlocks at level {kit.UnlockLevel}.");
         int book = Books.Id(account.Class, request.Slot);
         int[] grades = SkillGrades.Parse(account.SkillGrades);
         int[] progress = SkillGrades.Parse(account.SkillProgress, 99);

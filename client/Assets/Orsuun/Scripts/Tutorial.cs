@@ -113,7 +113,7 @@ namespace Orsuun.Client
                 new Step { Title = "KORSTONES", Text = "Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.",
                            Frame = () => _root.Hud.Area("Stage", "Link"), BoxY = BoxHigh },
                 new Step { Title = "SKILLS", Text = "Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.",
-                           Frame = () => _root.Hud.Area("Skill0", "Skill2", "Auto0", "Auto2"), BoxY = BoxOverLane },
+                           Frame = () => _root.Hud.Area("Skill0", "Skill4", "Auto0", "Auto4"), BoxY = BoxOverLane },
                 new Step { Title = "THE FORGE", Text = "The Forge raises your gear's level and its power. Tap FORGE.",
                            Frame = () => _root.Hud.Area("Forge"), BoxY = BoxOverLane, Done = () => _root.Forge.IsOpen, AllowNext = false },
                 new Step { Title = "FIRST STRIKE", Text = "Every try shows its chance and cost and asks first. Up to +3 a failure costs a level; from +4 a failed FORGE ALONE destroys the piece, and a Scroll of Mercy keeps it safe. Try once.",

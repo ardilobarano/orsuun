@@ -6,8 +6,8 @@ using UnityEngine.UI;
 namespace Orsuun.Client
 {
     /// <summary>
-    /// SKILLS (owner, 26 Sep 2026; Rules.SkillGrades): the three skills of the class played, each with its grade, the power
-    /// it adds, and its next step. A Mastered step reads that skill's own Technique Scroll (70%, then 8 hours of rest; the
+    /// SKILLS (owner, 26 Sep 2026; Rules.SkillGrades): the five skills of the class played (the fourth and fifth locked
+    /// until levels 30 and 60), each with its grade, the power it adds, and its next step. A Mastered step reads that skill's own Technique Scroll (70%, then 8 hours of rest; the
     /// step needs 1, 1, 2 .. 9 good reads); a Grand step or Peerless burns an Oathstone and pays Honor (60%). Every try
     /// asks first. Opened from the inventory, a book's card and the hunt's skill names.
     /// </summary>
@@ -53,25 +53,25 @@ namespace Orsuun.Client
             for (int i = 0; i < _cards.Length; i++)
             {
                 int slot = i;
-                float y1 = 0.885f - i * 0.24f;
+                float y1 = 0.89f - i * 0.143f;
                 var c = new Card();
-                c.Back = Ui.Framed("Skill" + i, canvas, 0.03f, y1 - 0.23f, 0.97f, y1, new Color(0.05f, 0.05f, 0.1f, 0.92f));
+                c.Back = Ui.Framed("Skill" + i, canvas, 0.03f, y1 - 0.137f, 0.97f, y1, new Color(0.05f, 0.05f, 0.1f, 0.92f));
                 Transform t = c.Back.transform;
-                Ui.SlotTile("ArtSlot", t, 0.03f, 0.36f, 0.25f, 0.94f, new Color(0.08f, 0.08f, 0.14f));
-                RectTransform artBox = Ui.Rect("ArtBox", t, 0.05f, 0.4f, 0.23f, 0.9f);
+                Ui.SlotTile("ArtSlot", t, 0.02f, 0.1f, 0.18f, 0.9f, new Color(0.08f, 0.08f, 0.14f));
+                RectTransform artBox = Ui.Rect("ArtBox", t, 0.035f, 0.16f, 0.165f, 0.84f);
                 c.Art = Ui.Icon("Art", artBox, 0f, 0f, 1f, 1f, "Weapon");
-                c.Name = Ui.Title("Name", t, 0.28f, 0.78f, 0.97f, 0.95f, "", 32, TextAnchor.MiddleLeft, Palette.Parchment);
+                c.Name = Ui.Title("Name", t, 0.2f, 0.7f, 0.74f, 0.95f, "", 28, TextAnchor.MiddleLeft, Palette.Parchment);
                 c.Name.supportRichText = true;
-                Ui.Bar("Grade", t, 0.28f, 0.67f, 0.97f, 0.77f, Palette.Sorn, out c.Fill);
-                c.Power = Ui.Label("Power", t, 0.28f, 0.55f, 0.97f, 0.66f, "", 22, TextAnchor.MiddleLeft, Palette.Sorn);
+                Ui.Bar("Grade", t, 0.2f, 0.56f, 0.74f, 0.69f, Palette.Sorn, out c.Fill);
+                c.Power = Ui.Label("Power", t, 0.2f, 0.4f, 0.74f, 0.56f, "", 20, TextAnchor.MiddleLeft, Palette.Sorn);
                 c.Power.supportRichText = true;
-                c.Status = Ui.Label("Status", t, 0.28f, 0.33f, 0.97f, 0.55f, "", 21, TextAnchor.UpperLeft, Palette.Parchment);
+                c.Status = Ui.Label("Status", t, 0.2f, 0.05f, 0.74f, 0.4f, "", 18, TextAnchor.UpperLeft, Palette.Parchment);
                 c.Status.supportRichText = true;
-                c.Train = Ui.Button("Train", t, 0.03f, 0.05f, 0.97f, 0.3f, "", 26, Palette.ButtonForge, () => Ask(slot), out c.TrainLabel);
+                c.Train = Ui.Button("Train", t, 0.76f, 0.14f, 0.98f, 0.86f, "", 20, Palette.ButtonForge, () => Ask(slot), out c.TrainLabel);
                 _cards[i] = c;
             }
 
-            Ui.Label("Rules", canvas, 0.05f, 0.105f, 0.95f, 0.165f,
+            Ui.Label("Rules", canvas, 0.05f, 0.1f, 0.95f, 0.165f,
                 $"M1-M10: read the skill's own Technique Scroll ({SkillGrades.ReadChanceBp / 100}%, then {SkillGrades.ReadCooldownHours} hours of rest). "
                 + $"G1-G10 and Peerless: an Oathstone and Honor ({SkillGrades.OathstoneChanceBp / 100}%). Honor comes from Korstones, Pit wins and dungeon Wardens.",
                 19, TextAnchor.MiddleCenter, Palette.Muted);
@@ -101,6 +101,8 @@ namespace Orsuun.Client
         private string Problem(int book)
         {
             if (!_root.Server.Online) return "Offline: skill grades are trained on the server.";
+            SkillDef skill = SkillDef.For(_root.Session.Class)[Books.SlotOf(book)];
+            if (_root.Session.Level < skill.UnlockLevel) return $"{skill.Name} unlocks at level {skill.UnlockLevel}.";
             long rest = _root.Server.SkillRestLeft(book);
             long since = SkillGrades.ReadCooldownHours * 3600L - rest;
             Inventory inv = _root.Session.Inventory;
@@ -187,6 +189,16 @@ namespace Orsuun.Client
 
                 long rest = _root.Server.SkillRestLeft(book);
                 int held = session.Inventory.Books[book];
+                if (session.Level < skills[i].UnlockLevel)
+                {
+                    c.Status.text = ConfirmDialog.Tint($"Unlocks at level {skills[i].UnlockLevel} (you are {session.Level}).", Palette.Muted)
+                                    + (held > 0 ? $"\nScrolls held: {held}" : "");
+                    c.TrainLabel.text = "LEVEL " + skills[i].UnlockLevel;
+                    c.Train.interactable = false;
+                    c.Art.color = new Color(0.5f, 0.5f, 0.55f, 0.7f);
+                    continue;
+                }
+                c.Art.color = Color.white;
                 if (grade >= SkillGrades.Max)
                 {
                     c.Status.text = "Peerless: nothing is above it.";
@@ -198,7 +210,7 @@ namespace Orsuun.Client
                 {
                     c.Status.text = $"Reads toward {SkillGrades.Name(grade + 1)}: {Progress(book)} of {SkillGrades.ReadsNeeded(grade)}  ·  {SkillGrades.ReadChanceBp / 100}% a read\n"
                                     + (held > 0 ? $"Scrolls held: {held}" : ConfirmDialog.Tint("No scroll of this skill: Warden chests, the shops, the Exchange", Palette.Muted));
-                    c.TrainLabel.text = rest > 0 ? "RESTING  ·  " + Rest(rest) : held > 0 ? "READ A SCROLL" : "NO SCROLL";
+                    c.TrainLabel.text = rest > 0 ? "RESTING\n" + Rest(rest) : held > 0 ? "READ A\nSCROLL" : "NO SCROLL";
                 }
                 else
                 {
@@ -206,7 +218,7 @@ namespace Orsuun.Client
                     bool enough = _root.Server.Honor >= honor && session.Inventory.Oathstones > 0;
                     c.Status.text = $"Next: {SkillGrades.Name(grade + 1)}  ·  an Oathstone and {honor} Honor a try  ·  {SkillGrades.OathstoneChanceBp / 100}%\n"
                                     + (enough ? "Ready." : ConfirmDialog.Tint(session.Inventory.Oathstones == 0 ? "No Oathstone: the Carvers' Archive, the Pit shop" : $"Not enough Honor ({_root.Server.Honor:N0} of {honor})", Palette.Muted));
-                    c.TrainLabel.text = "BURN AN OATHSTONE";
+                    c.TrainLabel.text = "BURN AN\nOATHSTONE";
                 }
                 c.Train.interactable = !_busy && Problem(book) == null;
             }

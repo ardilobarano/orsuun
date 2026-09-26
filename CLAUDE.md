@@ -140,11 +140,20 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   server's `/opt/orsuun/downloads`, delete it afterwards) or `media_upload` (presigned PUT).
 - Lane floors are `Resources/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
   (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes.
-- Skill grades and Technique Scrolls (`Rules/SkillGrades.cs`) are kept for all twelve skills by book id (class * 3 +
-  slot); the hero fights with its class's three (`SkillGrades.ForClass`) on both sides, so a grade that rises settles
-  and reseeds the lane like a class change. Scroll stacks are `BookStacks` rows (`AddBooks` on the tracked hero,
+- Skill grades and Technique Scrolls (`Rules/SkillGrades.cs`) are kept for all twenty skills by book id (class * 5 +
+  slot, since migration `FiveSkills`); the hero fights with its class's five (`SkillGrades.ForClass`) on both sides, so
+  a grade that rises settles and reseeds the lane like a class change. Scroll stacks are `BookStacks` rows (`AddBooks` on the tracked hero,
   `AddBooksElsewhereAsync` upsert for anyone else). `MarketListing.BookId` is -1 for a piece: client DTOs initialise
   `bookId = -1` (JsonUtility leaves a missing int at 0), and a scroll listing sends the empty Guid as `itemId`.
 - The Gear screen is the INVENTORY (mockup D): `GearPanel` keeps its name; its `HeroStage` stands at `Below + (60,0,0)`
   and switches off with the canvas (the panel lives on it). Material tiles come from `GearPanel.Goods`: a new material
   or token gets a row there with its icon.
+- Skills 4 and 5 unlock by `HeroStats.Level` (`SkillDef.UnlockLevel`); a mounted hero (`HeroStats.Mounted`, from the
+  worn wardrobe) casts nothing. Both come from `HeroFactory.FromEquipment` on both sides, so replays match; anything that
+  changes the worn wardrobe settles and reseeds the lane (`WearAsync`).
+- Cast animations are not in the FBX files: `CastClips.Ensure` builds them on a model's Animation and must run right
+  after the model is instantiated (the bones' pose then is the rest pose). A Blender pose rotation (x, y, z) lands on the
+  imported bone as (x, -y, -z), a hips offset as (-x, y, z). Skill effects (`SkillFx`) are additive sprites tinted from
+  `Resources/Fx` (white on alpha) at `SkillFx.Brightness`: layers stack under the bloom, so keep new ones dim.
+- The lane camera is at (1.5, 5.4, -19.5) looking at (1.5, 1.9, 0) in `GameRoot.BuildCameras` and three editor
+  previews in `RenderingSetup`, with the backdrop at y -1.2: change them together.

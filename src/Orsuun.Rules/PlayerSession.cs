@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Orsuun.Rules.Combat;
 
 namespace Orsuun.Rules
@@ -151,6 +152,8 @@ namespace Orsuun.Rules
                 AttackIntervalTicks = Math.Max(6, interval * 100 / (100 + haste)),
                 CommanderDamageTakenPercent = Math.Max(40, 100 - warding),
                 SkillGradeBonusPercent = GradeBonuses(skillGrades),
+                Level = level,
+                Mounted = worn != null && worn.Any(w => w.Kind == WardrobeKind.Mount),
             };
         }
 

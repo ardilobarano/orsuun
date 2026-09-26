@@ -5,19 +5,20 @@ using Xunit;
 namespace Orsuun.Rules.Tests;
 
 /// <summary>
-/// Skill grades (owner, 26 Sep 2026): a book per skill of each class; Mastered steps need 1, 1, 2 .. 9 good reads at 70%,
+/// Skill grades (owner, 26 Sep 2026): a book per skill of each class (twenty); Mastered steps need 1, 1, 2 .. 9 good reads at 70%,
 /// 8 hours apart; Grand steps and Peerless an Oathstone at 60% and Honor, more each step.
 /// </summary>
 public class SkillGradeTests
 {
     [Fact]
-    public void Twelve_books_one_per_skill_of_each_class()
+    public void Twenty_books_one_per_skill_of_each_class()
     {
-        Assert.Equal(12, Books.Count);
+        Assert.Equal(20, Books.Count);
         Assert.Equal(0, Books.Id(HeroClass.Vanguard, 0));
-        Assert.Equal(4, Books.Id(HeroClass.Kestrel, 1));
-        Assert.Equal(HeroClass.Drumcaller, Books.ClassOf(11));
-        Assert.Equal(2, Books.SlotOf(11));
+        Assert.Equal(6, Books.Id(HeroClass.Kestrel, 1));
+        Assert.Equal(HeroClass.Drumcaller, Books.ClassOf(19));
+        Assert.Equal(4, Books.SlotOf(19));
+        Assert.Equal("Technique Scroll: Mirror Ward", Books.Name(19));
         Assert.Equal("Technique Scroll: Iron Whirl", Books.Name(1));
         Assert.Equal("Technique Scroll: Void Lance", Books.Name(Books.Id(HeroClass.Wraithsworn, 0)));
     }
@@ -44,9 +45,9 @@ public class SkillGradeTests
         Assert.Equal(330, SkillGrades.HonorCost(20));
         Assert.Equal(7000, SkillGrades.ChanceBp(0));
         Assert.Equal(6000, SkillGrades.ChanceBp(15));
-        int[] all = SkillGrades.Parse("3;x;99;0;0;0;0;0;0;0;0;4");
-        Assert.Equal(new[] { 3, 0, 21 }, SkillGrades.ForClass(all, HeroClass.Vanguard));
-        Assert.Equal(new[] { 0, 0, 4 }, SkillGrades.ForClass(all, HeroClass.Drumcaller));
+        int[] all = SkillGrades.Parse("3;x;99;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4");
+        Assert.Equal(new[] { 3, 0, 21, 0, 0 }, SkillGrades.ForClass(all, HeroClass.Vanguard));
+        Assert.Equal(new[] { 0, 0, 0, 0, 4 }, SkillGrades.ForClass(all, HeroClass.Drumcaller));
     }
 
     [Fact]
@@ -84,7 +85,7 @@ public class SkillGradeTests
         var gear = new[] { new ItemState(40, Rarity.Rare, EquipSlot.Weapon) { UpgradeLevel = 7 } };
         HeroStats plain = HeroFactory.FromEquipment(gear, 40);
         HeroStats graded = HeroFactory.FromEquipment(gear, 40, skillGrades: new[] { 21, 10, 0 });
-        Assert.Equal(new[] { 60, 20, 0 }, graded.SkillGradeBonusPercent);
+        Assert.Equal(new[] { 60, 20, 0, 0, 0 }, graded.SkillGradeBonusPercent);
         Assert.Equal(plain.Attack, graded.Attack);
         long Damage(HeroStats hero)
         {
@@ -119,7 +120,7 @@ public class SkillGradeTests
         Assert.Equal(1, inv.Books.Sum());
         var shop = new Inventory { HuntMarks = 100 };
         HuntShop.Buy(shop, 6, 3, HeroClass.Kestrel, new XorShiftRandom(2));
-        Assert.Equal(3, Enumerable.Range(0, 3).Sum(s => shop.Books[Books.Id(HeroClass.Kestrel, s)]));
+        Assert.Equal(3, Enumerable.Range(0, SkillGrades.Slots).Sum(s => shop.Books[Books.Id(HeroClass.Kestrel, s)]));
         Assert.Equal(70, shop.HuntMarks);
     }
 }

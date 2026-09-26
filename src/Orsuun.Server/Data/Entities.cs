@@ -58,12 +58,12 @@ public sealed class Account
     public int Oathstones { get; set; }
     /// <summary>Oath Renewals (Rules.OathRenewal): each +3% attack and HP, the level back to 1.</summary>
     public int Renewals { get; set; }
-    /// <summary>Skill grades by book id (class * 3 + slot), twelve numbers "g;g;.." (Rules.SkillGrades.Parse).</summary>
+    /// <summary>Skill grades by book id (class * 5 + slot), twenty numbers "g;g;.." (Rules.SkillGrades.Parse).</summary>
     [MaxLength(64)] public string SkillGrades { get; set; } = "";
     /// <summary>Successful reads toward each skill's next Mastered step, by book id.</summary>
     [MaxLength(64)] public string SkillProgress { get; set; } = "";
     /// <summary>When each skill last read a book (UTC ticks by book id): one read per 8 hours a skill.</summary>
-    [MaxLength(256)] public string SkillReads { get; set; } = "";
+    [MaxLength(512)] public string SkillReads { get; set; } = "";
     /// <summary>Honor (Rules.SkillGrades): earned by Korstones, Pit wins and dungeon Wardens, spent on Oathstone tries.</summary>
     public long Honor { get; set; }
     /// <summary>Technique Scrolls held, one row per book id (Rules.Books), loaded with the hero.</summary>

@@ -242,8 +242,8 @@ namespace Orsuun.Server.Migrations
 
                     b.Property<string>("SkillReads")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
 
                     b.Property<string>("Skins")
                         .IsRequired()

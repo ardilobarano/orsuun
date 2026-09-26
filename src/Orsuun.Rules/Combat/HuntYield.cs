@@ -167,10 +167,12 @@ namespace Orsuun.Rules.Combat
             long avgPack = (stage.PackSizeMin + stage.PackSizeMax) / 2;
             long packHp = stage.MobHp * avgPack;
             // Auto-cast skills add about half again over plain attacks in the live lane (measured by Orsuun.Sim);
-            // the run-in is added on top. Re-measure this constant whenever the skill kit changes.
+            // the run-in is added on top. Re-measure this constant whenever the skill kit changes. A mounted hero
+            // casts nothing (owner, 26 Sep 2026), so he hunts at his plain attacks' pace.
+            int skillsPercent = hero.Mounted ? 100 : AutoCastMultiplierPercent;
             long ticksPerPack = hero.Attack <= 0
                 ? long.MaxValue
-                : packHp * hero.AttackIntervalTicks * 100 / (hero.Attack * AutoCastMultiplierPercent) + stage.RunTicks;
+                : packHp * hero.AttackIntervalTicks * 100 / (hero.Attack * skillsPercent) + stage.RunTicks;
             long packs = ticksPerPack == long.MaxValue ? 0 : counted * LaneSim.TicksPerSecond * efficiencyBp / RandomExtensions.FullBp / ticksPerPack;
 
             long finals = 0;

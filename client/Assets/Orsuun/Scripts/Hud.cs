@@ -17,6 +17,11 @@ namespace Orsuun.Client
         private Text _link;
         private Text _banner;
         private Text _weapon;
+        // Owner, 26 Sep 2026: on a mount the hero only makes plain attacks; this dismounts, or mounts up again.
+        private Button _mountButton;
+        private Text _mountLabel;
+        private bool _mountBusy;
+        private const string LastMountKey = "orsuun.lastMount";
         private Text _log;
         private Text _guildLabel;
         private Text _ticker;
@@ -136,12 +141,15 @@ namespace Orsuun.Client
             Ui.SlotTile("WeaponSlot", plate.transform, 0.012f, 0.06f, 0.16f, 0.94f, new Color(0.08f, 0.08f, 0.14f));
             RectTransform weaponBox = Ui.Rect("WeaponIconBox", plate.transform, 0.025f, 0.12f, 0.147f, 0.88f);
             Ui.Icon("WeaponIcon", weaponBox, 0f, 0f, 1f, 1f, "Weapon");
-            _weapon = Ui.Title("Weapon", plate.transform, 0.18f, 0.05f, 0.98f, 0.95f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
+            _weapon = Ui.Title("Weapon", plate.transform, 0.18f, 0.05f, 0.77f, 0.95f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
+            _mountButton = Ui.Button("Mount", plate.transform, 0.78f, 0.1f, 0.99f, 0.9f, "", 20, Palette.Alloy, ToggleMount, out _mountLabel);
+            _mountButton.gameObject.SetActive(false);
             // Loot and news float over the ground of the lane, above the chat line.
             _log = Ui.Title("Log", canvas, 0.04f, 0.528f, 0.96f, 0.562f, "", 26, TextAnchor.MiddleCenter, Palette.Sorn);
 
             // Skills stand in a framed panel: round, with a painted icon, a cooldown sweep and the seconds left; their name
-            // and AUTO switch (a lamp that glows green while on) below.
+            // and AUTO switch (a lamp that glows green while on) below. Five a class since 26 Sep 2026: the fourth and
+            // fifth show their level, darkened, until the hero reaches it.
             Ui.Framed("SkillPanel", canvas, 0.02f, 0.169f, 0.98f, 0.381f, new Color(0.07f, 0.07f, 0.12f, 0.85f)).raycastTarget = false;
             int count = root.Session.Lane.Skills.Length;
             _skillButtons = new Button[count];
@@ -156,16 +164,18 @@ namespace Orsuun.Client
             for (int i = 0; i < count; i++)
             {
                 int index = i;
-                float cx = 0.2f + i * 0.3f;
-                _skillButtons[i] = Ui.RoundButton("Skill" + i, canvas, cx - 0.12f, 0.236f, cx + 0.12f, 0.374f, "", new Color(0.2f, 0.2f, 0.3f),
+                float step = 0.96f / count, cx = 0.02f + step * (i + 0.5f), half = Mathf.Min(0.12f, step * 0.47f);
+                _skillButtons[i] = Ui.RoundButton("Skill" + i, canvas, cx - half, 0.24f, cx + half, 0.374f, "", new Color(0.2f, 0.2f, 0.3f),
                     () => { if (!_root.Replaying) _root.Session.Cast(index); }, out _skillSweeps[i], out _skillLabels[i]);
                 _skillArt[i] = _skillButtons[i].transform.Find("Art").GetComponent<RawImage>();
-                _skillNames[i] = Ui.Title("SkillName" + i, canvas, cx - 0.15f, 0.212f, cx + 0.15f, 0.236f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
+                _skillLabels[i].resizeTextForBestFit = true;
+                _skillLabels[i].resizeTextMaxSize = 60;
+                _skillNames[i] = Ui.Title("SkillName" + i, canvas, cx - step * 0.5f, 0.212f, cx + step * 0.5f, 0.24f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
                 // The name opens the skill's grades (SKILLS).
                 _skillNames[i].supportRichText = true;
                 _skillNames[i].raycastTarget = true;
                 _skillNames[i].gameObject.AddComponent<Button>().onClick.AddListener(() => _root.Skills.Open(index));
-                Button auto = Ui.Button("Auto" + i, canvas, cx - 0.11f, 0.177f, cx + 0.11f, 0.21f, "", 18,
+                Button auto = Ui.Button("Auto" + i, canvas, cx - step * 0.46f, 0.177f, cx + step * 0.46f, 0.21f, "", 16,
                     Palette.ButtonIdle, () => _root.Session.ToggleAutoCast(index), out _autoLabels[i]);
                 _autoImages[i] = auto.GetComponent<Image>();
                 RectTransform lampBox = Ui.Rect("LampBox", auto.transform, 0.1f, 0.22f, 0.24f, 0.78f);
@@ -240,6 +250,46 @@ namespace Orsuun.Client
 
         /// <summary>Resources/Icons/Skills name for a skill: its letters ("Kestrel's Dive" is KestrelsDive).</summary>
         private static string SkillIcon(string name) => "Icons/Skills/" + SkillLetters(name);
+
+        /// <summary>Dismounts (the skills come back), or mounts up again on the mount to ride.</summary>
+        private void ToggleMount()
+        {
+            if (_mountBusy || !_root.Server.Online) return;
+            bool mounted = _root.Session.Lane.Mounted;
+            string target;
+            if (mounted)
+            {
+                PlayerPrefs.SetString(LastMountKey, _root.Server.WornId(WardrobeKind.Mount));
+                PlayerPrefs.Save();
+                target = "";
+            }
+            else target = MountToRide();
+            if (target == null) return;
+            _mountBusy = true;
+            StartCoroutine(_root.Server.Wear(target, WardrobeKind.Mount, error =>
+            {
+                _mountBusy = false;
+                Log(error ?? (mounted ? "Dismounted: your skills are ready again." : "Mounted: plain attacks only until you dismount."));
+            }));
+        }
+
+        /// <summary>The mount to ride: the last one ridden while it has time left, else the held mount with the most time.</summary>
+        private string MountToRide()
+        {
+            Net.ServerLink.WardrobeDto wardrobe = _root.Server.Wardrobe;
+            if (wardrobe?.pieces == null) return null;
+            string last = PlayerPrefs.GetString(LastMountKey, "");
+            if (last.Length > 0 && Rules.Wardrobe.Find(last)?.Kind == WardrobeKind.Mount && _root.Server.SecondsLeft(last) > 0) return last;
+            string best = null;
+            long bestLeft = 0;
+            foreach (Net.ServerLink.WardrobePieceDto piece in wardrobe.pieces)
+            {
+                WardrobeDef def = Rules.Wardrobe.Find(piece.id);
+                long left = def != null && def.Kind == WardrobeKind.Mount ? _root.Server.SecondsLeft(piece.id) : 0;
+                if (left > bestLeft) { best = piece.id; bestLeft = left; }
+            }
+            return best;
+        }
 
         /// <summary>A skill's icon name: the letters of its name (Resources/Icons/Skills).</summary>
         public static string SkillLetters(string name)
@@ -337,7 +387,8 @@ namespace Orsuun.Client
             for (int i = 0; i < _skillButtons.Length; i++)
             {
                 int ticksLeft = lane.CooldownTicksLeft(i);
-                _skillButtons[i].interactable = !_root.Replaying && ticksLeft == 0 && lane.Phase == LanePhase.Fighting;
+                bool unlocked = lane.IsUnlocked(i);
+                _skillButtons[i].interactable = unlocked && !_root.Replaying && ticksLeft == 0 && lane.Phase == LanePhase.Fighting;
                 SkillDef skill = lane.Skills[i];
                 if (_skillShown[i] != skill.Name)
                 {
@@ -349,12 +400,43 @@ namespace Orsuun.Client
                 int book = Books.Id(session.Class, i);
                 int grade = book < session.SkillGradeList.Count ? session.SkillGradeList[book] : 0;
                 _skillNames[i].text = skill.Name.ToUpperInvariant() + (grade > 0 ? "  " + ConfirmDialog.Tint(SkillGrades.Name(grade), Palette.Sorn) : "");
+                if (unlocked && lane.Mounted)
+                {
+                    // In the saddle: plain attacks only until he dismounts.
+                    _skillArt[i].color = new Color(0.55f, 0.52f, 0.5f, 0.75f);
+                    _skillSweeps[i].fillAmount = 1f;
+                    _skillLabels[i].text = "";
+                    _skillNames[i].text = ConfirmDialog.Tint(skill.Name.ToUpperInvariant(), Palette.Muted);
+                    _autoLabels[i].text = "RIDING";
+                    _autoImages[i].color = Palette.ButtonIdle;
+                    _autoLamps[i].color = new Color(0.25f, 0.24f, 0.27f);
+                    continue;
+                }
+                if (!unlocked)
+                {
+                    // Locked: dark art under a full sweep, the level it opens at in the middle.
+                    _skillArt[i].color = new Color(0.45f, 0.45f, 0.5f, 0.6f);
+                    _skillSweeps[i].fillAmount = 1f;
+                    _skillLabels[i].text = "LV " + skill.UnlockLevel;
+                    _skillNames[i].text = ConfirmDialog.Tint(skill.Name.ToUpperInvariant(), Palette.Muted);
+                    _autoLabels[i].text = "LOCKED";
+                    _autoImages[i].color = Palette.ButtonIdle;
+                    _autoLamps[i].color = new Color(0.25f, 0.24f, 0.27f);
+                    continue;
+                }
+                _skillArt[i].color = Color.white;
                 _skillSweeps[i].fillAmount = skill.CooldownTicks > 0 ? Mathf.Clamp01(ticksLeft / (float)skill.CooldownTicks) : 0f;
                 _skillLabels[i].text = ticksLeft == 0 ? "" : $"{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}";
                 _autoLabels[i].text = lane.AutoCast[i] ? "AUTO ON" : "AUTO OFF";
                 _autoImages[i].color = lane.AutoCast[i] ? Palette.Safe : Palette.ButtonIdle;
                 _autoLamps[i].color = lane.AutoCast[i] ? new Color(0.45f, 1f, 0.4f) : new Color(0.35f, 0.33f, 0.36f);
             }
+
+            bool mounted = lane.Mounted;
+            bool showMount = _root.Server.Online && !_root.Replaying && (mounted || MountToRide() != null);
+            if (_mountButton.gameObject.activeSelf != showMount) _mountButton.gameObject.SetActive(showMount);
+            _mountLabel.text = mounted ? "DISMOUNT" : "MOUNT UP";
+            _mountButton.interactable = !_mountBusy;
 
             bool allCleared = session.HighestStageCleared >= Content.TotalStages;
             _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n<size=15>{Content.StageName(session.PushTarget)}</size>";
