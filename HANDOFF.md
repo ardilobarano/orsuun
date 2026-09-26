@@ -856,6 +856,8 @@ ghostlier images, a little taller), Free Lances and the fortress aura for keeps,
 
 ## Known gaps
 
+- Old concept renders stay in the server's public `/opt/orsuun/downloads` (`r5-*`, `r6-*`, `r7-*`, `rodin-*`, `ref-*`,
+  `mob-wolf-*`): owner, 26 Sep 2026, "let them stay for now". Do not delete them unless the owner asks.
 - `ORSUUN_RESET_DB=1` wipes the schema on a Development start; keep it out of any shared environment.
 - `tools/smoke.sh` against the live server swears a Banner, sieges Stagfort and scores points in the shared world.
   Reset after it: `DELETE FROM "BannerScores"; UPDATE "Fortresses" SET "Wall"="WallMax", "SiegeEmber"=0, "SiegeSky"=0, "SiegeGold"=0;`
