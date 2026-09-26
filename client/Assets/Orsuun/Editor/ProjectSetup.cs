@@ -110,7 +110,7 @@ namespace Orsuun.Client.EditorTools
                 scenes = new[] { ScenePath },
                 locationPathName = "Builds/Android/Orsuun.apk",
                 target = BuildTarget.Android,
-                options = BuildOptions.None,
+                options = BuildOptions.CompressWithLz4HC,   // a smaller download (26 Sep 2026)
             });
             Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
             if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
@@ -147,7 +147,7 @@ namespace Orsuun.Client.EditorTools
                 scenes = new[] { ScenePath },
                 locationPathName = "Builds/iOS",
                 target = BuildTarget.iOS,
-                options = BuildOptions.None,
+                options = BuildOptions.CompressWithLz4HC,   // a smaller download (26 Sep 2026)
             });
             Debug.Log("Build result: " + report.summary.result + ", size " + report.summary.totalSize + " bytes");
             if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) EditorApplication.Exit(1);
