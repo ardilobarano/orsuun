@@ -135,7 +135,9 @@ up), on the APK link and on the iPhone (build 26092601). Maps 11 and 12 with the
 the APK link and on the iPhone (build 26092608). The APK is now 399 MB. Item icons by level, weapon damage rolls and the glitter shine (26 Sep 2026,
 about 12:30; migration `WeaponDamageRolls`, copy first: `~/orsuun-backups/playtest-before-weaponrolls-2026-09-26.sql.gz`)
 and then the redesigned Vanguard with weapons by band and the weapon halo (about 15:00; no migration) are deployed, on the
-APK link (410 MB) and on the iPhone (build 26092610).
+APK link (410 MB) and on the iPhone (build 26092610). The download-on-first-launch build (26 Sep 2026, about 14:50) is on the APK link (45 MB; the
+phones fetch about 130 MB of art from `/downloads/content/<platform>/` on first launch) and on the iPhone (build
+26092611, seen online right after its first start).
 The GDD has notes for all of this session's features (25 Sep 2026, evening).
 **Queued by the owner (26 Sep 2026: "all of these sound good ... I will ask u something than do all of these", then
 "go handoff do these 4 pls"):** skill grades (done 26 Sep 2026 with the inventory screen the owner asked for while it
