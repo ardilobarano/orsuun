@@ -355,12 +355,15 @@ namespace Orsuun.Client
             {
                 bool has = i < _shown.Lines.Count;
                 _rows[i].gameObject.SetActive(has);
+                // Players' lines stay as they wrote them; the steppe's own (system) lines take the language.
+                if (has && _rows[i] is LocText row) row.Raw = !_shown.Lines[i].system;
                 if (has) _rows[i].text = Format(_shown.Lines[i], clock: true);
             }
             if (_shown.Lines.Count == 0)
             {
                 if (_rows.Count == 0) _rows.Add(Ui.ListRow("Line0", _content, 26, () => { }));
                 _rows[0].gameObject.SetActive(true);
+                if (_rows[0] is LocText quiet) quiet.Raw = false;
                 _rows[0].text = ConfirmDialog.Tint(_shown == _guild ? "The guild is quiet. Say hello." : "The steppe is quiet. Say hello.", Palette.Muted);
             }
             if (atBottom)

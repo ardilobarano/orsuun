@@ -1,0 +1,2047 @@
+# Turkish (owner, 27 Sep 2026: "Turkish language"). English<TAB>Turkish; {0}, {1} stand for anything; \n is a line break.
+# Loc.cs reads it: a line is found whole, in capitals, or as a template. Untranslated text shows in English.
+WAR OF BANNERS	SANCAKLAR SAVAŞI
+CONTINUE WITH APPLE	APPLE İLE DEVAM ET
+CONTINUE WITH GOOGLE	GOOGLE İLE DEVAM ET
+or with an email	ya da bir e-postayla
+CREATE ACCOUNT	HESAP OLUŞTUR
+SIGN IN	GİRİŞ YAP
+PLAY AS GUEST	MİSAFİR OLARAK OYNA
+Email	E-posta
+Password (8 or more)	Şifre (en az 8)
+Password again	Şifre tekrar
+BACK	GERİ
+ALSO LINK APPLE	APPLE'I DA BAĞLA
+ALSO LINK GOOGLE	GOOGLE'I DA BAĞLA
+SIGN OUT	ÇIKIŞ YAP
+BACK TO THE HUNT	AVA DÖN
+Offline: accounts need the server.	Çevrimdışı: hesaplar sunucu ister.
+Sign in with Apple opens once the game's App Store account is set up. Use Google or an email for now.	Apple ile giriş, oyunun App Store hesabı kurulunca açılacak. Şimdilik Google'ı ya da bir e-postayı kullan.
+Sign in with Google is not set up on this server yet. Use an email for now.	Google ile giriş bu sunucuda henüz kurulmadı. Şimdilik bir e-posta kullan.
+Finish signing in on the page that opens...	Açılan sayfada girişi tamamla...
+Keep your heroes safe	Kahramanlarını güvende tut
+Sign in or sign up	Giriş yap ya da kaydol
+Your account keeps up to four heroes, your Banner and your Amber, on any phone.	Hesabın dört kahramana kadar, Sancağını ve Kehribarını her telefonda saklar.
+A guest account lives only on this phone. With an account you can play your heroes on any phone, and get them back if this one is lost.	Misafir hesabı yalnızca bu telefonda yaşar. Bir hesapla kahramanlarını her telefonda oynar, bu telefon kaybolsa bile geri alırsın.
+If that Apple or Google login already has an account, this phone switches to it. If not, it signs you up.	O Apple ya da Google girişinin zaten bir hesabı varsa bu telefon ona geçer. Yoksa seni kaydeder.
+If that Apple or Google login already has an account, this phone switches to it. If not, it is linked to the account you play now.	O Apple ya da Google girişinin zaten bir hesabı varsa bu telefon ona geçer. Yoksa şu an oynadığın hesaba bağlanır.
+Create an account	Bir hesap oluştur
+Your email and a password are saved to this account: sign in with them on any phone. Nothing is lost.	E-postan ve bir şifre bu hesaba kaydedilir: onlarla her telefondan giriş yap. Hiçbir şey kaybolmaz.
+I already have an account	Zaten bir hesabım var
+Sign in	Giriş yap
+This phone switches to the account saved with that email.	Bu telefon o e-postayla kayıtlı hesaba geçer.
+I need a new account	Yeni bir hesap istiyorum
+Your account	Hesabın
+This account and its heroes are saved. Sign in with it on any phone.	Bu hesap ve kahramanları kayıtlı. Onunla her telefondan giriş yap.
+Saved with	Kayıtlı:
+BACK TO THE HEROES	KAHRAMANLARA DÖN
+The two passwords differ.	İki şifre birbirini tutmuyor.
+Account created. Your heroes are safe.	Hesap oluşturuldu. Kahramanların güvende.
+Enter your password.	Şifreni gir.
+Leave this guest account?	Bu misafir hesabından çıkılsın mı?
+Signing in switches this phone to your account. The guest heroes on this phone have no account and cannot be reached again.	Giriş yapınca bu telefon hesabına geçer. Bu telefondaki misafir kahramanların hesabı yok ve bir daha ulaşılamaz.
+To keep them, create an account for them first.	Onları korumak için önce onlara bir hesap oluştur.
+Signed in. Welcome back.	Giriş yapıldı. Tekrar hoş geldin.
+Sign out?	Çıkış yapılsın mı?
+This phone goes back to the sign-in screen. Your account stays safe: sign in again with it.	Bu telefon giriş ekranına döner. Hesabın güvende kalır: onunla yeniden giriş yap.
+Signed out.	Çıkış yapıldı.
+Check the connection and try again.	Bağlantını kontrol edip yeniden dene.
+Could not reach the server to download the world.	Dünyayı indirmek için sunucuya ulaşılamadı.
+Downloading the world	Dünya indiriliyor
+The download stopped.	İndirme durdu.
+TRY AGAIN	YENİDEN DENE
+no Banner	Sancak yok
+SWEAR TO A BANNER	BİR SANCAĞA ANT İÇ
+Three Banners fight over one question: what should be done with the Korstones? Your Banner sets your side in the War of Banners and the fortress sieges.	Üç Sancak tek bir soru için savaşır: Kortaşlarına ne yapılmalı? Sancağın, Sancaklar Savaşı'nda ve kale kuşatmalarında safını belirler.
+Capital:	Başkent:
+SWEAR THE OATH	ANDI İÇ
+KEEP MY BANNER	SANCAĞIMI KORU
+Every hero of your account rides under it. The oath holds for the season.	Hesabının her kahramanı onun altında sürer. Ant sezon boyunca geçerlidir.
+CHANGE YOUR BANNER	SANCAĞINI DEĞİŞTİR
+SWEAR ANEW	YENİDEN ANT İÇ
+{0} OATHSTONES	{0} YEMİN TAŞI
+Once a season, for the whole account. Points already won stay with their Banner. You hold {0} Oathstones.	Sezonda bir kez, tüm hesap için. Kazanılmış puanlar Sancaklarında kalır. Elinde {0} Yemin Taşı var.
+Every hero of your account leaves the {0}. It costs {1} Oathstones, and the Banner can change again only next season.	Hesabının her kahramanı {0} saflarından ayrılır. Bedeli {1} Yemin Taşı; Sancak ancak gelecek sezon yeniden değişebilir.
+Swearing...	Ant içiliyor...
+Swearing anew...	Yeniden ant içiliyor...
+Tap a Banner.	Bir Sancağa dokun.
+Tap the Banner you would ride under.	Altında süreceğin Sancağa dokun.
+Ride under the {0}?	{0} altında sürülsün mü?
+You will ride under the {0}.	{0} altında süreceksin.
+BOUNTIES	GÖREVLER
+HUNT MARKS SHOP	AV NİŞANI DÜKKÂNI
+{0} MARKS	{0} NİŞAN
+CAMPAIGN TRAIL	SEFER YOLU
+Offline: bounties are counted by the server.	Çevrimdışı: görevleri sunucu sayar.
+Claimed.	Alındı.
+Bought	Satın alındı
+{0}d {1}h	{0}g {1}s
+{0}h {1}m	{0}s {1}dk
+{0}m	{0}dk
+{0} Hunt Marks	{0} Av Nişanı
+{0} Master's	{0} Usta İğnesi
+{0} Needles	{0} İğne
+{0} Wax	{0} Mum
+{0} Oathstones	{0} Yemin Taşı
+DAILY	GÜNLÜK
+new bounties in {0}	yeni görevlere {0}
+WEEKLY	HAFTALIK
+Daily	Günlük
+Weekly	Haftalık
+{0}/{1} min	{0}/{1} dk
+{0} marks, {1} Trail XP	{0} nişan, {1} Sefer TP
+CLAIM	AL
+CLAIMED	ALINDI
+AMBER	KEHRİBAR
+COMPANIONS	YOLDAŞLAR
+MOUNTS	BİNEKLER
+SKINS	KOSTÜMLER
+Amber	Kehribar
+THE CARAVAN	KERVAN
+MY WARDROBE	GARDIROBUM
+Bosses from Gorak Pass on drop 1-3 day pieces. Getting a piece again adds its days.	Gorak Geçidi'nden itibaren patronlar 1-3 günlük parçalar düşürür. Bir parçayı yeniden kazanmak günlerini ekler.
+FIRST PURCHASE: DOUBLE AMBER	İLK ALIŞVERİŞ: ÇİFT KEHRİBAR
+Amber is bought with real money only and buys skins, mounts and companions.	Kehribar yalnızca gerçek parayla alınır; kostüm, binek ve yoldaş satın alır.
+Playtest: packs are free until the App Store and Google Play open.	Deneme sürümü: App Store ve Google Play açılana dek paketler ücretsiz.
+The Caravan needs the server.	Kervan sunucu ister.
++ Amber	+ Kehribar
+Campaign Trail	Sefer Yolu
+drops only	yalnızca düşer
+Fine	Seçkin
+Legendary	Efsanevi
+Plain	Sade
+Rare	Nadir
+Not enough Amber.	Yeterli Kehribar yok.
+{0} ({1}) for {2} {3}, for {4} Amber.	{0} ({1}), {2} {3} için, {4} Kehribar.
+You hold it for {0} more: the days are added.	{0} daha sende kalır: günler eklenir.
+BUY	SATIN AL
+BUY FROM THE CARAVAN	KERVANDAN SATIN AL
+{0}: yours for {1}.	{0}: {1} boyunca senin.
+Playtest: free until the stores open.	Deneme sürümü: mağazalar açılana dek ücretsiz.
+{0} Amber for {1}{2}.	{1}{2} karşılığı {0} Kehribar.
++{0} Amber.	+{0} Kehribar.
+Held	Elinde
+Only its Commander drops it.	Yalnızca Komutanı düşürür.
+Won on the Campaign Trail.	Sefer Yolu'nda kazanılır.
+Worn	Giyili
+ADD	EKLE
+DAY	GÜN
+DAYS	GÜN
+{0} day	{0} gün
+{0} days	{0} gün
+Rider's armour and a glaive. Steady, hard to kill: the Banner's heavy horse, now on foot.	Süvari zırhı ve bir teber. Sağlam, öldürmesi zor: Sancağın ağır süvarisi, şimdi yaya.
+Twin knives and speed. Quick blows and crits; her Heartseeker finds the seam in a Korstone.	İkiz bıçaklar ve hız. Çabuk vuruşlar ve kritikler; Kalpavcısı bir Kortaşının çatlağını bulur.
+A void-cursed sword. The hardest-hitting skills and the fewest HP.	Boşlukla lanetli bir kılıç. En sert vuran beceriler ve en az can.
+Staff and storm drum. Lightning from the sky and a rhythm that never breaks.	Asa ve fırtına davulu. Gökten yıldırım ve hiç bozulmayan bir ritim.
+CHOOSE YOUR HERO	KAHRAMANINI SEÇ
+ACCOUNT	HESAP
+START	BAŞLA
+DELETE	SİL
+CREATE A HERO	KAHRAMAN OLUŞTUR
+MAN	ERKEK
+WOMAN	KADIN
+A name: {0}-{1} letters or digits	Bir ad: {0}-{1} harf ya da rakam
+CREATE	OLUŞTUR
+The hero's name	Kahramanın adı
+DELETE FOREVER	SONSUZA DEK SİL
+Account:	Hesap:
+Connecting...	Bağlanılıyor...
+Account: saved with Google / Apple	Hesap: Google / Apple ile kayıtlı
+Guest account: save it under ACCOUNT	Misafir hesabı: HESAP bölümünden kaydet
+EMPTY	BOŞ
+Lv {0} {1}	Sv {0} {1}
+tap to create	oluşturmak için dokun
+A NEW HERO	YENİ BİR KAHRAMAN
+Banner you choose next	sonra seçeceğin Sancak
+Sworn to the {0}	{0} için ant içmiş
+AN EMPTY SLOT	BOŞ BİR YUVA
+{0} of {1} heroes	{0} / {1} kahraman
+Amber and the Banner are shared by the account's heroes; so is the depot.	Kehribar ve Sancak hesabın kahramanlarınca paylaşılır; depo da öyle.
+Level {0} {1}	Seviye {0} {1}
+Fresh on the steppe	Bozkırda yeni
+Reached {0}	Ulaştığı: {0}
+Type {0} to delete this hero and everything it holds.	Bu kahramanı ve elindeki her şeyi silmek için {0} yaz.
+CHAT	SOHBET
+WORLD	DÜNYA
+GUILD	LONCA
+Say something	Bir şey söyle
+SEND	GÖNDER
+FRIENDS	DOSTLAR
+ADD FRIEND	DOST EKLE
+MESSAGE	MESAJ
+TRADE	TAKAS
+GUILD INVITE	LONCA DAVETİ
+REPORT	ŞİKÂYET ET
+BLOCK	ENGELLE
+CLOSE	KAPAT
+Join a guild to talk with it.	Konuşmak için bir loncaya katıl.
+Reported. Thank you: three reports hide a line.	Şikâyet edildi. Teşekkürler: üç şikâyet bir satırı gizler.
+Block {0}?	{0} engellensin mi?
+You will no longer see their chat lines. Tap the blocked count below the chat to unblock everyone.	Artık sohbet satırlarını görmeyeceksin. Herkesin engelini kaldırmak için sohbetin altındaki engelli sayısına dokun.
+{0} is blocked.	{0} engellendi.
+UNBLOCK	ENGELİ KALDIR
+Unblock everyone?	Herkesin engeli kaldırılsın mı?
+You have blocked {0} player{1}. Their lines come back.	{0} oyuncuyu engelledin. Satırları geri gelir.
+Offline: chat needs the server.	Çevrimdışı: sohbet sunucu ister.
+The guild is quiet. Say hello.	Lonca sessiz. Bir merhaba de.
+The steppe is quiet. Say hello.	Bozkır sessiz. Bir merhaba de.
+CANCEL	VAZGEÇ
+Draught	İksir
+Turnstone	Dönüş Taşı
+DAILY GIFTS	GÜNLÜK HEDİYELER
+A gift for each day you come back: the seventh is a Korshard, then the calendar starts again. Your heroes share it.	Geri döndüğün her gün için bir hediye: yedincisi bir Korparçası, sonra takvim baştan başlar. Kahramanların onu paylaşır.
+TAKE TODAY'S GIFT	BUGÜNÜN HEDİYESİNİ AL
+Taken: {0}.	Alındı: {0}.
+The daily gifts need the server.	Günlük hediyeler sunucu ister.
+TAKEN	ALINDI
+TODAY	BUGÜN
+TAKEN FOR TODAY	BUGÜNKÜ ALINDI
+Next gift in {0}, with the evening bell.	Sonraki hediye {0} sonra, akşam çanıyla.
+DEPOT	DEPO
+Shared by your account's heroes: put a piece in, take it out with another.	Hesabının kahramanlarınca paylaşılır: bir parçayı koy, başka biriyle al.
+YOUR BAG	ÇANTAN
+Tap a piece to move it.	Taşımak için bir parçaya dokun.
+The depot needs the server.	Depo sunucu ister.
+item level {0}	eşya seviyesi {0}
+Empty. Put pieces from your bag here.	Boş. Çantandan parçaları buraya koy.
+TAKE	AL
+PUT	KOY
+Nothing in the bag (worn pieces stay on).	Çantada bir şey yok (giyili parçalar üstte kalır).
+tap to continue	devam etmek için dokun
+SUCCESS	BAŞARILI
+The oath holds.	Ant sağlam.
+The whole server hears the hammer.	Bütün sunucu çekici duyar.
+Back to +{0}	+{0} seviyesine geri
+The metal sulks.	Maden küstü.
+WARD HOLDS	TILSIM DAYANDI
+Level kept.	Seviye korundu.
+The Anvil Ward took the blow.	Örs Tılsımı darbeyi aldı.
+OATHBREAK	YEMİN BOZULDU
+Your +{0} {1} is gone.	+{0} {1} yok oldu.
+"Hold still. I'm talking to the metal, not to you."	"Kıpırdama. Madenle konuşuyorum, seninle değil."
+"It swore once. It can swear again."	"Bir kez ant içti. Yine içebilir."
+"Don't watch the hammer. Watch the ember."	"Çekice bakma. Köze bak."
+"If it breaks, I apologize to the blade. Not to you."	"Kırılırsa özrü bıçaktan dilerim. Senden değil."
+ARMOR	ZIRH
+BOOTS	ÇİZME
+BRACER	BİLEZİK
+EARS	KÜPE
+HELM	MİĞFER
+NECK	KOLYE
+SHIELD	KALKAN
+WEAPON	SİLAH
+Forgemaster Dorun	Demirci Ustası Dorun
+THE FORGE	DEMİRHANE
+ETCHINGS	OYMALAR
+TURNING HELPER	ÇEVİRME YARDIMCISI
+BACK TO GEAR	ENVANTERE DÖN
+1 Scroll of Mercy	1 Merhamet Parşömeni
+1 Khan's Alloy	1 Han Alaşımı
+If it fails, your +{0} {1} is destroyed.	Başarısız olursa +{0} {1} yok olur.
+A plain starter piece takes its place.	Yerine sade bir başlangıç parçası gelir.
+If it fails, it drops to +{0}.	Başarısız olursa +{0} seviyesine düşer.
+If it fails, it stays at +0.	Başarısız olursa +0'da kalır.
+from your bag	çantandan
+Cost {0}	Bedel {0}
+Success chance {0}	Başarı şansı {0}
+USE SCROLL	PARŞÖMEN KULLAN
+FORGE	GÜÇLENDİR
+USE ALLOY	ALAŞIM KULLAN
+Forge to +{0}?	+{0} için güçlendirilsin mi?
+No answer from the server.	Sunucudan yanıt yok.
+The ward holds.	Tılsım dayandı.
+OATHBREAK.	YEMİN BOZULDU.
+Add an etching?	Bir oyma eklensin mi?
+Etching {0} takes {1} of the time.	{0}. oyma zamanın {1} kadarında tutar.
+If it slips, only the needle is lost.	Kayarsa yalnızca iğne gider.
+The fifth takes a Master's Needle: you have {0}.	Beşincisi bir Usta İğnesi ister: sende {0} var.
+You have {0} Etching Needles.	Sende {0} Oyma İğnesi var.
+USE NEEDLE	İĞNE KULLAN
+The needle slipped; the piece is unharmed.	İğne kaydı; parça zarar görmedi.
+The needle took.	İğne tuttu.
+T{0} {1} +{2}	K{0} {1} +{2}
+Hunt Marks buy it in BOUNTIES.	Av Nişanları onu GÖREVLER'de alır.
+It will change with the next turn again.	Bir sonraki çevirmede yine değişir.
+The wax is spent.	Mum harcandı.
+It stays through every turn; each turn then costs {0}.	Her çevirmede yerinde kalır; o zaman her çevirme {0} tutar.
+The etching pinned now is released and its wax is spent.	Şu an sabitli oyma serbest kalır ve mumu harcanır.
+You have {0} Pinning Wax.	Sende {0} Sabitleme Mumu var.
+Pin this etching?	Bu oyma sabitlensin mi?
+UNPIN	SABİTİ KALDIR
+USE WAX	MUM KULLAN
+Unpin this etching?	Bu oymanın sabiti kaldırılsın mı?
+Pinned.	Sabitlendi.
+Unpinned.	Sabit kaldırıldı.
+Attack {0}	Saldırı {0}
+Base stats {0}%	Temel değerler %{0}
+Blades lost {0}	Kaybedilen silah {0}
+Crit {0}%	Kritik %{0}
+From your bag, not worn	Çantandan, giyili değil
+Item level {0}	Eşya seviyesi {0}
+No etchings yet: ETCH adds one.	Henüz oyma yok: OY bir tane ekler.
+◆ PINNED	◆ SABİTLİ
+ETCH	OY
+all five	beşi de
+etchings	oyma tamam
+Needles	İğneler
+{0}% chance	%{0} şans
+TURN	ÇEVİR
+This piece has sworn all nine oaths.	Bu parça dokuz andın hepsini içti.
+(includes +{0}% Forgemaster's Patience)	(+%{0} Demirci Sabrı dahil)
+Attempt +{0}:	+{0} denemesi:
+Cost {0} sorn{1}	Bedel {0} sorn{1}
+FORGE ALONE	YALNIZ GÜÇLENDİR
+fail: -1 level	başarısızlık: -1 seviye
+fail: OATHBREAK	başarısızlık: YEMİN BOZULUR
+SCROLL OF MERCY ({0})	MERHAMET PARŞÖMENİ ({0})
++10%, fail: -1 level	+%10, başarısızlık: -1 seviye
+KHAN'S ALLOY ({0})	HAN ALAŞIMI ({0})
+A hero's name	Bir kahramanın adı
+Tap a name here or in CHAT to trade, invite to your guild or add a friend.	Takas etmek, loncana davet etmek ya da dost eklemek için burada ya da SOHBET'te bir ada dokun.
+TAKE OFF	ÇIKAR
+BE FRIENDS	DOST OL
+TURN DOWN	GERİ ÇEVİR
+TAKE BACK THE REQUEST	İSTEĞİ GERİ AL
+Take {0} off?	{0} listeden çıkarılsın mı?
+They leave your friend list, and you leave theirs.	O senin dost listenden çıkar, sen de onunkinden.
+ASKING YOU ({0})	SANA SORANLAR ({0})
+tap to answer	yanıtlamak için dokun
+FRIENDS ({0})	DOSTLAR ({0})
+No friends yet. Add a hero by name above, or tap a name in CHAT.	Henüz dost yok. Yukarıdan adıyla bir kahraman ekle ya da SOHBET'te bir ada dokun.
+ASKED ({0})	SORULANLAR ({0})
+{0} / {1} friends	{0} / {1} dost
+Gathering your friends...	Dostların toplanıyor...
+Offline: friends need the server.	Çevrimdışı: dostlar sunucu ister.
+The hunt	Av
+Bells, Commanders, bounties and a full offline hunt	Çanlar, Komutanlar, görevler ve dolmuş bir çevrimdışı av
+The hunt is full	Av doldu
+Your hero has hunted every offline hour it can hold. Come back and take the spoils.	Kahramanın sığdırabildiği her çevrimdışı saati avladı. Gel ve ganimeti al.
+The Evening Bell rings	Akşam Çanı çalıyor
+{0} rings on the steppe. Come and hunt it.	{0} bozkırda çalıyor. Gel ve avla.
+{0} rises	{0} yükseliyor
+{0} stands on the Commander Ground. Its HP is shared by the whole server: strike before it falls.	{0} Komutan Alanı'nda duruyor. Canı bütün sunucuyla paylaşılır: düşmeden vur.
+Fresh bounties are posted. Hunt Marks are waiting.	Yeni görevler asıldı. Av Nişanları bekliyor.
+New bounties	Yeni görevler
+slain by {0}	{0} tarafından öldürüldü
+{0} of {1} HP left for the server	sunucuya {0} / {1} can kaldı
+FLED	KAÇTI
+SLAIN	ÖLDÜRÜLDÜ
+{0} of 20	{0} / 20
+FELL ON FLOOR {0}	{0}. KATTA DÜŞTÜ
+FLOOR {0} CLEARED	{0}. KAT TEMİZLENDİ
+THE CHAINED SMITH	ZİNCİRLİ DEMİRCİ
+THE PIECE BROKE	PARÇA KIRILDI
+THE SMITH FAILED	DEMİRCİ BAŞARAMADI
+THE SMITH STRUCK TRUE	DEMİRCİ TAM İSABET VURDU
+THE RUNE LOCK	RUN KİLİDİ
+THE RUNE DOES NOT TURN	RUN DÖNMÜYOR
+THE VAULT OPENS	MAHZEN AÇILIYOR
+THE VAULT STAYS SHUT	MAHZEN KAPALI KALIYOR
+THE DUNGEON	ZİNDAN
+CLEARED	TEMİZLENDİ
+WAR	SAVAŞ
+FELLED	DEVRİLDİ
+HELD	TUTULDU
+THE PITS	ÇUKUR
+DEFEAT	YENİLGİ
+VICTORY	ZAFER
+HOLD THE KEEP	KALEYİ TUT
+STORM THE KEEP	KALEYE SALDIR
+DEFEND	SAVUN
+SIEGE	KUŞATMA
+KEEP MENDED	KALE ONARILDI
+{0} DAMAGE	{0} HASAR
+BROKEN	KIRILDI
+FORTRESS TAKEN	KALE ALINDI
+WALL MENDED	SUR ONARILDI
+PUSH	İLERLE
+FAILED	BAŞARISIZ
+Draughts	İksirler
+Healing draughts: the hero drinks one on the lane when his HP runs low. The Hunt Marks shop sells ten for a mark.	Şifa iksirleri: kahraman canı azaldığında yolda bir tane içer. Av Nişanı dükkânı bir nişana on tane satar.
+Hunt materials	Av malzemeleri
+What the hunt's beasts leave behind (Wolf Sinew and the like). The Chained Smith takes them for his work.	Avın canavarlarının geride bıraktıkları (Kurt Siniri gibi). Zincirli Demirci onları işi için alır.
+Laid on a Forge attempt: a failure only loses a level instead of the piece.	Bir güçlendirme denemesine konur: başarısızlıkta parça yerine yalnızca bir seviye gider.
+Scroll of Mercy	Merhamet Parşömeni
+Khan's Alloy	Han Alaşımı
+Laid on a Forge attempt: +10 points of success, and a failure only loses a level.	Bir güçlendirme denemesine konur: başarıya +10 puan, başarısızlıkta yalnızca bir seviye gider.
+Anvil Ward	Örs Tılsımı
+Laid on a Forge attempt: a failure keeps the level.	Bir güçlendirme denemesine konur: başarısızlıkta seviye korunur.
+Turn a piece's etchings at the Forge, one turn a stone.	Bir parçanın oymalarını Demirhane'de çevir; taş başına bir çevirme.
+Turnstones	Dönüş Taşları
+Adds an etching to a piece, the first to the fourth.	Bir parçaya oyma ekler; birinciden dördüncüye.
+Etching Needle	Oyma İğnesi
+Adds a piece's fifth etching (the Carvers' Archive's vault, or 90 Laurels in the Pit shop).	Bir parçanın beşinci oymasını ekler (Oymacılar Arşivi'nin mahzeni ya da Çukur dükkânında 90 Defne).
+Master's Needle	Usta İğnesi
+Holds one etching of a piece through its turns.	Bir parçanın bir oymasını çevirmeler boyunca yerinde tutar.
+Pinning Wax	Sabitleme Mumu
+A marker fragment that still holds a vow: it pays for Grand skill grades (SKILLS) and a change of Banner.	Hâlâ bir yemin taşıyan bir işaret parçası: Büyük beceri derecelerini (BECERİLER) ve Sancak değişimini öder.
+Oathstone	Yemin Taşı
+Oathstones	Yemin Taşları
+Hunt Marks	Av Nişanları
+Hunt Mark	Av Nişanı
+Paid by bounties; spent in the Hunt Marks shop (BOUNTIES).	Görevlerden kazanılır; Av Nişanı dükkânında (GÖREVLER) harcanır.
+Laurel	Defne
+Laurels	Defne
+Won in the Pits; spent in the Pit shop.	Çukur'da kazanılır; Çukur dükkânında harcanır.
+Earned for your guild (donations, the Commander's first place); spent in the guild shop.	Loncan için kazanılır (bağışlar, Komutan'da birincilik); lonca dükkânında harcanır.
+Guild Tallies	Lonca Çeteleleri
+Guild Tally	Lonca Çetelesi
+A marker an Elder Korstone let fall.	Kadim bir Kortaşının düşürdüğü bir işaret.
+Summoning Marker	Çağrı İşareti
+Korshard	Korparçası
+Korshards	Korparçaları
+Set in a piece's socket at SHARDS: the higher the rank, the stronger the shard.	PARÇALAR'da bir parçanın yuvasına takılır: rütbe ne kadar yüksekse parça o kadar güçlü.
+Armour	Zırh
+Armor	Zırh
+Bracelet	Bilezik
+Earrings	Küpeler
+Helmet	Miğfer
+Necklace	Kolye
+Shield	Kalkan
+Shoes	Ayakkabılar
+Weapon	Silah
+INVENTORY	ENVANTER
+Attack	Saldırı
+Defense	Savunma
+HP	CAN
+Crit	Kritik
+SKILLS	BECERİLER
+ALL	TÜMÜ
+BOOKS	KİTAPLAR
+GEAR	TEÇHİZAT
+MATERIALS	MALZEMELER
+Honor	Onur
+WARDROBE	GARDIROP
+SELECT	SEÇ
+SELL ALL	HEPSİNİ SAT
+Tap the pieces to sell, then SELL ALL.	Satılacak parçalara dokun, sonra HEPSİNİ SAT.
+Pick the pieces to sell first.	Önce satılacak parçaları seç.
+{0} of them {1} forged or Epic and above: the Exchange may pay far more.	{0} tanesi güçlendirilmiş ya da Destansı ve üstü: Borsa çok daha fazlasını ödeyebilir.
+Sell {0} piece{1}?	{0} parça satılsın mı?
+SELL	SAT
+The merchant pays {0} sorn for them. They are gone for good.{1}	Tüccar onlar için {0} sorn öder. Sonsuza dek giderler.{1}
+Some of those pieces changed: pick them again.	O parçalardan bazıları değişti: yeniden seç.
+Sold {0} piece{1} for {2} sorn.	{0} parça {2} sorna satıldı.
+Equipped.	Kuşanıldı.
+A {0} +{1}: the Exchange may pay far more.	Bir {0} +{1}: Borsa çok daha fazlasını ödeyebilir.
+Sell +{0} {1}?	+{0} {1} satılsın mı?
+The merchant pays {0} sorn. The piece is gone for good.{1}	Tüccar {0} sorn öder. Parça sonsuza dek gider.{1}
+Sold for {0} sorn.	{0} sorna satıldı.
+Now playing	Şu an oynanan
+Book	Kitap
+LEVEL {0}	SEVİYE {0}
+RENEW YOUR OATH ›	ANDINI YENİLE ›
+oath {0}/{1}	ant {0}/{1}
+ATTACK	SALDIRI
+DEFENSE	SAVUNMA
+CRIT	KRİTİK
+No pieces in the bag. Drops from the hunt land here.	Çantada parça yok. Avdan düşenler buraya gelir.
+No Technique Scrolls. Warden chests, the Hunt Marks and Pit shops and the Exchange have them.	Teknik Parşömeni yok. Muhafız sandıklarında, Av Nişanı ve Çukur dükkânlarında ve Borsa'da bulunur.
+Nothing yet: Korstones, bounties and dungeons pay in these.	Henüz yok: Kortaşları, görevler ve zindanlar bunlarla öder.
+The bag is empty. Drops from the hunt land here.	Çanta boş. Avdan düşenler buraya gelir.
+DONE	TAMAM
+Tap pieces to pick them	Seçmek için parçalara dokun
+in your bag	çantanda
+worn	giyili
+Worn now.	Şu an giyili.
+If worn:	Giyilirse:
+no change	değişiklik yok
+No etchings yet.	Henüz oyma yok.
+(pinned)	(sabitli)
+Dead Shard	Ölü Parça
+No sockets	Yuva yok
+Sockets:	Yuvalar:
+EQUIP	KUŞAN
+WORN	GİYİLİ
+EXCHANGE	BORSA
+LIST ON\nEXCHANGE	BORSADA\nSAT
+SELL FOR\nSORN	SORNA\nSAT
+SORN	SORN
+A {0} skill	Bir {0} becerisi
+you hold {0}	sende {0} var
++{0}% power	+%{0} güç
+Only a {0} reads it.	Yalnızca bir {0} okuyabilir.
+Your {0}: {1}	{0}: {1}
+{0} of {1} good reads toward {2}.	{2} için {0} / {1} başarılı okuma.
+The skill rests another {0}h {1}m.	Beceri {0}s {1}dk daha dinlenecek.
+{0} is past M10: its next steps burn Oathstones and Honor, not scrolls. Sell the scrolls, or trade them to a friend.	{0} M10'u geçti: sonraki adımları parşömen değil, Yemin Taşı ve Onur yakar. Parşömenleri sat ya da bir dosta ver.
+Sell it on the Exchange, or trade it to a {0}.	Borsa'da sat ya da bir {0} ile takas et.
+A read spends one scroll: {0}% it teaches, and the skill rests {1} hours either way.	Bir okuma bir parşömen harcar: %{0} ihtimalle öğretir, beceri her iki durumda {1} saat dinlenir.
+M1 and M2 need one good read each, M3 two, M4 three, and so on to nine for M10.	M1 ve M2 birer başarılı okuma ister, M3 iki, M4 üç ve böyle M10 için dokuza kadar.
+Scrolls come from Warden chests, the Hunt Marks and Pit shops, and the Exchange.	Parşömenler Muhafız sandıklarından, Av Nişanı ve Çukur dükkânlarından ve Borsa'dan gelir.
+NOT YOUR CLASS	SINIFIN DEĞİL
+READ	OKU
+You hold {0}	Sende {0} var
+It stays with whoever earned it: the Exchange does not take it.	Kazananında kalır: Borsa onu almaz.
+Average damage	Ortalama hasar
+Skill damage	Beceri hasarı
+No stats	Değer yok
+At level {0} a hero may renew the oath: back to level 1, with +{1}% attack and HP for good,	{0}. seviyede kahraman andını yenileyebilir: kalıcı +%{1} saldırı ve canla 1. seviyeye döner,
+Your oath: {0}/{1} renewals (+{2}% now).	Andın: {0}/{1} yenileme (şu an +%{2}).
+At level {0} a hero may renew the oath: back to level 1, with +{1}% attack and HP for good, up to {2} times.	{0}. seviyede kahraman andını yenileyebilir: kalıcı +%{1} saldırı ve canla 1. seviyeye döner; en çok {2} kez.
+Offline: renewal needs the server.	Çevrimdışı: yenileme sunucu ister.
+OK	TAMAM
+Oath Renewal	Ant Yenileme
+Renew your oath?	Andın yenilensin mi?
+Your level goes back to 1. Your gear, sorn and stages stay.	Seviyen 1'e döner. Teçhizatın, sornun ve aşamaların kalır.
+RENEW	YENİLE
+GUILDS	LONCALAR
+Any Banner may join any guild. Donate each day, earn Guild Tallies, raise the guild together.	Her Sancak her loncaya katılabilir. Her gün bağış yap, Lonca Çetelesi kazan, loncayı birlikte büyütün.
+Search by name or tag	Ada ya da etikete göre ara
+SEARCH	ARA
+INVITES	DAVETLER
+JOIN	KATIL
+FOUND A GUILD	LONCA KUR
+Guild name (3 to 20)	Lonca adı (3-20)
+TAG	ETİKET
+FOUND THE GUILD	LONCAYI KUR
+GIVE 10K	10B VER
+GIVE 50K	50B VER
+GIVE MAX	EN ÇOĞUNU VER
+{0} TALLIES	{0} ÇETELE
+PREV	ÖNCEKİ
+NEXT	SONRAKİ
+LEAVE	AYRIL
+GUILD CHAT	LONCA SOHBETİ
+GUILD WAR	LONCA SAVAŞI
+ASKING TO JOIN	KATILMAK İSTEYENLER
+LET IN	İÇERİ AL
+TURN AWAY	GERİ ÇEVİR
+Nobody is asking to join.	Katılmak isteyen yok.
+INVITE A HERO	BİR KAHRAMANI DAVET ET
+INVITE	DAVET ET
+GUILD INVITES	LONCA DAVETLERİ
+NO	HAYIR
+No guild has invited you. A guild's leader or officers can, from chat or their friend list.	Hiçbir lonca seni davet etmedi. Bir loncanın lideri ya da subayları sohbetten ya da dost listelerinden edebilir.
+INVITES ({0})	DAVETLER ({0})
+Lv {0}	Sv {0}
+invited by {0}	davet eden: {0}
+Invites wait {0} days for an answer, and let the hero in even through shut gates.	Davetler yanıt için {0} gün bekler ve kahramanı kapılar kapalıyken bile içeri alır.
+Invited ({0}/{1}):	Davet edilen ({0}/{1}):
+HAND OVER THE LEAD	LİDERLİĞİ DEVRET
+SEND AWAY	KOV
+A guild charter costs {0} sorn.	Bir lonca beratı {0} sorn tutar.
+Found {0}?	{0} kurulsun mu?
+The charter costs {0} sorn. You will lead it; anyone may join until you shut the gates.	Berat {0} sorn tutar. Sen yöneteceksin; kapıları kapatana dek herkes katılabilir.
+FOUND IT	KUR
+Not enough sorn.	Yeterli sorn yok.
+You have given all you can today.	Bugün verebileceğin her şeyi verdin.
+every member hunts with +{0}% sorn	her üye +%{0} sornla avlanır
+room for {0} members	{0} üyelik yer
+RAISE	YÜKSELT
+Raise {0} to {1}?	{0}, {1} seviyesine yükseltilsin mi?
+{0} sorn from the treasury: {1}.	Hazineden {0} sorn: {1}.
+You are its last member: the guild disbands, its treasury is lost.	Son üyesi sensin: lonca dağılır, hazinesi kaybolur.
+The lead passes to your highest officer (or the longest member).	Liderlik en yüksek subayına (ya da en eski üyeye) geçer.
+Your Guild Tallies stay with you.	Lonca Çetelelerin sende kalır.
+Leave {0}?	{0} loncasından ayrılınsın mı?
+MAKE MEMBER	ÜYE YAP
+MAKE OFFICER	SUBAY YAP
+HAND OVER	DEVRET
+Hand over the lead?	Liderlik devredilsin mi?
+{0} will lead the guild and you become an officer.	Loncayı {0} yönetecek, sen subay olacaksın.
+Send {0} away?	{0} kovulsun mu?
+They leave the guild at once and keep their Guild Tallies.	Loncadan hemen ayrılır ve Lonca Çetelelerini korur.
+hunting now	şu an avda
+{0}d ago	{0}g önce
+{0}h ago	{0}s önce
+{0}m ago	{0}dk önce
+Offline: guilds need the server.	Çevrimdışı: loncalar sunucu ister.
+ASK	SOR
+ASKED	SORULDU
+FULL	DOLU
+Gathering word of the guilds...	Loncalardan haber toplanıyor...
+No guild by that name.	O adda lonca yok.
+No guilds yet. Found the first one below.	Henüz lonca yok. İlkini aşağıdan kur.
+flag on {0}	bayrağı: {0}
+Level {0}	Seviye {0}
+You are {0}	Rütben: {0}
+guild bonus +{0}% hunting sorn{1}	lonca bonusu +%{0} av sornu{1}
+treasury {0} sorn	hazine {0} sorn
+{0}/{1} members	{0}/{1} üye
+GUILD XP	LONCA TP
+TOP LEVEL	EN ÜST SEVİYE
+1 Guild Tally per {0} sorn	{0} sorn başına 1 Lonca Çetelesi
+Given today {0} / {1}	Bugün verilen {0} / {1}
++{0}% hunting sorn for all	herkese +%{0} av sornu
+PLUNDER {0}/{1}	YAĞMA {0}/{1}
+MUSTER {0}/{1}	TOPLANMA {0}/{1}
+GUILD SHOP	LONCA DÜKKÂNI
+{0} Guild Tallies	{0} Lonca Çetelesi
+MEMBERS	ÜYELER
+page {0}/{1}	sayfa {0}/{1}
+ASKING ({0})	SORANLAR ({0})
+GATES OPEN	KAPILAR AÇIK
+GATES SHUT	KAPILAR KAPALI
+tap to open	açmak için dokun
+tap to shut	kapatmak için dokun
+AT ITS PEAK	ZİRVEDE
+FIGHT HERE	BURADA SAVAŞ
+PLANT FLAG	BAYRAK DİK
+LADDER	SIRALAMA
+BACK TO THE GUILD	LONCAYA DÖN
+Guild war needs the server.	Lonca savaşı sunucu ister.
+{0} d {1} h	{0} g {1} s
+{0} h {1} m	{0} s {1} dk
+Sounding the horns...	Borular çalınıyor...
+Rating {0}	Puan {0}
+Kills {0} : {1}	Öldürme {0} : {1}
+the horns fall silent in {0}	borular {0} sonra susar
+next duel in {0} s	sonraki düello {0} sn sonra
+your duels are spent	düellolarını harcadın
+{0} duels left	{0} düello kaldı
+our flag	bayrağımız
+their flag	onların bayrağı
++{0} OUR WAY	+{0} BİZDEN YANA
+BROKEN AGAINST US	BİZE KARŞI KIRILDI
+BROKEN BY US	BİZ KIRDIK
+EVEN	BERABERE
+{0} THEIR WAY	{0} ONLARDAN YANA
+Next war night: {0}	Sonraki savaş gecesi: {0}
+Your guild is not signed up.	Loncan kayıtlı değil.
+Your guild is signed up.	Loncan kayıtlı.
+{0} guild{1} so far	şimdiye dek {0} lonca
+The leader signs the guild up.	Loncayı lider kaydeder.
+SIGN UP	KAYDOL
+WITHDRAW	ÇEKİL
+Last war: {0}	Son savaş: {0}
+Wars are fought on Wednesday and Saturday nights at 21:00, for an hour.	Savaşlar çarşamba ve cumartesi geceleri saat 21:00'de, bir saat sürer.
+BAG FULL	ÇANTA DOLU
+SHARDS	PARÇALAR
+MENU	MENÜ
+ZONES	BÖLGELER
+Dismounted: your skills are ready again.	Binekten indin: becerilerin yine hazır.
+Mounted: plain attacks only until you dismount.	Binekte: inene dek yalnızca düz saldırı.
+ELDER KORSTONE	KADİM KORTAŞI
+KORSTONE	KORTAŞI
+Pack {0}/{1}	Sürü {0}/{1}
+Deaths {0}	Ölüm {0}
+Korstones {0}	Kortaşları {0}
+next bell in {0}h {1}m	sonraki çan {0}s {1}dk sonra
+THE SMITH STRUCK	DEMİRCİ VURDU
+the bag was full: {0} drop{1} left behind	çanta doluydu: {0} ganimet geride kaldı
+DEFEATED — respawning	YENİLDİ — yeniden doğuyor
+Defense {0}	Savunma {0}
+RIDING	BİNEKTE
+LV	SV
+LOCKED	KİLİTLİ
+AUTO OFF	OTO KAPALI
+AUTO ON	OTO AÇIK
+DISMOUNT	İN
+MOUNT UP	BİN
+ALL CLEARED	HEPSİ TEMİZLENDİ
+Chat needs the server.	Sohbet sunucu ister.
+Tap to talk with the steppe.	Bozkırla konuşmak için dokun.
+TIER	KADEME
+TIER {0}	KADEME {0}
+TRADE WITH {0}: BACK TO THE WINDOW	{0} İLE TAKAS: PENCEREYE DÖN
+{0} ASKS TO TRADE: ANSWER	{0} TAKAS İSTİYOR: YANITLA
+A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN	BİR LONCA SENİ DAVET EDİYOR: LONCA EKRANINDA YANITLA
+A HERO ASKS TO BE FRIENDS: ANSWER	BİR KAHRAMAN DOST OLMAK İSTİYOR: YANITLA
+{0} HEROES ASK TO BE FRIENDS: ANSWER	{0} KAHRAMAN DOST OLMAK İSTİYOR: YANITLA
+A NEW MESSAGE: READ IT	YENİ BİR MESAJ: OKU
+{0} NEW MESSAGES: READ THEM	{0} YENİ MESAJ: OKU
+A LETTER HAS COME: OPEN THE MAILBOX	BİR MEKTUP GELDİ: POSTA KUTUSUNU AÇ
+{0} LETTERS HAVE COME: OPEN THE MAILBOX	{0} MEKTUP GELDİ: POSTA KUTUSUNU AÇ
+LOCAL MODE	YEREL MOD
+GOAL MET	HEDEFE ULAŞILDI
+Every goal met. The steppe is yours.	Her hedefe ulaşıldı. Bozkır senin.
+NEXT GOAL	SONRAKİ HEDEF
+Ember	Kor
+Blood	Kan
+Void	Boşluk
+Grave	Mezar
+Khan	Han
+Shard	Parça
+WAVE	DALGA
+WAVE {0}	DALGA {0}
+SHIELDED	KALKANLI
+DEFEATED	YENİLDİ
+Gate Warden	Kapı Muhafızı
+Yard Captain	Avlu Kaptanı
+The Spire Warden	Kule Muhafızı
+Lantern Widow	Fener Dul
+Last Carver	Son Oymacı
+Silkmother	İpekana
+Coil Mother	Halka Ana
+Rootfather	Kökbaba
+Merchant-Prince	Tüccar Prens
+Khan's Shadow	Han'ın Gölgesi
+MAILBOX	POSTA KUTUSU
+No letters. The Salt Exchange writes when something of yours sells or comes back, and the Pits when a season ends.	Mektup yok. Tuz Borsası bir şeyin satıldığında ya da geri geldiğinde, Çukur da bir sezon bittiğinde yazar.
+TAKE ALL	HEPSİNİ AL
+THROW AWAY TAKEN	ALINANLARI AT
+THROW AWAY	AT
+ALL LETTERS	TÜM MEKTUPLAR
+Offline: letters need the server.	Çevrimdışı: mektuplar sunucu ister.
+From {0}	Gönderen: {0}
+NEW	YENİ
+Holds: {0}	İçinde: {0}
+A notice	Bir duyuru
+Taken	Alındı
+Not sold: {0}	Satılmadı: {0}
+Sold: {0}	Satıldı: {0}
+ARM	ZRH
+BOOK	KTP
+BRAC	BLZ
+EAR	KÜP
+GOODS	MALLAR
+SHLD	KLKN
+SHOE	AYK
+WPN	SLH
+CHEAPEST	EN UCUZ
+HIGHEST +	EN YÜKSEK +
+NEWEST	EN YENİ
+SALT EXCHANGE	TUZ BORSASI
+MY LISTINGS	İLANLARIM
+DIRECT TRADE	DOĞRUDAN TAKAS
+How many	Kaç tane
+Price in sorn	Sorn cinsinden fiyat
+e.g. 50000	ör. 50000
+LIST IT	İLANA KOY
+A {0} skill's Technique Scroll	Bir {0} becerisinin Teknik Parşömeni
+No sales of its kind in the last {0} days.	Son {0} günde bu türden satış yok.
+Sold lately ({0} days): {1} sale{2}, {3}, about {4}; the last {5}, {6}.	Son satışlar ({0} gün): {1} satış, {3}, ortalama {4}; sonuncusu {5}, {6}.
+No etchings.	Oyma yok.
+{0}h left	{0}s kaldı
+{0}m left	{0}dk kaldı
+That is your own listing: take it back under MY LISTINGS.	Bu senin kendi ilanın: İLANLARIM'dan geri al.
+Sold by {0}	Satıcı: {0}
+You do not have enough sorn.	Yeterli sornun yok.
+TAKE BACK	GERİ AL
+Take it back?	Geri alınsın mı?
+{0} comes off the Exchange and back to you.	{0} Borsa'dan kalkar ve sana döner.
+The price is for the whole count listed.	Fiyat ilandaki tüm adet içindir.
+Price {0} sorn. When it sells you receive {1} (the Exchange keeps {2}%).	Fiyat {0} sorn. Satılınca {1} alırsın (Borsa %{2} alır).
+You hold {0} of these.	Bunlardan sende {0} tane var.
+List {0}?	{0} ilana konsun mu?
+They leave you now and come back if nobody buys them within {0} hours.	Şimdi senden ayrılırlar; {0} saat içinde kimse almazsa geri gelirler.
+LIST THEM	İLANA KOY
+You hold {0} of this scroll.	Bu parşömenden sende {0} tane var.
+It leaves your bag now and comes back if nobody buys it within {0} hours.	Şimdi çantandan çıkar; {0} saat içinde kimse almazsa geri gelir.
+You hold {0} sorn	Sende {0} sorn var
+the Exchange keeps {0}% of each sale	Borsa her satıştan %{0} alır
+Offline: the Exchange needs the server.	Çevrimdışı: Borsa sunucu ister.
+At least {0} sorn.	En az {0} sorn.
+You receive {0} sorn when it sells.	Satılınca {0} sorn alırsın.
+Nothing listed here yet.	Burada henüz ilan yok.
+Opening the Exchange...	Borsa açılıyor...
+Tap to set a count and a price	Adet ve fiyat vermek için dokun
+Tap to set a price	Fiyat vermek için dokun
+Nothing to sell. Worn pieces must be taken off (INVENTORY) before they can be sold.	Satılacak bir şey yok. Giyili parçalar satılmadan önce çıkarılmalı (ENVANTER).
+On the Exchange	Borsa'da
+tap to take it back	geri almak için dokun
+Sold: you received {0} sorn	Satıldı: {0} sorn aldın
+Nobody bought it: back in your bag	Kimse almadı: çantana döndü
+Nobody bought them: back with you	Kimse almadı: sana döndüler
+Taken back	Geri alındı
+Nothing listed. Up to {0} pieces at a time, {1} hours each.	İlan yok. Aynı anda en çok {0} parça, her biri {1} saat.
+CHARACTERS	KARAKTERLER
+HOW TO PLAY	NASIL OYNANIR
+MESSAGES	MESAJLAR
+PRIVACY POLICY	GİZLİLİK POLİTİKASI
+DELETE ACCOUNT	HESABI SİL
+DEV: GRANT	GLŞ: VER
+DEV: TEST SIGN-IN	GLŞ: TEST GİRİŞİ
+Orsuun: War of Banners	Orsuun: Sancaklar Savaşı
+Offline: nothing of yours is stored on the server right now.	Çevrimdışı: şu an sunucuda sana ait hiçbir şey saklı değil.
+Delete your account?	Hesabın silinsin mi?
+Your hero, every item and all progress are removed from the server for good.	Kahramanın, her eşyan ve tüm ilerlemen sunucudan sonsuza dek silinir.
+This cannot be undone.	Bu geri alınamaz.
+Deleting...	Siliniyor...
+Account deleted. A new hunt begins.	Hesap silindi. Yeni bir av başlıyor.
+SOUND: OFF	SES: KAPALI
+SOUND: ON	SES: AÇIK
+HUNT SPEED: x{0}	AV HIZI: x{0}
+SIGN UP / SIGN IN	KAYDOL / GİRİŞ YAP
+MAILBOX ({0})	POSTA KUTUSU ({0})
+Offline.	Çevrimdışı.
+This server has no test sign-in.	Bu sunucuda test girişi yok.
+Pick Tester 1 on the page that opens.	Açılan sayfada Tester 1'i seç.
+Granted (playtest server).	Verildi (deneme sunucusu).
+Granted (local).	Verildi (yerel).
+A hero's name to write to	Yazılacak kahramanın adı
+WRITE	YAZ
+No messages yet. Write to a hero by name above, or tap a name in CHAT or on your FRIENDS list.	Henüz mesaj yok. Yukarıdan adıyla bir kahramana yaz ya da SOHBET'te veya DOSTLAR listende bir ada dokun.
+Write a message	Bir mesaj yaz
+ALL MESSAGES	TÜM MESAJLAR
+Offline: messages need the server.	Çevrimdışı: mesajlar sunucu ister.
+Type a hero's name first.	Önce bir kahramanın adını yaz.
+You blocked them. Unblock them in CHAT to write again.	Onu engelledin. Yeniden yazmak için SOHBET'te engelini kaldır.
+{0} NEW	{0} YENİ
+You: {0}	Sen: {0}
+LOAD OLDER MESSAGES	ESKİ MESAJLARI YÜKLE
+No messages yet. Say hello.	Henüz mesaj yok. Bir merhaba de.
+A moderator will read it. To stop their messages, block them in CHAT.	Bir moderatör okuyacak. Mesajlarını durdurmak için SOHBET'te engelle.
+Report this message?	Bu mesaj şikâyet edilsin mi?
+Not connected to the server.	Sunucuya bağlı değil.
+Sign-in was cancelled.	Giriş iptal edildi.
+the test sign-in	test girişi
+Signed in with {0}. Welcome back.	{0} ile giriş yapıldı. Tekrar hoş geldin.
+Your account is now saved with {0}.	Hesabın artık {0} ile kayıtlı.
+LOCAL MODE: {0}	YEREL MOD: {0}
+choose a hero	bir kahraman seç
+Choose a character	Bir karakter seç
+Invited	Davet edildi
+The Salt Exchange	Tuz Borsası
+Rare Felt Boots	Nadir Keçe Çizme
+The Pits	Çukur
+CHALLENGERS	RAKİPLER
+LOOK AGAIN	YENİDEN BAK
+FIGHT	DÖVÜŞ
+PIT SHOP	ÇUKUR DÜKKÂNI
+{0} Laurels	{0} Defne
+THE SEASON'S BOARD	SEZON TAHTASI
+BACK TO WAR	SAVAŞA DÖN
+The Pits need the server.	Çukur sunucu ister.
+Bronze	Bronz
+Iron	Demir
+Silver	Gümüş
+Gold	Altın
+Jade	Yeşim
+Khagan	Kağan
+last season's best: {0}	geçen sezonun en iyileri: {0}
+{0} fights to be ranked	sıralamaya girmek için {0} dövüş
+Season ends in {0}	Sezon {0} sonra bitiyor
+Sanding the pit floor...	Çukurun zemini kumlanıyor...
+This season {0} won, {1} lost	Bu sezon {0} galibiyet, {1} yenilgi
+tickets {0}/{1}	bilet {0}/{1}
+a Pit shade	bir Çukur gölgesi
+No one has fought in the pits yet. Be the first.	Çukur'da henüz kimse dövüşmedi. İlk sen ol.
+Carved in the vault door, under the Sky Banner's hawk:	Mahzen kapısına, Gök Sancağı'nın şahininin altına oyulmuş:
+The right rune opens the vault: the Last Carver's chest then holds a Master's Needle.	Doğru run mahzeni açar: o zaman Son Oymacı'nın sandığında bir Usta İğnesi olur.
+LEAVE IT SHUT	KAPALI BIRAK
+M1-M10: read the skill's own Technique Scroll ({0}%, then {1} hours of rest).	M1-M10: becerinin kendi Teknik Parşömenini oku (%{0}, sonra {1} saat dinlenme).
+G1-G10 and Peerless: an Oathstone and Honor ({0}%). Honor comes from Korstones, Pit wins and dungeon Wardens.	G1-G10 ve Eşsiz: bir Yemin Taşı ve Onur (%{0}). Onur Kortaşlarından, Çukur galibiyetlerinden ve zindan Muhafızlarından gelir.
+Offline: skill grades are trained on the server.	Çevrimdışı: beceri dereceleri sunucuda çalışılır.
+{0} unlocks at level {1}.	{0}, {1}. seviyede açılır.
+One {0} is spent. {1}% its teaching takes: {2} of {3} good reads toward {4}	Bir {0} harcanır. %{1} ihtimalle öğretisi tutar: {4} için {2} / {3} başarılı okuma
+(the skill rises to {0}, +{1}% power)	(beceri {0} olur, +%{1} güç)
+Whatever happens, {0} then rests {1} hours before its next read.	Ne olursa olsun, {0} sonraki okumadan önce {1} saat dinlenir.
+An Oathstone and {0} Honor are spent either way. {1}% the skill rises to {2} (+{3}% power).	Her iki durumda bir Yemin Taşı ve {0} Onur harcanır. %{1} ihtimalle beceri {2} olur (+%{3} güç).
+You hold {0} Oathstones and {1} Honor.	Sende {0} Yemin Taşı ve {1} Onur var.
+BURN THE STONE	TAŞI YAK
+READ IT	OKU
+{0}: try for {1}?	{0}: {1} denensin mi?
+Honor {0}	Onur {0}
+Oathstones {0}	Yemin Taşı {0}
++{0}% skill power	+%{0} beceri gücü
+the summit	zirve
+{0} gives +{1}%	{0} +%{1} verir
+Unlocks at level {0} (you are {1}).	{0}. seviyede açılır (sen {1}).
+Scrolls held: {0}	Eldeki parşömen: {0}
+LEVEL	SEVİYE
+Peerless: nothing is above it.	Eşsiz: üstünde bir şey yok.
+PEERLESS	EŞSİZ
+Reads toward {0}: {1} of {2}	{0} için okumalar: {1} / {2}
+{0}% a read	okuma başına %{0}
+No scroll of this skill: Warden chests, the shops, the Exchange	Bu becerinin parşömeni yok: Muhafız sandıkları, dükkânlar, Borsa
+NO SCROLL	PARŞÖMEN YOK
+READ A\nSCROLL	PARŞÖMEN\nOKU
+RESTING	DİNLENİYOR
+Next: {0}	Sonraki: {0}
+an Oathstone and {0} Honor a try	deneme başına bir Yemin Taşı ve {0} Onur
+No Oathstone: the Carvers' Archive, the Pit shop	Yemin Taşı yok: Oymacılar Arşivi, Çukur dükkânı
+Not enough Honor ({0} of {1})	Yeterli Onur yok ({0} / {1})
+Ready.	Hazır.
+BURN AN\nOATHSTONE	YEMİN TAŞI\nYAK
+"Chained to this anvil since the Spire rose. One piece from each climber. Choose."	"Kule yükseldiğinden beri bu örse zincirliyim. Her tırmanandan bir parça. Seç."
+FORGE AT THE SMITH	DEMİRCİDE GÜÇLENDİR
+WALK ON	YOLUNA DEVAM ET
+Choose a worn piece	Giyili bir parça seç
+It has sworn all nine oaths already.	Dokuz andın hepsini zaten içti.
+Cost {0} sorn	Bedel {0} sorn
+To +{0}:	+{0} için:
+{0} with the smith's hand	demircinin eliyle {0}
+not enough	yetmez
+KORSHARDS	KORPARÇALARI
+Dead Shard removed.	Ölü Parça söküldü.
+Shard set: {0}	Parça takıldı: {0}
+The shard shattered. A Dead Shard blocks the socket.	Parça parçalandı. Bir Ölü Parça yuvayı tıkıyor.
+NO SOCKETS ON THIS PIECE	BU PARÇADA YUVA YOK
+Rarer pieces carry more sockets.	Daha nadir parçalarda daha çok yuva olur.
+CLEAR DEAD SHARD	ÖLÜ PARÇAYI SÖK
+A Dead Shard blocks the socket until it is knocked out.	Bir Ölü Parça sökülene dek yuvayı tıkar.
+SET {0}	{0} TAK
+A failed set leaves a Dead Shard in the socket.	Başarısız bir takma yuvada bir Ölü Parça bırakır.
+SOCKET {0} HOLDS {1} {2}	{0}. YUVADA {1} {2} VAR
+TAP TO BEGIN	BAŞLAMAK İÇİN DOKUN
+Connecting to the steppe...	Bozkıra bağlanılıyor...
+Ready	Hazır
+TRADE WITH A HERO	BİR KAHRAMANLA TAKAS
+Both of you put pieces, scrolls and sorn on the table, lock, then confirm.	İkiniz de masaya parça, parşömen ve sorn koyar, kilitler, sonra onaylarsınız.
+ASK TO TRADE	TAKAS İSTE
+Both need level {0} and an account {1} hours old. {2}% of the sorn goes to the tax. Technique Scrolls trade too. Your own heroes share the depot instead.	İkinizin de {0}. seviyede ve {1} saatlik bir hesapta olması gerekir. Sornun %{2}'si vergiye gider. Teknik Parşömenleri de takas edilir. Kendi kahramanların bunun yerine depoyu paylaşır.
+ACCEPT	KABUL ET
+Sorn to give	Verilecek sorn
+PUT SORN	SORN KOY
+YOUR BAG (TAP TO OFFER)	ÇANTAN (SUNMAK İÇİN DOKUN)
+CANCEL TRADE	TAKASI İPTAL ET
+Trading needs the server.	Takas sunucu ister.
+Locked	Kilitli
+CONFIRMED	ONAYLANDI
+Confirmed	Onaylandı
+None	Yok
+Cancelled	İptal edildi
+Done	Bitti
+The trade is over.	Takas bitti.
+Traded.	Takas edildi.
+Trade pieces and sorn with another hero.	Başka bir kahramanla parça ve sorn takas et.
+An invitation	Bir davet
+Waiting for an answer	Yanıt bekleniyor
+Waiting for {0}...	{0} bekleniyor...
+{0} asks to trade.	{0} takas istiyor.
+(playtest: level and age rules off)	(deneme: seviye ve yaş kuralları kapalı)
+Trading with	Takas:
+{0} OFFERS	{0} SUNUYOR
+(you get {0} after the {1}% tax)	(%{1} vergiden sonra {0} alırsın)
+Sorn: {0}	Sorn: {0}
+YOU OFFER	SEN SUNUYORSUN
+WAIT {0}	BEKLE {0}
+LOCK OFFER	TEKLİFİ KİLİTLE
+CONFIRM	ONAYLA
+Nothing yet.	Henüz bir şey yok.
+STATS	DEĞERLER
+Tap a piece or a scroll below to see it and offer it.	Görmek ve sunmak için aşağıda bir parçaya ya da parşömene dokun.
+OFFER THEM	ONLARI SUN
+OFFER IT	SUN
+At most {0} pieces a trade.	Takas başına en çok {0} parça.
+Nothing in the bag to offer (worn pieces stay on).	Çantada sunulacak bir şey yok (giyili parçalar üstte kalır).
+If you wore it:	Giyersen:
+Your class reads it.	Sınıfın onu okuyabilir.
+Read at SKILLS to climb {0}'s Mastered grades: {1}% a read, then {2} hours of rest.	{0} becerisinin Usta derecelerini çıkmak için BECERİLER'de oku: okuma başına %{1}, sonra {2} saat dinlenme.
+Between 1 and {0}.	1 ile {0} arası.
+Bounties pay Trail XP: {0} a daily, {1} a weekly.	Görevler Sefer TP öder: günlük {0}, haftalık {1}.
+FREE	ÜCRETSİZ
+THE TRAIL	SEFER
+CLAIM ALL	HEPSİNİ AL
+Free	Ücretsiz
+Paid	Ücretli
+The Campaign Trail needs the server.	Sefer Yolu sunucu ister.
+Tier {0} is {1} Trail XP away.	{0}. kademeye {1} Sefer TP var.
+Taken.	Alındı.
+The Trail's reward needs the Trail.	Seferin ödülü Seferi ister.
+Not enough Amber: {0} needed.	Yeterli Kehribar yok: {0} gerekli.
+(you have the Trail: you pay the difference)	(Sefer sende var: farkı ödersin)
+Trail Plus: the paid track and {0} tiers at once	Sefer Plus: ücretli yol ve bir anda {0} kademe
+The Trail: the paid track	Sefer: ücretli yol
+Season {0}, {1}: {2} at tier 1, {3} at tier {4}.	Sezon {0}, {1}: 1. kademede {2}, {4}. kademede {3}.
+{0}, for this hero, for {1} Amber.	{0}, bu kahraman için, {1} Kehribar.
+TRAIL PLUS	SEFER PLUS
+The Trail is yours: claim its rewards.	Sefer senin: ödüllerini al.
+Trail Plus is yours: ten tiers climbed.	Sefer Plus senin: on kademe çıkıldı.
+Season {0}	Sezon {0}
+Ends in {0}.	{0} sonra bitiyor.
+Tier 1: {0} ({1})	1. kademe: {0} ({1})
+Tier {0}: {1} ({2})	{0}. kademe: {1} ({2})
+TIER {0} / {1}	KADEME {0} / {1}
+{0} / {1} Trail XP to tier {2}	{2}. kademeye {0} / {1} Sefer TP
+{0} Trail XP: the Trail is climbed.	{0} Sefer TP: Sefer tamamlandı.
+THE TRAIL: YOURS	SEFER: SENİN
+TRAIL PLUS: YOURS	SEFER PLUS: SENİN
+PLUS +{0} TIERS	PLUS +{0} KADEME
+THE TRAIL (LOCKED)	SEFER (KİLİTLİ)
+CLAIM ALL ({0})	HEPSİNİ AL ({0})
+Last season left {0} rewards unclaimed: CLAIM ALL hands them over.	Geçen sezondan alınmamış {0} ödül kaldı: HEPSİNİ AL onları verir.
+TAP TO CLAIM	ALMAK İÇİN DOKUN
+REMOVE	KALDIR
+STOP WHEN ALL OF THESE ARE ON IT	BUNLARIN HEPSİ ÜSTÜNDEYKEN DUR
+BACK TO THE FORGE	DEMİRHANEYE DÖN
+ADD A PIECE	PARÇA EKLE
+No other pieces with etchings. Add etchings with Etching Needles first.	Oymalı başka parça yok. Önce Oyma İğneleriyle oyma ekle.
+Etching	Oyma
+Stopped after {0} turns.	{0} çevirmeden sonra durdu.
+GONE	YOK
+Out of Turnstones after {0} turns.	{0} çevirmeden sonra Dönüş Taşı bitti.
+no goal	hedef yok
+CHECK	KONTROL
+Turning...	Çevriliyor...
+{0} turns so far	şimdiye dek {0} çevirme
+Turn a piece ON and give it a goal first.	Önce bir parçayı AÇIK yap ve ona bir hedef ver.
+All done after {0} turns!	{0} çevirmeden sonra hepsi tamam!
+{0} done, {1} need a look (CHECK).	{0} tamam, {1} tanesine bakılmalı (KONTROL).
+All done	Hepsi tamam
+OFF	KAPALI
+ON	AÇIK
+TURNING	ÇEVRİLİYOR
+Add a piece	Parça ekle
+That piece is gone	O parça yok
+It was destroyed or sold: REMOVE it.	Yok edildi ya da satıldı: KALDIR.
+Tap + to add pieces, worn or in the bag, and give each one its goal.	Giyili ya da çantadaki parçaları eklemek için + dokun ve her birine hedefini ver.
+up to T{0}	K{0}'a kadar
+you have {0}	sende {0} var
+{0} Turnstone{1} a turn	çevirme başına {0} Dönüş Taşı
+Choose an etching	Bir oyma seç
+Pick up to five etchings and the lowest tier you accept for each.	En çok beş oyma ve her biri için kabul ettiğin en düşük kademeyi seç.
+This piece has its goal.	Bu parça hedefine ulaştı.
+about {0} Turnstones on average	ortalama yaklaşık {0} Dönüş Taşı
+{0}% a turn	çevirme başına %{0}
+About 1 in {0} turns	Yaklaşık {0} çevirmede 1
+{0} Turnstones on average	ortalama {0} Dönüş Taşı
+STOP	DUR
+STOPPING...	DURDURULUYOR...
+START TURNING	ÇEVİRMEYE BAŞLA
+START TURNING ({0} PIECES)	ÇEVİRMEYE BAŞLA ({0} PARÇA)
+T1 +{0}	K1 +{0}
+T5 +{0}	K5 +{0}
+BAG	ÇANTA
+SKIP	GEÇ
+THE HUNT	AV
+Your hero hunts on their own: packs fall and loot drops, even while you are away.	Kahramanın kendi başına avlanır: sen yokken bile sürüler düşer, ganimet gelir.
+Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Her dalga bir Kortaşında biter. En iyi ganimetler için onu kır. Ne kadar derinde avlanırsan taşlar o kadar karanlık ve ölümcül olur.
+KORSTONES	KORTAŞLARI
+Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	OTO açıkken beceriler kendiliğinden kullanılır. İstediğin anda kullanmak için bir beceriye dokun: nişanlı kullanım daha sert vurur.
+The Forge raises your gear's level and its power. Tap FORGE.	Demirhane teçhizatının seviyesini ve gücünü yükseltir. GÜÇLENDİR'e dokun.
+Every try shows its chance and cost and asks first. Up to +3 a failure costs a level; from +4 a failed FORGE ALONE destroys the piece, and a Scroll of Mercy keeps it safe. Try once.	Her deneme şansını ve bedelini gösterir ve önce sorar. +3'e kadar başarısızlık bir seviyeye mal olur; +4'ten itibaren başarısız bir YALNIZ GÜÇLENDİR parçayı yok eder, Merhamet Parşömeni ise onu korur. Bir kez dene.
+FIRST STRIKE	İLK VURUŞ
+WELL STRUCK	İYİ VURDUN
+Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Kazan ya da kaybet, Demirhane hep orada. AVA DÖN'e dokun.
+New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Yeni parçalar çantana düşer: onları TEÇHİZAT'tan giy. Giyili ya da çantadaki her parçayı orada güçlendir ya da çevir.
+PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	Yeterince güçlüysen İLERLE sonraki aşamayı alır. Her temizlik BÖLGELER'de yeni av alanları açar.
+THE STEPPE	BOZKIR
+WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	Sancağın için SAVAŞ, Av Nişanları için GÖREVLER, LONCA, Tuz Borsası'nda TAKAS ve ses, hesabın ve bu rehber için MENÜ.
+This line always shows your next goal. Tap it to go there. Good hunting!	Bu satır her zaman sonraki hedefini gösterir. Oraya gitmek için dokun. İyi avlar!
+CHANGE	DEĞİŞTİR
+FORTRESSES	KALELER
+KEEP	KALE
+BIDS	TEKLİFLER
+BID +{0}	TEKLİF +{0}
+The keeps need the server.	Kaleler sunucu ister.
+Bid on the keep of {0}?	{0} kalesine teklif verilsin mi?
+{0} sorn leave the guild treasury now; your bid becomes {1}.	{0} sorn şimdi lonca hazinesinden çıkar; teklifin {1} olur.
+On Sunday at 20:00 the four highest bids storm the keep and are spent; the rest go back.	Pazar 20:00'de en yüksek dört teklif kaleye saldırır ve harcanır; kalanlar geri döner.
+BID	TEKLİF VER
+THE KEEP OF {0}	{0} KALESİ
+No guild holds the keep.	Kaleyi hiçbir lonca tutmuyor.
+{0} {1} holds the keep: their flag flies here.	Kaleyi {0} {1} tutuyor: burada onların bayrağı dalgalanıyor.
+Bids are open. The keep is stormed on Sunday at 20:00, in {0}.	Teklifler açık. Kaleye pazar 20:00'de, {0} sonra saldırılacak.
+The keep siege is on: {0} left. The best contender must beat {1} plus the {2} its holders mended.	Kale kuşatması sürüyor: {0} kaldı. En iyi aday {1} artı sahiplerinin onardığı {2} değerini geçmeli.
+Bids open again on Monday at 20:00.	Teklifler pazartesi 20:00'de yeniden açılır.
+No bids yet this week.	Bu hafta henüz teklif yok.
+Your guild holds this keep and defends it on Sunday.	Bu kaleyi loncan tutuyor ve pazar günü savunacak.
+It storms the keep.	Kaleye saldırıyor.
+Your guild bids {0} sorn.	Loncan {0} sorn teklif ediyor.
+Bids start at {0} sorn from the treasury.	Teklifler hazineden {0} sornla başlar.
+Offline: the War of Banners needs the server.	Çevrimdışı: Sancaklar Savaşı sunucu ister.
+Swear to a Banner first.	Önce bir Sancağa ant iç.
+Gathering word from the steppe...	Bozkırdan haber toplanıyor...
+Season	Sezon
+points from Korstones, Commanders, pushes and sieges	Kortaşları, Komutanlar, ilerlemeler ve kuşatmalardan puan
+Offline	Çevrimdışı
+You have sworn to no Banner yet.	Henüz hiçbir Sancağa ant içmedin.
+You ride for the {0}	{0} için sürüyorsun
+hunting bonus +{0}% sorn	av bonusu +%{0} sorn
+Last season's winner: the {0} (+{1}% sorn this season)	Geçen sezonun galibi: {0} (bu sezon +%{1} sorn)
+Last season: no winner.	Geçen sezon: galip yok.
+guild flag [{0}]	lonca bayrağı [{0}]
+the {0} is under siege{1}	{0} kuşatma altında{1}
+Ember {0}	Kor {0}
+Sky {0}	Gök {0}
+Gold {0}	Altın {0}
+REGROUP {0}:{1}	TOPARLAN {0}:{1}
+HOLD KEEP	KALEYİ TUT
+STORM KEEP	KALEYE SALDIR
+COMPANION	YOLDAŞ
+MOUNT	BİNEK
+SKIN	KOSTÜM
+WEAR	GİY
+Nothing held yet. The Caravan sells skins, mounts and companions, and bosses from Gorak Pass on drop them.	Henüz bir şey yok. Kervan kostüm, binek ve yoldaş satar; Gorak Geçidi'nden itibaren patronlar da düşürür.
+TO THE CARAVAN	KERVANA
+The wardrobe needs the server.	Gardırop sunucu ister.
+WHERE TO HUNT	NEREDE AVLANILIR
+Hunting Grounds pay sorn and levels, Fields pay materials, Commander Grounds pay skins	Av Alanları sorn ve seviye, Tarlalar malzeme, Komutan Alanları kostüm öder
+Dungeon	Zindan
+Zone	Bölge
+COMMANDERS	KOMUTANLAR
+DEV: bosses up	GLŞ: patronlar hazır
+9 floors	9 kat
+the Chained Smith on floor 6	6. katta Zincirli Demirci
+2 levels, 6 floors	2 seviye, 6 kat
+the Silkmother's Khan's Alloy	İpekana'nın Han Alaşımı
+Master's Needles	Usta İğneleri
+{0} floors	{0} kat
+a rune lock on floor {0}	{0}. katta bir run kilidi
+Dungeons need the server.	Zindanlar sunucu ister.
+Clear {0} to open	Açmak için {0} temizle
+The Chained Smith is waiting on floor {0}.	Zincirli Demirci {0}. katta bekliyor.
+The rune lock waits on floor {0}.	Run kilidi {0}. katta bekliyor.
+keys today {0}/{1}	bugünkü anahtarlar {0}/{1}
+CONTINUE	DEVAM ET
+ENTER	GİR
+NO KEYS	ANAHTAR YOK
+RUN WAITING	AKIN BEKLİYOR
+Local mode: Commanders are always up.	Yerel mod: Komutanlar hep hazır.
+Campaign	Sefer
+balanced drops	dengeli ganimet
+stages 1-{0}	aşama 1-{0}
+Commander Ground	Komutan Alanı
+Hunting Ground	Av Alanı
+Korstone Field	Kortaşı Tarlası
+no offline	çevrimdışı yok
+Clear campaign stage {0} to open	Açmak için sefer aşaması {0} temizle
+Lv {0}-{1}{2}	Sv {0}-{1}{2}
+HUNT HERE	BURADA AVLAN
+HUNTING NOW	ŞU AN AVLANIYOR
+next in {0}:{1}	sonraki {0}:{1}
+UP {0}:{1}	HAZIR {0}:{1}
+up {0}:{1}	hazır {0}:{1}
+SLAIN by {0}	{0} tarafından ÖLDÜRÜLDÜ
+Server pool {0} / {1} HP	Sunucu havuzu {0} / {1} can
+up (local)	hazır (yerel)
+shielded by 4 captains, enrages at 30%	4 kaptanla korunur, %30'da öfkelenir
+splits into reflecting images at 70% and 40%	%70 ve %40'ta yansıyan suretlere bölünür
+calls a pack every 15 s	her 15 sn'de bir sürü çağırır
+Enter your email.	E-postanı gir.
+That email is too long.	Bu e-posta çok uzun.
+That does not look like an email.	Bu bir e-postaya benzemiyor.
+A password has at least {0} characters.	Bir şifre en az {0} karakterdir.
+That password is too long.	Bu şifre çok uzun.
+Choose a stronger password.	Daha güçlü bir şifre seç.
+Break every stone.	Her taşı kır.
+Ember Banner	Kor Sancağı
+Emberhearth	Korocak
+Rider clans of the open steppe: proud, blunt, settled by honour duels.	Açık bozkırın atlı boyları: gururlu, dobra, anlaşmazlıklarını onur düellolarıyla çözerler.
+Reseal what was sealed.	Mühürlüyü yeniden mühürle.
+Sky Banner	Gök Sancağı
+Mountain monasteries under the eternal sky: archivists, drum shamans and grave wardens.	Sonsuz göğün altındaki dağ manastırları: arşivciler, davul şamanları ve mezar bekçileri.
+Wardenstep	Bekçibasamak
+Every stone has a price.	Her taşın bir bedeli var.
+Gold Banner	Altın Sancağı
+Caravan cities of the salt roads: contracts, guild banks and hired blades.	Tuz yollarının kervan şehirleri: sözleşmeler, lonca bankaları ve kiralık kılıçlar.
+Scalehouse	Terazihane
+No such Banner.	Böyle bir Sancak yok.
+Choose one of the three Banners.	Üç Sancaktan birini seç.
+You ride under that Banner already.	Zaten o Sancağın altında sürüyorsun.
+The Banner changes once a season. Wait for the next one.	Sancak sezonda bir kez değişir. Bir sonrakini bekle.
+Changing Banners costs {0} Oathstones (the Carvers' Archive).	Sancak değiştirmek {0} Yemin Taşı tutar (Oymacılar Arşivi).
+Stagfort	Geyikkale
+The Oathfields	Ant Ovaları
+Saltgate	Tuzkapı
+The Salt Flats	Tuz Düzlükleri
+Ravenmoot	Kuzgunmeclis
+The Frost Pasture	Ayaz Otlağı
+Gate Warden of {0}	{0} Kapı Muhafızı
+Yard Captain of {0}	{0} Avlu Kaptanı
+Lord of {0} Hall	{0} Salonunun Efendisi
+Your oath is renewed {0} times: it holds for ever.	Andın {0} kez yenilendi: sonsuza dek geçerli.
+Oath Renewal opens at level {0}.	Ant Yenileme {0}. seviyede açılır.
+Break 20 Korstones	20 Kortaşı kır
+Hunt for 30 minutes	30 dakika avlan
+Forge 5 times	5 kez güçlendir
+Turn etchings 25 times	Oymaları 25 kez çevir
+Fight a Commander	Bir Komutanla dövüş
+Break 200 Korstones	200 Kortaşı kır
+Fight 5 Commanders	5 Komutanla dövüş
+Push 10 times	10 kez ilerle
+Join 3 fortress sieges	3 kale kuşatmasına katıl
+Already claimed.	Zaten alındı.
+Not finished yet.	Henüz bitmedi.
+Adds an etching (1st to 4th)	Bir oyma ekler (1.-4.)
+Holds one etching through turns	Bir oymayı çevirmeler boyunca tutar
+10 Turnstones	10 Dönüş Taşı
+Turn etchings	Oymaları çevir
+A failed Forge only loses a level	Başarısız bir güçlendirme yalnızca bir seviye kaybettirir
+10 Draughts	10 İksir
+Healing draughts for the hunt	Av için şifa iksirleri
+A book of one of your class's skills	Sınıfının becerilerinden birinin kitabı
+Technique Scroll	Teknik Parşömeni
+Unknown shop item.	Bilinmeyen dükkân eşyası.
+Buy 1 to 99 at a time.	Bir seferde 1 ile 99 arası al.
+Not enough Hunt Marks.	Yeterli Av Nişanı yok.
+Scrolls of Mercy	Merhamet Parşömenleri
+a Scroll of Mercy	bir Merhamet Parşömeni
+A name has {0} to {1} letters or digits.	Bir ad {0} ile {1} arası harf ya da rakamdır.
+A name starts with a letter.	Bir ad harfle başlar.
+Letters and digits only, no spaces.	Yalnızca harf ve rakam, boşluk yok.
+Choose another name.	Başka bir ad seç.
+Say something first.	Önce bir şey söyle.
+At most {0} characters.	En çok {0} karakter.
+online	çevrimiçi
+{0} min ago	{0} dk önce
+{0} h ago	{0} s önce
+{0} days ago	{0} gün önce
++1 Bloodroot Draught	+1 Kankökü İksiri
+Bloodroot Draught	Kankökü İksiri
+Korstone chest: {0}	Kortaşı sandığı: {0}
+Elder Korstone chest: {0}	Kadim Kortaşı sandığı: {0}
+{0} falls: {1}	{0} düştü: {1}
+No chest: rank {0} on {1}	Sandık yok: {1} için {0}. sıra
+{0} from {1}: {2}	{0} ({1}): {2}
+{0} sorn	{0} sorn
++{0} sorn	+{0} sorn
++{0} materials	+{0} malzeme
+Commander's chest	Komutan sandığı
+Officer's chest	Subay sandığı
+Trooper's chest	Er sandığı
+Void Lance	Boşluk Mızrağı
+Grave Tide	Mezar Dalgası
+Pact Frenzy	Ant Çılgınlığı
+Grave Chains	Mezar Zincirleri
+Shroud of Night	Gece Kefeni
+Sky Hammer	Gök Çekici
+Storm Drum	Fırtına Davulu
+War Rhythm	Savaş Ritmi
+Hunter's Blessing	Avcı Kutsaması
+Mirror Ward	Ayna Tılsımı
+Heartseeker	Kalpavcı
+Knife Fan	Bıçak Yelpazesi
+Kestrel's Dive	Kerkenez Dalışı
+Venom Cloud	Zehir Bulutu
+Shadow Stoop	Gölge Pikesi
+Rending Arc	Yırtan Kavis
+Iron Whirl	Demir Girdap
+Blood Fury	Kan Öfkesi
+Honed Edge	Bilenmiş Ağız
+Bull Rush	Boğa Hücumu
+Old Greyjaw	Yaşlı Boziçene
+Wolf Sinew	Kurt Siniri
+calls a pack	bir sürü çağırır
+Shielded by captains	Kaptanlarca korunur
+splits into images	suretlere bölünür
+Hollowed Boar	Oyulmuş Yaban Domuzu
+Hollowed Wolf	Oyulmuş Kurt
+Gorak Marauder	Gorak Yağmacısı
+Gorak Pass	Gorak Geçidi
+Gorak Raider	Gorak Akıncısı
+Marauder Brand	Yağmacı Damgası
+War Hound	Savaş Köpeği
+Warlord Tul-Gorak	Savaş Beyi Tul-Gorak
+Caravan Ghoul	Kervan Gulyabanisi
+Glass Snake	Cam Yılan
+Salt Scorpion	Tuz Akrebi
+Scorpion Glass	Akrep Camı
+The Mirage Queen	Serap Kraliçesi
+The Salt Sea	Tuz Denizi
+Frost Bear	Ayaz Ayısı
+Frozen Marrow	Donmuş İlik
+Ice Wight	Buz Hortlağı
+Snow Hag	Kar Cadısı
+Whitefang Range	Akdiş Dağları
+Ash Fiend	Kül İblisi
+Azhdar the Furnace Wyrm	Ocak Ejderi Azhdar
+Cinder Heart	Kor Yürek
+Flame Cultist	Alev Tarikatçısı
+Magma Hound	Magma Tazısı
+The Cinder Marches	Kül Uçları
+Hanging Spirit	Asılı Ruh
+Hollowed Dead	Oyulmuş Ölü
+Lantern Wisp	Fener Cini
+The Lantern Widow	Fenerli Dul
+Whisper Bark	Fısıltı Kabuğu
+Whisperwood	Fısıltıorman
+Birch Stalker	Kayın Sinsisi
+Bloodbirch Resin	Kankayın Reçinesi
+Red Treant	Kızıl Ağaçadam
+Sap Horror	Özsu Dehşeti
+The Bloodbirch	Kankayın
+Bloodbirch	Kankayın
+The Rootfather	Kökbaba
+Bog Rider	Bataklık Süvarisi
+Leech Swarm	Sülük Sürüsü
+Marsh Serpent	Bataklık Yılanı
+Serpent Scale	Yılan Pulu
+The Coil Mother	Halka Ana
+The Drowned Steppe	Boğulmuş Bozkır
+Bone Picker	Kemik Toplayıcı
+Colossus Graves	Dev Mezarları
+Giant's Knuckle	Dev Boğumu
+Hurm the Unburied	Gömülmemiş Hurm
+Siege Beast	Kuşatma Canavarı
+Stone Giant	Taş Dev
+Debt Wraith	Borç Hortlağı
+Gilded Cog	Yaldızlı Çark
+Gilded Construct	Yaldızlı Kurgu
+Khan Cultist	Han Tarikatçısı
+The Last Merchant-Prince	Son Tüccar Prens
+The Sunken Bazaar	Batık Çarşı
+Marker Dust	İşaret Tozu
+Risen Captain	Dirilmiş Kaptan
+Risen Rider	Dirilmiş Süvari
+Risen Trooper	Dirilmiş Er
+The Thousand Markers	Bin İşaret
+Varkesh of the Left Wing	Sol Kanadın Varkesh'i
+Khan's Hound	Han'ın Tazısı
+Oath Chanter	Ant Okuyucu
+The Hollow Throne	Oyuk Taht
+The Khan's Shadow	Han'ın Gölgesi
+Throne Guard	Taht Muhafızı
+Throne Shard	Taht Parçası
+Ember Steppe	Kor Bozkırı
+The Ember Steppe	Kor Bozkırı
+Salt Flats	Tuz Düzlükleri
+Frost Pasture	Ayaz Otlağı
+Korstone Field I	Kortaşı Tarlası I
+Korstone Field II	Kortaşı Tarlası II
+Korstone Field III	Kortaşı Tarlası III
+Korstone Field IV	Kortaşı Tarlası IV
+Korstone Field V	Kortaşı Tarlası V
+Gorak War Camp	Gorak Savaş Kampı
+Tul-Gorak's Warmask	Tul-Gorak'ın Savaş Maskesi
+Mirage Veil	Serap Peçesi
+Greyjaw Pelt Cloak	Boziçene Post Pelerini
+Bone Bracelet	Kemik Bilezik
+Felt Boots	Keçe Çizme
+Iron Earrings	Demir Küpeler
+Lamellar Coat	Pullu Zırh
+Round Shield	Yuvarlak Kalkan
+Steppe Helm	Bozkır Miğferi
+Tamga Necklace	Tamga Kolyesi
+Captain	Kaptan
+Commander	Komutan
+Guard of the Khan	Han Muhafızı
+Rider	Süvari
+Trooper	Er
+{0}, floor {1}	{0}, {1}. kat
+A dungeon	Bir zindan
+Unknown zone	Bilinmeyen bölge
+The Hollow Spire	Oyuk Kule
+Nine floors pushed up from the grave plain. A Korstone rush on floor 3, the Chained Smith on floor 6, the Spire Warden on floor 9.	Mezar ovasından yükselmiş dokuz kat. 3. katta bir Kortaşı akını, 6. katta Zincirli Demirci, 9. katta Kule Muhafızı.
+Silkmother's Warren	İpekana'nın İni
+The Silkmother	İpekana
+Under the Salt Sea, two levels deep: the Upper Galleries and the Brood Deep, opened by an egg-nest rush. The Silkmother waits at the bottom; her chest always holds a Khan's Alloy.	Tuz Denizi'nin altında, iki seviye derinde: Üst Galeriler ve bir yumurta yuvası akınıyla açılan Kuluçka Derinliği. İpekana dipte bekler; sandığında her zaman bir Han Alaşımı olur.
+The Carvers' Archive	Oymacılar Arşivi
+The Last Carver	Son Oymacı
+A Sky Banner vault in the mountains. On floor 3 a rune lock asks the riddle carved in its door: the right rune opens the vault, and the Last Carver's chest then holds a Master's Needle. His chest always holds an Oathstone (two with the vault open).	Dağlarda bir Gök Sancağı mahzeni. 3. katta bir run kilidi kapısına oyulmuş bilmeceyi sorar: doğru run mahzeni açar ve o zaman Son Oymacı'nın sandığında bir Usta İğnesi olur. Sandığında her zaman bir Yemin Taşı olur (mahzen açıkken iki).
+Brood Deep	Kuluçka Derinliği
+Upper Galleries	Üst Galeriler
+Floor {0}	{0}. kat
+I have a mouth that never speaks and a bed where I never sleep; I run all my life and never leave home.	Bir ağzım var hiç konuşmaz, bir yatağım var hiç uyumam; ömrüm boyunca koşarım, evden hiç ayrılmam.
+River	Nehir
+Tent	Çadır
+Higher than the Khan's banner I circle, and the whole steppe is my map.	Han'ın sancağından yüksekte dönerim, bütün bozkır benim haritam.
+Birch	Kayın
+Moon	Ay
+White as bone and sold for gold, I was a sea before I was a road.	Kemik gibi beyaz, altına satılır; yol olmadan önce denizdim.
+Common {0}	Sıradan {0}
+Uncommon {0}	Yaygın Olmayan {0}
+Rare {0}	Nadir {0}
+Epic {0}	Destansı {0}
+Legendary {0}	Efsanevi {0}
+Common	Sıradan
+Uncommon	Yaygın Olmayan
+Epic	Destansı
+{0}, {1}	{0}, {1}
++{0} {1}	+{0} {1}
+{0}: {1}	{0}: {1}
+{0} +{1}	{0} +{1}
+{0} × {1}	{0} × {1}
+Arrow	Ok
+Drum	Davul
+Feathered at one end and sharp at the other, I fly once and never come home.	Bir ucum tüylü, öbür ucum sivri; bir kez uçarım, bir daha eve dönmem.
+Banner	Sancak
+I call the whole host without a mouth; strike my face and I answer.	Ağzım olmadan bütün orduyu çağırırım; yüzüme vur, cevap veririm.
+I rise with no legs and set with no fall, and every rider turns to me at dawn.	Bacaksız doğar, düşmeden batarım; şafakta her atlı yüzünü bana döner.
+Sun	Güneş
+My coat is white in summer and in winter, and in the red wood I bleed.	Kabuğum yazın da kışın da beyazdır, kızıl ormanda kanarım.
+One leg in the ground and a round roof on my head, I keep the sleepers dry.	Bir ayağım toprakta, başımda yuvarlak bir dam; uyuyanları kuru tutarım.
+Four legs for the grass and a rider on my back, I drink where the river bends.	Otlamaya dört ayak, sırtımda bir atlı; nehrin kıvrıldığı yerde su içerim.
+I hunt with my kin and sing to a silver face at night.	Soyumla avlanır, geceleri gümüş bir yüze şarkı söylerim.
+I have no light of my own; I borrow the sun's to guide the night caravan.	Kendi ışığım yok; gece kervanına yol göstermek için güneşinkini ödünç alırım.
+Every Banner flies me, yet I never leave my pole.	Her Sancak beni dalgalandırır, ama ben direğimden hiç ayrılmam.
+{0} Turnstones	{0} Dönüş Taşı
+an Etching Needle	bir Oyma İğnesi
+a {0} Korshard	bir {0} Korparçası
+{0} Korshard	{0} Korparçası
+a Master's Needle	bir Usta İğnesi
+an Oathstone	bir Yemin Taşı
+{0} and a Khan's Alloy	{0} ve bir Han Alaşımı
+a {0}	bir {0}
+{0}; {1}	{0}; {1}
+Trooper Korshard	Er Korparçası
+Rider Korshard	Süvari Korparçası
+Captain Korshard	Kaptan Korparçası
+Commander Korshard	Komutan Korparçası
+Guard of the Khan Korshard	Han Muhafızı Korparçası
+Strong against Oathsworn	Antlılara karşı güçlü
+Critical hit chance	Kritik vuruş şansı
+Piercing hit chance	Delici vuruş şansı
+DEX	ÇEV
+INT	ZEK
+STR	GÜÇ
+VIT	DAY
+Strong against Hollowed	Oyulmuşlara karşı güçlü
+Strong against Fiends	İblislere karşı güçlü
+Strong against Marauders	Yağmacılara karşı güçlü
+Strong against Beasts	Canavarlara karşı güçlü
+Strong against Cultists	Tarikatçılara karşı güçlü
+Poison chance	Zehir şansı
+Stun chance	Sersemletme şansı
+Casting speed	Beceri hızı
+Attack value	Saldırı değeri
+Max HP	En yüksek can
+Resistance to Vanguard	Vanguard'a karşı direnç
+Resistance to Kestrel	Kestrel'e karşı direnç
+Resistance to Wraithsworn	Wraithsworn'e karşı direnç
+Resistance to Drumcaller	Drumcaller'a karşı direnç
+HP regeneration	Can yenilenmesi
+Block chance	Engelleme şansı
+Reflect	Yansıtma
+Sorn drop	Sorn düşmesi
+Item drop	Eşya düşmesi
+Evasion	Kaçınma
+That piece is gone.	O parça yok.
+This piece has all five etchings.	Bu parçada beş oymanın hepsi var.
+The fifth etching needs a Master's Needle (the Carvers' Archive or the Pit shop).	Beşinci oyma bir Usta İğnesi ister (Oymacılar Arşivi ya da Çukur dükkânı).
+No Etching Needles.	Oyma İğnesi yok.
+No etching there.	Orada oyma yok.
+No Pinning Wax.	Sabitleme Mumu yok.
+Item already has 5 etchings.	Eşyada zaten 5 oyma var.
+A Master's Needle only adds the fifth etching.	Usta İğnesi yalnızca beşinci oymayı ekler.
+The fifth etching needs a Master's Needle.	Beşinci oyma bir Usta İğnesi ister.
+Nothing to turn: the item has no etchings.	Çevrilecek bir şey yok: eşyada oyma yok.
+Pick at most {0} etchings.	En çok {0} oyma seç.
+Unknown etching.	Bilinmeyen oyma.
+Each etching can be picked once.	Her oyma bir kez seçilebilir.
+Tiers run from T1 to T5.	Kademeler K1'den K5'e.
+A {0} piece rolls up to T{1}.	{0} bir parça K{1}'e kadar çıkar.
+This piece has {0} etching{1}: pick at most {2}.	Bu parçada {0} oyma var: en çok {2} seç.
+The etching held by Pinning Wax never changes, and it is below that tier.	Sabitleme Mumunun tuttuğu oyma hiç değişmez ve o kademenin altında.
+One etching is pinned: pick at most {0} others, or include it.	Bir oyma sabitli: en çok {0} başka oyma seç ya da onu da kat.
+Item was destroyed by an Oathbreak.	Eşya bir Yemin Bozumuyla yok oldu.
+Korstone Bell: double Korstone chests	Kortaşı Çanı: çift Kortaşı sandığı
+Level Bell: double XP	Seviye Çanı: çift TP
+Loot Bell: rarer gear drops	Ganimet Çanı: daha nadir teçhizat
+Material Bell: double materials	Malzeme Çanı: çift malzeme
+War Bell: +25% damage	Savaş Çanı: +%25 hasar
+Korstone Bell	Kortaşı Çanı
+Level Bell	Seviye Çanı
+Loot Bell	Ganimet Çanı
+Material Bell	Malzeme Çanı
+War Bell	Savaş Çanı
+Item is already +9.	Eşya zaten +9.
+Forge your weapon to +1	Silahını +1'e güçlendir
+Wear gear in 3 slots	3 yuvada teçhizat giy
+Forge any piece you wear to +3	Giydiğin herhangi bir parçayı +3'e güçlendir
+Reach level 10	10. seviyeye ulaş
+Join a guild	Bir loncaya katıl
+Wear gear in all 8 slots	8 yuvanın hepsinde teçhizat giy
+Forge your weapon to +7: it starts to glow	Silahını +7'ye güçlendir: parlamaya başlar
+Forge your weapon to +9	Silahını +9'a güçlendir
+A bounty is done: claim its Hunt Marks	Bir görev bitti: Av Nişanlarını al
+Wear the {0} from your bag	Çantandaki {0} parçasını giy
+PUSH to beat {0} and clear {1}	{0} yenip {1} temizlemek için İLERLE
+PUSH to clear {0}	{0} temizlemek için İLERLE
+Centre	Merkez
+Left Flank	Sol Kanat
+Right Flank	Sağ Kanat
+No war night within a week.	Bir hafta içinde savaş gecesi yok.
+That skill is at its peak.	O beceri zirvesinde.
+The guild must reach level {0} first.	Lonca önce {0}. seviyeye ulaşmalı.
+Not enough sorn in the treasury.	Hazinede yeterli sorn yok.
+A guild name has 3 to 20 characters.	Bir lonca adı 3 ile 20 karakterdir.
+Letters, digits, spaces, ' and - only.	Yalnızca harf, rakam, boşluk, ' ve -.
+One space between words.	Kelimeler arasında tek boşluk.
+A tag has 2 to 4 letters or digits.	Bir etiket 2 ile 4 harf ya da rakamdır.
+Tags are capital letters and digits.	Etiketler büyük harf ve rakamdır.
+Choose another tag.	Başka bir etiket seç.
+A failed Forge keeps its level	Başarısız bir güçlendirme seviyesini korur
++10% chance on a Forge	Güçlendirmede +%10 şans
+A rank 1 shard for a socket	Bir yuva için 1. rütbe parça
+Not enough Guild Tallies.	Yeterli Lonca Çetelesi yok.
+Banner Greatsword	Sancak Büyük Kılıcı
+Crescent Glaive	Hilal Teber
+Herder's Sword	Çoban Kılıcı
+Horsebreaker Greatsword	Atkıran Büyük Kılıç
+Tamga Sword	Tamga Kılıcı
+Colossus Greatsword	Dev Büyük Kılıç
+Emberwake Sword	Korizi Kılıcı
+Glaive of the Nine Oaths	Dokuz Ant Teberi
+Khan's Crescent	Han'ın Hilali
+Oathkeeper Glaive	Antkoruyan Teber
+Rider's Glaive	Süvari Teberi
+Bronze Fangs	Tunç Dişler
+Hawkwing Knives	Şahinkanat Bıçaklar
+Rider's Talons	Süvari Pençeleri
+Silver Talons	Gümüş Pençeler
+Twin Skinning Knives	İkiz Yüzme Bıçakları
+Wolf-Fang Knives	Kurtdişi Bıçaklar
+Bone Talons	Kemik Pençeler
+Emberwake Talons	Korizi Pençeleri
+Khan's Twin Crescents	Han'ın İkiz Hilalleri
+Oathkeeper Knives	Antkoruyan Bıçaklar
+Talons of the Nine Oaths	Dokuz Ant Pençeleri
+Bronze Sabre	Tunç Pala
+Duskreaver	Alacakaranlık Biçeni
+Herder's Sabre	Çoban Palası
+Rider's Sabre	Süvari Palası
+Rune Sabre	Run Pala
+Voidedge Sabre	Boşlukağızlı Pala
+Emberwake Sabre	Korizi Palası
+Gravebone Sabre	Mezarkemiği Pala
+Khan's Nightblade	Han'ın Gece Kılıcı
+Oathkeeper Sabre	Antkoruyan Pala
+Sabre of the Nine Oaths	Dokuz Ant Palası
+Bone Charm Staff	Kemik Muskalı Asa
+Bronze Bell Staff	Tunç Çanlı Asa
+Feathered Staff	Tüylü Asa
+Silver Crescent Staff	Gümüş Hilalli Asa
+Skycrystal Staff	Gökbilur Asa
+Wolf-Fang Staff	Kurtdişi Asa
+Carved Bone Staff	Oyma Kemik Asa
+Dragon Crystal Staff	Ejder Bilur Asa
+Eagle Staff	Kartal Asası
+Emberorb Staff	Korküre Asa
+Staff of the Nine Oaths	Dokuz Ant Asası
+Bronzescale Bodice	Tunç Pullu Korse
+Hawkwing Harness	Şahinkanat Koşum
+Leather Jerkin	Deri Yelek
+Rider's Leathers	Süvari Derileri
+Silverplate Bodice	Gümüş Plakalı Korse
+Wolfhide Jerkin	Kurt Postu Yelek
+Emberweave Harness	Kordokuma Koşum
+Gravewrought Bodice	Mezar İşi Korse
+Khan's Silks	Han'ın İpekleri
+Oathsworn Leathers	Antlı Derileri
+Raiment of the Nine Oaths	Dokuz Ant Giysisi
+Bronzebound Leathers	Tunç Kaplı Deriler
+Horned Plate	Boynuzlu Plaka
+Padded Coat	Dolgulu Ceket
+Void Robe	Boşluk Cübbesi
+Voidsteel Plate	Boşluk Çeliği Plaka
+Wolfcollar Lamellar	Kurt Yakalı Pullu Zırh
+Emberplate	Korplaka
+Gravewrought Plate	Mezar İşi Plaka
+Khan's Nightplate	Han'ın Gece Plakası
+Oathsworn Plate	Antlı Plaka
+Plate of the Nine Oaths	Dokuz Ant Plakası
+Beaded Hides	Boncuklu Postlar
+Bronze-Studded Hides	Tunç Çivili Postlar
+Dyed Leathers	Boyalı Deriler
+Silverthread Robes	Gümüş İplikli Cübbeler
+Skysilk Regalia	Gökipeği Tören Giysisi
+Wolfskin Mantle	Kurt Postu Manto
+Emberweave Robes	Kordokuma Cübbeler
+Gravebone Regalia	Mezarkemiği Tören Giysisi
+Khan's Stormsilk	Han'ın Fırtına İpeği
+Oathsworn Mantle	Antlı Manto
+Regalia of the Nine Oaths	Dokuz Ant Tören Giysisi
+Banner Lamellar	Sancak Pullu Zırhı
+Bronzescale Lamellar	Tunç Pullu Zırh
+Quilted Coat	Kapitone Ceket
+Riveted Cuirass	Perçinli Göğüslük
+Wolfhide Lamellar	Kurt Postu Pullu Zırh
+Gravewrought Lamellar	Mezar İşi Pullu Zırh
+Harness of the Nine Oaths	Dokuz Ant Koşumu
+Khan's Lamellar	Han'ın Pullu Zırhı
+Oathsworn Harness	Antlı Koşum
+The lowest price is {0} sorn.	En düşük fiyat {0} sorn.
+The highest price is {0} sorn.	En yüksek fiyat {0} sorn.
+Hunt material	Av malzemesi
+Champion of the Pits	Çukurun Şampiyonu
+Pit Veteran	Çukur Gazisi
+5 Turnstones	5 Dönüş Taşı
+Nothing is equipped in that slot.	O yuvada kuşanılmış bir şey yok.
+You do not own that item.	O eşya senin değil.
+Already +9	Zaten +9
+Not enough sorn	Yeterli sorn yok
+Not enough	Yetmez
+No Scroll of Mercy	Merhamet Parşömeni yok
+No Khan's Alloy	Han Alaşımı yok
+No Anvil Ward	Örs Tılsımı yok
+Only in the Hollow Spire	Yalnızca Oyuk Kule'de
+You no longer have that piece	O parça artık sende değil
+No etchings to turn yet	Henüz çevrilecek oyma yok
+Not enough Turnstones	Yeterli Dönüş Taşı yok
+You no longer have that piece.	O parça artık sende değil.
+Item is not in the bag.	Eşya çantada değil.
+Item is not in the loot list.	Eşya ganimet listesinde değil.
+Not unlocked yet.	Henüz açılmadı.
+Technique Scroll: {0}	Teknik Parşömeni: {0}
+Normal	Normal
+Peerless: the skill cannot climb higher.	Eşsiz: beceri daha yükseğe çıkamaz.
+The next read needs this skill's Technique Scroll (Warden chests, the shops, the Exchange).	Sonraki okuma bu becerinin Teknik Parşömenini ister (Muhafız sandıkları, dükkânlar, Borsa).
+The mind needs rest: this skill can read again in {0}h {1}m.	Zihin dinlenmeli: bu beceri {0}s {1}dk sonra yeniden okunabilir.
+The next step burns an Oathstone (the Carvers' Archive, the Pit shop).	Sonraki adım bir Yemin Taşı yakar (Oymacılar Arşivi, Çukur dükkânı).
+The oath asks {0} Honor for this step; you hold {1}. Honor comes from Korstones, Pit wins and dungeon Wardens.	Ant bu adım için {0} Onur ister; sende {1} var. Onur Kortaşlarından, Çukur galibiyetlerinden ve zindan Muhafızlarından gelir.
+Beast-Slayer	Canavar Katili
+Piercer	Delici
+Deathdealer	Ölümsaçan
+Bulwark	Siper
+Vigor	Dirilik
+Haste	Çeviklik
+Warding	Koruma
++{0}% vs Hollowed	Oyulmuşlara karşı +%{0}
++{0} attack	+{0} saldırı
++{0}% crit damage	+%{0} kritik hasar
++{0} defense	+{0} savunma
++{0} HP	+{0} can
++{0}% evasion	+%{0} kaçınma
++{0}% attack speed	+%{0} saldırı hızı
+-{0}% Commander damage	-%{0} Komutan hasarı
+Item was destroyed	Eşya yok edildi
+No such socket	Böyle bir yuva yok
+Socket holds a Dead Shard	Yuvada bir Ölü Parça var
+Socket is taken	Yuva dolu
+{0} does not fit this slot	{0} bu yuvaya uymaz
+No such rank	Böyle bir rütbe yok
+No {0} shard	{0} parçası yok
+Nothing dead in that socket	O yuvada ölü bir şey yok
+Direct trade opens at level {0}.	Doğrudan takas {0}. seviyede açılır.
+An account can trade {0} hours after it was made.	Bir hesap açıldıktan {0} saat sonra takas edebilir.
+That much sorn cannot change hands at once.	O kadar sorn bir kerede el değiştiremez.
+Khan's Alloys	Han Alaşımları
+Anvil Wards	Örs Tılsımları
+The Amber Road	Kehribar Yolu
+The White Steppe	Ak Bozkır
+Already bought.	Zaten alındı.
+Salt Nomad Garb	Tuz Göçebesi Kıyafeti
+Sand-bleached wraps of the salt roads.	Tuz yollarının kumla ağarmış sargıları.
+Frost Hunter Furs	Ayaz Avcısı Kürkleri
+White furs over the lamellar, for Whitefang winters.	Pullu zırhın üstüne beyaz kürkler, Akdiş kışları için.
+Ember Khan Guise	Kor Han Kılığı
+Crimson and gold, cut for a khagan's feast.	Kızıl ve altın, bir kağan şöleni için biçilmiş.
+Grave Warden Shroud	Mezar Bekçisi Kefeni
+Black and violet, sewn from a barrow's banners.	Siyah ve mor, bir kurganın sancaklarından dikilmiş.
+Taken from the Warlord's camp. Only he drops it.	Savaş Beyi'nin kampından alındı. Yalnızca o düşürür.
+Shimmers like the Salt Sea at noon. Only the Mirage Queen drops it.	Öğlen Tuz Denizi gibi parıldar. Yalnızca Serap Kraliçesi düşürür.
+Old Greyjaw's grey pelt. Only he drops it.	Yaşlı Boziçene'nin gri postu. Yalnızca o düşürür.
+Amber Road Regalia	Kehribar Yolu Tören Giysisi
+A caravan master's teal and bronze, set with steppe amber. The Campaign Trail's first season.	Bir kervanbaşının camgöbeği ve tuncu, bozkır kehribarıyla işlenmiş. Sefer Yolu'nun ilk sezonu.
+White Steppe Regalia	Ak Bozkır Tören Giysisi
+Snow-leopard fur over pale silver lamellar and sky-blue silk. The Campaign Trail's second season.	Soluk gümüş pullu zırh ve gök mavisi ipek üstünde kar leoparı kürkü. Sefer Yolu'nun ikinci sezonu.
+Steppe Pony	Bozkır Midillisi
+Small, shaggy and never tired.	Küçük, tüylü ve hiç yorulmaz.
+Ember Warhorse	Kor Savaş Atı
+A heavy charger in crimson lamellar barding.	Kızıl pullu zırh giymiş ağır bir savaş atı.
+Gold Banner Charger	Altın Sancak Savaş Atı
+Barded in saffron and brass, as the caravan cities ride.	Kervan şehirlerinin sürdüğü gibi safran ve pirinçle donanmış.
+Hollow Steed	Oyuk Küheylan
+One of the herds that went Hollow, tamed again.	Oyulmuş sürülerden biri, yeniden evcilleşmiş.
+Amber Road Courser	Kehribar Yolu Atı
+Barded in honey amber and bronze for the salt roads. The Campaign Trail's first season.	Tuz yolları için bal rengi kehribar ve tunçla donanmış. Sefer Yolu'nun ilk sezonu.
+White Steppe Courser	Ak Bozkır Atı
+A grey-white charger in frost-blue scale barding, furred for the winter steppe. The Campaign Trail's second season.	Ayaz mavisi pullu zırhlı, kış bozkırı için kürklenmiş kır-beyaz bir savaş atı. Sefer Yolu'nun ikinci sezonu.
+Ember Fox	Kor Tilki
+Finds the coins the dead forgot.	Ölülerin unuttuğu sikkeleri bulur.
+Sky Falcon	Gök Doğanı
+A hooded hunting falcon, taught on the steppe.	Bozkırda eğitilmiş, başlıklı bir av doğanı.
+Grave Wolf Pup	Mezar Kurdu Yavrusu
+A Hollow wolf's whelp that chose the living.	Dirileri seçmiş, Oyulmuş bir kurdun yavrusu.
+Khagan's Eagle	Kağan Kartalı
+A golden eagle fit for the Khagan league.	Kağan ligine yaraşır bir altın kartal.
+hunting XP	av TP'si
+hunting sorn	av sornu
+Skin	Kostüm
+Mount	Binek
+Companion	Yoldaş
+({0} day)	({0} gün)
+({0} days)	({0} gün)
+{0} sign-in is not set up yet.	{0} girişi henüz kurulmadı.
+Google did not accept the sign-in. Try again.	Google girişi kabul etmedi. Yeniden dene.
+Google sent no identity.	Google kimlik göndermedi.
+Unknown sign-in.	Bilinmeyen giriş.
+Bad test identity.	Hatalı test kimliği.
+{0} sign-in could not be verified. Try again.	{0} girişi doğrulanamadı. Yeniden dene.
+That sign-in was not started here.	O giriş burada başlatılmadı.
+No account id in the sign-in.	Girişte hesap kimliği yok.
+Sign-in failed.	Giriş başarısız.
+Signed in. Returning to Orsuun...	Giriş yapıldı. Orsuun'a dönülüyor...
+Back to Orsuun	Orsuun'a dön
+Too many tries. Wait a few minutes and try again.	Çok fazla deneme. Birkaç dakika bekleyip yeniden dene.
+That line is gone.	O satır yok.
+No such player.	Böyle bir oyuncu yok.
+Already banned.	Zaten yasaklı.
+That name is taken.	Bu ad alınmış.
+That tag is taken.	Bu etiket alınmış.
+A moderator renamed the guild to {0} [{1}].	Bir moderatör loncanın adını {0} [{1}] yaptı.
+Device token missing or too long.	Cihaz jetonu eksik ya da çok uzun.
+Wrong email or password.	Yanlış e-posta ya da şifre.
+This account already has an email: {0}	Bu hesabın zaten bir e-postası var: {0}
+An account with that email exists. Sign in instead.	O e-postayla bir hesap var. Onun yerine giriş yap.
+Sign in again.	Yeniden giriş yap.
+Start the game once, then sign in.	Oyunu bir kez başlat, sonra giriş yap.
+This account is already linked to another {0} account.	Bu hesap zaten başka bir {0} hesabına bağlı.
+That sign-in was just linked elsewhere. Try again.	O giriş az önce başka yere bağlandı. Yeniden dene.
+Unknown bounty.	Bilinmeyen görev.
+The needle took: T{0} {1} +{2}	İğne tuttu: K{0} {1} +{2}
+The Caravan has no such thing.	Kervanda böyle bir şey yok.
+The Caravan does not sell that for so long.	Kervan onu o kadar uzun süreye satmaz.
+No such wardrobe slot.	Böyle bir gardırop yuvası yok.
+No such piece.	Böyle bir parça yok.
+That piece is not yours, or its time has run out.	O parça senin değil ya da süresi doldu.
+Amber goes on sale with the App Store and Google Play release.	Kehribar App Store ve Google Play çıkışıyla satışa çıkar.
+No such pack.	Böyle bir paket yok.
+Choose a class.	Bir sınıf seç.
+Choose a man or a woman.	Erkek ya da kadın seç.
+All {0} slots are taken.	{0} yuvanın hepsi dolu.
+{0} steps onto the steppe.	{0} bozkıra adım atıyor.
+No such character.	Böyle bir karakter yok.
+Type {0} to delete it.	Silmek için {0} yaz.
+{0} is gone.	{0} gitti.
+That piece is not in your bag.	O parça çantanda değil.
+Take it off first.	Önce çıkar.
+The depot holds {0} pieces.	Depo {0} parça alır.
+{0} is in the depot.	{0} depoda.
+Your bag is full.	Çantan dolu.
+That piece has left the depot.	O parça depodan çıktı.
+{0} is in your bag.	{0} çantanda.
+You are not in a guild.	Bir loncada değilsin.
+Unknown chat channel.	Bilinmeyen sohbet kanalı.
+A moderator muted you for {0} more hours.	Bir moderatör seni {0} saat daha susturdu.
+A moderator muted you for {0} more minutes.	Bir moderatör seni {0} dakika daha susturdu.
+Slow down a little.	Biraz yavaşla.
+You cannot report that line.	O satırı şikâyet edemezsin.
+You cannot block that player.	O oyuncuyu engelleyemezsin.
+You can block at most {0} players.	En çok {0} oyuncu engelleyebilirsin.
+Today's gift is taken: the next comes with the evening bell.	Bugünün hediyesi alındı: sonraki akşam çanıyla gelir.
+Unknown dungeon.	Bilinmeyen zindan.
+Clear {0} first.	Önce {0} temizle.
+A rune lock	Bir run kilidi
+The Chained Smith	Zincirli Demirci
+{0} is still waiting for your last run.	{0} hâlâ son akınını bekliyor.
+Today's dungeon keys are used. New ones come at 20:00.	Bugünün zindan anahtarları kullanıldı. Yenileri 20:00'de gelir.
+You fell on {0} of {1}.	{1}, {0} katında düştün.
+Floor {0}: a vault door, sealed by a rune lock with a riddle carved in it.	{0}. kat: üzerine bir bilmece oyulmuş run kilidiyle mühürlü bir mahzen kapısı.
+Floor {0}: the Chained Smith waits, hammer in his chained hands.	{0}. kat: Zincirli Demirci bekliyor, çekiç zincirli ellerinde.
+{0} is cleared! {1}'s chest: {2}.	{0} temizlendi! {1} sandığı: {2}.
+No run is waiting on its pause floor.	Mola katında bekleyen akın yok.
+You leave the vault shut.	Mahzeni kapalı bırakıyorsun.
+The {0} rune does not turn: the vault stays shut.	{0} runu dönmüyor: mahzen kapalı kalıyor.
+The {0} rune turns and the vault door opens.	{0} runu dönüyor ve mahzen kapısı açılıyor.
+That piece is already +9.	O parça zaten +9.
+Not enough sorn for the smith.	Demirci için yeterli sorn yok.
+Not enough materials for the smith.	Demirci için yeterli malzeme yok.
+{0} forged {1} to +{2} at the Chained Smith!	{0}, Zincirli Demirci'de {1} parçasını +{2} yaptı!
+The Chained Smith raised your {0} to +{1}.	Zincirli Demirci {0} parçanı +{1} yaptı.
+The Chained Smith broke your {0}.	Zincirli Demirci {0} parçanı kırdı.
+The Chained Smith failed: your {0} is +{1}.	Zincirli Demirci başaramadı: {0} parçan +{1}.
+You fell on floor {0}.	{0}. katta düştün.
+Type a hero's name.	Bir kahramanın adını yaz.
+No hero goes by that name.	O adda bir kahraman yok.
+That is you.	O sensin.
+That is one of your own heroes.	O kendi kahramanlarından biri.
+You blocked them. Unblock them in CHAT first.	Onu engelledin. Önce SOHBET'te engelini kaldır.
+They are not taking friend requests.	Dostluk isteği kabul etmiyor.
+{0} is on your list already.	{0} zaten listende.
+You asked {0} already.	{0} kişisine zaten sordun.
+Your list holds {0} friends.	Listen {0} dost alır.
+Their friend list is full.	Onun dost listesi dolu.
+You and {0} are friends.	Sen ve {0} artık dostsunuz.
+You have {0} requests waiting. Take some back first.	Bekleyen {0} isteğin var. Önce bazılarını geri al.
+Asked {0}. They will find it on their friend list.	{0} kişisine soruldu. Dost listesinde görecek.
+That request is gone.	O istek yok.
+You turned {0} down.	{0} kişisini geri çevirdin.
+{0} is off your list.	{0} listenden çıktı.
+That war is over.	O savaş bitti.
+Only the leader signs the guild up for war.	Loncayı savaşa yalnızca lider kaydeder.
+A guild needs {0} members to go to war.	Bir lonca savaşa gitmek için {0} üye ister.
+{0} signed the guild up for war on {1}.	{0}, loncayı {1} savaşına kaydetti.
+Signed up for {0}. Foes are drawn when the horns sound.	{0} için kaydolundu. Düşmanlar borular çalınca çekilir.
+{0} withdrew the guild from the war on {1}.	{0}, loncayı {1} savaşından çekti.
+Withdrawn from the war.	Savaştan çekilindi.
+No such lane.	Böyle bir hat yok.
+Your guild is not at war now.	Loncan şu an savaşta değil.
+{0} planted the war flag on the {1}.	{0}, savaş bayrağını {1} üzerine dikti.
+The war flag flies over the {0}.	Savaş bayrağı {0} üzerinde dalgalanıyor.
+The war is over.	Savaş bitti.
+You have fought all your duels in this war.	Bu savaştaki bütün düellolarını yaptın.
+You catch your breath: {0} more seconds.	Soluklanıyorsun: {0} saniye daha.
+The other guild has left the field.	Öbür lonca sahadan çekildi.
+You felled {0} on the {1}.	{1} üzerinde {0} rakibini devirdin.
+{0} felled {1} on the {2}.	{0}, {2} üzerinde {1} rakibini devirdi.
+{0} held the {1} against you.	{0}, {1} hattını sana karşı tuttu.
+{0} held the {1} against {2}.	{0}, {1} hattını {2} karşısında tuttu.
+The {0} is broken!	{0} kırıldı!
+{0} broke the {1} of [{2}]!	{0}, [{2}] loncasının {1} hattını kırdı!
+[{0}] broke our {1}.	[{0}] bizim {1} hattımızı kırdı.
+Too few members for tonight's war: a guild needs {0}.	Bu geceki savaş için üye az: bir lonca {0} üye ister.
+The horns sound: [{0}] against [{1}].	Borular çalıyor: [{0}], [{1}] karşısında.
+War! [{0}] {1} is our foe tonight. Fight on the lanes until the horns fall silent.	Savaş! [{0}] {1} bu gece düşmanımız. Borular susana dek hatlarda savaşın.
+No foe answered the horn tonight.	Bu gece boruya hiçbir düşman cevap vermedi.
+War night: [{0}] and [{1}] take the field.	Savaş gecesi: [{0}] ve [{1}] sahaya çıkıyor.
+War night: {0} guild wars take the field.	Savaş gecesi: {0} lonca savaşı sahaya çıkıyor.
+a scattered guild	dağılmış bir lonca
+{0} and {1} fought to a draw, {2} to {3}.	{0} ve {1} berabere kaldı, {2} - {3}.
+{0} beat {1}, {2} to {3}.	{0}, {1} loncasını yendi, {2} - {3}.
+The war is over: {0}	Savaş bitti: {0}
+Guild war: {0}	Lonca savaşı: {0}
+A war night began now.	Bir savaş gecesi şimdi başladı.
+Every war ended now.	Her savaş şimdi bitti.
+That guild is gone.	O lonca yok.
+Only the leader or an officer can do that.	Bunu yalnızca lider ya da bir subay yapabilir.
+Leave your guild first.	Önce loncandan ayrıl.
+Choose one of the guild colours.	Lonca renklerinden birini seç.
+{0} founded {1}.	{0}, {1} loncasını kurdu.
+That name or tag was just taken.	O ad ya da etiket az önce alındı.
+{0} is founded. Its banner is yours to raise.	{0} kuruldu. Sancağını yükseltmek sana düşüyor.
+You already asked {0}.	{0} loncasına zaten sordun.
+You can ask at most {0} guilds at once.	Aynı anda en çok {0} loncaya sorabilirsin.
+{0} asks to join.	{0} katılmak istiyor.
+You asked to join {0}. Its leader or an officer will answer.	{0} loncasına katılmak istedin. Lideri ya da bir subay yanıtlayacak.
+{0} is full.	{0} dolu.
+Welcome to {0}.	{0} loncasına hoş geldin.
+{0} left; {1} leads now.	{0} ayrıldı; artık {1} yönetiyor.
+{0} joined, let in by {1}.	{0} katıldı, {1} içeri aldı.
+{0} has joined another guild.	{0} başka bir loncaya katıldı.
+You turned {0} away.	{0} kişisini geri çevirdin.
+the guild	lonca
+You left {0}.	{0} loncasından ayrıldın.
+Use LEAVE to leave.	Ayrılmak için AYRIL'ı kullan.
+Not a member of your guild.	Loncanın üyesi değil.
+You cannot remove that member.	O üyeyi çıkaramazsın.
+{0} was sent away by {1}.	{0}, {1} tarafından kovuldu.
+{0} is no longer in the guild.	{0} artık loncada değil.
+Only the leader sets ranks.	Rütbeleri yalnızca lider verir.
+Choose another member.	Başka bir üye seç.
+Unknown rank.	Bilinmeyen rütbe.
+A guild has at most {0} officers.	Bir loncada en çok {0} subay olur.
+{0} leads {1} now.	Artık {1} loncasını {0} yönetiyor.
+{0} is a member now.	{0} artık üye.
+{0} is an officer now.	{0} artık subay.
+Donate in whole thousands of sorn.	Tam binlik sornlarla bağış yap.
+You can give {0} more sorn today.	Bugün {0} sorn daha verebilirsin.
+You gave {0} sorn: +{1} Guild Tallies.	{0} sorn verdin: +{1} Lonca Çetelesi.
+{0} reached level {1}.	{0}, {1}. seviyeye ulaştı.
+{0} reached level {1}!	{0}, {1}. seviyeye ulaştı!
+Unknown guild skill.	Bilinmeyen lonca becerisi.
+Plunder {0}: every member hunts with +{1}% sorn.	Yağma {0}: her üye +%{1} sornla avlanır.
+Muster {0}: room for {1} members.	Toplanma {0}: {1} üyelik yer.
+Plunder	Yağma
+Muster	Toplanma
+Unknown guild shop item.	Bilinmeyen lonca dükkânı eşyası.
+The gates were opened.	Kapılar açıldı.
+The gates were shut.	Kapılar kapatıldı.
+The gates are open: anyone may join.	Kapılar açık: herkes katılabilir.
+The gates are shut: no one new may join.	Kapılar kapalı: yeni kimse katılamaz.
+{0} is in your guild already.	{0} zaten loncanda.
+{0} is in another guild.	{0} başka bir loncada.
+They are not taking invites.	Davet kabul etmiyor.
+{0} is invited already.	{0} zaten davet edildi.
+{0} has {1} invites waiting.	{0} için bekleyen {1} davet var.
+{0} invited {1}.	{0}, {1} kişisini davet etti.
+{0} is invited: they will find it on their guild screen.	{0} davet edildi: lonca ekranında görecek.
+That invite is gone.	O davet yok.
+That invite has lapsed.	O davetin süresi doldu.
+Invite turned down.	Davet geri çevrildi.
+{0} joined, invited by {1}.	{0} katıldı, {1} davet etmişti.
+That fortress is not built yet.	O kale henüz kurulmadı.
+No guild bid for the keep of {0}.	{0} kalesine hiçbir lonca teklif vermedi.
+No guild bid for the keep of {0}: [{1}] holds it.	{0} kalesine hiçbir lonca teklif vermedi: onu [{1}] tutuyor.
+The keep of {0} is stormed tonight by {1}.	{0} kalesine bu gece {1} saldırıyor.
+[{0}] holds it.	Onu [{0}] tutuyor.
+[{0}] took the keep of {1} with {2} damage.	[{0}], {2} hasarla {1} kalesini aldı.
+We hold the keep of {0} for a week: our flag flies over it.	{0} kalesini bir haftalığına tutuyoruz: bayrağımız üzerinde dalgalanıyor.
+The keep of {0} stood: no guild broke it.	{0} kalesi dayandı: hiçbir lonca kıramadı.
+[{0}] held the keep of {1}.	[{0}], {1} kalesini tuttu.
+Unknown fortress.	Bilinmeyen kale.
+Bid between 1,000 and 1,000,000,000 sorn.	1.000 ile 1.000.000.000 sorn arası teklif ver.
+Bids for this week's keeps are closed; they open again on Monday at 20:00.	Bu haftanın kale teklifleri kapandı; pazartesi 20:00'de yeniden açılır.
+Your guild holds this keep: it defends it on Sunday.	Bu kaleyi loncan tutuyor: pazar günü savunacak.
+Your guild already bids on {0} this week.	Loncan bu hafta zaten {0} kalesine teklif veriyor.
+A bid starts at {0} sorn.	Bir teklif {0} sornla başlar.
+{0} raised our bid on the keep of {1} to {2} sorn.	{0}, {1} kalesine teklifimizi {2} sorna yükseltti.
+Your guild bids {0} sorn on the keep of {1}.	Loncan {1} kalesine {0} sorn teklif ediyor.
+Your warband regroups: {0} more minute{1}.	Akın birliğin toparlanıyor: {0} dakika daha.
+No guild bid for this keep this week.	Bu hafta bu kaleye hiçbir lonca teklif vermedi.
+The keep is stormed on Sunday from 20:00 for an hour.	Kaleye pazar 20:00'den itibaren bir saat saldırılır.
+Only the four highest bidders storm the keep, and its holders hold it.	Kaleye yalnızca en yüksek dört teklif sahibi saldırır, sahipleri de onu tutar.
+You held the keep of {0}: it mended by {1}.	{0} kalesini tuttun: {1} onarıldı.
+You stormed the keep of {0} for {1}; your guild has {2}.	{0} kalesine {1} hasarla saldırdın; loncanın {2} hasarı var.
+The keep sieges began now.	Kale kuşatmaları şimdi başladı.
+The keep sieges ended now.	Kale kuşatmaları şimdi bitti.
+That letter is gone.	O mektup yok.
+Nothing to take.	Alınacak bir şey yok.
+Taken from {0} letters.	{0} mektuptan alındı.
++{0} sorn.	+{0} sorn.
+Taken. +{0} sorn.	Alındı. +{0} sorn.
+Taken from {0} letters. +{1} sorn.	{0} mektuptan alındı. +{1} sorn.
+A piece waits: your bag is full.	Bir parça bekliyor: çantan dolu.
+{0} pieces wait: your bag is full.	{0} parça bekliyor: çantan dolu.
+Take what the letter holds first.	Önce mektubun içindekini al.
+Letter thrown away.	Mektup atıldı.
+Nothing to throw away.	Atılacak bir şey yok.
+{0} letters thrown away.	{0} mektup atıldı.
+your piece	parçan
+Nobody bought {0} at {1} sorn in {2} hours, so it comes back to you with this letter.	{2} saat içinde {0} için {1} sorn ödeyen çıkmadı; bu mektupla sana geri dönüyor.
+{0} bought {1} for {2} sorn. The Exchange keeps its {3}% ({4}); {5} sorn is in this letter for you.	{0}, {1} için {2} sorn ödedi. Borsa %{3} payını alır ({4}); senin için bu mektupta {5} sorn var.
+Take the piece off before you sell it.	Satmadan önce parçayı çıkar.
+You can have {0} pieces on the Exchange at once.	Borsa'da aynı anda {0} parçan olabilir.
+{0} +{1} is on the Exchange for {2} sorn.	{0} +{1}, {2} sorna Borsa'da.
+No such book.	Böyle bir kitap yok.
+You hold {0} of that book.	O kitaptan sende {0} tane var.
+You can have {0} listings on the Exchange at once.	Borsa'da aynı anda {0} ilanın olabilir.
+{0} × {1} on the Exchange for {2} sorn.	{0} × {1}, {2} sorna Borsa'da.
+The Exchange does not take that.	Borsa onu almaz.
+You hold {0} of that.	Ondan sende {0} tane var.
+Which kind of piece?	Hangi tür parça?
+That listing is gone.	O ilan yok.
+Someone was quicker: that piece is gone.	Biri daha hızlıydı: o parça gitti.
+That is your own listing.	O senin kendi ilanın.
+You bought {0} × {1} for {2} sorn.	{2} sorna {0} × {1} aldın.
+You bought {0} for {1} sorn. It is in your bag.	{1} sorna {0} aldın. Çantanda.
+That is not your listing.	O senin ilanın değil.
+That listing has closed.	O ilan kapandı.
+Taken off the Exchange: the books are back with you.	Borsa'dan kaldırıldı: kitaplar sana döndü.
+Taken off the Exchange: the {0}s are back with you.	Borsa'dan kaldırıldı: {0} sana döndü.
+Taken off the Exchange: the piece is back in your bag.	Borsa'dan kaldırıldı: parça çantana döndü.
+{0} left the {1} and rides under the {2} now.	{0}, {1} saflarından ayrıldı ve artık {2} altında sürüyor.
+{0} renewed the oath ({1}/{2}) and rides again from level 1.	{0} andını yeniledi ({1}/{2}) ve 1. seviyeden yeniden sürüyor.
+no weapon	silah yok
+Shade of {0}	{0} Gölgesi
+New challengers step into the pit.	Çukura yeni rakipler adım atıyor.
+Today's Pit tickets are spent. New ones come at 20:00.	Bugünün Çukur biletleri harcandı. Yenileri 20:00'de gelir.
+That challenger has left the pit. Look again.	O rakip çukurdan ayrıldı. Yeniden bak.
+You beat {0} in the pit: rating {1} → {2}, +{3} Laurels.	Çukurda {0} rakibini yendin: puan {1} → {2}, +{3} Defne.
+{0} threw you down: rating {1} → {2}, +{3} Laurels.	{0} seni yere serdi: puan {1} → {2}, +{3} Defne.
+The Pit shop has no such thing.	Çukur dükkânında böyle bir şey yok.
+Not enough Laurels.	Yeterli Defne yok.
+{0} for {1} Laurels	{1} Defne karşılığı {0}
+{0} for {1} Laurels.	{1} Defne karşılığı {0}.
+Pit season {0}: rank {1}	Çukur sezonu {0}: {1}. sıra
+The season is over. You finished {0} with a rating of {1} and the Pits paid you {2} Laurels. Spend them at the Pit shop.	Sezon bitti. {1} puanla {0}. oldun ve Çukur sana {2} Defne ödedi. Onları Çukur dükkânında harca.
+The season is over. You finished {0} with a rating of {1} and the Pits paid you {2} Laurels, and the title {3} for the next season. Spend them at the Pit shop.	Sezon bitti. {1} puanla {0}. oldun; Çukur sana {2} Defne ve gelecek sezon için {3} unvanını verdi. Defneleri Çukur dükkânında harca.
+The Pits' season is over: {0} is Champion of the Pits.	Çukur sezonu bitti: Çukurun Şampiyonu {0}.
+The Pits' season is over: {0} is Champion of the Pits, {1} is a Pit Veteran.	Çukur sezonu bitti: Çukurun Şampiyonu {0}, Çukur Gazisi {1}.
+The Pits' season is over: {0} is Champion of the Pits, {1} are Pit Veterans.	Çukur sezonu bitti: Çukurun Şampiyonu {0}, Çukur Gazileri {1}.
+The season was ended (Development).	Sezon bitirildi (Geliştirme).
+No such skill.	Böyle bir beceri yok.
+{0} rises to {1}: +{2}% skill power.	{0}, {1} oldu: +%{2} beceri gücü.
+{0} has made {1} Peerless.	{0}, {1} becerisini Eşsiz yaptı.
+The scroll's teaching took: {0} {1}, {2} of {3} reads.	Parşömenin öğretisi tuttu: {0} {1}, {2} / {3} okuma.
+The teaching slipped away: {0} stays {1}, {2} of {3} reads.	Öğreti kaçıp gitti: {0} {1} kalıyor, {2} / {3} okuma.
+The Oathstone cracked: {0} stays {1}.	Yemin Taşı çatladı: {0} {1} kalıyor.
+That trade is gone.	O takas yok.
+That trade is not yours.	O takas senin değil.
+That hero is gone.	O kahraman yok.
+You cannot trade with yourself.	Kendinle takas edemezsin.
+Your own heroes share the depot: use DEPOT in GEAR.	Kendi kahramanların depoyu paylaşır: TEÇHİZAT'taki DEPO'yu kullan.
+They cannot trade yet: {0}	Henüz takas edemez: {0}
+Finish or cancel your open trade first.	Önce açık takasını bitir ya da iptal et.
+They are in another trade. Try again in a moment.	Başka bir takasta. Birazdan yeniden dene.
+Asked. They have {0} minutes to answer.	Soruldu. Yanıt için {0} dakikası var.
+That invitation is gone.	O davet yok.
+That invitation ran out.	O davetin süresi doldu.
+The window is open.	Pencere açık.
+The trade is off.	Takas iptal.
+You hold {0} {1}.	Sende {0} {1} var.
+The window is not open.	Pencere açık değil.
+Take the piece off before you trade it.	Takas etmeden önce parçayı çıkar.
+That piece is on the Exchange, in the depot or on another table.	O parça Borsa'da, depoda ya da başka bir masada.
+Not yet: the offers just changed, or they have not locked theirs.	Henüz değil: teklifler az önce değişti ya da o kendi teklifini kilitlemedi.
+Confirmed. Waiting for them.	Onaylandı. Onu bekliyoruz.
+Locked. When both are locked, confirm.	Kilitlendi. İkisi de kilitlenince onayla.
+One of your pieces changed (worn, listed or gone). Check the offers again.	Parçalarından biri değişti (giyildi, ilana kondu ya da gitti). Teklifleri yeniden kontrol et.
+One of their pieces changed. Check the offers again.	Onun parçalarından biri değişti. Teklifleri yeniden kontrol et.
+You no longer have that sorn.	O sorn artık sende yok.
+You no longer hold those books. Check the offers again.	O kitaplar artık sende yok. Teklifleri yeniden kontrol et.
+They no longer hold those books. Check the offers again.	O kitaplar artık onda yok. Teklifleri yeniden kontrol et.
+Your bag has no room for their pieces.	Çantanda onun parçalarına yer yok.
+Their bag has no room for your pieces.	Onun çantasında senin parçalarına yer yok.
+They no longer have that sorn.	O sorn artık onda yok.
+No such tier.	Böyle bir kademe yok.
+Nothing to claim there yet.	Orada henüz alınacak bir şey yok.
+This hero has Trail Plus already.	Bu kahramanda zaten Sefer Plus var.
+This hero has the Trail already.	Bu kahramanda zaten Sefer var.
+You are already sworn to the {0}.	Zaten {0} için ant içtin.
+You swore to the {0}.	{0} için ant içtin.
+{0} stands under the {1}.	{0}, {1} sancağı altında.
+You held the {0} of {1}: the wall mended by {2}.	{1} {0} savunmasını tuttun: sur {2} onarıldı.
+You struck the {0} of {1} for {2}.	{1} {0} hedefine {2} vurdun.
+The {0} took {1}; {2} broke the Hall.	{0}, {1} kalesini aldı; Salonu {2} kırdı.
+The Hall of {0} falls! {1} now flies the {2}.	{0} Salonu düşüyor! Artık {1}, {2} bayrağını dalgalandırıyor.
+{0} of the {1} broke the {2} of {3}.	{1} saflarından {0}, {3} {2} savunmasını kırdı.
+You broke the {0} of {1}! The {2} lies open.	{1} {0} savunmasını kırdın! {2} açıkta.
+They are not taking your messages.	Mesajlarını kabul etmiyor.
+You can report only a message sent to you.	Yalnızca sana gönderilmiş bir mesajı şikâyet edebilirsin.
+Reported. A moderator will look at it.	Şikâyet edildi. Bir moderatör bakacak.
+Too many new accounts from this network today. Try again tomorrow.	Bugün bu ağdan çok fazla yeni hesap açıldı. Yarın yeniden dene.
+This account is banned.	Bu hesap yasaklı.
+This account is banned: {0}	Bu hesap yasaklı: {0}
+Choose a character first.	Önce bir karakter seç.
+That method is not available here.	O yöntem burada kullanılamaz.
+That item is already +9.	O eşya zaten +9.
+Not enough Wolf Sinew.	Yeterli Kurt Siniri yok.
+No Scroll of Mercy.	Merhamet Parşömeni yok.
+No Khan's Alloy.	Han Alaşımı yok.
+{0} forged {1} to +{2}!	{0}, {1} parçasını +{2} yaptı!
+That item has no etchings to turn yet.	O eşyada henüz çevrilecek oyma yok.
+Not enough Turnstones.	Yeterli Dönüş Taşı yok.
+Count must be 1 to 50.	Adet 1 ile 50 arası olmalı.
+Unknown etching in the stop rule.	Durma kuralında bilinmeyen oyma.
+{0} {1} shard set: {2}	{0} {1} parçası takıldı: {2}
+The shard shattered. A Dead Shard blocks socket {0}.	Parça parçalandı. Bir Ölü Parça {0}. yuvayı tıkıyor.
+Dead Shard removed for {0} sorn.	Ölü Parça {0} sorna söküldü.
+That piece is already equipped.	O parça zaten kuşanılı.
+At most {0} pieces at once.	Aynı anda en çok {0} parça.
+You do not own that piece.	O parça senin değil.
+That stage or zone is not unlocked.	O aşama ya da bölge açılmadı.
+Unknown class.	Bilinmeyen sınıf.
+Every stage is cleared.	Her aşama temizlendi.
+Unknown Commander.	Bilinmeyen Komutan.
+That Commander Ground is not unlocked.	O Komutan Alanı açılmadı.
+{0} is not up.	{0} hazır değil.
+{0} has already fallen.	{0} zaten düştü.
+{0} has fallen to the {1}.	{0}, {1} karşısında düştü.
+You already fought {0} this spawn.	Bu doğuşta {0} ile zaten dövüştün.
+{0}, and you struck the last blow	{0} ve son darbeyi sen vurdun
+{0}, and your guild's {1} Guild Tallies for rank 1	{0} ve birincilik için loncanın {1} Lonca Çetelesi
+{0} has fallen; {1} struck the last blow.	{0} düştü; son darbeyi {1} vurdu.
+{0} has fallen to the {1}; {2} struck the last blow.	{0}, {1} karşısında düştü; son darbeyi {2} vurdu.
+RequestId missing or too long.	İstek kimliği eksik ya da çok uzun.
+This request was already processed.	Bu istek zaten işlendi.
+Another request changed this account. Refresh and retry.	Başka bir istek bu hesabı değiştirdi. Yenileyip yeniden dene.
+That sign-in expired or belongs to another device. Try again.	O girişin süresi doldu ya da başka bir cihaza ait. Yeniden dene.
+Missing or expired session.	Oturum yok ya da süresi dolmuş.
+Email saved: sign in with it on any device.	E-posta kaydedildi: her cihazda onunla giriş yap.
+This sign-in link has expired. Start again in the game.	Bu giriş bağlantısının süresi doldu. Oyunda yeniden başla.
+This sign-in has expired. Start again in the game.	Bu girişin süresi doldu. Oyunda yeniden başla.
+# Generic shapes: a name and a number, a number and a word, quotes, a trailing colon
+{0} {1#}	{0} {1}
+{0#} {1}	{0} {1}
+"{0}"	"{0}"
+“{0}”	“{0}”
+{0}:	{0}:
+{0} T{1}	{0} K{1}
+{0} needles	{0} iğne
+{0} wax	{0} mum
+{0} Amber	{0} Kehribar
+{0}+ Amber	{0}+ Kehribar
+LOCAL MODE (-local)	YEREL MOD (-local)
+Day	Gün
+Holds	İçinde
+Jan	Oca
+Feb	Şub
+Mar	Mar
+Apr	Nis
+May	May
+Jun	Haz
+Jul	Tem
+Aug	Ağu
+Sep	Eyl
+Oct	Eki
+Nov	Kas
+Dec	Ara
+Monday	Pazartesi
+Tuesday	Salı
+Wednesday	Çarşamba
+Thursday	Perşembe
+Friday	Cuma
+Saturday	Cumartesi
+Sunday	Pazar
+# Names that stay as they are
+Vanguard	Vanguard
+Kestrel	Kestrel
+Wraithsworn	Wraithsworn
+Drumcaller	Drumcaller
+Orsuun	Orsuun
+PvP	PvP
++{0} bonus	+{0} ek
+{0} each	tanesi {0}
+{0} pts	{0} puan
+{0} fortress	{0} kale
+{0} fortresses	{0} kale
+the {0} is under siege	{0} kuşatma altında
+{0} WALL	{0} SURU
+Gate	Kapı
+Yard	Avlu
+Level up!	Seviye atladın!
+Welcome back: {0} h away, {1} Korstones, +{2} sorn	Tekrar hoş geldin: {0} saat uzaktaydın, {1} Kortaşı, +{2} sorn
+server: {0}	sunucu: {0}
+sorn	sorn
+yours	senin
+Capital: {0}	Başkent: {0}
+BUY {0} DAYS	{0} GÜN SATIN AL
+BUY {0} DAY	{0} GÜN SATIN AL
+ADD {0} DAYS	{0} GÜN EKLE
+ADD {0} DAY	{0} GÜN EKLE
+Sorn	Sorn

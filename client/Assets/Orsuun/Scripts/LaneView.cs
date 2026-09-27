@@ -1769,7 +1769,7 @@ namespace Orsuun.Client
             var mesh = go.AddComponent<TextMesh>();
             mesh.font = Ui.Font;
             go.GetComponent<MeshRenderer>().sharedMaterial = Ui.Font.material;
-            mesh.text = content;
+            mesh.text = Loc.T(content);
             mesh.fontSize = 64;
             mesh.characterSize = 0.05f * scale;
             mesh.anchor = TextAnchor.MiddleCenter;

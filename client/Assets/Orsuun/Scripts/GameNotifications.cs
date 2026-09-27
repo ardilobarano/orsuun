@@ -118,7 +118,7 @@ namespace Orsuun.Client
         private void Add(int id, string title, string text, DateTime when)
         {
 #if UNITY_ANDROID || UNITY_IOS
-            var n = new Notification { Identifier = id, Title = title, Text = text };
+            var n = new Notification { Identifier = id, Title = Loc.T(title), Text = Loc.T(text) };
             NotificationCenter.ScheduleNotification(n, new NotificationDateTimeSchedule(when));
 #endif
         }

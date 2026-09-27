@@ -125,7 +125,7 @@ namespace Orsuun.Client
             }
             _claim.interactable = daily.claimable && !_busy;
             _claimLabel.text = daily.claimable ? "TAKE TODAY'S GIFT" : "TAKEN FOR TODAY";
-            if (!daily.claimable && (_status.text.Length == 0 || _status.text.StartsWith("Next gift")))
+            if (!daily.claimable && (_status.text.Length == 0 || Ui.Src(_status).StartsWith("Next gift")))
             {
                 long left = daily.secondsToNext - (long)(Time.realtimeSinceStartup - _fetchedAt);
                 _status.text = "Next gift in " + Wait(System.Math.Max(0, left)) + ", with the evening bell.";

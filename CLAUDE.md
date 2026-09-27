@@ -211,3 +211,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   Pass the flag wherever a hero is drawn (lane, HeroStage, rivals: `DuelResultDto.DefenderFigure`).
 - The login calendar (`Rules.DailyLogin`) is the account's: `Login.DailyDay` / `DailyClaimedOn` change only under
   `LockLoginAsync` (four characters share it), and a claim is keyed by `Bounties.DayKey` (the 20:00 bounty day).
+- Text is translated where it is shown (`Loc`, Turkish since 27 Sep 2026): `Ui.Label` makes a `LocText`, which looks each
+  piece up in `Resources/Loc/tr.txt` (English, a tab, Turkish; `{0}` holes, `{0#}` a number). Players' words go on
+  `Ui.Raw(label)`; code that reads a label back compares `Ui.Src(label)` (the English), never `.text`. A new string needs
+  its line in tr.txt: `-lang tr -locmiss <file>` on the Mac player writes the pieces that found none.
+- `Resources/server-url.txt` (git-ignored) is baked by phone builds and stays, so a later Mac player talks to the playtest
+  server: online screenshots against the local server pass `-server http://localhost:5080` (and `-autoselect`).

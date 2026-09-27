@@ -411,7 +411,7 @@ namespace Orsuun.Client
             string forText = _sellTitle.text;
             WithHistory(query, stack, history =>
             {
-                if (history.Length > 0 && _sellBox.activeSelf && _sellTitle.text == forText) _sellInfo.text = history + "\n" + _sellInfo.text;
+                if (history.Length > 0 && _sellBox.activeSelf && Ui.Src(_sellTitle) == forText) _sellInfo.text = history + "\n" + Ui.Src(_sellInfo);
             });
         }
 

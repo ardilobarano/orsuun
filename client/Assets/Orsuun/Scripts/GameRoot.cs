@@ -77,6 +77,7 @@ namespace Orsuun.Client
         private void Awake()
         {
             Application.targetFrameRate = 60;
+            Loc.Init();   // before any text is made
 
             // Grey-box only: the shipped game rolls on the server. A time seed is fine for a local playtest.
             Session = new PlayerSession(new XorShiftRandom((ulong)DateTime.UtcNow.Ticks));
@@ -290,6 +291,13 @@ namespace Orsuun.Client
         }
 
         private string _messagesTo;
+
+        /// <summary>-locmiss &lt;file&gt;: what found no translation this run, one piece a line (for tr.txt).</summary>
+        private void OnApplicationQuit()
+        {
+            string path = Arg("-locmiss");
+            if (path != null && Loc.Misses.Count > 0) System.IO.File.AppendAllLines(path, Loc.Misses);
+        }
         private int _castShow = -1;
         private bool _castShot;
         private Coroutine _castFallback;

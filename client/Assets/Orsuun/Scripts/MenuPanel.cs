@@ -20,6 +20,7 @@ namespace Orsuun.Client
         private Text _speedLabel;
         private Text _accountLabel;
         private Text _mailLabel;
+        private Text _languageLabel;
         private ConfirmDialog _confirm;
         private bool _deleting;
 
@@ -59,7 +60,11 @@ namespace Orsuun.Client
                 Close();
                 _root.Mail.Open();
             }, out _mailLabel);
-            Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.85f, 0.665f, "", 32, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
+            Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.49f, 0.665f, "", 26, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
+            // The language switch names the other language in its own words (never translated).
+            Ui.Button("Language", canvas, 0.51f, 0.605f, 0.85f, 0.665f, "", 28, Palette.Alloy,
+                () => Loc.Set(Loc.Turkish ? Loc.Lang.English : Loc.Lang.Turkish), out _languageLabel);
+            Ui.Raw(_languageLabel);
             Ui.Button("Sound", canvas, 0.15f, 0.53f, 0.49f, 0.59f, "", 28, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
             Ui.Button("Daily", canvas, 0.51f, 0.53f, 0.85f, 0.59f, "DAILY GIFTS", 28, Palette.ButtonForge, () =>
             {
@@ -151,6 +156,7 @@ namespace Orsuun.Client
             if (!_canvas.activeSelf) return;
             _soundLabel.text = GameAudio.Instance != null && GameAudio.Instance.Muted ? "SOUND: OFF" : "SOUND: ON";
             _speedLabel.text = $"HUNT SPEED: x{_root.SpeedMultiplier}";
+            _languageLabel.text = Loc.Turkish ? "ENGLISH" : "TÜRKÇE";
             _accountLabel.text = _root.Server.Registered ? "ACCOUNT\n<size=16>" + _root.Server.Email + "</size>" : "SIGN UP / SIGN IN";
             int unread = _root.Server.Online ? _root.Server.MailUnread : 0;
             _mailLabel.text = unread > 0 ? $"MAILBOX ({unread})" : "MAILBOX";

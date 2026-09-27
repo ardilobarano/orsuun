@@ -158,8 +158,8 @@ namespace Orsuun.Client
                 r.Root = Ui.Framed("Row" + i, b, 0.04f, y0, 0.96f, y1, Palette.PanelDark).gameObject;
                 Transform row = r.Root.transform;
                 r.Plate = Ui.Panel("Plate", row, 0.01f, 0.1f, 0.15f, 0.9f, Palette.Muted);
-                r.Tag = Ui.Title("Tag", r.Plate.transform, 0f, 0f, 1f, 1f, "", 26, TextAnchor.MiddleCenter, Palette.Parchment);
-                r.Label = Ui.Label("Label", row, 0.17f, 0f, 0.77f, 1f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
+                r.Tag = Ui.Raw(Ui.Title("Tag", r.Plate.transform, 0f, 0f, 1f, 1f, "", 26, TextAnchor.MiddleCenter, Palette.Parchment));
+                r.Label = Ui.Raw(Ui.Label("Label", row, 0.17f, 0f, 0.77f, 1f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment));
                 r.Join = Ui.Button("Join", row, 0.79f, 0.08f, 0.99f, 0.92f, "JOIN", 24, Palette.Safe, () => Join(index), out r.JoinLabel);
                 _rows[i] = r;
             }
@@ -191,8 +191,9 @@ namespace Orsuun.Client
             _home = Ui.Rect("Home", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform h = _home.transform;
             _plate = Ui.Framed("Plate", h, 0.04f, 0.87f, 0.21f, 0.975f, Palette.Muted);
-            _plateTag = Ui.Title("Tag", _plate.transform, 0f, 0f, 1f, 1f, "", 44, TextAnchor.MiddleCenter, Palette.Parchment);
-            _title = Ui.Title("Name", h, 0.23f, 0.93f, 0.96f, 0.975f, "", 42, TextAnchor.MiddleLeft, Palette.Parchment);
+            // A guild's name and tag are its players' words: never translated.
+            _plateTag = Ui.Raw(Ui.Title("Tag", _plate.transform, 0f, 0f, 1f, 1f, "", 44, TextAnchor.MiddleCenter, Palette.Parchment));
+            _title = Ui.Raw(Ui.Title("Name", h, 0.23f, 0.93f, 0.96f, 0.975f, "", 42, TextAnchor.MiddleLeft, Palette.Parchment));
             _info = Ui.Label("Info", h, 0.23f, 0.87f, 0.96f, 0.93f, "", 22, TextAnchor.MiddleLeft, Palette.Muted);
             _xpFill = Ui.Bar("Xp", h, 0.04f, 0.834f, 0.96f, 0.866f, new Color(0.85f, 0.62f, 0.2f), out _);
             _xpText = Ui.Title("XpText", h, 0.04f, 0.838f, 0.96f, 0.862f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
@@ -600,7 +601,7 @@ namespace Orsuun.Client
                 GuildListItemDto g = list[i];
                 r.Plate.color = ColorOf(g.color);
                 r.Tag.text = g.tag;
-                r.Label.text = $"{g.name}   ·   Lv {g.level}   ·   {g.members}/{g.maxMembers}";
+                r.Label.text = $"{g.name}   ·   {Loc.T("Lv " + g.level)}   ·   {g.members}/{g.maxMembers}";
                 bool full = g.members >= g.maxMembers;
                 // Shut gates take a request instead of a join.
                 r.JoinLabel.text = full ? "FULL" : g.open ? "JOIN" : g.requested ? "ASKED" : "ASK";

@@ -287,7 +287,7 @@ namespace Orsuun.Client
 
             _season.text = "Season " + war.season.TrimStart('W') + "  ·  points from Korstones, Commanders, pushes and sieges";
             // Offline at opening, online since: the note from Open no longer holds.
-            if (_message.text.StartsWith("Offline")) _message.text = "";
+            if (Ui.Src(_message).StartsWith("Offline")) _message.text = "";
             for (int i = 0; i < _standings.Length; i++)
             {
                 bool has = i < war.standings.Length;

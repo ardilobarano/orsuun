@@ -273,7 +273,7 @@ namespace Orsuun.Client
             foreach (WhisperLineDto line in _held)
             {
                 WhisperLineDto l = line;
-                Text row = Ui.ListRow(l.mine ? "Mine" : "Theirs", _lines, 27, () => { if (!l.mine) AskReport(l); });
+                Text row = Ui.Raw(Ui.ListRow(l.mine ? "Mine" : "Theirs", _lines, 27, () => { if (!l.mine) AskReport(l); }));
                 row.alignment = l.mine ? TextAnchor.UpperRight : TextAnchor.UpperLeft;
                 row.text = $"<size=18><color=#8F8878>{When(l.utc)}</color></size>\n<color=#{(l.mine ? "FFD66B" : "F4E8CE")}>{Escape(l.text)}</color>";
             }

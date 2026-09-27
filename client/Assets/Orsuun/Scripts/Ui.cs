@@ -167,7 +167,7 @@ namespace Orsuun.Client
         public static Text Label(string name, Transform parent, float xMin, float yMin, float xMax, float yMax,
             string content, int size, TextAnchor anchor, Color color)
         {
-            var text = Rect(name, parent, xMin, yMin, xMax, yMax).gameObject.AddComponent<Text>();
+            var text = Rect(name, parent, xMin, yMin, xMax, yMax).gameObject.AddComponent<LocText>();
             text.font = Font;
             text.text = content;
             text.fontSize = size;
@@ -230,6 +230,7 @@ namespace Orsuun.Client
             Image back = Framed(name, parent, xMin, yMin, xMax, yMax, new Color(0.05f, 0.05f, 0.09f));
             var field = back.gameObject.AddComponent<InputField>();
             Text text = Label("Text", back.transform, 0.04f, 0.05f, 0.96f, 0.95f, "", size, TextAnchor.MiddleLeft, Palette.Parchment);
+            Raw(text);
             text.resizeTextForBestFit = false;
             text.supportRichText = false;
             Text hint = Label("Placeholder", back.transform, 0.04f, 0.05f, 0.96f, 0.95f, placeholder, size, TextAnchor.MiddleLeft, Palette.Muted);
@@ -275,12 +276,22 @@ namespace Orsuun.Client
             return scroll;
         }
 
+        /// <summary>Leaves a text as written in every language (players' own words). Returns it.</summary>
+        public static Text Raw(Text text)
+        {
+            if (text is LocText loc) loc.Raw = true;
+            return text;
+        }
+
+        /// <summary>What the code set on a text, before translation (compare this, not what shows).</summary>
+        public static string Src(Text text) => text is LocText loc ? loc.Source : text.text;
+
         /// <summary>A wrapping rich-text row for a Scroll list, tappable (the text is the button's graphic).</summary>
         public static Text ListRow(string name, Transform content, int size, Action onClick)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(content, false);
-            var text = go.AddComponent<Text>();
+            var text = go.AddComponent<LocText>();
             text.font = Font;
             text.fontSize = size;
             text.color = Palette.Parchment;
@@ -400,9 +411,10 @@ namespace Orsuun.Client
         public static void SetPicture(RawImage raw, string texture)
         {
             Texture2D art = texture == null ? null : Resources.Load<Texture2D>(texture);
+            // An empty picture hides (a RawImage without a texture draws a white square).
+            raw.enabled = art != null;
             if (raw.texture == art) return;
             raw.texture = art;
-            raw.enabled = art != null;
             if (art != null) raw.GetComponent<AspectRatioFitter>().aspectRatio = art.width / (float)art.height;
         }
 
