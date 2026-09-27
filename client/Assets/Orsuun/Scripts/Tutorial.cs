@@ -110,7 +110,7 @@ namespace Orsuun.Client
             {
                 new Step { Title = "THE HUNT", Text = "Your hero hunts on their own: packs fall and loot drops, even while you are away.",
                            Frame = () => Fixed(0.01f, GameRoot.LaneViewportBottom + 0.01f, 0.99f, 0.935f), BoxY = BoxLow },
-                new Step { Title = "KORSTONES", Text = "Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.",
+                new Step { Title = "KORSTONES", Text = "After a few packs a Korstone rises: the top line counts them. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.",
                            Frame = () => _root.Hud.Area("Stage", "Link"), BoxY = BoxHigh },
                 new Step { Title = "SKILLS", Text = "Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.",
                            Frame = () => _root.Hud.Area("Skill0", "Skill4", "Auto0", "Auto4"), BoxY = BoxOverLane },

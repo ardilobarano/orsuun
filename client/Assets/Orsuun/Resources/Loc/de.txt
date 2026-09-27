@@ -1064,7 +1064,7 @@ BAG	TASCHE
 SKIP	ÜBERSPRINGEN
 THE HUNT	DIE JAGD
 Your hero hunts on their own: packs fall and loot drops, even while you are away.	Dein Held jagt selbstständig: Rudel fallen und Beute fällt ab, selbst wenn du fort bist.
-Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Jede Welle endet an einem Korstein. Zerbrich ihn für die beste Beute. Je tiefer du jagst, desto dunkler und tödlicher die Steine.
+After a few packs a Korstone rises: the top line counts them. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Nach ein paar Rudeln erhebt sich ein Korstein: die obere Zeile zählt sie. Zerbrich ihn für die beste Beute. Je tiefer du jagst, desto dunkler und tödlicher die Steine.
 KORSTONES	KORSTEINE
 Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	Fähigkeiten wirken von selbst, solange AUTO an ist. Tippe eine Fähigkeit an, um sie genau dann auszulösen, wann du willst: Gezielt trifft sie härter.
 The Forge raises your gear's level and its power. Tap FORGE.	Die Schmiede erhöht Stufe und Kraft deiner Ausrüstung. Tippe auf SCHMIEDEN.
@@ -2294,3 +2294,4 @@ Email verified.	E-Mail bestätigt.
 Save an email to the account first.	Speichere zuerst eine E-Mail im Konto.
 Your email is already verified.	Deine E-Mail ist bereits bestätigt.
 A code is on its way to {0}.	Ein Code ist unterwegs an {0}.
+RANDOM	ZUFALL

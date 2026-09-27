@@ -35,4 +35,27 @@ public class HuntYieldTests
         Assert.Equal(OfflineRewards.FreeCapSeconds, capped.CountedSeconds);
         Assert.InRange((capped.Packs + capped.Korstones) / (double)(full.Packs + full.Korstones), 0.58, 0.62);
     }
+
+    [Fact]
+    public void Heartbeats_every_30_seconds_pay_what_one_long_settlement_does()
+    {
+        // A new hero on the first stage clears about three packs a heartbeat: before the carry, 3 / 6 was never a Korstone.
+        StageConfig stage = Content.Stage(1);
+        HeroStats hero = HeroFactory.FromWeapon(new ItemState(1, Rarity.Common));
+        HuntSettlement whole = HuntYield.Settle(stage, hero, 600, 600, RandomExtensions.FullBp, new Inventory(), new XorShiftRandom(1));
+
+        var carry = new HuntCarry();
+        long packs = 0, korstones = 0;
+        for (int beat = 0; beat < 20; beat++)
+        {
+            HuntSettlement s = HuntYield.Settle(stage, hero, 30, 180, RandomExtensions.FullBp, new Inventory(), new XorShiftRandom((ulong)beat + 1), carry);
+            Assert.True(s.Packs + s.Korstones < 6, "a heartbeat holds under one loop");
+            packs += s.Packs;
+            korstones += s.Korstones;
+        }
+
+        Assert.True(whole.Korstones >= 3, $"ten minutes on stage 1 break {whole.Korstones} Korstones");
+        Assert.Equal(whole.Packs, packs);
+        Assert.Equal(whole.Korstones, korstones);
+    }
 }

@@ -988,7 +988,7 @@ BAG	ÇANTA
 SKIP	GEÇ
 THE HUNT	AV
 Your hero hunts on their own: packs fall and loot drops, even while you are away.	Kahramanın kendi başına avlanır: sen yokken bile sürüler düşer, ganimet gelir.
-Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Her dalga bir Kortaşında biter. En iyi ganimetler için onu kır. Ne kadar derinde avlanırsan taşlar o kadar karanlık ve ölümcül olur.
+After a few packs a Korstone rises: the top line counts them. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Birkaç sürüden sonra bir Kortaşı yükselir: üst satır sürüleri sayar. En iyi ganimetler için onu kır. Ne kadar derinde avlanırsan taşlar o kadar karanlık ve ölümcül olur.
 KORSTONES	KORTAŞLARI
 Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	OTO açıkken beceriler kendiliğinden kullanılır. İstediğin anda kullanmak için bir beceriye dokun: nişanlı kullanım daha sert vurur.
 The Forge raises your gear's level and its power. Tap FORGE.	Demirhane teçhizatının seviyesini ve gücünü yükseltir. GÜÇLENDİR'e dokun.
@@ -2218,3 +2218,4 @@ Email verified.	E-posta doğrulandı.
 Save an email to the account first.	Önce hesaba bir e-posta kaydet.
 Your email is already verified.	E-postan zaten doğrulanmış.
 A code is on its way to {0}.	{0} adresine bir kod gönderildi.
+RANDOM	RASTGELE

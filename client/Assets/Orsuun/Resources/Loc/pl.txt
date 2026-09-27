@@ -1018,7 +1018,7 @@ BAG	TORBA
 SKIP	POMIŃ
 THE HUNT	ŁOWY
 Your hero hunts on their own: packs fall and loot drops, even while you are away.	Twój bohater poluje sam: sfory padają, a łupy spadają, nawet gdy cię nie ma.
-Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Każda fala kończy się Korkamieniem. Rozbij go, by zdobyć najlepsze łupy. Im głębiej polujesz, tym mroczniejsze i groźniejsze kamienie.
+After a few packs a Korstone rises: the top line counts them. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Po kilku sforach wyrasta Korkamień: górny wiersz je liczy. Rozbij go, by zdobyć najlepsze łupy. Im głębiej polujesz, tym mroczniejsze i groźniejsze kamienie.
 KORSTONES	KORKAMIENIE
 Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	Przy włączonym AUTO umiejętności używają się same. Dotknij umiejętności, by użyć jej w wybranej chwili: wycelowana uderza mocniej.
 The Forge raises your gear's level and its power. Tap FORGE.	Kuźnia podnosi poziom i moc twojego sprzętu. Dotknij ULEPSZ.
@@ -2248,3 +2248,4 @@ Email verified.	E-mail zweryfikowany.
 Save an email to the account first.	Najpierw zapisz e-mail na koncie.
 Your email is already verified.	Twój e-mail jest już zweryfikowany.
 A code is on its way to {0}.	Kod jest w drodze na adres: {0}.
+RANDOM	LOSUJ

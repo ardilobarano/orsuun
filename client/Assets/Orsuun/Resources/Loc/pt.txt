@@ -1032,7 +1032,7 @@ BAG	BOLSA
 SKIP	PULAR
 THE HUNT	A CAÇADA
 Your hero hunts on their own: packs fall and loot drops, even while you are away.	Seu herói caça sozinho: bandos tombam e os drops caem, mesmo quando você não está.
-Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Toda onda termina numa Pedra Kor. Quebre-a para os melhores drops. Quanto mais fundo você caça, mais sombrias e mortais são as pedras.
+After a few packs a Korstone rises: the top line counts them. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Depois de alguns bandos surge uma Pedra Kor: a linha do topo conta os bandos. Quebre-a para os melhores drops. Quanto mais fundo você caça, mais sombrias e mortais são as pedras.
 KORSTONES	PEDRAS KOR
 Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	As habilidades são usadas sozinhas com o AUTO ligado. Toque numa habilidade para usá-la na hora que quiser: mirada, ela bate mais forte.
 The Forge raises your gear's level and its power. Tap FORGE.	A Forja aumenta o nível e o poder do seu equipamento. Toque em REFINAR.
@@ -2262,3 +2262,4 @@ Email verified.	E-mail verificado.
 Save an email to the account first.	Salve primeiro um e-mail na conta.
 Your email is already verified.	Seu e-mail já está verificado.
 A code is on its way to {0}.	Um código está a caminho de {0}.
+RANDOM	ALEATÓRIO

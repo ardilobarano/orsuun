@@ -78,4 +78,19 @@ public class SessionLoopTests
         session.SetLaneSeed(Seed + 1, 0);
         Assert.Equal(0, session.LaneLoop);
     }
+
+    [Fact]
+    public void The_hunt_counts_korstones_across_its_loops()
+    {
+        // Every loop is a new lane whose own count starts at 0; the HUD shows the session's (27 Sep 2026: it read
+        // "Korstones 0" for a whole first session).
+        var session = new PlayerSession(new XorShiftRandom(3));
+        session.Lane.AutoCast[1] = true;
+        session.SetLaneSeed(Seed, 0);
+
+        Play(session, 3, tap: true);
+
+        Assert.Equal(0, session.Lane.KorstonesDestroyed);
+        Assert.Equal(3, session.HuntKorstones);
+    }
 }

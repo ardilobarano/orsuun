@@ -500,6 +500,8 @@ public sealed partial class GameService
         SettlementDto settlement = Settle(account, now);
         account.LastHeartbeatUtc = now;
         account.ParkedStage = request.Stage;
+        account.HuntCarryTicks = 0;
+        account.HuntEncounter = 0;
         NewLane(account);
         await SaveAsync(ct);
         return ToState(account, settlement: settlement);
@@ -721,7 +723,10 @@ public sealed partial class GameService
         // Bells reward presence: they apply to live settlement only.
         if (!offline) EveningBells.Apply(stage, _bells.Active);
         var inventory = Snapshot(account);
-        HuntSettlement s = HuntYield.Settle(stage, Hero(account), seconds, cap, efficiency, inventory, _rng);
+        var carry = new HuntCarry { Ticks = account.HuntCarryTicks, Encounter = account.HuntEncounter };
+        HuntSettlement s = HuntYield.Settle(stage, Hero(account), seconds, cap, efficiency, inventory, _rng, carry);
+        account.HuntCarryTicks = carry.Ticks;
+        account.HuntEncounter = carry.Encounter;
         // Honor (Rules.SkillGrades): every Korstone broken, online or off.
         account.Honor += s.Korstones * Rules.SkillGrades.HonorPerKorstone;
         // The War of Banners bonus: last season's winning Banner and each fortress a Banner holds add sorn.

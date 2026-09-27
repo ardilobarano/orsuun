@@ -1026,7 +1026,7 @@ BAG	TRAISTĂ
 SKIP	SARI PESTE
 THE HUNT	VÂNĂTOAREA
 Your hero hunts on their own: packs fall and loot drops, even while you are away.	Eroul tău vânează singur: haitele cad și prada curge, chiar și când lipsești.
-Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Fiecare val se termină la o Piatră Kor. Sparge-o pentru cea mai bună pradă. Cu cât vânezi mai adânc, cu atât pietrele sunt mai întunecate și mai ucigașe.
+After a few packs a Korstone rises: the top line counts them. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	După câteva haite se ridică o Piatră Kor: rândul de sus le numără. Sparge-o pentru cea mai bună pradă. Cu cât vânezi mai adânc, cu atât pietrele sunt mai întunecate și mai ucigașe.
 KORSTONES	PIETRE KOR
 Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	Cu AUTO pornit, abilitățile se lansează singure. Atinge o abilitate ca s-o lansezi exact când vrei: țintită, lovește mai tare.
 The Forge raises your gear's level and its power. Tap FORGE.	Fierăria ridică nivelul și puterea echipamentului tău. Atinge RAFINEAZĂ.
@@ -2256,3 +2256,4 @@ Email verified.	E-mail verificat.
 Save an email to the account first.	Salvează mai întâi un e-mail în cont.
 Your email is already verified.	E-mailul tău e deja verificat.
 A code is on its way to {0}.	Un cod e pe drum spre {0}.
+RANDOM	ALEATORIU

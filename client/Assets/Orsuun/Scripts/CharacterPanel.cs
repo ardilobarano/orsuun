@@ -63,6 +63,8 @@ namespace Orsuun.Client
         // Screenshots: -dragturn <px> drags a finger across the hero two seconds after it shows.
         private float _dragTurn = float.NaN;
         private float _shownAt;
+        private bool _emptyAccountSeen;
+        private readonly XorShiftRandom _names = new XorShiftRandom((ulong)DateTime.Now.Ticks | 1UL);
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -125,7 +127,10 @@ namespace Orsuun.Client
                     () => _figure = figure, out _);
             }
             _classBlurb = Ui.Label("Blurb", cg, 0.05f, 0.2f, 0.95f, 0.248f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
-            _nameField = Ui.Input("NameField", cg, 0.1f, 0.14f, 0.9f, 0.195f, $"A name: {Characters.NameMin}-{Characters.NameMax} letters or digits", 28, Characters.NameMax);
+            _nameField = Ui.Input("NameField", cg, 0.1f, 0.14f, 0.68f, 0.195f, $"A name: {Characters.NameMin}-{Characters.NameMax} letters or digits", 26, Characters.NameMax);
+            // A name to start from, for the figure shown (a new player's first screen asks for one before anything else).
+            Ui.Button("RandomName", cg, 0.7f, 0.142f, 0.9f, 0.193f, "RANDOM", 22, Palette.ButtonIdle,
+                () => _nameField.text = Characters.SuggestName(_figure, _names), out _);
             Ui.Button("DoCreate", cg, 0.1f, 0.075f, 0.62f, 0.132f, "CREATE", 32, Palette.ButtonForge, DoCreate, out _);
             Ui.Button("CancelCreate", cg, 0.65f, 0.075f, 0.9f, 0.132f, "BACK", 26, Palette.ButtonIdle, () => SetMode(Mode.Select), out _);
 
@@ -227,10 +232,17 @@ namespace Orsuun.Client
             if (lobby != null && _lobbyGeneration != server.AccountGeneration)
             {
                 _lobbyGeneration = server.AccountGeneration;
+                _emptyAccountSeen = false;
                 _slot = 0;
                 string latest = "";
                 foreach (var ch in lobby.characters ?? new Net.ServerLink.CharacterSlotDto[0])
                     if (string.CompareOrdinal(ch.lastPlayedUtc, latest) > 0) { latest = ch.lastPlayedUtc; _slot = ch.slot; }
+            }
+            // An account with no hero yet (a new player) goes straight to making one: nothing to choose on the slots.
+            if (lobby != null && _mode == Mode.Select && !_emptyAccountSeen && (lobby.characters == null || lobby.characters.Length == 0))
+            {
+                _emptyAccountSeen = true;
+                SetMode(Mode.Create);
             }
             _account.text = lobby == null ? "Connecting..." : !string.IsNullOrEmpty(lobby.email) ? "Account: " + lobby.email
                 : lobby.links > 0 ? "Account: saved with Google / Apple" : "Guest account: save it under ACCOUNT";

@@ -249,3 +249,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Phone performance (`Performance`, on GameRoot): the URP asset's `renderScale` is set at runtime (the lane at most 1800 px
   tall; BATTERY SAVER draws it smaller and turns off bloom), 60 fps while touched and 30 when left alone. Never switch
   MSAA at runtime: on Metal it turns the frame upside down and blacks the lane.
+- Hunting is paid by estimate (`HuntYield.Settle`) at every heartbeat (30 s online), with the account's `HuntCarry`
+  (`HuntCarryTicks`, `HuntEncounter`): the part of an encounter and the place in the loop a settlement leaves for the
+  next. Pass it on every settle and reset it when the parked stage changes; without it a slow hero is never paid a
+  Korstone (a heartbeat holds under one loop).

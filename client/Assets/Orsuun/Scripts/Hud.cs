@@ -355,7 +355,9 @@ namespace Orsuun.Client
             string encounter = lane.IsBossEncounter ? lane.Stage.BossName.ToUpperInvariant()
                 : lane.IsKorstoneEncounter ? (lane.IsElderNext ? "ELDER KORSTONE" : "KORSTONE")
                 : lane.Stage.FinalEncounter == FinalEncounter.None ? "Pack" : $"Pack {lane.EncounterIndex + 1}/{lane.Stage.PacksBeforeKorstone}";
-            _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {lane.KorstonesDestroyed}  ·  Deaths {lane.Deaths}";
+            // The farm lane counts across its loops (a new lane each one online); a boss or dungeon lane counts its own.
+            bool farm = lane == session.Lane;
+            _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {(farm ? session.HuntKorstones : lane.KorstonesDestroyed)}  ·  Deaths {(farm ? session.HuntDeaths : lane.Deaths)}";
             _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Palette.Parchment;
             Bell bell = _root.LocalBell;
             string bellText;

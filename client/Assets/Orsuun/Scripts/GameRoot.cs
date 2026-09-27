@@ -298,6 +298,12 @@ namespace Orsuun.Client
             _castShow = int.TryParse(Arg("-castshow"), out int castSlot) ? castSlot : -1;
             if (shot != null && _castShow < 0) StartCoroutine(ShotAndQuit(shot, float.TryParse(Arg("-shotAfter"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float after) ? after : 8f));
             if (shot != null && _castShow >= 0) _castFallback = StartCoroutine(ShotAndQuit(shot, 60f));   // gives up after a minute
+            // Dev switch: -shotEvery <seconds> <folder> saves the screen that often as <folder>/<seconds since start>.png (a
+            // new player's first minutes, played through without quitting).
+            int every = Array.IndexOf(cmd, "-shotEvery");
+            if (every >= 0 && every + 2 < cmd.Length && float.TryParse(cmd[every + 1], System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out float period) && period > 0f)
+                StartCoroutine(ShotEvery(period, cmd[every + 2]));
         }
 
         private string _messagesTo;
@@ -347,6 +353,18 @@ namespace Orsuun.Client
             return i >= 0 && i + 1 < args.Length ? args[i + 1] : null;
         }
 
+        private static IEnumerator ShotEvery(float period, string folder)
+        {
+            System.IO.Directory.CreateDirectory(folder);
+            float start = Time.realtimeSinceStartup;
+            while (true)
+            {
+                yield return new WaitForSecondsRealtime(period);
+                yield return new WaitForEndOfFrame();
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder, $"{Time.realtimeSinceStartup - start:0000}.png"));
+            }
+        }
+
         private static IEnumerator ShotAndQuit(string path, float after)
         {
             yield return new WaitForSecondsRealtime(after);
@@ -374,6 +392,7 @@ namespace Orsuun.Client
         private readonly float[] _glowBySlot = new float[8];
         private Bell _localBellApplied = Bell.None;
         private bool _tutorialPending;
+        private bool _askNotifications;
         private bool _oathAsked;
         private bool _accountAsked;
         private string _firstRun;
@@ -429,7 +448,7 @@ namespace Orsuun.Client
             // the lane never shows before a hero is chosen (owner, 25 Sep 2026).
             Characters.SetVisible(Server.WaitingForHero && !Title.Waiting && !Account.Showing && !Oath.Showing);
             // The first session's guide starts once the title screen (and the oath) is gone; the notification
-            // permission is asked then too, once.
+            // permission is asked once it ends (done or skipped), not over its first step (27 Sep 2026).
             // The login calendar opens itself once a session when a gift waits (not over the first session's guide, nor
             // over screenshots unless -daily asks for it).
             if (!_dailyShown && Server.Online && !Server.WaitingForHero && Server.Daily != null && Server.Daily.claimable
@@ -442,10 +461,15 @@ namespace Orsuun.Client
             }
             if (_tutorialPending && !Title.Showing && !Account.Showing && !Oath.Showing && !Characters.IsOpen)
             {
-                Notifications.AskOnce();
+                _askNotifications = true;
                 _tutorialPending = false;
                 // Dev switch: -tutorialStep <n> opens the guide at a step (screenshots).
                 Tutorial.Begin(int.TryParse(Arg("-tutorialStep"), out int step) ? step : 0);
+            }
+            if (_askNotifications && !Tutorial.Running)
+            {
+                _askNotifications = false;
+                Notifications.AskOnce();
             }
 
         }

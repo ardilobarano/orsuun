@@ -562,8 +562,23 @@ namespace Orsuun.Rules
                 return;
             }
             bool[] auto = (bool[])Lane.AutoCast.Clone();
+            KeepHuntCounts();
             Lane = new LaneSim(stage, Hero, SkillDef.For(Class), Inventory, _rng);
             Array.Copy(auto, Lane.AutoCast, Math.Min(auto.Length, Lane.AutoCast.Length));
+        }
+
+        private int _korstonesBefore, _deathsBefore;
+
+        /// <summary>Korstones broken and deaths on the farm lane since the session began, across its loops (online every
+        /// loop is a new lane, so the lane's own counts start again at each one).</summary>
+        public int HuntKorstones => _korstonesBefore + Lane.KorstonesDestroyed;
+        public int HuntDeaths => _deathsBefore + Lane.Deaths;
+
+        private void KeepHuntCounts()
+        {
+            if (Lane == null) return;
+            _korstonesBefore += Lane.KorstonesDestroyed;
+            _deathsBefore += Lane.Deaths;
         }
 
         // ---- Active play (online): the farm lane runs one seeded loop at a time, see Rules.Combat.ActivePlay ----
@@ -600,6 +615,7 @@ namespace Orsuun.Rules
         {
             bool[] auto = (bool[])Lane.AutoCast.Clone();
             HeroStats hero = Hero;
+            KeepHuntCounts();
             Lane = ActivePlay.NewLoop(stage, hero, SkillDef.For(Class), Inventory, _laneSeed!.Value, loop);
             Array.Copy(auto, Lane.AutoCast, Math.Min(auto.Length, Lane.AutoCast.Length));
             LaneLoop = loop;

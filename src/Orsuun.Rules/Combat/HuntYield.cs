@@ -160,9 +160,13 @@ namespace Orsuun.Rules.Combat
 
         /// <summary>
         /// Credits a stretch of unobserved hunting: the hero kills what its DPS allows, at the given
-        /// efficiency (10000 = live rate, 6000 = offline rate), for at most capSeconds.
+        /// efficiency (10000 = live rate, 6000 = offline rate), for at most capSeconds. carry: what the last settlement
+        /// left unfinished (part of an encounter, the place in the loop); it is used and updated, so settlements every
+        /// 30 seconds pay what one long one would (without it a hero clearing under six encounters a heartbeat was never
+        /// paid a Korstone, 27 Sep 2026).
         /// </summary>
-        public static HuntSettlement Settle(StageConfig stage, HeroStats hero, long seconds, long capSeconds, int efficiencyBp, Inventory inventory, IRandom rng)
+        public static HuntSettlement Settle(StageConfig stage, HeroStats hero, long seconds, long capSeconds, int efficiencyBp, Inventory inventory, IRandom rng,
+            HuntCarry? carry = null)
         {
             long counted = seconds < 0 ? 0 : seconds > capSeconds ? capSeconds : seconds;
             long avgPack = (stage.PackSizeMin + stage.PackSizeMax) / 2;
@@ -176,15 +180,28 @@ namespace Orsuun.Rules.Combat
             long ticksPerPack = hero.Attack <= 0
                 ? long.MaxValue
                 : packHp * hero.AttackIntervalTicks * 100 / (hero.Attack * Math.Max(1, skillsPercent)) + stage.RunTicks;
-            long packs = ticksPerPack == long.MaxValue ? 0 : counted * LaneSim.TicksPerSecond * efficiencyBp / RandomExtensions.FullBp / ticksPerPack;
+            long packs = 0;
+            if (ticksPerPack != long.MaxValue)
+            {
+                long work = counted * LaneSim.TicksPerSecond * efficiencyBp / RandomExtensions.FullBp;
+                // A stronger hero needs fewer ticks a pack: the carried part never counts as a whole one.
+                if (carry != null) work += Math.Max(0, Math.Min(carry.Ticks, ticksPerPack - 1));
+                packs = work / ticksPerPack;
+                if (carry != null) carry.Ticks = work - packs * ticksPerPack;
+            }
 
             long finals = 0;
             if (stage.FinalEncounter != FinalEncounter.None)
             {
-                // A Korstone costs about as much time as its waves: count it as one extra pack per loop.
-                finals = packs / (stage.PacksBeforeKorstone + 1);
+                // A Korstone costs about as much time as its waves: count it as one extra pack per loop. Encounters run
+                // on from where the last settlement left the loop; the loop's last one is the Korstone.
+                long loop = stage.PacksBeforeKorstone + 1;
+                long done = carry != null ? Math.Max(0, Math.Min(carry.Encounter, loop - 1)) : 0;
+                finals = (done + packs) / loop;
+                if (carry != null) carry.Encounter = (int)((done + packs) % loop);
                 packs -= finals;
             }
+            else if (carry != null) carry.Encounter = 0;
 
             long sornBefore = inventory.Sorn;
             for (long p = 0; p < packs; p++)
@@ -198,6 +215,14 @@ namespace Orsuun.Rules.Combat
 
             return new HuntSettlement(counted, packs, finals, inventory.Sorn - sornBefore);
         }
+    }
+
+    /// <summary>What a settlement leaves unfinished for the next (HuntYield.Settle): the ticks toward the next encounter
+    /// and how many encounters of the current loop are done. A new stage starts both at 0.</summary>
+    public sealed class HuntCarry
+    {
+        public long Ticks;
+        public int Encounter;
     }
 
     public readonly struct HuntSettlement

@@ -161,6 +161,10 @@ public sealed class Account
     public int HighestStageCleared { get; set; }
     /// <summary>Campaign stage number or zone id (100+) the farm lane is parked in.</summary>
     public int ParkedStage { get; set; } = 1;
+    /// <summary>What the last settlement left unfinished on the parked stage (Rules.HuntCarry): ticks toward the next
+    /// encounter and the encounters done in the current loop. A new parked stage starts both at 0.</summary>
+    public long HuntCarryTicks { get; set; }
+    public int HuntEncounter { get; set; }
 
     /// <summary>Seed of the online farm lane: loop n runs from ActivePlay.LoopSeed(LaneSeed, n). New on every park.</summary>
     public long LaneSeed { get; set; }
