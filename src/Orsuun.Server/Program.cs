@@ -16,6 +16,8 @@ builder.Services.AddSingleton<BellClock>();
 builder.Services.AddSingleton<EventCalendar>();
 builder.Services.AddSingleton<MailSender>();
 builder.Services.AddSingleton<StoreReceipts>();
+builder.Services.AddSingleton<PushSender>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<PushSender>());
 builder.Services.AddScoped<GameService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ExternalAuth>();
@@ -316,6 +318,7 @@ v1.MapPost("/friends/answer", (HttpContext ctx, FriendAnswerRequest req, GameSer
 v1.MapPost("/friends/remove", (HttpContext ctx, FriendRemoveRequest req, GameService game, CancellationToken ct) => game.RemoveFriendAsync(Me(ctx), req, ct));
 v1.MapGet("/chat", (HttpContext ctx, string? channel, long? after, GameService game, CancellationToken ct) => game.ChatAsync(Me(ctx), channel, after ?? 0, ct));
 v1.MapPost("/chat", (HttpContext ctx, ChatSayRequest req, GameService game, CancellationToken ct) => game.SayAsync(Me(ctx), req, ct));
+v1.MapPost("/push-token", (HttpContext ctx, PushTokenRequest req, GameService game, CancellationToken ct) => game.PushTokenAsync(Me(ctx), req, ct));
 v1.MapPost("/report-name", (HttpContext ctx, NameReportRequest req, GameService game, CancellationToken ct) => game.ReportNameAsync(Me(ctx), req, ct));
 v1.MapPost("/chat/report", (HttpContext ctx, ChatReportRequest req, GameService game, CancellationToken ct) => game.ReportAsync(Me(ctx), req, ct));
 v1.MapPost("/chat/block", (HttpContext ctx, ChatBlockRequest req, GameService game, CancellationToken ct) => game.BlockAsync(Me(ctx), req, ct));

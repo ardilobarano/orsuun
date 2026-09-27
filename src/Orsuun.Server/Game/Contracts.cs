@@ -415,6 +415,8 @@ public sealed record AdminGuildDto(Guid Id, string Name, string Tag, int Level, 
 public sealed record AdminRenameRequest(string Name, string Tag);
 /// <summary>A name to report: Kind "hero" reports the hero's name, "guild" the name of the guild that hero is in.</summary>
 public sealed record NameReportRequest(string Kind, Guid AccountId);
+/// <summary>A phone's push token ("ios": APNs, "android": Firebase), sent after the player allows notifications.</summary>
+public sealed record PushTokenRequest(string Platform, string Token);
 public sealed record AdminNameDto(string Kind, Guid TargetId, string Name, string Tag, int Reports, DateTime FirstUtc, DateTime LastUtc, bool Banned);
 public sealed record AdminNameKeepRequest(string Kind, Guid TargetId);
 public sealed record AdminHeroRenameRequest(string Name);

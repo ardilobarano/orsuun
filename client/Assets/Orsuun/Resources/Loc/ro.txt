@@ -2316,3 +2316,5 @@ You have sent many reports today. Thank you: try again tomorrow.	Ai trimis multe
 The moderators	Moderatorii
 Your name was changed	Numele tău a fost schimbat
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Numele eroului tău, {0}, a fost raportat și nu respecta regulile jocului, așa că un moderator l-a schimbat în: {1}.
+Your bag is full	Traista e plină
+New drops are being left behind. Sell or store some pieces to keep them.	Prada nouă rămâne în urmă. Vinde sau depozitează câteva piese ca s-o păstrezi.

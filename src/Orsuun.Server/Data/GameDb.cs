@@ -14,6 +14,7 @@ public sealed class GameDb : DbContext
     public DbSet<Milestone> Milestones => Set<Milestone>();
     public DbSet<Purchase> Purchases => Set<Purchase>();
     public DbSet<NameReport> NameReports => Set<NameReport>();
+    public DbSet<PushToken> PushTokens => Set<PushToken>();
     public DbSet<BossHit> BossHits => Set<BossHit>();
     public DbSet<BannerScore> BannerScores => Set<BannerScore>();
     public DbSet<Fortress> Fortresses => Set<Fortress>();
@@ -83,6 +84,7 @@ public sealed class GameDb : DbContext
         b.Entity<ClientLog>(e => e.HasIndex(l => new { l.AccountId, l.Utc }));
         b.Entity<Milestone>(e => e.HasIndex(m => new { m.AccountId, m.Name }).IsUnique());
         b.Entity<Purchase>(e => { e.HasIndex(p => new { p.Store, p.TransactionId }).IsUnique(); e.HasIndex(p => p.LoginId); });
+        b.Entity<PushToken>(e => { e.HasIndex(t => t.Token).IsUnique(); e.HasIndex(t => t.LoginId); });
         b.Entity<NameReport>(e => { e.HasIndex(r => new { r.Kind, r.TargetId, r.Name, r.ReporterId }).IsUnique(); e.HasIndex(r => r.Reviewed); });
 
         b.Entity<BossHit>(e => e.HasIndex(h => new { h.BossId, h.SpawnUtc }));

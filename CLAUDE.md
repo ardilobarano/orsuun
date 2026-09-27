@@ -271,3 +271,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   to the store only on a final answer (`ServerLink.AmberPurchase`), never on "store_closed" or no answer. The store keys
   live in `deploy/secrets` (git-ignored, like the fal key: never in chat or git). Store code compiles only with
   `UNITY_ANDROID || UNITY_IOS` (ClientCheck does not see it: check a phone build).
+- Pushes (`PushSender`): every `SendLetter` queues one, sent after the request's save (`SendPushes`, from `SaveAsync`; code
+  that saves another way calls `SendPushes` after its commit). The phone's token goes to `/v1/push-token`; iOS registers
+  only with the `ORSUUN_PUSH` define (the push entitlement breaks free-team signing). Keys in `deploy/secrets`.

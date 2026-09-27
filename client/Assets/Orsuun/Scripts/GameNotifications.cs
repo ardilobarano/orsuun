@@ -4,6 +4,9 @@ using UnityEngine;
 #if UNITY_ANDROID || UNITY_IOS
 using Unity.Notifications;
 #endif
+#if UNITY_IOS && ORSUUN_PUSH
+using Unity.Notifications.iOS;
+#endif
 
 namespace Orsuun.Client
 {
@@ -35,11 +38,34 @@ namespace Orsuun.Client
                     PresentationOptions = NotificationPresentation.Alert | NotificationPresentation.Sound | NotificationPresentation.Badge,
                 });
                 _ready = true;
+                // A player who allowed notifications before registers this run's token (it can change).
+                if (PlayerPrefs.GetInt(AskedKey, 0) == 1) StartCoroutine(RegisterPush());
             }
             catch (Exception ex)
             {
                 Debug.LogWarning("Notifications unavailable: " + ex.Message);
             }
+#endif
+        }
+
+        /// <summary>
+        /// Remote pushes (PushSender on the server: a letter, an Exchange sale, a raid's pay, 27 Sep 2026): on iOS the phone
+        /// registers with APNs once the player has allowed notifications and hands the server its token. Only in builds with
+        /// the ORSUUN_PUSH define: the push entitlement needs the paid Apple Developer Program (a free team's build cannot
+        /// be signed with it). Android needs Firebase Cloud Messaging added first (see HANDOFF, "Store release").
+        /// </summary>
+        private System.Collections.IEnumerator RegisterPush()
+        {
+#if UNITY_IOS && ORSUUN_PUSH
+            while (!_root.Server.Online) yield return new WaitForSecondsRealtime(2f);
+            using (var request = new AuthorizationRequest(AuthorizationOption.Alert | AuthorizationOption.Badge | AuthorizationOption.Sound, true))
+            {
+                while (!request.IsFinished) yield return null;
+                if (request.Granted && !string.IsNullOrEmpty(request.DeviceToken))
+                    yield return _root.Server.PushToken("ios", request.DeviceToken);
+            }
+#else
+            yield break;
 #endif
         }
 
@@ -57,6 +83,7 @@ namespace Orsuun.Client
 #if UNITY_ANDROID || UNITY_IOS
             NotificationCenter.RequestPermission();
 #endif
+            StartCoroutine(RegisterPush());
         }
 
         private void OnApplicationPause(bool paused)
@@ -81,6 +108,13 @@ namespace Orsuun.Client
             DateTime now = DateTime.Now;
             Add(1, "The hunt is full", "Your hero has hunted every offline hour it can hold. Come back and take the spoils.",
                 now.AddSeconds(OfflineRewards.FreeCapSeconds));
+
+            // The bag filling on the away hunt (27 Sep 2026): new drops are left behind from then on.
+            PlayerSession session = _root.Session;
+            long? full = Bag.SecondsUntilFull(Content.Stage(session.ParkedStage), session.Hero, session.Inventory.Loot.Count,
+                new XorShiftRandom((ulong)DateTime.UtcNow.Ticks | 1UL));
+            if (full != null && full > 300)
+                Add(5, "Your bag is full", "New drops are being left behind. Sell or store some pieces to keep them.", now.AddSeconds(full.Value));
 
             Net.ServerLink server = _root.Server;
             if (server.Online && server.Bell != null && server.Bell.minutesUntilNext > 0)

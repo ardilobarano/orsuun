@@ -2354,3 +2354,5 @@ You have sent many reports today. Thank you: try again tomorrow.	Du hast heute v
 The moderators	Die Moderatoren
 Your name was changed	Dein Name wurde geändert
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Der Name deines Helden, {0}, wurde gemeldet und passte nicht zu den Regeln des Spiels, deshalb hat ein Moderator ihn geändert: {1}.
+Your bag is full	Deine Tasche ist voll
+New drops are being left behind. Sell or store some pieces to keep them.	Neue Beute bleibt liegen. Verkaufe oder lagere ein paar Teile, um sie zu behalten.

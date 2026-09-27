@@ -9,7 +9,8 @@
     "Unity.Notifications.Unified",
     "UnityEngine.Purchasing",
     "UnityEngine.Purchasing.Stores",
-    "Unity.Services.Core"
+    "Unity.Services.Core",
+    "Unity.Notifications.iOS"
   ],
   "autoReferenced": true
 }

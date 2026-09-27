@@ -116,6 +116,7 @@ public sealed partial class GameService
         await _db.Items.Where(i => i.DepotLoginId == loginId).ExecuteDeleteAsync(ct);
         await _db.ExternalLogins.Where(l => l.LoginId == loginId).ExecuteDeleteAsync(ct);
         await _db.Devices.Where(d => d.LoginId == loginId).ExecuteDeleteAsync(ct);
+        await _db.PushTokens.Where(t => t.LoginId == loginId).ExecuteDeleteAsync(ct);
         await _db.Logins.Where(l => l.Id == loginId).ExecuteDeleteAsync(ct);
     }
 

@@ -232,6 +232,7 @@ public sealed partial class GameService
                 + (champions.Count > 1 ? ", " + string.Join(" and ", champions.Skip(1)) + (champions.Count > 2 ? " are Pit Veterans." : " is a Pit Veteran.") : "."));
         await _db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
+        SendPushes();
     }
 
     /// <summary>Development: ends the current Pit season now (settles it as if the week had turned).</summary>

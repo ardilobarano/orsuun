@@ -2278,3 +2278,5 @@ You have sent many reports today. Thank you: try again tomorrow.	Bugün çok şi
 The moderators	Moderatörler
 Your name was changed	Adın değiştirildi
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Kahramanının adı ({0}) şikâyet edildi ve oyunun kurallarına uymadığı için bir moderatör onu değiştirdi: {1}.
+Your bag is full	Çantan dolu
+New drops are being left behind. Sell or store some pieces to keep them.	Yeni ganimetler geride kalıyor. Onları tutmak için birkaç parça sat ya da depola.

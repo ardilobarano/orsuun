@@ -12,14 +12,33 @@ namespace Orsuun.Server.Game;
 /// </summary>
 public sealed partial class GameService
 {
-    /// <summary>Writes a letter to a hero (saved with the request's other changes).</summary>
+    /// <summary>Writes a letter to a hero (saved with the request's other changes) and, once saved, pushes it to their phones
+    /// (an Exchange sale, a listing come home, a raid's pay: PushSender).</summary>
     private void SendLetter(Guid to, string kind, string from, string title, string body, long sorn = 0, int goodId = -1, int goodCount = 0,
-        int bookId = -1, int bookCount = 0, Guid? itemId = null) =>
+        int bookId = -1, int bookCount = 0, Guid? itemId = null)
+    {
         _db.Letters.Add(new Letter
         {
             AccountId = to, Kind = kind, From = from, Title = Clip(title, Mail.TitleMax), Body = Clip(body, Mail.BodyMax), Sorn = sorn,
             GoodId = goodId, GoodCount = goodCount, BookId = bookId, BookCount = bookCount, ItemId = itemId, Utc = DateTime.UtcNow,
         });
+        _pushes.Add(new PushSender.Push(to, "letter-" + kind, Clip(title, Mail.TitleMax), "A letter has come from " + from + ". Open the mailbox."));
+    }
+
+    /// <summary>A phone's push token: kept for the login it plays (a token moves with a sign-in to another login).</summary>
+    public async Task<MessageDto> PushTokenAsync(Account account, PushTokenRequest request, CancellationToken ct)
+    {
+        string platform = request.Platform == "ios" ? "ios" : request.Platform == "android" ? "android" : throw new GameException("bad_platform", "Unknown platform.");
+        string token = (request.Token ?? "").Trim();
+        if (token.Length < 16 || token.Length > 256) throw new GameException("bad_token", "That push token could not be read.");
+        PushToken? row = await _db.PushTokens.FirstOrDefaultAsync(t => t.Token == token, ct);
+        if (row == null) _db.PushTokens.Add(row = new PushToken { Token = token });
+        row.LoginId = account.LoginId;
+        row.Platform = platform;
+        row.Utc = DateTime.UtcNow;
+        await SaveAsync(ct);
+        return new MessageDto("Notifications on.");
+    }
 
     private static string Clip(string text, int max) => text.Length <= max ? text : text[..max];
 

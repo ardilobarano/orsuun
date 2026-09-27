@@ -139,6 +139,31 @@ namespace Orsuun.Rules
         public static long SellPrice(ItemState item) =>
             (150L + 30L * Math.Max(1, item.ItemLevel)) * RarityMobs[Math.Max(0, Math.Min(RarityMobs.Length - 1, (int)item.Rarity))] * (4 + item.UpgradeLevel) / 4;
 
+        /// <summary>
+        /// How long an away hunt takes to fill a bag holding <paramref name="held"/> pieces, at the offline rate on the parked
+        /// stage (the phone's "your bag is full" notice, 27 Sep 2026), or null when it stays short of full within the
+        /// offline cap. Hour by hour with the server's own settlement, so the drops are the rules' drops.
+        /// </summary>
+        public static long? SecondsUntilFull(Combat.StageConfig stage, Combat.HeroStats hero, int held, IRandom rng)
+        {
+            if (held >= Size) return 0;
+            var inventory = new Inventory();
+            var carry = new Combat.HuntCarry();
+            int before = 0;
+            for (long hour = 0; hour * 3600 < OfflineRewards.FreeCapSeconds; hour++)
+            {
+                Combat.HuntYield.Settle(stage, hero, 3600, 3600, OfflineRewards.OfflineEfficiencyBp, inventory, rng, carry);
+                int dropped = inventory.Loot.Count;
+                if (held + dropped >= Size)
+                {
+                    int need = Size - held - before, gained = Math.Max(1, dropped - before);
+                    return hour * 3600 + 3600L * need / gained;
+                }
+                before = dropped;
+            }
+            return null;
+        }
+
         /// <summary>The new drops that fit a bag holding <paramref name="held"/> pieces: the best rarity first, then as they fell.</summary>
         public static List<ItemState> Fitting(int held, IEnumerable<ItemState> drops)
         {

@@ -54,6 +54,11 @@ services:
       Store__Apple__KeyId: ${STORE_APPLE_KEY_ID:-}
       Store__Apple__PrivateKeyFile: /secrets/apple-iap.p8
       Store__Google__ServiceAccountJsonFile: /secrets/google-play.json
+      # Phone pushes (Game/PushSender.cs): an APNs key (Apple) and a Firebase service account (Android), also in secrets.
+      Push__Apple__TeamId: ${PUSH_APPLE_TEAM_ID:-}
+      Push__Apple__KeyId: ${PUSH_APPLE_KEY_ID:-}
+      Push__Apple__PrivateKeyFile: /secrets/apns.p8
+      Push__Google__ServiceAccountJsonFile: /secrets/firebase.json
     volumes:
       - ./secrets:/secrets:ro
     expose:

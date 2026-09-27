@@ -2322,3 +2322,5 @@ You have sent many reports today. Thank you: try again tomorrow.	Você enviou mu
 The moderators	Os moderadores
 Your name was changed	Seu nome foi mudado
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	O nome do seu herói, {0}, foi denunciado e não seguia as regras do jogo, então um moderador o mudou para: {1}.
+Your bag is full	Sua bolsa está cheia
+New drops are being left behind. Sell or store some pieces to keep them.	Novos drops estão ficando para trás. Venda ou guarde algumas peças para mantê-los.

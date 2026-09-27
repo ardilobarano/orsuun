@@ -29,12 +29,16 @@ public sealed partial class GameService
     private readonly EventCalendar _events;
     private readonly MailSender _mail;
     private readonly StoreReceipts _stores;
+    private readonly PushSender _push;
+    /// <summary>Pushes this request owes, sent once its save has gone through.</summary>
+    private readonly List<PushSender.Push> _pushes = new();
     private readonly ForgeService _forge;
     private readonly EtchingService _etchings = new();
     private readonly SocketService _sockets = new();
 
-    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events, MailSender mail, StoreReceipts stores)
+    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events, MailSender mail, StoreReceipts stores, PushSender push)
     {
+        _push = push;
         _mail = mail;
         _stores = stores;
         _db = db;
@@ -769,12 +773,20 @@ public sealed partial class GameService
             throw new GameException("duplicate_request", "This request was already processed.");
     }
 
+    /// <summary>Hands the pushes of what was just saved to the sender.</summary>
+    private void SendPushes()
+    {
+        foreach (PushSender.Push push in _pushes) _push.Queue(push);
+        _pushes.Clear();
+    }
+
     private async Task SaveAsync(CancellationToken ct)
     {
         try
         {
             await _db.SaveChangesAsync(ct);
             await FlushMarksAsync(ct);
+            SendPushes();
         }
         catch (DbUpdateConcurrencyException ex)
         {

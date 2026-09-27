@@ -106,9 +106,7 @@ public sealed class StoreReceipts
             ["iss"] = Setting("Store:Apple:IssuerId")!, ["iat"] = now, ["exp"] = now + 1200, ["aud"] = "appstoreconnect-v1",
             ["bid"] = Setting("Store:Apple:BundleId") ?? "com.orsuun.warofbanners",
         };
-        using ECDsa key = ECDsa.Create();
-        key.ImportFromPem(Setting("Store:Apple:PrivateKey")!.Replace("\\n", "\n"));
-        return Sign(header, claims, data => key.SignData(data, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
+        return Jwt.Es256(Setting("Store:Apple:PrivateKey")!, header, claims);
     }
 
     // ---- Google: Play Developer API ----
@@ -144,38 +142,12 @@ public sealed class StoreReceipts
     private async Task<string> GoogleAccessAsync(CancellationToken ct)
     {
         if (_googleToken != null && DateTime.UtcNow < _googleTokenUntil) return _googleToken;
-        using JsonDocument account = JsonDocument.Parse(Setting("Store:Google:ServiceAccountJson")!);
-        string email = account.RootElement.GetProperty("client_email").GetString()!;
-        string pem = account.RootElement.GetProperty("private_key").GetString()!;
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        using RSA key = RSA.Create();
-        key.ImportFromPem(pem);
-        string assertion = Sign(new Dictionary<string, object> { ["alg"] = "RS256", ["typ"] = "JWT" },
-            new Dictionary<string, object>
-            {
-                ["iss"] = email, ["scope"] = "https://www.googleapis.com/auth/androidpublisher", ["aud"] = "https://oauth2.googleapis.com/token",
-                ["iat"] = now, ["exp"] = now + 3600,
-            },
-            data => key.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1));
-        using var form = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["grant_type"] = "urn:ietf:params:oauth:grant-type:jwt-bearer", ["assertion"] = assertion,
-        });
-        using HttpResponseMessage response = await _http.PostAsync("https://oauth2.googleapis.com/token", form, ct);
-        if (!response.IsSuccessStatusCode) throw new GameException("store_error", "Google Play did not answer. Try again in a moment.");
-        using JsonDocument token = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
-        _googleToken = token.RootElement.GetProperty("access_token").GetString();
+        _googleToken = await Jwt.GoogleTokenAsync(_http, Setting("Store:Google:ServiceAccountJson")!, "https://www.googleapis.com/auth/androidpublisher", ct);
         _googleTokenUntil = DateTime.UtcNow.AddMinutes(50);
         return _googleToken!;
     }
 
     // ---- JWT pieces ----
-
-    private static string Sign(Dictionary<string, object> header, Dictionary<string, object> claims, Func<byte[], byte[]> sign)
-    {
-        string head = Base64Url(JsonSerializer.SerializeToUtf8Bytes(header)) + "." + Base64Url(JsonSerializer.SerializeToUtf8Bytes(claims));
-        return head + "." + Base64Url(sign(Encoding.ASCII.GetBytes(head)));
-    }
 
     public static string JwsPayload(string jws)
     {
@@ -185,8 +157,6 @@ public sealed class StoreReceipts
         b64 = b64.PadRight(b64.Length + (4 - b64.Length % 4) % 4, '=');
         return Encoding.UTF8.GetString(Convert.FromBase64String(b64));
     }
-
-    private static string Base64Url(byte[] data) => Convert.ToBase64String(data).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
     private static string Hash(string text) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)))[..32];
 }

@@ -58,4 +58,18 @@ public class HuntYieldTests
         Assert.Equal(whole.Packs, packs);
         Assert.Equal(whole.Korstones, korstones);
     }
+
+    [Fact]
+    public void An_away_hunt_says_when_the_bag_fills()
+    {
+        StageConfig stage = Content.Stage(20);
+        HeroStats hero = HeroFactory.FromWeapon(new ItemState(20, Rarity.Rare));
+        long? nearlyFull = Bag.SecondsUntilFull(stage, hero, Bag.Size - 5, new XorShiftRandom(3));
+        long? half = Bag.SecondsUntilFull(stage, hero, Bag.Size / 2, new XorShiftRandom(3));
+        Assert.NotNull(nearlyFull);
+        Assert.True(nearlyFull > 0 && nearlyFull < 3 * 3600, $"five free slots fill in {nearlyFull} s");
+        Assert.True(half == null || half > nearlyFull);
+        Assert.Equal(0, Bag.SecondsUntilFull(stage, hero, Bag.Size, new XorShiftRandom(3)));
+    }
 }
+
