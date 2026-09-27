@@ -1075,7 +1075,7 @@ Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Sieg oder Niederla
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Neue Stücke landen in deiner Tasche: Lege sie unter AUSRÜSTUNG an. Dort kannst du jedes Stück schmieden oder wenden, angelegt oder in der Tasche.
 PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	VORSTOSS nimmt die nächste Etappe, wenn du stark genug bist. Jeder Sieg öffnet neue Jagdgründe unter GEBIETE.
 THE STEPPE	DIE STEPPE
-WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	KRIEG für dein Banner, KOPFGELDER für Jagdmarken, GILDE, HANDEL an der Salzbörse und MENÜ für Ton, dein Konto und diese Anleitung.
+These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Diese öffnen sich mit deiner Stufe: KRIEG für dein Banner, KOPFGELDER für Jagdmarken, GILDE, HANDEL an der Salzbörse. Im MENÜ findest du Ton, dein Konto und diese Anleitung.
 This line always shows your next goal. Tap it to go there. Good hunting!	Diese Zeile zeigt immer dein nächstes Ziel. Tippe darauf, um dorthin zu gelangen. Waidmannsheil!
 CHANGE	WECHSELN
 FORTRESSES	FESTUNGEN
@@ -2295,3 +2295,15 @@ Save an email to the account first.	Speichere zuerst eine E-Mail im Konto.
 Your email is already verified.	Deine E-Mail ist bereits bestätigt.
 A code is on its way to {0}.	Ein Code ist unterwegs an {0}.
 RANDOM	ZUFALL
+OPENS AT LEVEL {0}	ÖFFNET AUF STUFE {0}
+Opens at level {0}	Öffnet auf Stufe {0}
+NEW: {0}	NEU: {0}
+DUNGEONS	VERLIESE
+Daily tasks pay Hunt Marks. Claim them on BOUNTIES.	Tagesaufgaben bringen Jagdmarken. Hol sie dir bei KOPFGELDER.
+Set the Korshards your Korstones drop into your gear for more power: SHARDS.	Setze die Korsplitter aus deinen Korsteinen in deine Ausrüstung, für mehr Kraft: SPLITTER.
+Commanders rise on the steppe: fight them from ZONES for chests and skins.	Kommandanten erheben sich auf der Steppe: bekämpfe sie über GEBIETE für Truhen und Skins.
+Join a guild for raids, guild wars and a shared treasury: GUILD.	Tritt einer Gilde bei, für Raids, Gildenkriege und eine gemeinsame Schatzkammer: GILDE.
+Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Kaufe und verkaufe Ausrüstung mit anderen Helden an der Salzbörse: HANDEL.
+Your Banner fights for the fortresses. Lay siege in WAR.	Dein Banner kämpft um die Festungen. Belagere sie unter KRIEG.
+Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Verliese öffnen sich unter GEBIETE: tiefe Ebenen, zwei Schlüssel am Tag und der Gekettete Schmied.
+Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Duelliere andere Helden in der Grube, über KRIEG, für Lorbeeren und einen Saisontitel.

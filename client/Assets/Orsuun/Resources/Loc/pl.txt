@@ -1029,7 +1029,7 @@ Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Wygrana czy przegr
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Nowe przedmioty trafiają do torby: zakładaj je w EKWIPUNKU. Tam ulepszysz lub przemienisz każdy przedmiot, założony lub w torbie.
 PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	NAPRZÓD zdobywa kolejny etap, gdy starczy ci sił. Każdy ukończony etap otwiera nowe łowiska w STREFACH.
 THE STEPPE	STEP
-WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	WOJNA dla twojej Chorągwi, ZLECENIA dla Znaków Łowów, GILDIA, HANDEL na Solnej Giełdzie i MENU z dźwiękiem, kontem i tym poradnikiem.
+These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Te otwierają się wraz z poziomem: WOJNA dla twojej Chorągwi, ZLECENIA dla Znaków Łowów, GILDIA, HANDEL na Solnej Giełdzie. W MENU są dźwięk, konto i ten poradnik.
 This line always shows your next goal. Tap it to go there. Good hunting!	Ten wiersz zawsze pokazuje twój następny cel. Dotknij go, by tam przejść. Udanych łowów!
 CHANGE	ZMIEŃ
 FORTRESSES	TWIERDZE
@@ -2249,3 +2249,15 @@ Save an email to the account first.	Najpierw zapisz e-mail na koncie.
 Your email is already verified.	Twój e-mail jest już zweryfikowany.
 A code is on its way to {0}.	Kod jest w drodze na adres: {0}.
 RANDOM	LOSUJ
+OPENS AT LEVEL {0}	OTWIERA SIĘ NA POZIOMIE {0}
+Opens at level {0}	Otwiera się na poziomie {0}
+NEW: {0}	NOWOŚĆ: {0}
+DUNGEONS	LOCHY
+Daily tasks pay Hunt Marks. Claim them on BOUNTIES.	Codzienne zadania dają Znaki Łowów. Odbierz je w ZLECENIACH.
+Set the Korshards your Korstones drop into your gear for more power: SHARDS.	Osadź Korodłamki z Korkamieni w ekwipunku, by zyskać siłę: ODŁAMKI.
+Commanders rise on the steppe: fight them from ZONES for chests and skins.	Dowódcy powstają na stepie: walcz z nimi w STREFACH o skrzynie i skórki.
+Join a guild for raids, guild wars and a shared treasury: GUILD.	Dołącz do gildii: rajdy, wojny gildii i wspólny skarbiec: GILDIA.
+Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Kupuj i sprzedawaj ekwipunek innym bohaterom na Solnej Giełdzie: HANDEL.
+Your Banner fights for the fortresses. Lay siege in WAR.	Twoja Chorągiew walczy o twierdze. Oblegaj je w WOJNIE.
+Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Lochy otwierają się w STREFACH: głębokie piętra, dwa klucze dziennie i Skuty Kowal.
+Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Pojedynkuj się z innymi bohaterami na Arenie, z WOJNY, o Laury i tytuł sezonu.

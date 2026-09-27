@@ -103,7 +103,8 @@ namespace Orsuun.Client
             }
 
             _message = Ui.Label("Message", canvas, 0.05f, 0.085f, 0.95f, 0.145f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Button("Pits", canvas, 0.05f, 0.015f, 0.48f, 0.075f, "THE PITS", 30, Palette.Danger, () => { _canvas.SetActive(false); _root.Pits.Open(); }, out _);
+            // The Pits open at their level (Rules.Unlocks); until then the button says which.
+            _pits = Ui.Button("Pits", canvas, 0.05f, 0.015f, 0.48f, 0.075f, "THE PITS", 30, Palette.Danger, () => { _canvas.SetActive(false); _root.Pits.Open(); }, out _pitsLabel);
             Ui.Button("Close", canvas, 0.52f, 0.015f, 0.95f, 0.075f, "BACK TO THE HUNT", 26, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
             BuildKeep(canvas);
             _confirm = new GameObject("KeepConfirm").AddComponent<ConfirmDialog>();
@@ -263,9 +264,15 @@ namespace Orsuun.Client
             _root.FightSiege(war.fortresses[index].id);
         }
 
+        private Button _pits;
+        private Text _pitsLabel;
+
         private void Update()
         {
             if (_root == null || !_canvas.activeSelf) return;
+            bool pits = _root.Unlocked(Feature.Pits);
+            _pits.interactable = pits;
+            _pitsLabel.text = pits ? "THE PITS" : "THE PITS  ·  LV " + Unlocks.Level(Feature.Pits);
             if (_root.Server.Online && !_fetching && Time.realtimeSinceStartup >= _nextFetch)
             {
                 _fetching = true;

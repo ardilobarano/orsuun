@@ -1037,7 +1037,7 @@ Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Câștigi sau pier
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Piesele noi cad în traistă: poartă-le din INVENTAR. Acolo rafinezi sau răsucești orice piesă, purtată sau din traistă.
 PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	ÎNAINTE cucerește etapa următoare când ești destul de puternic. Fiecare etapă curățată deschide noi terenuri de vânătoare în ZONE.
 THE STEPPE	STEPA
-WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	RĂZBOI pentru Stindardul tău, MISIUNI pentru Semne de Vânătoare, BREASLĂ, SCHIMB la Bursa de Sare și MENIU pentru sunet, cont și acest ghid.
+These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Acestea se deschid pe măsură ce crești în nivel: RĂZBOI pentru Stindardul tău, MISIUNI pentru Semne de Vânătoare, BREASLĂ, SCHIMB la Bursa de Sare. În MENIU găsești sunetul, contul și acest ghid.
 This line always shows your next goal. Tap it to go there. Good hunting!	Rândul acesta îți arată mereu următorul obiectiv. Atinge-l ca să mergi acolo. Vânătoare bună!
 CHANGE	SCHIMBĂ
 FORTRESSES	FORTĂREȚE
@@ -2257,3 +2257,15 @@ Save an email to the account first.	Salvează mai întâi un e-mail în cont.
 Your email is already verified.	E-mailul tău e deja verificat.
 A code is on its way to {0}.	Un cod e pe drum spre {0}.
 RANDOM	ALEATORIU
+OPENS AT LEVEL {0}	SE DESCHIDE LA NIVELUL {0}
+Opens at level {0}	Se deschide la nivelul {0}
+NEW: {0}	NOU: {0}
+DUNGEONS	TEMNIȚE
+Daily tasks pay Hunt Marks. Claim them on BOUNTIES.	Sarcinile zilnice aduc Semne de Vânătoare. Revendică-le la MISIUNI.
+Set the Korshards your Korstones drop into your gear for more power: SHARDS.	Pune Cioburile Kor din Pietrele Kor în echipament pentru mai multă putere: CIOBURI.
+Commanders rise on the steppe: fight them from ZONES for chests and skins.	Comandanții se ridică în stepă: înfruntă-i din ZONE pentru cufere și costume.
+Join a guild for raids, guild wars and a shared treasury: GUILD.	Intră într-o breaslă pentru raiduri, războaie de breaslă și o vistierie comună: BREASLĂ.
+Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Cumpără și vinde echipament cu alți eroi la Bursa de Sare: SCHIMB.
+Your Banner fights for the fortresses. Lay siege in WAR.	Stindardul tău luptă pentru fortărețe. Asediază-le din RĂZBOI.
+Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Temnițele se deschid în ZONE: etaje adânci, două chei pe zi și Fierarul Înlănțuit.
+Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Dă-te în duel cu alți eroi în Groapă, din RĂZBOI, pentru Lauri și un titlu de sezon.

@@ -999,7 +999,7 @@ Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Kazan ya da kaybet
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Yeni parçalar çantana düşer: onları TEÇHİZAT'tan giy. Giyili ya da çantadaki her parçayı orada güçlendir ya da çevir.
 PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	Yeterince güçlüysen İLERLE sonraki aşamayı alır. Her temizlik BÖLGELER'de yeni av alanları açar.
 THE STEPPE	BOZKIR
-WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	Sancağın için SAVAŞ, Av Nişanları için GÖREVLER, LONCA, Tuz Borsası'nda TAKAS ve ses, hesabın ve bu rehber için MENÜ.
+These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Bunlar seviye atladıkça açılır: Sancağın için SAVAŞ, Av Nişanları için GÖREVLER, LONCA, Tuz Borsası'nda TAKAS. MENÜ'de ses, hesabın ve bu rehber var.
 This line always shows your next goal. Tap it to go there. Good hunting!	Bu satır her zaman sonraki hedefini gösterir. Oraya gitmek için dokun. İyi avlar!
 CHANGE	DEĞİŞTİR
 FORTRESSES	KALELER
@@ -2219,3 +2219,15 @@ Save an email to the account first.	Önce hesaba bir e-posta kaydet.
 Your email is already verified.	E-postan zaten doğrulanmış.
 A code is on its way to {0}.	{0} adresine bir kod gönderildi.
 RANDOM	RASTGELE
+OPENS AT LEVEL {0}	AÇILIŞ: SEVİYE {0}
+Opens at level {0}	Açılış: seviye {0}
+NEW: {0}	YENİ: {0}
+DUNGEONS	ZİNDANLAR
+Daily tasks pay Hunt Marks. Claim them on BOUNTIES.	Günlük görevler Av Nişanı öder. Onları GÖREVLER'den al.
+Set the Korshards your Korstones drop into your gear for more power: SHARDS.	Kortaşlarının düşürdüğü Korparçalarını daha fazla güç için teçhizatına yerleştir: PARÇALAR.
+Commanders rise on the steppe: fight them from ZONES for chests and skins.	Komutanlar bozkırda yükselir: sandıklar ve görünümler için BÖLGELER'den onlarla savaş.
+Join a guild for raids, guild wars and a shared treasury: GUILD.	Baskınlar, lonca savaşları ve ortak hazine için bir loncaya katıl: LONCA.
+Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Tuz Borsası'nda diğer kahramanlarla teçhizat al ve sat: TAKAS.
+Your Banner fights for the fortresses. Lay siege in WAR.	Sancağın kaleler için savaşıyor. SAVAŞ'ta kuşatmaya katıl.
+Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Zindanlar BÖLGELER'de açılır: derin katlar, günde iki anahtar ve Zincirli Demirci.
+Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Defne ve bir sezon unvanı için SAVAŞ'tan Çukur'da diğer kahramanlarla düello yap.

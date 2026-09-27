@@ -64,6 +64,11 @@ namespace Orsuun.Client
 
         /// <summary>The lane on screen: the parked farm lane, or a push replay while one runs.</summary>
         public LaneSim ActiveLane => _replay ?? Session.Lane;
+
+        /// <summary>Whether a screen that opens by level is open for the hero playing (Rules.Unlocks); a guild member,
+        /// or a hero a guild has invited, always has the guild.</summary>
+        public bool Unlocked(Feature feature) => Unlocks.Open(feature, Session.Inventory.Level)
+            || feature == Feature.Guild && (Server.InGuild || Server.GuildInvites > 0);
         public bool Replaying => _replay != null;
         public string ReplayBanner { get; private set; } = "";
         public bool PushBusy { get; private set; }
@@ -289,6 +294,7 @@ namespace Orsuun.Client
             if (int.TryParse(Arg("-boss"), out int bossId) && !Server.Online && Content.Boss(bossId) != null) FightBoss(bossId);
 
             // Dev switch: -fxdemo <outcome> plays the Forge's anvil moment with a made-up result (screenshots).
+            if (Enum.TryParse(Arg("-unlockshow") ?? "", out Feature unlockShow)) Hud.ShowUnlockForShot(unlockShow);
             string fxDemo = Arg("-fxdemo");
             if (fxDemo != null) StartCoroutine(Forge.Demo(fxDemo));
 

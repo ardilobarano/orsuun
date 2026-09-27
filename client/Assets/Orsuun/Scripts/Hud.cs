@@ -38,6 +38,19 @@ namespace Orsuun.Client
         private Text _bountyLabel;
         private RawImage _flag;
         private int _lastLevel;
+        private string _levelKey;
+        // Feature unlocks (Rules.Unlocks): the bottom bar's locked tiles, the SHARDS tile, and the card that says what a
+        // level-up opened (or what a locked tile opens at).
+        private static readonly Feature?[] NavLocks = { null, Feature.War, Feature.Bounties, Feature.Guild, Feature.Exchange, null };
+        private Text[] _navLabels;
+        private CanvasGroup[] _navGroups;
+        private CanvasGroup _shardsGroup;
+        private Text _shardsLabel;
+        private Image _card;
+        private Text _cardTitle, _cardText;
+        private float _cardAge = 99f;
+        private const float CardSeconds = 6f;
+        private readonly System.Collections.Generic.Queue<Feature> _opened = new System.Collections.Generic.Queue<Feature>();
         private Text _stageLabel;
         private Text _pushLabel;
         private Button _pushButton;
@@ -148,6 +161,12 @@ namespace Orsuun.Client
             _mountButton.gameObject.SetActive(false);
             // Loot and news float over the ground of the lane, above the chat line.
             _log = Ui.Title("Log", canvas, 0.04f, 0.528f, 0.96f, 0.562f, "", 26, TextAnchor.MiddleCenter, Palette.Sorn);
+            // What a level-up opened, or what a locked tile opens at: a card over the lane for a few seconds (tap it away).
+            _card = Ui.Framed("UnlockCard", canvas, 0.06f, 0.572f, 0.94f, 0.668f, new Color(0.07f, 0.06f, 0.05f, 0.95f));
+            _card.gameObject.AddComponent<Button>().onClick.AddListener(() => _cardAge = 99f);
+            _cardTitle = Ui.Title("Title", _card.transform, 0.04f, 0.52f, 0.96f, 0.94f, "", 28, TextAnchor.MiddleCenter, Palette.Sorn);
+            _cardText = Ui.Label("Text", _card.transform, 0.05f, 0.08f, 0.95f, 0.54f, "", 21, TextAnchor.MiddleCenter, Palette.Parchment);
+            _card.gameObject.SetActive(false);
 
             // Skills stand in a framed panel: round, with a painted icon, a cooldown sweep and the seconds left; their name
             // and AUTO switch (a lamp that glows green while on) below. Five a class since 26 Sep 2026: the fourth and
@@ -196,7 +215,9 @@ namespace Orsuun.Client
             // A full bag leaves new drops behind: the tile says so.
             _bagFull = Ui.Title("BagFull", gearTile.transform, 0.04f, 0.78f, 0.96f, 0.97f, "BAG FULL", 17, TextAnchor.MiddleCenter, Palette.Bad);
             _bagFull.gameObject.SetActive(false);
-            Ui.Tile("Shards", canvas, 0.505f, 0.077f, 0.73f, 0.164f, "SHARDS", 26, Palette.Alloy, "NavShards", () => root.Sockets.Open(), out _);
+            Button shardsTile = Ui.Tile("Shards", canvas, 0.505f, 0.077f, 0.73f, 0.164f, "SHARDS", 26, Palette.Alloy, "NavShards",
+                () => Gate(Feature.Shards, () => root.Sockets.Open()), out _shardsLabel);
+            _shardsGroup = shardsTile.gameObject.AddComponent<CanvasGroup>();
             // A push goal tapped on the goal line lights the PUSH tile for a moment.
             _pushGlow = Ui.Sliced("PushGlow", canvas, 0.71f, 0.05f, 1f, 0.19f, "Glow", Palette.Sorn);
             _pushGlow.raycastTarget = false;
@@ -209,16 +230,21 @@ namespace Orsuun.Client
             Ui.Sliced("NavBar", canvas, 0f, 0f, 1f, 0.072f, "NavBar", Color.white);
             string[] icons = { "Zones", "War", "Bounties", "Guild", "Trade", "Menu" };
             string[] labels = { "ZONES", "WAR", "BOUNTIES", "GUILD", "TRADE", "MENU" };
-            System.Action[] actions = { () => root.Zones.Open(), () => root.War.Open(), () => root.Bounties.Open(), () => root.Guild.Open(),
-                () => root.Market.Open(), () => root.Menu.Open() };
+            System.Action[] actions = { () => root.Zones.Open(), () => Gate(Feature.War, () => root.War.Open()),
+                () => Gate(Feature.Bounties, () => root.Bounties.Open()), () => Gate(Feature.Guild, () => root.Guild.Open()),
+                () => Gate(Feature.Exchange, () => root.Market.Open()), () => root.Menu.Open() };
             _navBadges = new Image[icons.Length];
+            _navLabels = new Text[icons.Length];
+            _navGroups = new CanvasGroup[icons.Length];
             for (int i = 0; i < icons.Length; i++)
             {
                 float x0 = 0.005f + i * (0.99f / icons.Length);
                 float x1 = x0 + 0.99f / icons.Length;
                 Ui.SlotTile("NavTile" + icons[i], canvas, x0 + 0.003f, 0.004f, x1 - 0.003f, 0.07f, new Color(0.09f, 0.09f, 0.16f));
-                Ui.NavButton(icons[i], canvas, x0 + 0.012f, 0.008f, x1 - 0.012f, 0.066f, icons[i], labels[i], actions[i],
+                Button nav = Ui.NavButton(icons[i], canvas, x0 + 0.012f, 0.008f, x1 - 0.012f, 0.066f, icons[i], labels[i], actions[i],
                     out Text label, out _navBadges[i]);
+                _navLabels[i] = label;
+                _navGroups[i] = nav.gameObject.AddComponent<CanvasGroup>();
                 if (i == 0) _stageLabel = label;
                 if (i == 2) _bountyLabel = label;
                 if (i == 3) _guildLabel = label;
@@ -228,7 +254,7 @@ namespace Orsuun.Client
             _flag = BannerLook.FlagImage("BannerFlag", canvas, 0.905f, 0.76f, 0.985f, 0.865f);
             var flagButton = _flag.gameObject.AddComponent<Button>();
             _flag.raycastTarget = true;
-            flagButton.onClick.AddListener(() => root.War.Open());
+            flagButton.onClick.AddListener(() => Gate(Feature.War, () => root.War.Open()));
             // The guild tag under the flag, in the guild's colour.
             _guildTag = Ui.Title("GuildTag", canvas, 0.88f, 0.735f, 1f, 0.76f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
             // The Caravan under the flag: a round camel button with the Amber held beneath it.
@@ -245,6 +271,23 @@ namespace Orsuun.Client
             // The Campaign Trail under it: a round waystone button with the tier beneath (CLAIM when a reward waits).
             Ui.RoundButton("Trail", canvas, 0.9f, 0.553f, 0.99f, 0.628f, "Trail", new Color(0.1f, 0.35f, 0.36f), () => root.Trail.Open(), out _, out _);
             _trailTier = Ui.Title("TrailTier", canvas, 0.86f, 0.53f, 1f, 0.554f, "", 20, TextAnchor.MiddleCenter, Palette.Parchment);
+        }
+
+        /// <summary>Opens a screen that opens by level, or says when it opens.</summary>
+        private void Gate(Feature feature, System.Action open)
+        {
+            if (_root.Unlocked(feature)) open();
+            else ShowCard($"OPENS AT LEVEL {Unlocks.Level(feature)}", Unlocks.Tip(feature));
+        }
+
+        /// <summary>Screenshots (-unlockshow Guild): the card a level-up that opens the feature shows.</summary>
+        public void ShowUnlockForShot(Feature feature) => ShowCard("NEW: " + Unlocks.Name(feature), Unlocks.Tip(feature));
+
+        private void ShowCard(string title, string text)
+        {
+            _cardTitle.text = title;
+            _cardText.text = text;
+            _cardAge = 0f;
         }
 
         private void OpenSocial()
@@ -466,6 +509,19 @@ namespace Orsuun.Client
             Net.ServerLink.GuildBriefDto guild = _root.Server.Guild;
             bool inGuild = _root.Server.InGuild;
             _guildLabel.text = inGuild ? "[" + guild.tag + "]" : "GUILD";
+            _navLabels[1].text = "WAR";
+            _bountyLabel.text = "BOUNTIES";
+            _navLabels[4].text = "TRADE";
+            for (int i = 0; i < NavLocks.Length; i++)
+            {
+                if (NavLocks[i] == null) continue;
+                bool open = _root.Unlocked(NavLocks[i].Value);
+                _navGroups[i].alpha = open ? 1f : 0.45f;
+                if (!open) _navLabels[i].text = "LV " + Unlocks.Level(NavLocks[i].Value);
+            }
+            bool shards = _root.Unlocked(Feature.Shards);
+            _shardsGroup.alpha = shards ? 1f : 0.45f;
+            _shardsLabel.text = shards ? "SHARDS" : "LV " + Unlocks.Level(Feature.Shards);
             _guildTag.text = inGuild ? "[" + guild.tag + "]" : "";
             _ticker.text = _root.Chat.Ticker.Length > 0 ? _root.Chat.Ticker : ConfirmDialog.Tint(_root.Server.Online ? "Tap to talk with the steppe." : "Chat needs the server.", Palette.Muted);
             if (inGuild) _guildTag.color = GuildPanel.ColorOf(guild.color);
@@ -493,16 +549,33 @@ namespace Orsuun.Client
                 : newAsks ? (asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER")
                 : whispers > 0 ? (whispers == 1 ? "A NEW MESSAGE: READ IT" : $"{whispers} NEW MESSAGES: READ THEM")
                 : letters == 1 ? "A LETTER HAS COME: OPEN THE MAILBOX" : $"{letters} LETTERS HAVE COME: OPEN THE MAILBOX";
-            bool claim = _root.Bounties.AnyClaimable;
+            bool claim = _root.Bounties.AnyClaimable && _root.Unlocked(Feature.Bounties);
             _navBadges[2].gameObject.SetActive(claim);
             _navBadges[5].gameObject.SetActive(_root.Server.Online && _root.Server.AchievementsReady > 0);
             BannerLook.Show(_flag, _root.Server.Banner);
+            // Another hero (a character switch, a sign-in) starts the count again: only a level-up while playing is told.
+            string levelKey = _root.Server.Online ? _root.Server.PlayerName : "local";
+            if (levelKey != _levelKey)
+            {
+                _levelKey = levelKey;
+                _lastLevel = 0;
+                _opened.Clear();
+            }
             if (_lastLevel > 0 && inv.Level > _lastLevel)
             {
                 GameAudio.Instance?.Play("LaneLevelUp", 0.9f, 1f, 0f);
                 Log($"Level up!  Level {inv.Level}");
+                foreach (Feature feature in Unlocks.Between(_lastLevel, inv.Level)) _opened.Enqueue(feature);
             }
             _lastLevel = inv.Level;
+            _cardAge += Time.unscaledDeltaTime;
+            if (_cardAge >= CardSeconds && _opened.Count > 0 && !_root.Replaying)
+            {
+                Feature next = _opened.Dequeue();
+                ShowCard("NEW: " + Unlocks.Name(next), Unlocks.Tip(next));
+            }
+            bool cardUp = _cardAge < CardSeconds && !(_root.Tutorial != null && _root.Tutorial.Running);
+            if (_card.gameObject.activeSelf != cardUp) _card.gameObject.SetActive(cardUp);
 
             UpdateGoal(session);
             Color glow = Palette.Sorn;
@@ -534,7 +607,7 @@ namespace Orsuun.Client
             if (key != null && _goalCheckIn <= 0f)
             {
                 _goalCheckIn = 0.5f;
-                var world = new GoalWorld { Online = server.Online, BountyReady = _root.Bounties.AnyClaimable, InGuild = server.InGuild };
+                var world = new GoalWorld { Online = server.Online, BountyReady = _root.Bounties.AnyClaimable && _root.Unlocked(Feature.Bounties), InGuild = server.InGuild };
                 Goal chain = Goals.OnChain(session, world, _goalReached);
                 if (chain != null && chain.Step > _goalReached)
                 {

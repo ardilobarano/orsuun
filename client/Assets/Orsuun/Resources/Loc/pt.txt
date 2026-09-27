@@ -1043,7 +1043,7 @@ Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Ganhando ou perden
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Peças novas caem na sua bolsa: equipe-as no ARSENAL. Refine ou gire qualquer peça lá, equipada ou na bolsa.
 PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	AVANÇAR leva você à próxima fase quando estiver forte o bastante. Cada vitória abre novos territórios de caça em ZONAS.
 THE STEPPE	A ESTEPE
-WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	GUERRA pelo seu Estandarte, RECOMPENSAS por Marcas de Caça, GUILDA, TROCAR no Mercado do Sal e MENU para som, sua conta e este guia.
+These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Estes abrem conforme você sobe de nível: GUERRA pelo seu Estandarte, RECOMPENSAS por Marcas de Caça, GUILDA, TROCAR no Mercado do Sal. No MENU ficam o som, sua conta e este guia.
 This line always shows your next goal. Tap it to go there. Good hunting!	Esta linha sempre mostra sua próxima meta. Toque para ir até lá. Boa caçada!
 CHANGE	MUDAR
 FORTRESSES	FORTALEZAS
@@ -2263,3 +2263,15 @@ Save an email to the account first.	Salve primeiro um e-mail na conta.
 Your email is already verified.	Seu e-mail já está verificado.
 A code is on its way to {0}.	Um código está a caminho de {0}.
 RANDOM	ALEATÓRIO
+OPENS AT LEVEL {0}	ABRE NO NÍVEL {0}
+Opens at level {0}	Abre no nível {0}
+NEW: {0}	NOVO: {0}
+DUNGEONS	MASMORRAS
+Daily tasks pay Hunt Marks. Claim them on BOUNTIES.	Tarefas diárias pagam Marcas de Caça. Resgate-as em RECOMPENSAS.
+Set the Korshards your Korstones drop into your gear for more power: SHARDS.	Encaixe os Fragmentos Kor das suas Pedras Kor no equipamento para mais poder: FRAGMENTOS.
+Commanders rise on the steppe: fight them from ZONES for chests and skins.	Comandantes surgem na estepe: enfrente-os em ZONAS por baús e visuais.
+Join a guild for raids, guild wars and a shared treasury: GUILD.	Entre numa guilda para raides, guerras de guilda e um tesouro comum: GUILDA.
+Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Compre e venda equipamento com outros heróis no Mercado do Sal: TROCAR.
+Your Banner fights for the fortresses. Lay siege in WAR.	Seu Estandarte luta pelas fortalezas. Cerque-as em GUERRA.
+Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	As masmorras abrem em ZONAS: andares profundos, duas chaves por dia e o Ferreiro Acorrentado.
+Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Duele com outros heróis nas Arenas, em GUERRA, por Louros e um título de temporada.

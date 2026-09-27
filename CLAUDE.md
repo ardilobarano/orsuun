@@ -253,3 +253,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   (`HuntCarryTicks`, `HuntEncounter`): the part of an encounter and the place in the loop a settlement leaves for the
   next. Pass it on every settle and reset it when the parked stage changes; without it a slow hero is never paid a
   Korstone (a heartbeat holds under one loop).
+- Screens that open by level (`Rules.Unlocks`, 27 Sep 2026) are gated on the client through `GameRoot.Unlocked(Feature)`
+  (bottom bar, SHARDS, the Banner flag, dungeons and Commanders in ZONES, the Pits in WAR); a new way into one of them
+  must ask it too. The server does not enforce them.

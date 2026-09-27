@@ -127,6 +127,7 @@ namespace Orsuun.Client
         private void UpdateDungeon(PlayerSession session)
         {
             bool online = _root.Server.Online;
+            bool levelOpen = _root.Unlocked(Feature.Dungeons);
             int keys = _root.Server.DungeonRunsLeft;
             int waiting = online && _root.Server.DungeonRunAtSmith != 0 ? _root.Server.DungeonPausedId : 0;
             for (int d = 0; d < Dungeons.All.Length; d++)
@@ -135,15 +136,16 @@ namespace Orsuun.Client
                 Row row = _dungeonRows[d];
                 Ui.SetPicture(row.Picture, "Thumbs/Dungeon" + new string(System.Array.FindAll(dungeon.Name.Replace("The ", "").ToCharArray(), char.IsLetter)));
                 row.Name.text = dungeon.Name;
-                bool unlocked = session.HighestStageCleared >= dungeon.UnlockStage;
                 bool here = waiting == dungeon.Id;
+                bool unlocked = session.HighestStageCleared >= dungeon.UnlockStage && (levelOpen || here);
                 row.Label.text = !online ? "Dungeons need the server."
+                    : !levelOpen && !here ? $"Opens at level {Unlocks.Level(Feature.Dungeons)}"
                     : !unlocked ? $"Clear {Content.StageName(dungeon.UnlockStage)} to open"
                     : here ? (dungeon.Pause == DungeonPause.RuneLock ? $"The rune lock waits on floor {dungeon.SmithFloor}." : $"The Chained Smith is waiting on floor {dungeon.SmithFloor}.")
                     : $"Dungeon  ·  {Holds(dungeon)}  ·  keys today {keys}/{Dungeons.FreeRunsPerDay}";
                 row.Name.color = unlocked ? Palette.Parchment : Palette.Muted;
                 row.Picture.color = unlocked ? Color.white : new Color(0.45f, 0.45f, 0.5f);
-                row.ButtonLabel.text = here ? "CONTINUE" : !unlocked ? "LOCKED" : waiting != 0 ? "RUN WAITING" : keys <= 0 ? "NO KEYS" : "ENTER";
+                row.ButtonLabel.text = here ? "CONTINUE" : !levelOpen ? "LV " + Unlocks.Level(Feature.Dungeons) : !unlocked ? "LOCKED" : waiting != 0 ? "RUN WAITING" : keys <= 0 ? "NO KEYS" : "ENTER";
                 row.ButtonImage.color = here ? Palette.Alloy : unlocked && keys > 0 && waiting == 0 ? Palette.Danger : Palette.ButtonIdle;
                 row.Button.interactable = online && unlocked && (here || (waiting == 0 && keys > 0)) && !_root.Replaying && !_root.PushBusy;
             }
@@ -201,6 +203,7 @@ namespace Orsuun.Client
 
             // Commanders: from the server when online, otherwise always up in local mode.
             bool campOpen = Content.IsUnlocked(Content.GorakWarCamp, session.HighestStageCleared);
+            bool commanders = _root.Unlocked(Feature.Commanders);
             float age = Time.realtimeSinceStartup - _root.Server.BossesReceivedAt;
             for (int i = 0; i < BossRows; i++)
             {
@@ -210,7 +213,7 @@ namespace Orsuun.Client
                 Ui.SetPicture(row.Picture, "Thumbs/Commander" + new string(System.Array.FindAll(boss.Name.Replace("Warlord ", "").Replace("The ", "").ToCharArray(), char.IsLetter)));
                 string status;
                 string pool = "";
-                bool canFight = campOpen;
+                bool canFight = campOpen && commanders;
                 if (_root.Server.Online)
                 {
                     Net.ServerLink.BossStatusDto s = null;
@@ -235,8 +238,9 @@ namespace Orsuun.Client
                 else status = "up (local)";
 
                 row.Name.text = boss.Name;
-                row.Name.color = campOpen ? Palette.Parchment : Palette.Muted;
-                row.Label.text = campOpen ? $"{ConfirmDialog.Tint(status, canFight ? Palette.Good : Palette.Muted)}  ·  {Mechanic(boss.Mechanic)}{pool}" : "Clear campaign stage 5 to open";
+                row.Name.color = campOpen && commanders ? Palette.Parchment : Palette.Muted;
+                row.ButtonLabel.text = commanders ? "FIGHT" : "LV " + Unlocks.Level(Feature.Commanders);
+                row.Label.text = !commanders ? $"Opens at level {Unlocks.Level(Feature.Commanders)}" : campOpen ? $"{ConfirmDialog.Tint(status, canFight ? Palette.Good : Palette.Muted)}  ·  {Mechanic(boss.Mechanic)}{pool}" : "Clear campaign stage 5 to open";
                 row.Button.interactable = canFight && !_root.Replaying && !_root.PushBusy;
             }
         }
