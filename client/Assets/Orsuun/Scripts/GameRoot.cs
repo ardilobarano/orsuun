@@ -58,6 +58,8 @@ namespace Orsuun.Client
         public GameNotifications Notifications { get; private set; }
         /// <summary>Amber in the App Store and Google Play (phones; the Mac keeps the playtest's free packs).</summary>
         public StoreFront Store { get; private set; }
+        /// <summary>The story cards: a map opening, its boss falling.</summary>
+        public StoryPanel Story { get; private set; }
         public Tutorial Tutorial { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
@@ -96,6 +98,8 @@ namespace Orsuun.Client
             Notifications = new GameObject("GameNotifications").AddComponent<GameNotifications>();
             Store = new GameObject("StoreFront").AddComponent<StoreFront>();
             Store.Init(this);
+            Story = new GameObject("StoryPanel").AddComponent<StoryPanel>();
+            Story.Init(this);
             BuildCameras();
             gameObject.AddComponent<Performance>().Init(GameObject.Find("LaneCamera")?.GetComponent<Camera>());
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
@@ -299,6 +303,7 @@ namespace Orsuun.Client
 
             // Dev switch: -fxdemo <outcome> plays the Forge's anvil moment with a made-up result (screenshots).
             if (Enum.TryParse(Arg("-unlockshow") ?? "", out Feature unlockShow)) Hud.ShowUnlockForShot(unlockShow);
+            if (int.TryParse(Arg("-story"), out int storyBeat)) Story.ShowForShot(storyBeat);
             string fxDemo = Arg("-fxdemo");
             if (fxDemo != null) StartCoroutine(Forge.Demo(fxDemo));
 
