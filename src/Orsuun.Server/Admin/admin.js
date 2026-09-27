@@ -92,7 +92,7 @@ function show() {
 }
 
 // ---- tabs ----
-const TABS = [["overview", "Overview"], ["reports", "Reports"], ["chat", "World chat"], ["players", "Players"], ["guilds", "Guilds"], ["events", "Events"],
+const TABS = [["overview", "Overview"], ["reports", "Reports"], ["names", "Names"], ["chat", "World chat"], ["players", "Players"], ["guilds", "Guilds"], ["events", "Events"],
   ["funnel", "Funnel"], ["errors", "Errors"], ["log", "Log"]];
 
 function tabs(openReports) {
@@ -115,6 +115,7 @@ async function render() {
     else if (tab === "guilds") view.replaceChildren(await guildsView());
     else if (tab === "events") view.replaceChildren(await eventsView());
     else if (tab === "funnel") view.replaceChildren(await funnelView());
+    else if (tab === "names") view.replaceChildren(await namesView());
     else if (tab === "errors") view.replaceChildren(await errorsView());
     else view.replaceChildren(await logView());
   } catch (e) {
@@ -262,6 +263,41 @@ async function eventsView() {
         : el("button", { class: "bad", onclick: () => { if (confirm("Call off " + e.name + " (" + e.startsLocal + ")?")) act(() => api("POST", "/events/" + e.id + "/off"), "Event called off."); } }, "Call off")));
   });
   return el("div", {}, add, rows.length ? el("div", {}, ...rows) : el("div", { class: "empty" }, "Nothing on the calendar."));
+}
+
+// ---- reported names (27 Sep 2026): keep, rename or ban ----
+async function namesView() {
+  const list = await api("GET", "/names");
+  if (!list.length) return el("div", { class: "empty" }, "No reported names waiting.");
+  return el("div", {},
+    el("p", { class: "meta" }, "Names players reported, most reported first. Keep a fair name, rename one that breaks the rules (the hero gets a letter), or ban."),
+    ...list.map(n => {
+      const shown = n.kind === "guild" ? n.name + " [" + n.tag + "]" : n.name;
+      const buttons = [el("button", { class: "good", onclick: () => act(() => api("POST", "/names/keep", { kind: n.kind, targetId: n.targetId }), "Kept.") }, "Keep")];
+      if (n.kind === "hero") {
+        buttons.push(el("button", { onclick: () => {
+          const name = prompt("New name for " + n.name + " (3 to 16 letters or digits):", "");
+          if (name) act(() => api("POST", "/players/" + n.targetId + "/rename", { name }), "Renamed.");
+        } }, "Rename"));
+        if (!n.banned) buttons.push(el("button", { class: "bad", onclick: () => {
+          const reason = prompt("Why is " + n.name + " banned? (shown to them)", "An offensive name.");
+          if (reason) act(() => api("POST", "/players/" + n.targetId + "/ban", { reason, hideLines: true }), n.name + " banned.");
+        } }, "Ban"));
+      } else {
+        buttons.push(el("button", { onclick: () => {
+          const name = prompt("New name for [" + n.tag + "] " + n.name + " (3 to 20 characters):", "");
+          if (name === null || name === "") return;
+          const tag = prompt("New tag (2 to 4 capital letters or digits):", n.tag);
+          if (tag !== null) act(() => api("POST", "/guilds/" + n.targetId + "/rename", { name, tag }), "Guild renamed.");
+        } }, "Rename"));
+      }
+      return el("div", { class: "card" },
+        el("div", { class: "meta" }, el("span", { class: "tag" }, n.kind === "guild" ? "guild" : "hero"),
+          el("span", { class: "tag warn" }, n.reports + (n.reports === 1 ? " report" : " reports")), n.banned ? el("span", { class: "tag bad" }, "banned") : null,
+          " · last " + when(n.lastUtc)),
+        el("div", { class: "text" }, shown),
+        el("div", { class: "row" }, ...buttons));
+    }));
 }
 
 // ---- funnel and errors (tester analytics, 27 Sep 2026) ----

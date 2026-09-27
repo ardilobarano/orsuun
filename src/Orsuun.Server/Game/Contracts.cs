@@ -413,6 +413,11 @@ public sealed record AdminMuteRequest(int Minutes, string? Reason = null);
 public sealed record AdminBanRequest(string Reason, bool HideLines = true);
 public sealed record AdminGuildDto(Guid Id, string Name, string Tag, int Level, int Members, string Leader, DateTime CreatedUtc, bool Open);
 public sealed record AdminRenameRequest(string Name, string Tag);
+/// <summary>A name to report: Kind "hero" reports the hero's name, "guild" the name of the guild that hero is in.</summary>
+public sealed record NameReportRequest(string Kind, Guid AccountId);
+public sealed record AdminNameDto(string Kind, Guid TargetId, string Name, string Tag, int Reports, DateTime FirstUtc, DateTime LastUtc, bool Banned);
+public sealed record AdminNameKeepRequest(string Kind, Guid TargetId);
+public sealed record AdminHeroRenameRequest(string Name);
 public sealed record AdminActionDto(DateTime Utc, string Admin, string Action, string Target, string Detail);
 /// <summary>A world event on the moderation page's calendar, with its times in server time.</summary>
 public sealed record AdminEventDto(long Id, string Kind, string Name, DateTime StartsUtc, DateTime EndsUtc, string StartsLocal, string EndsLocal,

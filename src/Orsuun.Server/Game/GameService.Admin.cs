@@ -185,6 +185,7 @@ public sealed partial class GameService
         Log(admin, "ban", id.ToString(), $"{NameOf(account)}: {account.BanReason} (lines hidden: {request.HideLines}, listings closed: {listed.Count})");
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
+        await ReviewNameAsync("hero", id, ct);
     }
 
     public async Task AdminUnbanAsync(string admin, Guid id, CancellationToken ct)
@@ -231,6 +232,7 @@ public sealed partial class GameService
         GuildEvent(guild, $"A moderator renamed the guild to {name} [{tag}].");
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
+        await ReviewNameAsync("guild", id, ct);
     }
 
     /// <summary>Disbands a guild: every member leaves, its requests, chat and fortress flags go.</summary>

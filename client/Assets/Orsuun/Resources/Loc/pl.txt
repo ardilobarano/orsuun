@@ -2297,3 +2297,14 @@ The Shadow breaks, and for a moment the steppe is quiet. Then, far below, someth
 {0} falls	{0} pada
 Map {0}	Mapa {0}
 levels {0}-{1}	poziomy {0}-{1}
+REPORT LINE	ZGŁOŚ WPIS
+REPORT NAME	ZGŁOŚ IMIĘ
+REPORT GUILD	ZGŁOŚ GILDIĘ
+Reported. A moderator will look at the name.	Zgłoszono. Moderator przyjrzy się nazwie.
+You cannot report your own name.	Nie można zgłosić własnego imienia.
+That hero is not in a guild.	Ten bohater nie należy do gildii.
+Take it up with your guild's leader.	Porozmawiaj o tym z przywódcą swojej gildii.
+You have sent many reports today. Thank you: try again tomorrow.	Dziś wysłano już wiele zgłoszeń. Dziękujemy: spróbuj jutro.
+The moderators	Moderatorzy
+Your name was changed	Twoje imię zostało zmienione
+Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Imię twojego bohatera ({0}) zostało zgłoszone i nie pasowało do zasad gry, więc moderator je zmienił: {1}.

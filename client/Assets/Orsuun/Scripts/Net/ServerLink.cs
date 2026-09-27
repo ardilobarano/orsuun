@@ -1338,6 +1338,15 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        /// <summary>Reports a hero's name (kind "hero") or the name of that hero's guild ("guild"). Completes with (message, error).</summary>
+        public IEnumerator ReportName(string kind, string accountId, Action<string, string> done)
+        {
+            string failure = null, message = null;
+            yield return Post("/v1/report-name", JsonUtility.ToJson(new NameReportRequest { kind = kind, accountId = accountId }), true,
+                json => message = JsonUtility.FromJson<MessageDto>(json).message, error => failure = error ?? "No answer from the server.");
+            done(message, failure);
+        }
+
         public IEnumerator ReportLine(long messageId, string channel, Action<string> done)
         {
             string failure = null;
@@ -1752,6 +1761,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }
         [Serializable] public class ForgotRequest { public string email; }
         [Serializable] public class MilestoneRequest { public string name; }
+        [Serializable] public class NameReportRequest { public string kind; public string accountId; }
         [Serializable] public class AmberPurchaseRequest { public string store; public string productId; public string receipt; }
         [Serializable] public class AmberPurchaseDto { public StateDto state; public string message; public bool added; public long amber; }
         [Serializable] public class ResetRequest { public string email; public string code; public string password; public string deviceToken; }

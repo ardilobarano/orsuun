@@ -2311,3 +2311,14 @@ The Shadow breaks, and for a moment the steppe is quiet. Then, far below, someth
 {0} falls	{0} cai
 Map {0}	Mapa {0}
 levels {0}-{1}	níveis {0}-{1}
+REPORT LINE	DENUNCIAR LINHA
+REPORT NAME	DENUNCIAR NOME
+REPORT GUILD	DENUNCIAR GUILDA
+Reported. A moderator will look at the name.	Denunciado. Um moderador vai olhar o nome.
+You cannot report your own name.	Você não pode denunciar o próprio nome.
+That hero is not in a guild.	Esse herói não está numa guilda.
+Take it up with your guild's leader.	Fale sobre isso com o líder da sua guilda.
+You have sent many reports today. Thank you: try again tomorrow.	Você enviou muitas denúncias hoje. Obrigado: tente de novo amanhã.
+The moderators	Os moderadores
+Your name was changed	Seu nome foi mudado
+Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	O nome do seu herói, {0}, foi denunciado e não seguia as regras do jogo, então um moderador o mudou para: {1}.

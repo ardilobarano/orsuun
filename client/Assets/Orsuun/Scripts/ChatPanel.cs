@@ -109,15 +109,18 @@ namespace Orsuun.Client
             _actions = Ui.Rect("Actions", canvas, 0f, 0f, 1f, 1f).gameObject;
             Image dim = Ui.Panel("Dim", _actions.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f));
             dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _actions.SetActive(false));
-            Transform box = Ui.Framed("Box", _actions.transform, 0.1f, 0.33f, 0.9f, 0.67f, Palette.PanelDark).transform;
-            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.82f, 0.95f, 0.97f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
-            Ui.Button("Friend", box, 0.06f, 0.63f, 0.48f, 0.79f, "ADD FRIEND", 24, Palette.Safe, AddFriendPicked, out _);
-            Ui.Button("Message", box, 0.52f, 0.63f, 0.94f, 0.79f, "MESSAGE", 24, Palette.Safe, MessagePicked, out _);
-            Ui.Button("Trade", box, 0.06f, 0.45f, 0.48f, 0.61f, "TRADE", 24, Palette.Alloy, TradePicked, out _);
-            _inviteButton = Ui.Button("Invite", box, 0.52f, 0.45f, 0.94f, 0.61f, "GUILD INVITE", 22, Palette.ButtonForge, InvitePicked, out _);
-            Ui.Button("Report", box, 0.06f, 0.25f, 0.48f, 0.41f, "REPORT", 24, Palette.Danger, ReportPicked, out _);
-            Ui.Button("Block", box, 0.52f, 0.25f, 0.94f, 0.41f, "BLOCK", 24, Palette.ButtonIdle, AskBlockPicked, out _);
-            Ui.Button("Cancel", box, 0.3f, 0.05f, 0.7f, 0.19f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
+            Transform box = Ui.Framed("Box", _actions.transform, 0.1f, 0.29f, 0.9f, 0.71f, Palette.PanelDark).transform;
+            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.86f, 0.95f, 0.98f, "", 30, TextAnchor.MiddleCenter, Palette.Sorn);
+            Ui.Button("Friend", box, 0.06f, 0.69f, 0.48f, 0.82f, "ADD FRIEND", 24, Palette.Safe, AddFriendPicked, out _);
+            Ui.Button("Message", box, 0.52f, 0.69f, 0.94f, 0.82f, "MESSAGE", 24, Palette.Safe, MessagePicked, out _);
+            Ui.Button("Trade", box, 0.06f, 0.53f, 0.48f, 0.66f, "TRADE", 24, Palette.Alloy, TradePicked, out _);
+            _inviteButton = Ui.Button("Invite", box, 0.52f, 0.53f, 0.94f, 0.66f, "GUILD INVITE", 22, Palette.ButtonForge, InvitePicked, out _);
+            Ui.Button("Report", box, 0.06f, 0.37f, 0.48f, 0.5f, "REPORT LINE", 22, Palette.Danger, ReportPicked, out _);
+            Ui.Button("Block", box, 0.52f, 0.37f, 0.94f, 0.5f, "BLOCK", 24, Palette.ButtonIdle, AskBlockPicked, out _);
+            // A name that breaks the rules (27 Sep 2026): the hero's own, or the guild the hero is in.
+            Ui.Button("ReportName", box, 0.06f, 0.21f, 0.48f, 0.34f, "REPORT NAME", 22, Palette.Danger, () => ReportNamePicked("hero"), out _);
+            Ui.Button("ReportGuild", box, 0.52f, 0.21f, 0.94f, 0.34f, "REPORT GUILD", 22, Palette.Danger, () => ReportNamePicked("guild"), out _);
+            Ui.Button("Cancel", box, 0.3f, 0.04f, 0.7f, 0.16f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
             _actions.SetActive(false);
 
             _canvas.SetActive(false);
@@ -240,6 +243,15 @@ namespace Orsuun.Client
             if (line == null) return;
             StartCoroutine(_root.Server.ReportLine(line.id, _shown.Name, error =>
                 _message.text = error != null ? ConfirmDialog.Tint(error, Palette.Bad) : "Reported. Thank you: three reports hide a line."));
+        }
+
+        private void ReportNamePicked(string kind)
+        {
+            ChatLineDto line = _picked;
+            _actions.SetActive(false);
+            if (line == null) return;
+            StartCoroutine(_root.Server.ReportName(kind, line.accountId, (message, error) =>
+                _message.text = error != null ? ConfirmDialog.Tint(error, Palette.Bad) : message));
         }
 
         private void AskBlockPicked()

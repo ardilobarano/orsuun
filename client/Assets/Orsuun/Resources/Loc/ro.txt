@@ -2305,3 +2305,14 @@ The Shadow breaks, and for a moment the steppe is quiet. Then, far below, someth
 {0} falls	{0} cade
 Map {0}	Harta {0}
 levels {0}-{1}	nivelurile {0}-{1}
+REPORT LINE	RAPORTEAZĂ RÂNDUL
+REPORT NAME	RAPORTEAZĂ NUMELE
+REPORT GUILD	RAPORTEAZĂ BREASLA
+Reported. A moderator will look at the name.	Raportat. Un moderator se va uita la nume.
+You cannot report your own name.	Nu îți poți raporta propriul nume.
+That hero is not in a guild.	Eroul acesta nu e într-o breaslă.
+Take it up with your guild's leader.	Vorbește despre asta cu liderul breslei tale.
+You have sent many reports today. Thank you: try again tomorrow.	Ai trimis multe rapoarte azi. Mulțumim: încearcă din nou mâine.
+The moderators	Moderatorii
+Your name was changed	Numele tău a fost schimbat
+Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Numele eroului tău, {0}, a fost raportat și nu respecta regulile jocului, așa că un moderator l-a schimbat în: {1}.

@@ -316,6 +316,7 @@ v1.MapPost("/friends/answer", (HttpContext ctx, FriendAnswerRequest req, GameSer
 v1.MapPost("/friends/remove", (HttpContext ctx, FriendRemoveRequest req, GameService game, CancellationToken ct) => game.RemoveFriendAsync(Me(ctx), req, ct));
 v1.MapGet("/chat", (HttpContext ctx, string? channel, long? after, GameService game, CancellationToken ct) => game.ChatAsync(Me(ctx), channel, after ?? 0, ct));
 v1.MapPost("/chat", (HttpContext ctx, ChatSayRequest req, GameService game, CancellationToken ct) => game.SayAsync(Me(ctx), req, ct));
+v1.MapPost("/report-name", (HttpContext ctx, NameReportRequest req, GameService game, CancellationToken ct) => game.ReportNameAsync(Me(ctx), req, ct));
 v1.MapPost("/chat/report", (HttpContext ctx, ChatReportRequest req, GameService game, CancellationToken ct) => game.ReportAsync(Me(ctx), req, ct));
 v1.MapPost("/chat/block", (HttpContext ctx, ChatBlockRequest req, GameService game, CancellationToken ct) => game.BlockAsync(Me(ctx), req, ct));
 v1.MapGet("/market", (HttpContext ctx, EquipSlot? slot, string? sort, int? page, bool? books, bool? goods, GameService game, CancellationToken ct) =>
@@ -426,6 +427,17 @@ mod.MapPost("/events/{id:long}/off", async (HttpContext ctx, long id, GameServic
 mod.MapPost("/events/{id:long}/on", async (HttpContext ctx, long id, GameService game, CancellationToken ct) =>
 {
     await game.AdminCancelEventAsync(Mod(ctx), id, false, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapGet("/names", (GameService game, CancellationToken ct) => game.AdminNamesAsync(ct));
+mod.MapPost("/names/keep", async (HttpContext ctx, AdminNameKeepRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.AdminKeepNameAsync(Mod(ctx), req, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapPost("/players/{id:guid}/rename", async (HttpContext ctx, Guid id, AdminHeroRenameRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.AdminRenameHeroAsync(Mod(ctx), id, req, ct);
     return Results.Ok(new { ok = true });
 });
 mod.MapPost("/guilds/{id:guid}/rename", async (HttpContext ctx, Guid id, AdminRenameRequest req, GameService game, CancellationToken ct) =>

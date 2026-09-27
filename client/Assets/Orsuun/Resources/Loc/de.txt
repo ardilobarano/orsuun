@@ -2343,3 +2343,14 @@ The Shadow breaks, and for a moment the steppe is quiet. Then, far below, someth
 {0} falls	{0} fällt
 Map {0}	Karte {0}
 levels {0}-{1}	Stufen {0}-{1}
+REPORT LINE	ZEILE MELDEN
+REPORT NAME	NAME MELDEN
+REPORT GUILD	GILDE MELDEN
+Reported. A moderator will look at the name.	Gemeldet. Ein Moderator sieht sich den Namen an.
+You cannot report your own name.	Deinen eigenen Namen kannst du nicht melden.
+That hero is not in a guild.	Dieser Held ist in keiner Gilde.
+Take it up with your guild's leader.	Sprich darüber mit deinem Gildenanführer.
+You have sent many reports today. Thank you: try again tomorrow.	Du hast heute viele Meldungen geschickt. Danke: versuch es morgen wieder.
+The moderators	Die Moderatoren
+Your name was changed	Dein Name wurde geändert
+Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Der Name deines Helden, {0}, wurde gemeldet und passte nicht zu den Regeln des Spiels, deshalb hat ein Moderator ihn geändert: {1}.

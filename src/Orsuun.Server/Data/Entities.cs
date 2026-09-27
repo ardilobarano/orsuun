@@ -631,6 +631,21 @@ public sealed class Device
 
 /// <summary>Append-only record of every roll and every currency change. Support and rate audits read this.</summary>
 /// <summary>An error the game client caught on a player's device (store readiness: crash reports without a third party).</summary>
+/// <summary>A player's report of a hero's or a guild's name (GameService.Names, 27 Sep 2026): one per reporter and name.
+/// A moderator keeping or changing the name marks the reports on it reviewed; a new report puts it back in the queue.</summary>
+public sealed class NameReport
+{
+    public long Id { get; set; }
+    /// <summary>"hero" or "guild".</summary>
+    [MaxLength(8)] public string Kind { get; set; } = "";
+    public Guid TargetId { get; set; }
+    /// <summary>The name as it was reported (a renamed target's old reports stay with the old name).</summary>
+    [MaxLength(40)] public string Name { get; set; } = "";
+    public Guid ReporterId { get; set; }
+    public DateTime Utc { get; set; }
+    public bool Reviewed { get; set; }
+}
+
 /// <summary>An Amber pack bought in a store (GameService.Caravan, 27 Sep 2026): one row per store transaction, so a receipt
 /// sent twice (a retry, a replay) pays once.</summary>
 public sealed class Purchase

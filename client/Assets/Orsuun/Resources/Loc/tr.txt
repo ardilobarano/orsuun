@@ -2267,3 +2267,14 @@ The Shadow breaks, and for a moment the steppe is quiet. Then, far below, someth
 {0} falls	{0} düştü
 Map {0}	Harita {0}
 levels {0}-{1}	seviye {0}-{1}
+REPORT LINE	SATIRI ŞİKÂYET ET
+REPORT NAME	ADI ŞİKÂYET ET
+REPORT GUILD	LONCAYI ŞİKÂYET ET
+Reported. A moderator will look at the name.	Şikâyet edildi. Bir moderatör ada bakacak.
+You cannot report your own name.	Kendi adını şikâyet edemezsin.
+That hero is not in a guild.	O kahraman bir loncada değil.
+Take it up with your guild's leader.	Bunu loncanın lideriyle konuş.
+You have sent many reports today. Thank you: try again tomorrow.	Bugün çok şikâyet gönderdin. Teşekkürler: yarın yeniden dene.
+The moderators	Moderatörler
+Your name was changed	Adın değiştirildi
+Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Kahramanının adı ({0}) şikâyet edildi ve oyunun kurallarına uymadığı için bir moderatör onu değiştirdi: {1}.
