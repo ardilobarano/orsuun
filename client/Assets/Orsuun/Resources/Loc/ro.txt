@@ -1,0 +1,2258 @@
+# Română (27 sep 2026). Engleză<TAB>Română; {0}, {1} țin locul oricărui text; \n înseamnă rând nou.
+# Loc.cs îl citește: un rând se caută întreg, cu majuscule sau ca șablon. Textul netradus apare în engleză.
+# Glosar (folosit peste tot; engleză = română):
+# Orsuun, Vanguard, Kestrel, Wraithsworn, Drumcaller, PvP, XP, HP, M1-M10, G1-G10, +7/+8/+9 = neschimbate
+# War of Banners = Războiul Stindardelor
+# Banner = Stindard (Ember / Sky / Gold Banner = Stindardul Jarului / Cerului / de Aur)
+# sorn = sorn (cu literă mică)
+# Amber = Chihlimbar
+# Korstone = Piatră Kor (Elder Korstone = Piatră Kor Străveche; Korstone Field = Câmp de Pietre Kor)
+# Korshard = Ciob Kor; Dead Shard = Ciob Mort; socket = locaș
+# Forge (verb, butonul FORGE) = rafinare / RAFINEAZĂ; FORGE ALONE = RAFINEAZĂ SIMPLU; the Forge = Fierăria
+# Forgemaster = Maestrul Fierar; the Chained Smith = Fierarul Înlănțuit
+# Oathbreak = Jurământ Frânt
+# Scroll of Mercy = Pergamentul Îndurării; Khan's Alloy = Aliajul Hanului; Anvil Ward = Talismanul Nicovalei
+# Etching = Gravură; Etching Needle = Ac de Gravat; Master's Needle = Ac de Maestru; Pinning Wax = Ceară de Fixare
+# Turnstone = Piatră de Răsucire; turn (a piece's etchings) = a răsuci / răsucire
+# Oathstone = Piatră de Jurământ; Oath Renewal = Reînnoirea Jurământului
+# Technique Scroll = Pergament de Tehnică; Peerless = Neîntrecut
+# Honor = Onoare; Laurels = Lauri
+# the Pits = Groapa (Pit shop = prăvălia Gropii)
+# Salt Exchange = Bursa de Sare (the Exchange = Bursa)
+# Campaign Trail = Drumul Campaniei (the Trail = Drumul; Trail Plus = Drumul Plus; Trail XP = XP de Drum)
+# Hunt Marks = Semne de Vânătoare (Hunt Marks shop = Prăvălia Semnelor)
+# guild = breaslă; Guild Tallies = Răboje de Breaslă; treasury = vistierie; charter = hrisov
+# Commander = Comandant; Commander Ground = Teren de Comandant; Hunting Ground = Teren de Vânătoare
+# boss = căpetenie; Warden = Paznic; dungeon = temniță; floor = etaj; run = incursiune; vault = criptă
+# keep = cetate; fortress = fortăreață; siege = asediu; bid = ofertă / licitație
+# Caravan = Caravana; Wardrobe = Garderoba; skin = costum; mount = montură; companion = însoțitor
+# Mailbox = Poșta; letter = scrisoare; depot = depozit; bag = traistă; piece = piesă; gear = echipament
+# bounty = misiune; skill = abilitate; level = nivel (Lv / LV = Nv. / NV.); tier = treaptă (T{0} rămâne T)
+# Draught = Poțiune; Void = Neant; Khan = Han; Khagan = Kagan; Hollowed = Scobit
+# glaive = halebardă; greatsword = spadon; sword = spadă; sabre = sabie; staff = toiag; lamellar = zale
+# The Oathfields = Câmpiile Jurământului; Gorak Pass = Trecătoarea Gorak; The Salt Sea = Marea de Sare
+# Whitefang Range = Munții Colț-Alb; The Cinder Marches = Hotarele de Cenușă; Whisperwood = Codrul Șoaptelor
+# The Bloodbirch = Mestecănișul Sângeriu; The Drowned Steppe = Stepa Înecată; Colossus Graves = Mormintele Coloșilor
+# The Sunken Bazaar = Bazarul Scufundat; The Thousand Markers = Cele O Mie de Borne; The Hollow Throne = Tronul Pustiu
+# Ember Steppe = Stepa de Jar; The White Steppe = Stepa Albă; The Amber Road = Drumul Chihlimbarului
+# The Hollow Spire = Turla Pustie; Silkmother = Mama Mătăsii; The Carvers' Archive = Arhiva Cioplitorilor
+# rarity: Common / Uncommon / Rare / Epic / Legendary = Comun / Neobișnuit / Rar / Epic / Legendar;
+#   în numele obiectelor ("Rare {0}") devin "{0} de rând / aparte / de soi / de faimă / de legendă" (fără acord de gen)
+WAR OF BANNERS	RĂZBOIUL STINDARDELOR
+CONTINUE WITH APPLE	CONTINUĂ CU APPLE
+CONTINUE WITH GOOGLE	CONTINUĂ CU GOOGLE
+or with an email	sau cu un e-mail
+CREATE ACCOUNT	CREEAZĂ CONT
+SIGN IN	CONECTARE
+PLAY AS GUEST	JOACĂ CA INVITAT
+Email	E-mail
+Password (8 or more)	Parolă (minim 8)
+Password again	Parola din nou
+BACK	ÎNAPOI
+ALSO LINK APPLE	LEAGĂ ȘI APPLE
+ALSO LINK GOOGLE	LEAGĂ ȘI GOOGLE
+SIGN OUT	DECONECTARE
+BACK TO THE HUNT	ÎNAPOI LA VÂNĂTOARE
+Offline: accounts need the server.	Offline: conturile au nevoie de server.
+Sign in with Apple opens once the game's App Store account is set up. Use Google or an email for now.	Conectarea cu Apple se deschide după ce contul jocului din App Store e pregătit. Deocamdată folosește Google sau un e-mail.
+Sign in with Google is not set up on this server yet. Use an email for now.	Conectarea cu Google nu e încă pregătită pe acest server. Deocamdată folosește un e-mail.
+Finish signing in on the page that opens...	Termină conectarea pe pagina care se deschide...
+Keep your heroes safe	Păstrează-ți eroii în siguranță
+Sign in or sign up	Conectează-te sau înregistrează-te
+Your account keeps up to four heroes, your Banner and your Amber, on any phone.	Contul tău păstrează până la patru eroi, Stindardul și Chihlimbarul tău, pe orice telefon.
+A guest account lives only on this phone. With an account you can play your heroes on any phone, and get them back if this one is lost.	Un cont de invitat trăiește doar pe acest telefon. Cu un cont îți joci eroii pe orice telefon și îi recuperezi dacă pierzi telefonul acesta.
+If that Apple or Google login already has an account, this phone switches to it. If not, it signs you up.	Dacă acea conectare Apple sau Google are deja un cont, telefonul trece pe el. Dacă nu, te înregistrează.
+If that Apple or Google login already has an account, this phone switches to it. If not, it is linked to the account you play now.	Dacă acea conectare Apple sau Google are deja un cont, telefonul trece pe el. Dacă nu, se leagă de contul cu care joci acum.
+Create an account	Creează un cont
+Your email and a password are saved to this account: sign in with them on any phone. Nothing is lost.	E-mailul tău și o parolă se salvează în acest cont: conectează-te cu ele pe orice telefon. Nu se pierde nimic.
+I already have an account	Am deja un cont
+Sign in	Conectare
+This phone switches to the account saved with that email.	Telefonul trece pe contul salvat cu acel e-mail.
+I need a new account	Am nevoie de un cont nou
+Your account	Contul tău
+This account and its heroes are saved. Sign in with it on any phone.	Acest cont și eroii lui sunt salvați. Conectează-te cu el pe orice telefon.
+Saved with	Salvat cu
+BACK TO THE HEROES	ÎNAPOI LA EROI
+The two passwords differ.	Cele două parole diferă.
+Account created. Your heroes are safe.	Cont creat. Eroii tăi sunt în siguranță.
+Enter your password.	Introdu parola.
+Leave this guest account?	Părăsești acest cont de invitat?
+Signing in switches this phone to your account. The guest heroes on this phone have no account and cannot be reached again.	Conectarea mută telefonul pe contul tău. Eroii invitați de pe acest telefon nu au cont și nu mai pot fi accesați.
+To keep them, create an account for them first.	Ca să-i păstrezi, creează-le mai întâi un cont.
+Signed in. Welcome back.	Conectat. Bine ai revenit.
+Sign out?	Te deconectezi?
+This phone goes back to the sign-in screen. Your account stays safe: sign in again with it.	Telefonul revine la ecranul de conectare. Contul tău rămâne în siguranță: conectează-te din nou cu el.
+Signed out.	Deconectat.
+Check the connection and try again.	Verifică conexiunea și încearcă din nou.
+Could not reach the server to download the world.	Serverul nu a putut fi contactat pentru descărcarea lumii.
+Downloading the world	Se descarcă lumea
+The download stopped.	Descărcarea s-a oprit.
+TRY AGAIN	REÎNCEARCĂ
+no Banner	fără Stindard
+SWEAR TO A BANNER	JURĂ-TE UNUI STINDARD
+Three Banners fight over one question: what should be done with the Korstones? Your Banner sets your side in the War of Banners and the fortress sieges.	Trei Stindarde se luptă pentru o singură întrebare: ce trebuie făcut cu Pietrele Kor? Stindardul tău îți alege tabăra în Războiul Stindardelor și în asediile fortărețelor.
+Capital:	Capitala:
+SWEAR THE OATH	DEPUNE JURĂMÂNTUL
+KEEP MY BANNER	PĂSTREZ STINDARDUL
+Every hero of your account rides under it. The oath holds for the season.	Fiecare erou al contului tău călărește sub el. Jurământul ține tot sezonul.
+CHANGE YOUR BANNER	SCHIMBĂ STINDARDUL
+SWEAR ANEW	JURĂ DIN NOU
+{0} OATHSTONES	{0} PIETRE DE JURĂMÂNT
+Once a season, for the whole account. Points already won stay with their Banner. You hold {0} Oathstones.	O dată pe sezon, pentru tot contul. Punctele deja câștigate rămân la Stindardul lor. Pietre de Jurământ deținute: {0}.
+Every hero of your account leaves the {0}. It costs {1} Oathstones, and the Banner can change again only next season.	Fiecare erou al contului tău părăsește {0}. Costă {1} Pietre de Jurământ, iar Stindardul se poate schimba din nou abia sezonul viitor.
+Swearing...	Se depune jurământul...
+Swearing anew...	Se jură din nou...
+Tap a Banner.	Atinge un Stindard.
+Tap the Banner you would ride under.	Atinge Stindardul sub care vrei să călărești.
+Ride under the {0}?	Călărești sub {0}?
+You will ride under the {0}.	Vei călări sub {0}.
+BOUNTIES	MISIUNI
+HUNT MARKS SHOP	PRĂVĂLIA SEMNELOR
+{0} MARKS	{0} SEMNE
+CAMPAIGN TRAIL	DRUMUL CAMPANIEI
+Offline: bounties are counted by the server.	Offline: misiunile sunt numărate de server.
+Claimed.	Revendicat.
+Bought	Cumpărat
+{0}d {1}h	{0}z {1}h
+{0}h {1}m	{0}h {1}m
+{0}m	{0}m
+{0} Hunt Marks	{0} Semne de Vânătoare
+{0} Master's	{0} Ace de Maestru
+{0} Needles	{0} Ace
+{0} Wax	{0} Ceară
+{0} Oathstones	{0} Pietre de Jurământ
+DAILY	ZILNIC
+new bounties in {0}	misiuni noi în {0}
+WEEKLY	SĂPTĂMÂNAL
+Daily	Zilnic
+Weekly	Săptămânal
+{0}/{1} min	{0}/{1} min
+{0} marks, {1} Trail XP	{0} semne, {1} XP de Drum
+CLAIM	PRIMEȘTE
+CLAIMED	PRIMIT
+AMBER	CHIHLIMBAR
+COMPANIONS	ÎNSOȚITORI
+MOUNTS	MONTURI
+SKINS	COSTUME
+Amber	Chihlimbar
+THE CARAVAN	CARAVANA
+MY WARDROBE	GARDEROBA MEA
+Bosses from Gorak Pass on drop 1-3 day pieces. Getting a piece again adds its days.	Începând cu Trecătoarea Gorak, căpeteniile lasă piese de 1-3 zile. Dacă primești din nou o piesă, i se adaugă zilele.
+FIRST PURCHASE: DOUBLE AMBER	PRIMA ACHIZIȚIE: CHIHLIMBAR DUBLU
+Amber is bought with real money only and buys skins, mounts and companions.	Chihlimbarul se cumpără doar cu bani reali și cumpără costume, monturi și însoțitori.
+Playtest: packs are free until the App Store and Google Play open.	Test de joc: pachetele sunt gratuite până se deschid App Store și Google Play.
+The Caravan needs the server.	Caravana are nevoie de server.
++ Amber	+ Chihlimbar
+Campaign Trail	Drumul Campaniei
+drops only	doar din pradă
+Fine	Fin
+Legendary	Legendar
+Plain	Simplu
+Rare	Rar
+Not enough Amber.	Nu ai destul Chihlimbar.
+{0} ({1}) for {2} {3}, for {4} Amber.	{0} ({1}) pentru {2} {3}, cu {4} Chihlimbar.
+You hold it for {0} more: the days are added.	Îl mai ai încă {0}: zilele se adună.
+BUY	CUMPĂRĂ
+BUY FROM THE CARAVAN	CUMPĂRĂ DE LA CARAVANĂ
+{0}: yours for {1}.	{0}: al tău pentru {1}.
+Playtest: free until the stores open.	Test de joc: gratuit până se deschid magazinele.
+{0} Amber for {1}{2}.	{0} Chihlimbar pentru {1}{2}.
++{0} Amber.	+{0} Chihlimbar.
+Held	Deținut
+Only its Commander drops it.	Doar Comandantul lui îl lasă.
+Won on the Campaign Trail.	Câștigat pe Drumul Campaniei.
+Worn	Purtat
+ADD	ADAUGĂ
+DAY	ZI
+DAYS	ZILE
+{0} day	{0} zi
+{0} days	{0} zile
+Rider's armour and a glaive. Steady, hard to kill: the Banner's heavy horse, now on foot.	Armură de călăreț și o halebardă. Neclintit, greu de ucis: cavaleria grea a Stindardului, acum pe jos.
+Twin knives and speed. Quick blows and crits; her Heartseeker finds the seam in a Korstone.	Cuțite gemene și iuțeală. Lovituri rapide și critice; Căutătoarea de Inimi găsește fisura dintr-o Piatră Kor.
+A void-cursed sword. The hardest-hitting skills and the fewest HP.	O sabie blestemată de Neant. Cele mai puternice abilități și cele mai puține HP.
+Staff and storm drum. Lightning from the sky and a rhythm that never breaks.	Toiag și tobă de furtună. Fulgere din cer și un ritm care nu se frânge niciodată.
+CHOOSE YOUR HERO	ALEGE-ȚI EROUL
+ACCOUNT	CONT
+START	START
+DELETE	ȘTERGE
+CREATE A HERO	CREEAZĂ UN EROU
+MAN	BĂRBAT
+WOMAN	FEMEIE
+A name: {0}-{1} letters or digits	Un nume: {0}-{1} litere sau cifre
+CREATE	CREEAZĂ
+The hero's name	Numele eroului
+DELETE FOREVER	ȘTERGE DEFINITIV
+Account:	Cont:
+Connecting...	Se conectează...
+Account: saved with Google / Apple	Cont: salvat cu Google / Apple
+Guest account: save it under ACCOUNT	Cont de invitat: salvează-l la CONT
+EMPTY	GOL
+Lv {0} {1}	Nv. {0} {1}
+tap to create	atinge pentru a crea
+A NEW HERO	UN EROU NOU
+Banner you choose next	Stindardul pe care îl alegi apoi
+Sworn to the {0}	Jurat sub {0}
+AN EMPTY SLOT	UN LOC GOL
+{0} of {1} heroes	{0} din {1} eroi
+Amber and the Banner are shared by the account's heroes; so is the depot.	Chihlimbarul și Stindardul sunt comune eroilor contului; la fel și depozitul.
+Level {0} {1}	Nivel {0} {1}
+Fresh on the steppe	Nou-venit în stepă
+Reached {0}	A ajuns la {0}
+Type {0} to delete this hero and everything it holds.	Scrie {0} ca să ștergi acest erou și tot ce are.
+CHAT	CHAT
+WORLD	LUME
+GUILD	BREASLĂ
+Say something	Spune ceva
+SEND	TRIMITE
+FRIENDS	PRIETENI
+ADD FRIEND	ADAUGĂ PRIETEN
+MESSAGE	MESAJ
+TRADE	SCHIMB
+GUILD INVITE	INVITAȚIE BREASLĂ
+REPORT	RAPORTEAZĂ
+BLOCK	BLOCHEAZĂ
+CLOSE	ÎNCHIDE
+Join a guild to talk with it.	Intră într-o breaslă ca să vorbești cu ea.
+Reported. Thank you: three reports hide a line.	Raportat. Mulțumim: trei raportări ascund un rând.
+Block {0}?	Blochezi jucătorul {0}?
+You will no longer see their chat lines. Tap the blocked count below the chat to unblock everyone.	Nu îi vei mai vedea mesajele în chat. Atinge numărul de blocați de sub chat ca să deblochezi pe toată lumea.
+{0} is blocked.	Blocat: {0}.
+UNBLOCK	DEBLOCHEAZĂ
+Unblock everyone?	Deblochezi pe toată lumea?
+You have blocked {0} player{1}. Their lines come back.	Jucători blocați: {0}. Mesajele lor revin.
+Offline: chat needs the server.	Offline: chatul are nevoie de server.
+The guild is quiet. Say hello.	Breasla e tăcută. Spune salut.
+The steppe is quiet. Say hello.	Stepa e tăcută. Spune salut.
+CANCEL	ANULEAZĂ
+Draught	Poțiune
+Turnstone	Piatră de Răsucire
+DAILY GIFTS	DARURI ZILNICE
+A gift for each day you come back: the seventh is a Korshard, then the calendar starts again. Your heroes share it.	Un dar pentru fiecare zi în care revii: al șaptelea e un Ciob Kor, apoi calendarul o ia de la capăt. Eroii tăi îl împart.
+TAKE TODAY'S GIFT	IA DARUL DE AZI
+Taken: {0}.	Luat: {0}.
+The daily gifts need the server.	Darurile zilnice au nevoie de server.
+TAKEN	LUAT
+TODAY	AZI
+TAKEN FOR TODAY	LUAT PE AZI
+Next gift in {0}, with the evening bell.	Următorul dar în {0}, odată cu clopotul de seară.
+DEPOT	DEPOZIT
+Shared by your account's heroes: put a piece in, take it out with another.	Comun eroilor contului tău: pune o piesă aici și ia-o cu alt erou.
+YOUR BAG	TRAISTA TA
+Tap a piece to move it.	Atinge o piesă ca s-o muți.
+The depot needs the server.	Depozitul are nevoie de server.
+item level {0}	nivel obiect {0}
+Empty. Put pieces from your bag here.	Gol. Pune aici piese din traistă.
+TAKE	IA
+PUT	PUNE
+Nothing in the bag (worn pieces stay on).	Nimic în traistă (piesele purtate rămân pe erou).
+tap to continue	atinge pentru a continua
+SUCCESS	REUȘITĂ
+The oath holds.	Jurământul ține.
+The whole server hears the hammer.	Tot serverul aude ciocanul.
+Back to +{0}	Înapoi la +{0}
+The metal sulks.	Metalul s-a bosumflat.
+WARD HOLDS	TALISMANUL ȚINE
+Level kept.	Nivel păstrat.
+The Anvil Ward took the blow.	Talismanul Nicovalei a primit lovitura.
+OATHBREAK	JURĂMÂNT FRÂNT
+Your +{0} {1} is gone.	{1} +{0} s-a pierdut.
+"Hold still. I'm talking to the metal, not to you."	"Stai nemișcat. Vorbesc cu metalul, nu cu tine."
+"It swore once. It can swear again."	"A jurat o dată. Poate jura din nou."
+"Don't watch the hammer. Watch the ember."	"Nu te uita la ciocan. Uită-te la jar."
+"If it breaks, I apologize to the blade. Not to you."	"Dacă se rupe, îmi cer iertare de la lamă. Nu de la tine."
+ARMOR	ARMURĂ
+BOOTS	CIZME
+BRACER	BRĂȚARĂ
+EARS	CERCEI
+HELM	COIF
+NECK	COLIER
+SHIELD	SCUT
+WEAPON	ARMĂ
+Forgemaster Dorun	Maestrul Fierar Dorun
+THE FORGE	FIERĂRIA
+ETCHINGS	GRAVURI
+TURNING HELPER	AJUTOR DE RĂSUCIRE
+BACK TO GEAR	ÎNAPOI LA INVENTAR
+1 Scroll of Mercy	1 Pergament al Îndurării
+1 Khan's Alloy	1 Aliaj al Hanului
+If it fails, your +{0} {1} is destroyed.	Dacă eșuează, {1} +{0} se distruge.
+A plain starter piece takes its place.	O piesă simplă de început îi ia locul.
+If it fails, it drops to +{0}.	Dacă eșuează, coboară la +{0}.
+If it fails, it stays at +0.	Dacă eșuează, rămâne la +0.
+from your bag	din traistă
+Cost {0}	Cost {0}
+Success chance {0}	Șansă de reușită {0}
+USE SCROLL	CU PERGAMENT
+FORGE	RAFINEAZĂ
+USE ALLOY	CU ALIAJ
+Forge to +{0}?	Rafinezi la +{0}?
+No answer from the server.	Niciun răspuns de la server.
+The ward holds.	Talismanul ține.
+OATHBREAK.	JURĂMÂNT FRÂNT.
+Add an etching?	Adaugi o gravură?
+Etching {0} takes {1} of the time.	Gravura {0} prinde în {1} din cazuri.
+If it slips, only the needle is lost.	Dacă alunecă, se pierde doar acul.
+The fifth takes a Master's Needle: you have {0}.	A cincea cere un Ac de Maestru: ai {0}.
+You have {0} Etching Needles.	Ace de Gravat: ai {0}.
+USE NEEDLE	FOLOSEȘTE ACUL
+The needle slipped; the piece is unharmed.	Acul a alunecat; piesa e neatinsă.
+The needle took.	Acul a prins.
+T{0} {1} +{2}	T{0} {1} +{2}
+Hunt Marks buy it in BOUNTIES.	Se cumpără cu Semne de Vânătoare la MISIUNI.
+It will change with the next turn again.	Se va schimba din nou la următoarea răsucire.
+The wax is spent.	Ceara s-a consumat.
+It stays through every turn; each turn then costs {0}.	Rămâne la fiecare răsucire; fiecare răsucire costă atunci {0}.
+The etching pinned now is released and its wax is spent.	Gravura fixată acum se eliberează, iar ceara ei se consumă.
+You have {0} Pinning Wax.	Ceară de Fixare: ai {0}.
+Pin this etching?	Fixezi această gravură?
+UNPIN	ELIBEREAZĂ
+USE WAX	CU CEARĂ
+Unpin this etching?	Eliberezi această gravură?
+Pinned.	Fixată.
+Unpinned.	Eliberată.
+Attack {0}	Atac {0}
+Base stats {0}%	Statistici de bază {0}%
+Blades lost {0}	Lame pierdute {0}
+Crit {0}%	Critic {0}%
+From your bag, not worn	Din traistă, nepurtată
+Item level {0}	Nivel obiect {0}
+No etchings yet: ETCH adds one.	Încă nicio gravură: GRAVEAZĂ adaugă una.
+◆ PINNED	◆ FIXATĂ
+ETCH	GRAVEAZĂ
+all five	toate cinci
+etchings	gravuri
+Needles	Ace
+{0}% chance	șansă {0}%
+TURN	RĂSUCEȘTE
+This piece has sworn all nine oaths.	Piesa aceasta a depus toate cele nouă jurăminte.
+(includes +{0}% Forgemaster's Patience)	(include +{0}% Răbdarea Maestrului Fierar)
+Attempt +{0}:	Încercarea +{0}:
+Cost {0} sorn{1}	Cost {0} sorn
+FORGE ALONE	RAFINEAZĂ SIMPLU
+fail: -1 level	eșec: -1 nivel
+fail: OATHBREAK	eșec: JURĂMÂNT FRÂNT
+SCROLL OF MERCY ({0})	PERGAMENTUL ÎNDURĂRII ({0})
++10%, fail: -1 level	+10%, eșec: -1 nivel
+KHAN'S ALLOY ({0})	ALIAJUL HANULUI ({0})
+A hero's name	Numele unui erou
+Tap a name here or in CHAT to trade, invite to your guild or add a friend.	Atinge un nume aici sau în CHAT ca să faci schimb, să inviți în breaslă sau să adaugi un prieten.
+TAKE OFF	SCOATE
+BE FRIENDS	ACCEPTĂ
+TURN DOWN	REFUZĂ
+TAKE BACK THE REQUEST	RETRAGE CEREREA
+Take {0} off?	Scoți {0} din listă?
+They leave your friend list, and you leave theirs.	Iese din lista ta de prieteni, iar tu din lista sa.
+ASKING YOU ({0})	CERERI PRIMITE ({0})
+tap to answer	atinge pentru a răspunde
+FRIENDS ({0})	PRIETENI ({0})
+No friends yet. Add a hero by name above, or tap a name in CHAT.	Încă niciun prieten. Adaugă un erou după nume mai sus sau atinge un nume în CHAT.
+ASKED ({0})	CERERI TRIMISE ({0})
+{0} / {1} friends	{0} / {1} prieteni
+Gathering your friends...	Îți adunăm prietenii...
+Offline: friends need the server.	Offline: prietenii au nevoie de server.
+The hunt	Vânătoarea
+Bells, Commanders, bounties and a full offline hunt	Clopote, Comandanți, misiuni și o vânătoare offline plină
+The hunt is full	Vânătoarea e plină
+Your hero has hunted every offline hour it can hold. Come back and take the spoils.	Eroul tău a vânat toate orele offline pe care le poate ține. Revino și ia prada.
+The Evening Bell rings	Bate Clopotul de Seară
+{0} rings on the steppe. Come and hunt it.	{0} bate în stepă. Vino la vânătoare.
+{0} rises	{0} se ridică
+{0} stands on the Commander Ground. Its HP is shared by the whole server: strike before it falls.	{0} stă pe Terenul Comandantului. HP-ul lui e comun întregului server: lovește înainte să cadă.
+Fresh bounties are posted. Hunt Marks are waiting.	Au apărut misiuni noi. Semnele de Vânătoare te așteaptă.
+New bounties	Misiuni noi
+slain by {0}	ucis de {0}
+{0} of {1} HP left for the server	{0} din {1} HP rămase pentru server
+FLED	A FUGIT
+SLAIN	UCIS
+{0} of 20	{0} din 20
+FELL ON FLOOR {0}	CĂZUT LA ETAJUL {0}
+FLOOR {0} CLEARED	ETAJUL {0} CURĂȚAT
+THE CHAINED SMITH	FIERARUL ÎNLĂNȚUIT
+THE PIECE BROKE	PIESA S-A RUPT
+THE SMITH FAILED	FIERARUL A GREȘIT
+THE SMITH STRUCK TRUE	FIERARUL A LOVIT DREPT
+THE RUNE LOCK	LACĂTUL RUNIC
+THE RUNE DOES NOT TURN	RUNA NU SE ROTEȘTE
+THE VAULT OPENS	CRIPTA SE DESCHIDE
+THE VAULT STAYS SHUT	CRIPTA RĂMÂNE ÎNCHISĂ
+THE DUNGEON	TEMNIȚA
+CLEARED	CURĂȚAT
+WAR	RĂZBOI
+FELLED	DOBORÂT
+HELD	APĂRAT
+THE PITS	GROAPA
+DEFEAT	ÎNFRÂNGERE
+VICTORY	VICTORIE
+HOLD THE KEEP	APĂRĂ CETATEA
+STORM THE KEEP	ASALTEAZĂ CETATEA
+DEFEND	APĂRĂ
+SIEGE	ASEDIU
+KEEP MENDED	CETATE REPARATĂ
+{0} DAMAGE	{0} DAUNE
+BROKEN	SPART
+FORTRESS TAKEN	FORTĂREAȚĂ CUCERITĂ
+WALL MENDED	ZID REPARAT
+PUSH	ÎNAINTE
+FAILED	EȘUAT
+Draughts	Poțiuni
+Healing draughts: the hero drinks one on the lane when his HP runs low. The Hunt Marks shop sells ten for a mark.	Poțiuni de vindecare: eroul bea una pe câmp când HP-ul îi scade. Prăvălia Semnelor vinde zece pentru un semn.
+Hunt materials	Materiale de vânătoare
+What the hunt's beasts leave behind (Wolf Sinew and the like). The Chained Smith takes them for his work.	Ce lasă în urmă fiarele vânate (Tendon de Lup și altele). Fierarul Înlănțuit le ia pentru munca lui.
+Laid on a Forge attempt: a failure only loses a level instead of the piece.	Pus la o rafinare: un eșec pierde doar un nivel, nu piesa.
+Scroll of Mercy	Pergamentul Îndurării
+Khan's Alloy	Aliajul Hanului
+Laid on a Forge attempt: +10 points of success, and a failure only loses a level.	Pus la o rafinare: +10 puncte de reușită, iar un eșec pierde doar un nivel.
+Anvil Ward	Talismanul Nicovalei
+Laid on a Forge attempt: a failure keeps the level.	Pus la o rafinare: la eșec nivelul se păstrează.
+Turn a piece's etchings at the Forge, one turn a stone.	Răsucește gravurile unei piese la Fierărie, o răsucire pe piatră.
+Turnstones	Pietre de Răsucire
+Adds an etching to a piece, the first to the fourth.	Adaugă o gravură unei piese, de la prima la a patra.
+Etching Needle	Ac de Gravat
+Adds a piece's fifth etching (the Carvers' Archive's vault, or 90 Laurels in the Pit shop).	Adaugă a cincea gravură a unei piese (cripta Arhivei Cioplitorilor sau 90 de Lauri la prăvălia Gropii).
+Master's Needle	Ac de Maestru
+Holds one etching of a piece through its turns.	Păstrează o gravură a unei piese la fiecare răsucire.
+Pinning Wax	Ceară de Fixare
+A marker fragment that still holds a vow: it pays for Grand skill grades (SKILLS) and a change of Banner.	Un fragment de bornă care încă păstrează un legământ: plătește gradele Mari ale abilităților (ABILITĂȚI) și schimbarea Stindardului.
+Oathstone	Piatră de Jurământ
+Oathstones	Pietre de Jurământ
+Hunt Marks	Semne de Vânătoare
+Hunt Mark	Semn de Vânătoare
+Paid by bounties; spent in the Hunt Marks shop (BOUNTIES).	Primite din misiuni; se cheltuiesc la Prăvălia Semnelor (MISIUNI).
+Laurel	Laur
+Laurels	Lauri
+Won in the Pits; spent in the Pit shop.	Câștigați în Groapă; se cheltuiesc la prăvălia Gropii.
+Earned for your guild (donations, the Commander's first place); spent in the guild shop.	Câștigate pentru breaslă (donații, locul întâi la Comandant); se cheltuiesc la prăvălia breslei.
+Guild Tallies	Răboje de Breaslă
+Guild Tally	Răboj de Breaslă
+A marker an Elder Korstone let fall.	O bornă scăpată de o Piatră Kor Străveche.
+Summoning Marker	Bornă de Chemare
+Korshard	Ciob Kor
+Korshards	Cioburi Kor
+Set in a piece's socket at SHARDS: the higher the rank, the stronger the shard.	Se pune în locașul unei piese la CIOBURI: cu cât rangul e mai mare, cu atât ciobul e mai puternic.
+Armour	Armură
+Armor	Armură
+Bracelet	Brățară
+Earrings	Cercei
+Helmet	Coif
+Necklace	Colier
+Shield	Scut
+Shoes	Încălțări
+Weapon	Armă
+INVENTORY	INVENTAR
+Attack	Atac
+Defense	Apărare
+HP	HP
+Crit	Critic
+SKILLS	ABILITĂȚI
+ALL	TOATE
+BOOKS	CĂRȚI
+GEAR	INVENTAR
+MATERIALS	MATERIALE
+Honor	Onoare
+WARDROBE	GARDEROBĂ
+SELECT	ALEGE
+SELL ALL	VINDE TOT
+Tap the pieces to sell, then SELL ALL.	Atinge piesele de vândut, apoi VINDE TOT.
+Pick the pieces to sell first.	Alege mai întâi piesele de vândut.
+{0} of them {1} forged or Epic and above: the Exchange may pay far more.	Rafinate sau Epice și mai sus: {0}. Bursa ar putea plăti mult mai mult.
+Sell {0} piece{1}?	Vinzi piesele alese ({0})?
+SELL	VINDE
+The merchant pays {0} sorn for them. They are gone for good.{1}	Negustorul plătește {0} sorn pe ele. Se duc pentru totdeauna.{1}
+Some of those pieces changed: pick them again.	Unele piese s-au schimbat: alege-le din nou.
+Sold {0} piece{1} for {2} sorn.	Piese vândute: {0}, pentru {2} sorn.
+Equipped.	Echipat.
+A {0} +{1}: the Exchange may pay far more.	{0} +{1}: Bursa ar putea plăti mult mai mult.
+Sell +{0} {1}?	Vinzi {1} +{0}?
+The merchant pays {0} sorn. The piece is gone for good.{1}	Negustorul plătește {0} sorn. Piesa se duce pentru totdeauna.{1}
+Sold for {0} sorn.	Vândut cu {0} sorn.
+Now playing	Acum joci
+Book	Carte
+LEVEL {0}	NIVEL {0}
+RENEW YOUR OATH ›	REÎNNOIEȘTE JURĂMÂNTUL ›
+oath {0}/{1}	jurământ {0}/{1}
+ATTACK	ATAC
+DEFENSE	APĂRARE
+CRIT	CRITIC
+No pieces in the bag. Drops from the hunt land here.	Nicio piesă în traistă. Prada vânătorii ajunge aici.
+No Technique Scrolls. Warden chests, the Hunt Marks and Pit shops and the Exchange have them.	Niciun Pergament de Tehnică. Le găsești în cuferele Paznicilor, la prăvăliile Semnelor și Gropii și la Bursă.
+Nothing yet: Korstones, bounties and dungeons pay in these.	Încă nimic: Pietrele Kor, misiunile și temnițele plătesc în acestea.
+The bag is empty. Drops from the hunt land here.	Traista e goală. Prada vânătorii ajunge aici.
+DONE	GATA
+Tap pieces to pick them	Atinge piesele ca să le alegi
+in your bag	în traistă
+worn	purtat
+Worn now.	Purtat acum.
+If worn:	Dacă o porți:
+no change	nicio schimbare
+No etchings yet.	Încă nicio gravură.
+(pinned)	(fixată)
+Dead Shard	Ciob Mort
+No sockets	Fără locașuri
+Sockets:	Locașuri:
+EQUIP	ECHIPEAZĂ
+WORN	PURTAT
+EXCHANGE	BURSA
+LIST ON\nEXCHANGE	PUNE LA\nBURSĂ
+SELL FOR\nSORN	VINDE PE\nSORN
+SORN	SORN
+A {0} skill	O abilitate de {0}
+you hold {0}	ai {0}
++{0}% power	+{0}% putere
+Only a {0} reads it.	Doar un {0} îl poate citi.
+Your {0}: {1}	{0}: {1}
+{0} of {1} good reads toward {2}.	{0} din {1} citiri reușite spre {2}.
+The skill rests another {0}h {1}m.	Abilitatea se mai odihnește {0}h {1}m.
+{0} is past M10: its next steps burn Oathstones and Honor, not scrolls. Sell the scrolls, or trade them to a friend.	{0} a trecut de M10: pașii următori ard Pietre de Jurământ și Onoare, nu pergamente. Vinde pergamentele sau dă-le unui prieten la schimb.
+Sell it on the Exchange, or trade it to a {0}.	Vinde-l la Bursă sau dă-l la schimb unui {0}.
+A read spends one scroll: {0}% it teaches, and the skill rests {1} hours either way.	O citire consumă un pergament: {0}% șanse să te învețe, iar abilitatea se odihnește {1} ore oricum.
+M1 and M2 need one good read each, M3 two, M4 three, and so on to nine for M10.	M1 și M2 cer câte o citire reușită, M3 două, M4 trei și tot așa până la nouă pentru M10.
+Scrolls come from Warden chests, the Hunt Marks and Pit shops, and the Exchange.	Pergamentele vin din cuferele Paznicilor, de la prăvăliile Semnelor și Gropii și de la Bursă.
+NOT YOUR CLASS	NU E CLASA TA
+READ	CITEȘTE
+You hold {0}	Ai {0}
+It stays with whoever earned it: the Exchange does not take it.	Rămâne la cel care l-a câștigat: Bursa nu îl primește.
+Average damage	Daune medii
+Skill damage	Daune abilități
+No stats	Fără statistici
+At level {0} a hero may renew the oath: back to level 1, with +{1}% attack and HP for good,	La nivelul {0} un erou își poate reînnoi jurământul: revine la nivelul 1, cu +{1}% atac și HP pentru totdeauna,
+Your oath: {0}/{1} renewals (+{2}% now).	Jurământul tău: {0}/{1} reînnoiri (+{2}% acum).
+At level {0} a hero may renew the oath: back to level 1, with +{1}% attack and HP for good, up to {2} times.	La nivelul {0} un erou își poate reînnoi jurământul: revine la nivelul 1, cu +{1}% atac și HP pentru totdeauna, de cel mult {2} ori.
+Offline: renewal needs the server.	Offline: reînnoirea are nevoie de server.
+OK	OK
+Oath Renewal	Reînnoirea Jurământului
+Renew your oath?	Îți reînnoiești jurământul?
+Your level goes back to 1. Your gear, sorn and stages stay.	Nivelul tău revine la 1. Echipamentul, sornul și etapele rămân.
+RENEW	REÎNNOIEȘTE
+GUILDS	BRESLE
+Any Banner may join any guild. Donate each day, earn Guild Tallies, raise the guild together.	Orice Stindard poate intra în orice breaslă. Donează zilnic, câștigă Răboje de Breaslă, ridicați breasla împreună.
+Search by name or tag	Caută după nume sau etichetă
+SEARCH	CAUTĂ
+INVITES	INVITAȚII
+JOIN	INTRĂ
+FOUND A GUILD	FONDEAZĂ O BREASLĂ
+Guild name (3 to 20)	Numele breslei (3-20)
+TAG	ETICHETĂ
+FOUND THE GUILD	FONDEAZĂ BREASLA
+GIVE 10K	DĂ 10K
+GIVE 50K	DĂ 50K
+GIVE MAX	DĂ MAXIM
+{0} TALLIES	{0} RĂBOJE
+PREV	ÎNAPOI
+NEXT	ÎNAINTE
+LEAVE	PLEACĂ
+GUILD CHAT	CHAT BREASLĂ
+GUILD WAR	RĂZBOI DE BRESLE
+ASKING TO JOIN	CERERI DE INTRARE
+LET IN	PRIMEȘTE
+TURN AWAY	RESPINGE
+Nobody is asking to join.	Nimeni nu cere să intre.
+INVITE A HERO	INVITĂ UN EROU
+INVITE	INVITĂ
+GUILD INVITES	INVITAȚII DE BREASLĂ
+NO	NU
+No guild has invited you. A guild's leader or officers can, from chat or their friend list.	Nicio breaslă nu te-a invitat. Liderul sau ofițerii unei bresle o pot face, din chat sau din lista lor de prieteni.
+INVITES ({0})	INVITAȚII ({0})
+Lv {0}	Nv. {0}
+invited by {0}	invitat de {0}
+Invites wait {0} days for an answer, and let the hero in even through shut gates.	Invitațiile așteaptă un răspuns {0} zile și lasă eroul să intre chiar și cu porțile închise.
+Invited ({0}/{1}):	Invitați ({0}/{1}):
+HAND OVER THE LEAD	PREDĂ CONDUCEREA
+SEND AWAY	ALUNGĂ
+A guild charter costs {0} sorn.	Un hrisov de breaslă costă {0} sorn.
+Found {0}?	Fondezi {0}?
+The charter costs {0} sorn. You will lead it; anyone may join until you shut the gates.	Hrisovul costă {0} sorn. Tu o vei conduce; oricine poate intra până închizi porțile.
+FOUND IT	FONDEAZ-O
+Not enough sorn.	Nu ai destul sorn.
+You have given all you can today.	Ai dat azi tot ce puteai.
+every member hunts with +{0}% sorn	fiecare membru vânează cu +{0}% sorn
+room for {0} members	loc pentru {0} membri
+RAISE	RIDICĂ
+Raise {0} to {1}?	Ridici {0} la {1}?
+{0} sorn from the treasury: {1}.	{0} sorn din vistierie: {1}.
+You are its last member: the guild disbands, its treasury is lost.	Ești ultimul ei membru: breasla se desființează, vistieria se pierde.
+The lead passes to your highest officer (or the longest member).	Conducerea trece la ofițerul cel mai înalt (sau la cel mai vechi membru).
+Your Guild Tallies stay with you.	Răbojele de Breaslă rămân la tine.
+Leave {0}?	Părăsești {0}?
+MAKE MEMBER	FĂ-L MEMBRU
+MAKE OFFICER	FĂ-L OFIȚER
+HAND OVER	PREDĂ
+Hand over the lead?	Predai conducerea?
+{0} will lead the guild and you become an officer.	{0} va conduce breasla, iar tu devii ofițer.
+Send {0} away?	Alungi {0} din breaslă?
+They leave the guild at once and keep their Guild Tallies.	Pleacă din breaslă imediat și își păstrează Răbojele de Breaslă.
+hunting now	vânează acum
+{0}d ago	acum {0}z
+{0}h ago	acum {0}h
+{0}m ago	acum {0}m
+Offline: guilds need the server.	Offline: breslele au nevoie de server.
+ASK	CERE
+ASKED	CERUT
+FULL	PLIN
+Gathering word of the guilds...	Se adună vești despre bresle...
+No guild by that name.	Nicio breaslă cu acest nume.
+No guilds yet. Found the first one below.	Încă nicio breaslă. Fondează-o pe prima mai jos.
+flag on {0}	steag pe {0}
+Level {0}	Nivel {0}
+You are {0}	Ești {0}
+guild bonus +{0}% hunting sorn{1}	bonus de breaslă +{0}% sorn la vânătoare
+treasury {0} sorn	vistierie {0} sorn
+{0}/{1} members	{0}/{1} membri
+GUILD XP	XP BREASLĂ
+TOP LEVEL	NIVEL MAXIM
+1 Guild Tally per {0} sorn	1 Răboj de Breaslă la {0} sorn
+Given today {0} / {1}	Dat azi {0} / {1}
++{0}% hunting sorn for all	+{0}% sorn la vânătoare pentru toți
+PLUNDER {0}/{1}	JAF {0}/{1}
+MUSTER {0}/{1}	ADUNARE {0}/{1}
+GUILD SHOP	PRĂVĂLIA BRESLEI
+{0} Guild Tallies	{0} Răboje de Breaslă
+MEMBERS	MEMBRI
+page {0}/{1}	pagina {0}/{1}
+ASKING ({0})	CERERI ({0})
+GATES OPEN	PORȚI DESCHISE
+GATES SHUT	PORȚI ÎNCHISE
+tap to open	atinge pentru a deschide
+tap to shut	atinge pentru a închide
+AT ITS PEAK	LA APOGEU
+FIGHT HERE	LUPTĂ AICI
+PLANT FLAG	ÎNFIGE STEAGUL
+LADDER	CLASAMENT
+BACK TO THE GUILD	ÎNAPOI LA BREASLĂ
+Guild war needs the server.	Războiul de bresle are nevoie de server.
+{0} d {1} h	{0} z {1} h
+{0} h {1} m	{0} h {1} m
+Sounding the horns...	Sună cornurile...
+Rating {0}	Punctaj {0}
+Kills {0} : {1}	Ucideri {0} : {1}
+the horns fall silent in {0}	cornurile tac în {0}
+next duel in {0} s	următorul duel în {0} s
+your duels are spent	duelurile tale s-au terminat
+{0} duels left	dueluri rămase: {0}
+our flag	steagul nostru
+their flag	steagul lor
++{0} OUR WAY	+{0} PENTRU NOI
+BROKEN AGAINST US	SPART DE EI
+BROKEN BY US	SPART DE NOI
+EVEN	EGAL
+{0} THEIR WAY	{0} PENTRU EI
+Next war night: {0}	Următoarea noapte de război: {0}
+Your guild is not signed up.	Breasla ta nu e înscrisă.
+Your guild is signed up.	Breasla ta e înscrisă.
+{0} guild{1} so far	bresle înscrise până acum: {0}
+The leader signs the guild up.	Liderul înscrie breasla.
+SIGN UP	ÎNSCRIE
+WITHDRAW	RETRAGE
+Last war: {0}	Ultimul război: {0}
+Wars are fought on Wednesday and Saturday nights at 21:00, for an hour.	Războaiele se poartă miercuri și sâmbătă seara la 21:00, timp de o oră.
+BAG FULL	TRAISTĂ PLINĂ
+SHARDS	CIOBURI
+MENU	MENIU
+ZONES	ZONE
+Dismounted: your skills are ready again.	Descălecat: abilitățile tale sunt iar gata.
+Mounted: plain attacks only until you dismount.	Călare: doar atacuri simple până descaleci.
+ELDER KORSTONE	PIATRĂ KOR STRĂVECHE
+KORSTONE	PIATRĂ KOR
+Pack {0}/{1}	Haită {0}/{1}
+Deaths {0}	Morți {0}
+Korstones {0}	Pietre Kor {0}
+next bell in {0}h {1}m	următorul clopot în {0}h {1}m
+THE SMITH STRUCK	FIERARUL A LOVIT
+the bag was full: {0} drop{1} left behind	traista era plină; lăsate în urmă: {0}
+DEFEATED — respawning	ÎNVINS — reapare
+Defense {0}	Apărare {0}
+RIDING	CĂLARE
+LV	NV.
+LOCKED	BLOCAT
+AUTO OFF	AUTO OPRIT
+AUTO ON	AUTO PORNIT
+DISMOUNT	DESCALECĂ
+MOUNT UP	ÎNCALECĂ
+ALL CLEARED	TOTUL CURĂȚAT
+Chat needs the server.	Chatul are nevoie de server.
+Tap to talk with the steppe.	Atinge ca să vorbești cu stepa.
+TIER	TREAPTĂ
+TIER {0}	TREAPTA {0}
+TRADE WITH {0}: BACK TO THE WINDOW	SCHIMB CU {0}: ÎNAPOI LA FEREASTRĂ
+{0} ASKS TO TRADE: ANSWER	{0} VREA SCHIMB: RĂSPUNDE
+A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN	O BREASLĂ TE INVITĂ: RĂSPUNDE PE ECRANUL BRESLEI
+A HERO ASKS TO BE FRIENDS: ANSWER	UN EROU ÎȚI CERE PRIETENIA: RĂSPUNDE
+{0} HEROES ASK TO BE FRIENDS: ANSWER	{0} EROI ÎȚI CER PRIETENIA: RĂSPUNDE
+A NEW MESSAGE: READ IT	UN MESAJ NOU: CITEȘTE-L
+{0} NEW MESSAGES: READ THEM	{0} MESAJE NOI: CITEȘTE-LE
+A LETTER HAS COME: OPEN THE MAILBOX	A SOSIT O SCRISOARE: DESCHIDE POȘTA
+{0} LETTERS HAVE COME: OPEN THE MAILBOX	AU SOSIT {0} SCRISORI: DESCHIDE POȘTA
+LOCAL MODE	MOD LOCAL
+GOAL MET	OBIECTIV ATINS
+Every goal met. The steppe is yours.	Toate obiectivele atinse. Stepa e a ta.
+NEXT GOAL	URMĂTORUL PAS
+Ember	Jar
+Blood	Sânge
+Void	Neant
+Grave	Mormânt
+Khan	Han
+Shard	Ciob
+WAVE	VALUL
+WAVE {0}	VALUL {0}
+SHIELDED	PROTEJAT
+DEFEATED	ÎNVINS
+Gate Warden	Paznicul Porții
+Yard Captain	Căpitanul Curții
+The Spire Warden	Paznicul Turlei
+Lantern Widow	Văduva Felinarului
+Last Carver	Ultimul Cioplitor
+Silkmother	Mama Mătăsii
+Coil Mother	Mama Colacilor
+Rootfather	Tatăl Rădăcinilor
+Merchant-Prince	Prințul-Negustor
+Khan's Shadow	Umbra Hanului
+MAILBOX	POȘTA
+No letters. The Salt Exchange writes when something of yours sells or comes back, and the Pits when a season ends.	Nicio scrisoare. Bursa de Sare îți scrie când ceva de-al tău se vinde sau se întoarce, iar Groapa când se încheie un sezon.
+TAKE ALL	IA TOT
+THROW AWAY TAKEN	ARUNCĂ CELE LUATE
+THROW AWAY	ARUNCĂ
+ALL LETTERS	TOATE SCRISORILE
+Offline: letters need the server.	Offline: scrisorile au nevoie de server.
+From {0}	De la {0}
+NEW	NOU
+Holds: {0}	Conține: {0}
+A notice	Un anunț
+Taken	Luat
+Not sold: {0}	Nevândut: {0}
+Sold: {0}	Vândut: {0}
+ARM	ARMURĂ
+BOOK	CARTE
+BRAC	BRĂȚ.
+EAR	CERC.
+GOODS	BUNURI
+SHLD	SCUT
+SHOE	ÎNC.
+WPN	ARMĂ
+CHEAPEST	IEFTINE
+HIGHEST +	MAXIM +
+NEWEST	RECENTE
+SALT EXCHANGE	BURSA DE SARE
+MY LISTINGS	OFERTELE MELE
+DIRECT TRADE	SCHIMB DIRECT
+How many	Câte
+Price in sorn	Preț în sorn
+e.g. 50000	ex. 50000
+LIST IT	LISTEAZĂ
+A {0} skill's Technique Scroll	Pergament de Tehnică pentru o abilitate de {0}
+No sales of its kind in the last {0} days.	Nicio vânzare de acest fel în ultimele {0} zile.
+Sold lately ({0} days): {1} sale{2}, {3}, about {4}; the last {5}, {6}.	Vânzări recente ({0} zile): {1}, {3}, în medie {4}; ultima {5}, {6}.
+No etchings.	Nicio gravură.
+{0}h left	{0}h rămase
+{0}m left	{0}m rămase
+That is your own listing: take it back under MY LISTINGS.	E oferta ta: retrage-o din OFERTELE MELE.
+Sold by {0}	Vândut de {0}
+You do not have enough sorn.	Nu ai destul sorn.
+TAKE BACK	RETRAGE
+Take it back?	O retragi?
+{0} comes off the Exchange and back to you.	{0} iese de pe Bursă și revine la tine.
+The price is for the whole count listed.	Prețul e pentru toată cantitatea listată.
+Price {0} sorn. When it sells you receive {1} (the Exchange keeps {2}%).	Preț {0} sorn. La vânzare primești {1} (Bursa reține {2}%).
+You hold {0} of these.	Ai {0} din acestea.
+List {0}?	Listezi {0}?
+They leave you now and come back if nobody buys them within {0} hours.	Pleacă de la tine acum și revin dacă nu le cumpără nimeni în {0} ore.
+LIST THEM	LISTEAZĂ-LE
+You hold {0} of this scroll.	Ai {0} din acest pergament.
+It leaves your bag now and comes back if nobody buys it within {0} hours.	Iese din traistă acum și revine dacă nu îl cumpără nimeni în {0} ore.
+You hold {0} sorn	Ai {0} sorn
+the Exchange keeps {0}% of each sale	Bursa reține {0}% din fiecare vânzare
+Offline: the Exchange needs the server.	Offline: Bursa are nevoie de server.
+At least {0} sorn.	Cel puțin {0} sorn.
+You receive {0} sorn when it sells.	Primești {0} sorn când se vinde.
+Nothing listed here yet.	Încă nimic listat aici.
+Opening the Exchange...	Se deschide Bursa...
+Tap to set a count and a price	Atinge ca să stabilești cantitatea și prețul
+Tap to set a price	Atinge ca să stabilești prețul
+Nothing to sell. Worn pieces must be taken off (INVENTORY) before they can be sold.	Nimic de vândut. Piesele purtate trebuie scoase (INVENTAR) înainte de a fi vândute.
+On the Exchange	Pe Bursă
+tap to take it back	atinge ca s-o retragi
+Sold: you received {0} sorn	Vândut: ai primit {0} sorn
+Nobody bought it: back in your bag	Nu l-a cumpărat nimeni: e din nou în traistă
+Nobody bought them: back with you	Nu le-a cumpărat nimeni: sunt din nou la tine
+Taken back	Retras
+Nothing listed. Up to {0} pieces at a time, {1} hours each.	Nimic listat. Până la {0} piese deodată, câte {1} ore fiecare.
+CHARACTERS	PERSONAJE
+HOW TO PLAY	CUM SE JOACĂ
+MESSAGES	MESAJE
+PRIVACY POLICY	CONFIDENȚIALITATE
+DELETE ACCOUNT	ȘTERGE CONTUL
+DEV: GRANT	DEV: ACORDĂ
+DEV: TEST SIGN-IN	DEV: CONECTARE TEST
+Orsuun: War of Banners	Orsuun: Războiul Stindardelor
+Offline: nothing of yours is stored on the server right now.	Offline: acum nu e stocat nimic de-al tău pe server.
+Delete your account?	Îți ștergi contul?
+Your hero, every item and all progress are removed from the server for good.	Eroul tău, fiecare obiect și tot progresul sunt șterse de pe server pentru totdeauna.
+This cannot be undone.	Acțiunea nu poate fi anulată.
+Deleting...	Se șterge...
+Account deleted. A new hunt begins.	Cont șters. Începe o nouă vânătoare.
+SOUND: OFF	SUNET: OPRIT
+SOUND: ON	SUNET: PORNIT
+HUNT SPEED: x{0}	VITEZĂ VÂNĂTOARE: x{0}
+SIGN UP / SIGN IN	ÎNREGISTRARE / CONECTARE
+MAILBOX ({0})	POȘTA ({0})
+Offline.	Offline.
+This server has no test sign-in.	Acest server nu are conectare de test.
+Pick Tester 1 on the page that opens.	Alege Tester 1 pe pagina care se deschide.
+Granted (playtest server).	Acordat (server de test).
+Granted (local).	Acordat (local).
+A hero's name to write to	Numele eroului căruia îi scrii
+WRITE	SCRIE
+No messages yet. Write to a hero by name above, or tap a name in CHAT or on your FRIENDS list.	Încă niciun mesaj. Scrie unui erou după nume mai sus sau atinge un nume în CHAT ori în lista PRIETENI.
+Write a message	Scrie un mesaj
+ALL MESSAGES	TOATE MESAJELE
+Offline: messages need the server.	Offline: mesajele au nevoie de server.
+Type a hero's name first.	Scrie mai întâi numele unui erou.
+You blocked them. Unblock them in CHAT to write again.	Ai blocat acest erou. Deblochează-l în CHAT ca să scrii din nou.
+{0} NEW	{0} NOI
+You: {0}	Tu: {0}
+LOAD OLDER MESSAGES	ÎNCARCĂ MESAJE VECHI
+No messages yet. Say hello.	Încă niciun mesaj. Spune salut.
+A moderator will read it. To stop their messages, block them in CHAT.	Un moderator îl va citi. Ca să nu mai primești mesaje de la acest erou, blochează-l în CHAT.
+Report this message?	Raportezi acest mesaj?
+Not connected to the server.	Nu ești conectat la server.
+Sign-in was cancelled.	Conectarea a fost anulată.
+the test sign-in	conectarea de test
+Signed in with {0}. Welcome back.	Conectat cu {0}. Bine ai revenit.
+Your account is now saved with {0}.	Contul tău e acum salvat cu {0}.
+LOCAL MODE: {0}	MOD LOCAL: {0}
+choose a hero	alege un erou
+Choose a character	Alege un personaj
+Invited	Invitat
+The Salt Exchange	Bursa de Sare
+Rare Felt Boots	Cizme de Pâslă de soi
+The Pits	Groapa
+CHALLENGERS	ADVERSARI
+LOOK AGAIN	CAUTĂ DIN NOU
+FIGHT	LUPTĂ
+PIT SHOP	PRĂVĂLIA GROPII
+{0} Laurels	{0} Lauri
+THE SEASON'S BOARD	CLASAMENTUL SEZONULUI
+BACK TO WAR	ÎNAPOI LA RĂZBOI
+The Pits need the server.	Groapa are nevoie de server.
+Bronze	Bronz
+Iron	Fier
+Silver	Argint
+Gold	Aur
+Jade	Jad
+Khagan	Kagan
+last season's best: {0}	cei mai buni din sezonul trecut: {0}
+{0} fights to be ranked	lupte până la clasare: {0}
+Season ends in {0}	Sezonul se încheie în {0}
+Sanding the pit floor...	Se presară nisip în Groapă...
+This season {0} won, {1} lost	Sezonul acesta: {0} victorii, {1} înfrângeri
+tickets {0}/{1}	bilete {0}/{1}
+a Pit shade	o umbră din Groapă
+No one has fought in the pits yet. Be the first.	Încă nu s-a luptat nimeni în Groapă. Fii primul.
+Carved in the vault door, under the Sky Banner's hawk:	Săpat în ușa criptei, sub șoimul Stindardului Cerului:
+The right rune opens the vault: the Last Carver's chest then holds a Master's Needle.	Runa potrivită deschide cripta: atunci cufărul Ultimului Cioplitor ține un Ac de Maestru.
+LEAVE IT SHUT	LAS-O ÎNCHISĂ
+M1-M10: read the skill's own Technique Scroll ({0}%, then {1} hours of rest).	M1-M10: citește Pergamentul de Tehnică al abilității ({0}%, apoi {1} ore de odihnă).
+G1-G10 and Peerless: an Oathstone and Honor ({0}%). Honor comes from Korstones, Pit wins and dungeon Wardens.	G1-G10 și Neîntrecut: o Piatră de Jurământ și Onoare ({0}%). Onoarea vine din Pietrele Kor, victoriile din Groapă și Paznicii temnițelor.
+Offline: skill grades are trained on the server.	Offline: gradele abilităților se antrenează pe server.
+{0} unlocks at level {1}.	{0} se deblochează la nivelul {1}.
+One {0} is spent. {1}% its teaching takes: {2} of {3} good reads toward {4}	Se consumă un {0}. {1}% șanse să prindă învățătura: {2} din {3} citiri reușite spre {4}
+(the skill rises to {0}, +{1}% power)	(abilitatea urcă la {0}, +{1}% putere)
+Whatever happens, {0} then rests {1} hours before its next read.	Orice s-ar întâmpla, {0} se odihnește apoi {1} ore până la următoarea citire.
+An Oathstone and {0} Honor are spent either way. {1}% the skill rises to {2} (+{3}% power).	Oricum se consumă o Piatră de Jurământ și {0} Onoare. {1}% șanse ca abilitatea să urce la {2} (+{3}% putere).
+You hold {0} Oathstones and {1} Honor.	Ai {0} Pietre de Jurământ și {1} Onoare.
+BURN THE STONE	ARDE PIATRA
+READ IT	CITEȘTE-L
+{0}: try for {1}?	{0}: încerci pentru {1}?
+Honor {0}	Onoare {0}
+Oathstones {0}	Pietre de Jurământ {0}
++{0}% skill power	+{0}% putere abilitate
+the summit	culmea
+{0} gives +{1}%	{0} dă +{1}%
+Unlocks at level {0} (you are {1}).	Se deblochează la nivelul {0} (tu ești {1}).
+Scrolls held: {0}	Pergamente deținute: {0}
+LEVEL	NIVEL
+Peerless: nothing is above it.	Neîntrecut: nimic nu e mai presus.
+PEERLESS	NEÎNTRECUT
+Reads toward {0}: {1} of {2}	Citiri spre {0}: {1} din {2}
+{0}% a read	{0}% pe citire
+No scroll of this skill: Warden chests, the shops, the Exchange	Niciun pergament pentru această abilitate: cuferele Paznicilor, prăvăliile, Bursa
+NO SCROLL	FĂRĂ PERGAMENT
+READ A\nSCROLL	CITEȘTE UN\nPERGAMENT
+RESTING	ÎN ODIHNĂ
+Next: {0}	Următorul: {0}
+an Oathstone and {0} Honor a try	o Piatră de Jurământ și {0} Onoare pe încercare
+No Oathstone: the Carvers' Archive, the Pit shop	Nicio Piatră de Jurământ: Arhiva Cioplitorilor, prăvălia Gropii
+Not enough Honor ({0} of {1})	Onoare insuficientă ({0} din {1})
+Ready.	Gata.
+BURN AN\nOATHSTONE	ARDE O PIATRĂ\nDE JURĂMÂNT
+"Chained to this anvil since the Spire rose. One piece from each climber. Choose."	"Legat de nicovala asta de când s-a înălțat Turla. O piesă de la fiecare cățărător. Alege."
+FORGE AT THE SMITH	RAFINEAZĂ LA FIERAR
+WALK ON	MAI DEPARTE
+Choose a worn piece	Alege o piesă purtată
+It has sworn all nine oaths already.	A depus deja toate cele nouă jurăminte.
+Cost {0} sorn	Cost {0} sorn
+To +{0}:	Spre +{0}:
+{0} with the smith's hand	{0} cu mâna fierarului
+not enough	nu ajunge
+KORSHARDS	CIOBURI KOR
+Dead Shard removed.	Ciob Mort scos.
+Shard set: {0}	Ciob fixat: {0}
+The shard shattered. A Dead Shard blocks the socket.	Ciobul s-a sfărâmat. Un Ciob Mort blochează locașul.
+NO SOCKETS ON THIS PIECE	PIESA NU ARE LOCAȘURI
+Rarer pieces carry more sockets.	Piesele mai rare au mai multe locașuri.
+CLEAR DEAD SHARD	SCOATE CIOBUL MORT
+A Dead Shard blocks the socket until it is knocked out.	Un Ciob Mort blochează locașul până e scos.
+SET {0}	FIXEAZĂ {0}
+A failed set leaves a Dead Shard in the socket.	O fixare eșuată lasă un Ciob Mort în locaș.
+SOCKET {0} HOLDS {1} {2}	LOCAȘUL {0} ARE {1} {2}
+TAP TO BEGIN	ATINGE CA SĂ ÎNCEPI
+Connecting to the steppe...	Ne conectăm la stepă...
+Ready	Gata
+TRADE WITH A HERO	SCHIMB CU UN EROU
+Both of you put pieces, scrolls and sorn on the table, lock, then confirm.	Amândoi puneți pe masă piese, pergamente și sorn, blocați oferta, apoi confirmați.
+ASK TO TRADE	CERE SCHIMB
+Both need level {0} and an account {1} hours old. {2}% of the sorn goes to the tax. Technique Scrolls trade too. Your own heroes share the depot instead.	Amândoi aveți nevoie de nivelul {0} și de un cont vechi de {1} ore. {2}% din sorn merge la taxă. Și Pergamentele de Tehnică se pot schimba. Eroii tăi folosesc în schimb depozitul comun.
+ACCEPT	ACCEPTĂ
+Sorn to give	Sorn de dat
+PUT SORN	PUNE SORN
+YOUR BAG (TAP TO OFFER)	TRAISTA TA (ATINGE CA SĂ OFERI)
+CANCEL TRADE	ANULEAZĂ SCHIMBUL
+Trading needs the server.	Schimbul are nevoie de server.
+Locked	Blocat
+CONFIRMED	CONFIRMAT
+Confirmed	Confirmat
+None	Nimic
+Cancelled	Anulat
+Done	Gata
+The trade is over.	Schimbul s-a încheiat.
+Traded.	Schimbat.
+Trade pieces and sorn with another hero.	Schimbă piese și sorn cu alt erou.
+An invitation	O invitație
+Waiting for an answer	Se așteaptă un răspuns
+Waiting for {0}...	Așteptăm răspuns de la {0}...
+{0} asks to trade.	{0} vrea să faceți schimb.
+(playtest: level and age rules off)	(test: regulile de nivel și vechime sunt oprite)
+Trading with	Schimb cu
+{0} OFFERS	{0} OFERĂ
+(you get {0} after the {1}% tax)	(primești {0} după taxa de {1}%)
+Sorn: {0}	Sorn: {0}
+YOU OFFER	TU OFERI
+WAIT {0}	AȘTEAPTĂ {0}
+LOCK OFFER	BLOCHEAZĂ OFERTA
+CONFIRM	CONFIRMĂ
+Nothing yet.	Încă nimic.
+STATS	STATISTICI
+Tap a piece or a scroll below to see it and offer it.	Atinge o piesă sau un pergament mai jos ca să vezi și să oferi.
+OFFER THEM	OFERĂ-LE
+OFFER IT	OFERĂ
+At most {0} pieces a trade.	Cel mult {0} piese pe schimb.
+Nothing in the bag to offer (worn pieces stay on).	Nimic de oferit în traistă (piesele purtate rămân pe erou).
+If you wore it:	Dacă ai purta-o:
+Your class reads it.	Clasa ta îl poate citi.
+Read at SKILLS to climb {0}'s Mastered grades: {1}% a read, then {2} hours of rest.	Citește la ABILITĂȚI ca să urci gradele de Măiestrie ale abilității {0}: {1}% pe citire, apoi {2} ore de odihnă.
+Between 1 and {0}.	Între 1 și {0}.
+Bounties pay Trail XP: {0} a daily, {1} a weekly.	Misiunile dau XP de Drum: {0} pe cea zilnică, {1} pe cea săptămânală.
+FREE	GRATUIT
+THE TRAIL	DRUMUL
+CLAIM ALL	PRIMEȘTE TOT
+Free	Gratuit
+Paid	Plătit
+The Campaign Trail needs the server.	Drumul Campaniei are nevoie de server.
+Tier {0} is {1} Trail XP away.	Până la treapta {0} mai ai {1} XP de Drum.
+Taken.	Luat.
+The Trail's reward needs the Trail.	Recompensa Drumului cere Drumul.
+Not enough Amber: {0} needed.	Chihlimbar insuficient: e nevoie de {0}.
+(you have the Trail: you pay the difference)	(ai deja Drumul: plătești diferența)
+Trail Plus: the paid track and {0} tiers at once	Drumul Plus: calea plătită și {0} trepte dintr-odată
+The Trail: the paid track	Drumul: calea plătită
+Season {0}, {1}: {2} at tier 1, {3} at tier {4}.	Sezonul {0}, {1}: {2} la treapta 1, {3} la treapta {4}.
+{0}, for this hero, for {1} Amber.	{0}, pentru acest erou, cu {1} Chihlimbar.
+TRAIL PLUS	DRUMUL PLUS
+The Trail is yours: claim its rewards.	Drumul e al tău: primește-i recompensele.
+Trail Plus is yours: ten tiers climbed.	Drumul Plus e al tău: zece trepte urcate.
+Season {0}	Sezonul {0}
+Ends in {0}.	Se încheie în {0}.
+Tier 1: {0} ({1})	Treapta 1: {0} ({1})
+Tier {0}: {1} ({2})	Treapta {0}: {1} ({2})
+TIER {0} / {1}	TREAPTA {0} / {1}
+{0} / {1} Trail XP to tier {2}	{0} / {1} XP de Drum până la treapta {2}
+{0} Trail XP: the Trail is climbed.	{0} XP de Drum: Drumul e urcat.
+THE TRAIL: YOURS	DRUMUL: AL TĂU
+TRAIL PLUS: YOURS	DRUMUL PLUS: AL TĂU
+PLUS +{0} TIERS	PLUS +{0} TREPTE
+THE TRAIL (LOCKED)	DRUMUL (BLOCAT)
+CLAIM ALL ({0})	PRIMEȘTE TOT ({0})
+Last season left {0} rewards unclaimed: CLAIM ALL hands them over.	Recompense nerevendicate din sezonul trecut: {0}. PRIMEȘTE TOT ți le dă.
+TAP TO CLAIM	ATINGE ȘI PRIMEȘTE
+REMOVE	SCOATE
+STOP WHEN ALL OF THESE ARE ON IT	OPREȘTE CÂND LE ARE PE TOATE
+BACK TO THE FORGE	ÎNAPOI LA FIERĂRIE
+ADD A PIECE	ADAUGĂ O PIESĂ
+No other pieces with etchings. Add etchings with Etching Needles first.	Nicio altă piesă cu gravuri. Adaugă mai întâi gravuri cu Ace de Gravat.
+Etching	Gravură
+Stopped after {0} turns.	Oprit după {0} răsuciri.
+GONE	DISPĂRUT
+Out of Turnstones after {0} turns.	Pietrele de Răsucire s-au terminat după {0} răsuciri.
+no goal	fără obiectiv
+CHECK	VERIFICĂ
+Turning...	Se răsucește...
+{0} turns so far	răsuciri până acum: {0}
+Turn a piece ON and give it a goal first.	Pune mai întâi o piesă pe PORNIT și dă-i un obiectiv.
+All done after {0} turns!	Totul gata după {0} răsuciri!
+{0} done, {1} need a look (CHECK).	{0} gata, {1} de verificat (VERIFICĂ).
+All done	Totul gata
+OFF	OPRIT
+ON	PORNIT
+TURNING	SE RĂSUCEȘTE
+Add a piece	Adaugă o piesă
+That piece is gone	Piesa aceea a dispărut
+It was destroyed or sold: REMOVE it.	A fost distrusă sau vândută: apasă SCOATE.
+Tap + to add pieces, worn or in the bag, and give each one its goal.	Atinge + ca să adaugi piese, purtate sau din traistă, și dă fiecăreia obiectivul ei.
+up to T{0}	până la T{0}
+you have {0}	ai {0}
+{0} Turnstone{1} a turn	Pietre de Răsucire pe răsucire: {0}
+Choose an etching	Alege o gravură
+Pick up to five etchings and the lowest tier you accept for each.	Alege până la cinci gravuri și treapta minimă acceptată pentru fiecare.
+This piece has its goal.	Piesa aceasta și-a atins obiectivul.
+about {0} Turnstones on average	cam {0} Pietre de Răsucire în medie
+{0}% a turn	{0}% pe răsucire
+About 1 in {0} turns	Cam 1 din {0} răsuciri
+{0} Turnstones on average	{0} Pietre de Răsucire în medie
+STOP	STOP
+STOPPING...	SE OPREȘTE...
+START TURNING	ÎNCEPE RĂSUCIREA
+START TURNING ({0} PIECES)	ÎNCEPE RĂSUCIREA ({0} PIESE)
+T1 +{0}	T1 +{0}
+T5 +{0}	T5 +{0}
+BAG	TRAISTĂ
+SKIP	SARI PESTE
+THE HUNT	VÂNĂTOAREA
+Your hero hunts on their own: packs fall and loot drops, even while you are away.	Eroul tău vânează singur: haitele cad și prada curge, chiar și când lipsești.
+Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Fiecare val se termină la o Piatră Kor. Sparge-o pentru cea mai bună pradă. Cu cât vânezi mai adânc, cu atât pietrele sunt mai întunecate și mai ucigașe.
+KORSTONES	PIETRE KOR
+Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	Cu AUTO pornit, abilitățile se lansează singure. Atinge o abilitate ca s-o lansezi exact când vrei: țintită, lovește mai tare.
+The Forge raises your gear's level and its power. Tap FORGE.	Fierăria ridică nivelul și puterea echipamentului tău. Atinge RAFINEAZĂ.
+Every try shows its chance and cost and asks first. Up to +3 a failure costs a level; from +4 a failed FORGE ALONE destroys the piece, and a Scroll of Mercy keeps it safe. Try once.	Fiecare încercare îți arată șansa și costul și te întreabă întâi. Până la +3 un eșec costă un nivel; de la +4, un RAFINEAZĂ SIMPLU eșuat distruge piesa, iar un Pergament al Îndurării o ține în siguranță. Încearcă o dată.
+FIRST STRIKE	PRIMA LOVITURĂ
+WELL STRUCK	BINE LOVIT
+Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Câștigi sau pierzi, Fierăria e mereu acolo. Atinge ÎNAPOI LA VÂNĂTOARE.
+New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Piesele noi cad în traistă: poartă-le din INVENTAR. Acolo rafinezi sau răsucești orice piesă, purtată sau din traistă.
+PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	ÎNAINTE cucerește etapa următoare când ești destul de puternic. Fiecare etapă curățată deschide noi terenuri de vânătoare în ZONE.
+THE STEPPE	STEPA
+WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	RĂZBOI pentru Stindardul tău, MISIUNI pentru Semne de Vânătoare, BREASLĂ, SCHIMB la Bursa de Sare și MENIU pentru sunet, cont și acest ghid.
+This line always shows your next goal. Tap it to go there. Good hunting!	Rândul acesta îți arată mereu următorul obiectiv. Atinge-l ca să mergi acolo. Vânătoare bună!
+CHANGE	SCHIMBĂ
+FORTRESSES	FORTĂREȚE
+KEEP	CETATE
+BIDS	OFERTE
+BID +{0}	OFERĂ +{0}
+The keeps need the server.	Cetățile au nevoie de server.
+Bid on the keep of {0}?	Licitezi pentru cetatea din {0}?
+{0} sorn leave the guild treasury now; your bid becomes {1}.	{0} sorn ies acum din vistieria breslei; oferta ta devine {1}.
+On Sunday at 20:00 the four highest bids storm the keep and are spent; the rest go back.	Duminică la 20:00, cele mai mari patru oferte asaltează cetatea și se consumă; restul se întorc.
+BID	OFERĂ
+THE KEEP OF {0}	CETATEA DIN {0}
+No guild holds the keep.	Nicio breaslă nu ține cetatea.
+{0} {1} holds the keep: their flag flies here.	{0} {1} ține cetatea: steagul lor flutură aici.
+Bids are open. The keep is stormed on Sunday at 20:00, in {0}.	Licitațiile sunt deschise. Cetatea e asaltată duminică la 20:00, peste {0}.
+The keep siege is on: {0} left. The best contender must beat {1} plus the {2} its holders mended.	Asediul cetății e în toi: mai sunt {0}. Cel mai bun pretendent trebuie să depășească {1} plus cele {2} reparate de stăpânii ei.
+Bids open again on Monday at 20:00.	Licitațiile se redeschid luni la 20:00.
+No bids yet this week.	Încă nicio ofertă săptămâna aceasta.
+Your guild holds this keep and defends it on Sunday.	Breasla ta ține această cetate și o apără duminică.
+It storms the keep.	Asaltează cetatea.
+Your guild bids {0} sorn.	Breasla ta oferă {0} sorn.
+Bids start at {0} sorn from the treasury.	Ofertele pornesc de la {0} sorn din vistierie.
+Offline: the War of Banners needs the server.	Offline: Războiul Stindardelor are nevoie de server.
+Swear to a Banner first.	Jură-te mai întâi unui Stindard.
+Gathering word from the steppe...	Se adună vești din stepă...
+Season	Sezon
+points from Korstones, Commanders, pushes and sieges	puncte din Pietre Kor, Comandanți, înaintări și asedii
+Offline	Offline
+You have sworn to no Banner yet.	Încă nu te-ai jurat niciunui Stindard.
+You ride for the {0}	Călărești pentru {0}
+hunting bonus +{0}% sorn	bonus de vânătoare +{0}% sorn
+Last season's winner: the {0} (+{1}% sorn this season)	Câștigătorul sezonului trecut: {0} (+{1}% sorn în acest sezon)
+Last season: no winner.	Sezonul trecut: niciun câștigător.
+guild flag [{0}]	steag de breaslă [{0}]
+the {0} is under siege{1}	{0} e sub asediu
+Ember {0}	Jar {0}
+Sky {0}	Cer {0}
+Gold {0}	Aur {0}
+REGROUP {0}:{1}	REGRUPARE {0}:{1}
+HOLD KEEP	APĂRĂ CETATEA
+STORM KEEP	ATACĂ CETATEA
+COMPANION	ÎNSOȚITOR
+MOUNT	MONTURĂ
+SKIN	COSTUM
+WEAR	POARTĂ
+Nothing held yet. The Caravan sells skins, mounts and companions, and bosses from Gorak Pass on drop them.	Încă nu ai nimic. Caravana vinde costume, monturi și însoțitori, iar căpeteniile, începând cu Trecătoarea Gorak, le lasă ca pradă.
+TO THE CARAVAN	LA CARAVANĂ
+The wardrobe needs the server.	Garderoba are nevoie de server.
+WHERE TO HUNT	UNDE SĂ VÂNEZI
+Hunting Grounds pay sorn and levels, Fields pay materials, Commander Grounds pay skins	Terenurile de Vânătoare dau sorn și niveluri, Câmpurile dau materiale, Terenurile de Comandant dau costume
+Dungeon	Temniță
+Zone	Zonă
+COMMANDERS	COMANDANȚI
+DEV: bosses up	DEV: căpetenii gata
+9 floors	9 etaje
+the Chained Smith on floor 6	Fierarul Înlănțuit la etajul 6
+2 levels, 6 floors	2 niveluri, 6 etaje
+the Silkmother's Khan's Alloy	Aliajul Hanului de la Mama Mătăsii
+Master's Needles	Ace de Maestru
+{0} floors	{0} etaje
+a rune lock on floor {0}	un lacăt runic la etajul {0}
+Dungeons need the server.	Temnițele au nevoie de server.
+Clear {0} to open	Curăță {0} ca să deschizi
+The Chained Smith is waiting on floor {0}.	Fierarul Înlănțuit așteaptă la etajul {0}.
+The rune lock waits on floor {0}.	Lacătul runic așteaptă la etajul {0}.
+keys today {0}/{1}	chei azi {0}/{1}
+CONTINUE	CONTINUĂ
+ENTER	INTRĂ
+NO KEYS	FĂRĂ CHEI
+RUN WAITING	ÎN AȘTEPTARE
+Local mode: Commanders are always up.	Mod local: Comandanții sunt mereu prezenți.
+Campaign	Campanie
+balanced drops	pradă echilibrată
+stages 1-{0}	etapele 1-{0}
+Commander Ground	Teren de Comandant
+Hunting Ground	Teren de Vânătoare
+Korstone Field	Câmp de Pietre Kor
+no offline	fără offline
+Clear campaign stage {0} to open	Curăță etapa de campanie {0} ca să deschizi
+Lv {0}-{1}{2}	Nv. {0}-{1}{2}
+HUNT HERE	VÂNEAZĂ AICI
+HUNTING NOW	VÂNEZI ACUM
+next in {0}:{1}	următorul în {0}:{1}
+UP {0}:{1}	ACTIV {0}:{1}
+up {0}:{1}	activ {0}:{1}
+SLAIN by {0}	UCIS de {0}
+Server pool {0} / {1} HP	Rezerva serverului {0} / {1} HP
+up (local)	activ (local)
+shielded by 4 captains, enrages at 30%	apărat de 4 căpitani, se înfurie la 30%
+splits into reflecting images at 70% and 40%	se desparte în imagini-oglindă la 70% și 40%
+calls a pack every 15 s	cheamă o haită la fiecare 15 s
+Enter your email.	Introdu e-mailul.
+That email is too long.	E-mailul e prea lung.
+That does not look like an email.	Nu pare a fi un e-mail.
+A password has at least {0} characters.	Parola are cel puțin {0} caractere.
+That password is too long.	Parola e prea lungă.
+Choose a stronger password.	Alege o parolă mai puternică.
+Break every stone.	Sparge fiecare piatră.
+Ember Banner	Stindardul Jarului
+Emberhearth	Vatra Jarului
+Rider clans of the open steppe: proud, blunt, settled by honour duels.	Clanuri de călăreți ai stepei deschise: mândri, direcți, își rezolvă disputele prin dueluri de onoare.
+Reseal what was sealed.	Pecetluiește din nou ce a fost pecetluit.
+Sky Banner	Stindardul Cerului
+Mountain monasteries under the eternal sky: archivists, drum shamans and grave wardens.	Mănăstiri de munte sub cerul veșnic: arhivari, șamani cu tobe și paznici de morminte.
+Wardenstep	Treapta Paznicilor
+Every stone has a price.	Fiecare piatră are un preț.
+Gold Banner	Stindardul de Aur
+Caravan cities of the salt roads: contracts, guild banks and hired blades.	Orașe de caravane pe drumurile sării: contracte, bănci de breaslă și săbii tocmite.
+Scalehouse	Casa Cântarului
+No such Banner.	Nu există un asemenea Stindard.
+Choose one of the three Banners.	Alege unul dintre cele trei Stindarde.
+You ride under that Banner already.	Călărești deja sub acel Stindard.
+The Banner changes once a season. Wait for the next one.	Stindardul se schimbă o dată pe sezon. Așteaptă sezonul următor.
+Changing Banners costs {0} Oathstones (the Carvers' Archive).	Schimbarea Stindardului costă {0} Pietre de Jurământ (Arhiva Cioplitorilor).
+Stagfort	Cetatea Cerbului
+The Oathfields	Câmpiile Jurământului
+Saltgate	Poarta Sării
+The Salt Flats	Întinderile de Sare
+Ravenmoot	Sfatul Corbilor
+The Frost Pasture	Pășunea de Ger
+Gate Warden of {0}	Paznicul Porții din {0}
+Yard Captain of {0}	Căpitanul Curții din {0}
+Lord of {0} Hall	Stăpânul Sălii din {0}
+Your oath is renewed {0} times: it holds for ever.	Jurământul tău a fost reînnoit de {0} ori: ține pentru totdeauna.
+Oath Renewal opens at level {0}.	Reînnoirea Jurământului se deschide la nivelul {0}.
+Break 20 Korstones	Sparge 20 de Pietre Kor
+Hunt for 30 minutes	Vânează 30 de minute
+Forge 5 times	Rafinează de 5 ori
+Turn etchings 25 times	Răsucește gravuri de 25 de ori
+Fight a Commander	Luptă cu un Comandant
+Break 200 Korstones	Sparge 200 de Pietre Kor
+Fight 5 Commanders	Luptă cu 5 Comandanți
+Push 10 times	Înaintează de 10 ori
+Join 3 fortress sieges	Ia parte la 3 asedii de fortăreață
+Already claimed.	Deja revendicat.
+Not finished yet.	Încă neterminat.
+Adds an etching (1st to 4th)	Adaugă o gravură (a 1-a până la a 4-a)
+Holds one etching through turns	Păstrează o gravură la răsuciri
+10 Turnstones	10 Pietre de Răsucire
+Turn etchings	Răsucește gravuri
+A failed Forge only loses a level	O rafinare eșuată pierde doar un nivel
+10 Draughts	10 Poțiuni
+Healing draughts for the hunt	Poțiuni de vindecare pentru vânătoare
+A book of one of your class's skills	O carte pentru una dintre abilitățile clasei tale
+Technique Scroll	Pergament de Tehnică
+Unknown shop item.	Articol necunoscut.
+Buy 1 to 99 at a time.	Cumpără între 1 și 99 odată.
+Not enough Hunt Marks.	Nu ai destule Semne de Vânătoare.
+Scrolls of Mercy	Pergamente ale Îndurării
+a Scroll of Mercy	un Pergament al Îndurării
+A name has {0} to {1} letters or digits.	Un nume are între {0} și {1} litere sau cifre.
+A name starts with a letter.	Numele începe cu o literă.
+Letters and digits only, no spaces.	Doar litere și cifre, fără spații.
+Choose another name.	Alege alt nume.
+Say something first.	Spune mai întâi ceva.
+At most {0} characters.	Cel mult {0} caractere.
+online	online
+{0} min ago	acum {0} min
+{0} h ago	acum {0} h
+{0} days ago	acum {0} zile
++1 Bloodroot Draught	+1 Poțiune de Rădăcina-Sângelui
+Bloodroot Draught	Poțiune de Rădăcina-Sângelui
+Korstone chest: {0}	Cufăr de Piatră Kor: {0}
+Elder Korstone chest: {0}	Cufăr de Piatră Kor Străveche: {0}
+{0} falls: {1}	{0} cade: {1}
+No chest: rank {0} on {1}	Fără cufăr: locul {0} la {1}
+{0} from {1}: {2}	{0} de la {1}: {2}
+{0} sorn	{0} sorn
++{0} sorn	+{0} sorn
++{0} materials	+{0} materiale
+Commander's chest	Cufărul Comandantului
+Officer's chest	Cufărul Ofițerului
+Trooper's chest	Cufărul Oșteanului
+Void Lance	Lancea Neantului
+Grave Tide	Fluxul Mormintelor
+Pact Frenzy	Frenezia Pactului
+Grave Chains	Lanțurile Mormântului
+Shroud of Night	Giulgiul Nopții
+Sky Hammer	Ciocanul Cerului
+Storm Drum	Toba Furtunii
+War Rhythm	Ritmul Războiului
+Hunter's Blessing	Binecuvântarea Vânătorului
+Mirror Ward	Talismanul Oglinzii
+Heartseeker	Căutătoarea de Inimi
+Knife Fan	Evantaiul de Cuțite
+Kestrel's Dive	Plonjonul Vânturelului
+Venom Cloud	Norul de Venin
+Shadow Stoop	Picajul Umbrei
+Rending Arc	Arcul Sfâșietor
+Iron Whirl	Vârtejul de Fier
+Blood Fury	Furia Sângelui
+Honed Edge	Tăiș Ascuțit
+Bull Rush	Șarja Taurului
+Old Greyjaw	Bătrânul Falcă-Sură
+Wolf Sinew	Tendon de Lup
+calls a pack	cheamă o haită
+Shielded by captains	Apărat de căpitani
+splits into images	se desparte în imagini
+Hollowed Boar	Mistreț Scobit
+Hollowed Wolf	Lup Scobit
+Gorak Marauder	Jefuitor Gorak
+Gorak Pass	Trecătoarea Gorak
+Gorak Raider	Prădător Gorak
+Marauder Brand	Stigmat de Jefuitor
+War Hound	Dulău de Război
+Warlord Tul-Gorak	Hatmanul Tul-Gorak
+Caravan Ghoul	Hoitar de Caravană
+Glass Snake	Șarpe de Sticlă
+Salt Scorpion	Scorpion de Sare
+Scorpion Glass	Sticlă de Scorpion
+The Mirage Queen	Regina Mirajelor
+The Salt Sea	Marea de Sare
+Frost Bear	Urs de Ger
+Frozen Marrow	Măduvă Înghețată
+Ice Wight	Strigoi de Gheață
+Snow Hag	Baba Zăpezii
+Whitefang Range	Munții Colț-Alb
+Ash Fiend	Demon de Cenușă
+Azhdar the Furnace Wyrm	Azhdar, Balaurul Cuptorului
+Cinder Heart	Inimă de Jar
+Flame Cultist	Sectant al Flăcării
+Magma Hound	Dulău de Magmă
+The Cinder Marches	Hotarele de Cenușă
+Hanging Spirit	Duh Spânzurat
+Hollowed Dead	Mort Scobit
+Lantern Wisp	Pâlpâire de Felinar
+The Lantern Widow	Văduva Felinarului
+Whisper Bark	Scoarță de Șoaptă
+Whisperwood	Codrul Șoaptelor
+Birch Stalker	Pânditor de Mesteacăn
+Bloodbirch Resin	Rășină de Mesteacăn Sângeriu
+Red Treant	Om-Copac Roșu
+Sap Horror	Oroarea de Sevă
+The Bloodbirch	Mestecănișul Sângeriu
+Bloodbirch	Mestecănișul Sângeriu
+The Rootfather	Tatăl Rădăcinilor
+Bog Rider	Călărețul Mlaștinii
+Leech Swarm	Roi de Lipitori
+Marsh Serpent	Șarpe de Mlaștină
+Serpent Scale	Solz de Șarpe
+The Coil Mother	Mama Colacilor
+The Drowned Steppe	Stepa Înecată
+Bone Picker	Culegător de Oase
+Colossus Graves	Mormintele Coloșilor
+Giant's Knuckle	Falanga Uriașului
+Hurm the Unburied	Hurm cel Neîngropat
+Siege Beast	Fiara de Asediu
+Stone Giant	Uriaș de Piatră
+Debt Wraith	Stafia Datoriei
+Gilded Cog	Rotiță Aurită
+Gilded Construct	Golem Aurit
+Khan Cultist	Sectant al Hanului
+The Last Merchant-Prince	Ultimul Prinț-Negustor
+The Sunken Bazaar	Bazarul Scufundat
+Marker Dust	Praf de Bornă
+Risen Captain	Căpitan Înviat
+Risen Rider	Călăreț Înviat
+Risen Trooper	Oștean Înviat
+The Thousand Markers	Cele O Mie de Borne
+Varkesh of the Left Wing	Varkesh al Aripii Stângi
+Khan's Hound	Copoiul Hanului
+Oath Chanter	Descântătorul Jurământului
+The Hollow Throne	Tronul Pustiu
+The Khan's Shadow	Umbra Hanului
+Throne Guard	Străjer al Tronului
+Throne Shard	Ciob de Tron
+Ember Steppe	Stepa de Jar
+The Ember Steppe	Stepa de Jar
+Salt Flats	Întinderile de Sare
+Frost Pasture	Pășunea de Ger
+Korstone Field I	Câmp de Pietre Kor I
+Korstone Field II	Câmp de Pietre Kor II
+Korstone Field III	Câmp de Pietre Kor III
+Korstone Field IV	Câmp de Pietre Kor IV
+Korstone Field V	Câmp de Pietre Kor V
+Gorak War Camp	Tabăra de Război Gorak
+Tul-Gorak's Warmask	Masca de Război a lui Tul-Gorak
+Mirage Veil	Vălul Mirajului
+Greyjaw Pelt Cloak	Mantie din Blana lui Falcă-Sură
+Bone Bracelet	Brățară de Os
+Felt Boots	Cizme de Pâslă
+Iron Earrings	Cercei de Fier
+Lamellar Coat	Tunică de Zale
+Round Shield	Scut Rotund
+Steppe Helm	Coif de Stepă
+Tamga Necklace	Colier cu Tamga
+Captain	Căpitan
+Commander	Comandant
+Guard of the Khan	Străjer al Hanului
+Rider	Călăreț
+Trooper	Oștean
+{0}, floor {1}	{0}, etajul {1}
+A dungeon	O temniță
+Unknown zone	Zonă necunoscută
+The Hollow Spire	Turla Pustie
+Nine floors pushed up from the grave plain. A Korstone rush on floor 3, the Chained Smith on floor 6, the Spire Warden on floor 9.	Nouă etaje înălțate din câmpia mormintelor. Un val de Pietre Kor la etajul 3, Fierarul Înlănțuit la etajul 6, Paznicul Turlei la etajul 9.
+Silkmother's Warren	Vizuina Mamei Mătăsii
+The Silkmother	Mama Mătăsii
+Under the Salt Sea, two levels deep: the Upper Galleries and the Brood Deep, opened by an egg-nest rush. The Silkmother waits at the bottom; her chest always holds a Khan's Alloy.	Sub Marea de Sare, pe două niveluri: Galeriile de Sus și Adâncul Puietului, deschis de un val din cuibul de ouă. Mama Mătăsii așteaptă la fund; cufărul ei ține mereu un Aliaj al Hanului.
+The Carvers' Archive	Arhiva Cioplitorilor
+The Last Carver	Ultimul Cioplitor
+A Sky Banner vault in the mountains. On floor 3 a rune lock asks the riddle carved in its door: the right rune opens the vault, and the Last Carver's chest then holds a Master's Needle. His chest always holds an Oathstone (two with the vault open).	O criptă a Stindardului Cerului în munți. La etajul 3, un lacăt runic pune ghicitoarea săpată în ușa lui: runa potrivită deschide cripta, iar cufărul Ultimului Cioplitor ține atunci un Ac de Maestru. Cufărul lui ține mereu o Piatră de Jurământ (două cu cripta deschisă).
+Brood Deep	Adâncul Puietului
+Upper Galleries	Galeriile de Sus
+Floor {0}	Etajul {0}
+I have a mouth that never speaks and a bed where I never sleep; I run all my life and never leave home.	Am o gură care nu vorbește și un pat în care nu dorm niciodată; alerg toată viața și nu plec de acasă.
+River	Râu
+Tent	Cort
+Higher than the Khan's banner I circle, and the whole steppe is my map.	Mai sus de stindardul Hanului mă rotesc, iar toată stepa e harta mea.
+Birch	Mesteacăn
+Moon	Lună
+White as bone and sold for gold, I was a sea before I was a road.	Albă ca osul și vândută pe aur, am fost mare înainte să fiu drum.
+Common {0}	{0} de rând
+Uncommon {0}	{0} aparte
+Rare {0}	{0} de soi
+Epic {0}	{0} de faimă
+Legendary {0}	{0} de legendă
+Common	Comun
+Uncommon	Neobișnuit
+Epic	Epic
+{0}, {1}	{0}, {1}
++{0} {1}	+{0} {1}
+{0}: {1}	{0}: {1}
+{0} +{1}	{0} +{1}
+{0} × {1}	{0} × {1}
+Arrow	Săgeată
+Drum	Tobă
+Feathered at one end and sharp at the other, I fly once and never come home.	Cu pene la un capăt și ascuțită la celălalt, zbor o dată și nu mă mai întorc acasă.
+Banner	Stindard
+I call the whole host without a mouth; strike my face and I answer.	Chem toată oastea fără gură; lovește-mă în față și îți răspund.
+I rise with no legs and set with no fall, and every rider turns to me at dawn.	Răsar fără picioare și apun fără să cad, și orice călăreț se întoarce spre mine în zori.
+Sun	Soare
+My coat is white in summer and in winter, and in the red wood I bleed.	Haina mea e albă vara și iarna, iar în pădurea roșie sângerez.
+One leg in the ground and a round roof on my head, I keep the sleepers dry.	Cu un picior în pământ și un acoperiș rotund pe cap, îi țin la uscat pe cei ce dorm.
+Four legs for the grass and a rider on my back, I drink where the river bends.	Patru picioare pentru iarbă și un călăreț în spinare, beau unde cotește râul.
+I hunt with my kin and sing to a silver face at night.	Vânez cu neamul meu și cânt noaptea unui chip de argint.
+I have no light of my own; I borrow the sun's to guide the night caravan.	N-am lumină a mea; o împrumut pe a soarelui ca să călăuzesc caravana de noapte.
+Every Banner flies me, yet I never leave my pole.	Orice Stindard mă flutură, dar eu nu-mi părăsesc niciodată prăjina.
+{0} Turnstones	{0} Pietre de Răsucire
+an Etching Needle	un Ac de Gravat
+a {0} Korshard	un Ciob Kor de {0}
+{0} Korshard	Ciob Kor de {0}
+a Master's Needle	un Ac de Maestru
+an Oathstone	o Piatră de Jurământ
+{0} and a Khan's Alloy	{0} și un Aliaj al Hanului
+a {0}	{0}
+{0}; {1}	{0}; {1}
+Trooper Korshard	Ciob Kor de Oștean
+Rider Korshard	Ciob Kor de Călăreț
+Captain Korshard	Ciob Kor de Căpitan
+Commander Korshard	Ciob Kor de Comandant
+Guard of the Khan Korshard	Ciob Kor de Străjer al Hanului
+Strong against Oathsworn	Puternic contra Juraților
+Critical hit chance	Șansă de lovitură critică
+Piercing hit chance	Șansă de lovitură străpungătoare
+DEX	DEX
+INT	INT
+STR	FOR
+VIT	VIT
+Strong against Hollowed	Puternic contra Scobiților
+Strong against Fiends	Puternic contra Demonilor
+Strong against Marauders	Puternic contra Jefuitorilor
+Strong against Beasts	Puternic contra Fiarelor
+Strong against Cultists	Puternic contra Sectanților
+Poison chance	Șansă de otrăvire
+Stun chance	Șansă de amețire
+Casting speed	Viteză de lansare
+Attack value	Valoare de atac
+Max HP	HP maxim
+Resistance to Vanguard	Rezistență la Vanguard
+Resistance to Kestrel	Rezistență la Kestrel
+Resistance to Wraithsworn	Rezistență la Wraithsworn
+Resistance to Drumcaller	Rezistență la Drumcaller
+HP regeneration	Regenerare HP
+Block chance	Șansă de blocare
+Reflect	Reflexie
+Sorn drop	Pradă de sorn
+Item drop	Pradă de obiecte
+Evasion	Eschivă
+That piece is gone.	Piesa aceea a dispărut.
+This piece has all five etchings.	Piesa are deja toate cele cinci gravuri.
+The fifth etching needs a Master's Needle (the Carvers' Archive or the Pit shop).	A cincea gravură cere un Ac de Maestru (Arhiva Cioplitorilor sau prăvălia Gropii).
+No Etching Needles.	Niciun Ac de Gravat.
+No etching there.	Nicio gravură acolo.
+No Pinning Wax.	Nicio Ceară de Fixare.
+Item already has 5 etchings.	Obiectul are deja 5 gravuri.
+A Master's Needle only adds the fifth etching.	Acul de Maestru adaugă doar a cincea gravură.
+The fifth etching needs a Master's Needle.	A cincea gravură cere un Ac de Maestru.
+Nothing to turn: the item has no etchings.	Nimic de răsucit: obiectul nu are gravuri.
+Pick at most {0} etchings.	Alege cel mult {0} gravuri.
+Unknown etching.	Gravură necunoscută.
+Each etching can be picked once.	Fiecare gravură poate fi aleasă o singură dată.
+Tiers run from T1 to T5.	Treptele merg de la T1 la T5.
+A {0} piece rolls up to T{1}.	O piesă de raritate {0} ajunge până la T{1}.
+This piece has {0} etching{1}: pick at most {2}.	Gravuri pe această piesă: {0}. Alege cel mult {2}.
+The etching held by Pinning Wax never changes, and it is below that tier.	Gravura ținută de Ceara de Fixare nu se schimbă niciodată și e sub acea treaptă.
+One etching is pinned: pick at most {0} others, or include it.	O gravură e fixată: alege cel mult {0} altele sau include-o.
+Item was destroyed by an Oathbreak.	Obiectul a fost distrus de un Jurământ Frânt.
+Korstone Bell: double Korstone chests	Clopotul Pietrelor Kor: cufere de Piatră Kor duble
+Level Bell: double XP	Clopotul Nivelului: XP dublu
+Loot Bell: rarer gear drops	Clopotul Prăzii: echipament mai rar
+Material Bell: double materials	Clopotul Materialelor: materiale duble
+War Bell: +25% damage	Clopotul Războiului: +25% daune
+Korstone Bell	Clopotul Pietrelor Kor
+Level Bell	Clopotul Nivelului
+Loot Bell	Clopotul Prăzii
+Material Bell	Clopotul Materialelor
+War Bell	Clopotul Războiului
+Item is already +9.	Obiectul e deja +9.
+Forge your weapon to +1	Rafinează-ți arma la +1
+Wear gear in 3 slots	Poartă echipament în 3 sloturi
+Forge any piece you wear to +3	Rafinează la +3 orice piesă purtată
+Reach level 10	Atinge nivelul 10
+Join a guild	Intră într-o breaslă
+Wear gear in all 8 slots	Poartă echipament în toate cele 8 sloturi
+Forge your weapon to +7: it starts to glow	Rafinează-ți arma la +7: începe să strălucească
+Forge your weapon to +9	Rafinează-ți arma la +9
+A bounty is done: claim its Hunt Marks	O misiune e gata: primește-ți Semnele de Vânătoare
+Wear the {0} from your bag	Poartă {0} din traistă
+PUSH to beat {0} and clear {1}	ÎNAINTE: învinge {0} și curăță {1}
+PUSH to clear {0}	ÎNAINTE: curăță {0}
+Centre	Centru
+Left Flank	Flancul Stâng
+Right Flank	Flancul Drept
+No war night within a week.	Nicio noapte de război în următoarea săptămână.
+That skill is at its peak.	Abilitatea e la apogeu.
+The guild must reach level {0} first.	Breasla trebuie să atingă întâi nivelul {0}.
+Not enough sorn in the treasury.	Nu e destul sorn în vistierie.
+A guild name has 3 to 20 characters.	Numele breslei are între 3 și 20 de caractere.
+Letters, digits, spaces, ' and - only.	Doar litere, cifre, spații, ' și -.
+One space between words.	Un singur spațiu între cuvinte.
+A tag has 2 to 4 letters or digits.	O etichetă are 2-4 litere sau cifre.
+Tags are capital letters and digits.	Etichetele au majuscule și cifre.
+Choose another tag.	Alege altă etichetă.
+A failed Forge keeps its level	O rafinare eșuată își păstrează nivelul
++10% chance on a Forge	+10% șansă la rafinare
+A rank 1 shard for a socket	Un ciob de rang 1 pentru un locaș
+Not enough Guild Tallies.	Nu ai destule Răboje de Breaslă.
+Banner Greatsword	Spadonul Stindardului
+Crescent Glaive	Halebardă Semilună
+Herder's Sword	Spada Păstorului
+Horsebreaker Greatsword	Spadon Frânge-Cai
+Tamga Sword	Spadă cu Tamga
+Colossus Greatsword	Spadonul Colosului
+Emberwake Sword	Spada Urmei de Jar
+Glaive of the Nine Oaths	Halebarda Celor Nouă Jurăminte
+Khan's Crescent	Semiluna Hanului
+Oathkeeper Glaive	Halebardă Ține-Jurământ
+Rider's Glaive	Halebarda Călărețului
+Bronze Fangs	Colți de Bronz
+Hawkwing Knives	Cuțite Aripă-de-Șoim
+Rider's Talons	Ghearele Călărețului
+Silver Talons	Gheare de Argint
+Twin Skinning Knives	Cuțite Gemene de Jupuit
+Wolf-Fang Knives	Cuțite Colț-de-Lup
+Bone Talons	Gheare de Os
+Emberwake Talons	Ghearele Urmei de Jar
+Khan's Twin Crescents	Semilunile Gemene ale Hanului
+Oathkeeper Knives	Cuțite Ține-Jurământ
+Talons of the Nine Oaths	Ghearele Celor Nouă Jurăminte
+Bronze Sabre	Sabie de Bronz
+Duskreaver	Secerătorul Amurgului
+Herder's Sabre	Sabia Păstorului
+Rider's Sabre	Sabia Călărețului
+Rune Sabre	Sabie Runică
+Voidedge Sabre	Sabie cu Tăiș de Neant
+Emberwake Sabre	Sabia Urmei de Jar
+Gravebone Sabre	Sabie din Os de Mormânt
+Khan's Nightblade	Lama de Noapte a Hanului
+Oathkeeper Sabre	Sabie Ține-Jurământ
+Sabre of the Nine Oaths	Sabia Celor Nouă Jurăminte
+Bone Charm Staff	Toiag cu Amulete de Os
+Bronze Bell Staff	Toiag cu Clopoței de Bronz
+Feathered Staff	Toiag cu Pene
+Silver Crescent Staff	Toiag cu Semilună de Argint
+Skycrystal Staff	Toiag de Cristal Ceresc
+Wolf-Fang Staff	Toiag Colț-de-Lup
+Carved Bone Staff	Toiag de Os Cioplit
+Dragon Crystal Staff	Toiag de Cristal de Balaur
+Eagle Staff	Toiagul Vulturului
+Emberorb Staff	Toiag cu Glob de Jar
+Staff of the Nine Oaths	Toiagul Celor Nouă Jurăminte
+Bronzescale Bodice	Pieptar cu Solzi de Bronz
+Hawkwing Harness	Chingi Aripă-de-Șoim
+Leather Jerkin	Ilic de Piele
+Rider's Leathers	Straie de Călăreț
+Silverplate Bodice	Pieptar cu Plăci de Argint
+Wolfhide Jerkin	Ilic din Blană de Lup
+Emberweave Harness	Chingi Țesute din Jar
+Gravewrought Bodice	Pieptar de Mormânt
+Khan's Silks	Mătăsurile Hanului
+Oathsworn Leathers	Straie de Jurat
+Raiment of the Nine Oaths	Straiele Celor Nouă Jurăminte
+Bronzebound Leathers	Straie Ferecate în Bronz
+Horned Plate	Platoșă cu Coarne
+Padded Coat	Tunică Căptușită
+Void Robe	Robă de Neant
+Voidsteel Plate	Platoșă de Oțel de Neant
+Wolfcollar Lamellar	Zale cu Guler de Lup
+Emberplate	Platoșă de Jar
+Gravewrought Plate	Platoșă de Mormânt
+Khan's Nightplate	Platoșa de Noapte a Hanului
+Oathsworn Plate	Platoșă de Jurat
+Plate of the Nine Oaths	Platoșa Celor Nouă Jurăminte
+Beaded Hides	Piei cu Mărgele
+Bronze-Studded Hides	Piei cu Ținte de Bronz
+Dyed Leathers	Straie de Piele Vopsită
+Silverthread Robes	Robe cu Fir de Argint
+Skysilk Regalia	Veșminte de Mătase Cerească
+Wolfskin Mantle	Mantie din Piele de Lup
+Emberweave Robes	Robe Țesute din Jar
+Gravebone Regalia	Veșminte din Os de Mormânt
+Khan's Stormsilk	Mătasea de Furtună a Hanului
+Oathsworn Mantle	Mantie de Jurat
+Regalia of the Nine Oaths	Veșmintele Celor Nouă Jurăminte
+Banner Lamellar	Zalele Stindardului
+Bronzescale Lamellar	Zale cu Solzi de Bronz
+Quilted Coat	Tunică Matlasată
+Riveted Cuirass	Cuirasă Nituită
+Wolfhide Lamellar	Zale cu Blană de Lup
+Gravewrought Lamellar	Zale de Mormânt
+Harness of the Nine Oaths	Chingile Celor Nouă Jurăminte
+Khan's Lamellar	Zalele Hanului
+Oathsworn Harness	Chingi de Jurat
+The lowest price is {0} sorn.	Prețul minim e {0} sorn.
+The highest price is {0} sorn.	Prețul maxim e {0} sorn.
+Hunt material	Material de vânătoare
+Champion of the Pits	Campionul Gropii
+Pit Veteran	Veteran al Gropii
+5 Turnstones	5 Pietre de Răsucire
+Nothing is equipped in that slot.	Nimic echipat în acel slot.
+You do not own that item.	Nu deții acel obiect.
+Already +9	Deja +9
+Not enough sorn	Nu ai destul sorn
+Not enough	Nu ajunge
+No Scroll of Mercy	Niciun Pergament al Îndurării
+No Khan's Alloy	Niciun Aliaj al Hanului
+No Anvil Ward	Niciun Talisman al Nicovalei
+Only in the Hollow Spire	Doar în Turla Pustie
+You no longer have that piece	Nu mai ai acea piesă
+No etchings to turn yet	Încă nicio gravură de răsucit
+Not enough Turnstones	Nu ai destule Pietre de Răsucire
+You no longer have that piece.	Nu mai ai acea piesă.
+Item is not in the bag.	Obiectul nu e în traistă.
+Item is not in the loot list.	Obiectul nu e în lista de pradă.
+Not unlocked yet.	Încă nedeblocat.
+Technique Scroll: {0}	Pergament de Tehnică: {0}
+Normal	Normal
+Peerless: the skill cannot climb higher.	Neîntrecut: abilitatea nu poate urca mai sus.
+The next read needs this skill's Technique Scroll (Warden chests, the shops, the Exchange).	Următoarea citire cere Pergamentul de Tehnică al acestei abilități (cuferele Paznicilor, prăvăliile, Bursa).
+The mind needs rest: this skill can read again in {0}h {1}m.	Mintea are nevoie de odihnă: abilitatea poate citi din nou în {0}h {1}m.
+The next step burns an Oathstone (the Carvers' Archive, the Pit shop).	Următorul pas arde o Piatră de Jurământ (Arhiva Cioplitorilor, prăvălia Gropii).
+The oath asks {0} Honor for this step; you hold {1}. Honor comes from Korstones, Pit wins and dungeon Wardens.	Jurământul cere {0} Onoare pentru acest pas; ai {1}. Onoarea vine din Pietrele Kor, victoriile din Groapă și Paznicii temnițelor.
+Beast-Slayer	Ucigaș de Fiare
+Piercer	Străpungător
+Deathdealer	Aducător de Moarte
+Bulwark	Bastion
+Vigor	Vigoare
+Haste	Iuțeală
+Warding	Ocrotire
++{0}% vs Hollowed	+{0}% contra Scobiților
++{0} attack	+{0} atac
++{0}% crit damage	+{0}% daune critice
++{0} defense	+{0} apărare
++{0} HP	+{0} HP
++{0}% evasion	+{0}% eschivă
++{0}% attack speed	+{0}% viteză de atac
+-{0}% Commander damage	-{0}% daune de la Comandanți
+Item was destroyed	Obiectul a fost distrus
+No such socket	Locașul nu există
+Socket holds a Dead Shard	Locașul are un Ciob Mort
+Socket is taken	Locașul e ocupat
+{0} does not fit this slot	{0} nu se potrivește în acest slot
+No such rank	Rangul nu există
+No {0} shard	Niciun ciob de {0}
+Nothing dead in that socket	Nimic mort în acel locaș
+Direct trade opens at level {0}.	Schimbul direct se deschide la nivelul {0}.
+An account can trade {0} hours after it was made.	Un cont poate face schimburi la {0} ore după creare.
+That much sorn cannot change hands at once.	Atâta sorn nu poate schimba mâna deodată.
+Khan's Alloys	Aliaje ale Hanului
+Anvil Wards	Talismane ale Nicovalei
+The Amber Road	Drumul Chihlimbarului
+The White Steppe	Stepa Albă
+Already bought.	Deja cumpărat.
+Salt Nomad Garb	Straie de Nomad al Sării
+Sand-bleached wraps of the salt roads.	Învelitori albite de nisip de pe drumurile sării.
+Frost Hunter Furs	Blănurile Vânătorului de Ger
+White furs over the lamellar, for Whitefang winters.	Blănuri albe peste zale, pentru iernile din Colț-Alb.
+Ember Khan Guise	Straiul Hanului de Jar
+Crimson and gold, cut for a khagan's feast.	Purpuriu și auriu, croit pentru ospățul unui kagan.
+Grave Warden Shroud	Giulgiul Paznicului de Morminte
+Black and violet, sewn from a barrow's banners.	Negru și violet, cusut din stindardele unui gorgan.
+Taken from the Warlord's camp. Only he drops it.	Luat din tabăra Hatmanului. Doar el îl lasă.
+Shimmers like the Salt Sea at noon. Only the Mirage Queen drops it.	Sclipește ca Marea de Sare la amiază. Doar Regina Mirajelor îl lasă.
+Old Greyjaw's grey pelt. Only he drops it.	Blana sură a Bătrânului Falcă-Sură. Doar el o lasă.
+Amber Road Regalia	Veșmintele Drumului Chihlimbarului
+A caravan master's teal and bronze, set with steppe amber. The Campaign Trail's first season.	Verdele-albăstrui și bronzul unui stăpân de caravană, încrustate cu chihlimbar de stepă. Primul sezon al Drumului Campaniei.
+White Steppe Regalia	Veșmintele Stepei Albe
+Snow-leopard fur over pale silver lamellar and sky-blue silk. The Campaign Trail's second season.	Blană de leopard al zăpezilor peste zale de argint pal și mătase albastru-cer. Al doilea sezon al Drumului Campaniei.
+Steppe Pony	Căluț de Stepă
+Small, shaggy and never tired.	Mic, lățos și niciodată obosit.
+Ember Warhorse	Cal de Război de Jar
+A heavy charger in crimson lamellar barding.	Un armăsar greu, cu zale purpurii.
+Gold Banner Charger	Armăsarul Stindardului de Aur
+Barded in saffron and brass, as the caravan cities ride.	Înveșmântat în șofran și alamă, cum călăresc orașele caravanelor.
+Hollow Steed	Armăsar Scobit
+One of the herds that went Hollow, tamed again.	Dintr-o herghelie care s-a Scobit, îmblânzit din nou.
+Amber Road Courser	Fugarul Drumului Chihlimbarului
+Barded in honey amber and bronze for the salt roads. The Campaign Trail's first season.	Înveșmântat în chihlimbar de culoarea mierii și bronz pentru drumurile sării. Primul sezon al Drumului Campaniei.
+White Steppe Courser	Fugarul Stepei Albe
+A grey-white charger in frost-blue scale barding, furred for the winter steppe. The Campaign Trail's second season.	Un armăsar alb-sur în solzi albastru-ger, îmblănit pentru stepa iernii. Al doilea sezon al Drumului Campaniei.
+Ember Fox	Vulpe de Jar
+Finds the coins the dead forgot.	Găsește monedele uitate de morți.
+Sky Falcon	Șoimul Cerului
+A hooded hunting falcon, taught on the steppe.	Un șoim de vânătoare cu glugă, dresat în stepă.
+Grave Wolf Pup	Pui de Lup de Mormânt
+A Hollow wolf's whelp that chose the living.	Puiul unui lup Scobit care i-a ales pe cei vii.
+Khagan's Eagle	Vulturul Kaganului
+A golden eagle fit for the Khagan league.	Un vultur auriu vrednic de liga Kagan.
+hunting XP	XP de vânătoare
+hunting sorn	sorn de vânătoare
+Skin	Costum
+Mount	Montură
+Companion	Însoțitor
+({0} day)	({0} zi)
+({0} days)	({0} zile)
+{0} sign-in is not set up yet.	Conectarea cu {0} nu e încă pregătită.
+Google did not accept the sign-in. Try again.	Google nu a acceptat conectarea. Încearcă din nou.
+Google sent no identity.	Google nu a trimis nicio identitate.
+Unknown sign-in.	Conectare necunoscută.
+Bad test identity.	Identitate de test greșită.
+{0} sign-in could not be verified. Try again.	Conectarea cu {0} nu a putut fi verificată. Încearcă din nou.
+That sign-in was not started here.	Conectarea nu a fost pornită de aici.
+No account id in the sign-in.	Conectarea nu conține un id de cont.
+Sign-in failed.	Conectarea a eșuat.
+Signed in. Returning to Orsuun...	Conectat. Ne întoarcem în Orsuun...
+Back to Orsuun	Înapoi în Orsuun
+Too many tries. Wait a few minutes and try again.	Prea multe încercări. Așteaptă câteva minute și încearcă din nou.
+That line is gone.	Mesajul nu mai există.
+No such player.	Jucătorul nu există.
+Already banned.	Deja interzis.
+That name is taken.	Numele e luat.
+That tag is taken.	Eticheta e luată.
+A moderator renamed the guild to {0} [{1}].	Un moderator a redenumit breasla în {0} [{1}].
+Device token missing or too long.	Tokenul dispozitivului lipsește sau e prea lung.
+Wrong email or password.	E-mail sau parolă greșită.
+This account already has an email: {0}	Acest cont are deja un e-mail: {0}
+An account with that email exists. Sign in instead.	Există deja un cont cu acest e-mail. Conectează-te.
+Sign in again.	Conectează-te din nou.
+Start the game once, then sign in.	Pornește jocul o dată, apoi conectează-te.
+This account is already linked to another {0} account.	Acest cont e deja legat de alt cont {0}.
+That sign-in was just linked elsewhere. Try again.	Conectarea tocmai a fost legată în altă parte. Încearcă din nou.
+Unknown bounty.	Misiune necunoscută.
+The needle took: T{0} {1} +{2}	Acul a prins: T{0} {1} +{2}
+The Caravan has no such thing.	Caravana nu are așa ceva.
+The Caravan does not sell that for so long.	Caravana nu vinde asta pe atâta timp.
+No such wardrobe slot.	Slotul de garderobă nu există.
+No such piece.	Piesa nu există.
+That piece is not yours, or its time has run out.	Piesa nu e a ta sau i-a expirat timpul.
+Amber goes on sale with the App Store and Google Play release.	Chihlimbarul intră la vânzare odată cu lansarea în App Store și Google Play.
+No such pack.	Pachetul nu există.
+Choose a class.	Alege o clasă.
+Choose a man or a woman.	Alege bărbat sau femeie.
+All {0} slots are taken.	Toate cele {0} locuri sunt ocupate.
+{0} steps onto the steppe.	{0} pășește în stepă.
+No such character.	Personajul nu există.
+Type {0} to delete it.	Scrie {0} ca să-l ștergi.
+{0} is gone.	{0} nu mai există.
+That piece is not in your bag.	Piesa nu e în traista ta.
+Take it off first.	Scoate-o mai întâi.
+The depot holds {0} pieces.	Depozitul ține {0} piese.
+{0} is in the depot.	{0} e în depozit.
+Your bag is full.	Traista e plină.
+That piece has left the depot.	Piesa a ieșit din depozit.
+{0} is in your bag.	{0} e în traistă.
+You are not in a guild.	Nu ești într-o breaslă.
+Unknown chat channel.	Canal de chat necunoscut.
+A moderator muted you for {0} more hours.	Un moderator te-a amuțit încă {0} ore.
+A moderator muted you for {0} more minutes.	Un moderator te-a amuțit încă {0} minute.
+Slow down a little.	Mai încet puțin.
+You cannot report that line.	Nu poți raporta acest mesaj.
+You cannot block that player.	Nu poți bloca acest jucător.
+You can block at most {0} players.	Poți bloca cel mult {0} jucători.
+Today's gift is taken: the next comes with the evening bell.	Darul de azi e luat: următorul vine odată cu clopotul de seară.
+Unknown dungeon.	Temniță necunoscută.
+Clear {0} first.	Curăță mai întâi {0}.
+A rune lock	Un lacăt runic
+The Chained Smith	Fierarul Înlănțuit
+{0} is still waiting for your last run.	{0} încă așteaptă ultima ta incursiune.
+Today's dungeon keys are used. New ones come at 20:00.	Cheile de temniță de azi s-au folosit. Altele noi vin la 20:00.
+You fell on {0} of {1}.	Ai căzut la {0} din {1}.
+Floor {0}: a vault door, sealed by a rune lock with a riddle carved in it.	Etajul {0}: o ușă de criptă, pecetluită de un lacăt runic cu o ghicitoare săpată în el.
+Floor {0}: the Chained Smith waits, hammer in his chained hands.	Etajul {0}: Fierarul Înlănțuit așteaptă, cu ciocanul în mâinile înlănțuite.
+{0} is cleared! {1}'s chest: {2}.	{0} e curățat! Cufăr de la {1}: {2}.
+No run is waiting on its pause floor.	Nicio incursiune nu așteaptă la etajul de pauză.
+You leave the vault shut.	Lași cripta închisă.
+The {0} rune does not turn: the vault stays shut.	Runa {0} nu se rotește: cripta rămâne închisă.
+The {0} rune turns and the vault door opens.	Runa {0} se rotește și ușa criptei se deschide.
+That piece is already +9.	Piesa e deja +9.
+Not enough sorn for the smith.	Nu ai destul sorn pentru fierar.
+Not enough materials for the smith.	Nu ai destule materiale pentru fierar.
+{0} forged {1} to +{2} at the Chained Smith!	{0} a rafinat {1} la +{2} la Fierarul Înlănțuit!
+The Chained Smith raised your {0} to +{1}.	Fierarul Înlănțuit ți-a ridicat {0} la +{1}.
+The Chained Smith broke your {0}.	Fierarul Înlănțuit ți-a rupt {0}.
+The Chained Smith failed: your {0} is +{1}.	Fierarul Înlănțuit a greșit: {0} e acum +{1}.
+You fell on floor {0}.	Ai căzut la etajul {0}.
+Type a hero's name.	Scrie numele unui erou.
+No hero goes by that name.	Niciun erou nu poartă acest nume.
+That is you.	Ești chiar tu.
+That is one of your own heroes.	E unul dintre eroii tăi.
+You blocked them. Unblock them in CHAT first.	Ai blocat acest erou. Deblochează-l mai întâi în CHAT.
+They are not taking friend requests.	Nu primește cereri de prietenie.
+{0} is on your list already.	{0} e deja în lista ta.
+You asked {0} already.	Ai trimis deja o cerere către {0}.
+Your list holds {0} friends.	Lista ta ține {0} prieteni.
+Their friend list is full.	Lista sa de prieteni e plină.
+You and {0} are friends.	Tu și {0} sunteți prieteni.
+You have {0} requests waiting. Take some back first.	Ai cereri în așteptare: {0}. Retrage mai întâi câteva.
+Asked {0}. They will find it on their friend list.	Cerere trimisă către {0}. O va găsi în lista sa de prieteni.
+That request is gone.	Cererea nu mai există.
+You turned {0} down.	Ai refuzat cererea de la {0}.
+{0} is off your list.	{0} a ieșit din lista ta.
+That war is over.	Războiul acela s-a încheiat.
+Only the leader signs the guild up for war.	Doar liderul înscrie breasla la război.
+A guild needs {0} members to go to war.	O breaslă are nevoie de {0} membri ca să meargă la război.
+{0} signed the guild up for war on {1}.	{0} a înscris breasla la război pentru {1}.
+Signed up for {0}. Foes are drawn when the horns sound.	Înscriși pentru {0}. Adversarii se trag la sorți când sună cornurile.
+{0} withdrew the guild from the war on {1}.	{0} a retras breasla din războiul pentru {1}.
+Withdrawn from the war.	Retrași din război.
+No such lane.	Linia nu există.
+Your guild is not at war now.	Breasla ta nu e în război acum.
+{0} planted the war flag on the {1}.	{0} a înfipt steagul de război pe {1}.
+The war flag flies over the {0}.	Steagul de război flutură peste {0}.
+The war is over.	Războiul s-a încheiat.
+You have fought all your duels in this war.	Ți-ai luptat toate duelurile în acest război.
+You catch your breath: {0} more seconds.	Îți tragi sufletul: încă {0} secunde.
+The other guild has left the field.	Cealaltă breaslă a părăsit câmpul.
+You felled {0} on the {1}.	Ai doborât adversarul {0} pe {1}.
+{0} felled {1} on the {2}.	{0} a doborât adversarul {1} pe {2}.
+{0} held the {1} against you.	{0} a ținut {1} împotriva ta.
+{0} held the {1} against {2}.	{0} a ținut {1} în fața adversarului {2}.
+The {0} is broken!	{0} a fost spart!
+{0} broke the {1} of [{2}]!	{0} a spart {1} al [{2}]!
+[{0}] broke our {1}.	[{0}] ne-a spart {1}.
+Too few members for tonight's war: a guild needs {0}.	Prea puțini membri pentru războiul din seara asta: o breaslă are nevoie de {0}.
+The horns sound: [{0}] against [{1}].	Sună cornurile: [{0}] contra [{1}].
+War! [{0}] {1} is our foe tonight. Fight on the lanes until the horns fall silent.	Război! [{0}] {1} ne e dușman în seara asta. Luptați pe linii până tac cornurile.
+No foe answered the horn tonight.	Niciun dușman n-a răspuns cornului în seara asta.
+War night: [{0}] and [{1}] take the field.	Noapte de război: [{0}] și [{1}] ies pe câmp.
+War night: {0} guild wars take the field.	Noapte de război: încep războaie de bresle ({0}).
+a scattered guild	o breaslă risipită
+{0} and {1} fought to a draw, {2} to {3}.	{0} și {1} au terminat la egalitate, {2} la {3}.
+{0} beat {1}, {2} to {3}.	{0} a învins {1}, {2} la {3}.
+The war is over: {0}	Războiul s-a încheiat: {0}
+Guild war: {0}	Război de bresle: {0}
+A war night began now.	A început o noapte de război.
+Every war ended now.	Toate războaiele s-au încheiat.
+That guild is gone.	Breasla nu mai există.
+Only the leader or an officer can do that.	Doar liderul sau un ofițer poate face asta.
+Leave your guild first.	Părăsește-ți mai întâi breasla.
+Choose one of the guild colours.	Alege una dintre culorile breslei.
+{0} founded {1}.	{0} a fondat {1}.
+That name or tag was just taken.	Numele sau eticheta tocmai au fost luate.
+{0} is founded. Its banner is yours to raise.	{0} a fost fondată. Steagul ei e al tău de înălțat.
+You already asked {0}.	Ai trimis deja o cerere către {0}.
+You can ask at most {0} guilds at once.	Poți trimite cereri la cel mult {0} bresle deodată.
+{0} asks to join.	{0} cere să intre.
+You asked to join {0}. Its leader or an officer will answer.	Ai cerut să intri în {0}. Liderul sau un ofițer îți va răspunde.
+{0} is full.	{0} e plină.
+Welcome to {0}.	Bine ai venit în {0}.
+{0} left; {1} leads now.	{0} a plecat; acum conduce {1}.
+{0} joined, let in by {1}.	{0} a intrat, primit de {1}.
+{0} has joined another guild.	{0} a intrat în altă breaslă.
+You turned {0} away.	Ai respins cererea de la {0}.
+the guild	breasla
+You left {0}.	Ai părăsit {0}.
+Use LEAVE to leave.	Folosește PLEACĂ ca să pleci.
+Not a member of your guild.	Nu e membru al breslei tale.
+You cannot remove that member.	Nu poți scoate acel membru.
+{0} was sent away by {1}.	{0} a fost alungat de {1}.
+{0} is no longer in the guild.	{0} nu mai e în breaslă.
+Only the leader sets ranks.	Doar liderul stabilește rangurile.
+Choose another member.	Alege alt membru.
+Unknown rank.	Rang necunoscut.
+A guild has at most {0} officers.	O breaslă are cel mult {0} ofițeri.
+{0} leads {1} now.	{0} conduce acum {1}.
+{0} is a member now.	{0} e acum membru.
+{0} is an officer now.	{0} e acum ofițer.
+Donate in whole thousands of sorn.	Donează sorn în mii întregi.
+You can give {0} more sorn today.	Azi mai poți da {0} sorn.
+You gave {0} sorn: +{1} Guild Tallies.	Ai dat {0} sorn: +{1} Răboje de Breaslă.
+{0} reached level {1}.	{0} a atins nivelul {1}.
+{0} reached level {1}!	{0} a atins nivelul {1}!
+Unknown guild skill.	Abilitate de breaslă necunoscută.
+Plunder {0}: every member hunts with +{1}% sorn.	Jaf {0}: fiecare membru vânează cu +{1}% sorn.
+Muster {0}: room for {1} members.	Adunare {0}: loc pentru {1} membri.
+Plunder	Jaf
+Muster	Adunare
+Unknown guild shop item.	Articol necunoscut în prăvălia breslei.
+The gates were opened.	Porțile au fost deschise.
+The gates were shut.	Porțile au fost închise.
+The gates are open: anyone may join.	Porțile sunt deschise: oricine poate intra.
+The gates are shut: no one new may join.	Porțile sunt închise: nimeni nou nu poate intra.
+{0} is in your guild already.	{0} e deja în breasla ta.
+{0} is in another guild.	{0} e în altă breaslă.
+They are not taking invites.	Nu primește invitații.
+{0} is invited already.	{0} a fost deja invitat.
+{0} has {1} invites waiting.	{0} are invitații în așteptare: {1}.
+{0} invited {1}.	{0} a trimis o invitație către {1}.
+{0} is invited: they will find it on their guild screen.	{0} a fost invitat: va găsi invitația pe ecranul breslei.
+That invite is gone.	Invitația nu mai există.
+That invite has lapsed.	Invitația a expirat.
+Invite turned down.	Invitație refuzată.
+{0} joined, invited by {1}.	{0} a intrat, invitat de {1}.
+That fortress is not built yet.	Fortăreața nu e încă ridicată.
+No guild bid for the keep of {0}.	Nicio breaslă n-a licitat pentru cetatea din {0}.
+No guild bid for the keep of {0}: [{1}] holds it.	Nicio breaslă n-a licitat pentru cetatea din {0}: o ține [{1}].
+The keep of {0} is stormed tonight by {1}.	Cetatea din {0} e asaltată în seara asta de {1}.
+[{0}] holds it.	O ține [{0}].
+[{0}] took the keep of {1} with {2} damage.	[{0}] a cucerit cetatea din {1} cu {2} daune.
+We hold the keep of {0} for a week: our flag flies over it.	Ținem cetatea din {0} o săptămână: steagul nostru flutură deasupra ei.
+The keep of {0} stood: no guild broke it.	Cetatea din {0} a rezistat: nicio breaslă n-a spart-o.
+[{0}] held the keep of {1}.	[{0}] a apărat cetatea din {1}.
+Unknown fortress.	Fortăreață necunoscută.
+Bid between 1,000 and 1,000,000,000 sorn.	Licitează între 1.000 și 1.000.000.000 sorn.
+Bids for this week's keeps are closed; they open again on Monday at 20:00.	Licitațiile pentru cetățile săptămânii s-au închis; se redeschid luni la 20:00.
+Your guild holds this keep: it defends it on Sunday.	Breasla ta ține această cetate: o apără duminică.
+Your guild already bids on {0} this week.	Breasla ta licitează deja pentru {0} săptămâna aceasta.
+A bid starts at {0} sorn.	O ofertă pornește de la {0} sorn.
+{0} raised our bid on the keep of {1} to {2} sorn.	{0} a ridicat oferta noastră pentru cetatea din {1} la {2} sorn.
+Your guild bids {0} sorn on the keep of {1}.	Breasla ta oferă {0} sorn pentru cetatea din {1}.
+Your warband regroups: {0} more minute{1}.	Ceata ta se regrupează: încă {0} min.
+No guild bid for this keep this week.	Nicio breaslă n-a licitat pentru această cetate săptămâna aceasta.
+The keep is stormed on Sunday from 20:00 for an hour.	Cetatea e asaltată duminică de la 20:00, timp de o oră.
+Only the four highest bidders storm the keep, and its holders hold it.	Doar cei mai mari patru ofertanți asaltează cetatea, iar stăpânii ei o apără.
+You held the keep of {0}: it mended by {1}.	Ai apărat cetatea din {0}: s-a reparat cu {1}.
+You stormed the keep of {0} for {1}; your guild has {2}.	Ai asaltat cetatea din {0} cu {1}; breasla ta are {2}.
+The keep sieges began now.	Asediile cetăților au început.
+The keep sieges ended now.	Asediile cetăților s-au încheiat.
+That letter is gone.	Scrisoarea nu mai există.
+Nothing to take.	Nimic de luat.
+Taken from {0} letters.	Luat din {0} scrisori.
++{0} sorn.	+{0} sorn.
+Taken. +{0} sorn.	Luat. +{0} sorn.
+Taken from {0} letters. +{1} sorn.	Luat din {0} scrisori. +{1} sorn.
+A piece waits: your bag is full.	O piesă așteaptă: traista ta e plină.
+{0} pieces wait: your bag is full.	Piese în așteptare: {0}. Traista ta e plină.
+Take what the letter holds first.	Ia mai întâi ce conține scrisoarea.
+Letter thrown away.	Scrisoare aruncată.
+Nothing to throw away.	Nimic de aruncat.
+{0} letters thrown away.	Scrisori aruncate: {0}.
+your piece	piesa ta
+Nobody bought {0} at {1} sorn in {2} hours, so it comes back to you with this letter.	Nimeni n-a cumpărat {0} cu {1} sorn în {2} ore, așa că se întoarce la tine cu această scrisoare.
+{0} bought {1} for {2} sorn. The Exchange keeps its {3}% ({4}); {5} sorn is in this letter for you.	{0} a cumpărat {1} cu {2} sorn. Bursa își reține cei {3}% ({4}); în această scrisoare ai {5} sorn.
+Take the piece off before you sell it.	Scoate piesa înainte s-o vinzi.
+You can have {0} pieces on the Exchange at once.	Poți avea {0} piese pe Bursă deodată.
+{0} +{1} is on the Exchange for {2} sorn.	{0} +{1} e pe Bursă cu {2} sorn.
+No such book.	Cartea nu există.
+You hold {0} of that book.	Ai {0} din acea carte.
+You can have {0} listings on the Exchange at once.	Poți avea {0} oferte pe Bursă deodată.
+{0} × {1} on the Exchange for {2} sorn.	{0} × {1} pe Bursă cu {2} sorn.
+The Exchange does not take that.	Bursa nu primește așa ceva.
+You hold {0} of that.	Ai {0} din acestea.
+Which kind of piece?	Ce fel de piesă?
+That listing is gone.	Oferta nu mai există.
+Someone was quicker: that piece is gone.	Cineva a fost mai rapid: piesa a dispărut.
+That is your own listing.	E oferta ta.
+You bought {0} × {1} for {2} sorn.	Ai cumpărat {0} × {1} cu {2} sorn.
+You bought {0} for {1} sorn. It is in your bag.	Ai cumpărat {0} cu {1} sorn. E în traista ta.
+That is not your listing.	Nu e oferta ta.
+That listing has closed.	Oferta s-a închis.
+Taken off the Exchange: the books are back with you.	Retras de pe Bursă: cărțile sunt din nou la tine.
+Taken off the Exchange: the {0}s are back with you.	Retras de pe Bursă: bunurile ({0}) sunt din nou la tine.
+Taken off the Exchange: the piece is back in your bag.	Retras de pe Bursă: piesa e din nou în traistă.
+{0} left the {1} and rides under the {2} now.	{0} a părăsit {1} și călărește acum sub {2}.
+{0} renewed the oath ({1}/{2}) and rides again from level 1.	{0} și-a reînnoit jurământul ({1}/{2}) și călărește din nou de la nivelul 1.
+no weapon	fără armă
+Shade of {0}	Umbra lui {0}
+New challengers step into the pit.	Noi adversari pășesc în Groapă.
+Today's Pit tickets are spent. New ones come at 20:00.	Biletele de azi pentru Groapă s-au terminat. Altele noi vin la 20:00.
+That challenger has left the pit. Look again.	Adversarul a părăsit Groapa. Caută din nou.
+You beat {0} in the pit: rating {1} → {2}, +{3} Laurels.	Ai învins adversarul {0} în Groapă: punctaj {1} → {2}, +{3} Lauri.
+{0} threw you down: rating {1} → {2}, +{3} Laurels.	{0} te-a trântit: punctaj {1} → {2}, +{3} Lauri.
+The Pit shop has no such thing.	Prăvălia Gropii nu are așa ceva.
+Not enough Laurels.	Nu ai destui Lauri.
+{0} for {1} Laurels	{0} pentru {1} Lauri
+{0} for {1} Laurels.	{0} pentru {1} Lauri.
+Pit season {0}: rank {1}	Sezonul {0} al Gropii: locul {1}
+The season is over. You finished {0} with a rating of {1} and the Pits paid you {2} Laurels. Spend them at the Pit shop.	Sezonul s-a încheiat. Ai terminat pe locul {0} cu un punctaj de {1}, iar Groapa ți-a plătit {2} Lauri. Cheltuiește-i la prăvălia Gropii.
+The season is over. You finished {0} with a rating of {1} and the Pits paid you {2} Laurels, and the title {3} for the next season. Spend them at the Pit shop.	Sezonul s-a încheiat. Ai terminat pe locul {0} cu un punctaj de {1}, iar Groapa ți-a plătit {2} Lauri și titlul {3} pentru sezonul următor. Cheltuiește-i la prăvălia Gropii.
+The Pits' season is over: {0} is Champion of the Pits.	Sezonul Gropii s-a încheiat: {0} e Campionul Gropii.
+The Pits' season is over: {0} is Champion of the Pits, {1} is a Pit Veteran.	Sezonul Gropii s-a încheiat: {0} e Campionul Gropii, {1} e Veteran al Gropii.
+The Pits' season is over: {0} is Champion of the Pits, {1} are Pit Veterans.	Sezonul Gropii s-a încheiat: {0} e Campionul Gropii, {1} sunt Veterani ai Gropii.
+The season was ended (Development).	Sezonul a fost încheiat (Dezvoltare).
+No such skill.	Abilitatea nu există.
+{0} rises to {1}: +{2}% skill power.	{0} urcă la {1}: +{2}% putere abilitate.
+{0} has made {1} Peerless.	{0} a dus {1} la gradul Neîntrecut.
+The scroll's teaching took: {0} {1}, {2} of {3} reads.	Învățătura pergamentului a prins: {0} {1}, {2} din {3} citiri.
+The teaching slipped away: {0} stays {1}, {2} of {3} reads.	Învățătura s-a risipit: {0} rămâne {1}, {2} din {3} citiri.
+The Oathstone cracked: {0} stays {1}.	Piatra de Jurământ a crăpat: {0} rămâne {1}.
+That trade is gone.	Schimbul nu mai există.
+That trade is not yours.	Schimbul nu e al tău.
+That hero is gone.	Eroul nu mai există.
+You cannot trade with yourself.	Nu poți face schimb cu tine însuți.
+Your own heroes share the depot: use DEPOT in GEAR.	Eroii tăi împart depozitul: folosește DEPOZIT din INVENTAR.
+They cannot trade yet: {0}	Nu poate face încă schimburi: {0}
+Finish or cancel your open trade first.	Termină sau anulează mai întâi schimbul deschis.
+They are in another trade. Try again in a moment.	E într-un alt schimb. Încearcă din nou peste puțin.
+Asked. They have {0} minutes to answer.	Cerere trimisă. Are {0} minute să răspundă.
+That invitation is gone.	Invitația nu mai există.
+That invitation ran out.	Invitația a expirat.
+The window is open.	Fereastra e deschisă.
+The trade is off.	Schimbul e anulat.
+You hold {0} {1}.	Ai {0} {1}.
+The window is not open.	Fereastra nu e deschisă.
+Take the piece off before you trade it.	Scoate piesa înainte s-o schimbi.
+That piece is on the Exchange, in the depot or on another table.	Piesa e pe Bursă, în depozit sau pe altă masă.
+Not yet: the offers just changed, or they have not locked theirs.	Încă nu: ofertele tocmai s-au schimbat sau celălalt nu și-a blocat oferta.
+Confirmed. Waiting for them.	Confirmat. Îl așteptăm pe celălalt.
+Locked. When both are locked, confirm.	Blocat. Când amândouă sunt blocate, confirmă.
+One of your pieces changed (worn, listed or gone). Check the offers again.	Una dintre piesele tale s-a schimbat (purtată, listată sau dispărută). Verifică din nou ofertele.
+One of their pieces changed. Check the offers again.	Una dintre piesele celuilalt s-a schimbat. Verifică din nou ofertele.
+You no longer have that sorn.	Nu mai ai acel sorn.
+You no longer hold those books. Check the offers again.	Nu mai ai acele cărți. Verifică din nou ofertele.
+They no longer hold those books. Check the offers again.	Celălalt nu mai are acele cărți. Verifică din nou ofertele.
+Your bag has no room for their pieces.	Traista ta nu are loc pentru piesele celuilalt.
+Their bag has no room for your pieces.	Traista celuilalt nu are loc pentru piesele tale.
+They no longer have that sorn.	Celălalt nu mai are acel sorn.
+No such tier.	Treapta nu există.
+Nothing to claim there yet.	Încă nimic de primit acolo.
+This hero has Trail Plus already.	Acest erou are deja Drumul Plus.
+This hero has the Trail already.	Acest erou are deja Drumul.
+You are already sworn to the {0}.	Ești deja jurat sub {0}.
+You swore to the {0}.	Ai jurat sub {0}.
+{0} stands under the {1}.	{0} stă sub {1}.
+You held the {0} of {1}: the wall mended by {2}.	Ai apărat {0} din {1}: zidul s-a reparat cu {2}.
+You struck the {0} of {1} for {2}.	Ai lovit {0} din {1} cu {2}.
+The {0} took {1}; {2} broke the Hall.	{0} a cucerit {1}; {2} a spart Sala.
+The Hall of {0} falls! {1} now flies the {2}.	Sala din {0} cade! {1} flutură acum {2}.
+{0} of the {1} broke the {2} of {3}.	{0} din {1} a spart {2} din {3}.
+You broke the {0} of {1}! The {2} lies open.	Ai spart {0} din {1}! {2} e deschis.
+They are not taking your messages.	Nu primește mesajele tale.
+You can report only a message sent to you.	Poți raporta doar un mesaj trimis ție.
+Reported. A moderator will look at it.	Raportat. Un moderator se va uita.
+Too many new accounts from this network today. Try again tomorrow.	Prea multe conturi noi din această rețea azi. Încearcă din nou mâine.
+This account is banned.	Acest cont e interzis.
+This account is banned: {0}	Acest cont e interzis: {0}
+Choose a character first.	Alege mai întâi un personaj.
+That method is not available here.	Metoda nu e disponibilă aici.
+That item is already +9.	Obiectul e deja +9.
+Not enough Wolf Sinew.	Nu ai destul Tendon de Lup.
+No Scroll of Mercy.	Niciun Pergament al Îndurării.
+No Khan's Alloy.	Niciun Aliaj al Hanului.
+{0} forged {1} to +{2}!	{0} a rafinat {1} la +{2}!
+That item has no etchings to turn yet.	Obiectul nu are încă gravuri de răsucit.
+Not enough Turnstones.	Nu ai destule Pietre de Răsucire.
+Count must be 1 to 50.	Cantitatea trebuie să fie între 1 și 50.
+Unknown etching in the stop rule.	Gravură necunoscută în regula de oprire.
+{0} {1} shard set: {2}	Ciob fixat ({0} {1}): {2}
+The shard shattered. A Dead Shard blocks socket {0}.	Ciobul s-a sfărâmat. Un Ciob Mort blochează locașul {0}.
+Dead Shard removed for {0} sorn.	Ciob Mort scos pentru {0} sorn.
+That piece is already equipped.	Piesa e deja echipată.
+At most {0} pieces at once.	Cel mult {0} piese deodată.
+You do not own that piece.	Nu deții acea piesă.
+That stage or zone is not unlocked.	Etapa sau zona nu e deblocată.
+Unknown class.	Clasă necunoscută.
+Every stage is cleared.	Toate etapele sunt curățate.
+Unknown Commander.	Comandant necunoscut.
+That Commander Ground is not unlocked.	Terenul de Comandant nu e deblocat.
+{0} is not up.	{0} nu e activ.
+{0} has already fallen.	{0} a căzut deja.
+{0} has fallen to the {1}.	{1} a doborât {0}.
+You already fought {0} this spawn.	Te-ai luptat deja cu {0} la această apariție.
+{0}, and you struck the last blow	{0}, iar tu ai dat lovitura finală
+{0}, and your guild's {1} Guild Tallies for rank 1	{0}, plus {1} Răboje de Breaslă pentru breasla ta, pentru locul 1
+{0} has fallen; {1} struck the last blow.	{0} a căzut; {1} a dat lovitura finală.
+{0} has fallen to the {1}; {2} struck the last blow.	{1} a doborât {0}; {2} a dat lovitura finală.
+RequestId missing or too long.	RequestId lipsește sau e prea lung.
+This request was already processed.	Cererea a fost deja procesată.
+Another request changed this account. Refresh and retry.	O altă cerere a modificat acest cont. Reîmprospătează și reîncearcă.
+That sign-in expired or belongs to another device. Try again.	Conectarea a expirat sau aparține altui dispozitiv. Încearcă din nou.
+Missing or expired session.	Sesiune lipsă sau expirată.
+Email saved: sign in with it on any device.	E-mail salvat: conectează-te cu el pe orice dispozitiv.
+This sign-in link has expired. Start again in the game.	Linkul de conectare a expirat. Începe din nou din joc.
+This sign-in has expired. Start again in the game.	Conectarea a expirat. Începe din nou din joc.
+# Forme generice: un nume și un număr, un număr și un cuvânt, ghilimele, două puncte la final
+{0} {1#}	{0} {1}
+{0#} {1}	{0} {1}
+"{0}"	"{0}"
+“{0}”	“{0}”
+{0}:	{0}:
+{0} T{1}	{0} T{1}
+{0} needles	{0} ace
+{0} wax	{0} ceară
+{0} Amber	{0} Chihlimbar
+{0}+ Amber	{0}+ Chihlimbar
+LOCAL MODE (-local)	MOD LOCAL (-local)
+Day	Ziua
+Holds	Conține
+Jan	Ian
+Feb	Feb
+Mar	Mar
+Apr	Apr
+May	Mai
+Jun	Iun
+Jul	Iul
+Aug	Aug
+Sep	Sep
+Oct	Oct
+Nov	Nov
+Dec	Dec
+Monday	Luni
+Tuesday	Marți
+Wednesday	Miercuri
+Thursday	Joi
+Friday	Vineri
+Saturday	Sâmbătă
+Sunday	Duminică
+# Nume care rămân așa cum sunt
+Vanguard	Vanguard
+Kestrel	Kestrel
+Wraithsworn	Wraithsworn
+Drumcaller	Drumcaller
+Orsuun	Orsuun
+PvP	PvP
++{0} bonus	+{0} bonus
+{0} each	{0} bucata
+{0} pts	{0} pct.
+{0} fortress	{0} fortăreață
+{0} fortresses	{0} fortărețe
+the {0} is under siege	{0} e sub asediu
+{0} WALL	ZIDUL {0}
+Gate	Poarta
+Yard	Curtea
+Level up!	Nivel nou!
+Welcome back: {0} h away, {1} Korstones, +{2} sorn	Bine ai revenit: {0} h lipsă, {1} Pietre Kor, +{2} sorn
+server: {0}	server: {0}
+sorn	sorn
+yours	al tău
+Capital: {0}	Capitala: {0}
+BUY {0} DAYS	CUMPĂRĂ {0} ZILE
+BUY {0} DAY	CUMPĂRĂ {0} ZI
+ADD {0} DAYS	ADAUGĂ {0} ZILE
+ADD {0} DAY	ADAUGĂ {0} ZI
+Sorn	Sorn
+# Evenimente de weekend (Rules.WorldEvents)
+Double Sorn Weekend	Weekend cu Sorn Dublu
+Lucky Forge Hour	Ora Norocoasă a Fierăriei
+Commander Rush	Năvala Comandanților
+every hunt pays double sorn	fiecare vânătoare aduce sorn dublu
++5% chance on every Forge	+5% șansă la fiecare rafinare
+Commanders return every 15 minutes	Comandanții revin la fiecare 15 minute
+{0} has begun: {1} until {2}.	A început {0}: {1} până la {2}.
+{0} has begun: {1}. Come and hunt it.	A început {0}: {1}. Vino la vânătoare.
+{0} begins	Începe {0}
+(includes +{0}% Lucky Forge Hour)	(include +{0}% Ora Norocoasă a Fierăriei)
+success	reușită
+T{0}	T{0}
+# Monturi și însoțitori noi (27 sep 2026)
+Salt Road Camel	Cămila Drumului Sării
+Two humps, a saffron saddle and the patience of the salt roads.	Două cocoașe, o șa de șofran și răbdarea drumurilor sării.
+Whitefang Yak	Iacul din Colț-Alb
+Shaggy, red-horned and at home in the Whitefang snows.	Lățos, cu coarne roșii și ca acasă în zăpezile din Colț-Alb.
+Sky Stag	Cerbul Cerului
+A great maral hung with blue silk and silver bells: the Sky Banner's pride.	Un maral mare împodobit cu mătase albastră și clopoței de argint: mândria Stindardului Cerului.
+Barrow Raven	Corbul Gorganului
+It keeps the barrows' secrets and tells you only where the next fight is.	Păstrează tainele gorganelor și îți spune doar unde e următoarea luptă.
+Steppe Lynx Kit	Pui de Râs de Stepă
+Too young to hunt, old enough to sit on your purse.	Prea mic ca să vâneze, destul de mare ca să stea pe punga ta.
+Snow Owl	Bufnița Zăpezilor
+Silent over the Whitefang snows; it sees the quarry first.	Tăcută peste zăpezile din Colț-Alb; vede prima prada.
+# Titluri și realizări (27 sep 2026)
+ACHIEVEMENTS	REALIZĂRI
+ACHIEVEMENTS ({0})	REALIZĂRI ({0})
+TITLE: NONE	TITLU: NICIUNUL
+TITLE: {0}	TITLU: {0}
+TITLE	TITLU
+{0} of {1} claimed	{0} din {1} revendicate
+DONE: TAP TO CLAIM	GATA: ATINGE ȘI PRIMEȘTE
++{0} Honor	+{0} Onoare
+title: {0}	titlu: {0}
+★ {0}	★ {0}
+Offline: achievements need the server.	Offline: realizările au nevoie de server.
+Nothing to claim yet.	Încă nimic de primit.
+Claimed {0} achievements.	Realizări revendicate: {0}.
+Claim an achievement that gives a title first.	Revendică mai întâi o realizare care dă un titlu.
+You wear no title.	Nu porți niciun titlu.
+You wear the title {0}.	Porți titlul {0}.
+Not done yet.	Încă neterminat.
+No such achievement.	Realizarea nu există.
+Claim it first.	Revendic-o mai întâi.
+That achievement gives no title.	Realizarea nu dă niciun titlu.
+Clear {0}.	Curăță {0}.
+Reach level {0}.	Atinge nivelul {0}.
+First Crack	Prima Fisură
+Break a Korstone.	Sparge o Piatră Kor.
+Stone Breaker	Spărgător de Pietre
+Break 100 Korstones.	Sparge 100 de Pietre Kor.
+Quarry Master	Maestrul Carierei
+Break 1,000 Korstones.	Sparge 1.000 de Pietre Kor.
+Korstone Bane	Flagelul Pietrelor Kor
+Break 10,000 Korstones.	Sparge 10.000 de Pietre Kor.
+Out on the Steppe	Pe Stepă
+Hunt for an hour while you watch.	Vânează o oră în timp ce privești.
+Long Rides	Drumuri Lungi
+Hunt for a day while you watch.	Vânează o zi în timp ce privești.
+Steppe-Born	Născut în Stepă
+Hunt for 200 hours while you watch.	Vânează 200 de ore în timp ce privești.
+Blooded	Călit în Sânge
+Seasoned	Încercat
+Veteran	Veteran
+Warlord	Hatman
+Legend	Legendă
+Veteran of the Steppe	Veteranul Stepei
+Legend of the Banners	Legenda Stindardelor
+First Sparks	Primele Scântei
+Make 10 Forge attempts.	Fă 10 încercări de rafinare.
+Anvil Regular	Obișnuit al Nicovalei
+Make 200 Forge attempts.	Fă 200 de încercări de rafinare.
+Gleam	Licărire
+Forge a piece to +7.	Rafinează o piesă la +7.
+Gold Shine	Luciu de Aur
+Forge a piece to +8.	Rafinează o piesă la +8.
+Ember-Gold	Aur-de-Jar
+Forge a piece to +9.	Rafinează o piesă la +9.
+Oathsmith	Fierarul Jurămintelor
+Oathbreaker	Călcător de Jurământ
+Lose 10 weapons to an Oathbreak.	Pierde 10 arme prin Jurământ Frânt.
+Etcher	Gravor
+Turn etchings 100 times.	Răsucește gravuri de 100 de ori.
+Commander Hunter	Vânător de Comandanți
+Fight a Commander 10 times.	Luptă de 10 ori cu un Comandant.
+Last Blow	Lovitura Finală
+Strike a Commander's last blow.	Dă lovitura finală unui Comandant.
+Commander's Bane	Flagelul Comandanților
+Strike 10 Commanders' last blows.	Dă lovitura finală la 10 Comandanți.
+Siege Hand	Oștean de Asediu
+Fight 20 siege battles.	Luptă în 20 de bătălii de asediu.
+Wall-Breaker	Spărgător de Ziduri
+Fight 200 siege battles.	Luptă în 200 de bătălii de asediu.
+Pit Blooded	Călit în Groapă
+Win 10 Pit fights.	Câștigă 10 lupte în Groapă.
+Pit Fighter	Luptător din Groapă
+Win 100 Pit fights.	Câștigă 100 de lupte în Groapă.
+Pit Legend	Legenda Gropii
+Win 500 Pit fights.	Câștigă 500 de lupte în Groapă.
+Delver	Explorator
+Clear 5 dungeons.	Curăță 5 temnițe.
+Deep Delver	Explorator al Adâncurilor
+Clear 50 dungeons.	Curăță 50 de temnițe.
+Bounty Hunter	Vânător de Recompense
+Claim 50 bounties.	Revendică 50 de misiuni.
+Faithful	Credincios
+Take 7 daily gifts.	Ia 7 daruri zilnice.
+Old Friend of the Caravan	Vechi Prieten al Caravanei
+Take 30 daily gifts.	Ia 30 de daruri zilnice.
+Banner-Brother	Frate de Stindard
+Join a guild.	Intră într-o breaslă.
+Patron	Mecena
+Give 1,000,000 sorn to your guild.	Dă 1.000.000 de sorn breslei tale.
+Mastered	Maestru
+Raise a skill to M10.	Ridică o abilitate la M10.
+Peerless	Neîntrecut
+Raise a skill to Peerless.	Ridică o abilitate la Neîntrecut.
+Wayfarer	Drumeț
+Walker of the Twelve Roads	Drumețul Celor Douăsprezece Drumuri
+Stonebreaker	Sfărâmă-Piatră
+{0} claimed: +{1} Honor, +{2} sorn.	{0} revendicat: +{1} Onoare, +{2} sorn.
+New title: {0}.	Titlu nou: {0}.
+# Raidul breslei (27 sep 2026)
+GUILD RAID	RAID DE BREASLĂ
+THE GUILD'S BLADES THIS WEEK	LAMELE BRESLEI SĂPTĂMÂNA ASTA
+{0} fights a day each. When the boss falls, everyone who fought is paid by his share: Guild Tallies at once, sorn by letter.	Câte {0} lupte pe zi fiecare. Când căpetenia cade, fiecare luptător e plătit după partea lui: Răboje de Breaslă pe loc, sorn prin scrisoare.
+Offline: the raid needs the server.	Offline: raidul are nevoie de server.
+Fallen to {0}'s blow	Căzut sub lovitura dată de {0}
+A new boss comes on Monday at 20:00.	O nouă căpetenie vine luni la 20:00.
+Ends in {0}	Se încheie în {0}
+Your damage {0}	Daunele tale {0}
+fights left today {0}	lupte rămase azi {0}
+Nobody has fought it yet this week.	Nimeni nu s-a luptat încă cu ea săptămâna aceasta.
+calls a pack every 15 seconds	cheamă o haită la fiecare 15 secunde
+casts mirror images at 70% and 40%	creează imagini-oglindă la 70% și 40%
+You dealt {0} damage to {1}.	Ai lovit {1} cu {0} daune.
+{0} has fallen! Your pay is in the mailbox.	{0} a căzut! Plata ta e la poștă.
+{0} has fallen this week. The next comes on Monday at 20:00.	{0} a căzut săptămâna aceasta. Următoarea căpetenie vine luni la 20:00.
+You have fought the raid {0} times today. More at 20:00.	Azi ai luptat în raid de {0} ori. Mai multe la 20:00.
+The guild raid	Raidul breslei
+{0} has fallen	{0} a căzut
+[{0}] felled {1} in the week's raid. Your share: {2} damage ({3}%). You have +{4} Guild Tallies already; the sorn is here.	[{0}] a doborât {1} în raidul săptămânii. Partea ta: {2} daune ({3}%). Ai primit deja +{4} Răboje de Breaslă; sornul e aici.
+THE RAID BOSS HAS FALLEN	CĂPETENIA RAIDULUI A CĂZUT
+{0} struck the last blow: {1} has fallen in the guild raid!	{0} a dat lovitura finală: {1} a căzut în raidul breslei!
+{0} felled {1} in their guild raid.	{0} a doborât {1} în raidul breslei sale.
+THE GUILD	BREASLA
+{0} / {1} HP	{0} / {1} HP
+BATTERY SAVER: ON	ECONOMIE BATERIE: PORNIT
+BATTERY SAVER: OFF	ECONOMIE BATERIE: OPRIT
+Forgot your password?	Ai uitat parola?
+EMAIL ME A CODE	TRIMITE-MI UN COD
+The 6-digit code	Codul de 6 cifre
+New password (8 or more)	Parolă nouă (minim 8)
+New password again	Parola nouă din nou
+SET NEW PASSWORD	SALVEAZĂ PAROLA NOUĂ
+Email code	Codul din e-mail
+VERIFY	VERIFICĂ
+NEW CODE	COD NOU
+Verify your email with the code we sent to it, so a forgotten password can always be reset.	Verifică-ți e-mailul cu codul trimis pe el: așa o parolă uitată poate fi mereu schimbată.
+New password	Parolă nouă
+We email a 6-digit code to your account's address. Enter it with a new password: this phone then signs in.	Trimitem un cod de 6 cifre la adresa contului. Introdu-l cu o parolă nouă: telefonul se conectează apoi.
+Enter the 6-digit code from the email.	Introdu codul de 6 cifre din e-mail.
+New password set. Welcome back.	Parola nouă e salvată. Bine ai revenit.
+If that email has an account, a code is on its way. It works for 30 minutes.	Dacă acest e-mail are un cont, un cod e pe drum. E valabil 30 de minute.
+Email is not set up on this server yet.	E-mailul nu e încă configurat pe acest server.
+Too many codes asked for. Wait a few minutes and try again.	Prea multe coduri cerute. Așteaptă câteva minute și încearcă din nou.
+That code is wrong or has run out. Ask for a new one.	Codul e greșit sau a expirat. Cere unul nou.
+Email verified.	E-mail verificat.
+Save an email to the account first.	Salvează mai întâi un e-mail în cont.
+Your email is already verified.	E-mailul tău e deja verificat.
+A code is on its way to {0}.	Un cod e pe drum spre {0}.

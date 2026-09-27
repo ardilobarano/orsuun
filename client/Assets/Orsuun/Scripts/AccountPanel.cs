@@ -10,14 +10,15 @@ namespace Orsuun.Client
     /// character screen (ACCOUNT). CONTINUE WITH APPLE / GOOGLE links this account to that login, or switches this phone
     /// to the account already linked to it; CREATE ACCOUNT saves an email and password to the account; SIGN IN switches
     /// this phone to an account made elsewhere; PLAY AS GUEST carries on without one. Signed in, it shows how, links the
-    /// other provider, and signs out.
+    /// other provider, and signs out. Forgot your password? (owner, 27 Sep 2026: "Password reset by email") emails a code
+    /// that sets a new one; signed in with an email not yet proven, a row asks for the code the server emailed.
     /// </summary>
     public sealed class AccountPanel : MonoBehaviour
     {
         /// <summary>Set once the player has chosen (guest, sign up or sign in), so the screen does not come back by itself.</summary>
         public const string ChosenKey = "orsuun.accountChosen";
 
-        private enum Mode { Choose, Create, SignIn, SignedIn }
+        private enum Mode { Choose, Create, SignIn, SignedIn, Reset }
 
         private GameRoot _root;
         private GameObject _canvas;
@@ -43,6 +44,15 @@ namespace Orsuun.Client
         private Button _linkGoogle;
         private Text _switchNote;
         private Text _doneLabel;
+        private GameObject _forgotLink;
+        private GameObject _reset;
+        private InputField _resetEmail;
+        private InputField _resetCode;
+        private InputField _newPassword;
+        private InputField _newRepeat;
+        private Button _resetButton;
+        private GameObject _verifyRow;
+        private InputField _verifyCode;
 
         public bool Showing => _canvas != null && _canvas.activeSelf;
 
@@ -108,6 +118,26 @@ namespace Orsuun.Client
             Ui.Button("Switch", f, 0.15f, 0.25f, 0.85f, 0.31f, "", 24, Palette.ButtonIdle,
                 () => SetMode(_mode == Mode.Create ? Mode.SignIn : Mode.Create), out _switchLabel);
             Ui.Button("BackToChoice", f, 0.3f, 0.18f, 0.7f, 0.235f, "BACK", 24, Palette.DevGrey, BackFromForm, out _);
+            // Signing in, where the repeat field would be.
+            _forgotLink = Ui.Button("Forgot", f, 0.25f, 0.44f, 0.75f, 0.485f, "Forgot your password?", 22, Palette.ButtonIdle, () =>
+            {
+                _resetEmail.text = _email.text;
+                SetMode(Mode.Reset);
+            }, out _).gameObject;
+
+            _reset = Ui.Rect("Reset", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Transform r = _reset.transform;
+            _resetEmail = Ui.Input("Email", r, 0.1f, 0.585f, 0.9f, 0.645f, "Email", 30, AccountRules.MaxEmail);
+            _resetEmail.contentType = InputField.ContentType.EmailAddress;
+            Ui.Button("SendCode", r, 0.15f, 0.515f, 0.85f, 0.57f, "EMAIL ME A CODE", 26, Palette.Safe, SendResetCode, out _);
+            _resetCode = Ui.Input("Code", r, 0.1f, 0.445f, 0.9f, 0.5f, "The 6-digit code", 30, 6);
+            _resetCode.contentType = InputField.ContentType.IntegerNumber;
+            _newPassword = Ui.Input("NewPassword", r, 0.1f, 0.38f, 0.9f, 0.435f, "New password (8 or more)", 30, AccountRules.MaxPassword);
+            _newPassword.contentType = InputField.ContentType.Password;
+            _newRepeat = Ui.Input("NewRepeat", r, 0.1f, 0.315f, 0.9f, 0.37f, "New password again", 30, AccountRules.MaxPassword);
+            _newRepeat.contentType = InputField.ContentType.Password;
+            _resetButton = Ui.Button("SetPassword", r, 0.15f, 0.24f, 0.85f, 0.3f, "SET NEW PASSWORD", 30, Palette.ButtonForge, SubmitReset, out _);
+            Ui.Button("BackToSignIn", r, 0.3f, 0.18f, 0.7f, 0.228f, "BACK", 24, Palette.DevGrey, () => SetMode(Mode.SignIn), out _);
 
             _signedIn = Ui.Rect("SignedIn", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform s = _signedIn.transform;
@@ -118,6 +148,13 @@ namespace Orsuun.Client
             linkGoogleLabel.GetComponent<Shadow>().enabled = false;
             Ui.Button("SignOut", s, 0.15f, 0.345f, 0.85f, 0.405f, "SIGN OUT", 30, Palette.Danger, AskSignOut, out _);
             Ui.Button("Done", s, 0.15f, 0.265f, 0.85f, 0.325f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Close, out _doneLabel);
+            // An email not yet proven: the code the server sent at sign-up (or a new one) proves it.
+            _verifyRow = Ui.Rect("Verify", s, 0f, 0f, 1f, 1f).gameObject;
+            Transform v = _verifyRow.transform;
+            _verifyCode = Ui.Input("Code", v, 0.1f, 0.19f, 0.44f, 0.245f, "Email code", 26, 6);
+            _verifyCode.contentType = InputField.ContentType.IntegerNumber;
+            Ui.Button("Check", v, 0.46f, 0.19f, 0.67f, 0.245f, "VERIFY", 24, Palette.ButtonForge, () => VerifyEmail(_verifyCode.text.Trim()), out _);
+            Ui.Button("Resend", v, 0.69f, 0.19f, 0.9f, 0.245f, "NEW CODE", 22, Palette.ButtonIdle, () => VerifyEmail(null), out _);
 
             _message = Ui.Label("Message", canvas, 0.08f, 0.1f, 0.92f, 0.17f, "", 26, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
@@ -198,9 +235,12 @@ namespace Orsuun.Client
             _choose.SetActive(mode == Mode.Choose);
             _form.SetActive(mode == Mode.Create || mode == Mode.SignIn);
             _signedIn.SetActive(mode == Mode.SignedIn);
+            _reset.SetActive(mode == Mode.Reset);
             _repeat.gameObject.SetActive(mode == Mode.Create);
+            _forgotLink.SetActive(mode == Mode.SignIn);
             _password.text = "";
             _repeat.text = "";
+            _resetCode.text = _newPassword.text = _newRepeat.text = _verifyCode.text = "";
             switch (mode)
             {
                 case Mode.Choose:
@@ -231,9 +271,16 @@ namespace Orsuun.Client
                     if (Linked("apple")) ways.Add("Apple");
                     if (Linked("google")) ways.Add("Google");
                     if (!string.IsNullOrEmpty(_root.Server.Email)) ways.Add(_root.Server.Email);
-                    _lead.text = "This account and its heroes are saved. Sign in with it on any phone.";
+                    bool unproven = !string.IsNullOrEmpty(_root.Server.Email) && !_root.Server.EmailVerified;
+                    _lead.text = unproven ? "Verify your email with the code we sent to it, so a forgotten password can always be reset."
+                        : "This account and its heroes are saved. Sign in with it on any phone.";
                     _who.text = "Saved with " + string.Join(" and ", ways);
+                    _verifyRow.SetActive(unproven);
                     _doneLabel.text = _root.Server.InLobby ? "BACK TO THE HEROES" : "BACK TO THE HUNT";
+                    break;
+                case Mode.Reset:
+                    _heading.text = "New password";
+                    _lead.text = "We email a 6-digit code to your account's address. Enter it with a new password: this phone then signs in.";
                     break;
             }
         }
@@ -242,6 +289,14 @@ namespace Orsuun.Client
         {
             if (_root.Server.Registered) Close();
             else SetMode(Mode.Choose);
+        }
+
+        /// <summary>Screenshots of the forms: "signin", "create" or "reset" (a following flag, or nothing, keeps the screen as it opened).</summary>
+        public void ShotMode(string mode)
+        {
+            if (mode == "signin") SetMode(Mode.SignIn);
+            else if (mode == "create") SetMode(Mode.Create);
+            else if (mode == "reset") SetMode(Mode.Reset);
         }
 
         /// <summary>Screenshots of the way in (-firstrun guest).</summary>
@@ -286,6 +341,69 @@ namespace Orsuun.Client
                 return;
             }
             Run(_root.Server.SignIn(email, password, Done("Signed in. Welcome back.", newHero: false)));
+        }
+
+        private void SendResetCode()
+        {
+            if (_busy) return;
+            if (!_root.Server.Connected) { Say("Offline: accounts need the server."); return; }
+            string email = AccountRules.NormaliseEmail(_resetEmail.text);
+            if (AccountRules.EmailProblem(email) is string emailProblem) { Say(emailProblem); return; }
+            _busy = true;
+            Say("...", Palette.Muted);
+            StartCoroutine(_root.Server.ForgotPassword(email, (message, error) =>
+            {
+                _busy = false;
+                Say(error ?? message, error != null ? Palette.Bad : Palette.Good);
+            }));
+        }
+
+        private void SubmitReset()
+        {
+            if (_busy) return;
+            if (!_root.Server.Connected) { Say("Offline: accounts need the server."); return; }
+            string email = AccountRules.NormaliseEmail(_resetEmail.text);
+            string code = _resetCode.text.Trim();
+            if (AccountRules.EmailProblem(email) is string emailProblem) { Say(emailProblem); return; }
+            if (code.Length != 6) { Say("Enter the 6-digit code from the email."); return; }
+            if (AccountRules.PasswordProblem(_newPassword.text) is string passwordProblem) { Say(passwordProblem); return; }
+            if (_newPassword.text != _newRepeat.text) { Say("The two passwords differ."); return; }
+            string password = _newPassword.text;
+            System.Action reset = () =>
+            {
+                _busy = true;
+                _resetButton.interactable = false;
+                Say("...", Palette.Muted);
+                StartCoroutine(_root.Server.ResetPassword(email, code, password, error =>
+                {
+                    _resetButton.interactable = true;
+                    Done("New password set. Welcome back.", newHero: false)(error);
+                }));
+            };
+            if (GuestHasProgress())
+            {
+                _confirm.Show("Leave this guest account?",
+                    "Signing in switches this phone to your account. The guest heroes on this phone have no account and cannot be reached again.\n\n"
+                    + ConfirmDialog.Tint("To keep them, create an account for them first.", Palette.Bad),
+                    "SIGN IN", Palette.Danger, reset);
+                return;
+            }
+            reset();
+        }
+
+        private void VerifyEmail(string code)
+        {
+            if (_busy) return;
+            if (!_root.Server.Connected) { Say("Offline: accounts need the server."); return; }
+            if (code != null && code.Length != 6) { Say("Enter the 6-digit code from the email."); return; }
+            _busy = true;
+            Say("...", Palette.Muted);
+            StartCoroutine(_root.Server.VerifyEmail(code, (message, error) =>
+            {
+                _busy = false;
+                if (error == null && _root.Server.EmailVerified) SetMode(Mode.SignedIn);
+                Say(error ?? message, error != null ? Palette.Bad : Palette.Good);
+            }));
         }
 
         private void AskSignOut()

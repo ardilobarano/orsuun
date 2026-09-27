@@ -107,6 +107,7 @@ public sealed partial class GameService
         login.PasswordHash = Passwords.Hash(request.Password);
         try { await _db.SaveChangesAsync(ct); }
         catch (DbUpdateException) { throw new GameException("email_taken", "An account with that email exists. Sign in instead."); }
+        await TrySendVerifyAsync(login, ct);
     }
 
     /// <summary>Sign up from the game (older clients): the character's login gets the email.</summary>

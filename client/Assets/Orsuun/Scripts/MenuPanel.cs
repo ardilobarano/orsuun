@@ -22,6 +22,8 @@ namespace Orsuun.Client
         private Text _mailLabel;
         private Text _languageLabel;
         private Text _achievementsLabel;
+        private GameObject _languages;
+        private Text _saverLabel;
         private ConfirmDialog _confirm;
         private bool _deleting;
 
@@ -62,9 +64,8 @@ namespace Orsuun.Client
                 _root.Mail.Open();
             }, out _mailLabel);
             Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.49f, 0.665f, "", 26, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
-            // The language switch names the other language in its own words (never translated).
-            Ui.Button("Language", canvas, 0.51f, 0.605f, 0.85f, 0.665f, "", 28, Palette.Alloy,
-                () => Loc.Set(Loc.Turkish ? Loc.Lang.English : Loc.Lang.Turkish), out _languageLabel);
+            // The language button names the language in use in its own words and opens the list (never translated).
+            Ui.Button("Language", canvas, 0.51f, 0.605f, 0.85f, 0.665f, "", 26, Palette.Alloy, () => _languages.SetActive(true), out _languageLabel);
             Ui.Raw(_languageLabel);
             Ui.Button("Sound", canvas, 0.15f, 0.53f, 0.49f, 0.59f, "", 28, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
             Ui.Button("Daily", canvas, 0.51f, 0.53f, 0.85f, 0.59f, "DAILY GIFTS", 28, Palette.ButtonForge, () =>
@@ -79,7 +80,8 @@ namespace Orsuun.Client
             }, out _achievementsLabel);
             Ui.Button("Privacy", canvas, 0.51f, 0.455f, 0.85f, 0.515f, "PRIVACY POLICY", 24, Palette.ButtonIdle,
                 () => Application.OpenURL(_root.Server.BaseUrl + "/privacy"), out _);
-            Ui.Button("Delete", canvas, 0.15f, 0.38f, 0.85f, 0.44f, "DELETE ACCOUNT", 32, Palette.Danger, AskDelete, out _);
+            Ui.Button("Saver", canvas, 0.15f, 0.38f, 0.49f, 0.44f, "", 22, Palette.ButtonIdle, () => _root.GetComponent<Performance>()?.SetSaver(!Performance.Saver), out _saverLabel);
+            Ui.Button("Delete", canvas, 0.51f, 0.38f, 0.85f, 0.44f, "DELETE ACCOUNT", 24, Palette.Danger, AskDelete, out _);
             if (ShowDevGrant)
             {
                 Ui.Button("DevGrant", canvas, 0.15f, 0.305f, 0.49f, 0.365f, "DEV: GRANT", 24, Palette.DevGrey, DevGrant, out _);
@@ -91,6 +93,24 @@ namespace Orsuun.Client
             Ui.Button("Close", canvas, 0.25f, 0.18f, 0.75f, 0.245f, "BACK TO THE HUNT", 30, Palette.ButtonIdle, Close, out _);
             Ui.Label("Version", canvas, 0.05f, 0.10f, 0.95f, 0.14f, "Orsuun: War of Banners  ·  v" + Application.version, 22,
                 TextAnchor.MiddleCenter, Palette.Muted);
+
+            // The language list: every language in its own words, over the menu.
+            _languages = Ui.Rect("Languages", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Ui.Panel("Shade", _languages.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0f, 0.7f));
+            Ui.Framed("Box", _languages.transform, 0.1f, 0.3f, 0.9f, 0.72f, new Color(0.07f, 0.06f, 0.05f, 0.96f));
+            for (int i = 0; i < Loc.Names.Length; i++)
+            {
+                var lang = (Loc.Lang)i;
+                float x0 = i % 2 == 0 ? 0.14f : 0.51f, y1 = 0.69f - i / 2 * 0.1f;
+                Ui.Button("Lang" + i, _languages.transform, x0, y1 - 0.08f, x0 + 0.35f, y1, Loc.Names[i], 26, Palette.Alloy, () =>
+                {
+                    Loc.Set(lang);
+                    _languages.SetActive(false);
+                }, out Text name);
+                Ui.Raw(name);
+            }
+            Ui.Button("LangClose", _languages.transform, 0.3f, 0.32f, 0.7f, 0.38f, "CLOSE", 24, Palette.ButtonIdle, () => _languages.SetActive(false), out _);
+            _languages.SetActive(false);
 
             _canvas.SetActive(false);
             _confirm = new GameObject("MenuConfirm").AddComponent<ConfirmDialog>();
@@ -162,7 +182,8 @@ namespace Orsuun.Client
             if (!_canvas.activeSelf) return;
             _soundLabel.text = GameAudio.Instance != null && GameAudio.Instance.Muted ? "SOUND: OFF" : "SOUND: ON";
             _speedLabel.text = $"HUNT SPEED: x{_root.SpeedMultiplier}";
-            _languageLabel.text = Loc.Turkish ? "ENGLISH" : "TÜRKÇE";
+            _languageLabel.text = Loc.Name;
+            _saverLabel.text = Performance.Saver ? "BATTERY SAVER: ON" : "BATTERY SAVER: OFF";
             _accountLabel.text = _root.Server.Registered ? "ACCOUNT\n<size=16>" + _root.Server.Email + "</size>" : "SIGN UP / SIGN IN";
             int unread = _root.Server.Online ? _root.Server.MailUnread : 0;
             _mailLabel.text = unread > 0 ? $"MAILBOX ({unread})" : "MAILBOX";

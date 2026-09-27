@@ -57,6 +57,8 @@ namespace Orsuun.Client.Net
         /// <summary>Google / Apple logins linked to the account ("google", "apple").</summary>
         public string[] Logins { get; private set; } = new string[0];
         public bool Registered => !string.IsNullOrEmpty(Email) || Logins.Length > 0;
+        /// <summary>Whether the sign-in email is proven (a code sent to it came back, or a reset used one).</summary>
+        public bool EmailVerified { get; private set; }
         /// <summary>The sign-in providers this server offers ("apple", "google"; "dev" only on test servers).</summary>
         public string[] Providers { get; private set; } = new string[0];
         /// <summary>Raised when a Google / Apple sign-in ends: (message, error). The account screen shows it.</summary>
@@ -134,6 +136,7 @@ namespace Orsuun.Client.Net
             Online = false;
             Status = "connecting";
             Email = "";
+            EmailVerified = false;
             Logins = new string[0];
             GuildView = null;
             Friends = null;
@@ -252,6 +255,7 @@ namespace Orsuun.Client.Net
         {
             Lobby = lobby;
             Email = lobby.email ?? "";
+            EmailVerified = lobby.emailVerified;
             if (lobby.links > 0 && Logins.Length == 0) Logins = new[] { "linked" };
             if (!string.IsNullOrEmpty(lobby.banner) && Enum.TryParse(lobby.banner, out Banner b)) Banner = b;
         }
@@ -330,6 +334,14 @@ namespace Orsuun.Client.Net
         public IEnumerator SignIn(string email, string password, Action<string> done)
         {
             string failure = null;
+            yield return Post("/v1/auth/login", JsonUtility.ToJson(new LoginRequest { email = email, password = password, deviceToken = SavedDeviceToken() }), false,
+                _ => { }, error => failure = error ?? "No answer from the server.");
+            if (failure == null) Restart();
+            done(failure);
+        }
+
+        private static string SavedDeviceToken()
+        {
             string token = PlayerPrefs.GetString(DeviceTokenKey, "");
             if (token.Length == 0)
             {
@@ -337,10 +349,40 @@ namespace Orsuun.Client.Net
                 PlayerPrefs.SetString(DeviceTokenKey, token);
                 PlayerPrefs.Save();
             }
-            yield return Post("/v1/auth/login", JsonUtility.ToJson(new LoginRequest { email = email, password = password, deviceToken = token }), false,
+            return token;
+        }
+
+        /// <summary>Forgot the password: the server emails a code (it answers the same whether or not the email has an account). Completes with (message, error).</summary>
+        public IEnumerator ForgotPassword(string email, Action<string, string> done)
+        {
+            string failure = null, message = null;
+            yield return Post("/v1/auth/forgot", JsonUtility.ToJson(new ForgotRequest { email = email }), false,
+                json => message = JsonUtility.FromJson<MessageDto>(json).message, error => failure = error ?? "No answer from the server.");
+            done(message, failure);
+        }
+
+        /// <summary>A new password with the emailed code: this device then switches to the account, like SIGN IN.</summary>
+        public IEnumerator ResetPassword(string email, string code, string password, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/auth/reset", JsonUtility.ToJson(new ResetRequest { email = email, code = code, password = password, deviceToken = SavedDeviceToken() }), false,
                 _ => { }, error => failure = error ?? "No answer from the server.");
             if (failure == null) Restart();
             done(failure);
+        }
+
+        /// <summary>Emails a code that proves the account's email (code null), or checks one. Completes with (message, error).</summary>
+        public IEnumerator VerifyEmail(string code, Action<string, string> done)
+        {
+            string failure = null, message = null;
+            string path = (InLobby ? "/v1/lobby" : "/v1/auth") + (code == null ? "/verify/send" : "/verify");
+            yield return Post(path, code == null ? "{}" : JsonUtility.ToJson(new VerifyRequest { code = code }), true, json =>
+            {
+                var answer = JsonUtility.FromJson<MessageDto>(json);
+                message = answer.message;
+                EmailVerified = answer.emailVerified;
+            }, error => failure = error ?? "No answer from the server.");
+            done(message, failure);
         }
 
         /// <summary>Sign out: ends this device's session and starts a new guest with a new device token.</summary>
@@ -1447,6 +1489,7 @@ namespace Orsuun.Client.Net
             Guild = s.guild;
             Tallies = s.inventory.tallies;
             Email = s.email ?? "";
+            EmailVerified = s.emailVerified;
             Logins = s.logins ?? new string[0];
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
@@ -1508,7 +1551,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class GuestLoginRequest { public string deviceToken; public bool lobby; }
         [Serializable] public class GuestLoginResponse { public string accountId; public string sessionToken; public bool created; public string loginId; public int characters; }
         [Serializable] public class CharacterSlotDto { public string id; public int slot; public string name; public string @class; public int level; public int armorBand; public int weaponBand; public int weaponUpgrade; public string skin; public int highestStageCleared; public string lastPlayedUtc; public string guildTag; public bool banned; public string figure; }
-        [Serializable] public class LobbyDto { public string loginId; public CharacterSlotDto[] characters; public int maxSlots; public string banner; public long amber; public string email; public string message; public int links; }
+        [Serializable] public class LobbyDto { public string loginId; public CharacterSlotDto[] characters; public int maxSlots; public string banner; public long amber; public string email; public string message; public int links; public bool emailVerified; }
         [Serializable] public class CreateCharacterRequest { public string name; public string heroClass; public int slot; public string figure; }
         [Serializable] public class CharacterRequest { public string characterId; public string name; }
         [Serializable] public class DepotDto { public StateDto state; public ItemDto[] items; public int capacity; public string message; }
@@ -1567,7 +1610,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; }
         [Serializable] public class AchievementsDto { public StateDto state; public AchievementDto[] list; public int titleId; public string title; public string message; }
         [Serializable] public class AchievementDto { public int id; public string name; public string text; public long progress; public long target; public int honor; public long sorn; public string title; public bool done; public bool claimed; }
         [Serializable] public class AchievementClaimRequest { public string requestId; public int id; }
@@ -1655,6 +1698,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class MarketBuyRequest { public string requestId; public long listingId; }
         [Serializable] public class RegisterRequest { public string email; public string password; }
         [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }
+        [Serializable] public class ForgotRequest { public string email; }
+        [Serializable] public class ResetRequest { public string email; public string code; public string password; public string deviceToken; }
+        [Serializable] public class VerifyRequest { public string code; }
+        [Serializable] public class MessageDto { public string message; public bool emailVerified; }
         [Serializable] public class GuildCreateRequest { public string requestId; public string name; public string tag; public string color; }
         [Serializable] public class GuildJoinRequest { public string requestId; public string guildId; }
         [Serializable] public class GuildLeaveRequest { public string requestId; }

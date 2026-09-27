@@ -42,6 +42,12 @@ services:
       Auth__Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
       Auth__Apple__ServicesId: ${APPLE_SERVICES_ID:-}
       Auth__Apple__BundleId: com.orsuun.warofbanners
+      # Email for password reset codes (Game/MailSender.cs). Empty = a Development server logs them; others say it is off.
+      Mail__Host: ${MAIL_HOST:-}
+      Mail__Port: ${MAIL_PORT:-587}
+      Mail__User: ${MAIL_USER:-}
+      Mail__Password: ${MAIL_PASSWORD:-}
+      Mail__From: ${MAIL_FROM:-}
     expose:
       - "8080"
 

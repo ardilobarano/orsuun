@@ -176,6 +176,11 @@ public sealed record MarketBuyRequest(string RequestId, long ListingId);
 
 /// <summary>Sign up saves an email and password to the account being played; sign in moves this device to an account.</summary>
 public sealed record RegisterRequest(string Email, string Password);
+/// <summary>Password reset and email verification by emailed codes (GameService.Recovery).</summary>
+public sealed record ForgotRequest(string Email);
+public sealed record ResetRequest(string Email, string Code, string Password, string DeviceToken);
+public sealed record VerifyRequest(string Code);
+public sealed record MessageDto(string Message, bool EmailVerified = false);
 public sealed record LoginRequest(string Email, string Password, string DeviceToken);
 public sealed record AccountDto(string? Email, bool Registered);
 /// <summary>Sign in with Google or Apple: begin gives the page to open; the app redeems the ticket it is sent back with.</summary>
@@ -263,7 +268,8 @@ public sealed record StateDto(
     int Mail = 0,
     WorldEventDto[]? Events = null,
     int AchievementsReady = 0,
-    string? Title = null);
+    string? Title = null,
+    bool EmailVerified = false);
 
 /// <summary>The ACHIEVEMENTS screen (Rules.Achievements): every achievement with its progress, and the title worn.</summary>
 public sealed record AchievementsDto(StateDto State, AchievementDto[] List, int TitleId, string Title, string Message);
@@ -400,7 +406,8 @@ public sealed record AdminEventRequest(string Kind, string StartsLocal, int Hour
 public sealed record DevEventRequest(string Kind, int Minutes = 60);
 
 /// <summary>The character screen (25 Sep 2026): the login's characters, its Banner and Amber.</summary>
-public sealed record LobbyDto(Guid LoginId, CharacterSlotDto[] Characters, int MaxSlots, Banner Banner, long Amber, string? Email, string Message = "", int Links = 0);
+public sealed record LobbyDto(Guid LoginId, CharacterSlotDto[] Characters, int MaxSlots, Banner Banner, long Amber, string? Email, string Message = "", int Links = 0,
+    bool EmailVerified = false);
 /// <summary>One character: enough to stand its model on the stage (class, armour and weapon bands, worn skin look).</summary>
 public sealed record CharacterSlotDto(Guid Id, int Slot, string Name, HeroClass Class, int Level, int ArmorBand, int WeaponBand, int WeaponUpgrade,
     string Skin, int HighestStageCleared, DateTime LastPlayedUtc, string GuildTag, bool Banned, Figure Figure = Figure.Man);

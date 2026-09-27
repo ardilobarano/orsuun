@@ -18,6 +18,14 @@ public sealed class Login
     /// <summary>Sign in (lower-case, unique) and the password hash ("pbkdf2-sha256$iterations$salt$hash"); null for guests.</summary>
     [MaxLength(254)] public string? Email { get; set; }
     [MaxLength(200)] public string? PasswordHash { get; set; }
+    /// <summary>Emailed codes (GameService.Recovery), kept only as hashes: a password reset's (30 minutes, a few tries) and
+    /// the email's own (a day); EmailVerified once either has been entered.</summary>
+    [MaxLength(64)] public string? ResetHash { get; set; }
+    public DateTime? ResetUntilUtc { get; set; }
+    public int ResetTries { get; set; }
+    [MaxLength(64)] public string? VerifyHash { get; set; }
+    public DateTime? VerifyUntilUtc { get; set; }
+    public bool EmailVerified { get; set; }
     public long Amber { get; set; }
     public int AmberPurchases { get; set; }
     public Banner Banner { get; set; } = Banner.None;

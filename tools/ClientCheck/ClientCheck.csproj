@@ -33,6 +33,7 @@
     <Reference Include="$(UnityManaged)\UnityEngine.AnimationModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.ParticleSystemModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.AssetBundleModule.dll" />
+    <Reference Include="$(UnityManaged)\UnityEngine.InputLegacyModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.ScriptingModule.dll" Condition="Exists('$(UnityManaged)\UnityEngine.ScriptingModule.dll')" />
     <Reference Include="$(UnityUI)" />
     <!-- URP (since 23 Sep 2026): generated into Library/ScriptAssemblies once the editor has compiled the project. -->

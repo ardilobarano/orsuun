@@ -2194,3 +2194,27 @@ THE RAID BOSS HAS FALLEN	BASKIN BOSS'U DÜŞTÜ
 {0} felled {1} in their guild raid.	{0}, lonca baskınında {1} boss'unu devirdi.
 THE GUILD	LONCA
 {0} / {1} HP	{0} / {1} can
+BATTERY SAVER: ON	PİL TASARRUFU: AÇIK
+BATTERY SAVER: OFF	PİL TASARRUFU: KAPALI
+Forgot your password?	Şifreni mi unuttun?
+EMAIL ME A CODE	BANA KOD GÖNDER
+The 6-digit code	6 haneli kod
+New password (8 or more)	Yeni şifre (en az 8)
+New password again	Yeni şifre tekrar
+SET NEW PASSWORD	YENİ ŞİFREYİ KAYDET
+Email code	E-posta kodu
+VERIFY	DOĞRULA
+NEW CODE	YENİ KOD
+Verify your email with the code we sent to it, so a forgotten password can always be reset.	E-postana gönderdiğimiz kodla adresini doğrula: unutulan bir şifre böylece her zaman yenilenebilir.
+New password	Yeni şifre
+We email a 6-digit code to your account's address. Enter it with a new password: this phone then signs in.	Hesabının adresine 6 haneli bir kod göndeririz. Onu yeni bir şifreyle gir: bu telefon sonra hesaba girer.
+Enter the 6-digit code from the email.	E-postadaki 6 haneli kodu gir.
+New password set. Welcome back.	Yeni şifre kaydedildi. Tekrar hoş geldin.
+If that email has an account, a code is on its way. It works for 30 minutes.	Bu e-postanın bir hesabı varsa kod yolda. 30 dakika geçerli.
+Email is not set up on this server yet.	Bu sunucuda e-posta henüz kurulmadı.
+Too many codes asked for. Wait a few minutes and try again.	Çok fazla kod istendi. Birkaç dakika bekleyip yeniden dene.
+That code is wrong or has run out. Ask for a new one.	Kod yanlış ya da süresi doldu. Yenisini iste.
+Email verified.	E-posta doğrulandı.
+Save an email to the account first.	Önce hesaba bir e-posta kaydet.
+Your email is already verified.	E-postan zaten doğrulanmış.
+A code is on its way to {0}.	{0} adresine bir kod gönderildi.

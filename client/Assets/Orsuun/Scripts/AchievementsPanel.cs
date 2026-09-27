@@ -129,7 +129,7 @@ namespace Orsuun.Client
             int claimed = 0;
             foreach (AchievementDto a in list) if (a.claimed) claimed++;
             _summary.text = list.Length == 0 ? "" : $"{claimed} of {list.Length} claimed";
-            _titleLabel.text = view == null ? "TITLE" : string.IsNullOrEmpty(view.title) ? "TITLE: NONE" : $"TITLE: {Loc.T(view.title).ToUpperInvariant()}";
+            _titleLabel.text = view == null ? "TITLE" : string.IsNullOrEmpty(view.title) ? "TITLE: NONE" : $"TITLE: {Loc.ToUpper(Loc.T(view.title))}";
 
             string key = view == null ? "" : view.titleId + ":";
             foreach (AchievementDto a in list) key += a.id + (a.claimed ? "c" : a.done ? "d" : a.progress.ToString(CultureInfo.InvariantCulture)) + ";";

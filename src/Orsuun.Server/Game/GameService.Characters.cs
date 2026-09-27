@@ -44,7 +44,7 @@ public sealed partial class GameService
                 a.Figure);
         }).ToArray();
         int links = await _db.ExternalLogins.CountAsync(l => l.LoginId == login.Id, ct);
-        return new LobbyDto(login.Id, slots, Characters.MaxSlots, login.Banner, login.Amber, login.Email, message, links);
+        return new LobbyDto(login.Id, slots, Characters.MaxSlots, login.Banner, login.Amber, login.Email, message, links, login.EmailVerified);
     }
 
     public async Task<LobbyDto> CreateCharacterAsync(Login login, CreateCharacterRequest request, CancellationToken ct)

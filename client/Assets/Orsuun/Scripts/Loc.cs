@@ -7,8 +7,9 @@ using UnityEngine;
 namespace Orsuun.Client
 {
     /// <summary>
-    /// The game's languages (owner, 27 Sep 2026: "Turkish language"): English as written, and Turkish from
-    /// Resources/Loc/tr.txt, English and Turkish on each line with a tab between. Translation happens only where text is
+    /// The game's languages (owner, 27 Sep 2026: "Turkish language", then "More languages"): English as written, and
+    /// the others from Resources/Loc/&lt;code&gt;.txt (tr, de, pl, pt, ro), English and the translation on each line with a
+    /// tab between. Translation happens only where text is
     /// shown (LocText): a string is looked up whole, then cut at rich-text tags, line breaks and separators ("·", two
     /// spaces, "|") and each piece looked up alone. A piece is found as it is, in capitals, or through a template whose
     /// {0}, {1} stand for anything ("Sold: {0}"); what a hole caught is translated in turn (item names, numbers pass), so
@@ -16,7 +17,13 @@ namespace Orsuun.Client
     /// </summary>
     public static class Loc
     {
-        public enum Lang { English, Turkish }
+        public enum Lang { English, Turkish, German, Polish, Portuguese, Romanian }
+
+        /// <summary>Each language's file name (and saved choice), and its name in its own words for the language list.</summary>
+        private static readonly string[] Codes = { "en", "tr", "de", "pl", "pt", "ro" };
+        public static readonly string[] Names = { "ENGLISH", "TÜRKÇE", "DEUTSCH", "POLSKI", "PORTUGUÊS", "ROMÂNĂ" };
+        private static readonly SystemLanguage[] Systems =
+            { SystemLanguage.English, SystemLanguage.Turkish, SystemLanguage.German, SystemLanguage.Polish, SystemLanguage.Portuguese, SystemLanguage.Romanian };
 
         private const string PrefKey = "orsuun.lang";
         private const int MaxDepth = 6;
@@ -45,7 +52,7 @@ namespace Orsuun.Client
         private static readonly Regex Hole = new Regex(@"\{(\d+)(#?)\}", RegexOptions.CultureInvariant);
         private static readonly Regex NoWords = new Regex(@"^v?[\d\s.,:;%+\-×/()\[\]#'""!?›‹◆●$<>]*$", RegexOptions.CultureInvariant);
         private static readonly Regex Sentence = new Regex(@"(?<=[.!?])\s+(?=[A-Z0-9""(])", RegexOptions.CultureInvariant);
-        private static bool _loaded;
+        private static Lang _loaded = Lang.English;
         /// <summary>A hole touching letters ("{0}m", "T{0}") and a marked one ("{0#}": a number or a time, "06:49").</summary>
         private const string Digits = "(-?[\\d.,]+)", Number = "(-?\\d[\\d.,:]*)";
 
@@ -53,28 +60,32 @@ namespace Orsuun.Client
         public static readonly HashSet<string> Misses = new HashSet<string>();
         private static bool _recordMisses;
 
-        /// <summary>The saved choice, else the phone's language; -lang tr|en forces one (screenshots, not saved).</summary>
+        /// <summary>The saved choice, else the phone's language; -lang &lt;code&gt; forces one (screenshots, not saved).</summary>
         public static void Init()
         {
             string[] args = Environment.GetCommandLineArgs();
             int forced = Array.IndexOf(args, "-lang");
             string saved = forced >= 0 && forced + 1 < args.Length ? args[forced + 1] : PlayerPrefs.GetString(PrefKey, "");
-            Current = saved == "tr" ? Lang.Turkish : saved == "en" ? Lang.English
-                : Application.systemLanguage == SystemLanguage.Turkish ? Lang.Turkish : Lang.English;
+            int index = Array.IndexOf(Codes, saved);
+            if (index < 0) index = Math.Max(0, Array.IndexOf(Systems, Application.systemLanguage));
+            Current = (Lang)index;
             _recordMisses = Array.IndexOf(args, "-locmiss") >= 0;
-            if (Current == Lang.Turkish) Load();
+            Load(Current);
         }
 
         public static void Set(Lang lang)
         {
             if (lang == Current) return;
             Current = lang;
-            PlayerPrefs.SetString(PrefKey, lang == Lang.Turkish ? "tr" : "en");
+            PlayerPrefs.SetString(PrefKey, Codes[(int)lang]);
             PlayerPrefs.Save();
-            if (lang == Lang.Turkish) Load();
+            Load(lang);
             Cache.Clear();
             Changed?.Invoke();
         }
+
+        /// <summary>The current language's name in its own words.</summary>
+        public static string Name => Names[(int)Current];
 
         /// <summary>The text in the language chosen.</summary>
         public static string T(string text)
@@ -133,7 +144,7 @@ namespace Orsuun.Client
                 return true;
             }
             if (Exact.TryGetValue(piece, out done)) return true;
-            if (IsCapitals(piece) && Upper.TryGetValue(piece, out done)) { done = ToUpperTr(done); return true; }
+            if (IsCapitals(piece) && Upper.TryGetValue(piece, out done)) { done = ToUpper(done); return true; }
             done = piece;
             if (char.IsLower(piece[0]) && Exact.TryGetValue(char.ToUpperInvariant(piece[0]) + piece.Substring(1), out string lifted))
             {
@@ -230,7 +241,7 @@ namespace Orsuun.Client
         }
 
         private static string LowerFirst(string s) => s.Length == 0 ? s
-            : (s[0] == 'İ' ? "i" : s[0] == 'I' ? "ı" : char.ToLowerInvariant(s[0]).ToString()) + s.Substring(1);
+            : (Current == Lang.Turkish && s[0] == 'İ' ? "i" : Current == Lang.Turkish && s[0] == 'I' ? "ı" : char.ToLowerInvariant(s[0]).ToString()) + s.Substring(1);
 
         private static bool IsCapitals(string s)
         {
@@ -243,14 +254,21 @@ namespace Orsuun.Client
             return letter;
         }
 
-        /// <summary>Capitals the Turkish way: i to İ, ı to I.</summary>
-        public static string ToUpperTr(string s) => s.Replace('i', 'İ').Replace('ı', 'I').ToUpperInvariant();
+        /// <summary>Capitals in the current language (Turkish: i to İ, ı to I).</summary>
+        public static string ToUpper(string s) =>
+            Current == Lang.Turkish ? s.Replace('i', 'İ').Replace('ı', 'I').ToUpperInvariant() : s.ToUpperInvariant();
 
-        private static void Load()
+        private static void Load(Lang lang)
         {
-            if (_loaded) return;
-            _loaded = true;
-            var asset = Resources.Load<TextAsset>("Loc/tr");
+            if (lang == _loaded) return;
+            _loaded = lang;
+            Exact.Clear();
+            Upper.Clear();
+            Buckets.Clear();
+            Open.Clear();
+            Cache.Clear();
+            if (lang == Lang.English) return;
+            var asset = Resources.Load<TextAsset>("Loc/" + Codes[(int)lang]);
             if (asset == null) return;
             var templates = new List<Template>();
             foreach (string raw in asset.text.Split('\n'))

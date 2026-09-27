@@ -14,6 +14,7 @@ builder.Services.AddDbContext<GameDb>(o => o.UseNpgsql(connection));
 builder.Services.AddSingleton<IRandom>(CryptoRandom.Instance);
 builder.Services.AddSingleton<BellClock>();
 builder.Services.AddSingleton<EventCalendar>();
+builder.Services.AddSingleton<MailSender>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ExternalAuth>();
@@ -83,6 +84,12 @@ app.MapGet("/health", () => Results.Ok(new { ok = true, utc = DateTime.UtcNow })
 
 app.MapPost("/v1/auth/guest", (GuestLoginRequest req, HttpContext http, GameService game, CancellationToken ct) =>
     game.GuestLoginAsync(req.DeviceToken, http.Connection.RemoteIpAddress?.ToString(), ct, req.Lobby));
+
+// A forgotten password: a code by email, then a new password with it (no session needed; asks and tries are limited).
+app.MapPost("/v1/auth/forgot", (ForgotRequest req, HttpContext http, GameService game, CancellationToken ct) =>
+    game.ForgotPasswordAsync(req, http.Connection.RemoteIpAddress?.ToString(), ct));
+app.MapPost("/v1/auth/reset", (ResetRequest req, HttpContext http, GameService game, CancellationToken ct) =>
+    game.ResetPasswordAsync(req, http.Connection.RemoteIpAddress?.ToString(), ct));
 
 // Sign in with email and password: points this device at the account (no session needed; failed tries are limited).
 app.MapPost("/v1/auth/login", (LoginRequest req, HttpContext http, GameService game, CancellationToken ct) =>
@@ -176,6 +183,8 @@ lobby.MapPost("/signout", async (HttpContext ctx, GameService game, Cancellation
     await game.SignOutAsync(ctx.Request.Headers["X-Session"], ct);
     return Results.Ok(new { signedOut = true });
 });
+lobby.MapPost("/verify/send", (HttpContext ctx, GameService game, CancellationToken ct) => game.SendVerifyAsync(MyLogin(ctx), ct));
+lobby.MapPost("/verify", (HttpContext ctx, VerifyRequest req, GameService game, CancellationToken ct) => game.VerifyAsync(MyLogin(ctx), req, ct));
 lobby.MapPost("/register", async (HttpContext ctx, RegisterRequest req, GameService game, CancellationToken ct) =>
 {
     await game.RegisterAsync(MyLogin(ctx), req, ct);
@@ -327,6 +336,8 @@ v1.MapPost("/auth/external", async (HttpContext ctx, ExternalTokenRequest req, E
     return await game.LinkOrLoginAsync(Me(ctx).LoginId, device, identity, ct);
 });
 v1.MapPost("/auth/register", (HttpContext ctx, RegisterRequest req, GameService game, CancellationToken ct) => game.RegisterAsync(Me(ctx), req, ct));
+v1.MapPost("/auth/verify/send", (HttpContext ctx, GameService game, CancellationToken ct) => { Me(ctx); return game.SendVerifyAsync(null, ct); });
+v1.MapPost("/auth/verify", (HttpContext ctx, VerifyRequest req, GameService game, CancellationToken ct) => { Me(ctx); return game.VerifyAsync(null, req, ct); });
 v1.MapPost("/auth/signout", async (HttpContext ctx, GameService game, CancellationToken ct) =>
 {
     await game.SignOutAsync(ctx.Request.Headers["X-Session"], ct);
@@ -429,6 +440,8 @@ mod.MapGet("/log", (GameService game, CancellationToken ct) => game.AdminLogAsyn
 if (app.Environment.IsDevelopment())
 {
     v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
+    // Development without SMTP: the last email kept for an address (the recovery smoke test reads its code).
+    app.MapGet("/v1/dev/mail", (string email, MailSender mail) => mail.Kept.TryGetValue(email, out string? text) ? Results.Ok(new { text }) : Results.NotFound());
     v1.MapPost("/dev/event", (HttpContext ctx, DevEventRequest req, GameService game, CancellationToken ct) => game.DevEventAsync(Me(ctx), req.Kind, req.Minutes, ct));
     v1.MapPost("/dev/level", (HttpContext ctx, int level, GameService game, CancellationToken ct) => game.DevLevelAsync(Me(ctx), level, ct));
     v1.MapPost("/dev/pit-season-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevPitSeasonEndAsync(Me(ctx), ct));

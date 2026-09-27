@@ -211,10 +211,12 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   Pass the flag wherever a hero is drawn (lane, HeroStage, rivals: `DuelResultDto.DefenderFigure`).
 - The login calendar (`Rules.DailyLogin`) is the account's: `Login.DailyDay` / `DailyClaimedOn` change only under
   `LockLoginAsync` (four characters share it), and a claim is keyed by `Bounties.DayKey` (the 20:00 bounty day).
-- Text is translated where it is shown (`Loc`, Turkish since 27 Sep 2026): `Ui.Label` makes a `LocText`, which looks each
-  piece up in `Resources/Loc/tr.txt` (English, a tab, Turkish; `{0}` holes, `{0#}` a number). Players' words go on
-  `Ui.Raw(label)`; code that reads a label back compares `Ui.Src(label)` (the English), never `.text`. A new string needs
-  its line in tr.txt: `-lang tr -locmiss <file>` on the Mac player writes the pieces that found none.
+- Text is translated where it is shown (`Loc`: Turkish since 27 Sep 2026, then German, Polish, Portuguese, Romanian):
+  `Ui.Label` makes a `LocText`, which looks each piece up in `Resources/Loc/<code>.txt` (tr, de, pl, pt, ro: English, a
+  tab, the translation; `{0}` holes, `{0#}` a number). Players' words go on `Ui.Raw(label)`; code that reads a label back
+  compares `Ui.Src(label)` (the English), never `.text`. A new string needs its line in every language's file (a missing
+  one shows in English): `-lang tr -locmiss <file>` on the Mac player writes the pieces that found none. Capitals go
+  through `Loc.ToUpper` (Turkish i to İ only in Turkish), never `ToUpperInvariant` on translated text.
 - `Resources/server-url.txt` (git-ignored) is baked by phone builds and stays, so a later Mac player talks to the playtest
   server: online screenshots against the local server pass `-server http://localhost:5080` (and `-autoselect`).
 - Weekend events (`Rules.WorldEvents`) are `WorldEvents` rows: `WorldClock` writes the weekly calendar a week ahead
@@ -228,6 +230,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Creature models (`looks.mob_model`: enemies, mounts, companions) weld the mesh's UV-seam splits before decimating
   (`_bake(weld=True)`); decimated split, the seams opened into hairline cracks the lane's bright ground showed through.
   Hero looks (`class_look`, `armor_look`) keep the split mesh: their weapon cut (`_held_islands`) relies on it.
+  A source already decimated before the weld (split pieces, nothing to weld) goes through `art/blender/mob_repair.py`
+  first (voxel remesh, keeping the source's own UV charts and texture), as the eight in `mobs/repaired.json` did.
 - Achievements (`Rules.Achievements`, since 27 Sep 2026) read lifetime counters (`Account.Feats`, `FeatMetric`: its
   first seven follow `BountyMetric`, so every `Count` also counts a feat; append new metrics, never renumber) and the hero
   as he stands; achievement ids are stored in `FeatsClaimed` and `TitleId`, so never renumber them either. A worn title
@@ -236,3 +240,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   (INSERT ... ON CONFLICT) and changed only under FOR UPDATE; `GuildRaidHits` give the day's fights and the shares. When
   the boss falls, fighters are paid Tallies (the fighter's own row tracked, others by single UPDATEs) and sorn by
   letter. Code that removes a guild calls `DeleteRaidsAsync`. The client replays a fight with `BossRun.Create(stage, ...)`.
+- Password reset and email checks (`GameService.Recovery`, since 27 Sep 2026) send 6-digit codes through `MailSender`
+  (`Mail:Host/Port/User/Password/From`, from `MAIL_*` in `deploy/.env`); only a hash is stored. A Development server with
+  no SMTP keeps each email for `/v1/dev/mail?email=` (the smoke test reads codes there); elsewhere "forgot" answers
+  "mail_off". FORGOT answers the same whether or not the email has an account; a reset binds the device like a sign-in.
+- Phone performance (`Performance`, on GameRoot): the URP asset's `renderScale` is set at runtime (the lane at most 1800 px
+  tall; BATTERY SAVER draws it smaller and turns off bloom), 60 fps while touched and 30 when left alone. Never switch
+  MSAA at runtime: on Metal it turns the frame upside down and blacks the lane.

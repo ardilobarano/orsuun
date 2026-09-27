@@ -27,12 +27,14 @@ public sealed partial class GameService
     private readonly IRandom _rng;
     private readonly BellClock _bells;
     private readonly EventCalendar _events;
+    private readonly MailSender _mail;
     private readonly ForgeService _forge;
     private readonly EtchingService _etchings = new();
     private readonly SocketService _sockets = new();
 
-    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events)
+    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events, MailSender mail)
     {
+        _mail = mail;
         _db = db;
         _rng = rng;
         _bells = bells;
@@ -863,7 +865,8 @@ public sealed partial class GameService
             Daily: DailyOf(account),
             Events: _events.Dto(DateTime.UtcNow),
             AchievementsReady: AchievementsReady(account),
-            Title: TitleOf(account));
+            Title: TitleOf(account),
+            EmailVerified: _login?.EmailVerified ?? false);
     }
 
     private static ItemDto ToDto(Item item)

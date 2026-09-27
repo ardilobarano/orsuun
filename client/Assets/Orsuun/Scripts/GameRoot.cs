@@ -88,6 +88,7 @@ namespace Orsuun.Client
             GameAudio.Create();
             Notifications = new GameObject("GameNotifications").AddComponent<GameNotifications>();
             BuildCameras();
+            gameObject.AddComponent<Performance>().Init(GameObject.Find("LaneCamera")?.GetComponent<Camera>());
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
             Lane.Init(Session.Lane);
 
@@ -404,6 +405,7 @@ namespace Orsuun.Client
             {
                 _accountShown = true;
                 Account.Open();
+                Account.ShotMode(Arg("-account"));   // "-account signin|create|reset" for screenshots
             }
             if ((_firstRun == "guest" || _firstRun == "oath") && Account.Showing && !_firstRunGuest)
             {

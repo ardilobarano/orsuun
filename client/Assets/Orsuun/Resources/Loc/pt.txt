@@ -1,0 +1,2264 @@
+# Português do Brasil (pt-BR). Inglês<TAB>Português; {0}, {1} representam qualquer coisa; \n é uma quebra de linha.
+# O Loc.cs lê este arquivo: uma linha é encontrada inteira, em maiúsculas ou como modelo. Texto sem tradução aparece em inglês.
+# Glossário (inglês = português), usado em todo o arquivo:
+# Orsuun, Vanguard, Kestrel, Wraithsworn, Drumcaller, PvP, M1-M10, G1-G10, XP, HP, T1-T5 = iguais ao inglês
+# War of Banners = Guerra dos Estandartes
+# Banner = Estandarte; Ember / Sky / Gold Banner = Estandarte da Brasa / do Céu / do Ouro; Ember / Sky / Gold = Brasa / Céu / Ouro
+# sorn = sorn (minúsculo); Amber = Âmbar
+# Korstone = Pedra Kor; Elder Korstone = Pedra Kor Anciã; Korstone Field = Campo de Pedras Kor
+# Korshard = Fragmento Kor; Dead Shard = Fragmento Morto; SHARDS = FRAGMENTOS; socket = encaixe; rank = patente
+# Forge (verbo / botão FORGE) = refinar / REFINAR; the Forge (lugar) = a Forja; Forge attempt = refino, tentativa de refino
+# FORGE ALONE = SÓ REFINAR; Forgemaster Dorun = Mestre-Ferreiro Dorun; the Chained Smith = o Ferreiro Acorrentado
+# Oathbreak = Juramento Quebrado; oath (+1 a +9, Banner) = juramento; Oathstone = Pedra do Juramento
+# Scroll of Mercy = Pergaminho da Misericórdia; Khan's Alloy = Liga do Khan; Anvil Ward = Guarda da Bigorna
+# Etching = Gravura; ETCH = GRAVAR; Etching Needle = Agulha de Gravura; Master's Needle = Agulha do Mestre
+# Pinning Wax = Cera de Fixação; pin / unpin = fixar / soltar
+# Turnstone = Pedra de Giro; turn / TURN (gravuras) = giro, girar / GIRAR; tier (de gravura) = faixa
+# Laurels = Louros; the Pits / a pit = as Arenas / a arena; Pit shop = loja da Arena
+# Campaign Trail = Trilha de Campanha; the Trail = a Trilha; Trail Plus = Trilha Plus; Trail tier = etapa
+# bounty = recompensa; reward = prêmio; Hunt Marks = Marcas de Caça; Guild Tallies = Fichas da Guilda; Honor = Honra
+# Commander = Comandante; Commander Ground = Território do Comandante; Hunting Ground = Território de Caça; Field = Campo
+# Caravan = Caravana; Wardrobe = Guarda-Roupa; skin = traje; mount = montaria; companion = companheiro
+# Mailbox = Correio; letter = carta; depot = depósito; bag = bolsa; INVENTORY = INVENTÁRIO; GEAR = ARSENAL
+# Salt Exchange = Mercado do Sal; the Exchange = o Mercado; listing = anúncio
+# piece = peça; worn = equipada; Draught = Poção; Technique Scroll = Pergaminho de Técnica; book = livro
+# skill grade = grau de habilidade; Mastered grades = graus de Mestria; Grand grades = graus Grandes; Peerless = Inigualável; read = leitura
+# level = nível (LV / Lv = NV. / Nv.); stage = fase; floor = andar; dungeon = masmorra; run = incursão; boss = chefe; Warden = Guardião
+# PUSH = AVANÇAR; wave = onda; pack = bando; Bell = Sino; the evening bell = o sino do entardecer
+# guild = guilda; officer = oficial; leader = líder; treasury = tesouro; flag = bandeira; Plunder = Saque; Muster = Alistamento
+# fortress = fortaleza; keep = torreão; siege = cerco; bid = lance; Gate / Yard / Hall = Portão / Pátio / Salão; wall = muralha
+# guild war lane = frente; Centre / Left Flank / Right Flank = Centro / Flanco Esquerdo / Flanco Direito; horns = trompas
+# guild raid = raid da guilda
+# Hollow / Hollowed = Vazio / Esvaziado; Void = Abismo, Abissal; Grave (itens) = Tumular; Oathsworn = Juramentado; the Khan = o Khan
+# Emberhearth = Lar das Brasas; Wardenstep = Passo dos Guardiões; Scalehouse = Casa da Balança
+# Stagfort = Forte do Cervo; Saltgate = Portão do Sal; Ravenmoot = Conclave dos Corvos
+# The Oathfields = Os Campos do Juramento; (The) Ember Steppe = (A) Estepe da Brasa; (The) Salt Flats = (As) Salinas; (The) Frost Pasture = (O) Pasto Gélido
+# Gorak Pass = Passo de Gorak; Gorak War Camp = Acampamento de Guerra Gorak; The Salt Sea = O Mar de Sal; Whitefang (Range) = (Serra) Presa-Branca
+# The Cinder Marches = As Fronteiras de Cinza; Whisperwood = Bosque dos Sussurros; The Bloodbirch = A Bétula Sangrenta
+# The Drowned Steppe = A Estepe Afogada; Colossus Graves = Túmulos dos Colossos; The Sunken Bazaar = O Bazar Submerso
+# The Thousand Markers = Os Mil Marcos (marker = marco); The Hollow Throne = O Trono Vazio
+# The Hollow Spire = O Pináculo Vazio; Silkmother's Warren = Toca da Mãe da Seda; The Carvers' Archive = O Arquivo dos Entalhadores
+# Old Greyjaw = Velho Mandíbula-Cinza; Warlord Tul-Gorak = Senhor da Guerra Tul-Gorak; The Mirage Queen = A Rainha Miragem
+# The Lantern Widow = A Viúva da Lanterna; The Rootfather = O Pai-Raiz; The Coil Mother = A Mãe das Espirais
+# The Last Merchant-Prince = O Último Príncipe-Mercador; The Khan's Shadow = A Sombra do Khan; The Last Carver = O Último Entalhador
+# Common / Uncommon / Rare / Epic / Legendary = Comum / Incomum / Raro / Épico / Lendário; Plain / Fine (Caravana) = Simples / Fino
+# Trooper / Rider / Captain / Commander / Guard of the Khan = Soldado / Cavaleiro / Capitão / Comandante / Guarda do Khan
+# STR / DEX / INT / VIT = FOR / DES / INT / VIT
+WAR OF BANNERS	GUERRA DOS ESTANDARTES
+CONTINUE WITH APPLE	CONTINUAR COM APPLE
+CONTINUE WITH GOOGLE	CONTINUAR COM GOOGLE
+or with an email	ou com um e-mail
+CREATE ACCOUNT	CRIAR CONTA
+SIGN IN	ENTRAR
+PLAY AS GUEST	JOGAR COMO CONVIDADO
+Email	E-mail
+Password (8 or more)	Senha (8 ou mais)
+Password again	Senha de novo
+BACK	VOLTAR
+ALSO LINK APPLE	VINCULAR APPLE TAMBÉM
+ALSO LINK GOOGLE	VINCULAR GOOGLE TAMBÉM
+SIGN OUT	SAIR
+BACK TO THE HUNT	VOLTAR À CAÇADA
+Offline: accounts need the server.	Offline: contas precisam do servidor.
+Sign in with Apple opens once the game's App Store account is set up. Use Google or an email for now.	O login com Apple será liberado quando a conta do jogo na App Store estiver pronta. Por enquanto, use Google ou um e-mail.
+Sign in with Google is not set up on this server yet. Use an email for now.	O login com Google ainda não está configurado neste servidor. Por enquanto, use um e-mail.
+Finish signing in on the page that opens...	Termine o login na página que abrir...
+Keep your heroes safe	Mantenha seus heróis seguros
+Sign in or sign up	Entre ou cadastre-se
+Your account keeps up to four heroes, your Banner and your Amber, on any phone.	Sua conta guarda até quatro heróis, seu Estandarte e seu Âmbar, em qualquer celular.
+A guest account lives only on this phone. With an account you can play your heroes on any phone, and get them back if this one is lost.	Uma conta de convidado só existe neste celular. Com uma conta, você joga com seus heróis em qualquer celular e os recupera se perder este.
+If that Apple or Google login already has an account, this phone switches to it. If not, it signs you up.	Se esse login Apple ou Google já tiver uma conta, este celular muda para ela. Se não, faz seu cadastro.
+If that Apple or Google login already has an account, this phone switches to it. If not, it is linked to the account you play now.	Se esse login Apple ou Google já tiver uma conta, este celular muda para ela. Se não, ele é vinculado à conta que você joga agora.
+Create an account	Criar uma conta
+Your email and a password are saved to this account: sign in with them on any phone. Nothing is lost.	Seu e-mail e uma senha ficam salvos nesta conta: entre com eles em qualquer celular. Nada se perde.
+I already have an account	Já tenho uma conta
+Sign in	Entrar
+This phone switches to the account saved with that email.	Este celular muda para a conta salva com esse e-mail.
+I need a new account	Preciso de uma conta nova
+Your account	Sua conta
+This account and its heroes are saved. Sign in with it on any phone.	Esta conta e seus heróis estão salvos. Entre com ela em qualquer celular.
+Saved with	Salva com
+BACK TO THE HEROES	VOLTAR AOS HERÓIS
+The two passwords differ.	As duas senhas não batem.
+Account created. Your heroes are safe.	Conta criada. Seus heróis estão seguros.
+Enter your password.	Digite sua senha.
+Leave this guest account?	Sair desta conta de convidado?
+Signing in switches this phone to your account. The guest heroes on this phone have no account and cannot be reached again.	Ao entrar, este celular muda para sua conta. Os heróis convidados deste celular não têm conta e não poderão ser acessados de novo.
+To keep them, create an account for them first.	Para mantê-los, crie uma conta para eles primeiro.
+Signed in. Welcome back.	Você entrou. Bem-vindo de volta.
+Sign out?	Sair?
+This phone goes back to the sign-in screen. Your account stays safe: sign in again with it.	Este celular volta para a tela de login. Sua conta continua segura: entre de novo com ela.
+Signed out.	Você saiu.
+Check the connection and try again.	Verifique a conexão e tente de novo.
+Could not reach the server to download the world.	Não foi possível alcançar o servidor para baixar o mundo.
+Downloading the world	Baixando o mundo
+The download stopped.	O download parou.
+TRY AGAIN	TENTAR DE NOVO
+no Banner	sem Estandarte
+SWEAR TO A BANNER	JURE A UM ESTANDARTE
+Three Banners fight over one question: what should be done with the Korstones? Your Banner sets your side in the War of Banners and the fortress sieges.	Três Estandartes lutam por uma pergunta: o que fazer com as Pedras Kor? Seu Estandarte define seu lado na Guerra dos Estandartes e nos cercos às fortalezas.
+Capital:	Capital:
+SWEAR THE OATH	FAZER O JURAMENTO
+KEEP MY BANNER	MANTER MEU ESTANDARTE
+Every hero of your account rides under it. The oath holds for the season.	Todos os heróis da sua conta cavalgam sob ele. O juramento vale pela temporada.
+CHANGE YOUR BANNER	TROQUE DE ESTANDARTE
+SWEAR ANEW	JURAR DE NOVO
+{0} OATHSTONES	{0} PEDRAS DO JURAMENTO
+Once a season, for the whole account. Points already won stay with their Banner. You hold {0} Oathstones.	Uma vez por temporada, para a conta inteira. Os pontos já conquistados ficam com o Estandarte deles. Você tem {0} Pedras do Juramento.
+Every hero of your account leaves the {0}. It costs {1} Oathstones, and the Banner can change again only next season.	Todos os heróis da sua conta deixam o {0}. Custa {1} Pedras do Juramento, e o Estandarte só pode mudar de novo na próxima temporada.
+Swearing...	Jurando...
+Swearing anew...	Jurando de novo...
+Tap a Banner.	Toque em um Estandarte.
+Tap the Banner you would ride under.	Toque no Estandarte sob o qual quer cavalgar.
+Ride under the {0}?	Cavalgar sob o {0}?
+You will ride under the {0}.	Você cavalgará sob o {0}.
+BOUNTIES	RECOMPENSAS
+HUNT MARKS SHOP	LOJA DE MARCAS DE CAÇA
+{0} MARKS	{0} MARCAS
+CAMPAIGN TRAIL	TRILHA DE CAMPANHA
+Offline: bounties are counted by the server.	Offline: as recompensas são contadas pelo servidor.
+Claimed.	Resgatado.
+Bought	Comprado
+{0}d {1}h	{0}d {1}h
+{0}h {1}m	{0}h {1}m
+{0}m	{0}m
+{0} Hunt Marks	{0} Marcas de Caça
+{0} Master's	{0} do Mestre
+{0} Needles	{0} Agulhas
+{0} Wax	{0} Cera
+{0} Oathstones	{0} Pedras do Juramento
+DAILY	DIÁRIAS
+new bounties in {0}	novas recompensas em {0}
+WEEKLY	SEMANAIS
+Daily	Diária
+Weekly	Semanal
+{0}/{1} min	{0}/{1} min
+{0} marks, {1} Trail XP	{0} marcas, {1} XP da Trilha
+CLAIM	RESGATAR
+CLAIMED	RESGATADO
+AMBER	ÂMBAR
+COMPANIONS	COMPANHEIROS
+MOUNTS	MONTARIAS
+SKINS	TRAJES
+Amber	Âmbar
+THE CARAVAN	A CARAVANA
+MY WARDROBE	MEU GUARDA-ROUPA
+Bosses from Gorak Pass on drop 1-3 day pieces. Getting a piece again adds its days.	Chefes a partir do Passo de Gorak dropam peças de 1 a 3 dias. Ganhar uma peça de novo soma os dias dela.
+FIRST PURCHASE: DOUBLE AMBER	PRIMEIRA COMPRA: ÂMBAR EM DOBRO
+Amber is bought with real money only and buys skins, mounts and companions.	Âmbar só se compra com dinheiro real e compra trajes, montarias e companheiros.
+Playtest: packs are free until the App Store and Google Play open.	Teste: os pacotes são grátis até a App Store e o Google Play abrirem.
+The Caravan needs the server.	A Caravana precisa do servidor.
++ Amber	+ Âmbar
+Campaign Trail	Trilha de Campanha
+drops only	só por drop
+Fine	Fino
+Legendary	Lendário
+Plain	Simples
+Rare	Raro
+Not enough Amber.	Âmbar insuficiente.
+{0} ({1}) for {2} {3}, for {4} Amber.	{0} ({1}) por {2} {3}, por {4} Âmbar.
+You hold it for {0} more: the days are added.	Você já o tem por mais {0}: os dias são somados.
+BUY	COMPRAR
+BUY FROM THE CARAVAN	COMPRAR NA CARAVANA
+{0}: yours for {1}.	{0}: seu por {1}.
+Playtest: free until the stores open.	Teste: grátis até as lojas abrirem.
+{0} Amber for {1}{2}.	{0} Âmbar por {1}{2}.
++{0} Amber.	+{0} Âmbar.
+Held	Em posse
+Only its Commander drops it.	Só o Comandante dele o dropa.
+Won on the Campaign Trail.	Ganho na Trilha de Campanha.
+Worn	Em uso
+ADD	ADICIONAR
+DAY	DIA
+DAYS	DIAS
+{0} day	{0} dia
+{0} days	{0} dias
+Rider's armour and a glaive. Steady, hard to kill: the Banner's heavy horse, now on foot.	Armadura de cavaleiro e um glaive. Firme e difícil de matar: a cavalaria pesada do Estandarte, agora a pé.
+Twin knives and speed. Quick blows and crits; her Heartseeker finds the seam in a Korstone.	Facas gêmeas e velocidade. Golpes rápidos e críticos; o Busca-Coração dela acha a fenda de uma Pedra Kor.
+A void-cursed sword. The hardest-hitting skills and the fewest HP.	Uma espada amaldiçoada pelo Abismo. As habilidades mais fortes e o menor HP.
+Staff and storm drum. Lightning from the sky and a rhythm that never breaks.	Cajado e tambor da tempestade. Raios do céu e um ritmo que nunca se quebra.
+CHOOSE YOUR HERO	ESCOLHA SEU HERÓI
+ACCOUNT	CONTA
+START	COMEÇAR
+DELETE	EXCLUIR
+CREATE A HERO	CRIAR UM HERÓI
+MAN	HOMEM
+WOMAN	MULHER
+A name: {0}-{1} letters or digits	Um nome: {0}-{1} letras ou dígitos
+CREATE	CRIAR
+The hero's name	O nome do herói
+DELETE FOREVER	EXCLUIR DE VEZ
+Account:	Conta:
+Connecting...	Conectando...
+Account: saved with Google / Apple	Conta: salva com Google / Apple
+Guest account: save it under ACCOUNT	Conta de convidado: salve-a em CONTA
+EMPTY	VAZIO
+Lv {0} {1}	Nv. {0} {1}
+tap to create	toque para criar
+A NEW HERO	UM NOVO HERÓI
+Banner you choose next	Estandarte: você escolhe a seguir
+Sworn to the {0}	Jurado ao {0}
+AN EMPTY SLOT	UM ESPAÇO VAZIO
+{0} of {1} heroes	{0} de {1} heróis
+Amber and the Banner are shared by the account's heroes; so is the depot.	O Âmbar e o Estandarte são compartilhados pelos heróis da conta; o depósito também.
+Level {0} {1}	Nível {0} {1}
+Fresh on the steppe	Recém-chegado à estepe
+Reached {0}	Chegou a {0}
+Type {0} to delete this hero and everything it holds.	Digite {0} para excluir este herói e tudo o que ele tem.
+CHAT	CHAT
+WORLD	MUNDO
+GUILD	GUILDA
+Say something	Diga algo
+SEND	ENVIAR
+FRIENDS	AMIGOS
+ADD FRIEND	ADICIONAR AMIGO
+MESSAGE	MENSAGEM
+TRADE	TROCAR
+GUILD INVITE	CONVITE DE GUILDA
+REPORT	DENUNCIAR
+BLOCK	BLOQUEAR
+CLOSE	FECHAR
+Join a guild to talk with it.	Entre em uma guilda para conversar com ela.
+Reported. Thank you: three reports hide a line.	Denunciado. Obrigado: três denúncias ocultam uma mensagem.
+Block {0}?	Bloquear {0}?
+You will no longer see their chat lines. Tap the blocked count below the chat to unblock everyone.	Você não verá mais as mensagens dessa pessoa no chat. Toque na contagem de bloqueados abaixo do chat para desbloquear todos.
+{0} is blocked.	{0} foi bloqueado.
+UNBLOCK	DESBLOQUEAR
+Unblock everyone?	Desbloquear todos?
+You have blocked {0} player{1}. Their lines come back.	Você bloqueou {0} pessoa{1}. As mensagens voltam a aparecer.
+Offline: chat needs the server.	Offline: o chat precisa do servidor.
+The guild is quiet. Say hello.	A guilda está quieta. Diga oi.
+The steppe is quiet. Say hello.	A estepe está quieta. Diga oi.
+CANCEL	CANCELAR
+Draught	Poção
+Turnstone	Pedra de Giro
+DAILY GIFTS	PRESENTES DIÁRIOS
+A gift for each day you come back: the seventh is a Korshard, then the calendar starts again. Your heroes share it.	Um presente para cada dia em que você volta: o sétimo é um Fragmento Kor, e então o calendário recomeça. Seus heróis o compartilham.
+TAKE TODAY'S GIFT	PEGAR PRESENTE DE HOJE
+Taken: {0}.	Recebido: {0}.
+The daily gifts need the server.	Os presentes diários precisam do servidor.
+TAKEN	RECEBIDO
+TODAY	HOJE
+TAKEN FOR TODAY	JÁ RECEBIDO HOJE
+Next gift in {0}, with the evening bell.	Próximo presente em {0}, com o sino do entardecer.
+DEPOT	DEPÓSITO
+Shared by your account's heroes: put a piece in, take it out with another.	Compartilhado pelos heróis da sua conta: guarde uma peça e retire-a com outro.
+YOUR BAG	SUA BOLSA
+Tap a piece to move it.	Toque em uma peça para movê-la.
+The depot needs the server.	O depósito precisa do servidor.
+item level {0}	nível do item {0}
+Empty. Put pieces from your bag here.	Vazio. Coloque aqui peças da sua bolsa.
+TAKE	RETIRAR
+PUT	GUARDAR
+Nothing in the bag (worn pieces stay on).	Nada na bolsa (peças equipadas ficam no corpo).
+tap to continue	toque para continuar
+SUCCESS	SUCESSO
+The oath holds.	O juramento se mantém.
+The whole server hears the hammer.	O servidor inteiro ouve o martelo.
+Back to +{0}	De volta a +{0}
+The metal sulks.	O metal fica emburrado.
+WARD HOLDS	GUARDA RESISTE
+Level kept.	Nível mantido.
+The Anvil Ward took the blow.	A Guarda da Bigorna aguentou o golpe.
+OATHBREAK	JURAMENTO QUEBRADO
+Your +{0} {1} is gone.	{1} +{0} se foi.
+"Hold still. I'm talking to the metal, not to you."	"Fique quieto. Estou falando com o metal, não com você."
+"It swore once. It can swear again."	"Jurou uma vez. Pode jurar de novo."
+"Don't watch the hammer. Watch the ember."	"Não olhe para o martelo. Olhe para a brasa."
+"If it breaks, I apologize to the blade. Not to you."	"Se quebrar, eu peço desculpas à lâmina. Não a você."
+ARMOR	ARMADURA
+BOOTS	BOTAS
+BRACER	BRAÇAL
+EARS	BRINCOS
+HELM	ELMO
+NECK	COLAR
+SHIELD	ESCUDO
+WEAPON	ARMA
+Forgemaster Dorun	Mestre-Ferreiro Dorun
+THE FORGE	A FORJA
+ETCHINGS	GRAVURAS
+TURNING HELPER	AJUDANTE DE GIRO
+BACK TO GEAR	VOLTAR AO ARSENAL
+1 Scroll of Mercy	1 Pergaminho da Misericórdia
+1 Khan's Alloy	1 Liga do Khan
+If it fails, your +{0} {1} is destroyed.	Se falhar, sua peça {1} +{0} é destruída.
+A plain starter piece takes its place.	Uma peça inicial simples toma o lugar dela.
+If it fails, it drops to +{0}.	Se falhar, cai para +{0}.
+If it fails, it stays at +0.	Se falhar, fica em +0.
+from your bag	da sua bolsa
+Cost {0}	Custo {0}
+Success chance {0}	Chance de sucesso {0}
+USE SCROLL	USAR PERGAMINHO
+FORGE	REFINAR
+USE ALLOY	USAR LIGA
+Forge to +{0}?	Refinar para +{0}?
+No answer from the server.	Sem resposta do servidor.
+The ward holds.	A guarda resiste.
+OATHBREAK.	JURAMENTO QUEBRADO.
+Add an etching?	Adicionar uma gravura?
+Etching {0} takes {1} of the time.	A gravura {0} pega em {1} das vezes.
+If it slips, only the needle is lost.	Se escorregar, só a agulha se perde.
+The fifth takes a Master's Needle: you have {0}.	A quinta exige uma Agulha do Mestre: você tem {0}.
+You have {0} Etching Needles.	Você tem {0} Agulhas de Gravura.
+USE NEEDLE	USAR AGULHA
+The needle slipped; the piece is unharmed.	A agulha escorregou; a peça está intacta.
+The needle took.	A agulha pegou.
+T{0} {1} +{2}	T{0} {1} +{2}
+Hunt Marks buy it in BOUNTIES.	Compre com Marcas de Caça em RECOMPENSAS.
+It will change with the next turn again.	Ela vai mudar de novo no próximo giro.
+The wax is spent.	A cera foi gasta.
+It stays through every turn; each turn then costs {0}.	Ela fica em todos os giros; cada giro passa a custar {0}.
+The etching pinned now is released and its wax is spent.	A gravura fixada agora é solta e sua cera é gasta.
+You have {0} Pinning Wax.	Você tem {0} Cera de Fixação.
+Pin this etching?	Fixar esta gravura?
+UNPIN	SOLTAR
+USE WAX	USAR CERA
+Unpin this etching?	Soltar esta gravura?
+Pinned.	Fixada.
+Unpinned.	Solta.
+Attack {0}	Ataque {0}
+Base stats {0}%	Atributos base {0}%
+Blades lost {0}	Armas perdidas {0}
+Crit {0}%	Crítico {0}%
+From your bag, not worn	Da sua bolsa, não equipada
+Item level {0}	Nível do item {0}
+No etchings yet: ETCH adds one.	Nenhuma gravura ainda: GRAVAR adiciona uma.
+◆ PINNED	◆ FIXADA
+ETCH	GRAVAR
+all five	todas as cinco
+etchings	gravuras
+Needles	Agulhas
+{0}% chance	{0}% de chance
+TURN	GIRAR
+This piece has sworn all nine oaths.	Esta peça já fez os nove juramentos.
+(includes +{0}% Forgemaster's Patience)	(inclui +{0}% da Paciência do Mestre-Ferreiro)
+Attempt +{0}:	Tentativa +{0}:
+Cost {0} sorn{1}	Custo {0} sorn{1}
+FORGE ALONE	SÓ REFINAR
+fail: -1 level	falha: -1 nível
+fail: OATHBREAK	falha: JURAMENTO QUEBRADO
+SCROLL OF MERCY ({0})	PERGAMINHO DA MISERICÓRDIA ({0})
++10%, fail: -1 level	+10%, falha: -1 nível
+KHAN'S ALLOY ({0})	LIGA DO KHAN ({0})
+A hero's name	O nome de um herói
+Tap a name here or in CHAT to trade, invite to your guild or add a friend.	Toque em um nome aqui ou no CHAT para trocar, convidar para sua guilda ou adicionar como amigo.
+TAKE OFF	REMOVER
+BE FRIENDS	SER AMIGOS
+TURN DOWN	RECUSAR
+TAKE BACK THE REQUEST	CANCELAR O PEDIDO
+Take {0} off?	Remover {0}?
+They leave your friend list, and you leave theirs.	Essa pessoa sai da sua lista de amigos, e você sai da dela.
+ASKING YOU ({0})	RECEBIDOS ({0})
+tap to answer	toque para responder
+FRIENDS ({0})	AMIGOS ({0})
+No friends yet. Add a hero by name above, or tap a name in CHAT.	Nenhum amigo ainda. Adicione um herói pelo nome acima ou toque em um nome no CHAT.
+ASKED ({0})	ENVIADOS ({0})
+{0} / {1} friends	{0} / {1} amigos
+Gathering your friends...	Reunindo seus amigos...
+Offline: friends need the server.	Offline: amigos precisam do servidor.
+The hunt	A caçada
+Bells, Commanders, bounties and a full offline hunt	Sinos, Comandantes, recompensas e caçada offline completa
+The hunt is full	A caçada está completa
+Your hero has hunted every offline hour it can hold. Come back and take the spoils.	Seu herói caçou todas as horas offline que consegue acumular. Volte e pegue o espólio.
+The Evening Bell rings	O Sino do Entardecer toca
+{0} rings on the steppe. Come and hunt it.	O {0} toca na estepe. Venha caçar.
+{0} rises	{0} surge
+{0} stands on the Commander Ground. Its HP is shared by the whole server: strike before it falls.	{0} está no Território do Comandante. O HP é compartilhado por todo o servidor: ataque antes que caia.
+Fresh bounties are posted. Hunt Marks are waiting.	Novas recompensas publicadas. Marcas de Caça esperam por você.
+New bounties	Novas recompensas
+slain by {0}	abatido por {0}
+{0} of {1} HP left for the server	restam {0} de {1} HP para o servidor
+FLED	FUGIU
+SLAIN	ABATIDO
+{0} of 20	{0} de 20
+FELL ON FLOOR {0}	CAIU NO ANDAR {0}
+FLOOR {0} CLEARED	ANDAR {0} CONCLUÍDO
+THE CHAINED SMITH	O FERREIRO ACORRENTADO
+THE PIECE BROKE	A PEÇA QUEBROU
+THE SMITH FAILED	O FERREIRO FALHOU
+THE SMITH STRUCK TRUE	O FERREIRO ACERTOU
+THE RUNE LOCK	A TRAVA RÚNICA
+THE RUNE DOES NOT TURN	A RUNA NÃO GIRA
+THE VAULT OPENS	O COFRE SE ABRE
+THE VAULT STAYS SHUT	O COFRE CONTINUA FECHADO
+THE DUNGEON	A MASMORRA
+CLEARED	CONCLUÍDO
+WAR	GUERRA
+FELLED	DERRUBADO
+HELD	RESISTIU
+THE PITS	AS ARENAS
+DEFEAT	DERROTA
+VICTORY	VITÓRIA
+HOLD THE KEEP	DEFENDA O TORREÃO
+STORM THE KEEP	INVADA O TORREÃO
+DEFEND	DEFENDER
+SIEGE	CERCO
+KEEP MENDED	TORREÃO REPARADO
+{0} DAMAGE	{0} DE DANO
+BROKEN	ROMPIDO
+FORTRESS TAKEN	FORTALEZA TOMADA
+WALL MENDED	MURALHA REPARADA
+PUSH	AVANÇAR
+FAILED	FALHOU
+Draughts	Poções
+Healing draughts: the hero drinks one on the lane when his HP runs low. The Hunt Marks shop sells ten for a mark.	Poções de cura: o herói bebe uma em combate quando o HP fica baixo. A loja de Marcas de Caça vende dez por uma marca.
+Hunt materials	Materiais de caça
+What the hunt's beasts leave behind (Wolf Sinew and the like). The Chained Smith takes them for his work.	O que as feras da caçada deixam para trás (Tendão de Lobo e afins). O Ferreiro Acorrentado os aceita pelo trabalho.
+Laid on a Forge attempt: a failure only loses a level instead of the piece.	Usado num refino: uma falha só perde um nível em vez da peça.
+Scroll of Mercy	Pergaminho da Misericórdia
+Khan's Alloy	Liga do Khan
+Laid on a Forge attempt: +10 points of success, and a failure only loses a level.	Usada num refino: +10 pontos de sucesso, e uma falha só perde um nível.
+Anvil Ward	Guarda da Bigorna
+Laid on a Forge attempt: a failure keeps the level.	Usada num refino: uma falha mantém o nível.
+Turn a piece's etchings at the Forge, one turn a stone.	Gire as gravuras de uma peça na Forja, um giro por pedra.
+Turnstones	Pedras de Giro
+Adds an etching to a piece, the first to the fourth.	Adiciona uma gravura a uma peça, da primeira à quarta.
+Etching Needle	Agulha de Gravura
+Adds a piece's fifth etching (the Carvers' Archive's vault, or 90 Laurels in the Pit shop).	Adiciona a quinta gravura de uma peça (o cofre do Arquivo dos Entalhadores, ou 90 Louros na loja da Arena).
+Master's Needle	Agulha do Mestre
+Holds one etching of a piece through its turns.	Mantém uma gravura da peça durante os giros.
+Pinning Wax	Cera de Fixação
+A marker fragment that still holds a vow: it pays for Grand skill grades (SKILLS) and a change of Banner.	Um fragmento de marco que ainda guarda um voto: paga os graus Grandes de habilidade (HABILIDADES) e a troca de Estandarte.
+Oathstone	Pedra do Juramento
+Oathstones	Pedras do Juramento
+Hunt Marks	Marcas de Caça
+Hunt Mark	Marca de Caça
+Paid by bounties; spent in the Hunt Marks shop (BOUNTIES).	Pagas pelas recompensas; gastas na loja de Marcas de Caça (RECOMPENSAS).
+Laurel	Louro
+Laurels	Louros
+Won in the Pits; spent in the Pit shop.	Ganhos nas Arenas; gastos na loja da Arena.
+Earned for your guild (donations, the Commander's first place); spent in the guild shop.	Ganhas para sua guilda (doações, primeiro lugar contra o Comandante); gastas na loja da guilda.
+Guild Tallies	Fichas da Guilda
+Guild Tally	Ficha da Guilda
+A marker an Elder Korstone let fall.	Um marco que uma Pedra Kor Anciã deixou cair.
+Summoning Marker	Marco de Invocação
+Korshard	Fragmento Kor
+Korshards	Fragmentos Kor
+Set in a piece's socket at SHARDS: the higher the rank, the stronger the shard.	Vai no encaixe de uma peça, em FRAGMENTOS: quanto maior a patente, mais forte o fragmento.
+Armour	Armadura
+Armor	Armadura
+Bracelet	Bracelete
+Earrings	Brincos
+Helmet	Elmo
+Necklace	Colar
+Shield	Escudo
+Shoes	Sapatos
+Weapon	Arma
+INVENTORY	INVENTÁRIO
+Attack	Ataque
+Defense	Defesa
+HP	HP
+Crit	Crítico
+SKILLS	HABILIDADES
+ALL	TUDO
+BOOKS	LIVROS
+GEAR	ARSENAL
+MATERIALS	MATERIAIS
+Honor	Honra
+WARDROBE	GUARDA-ROUPA
+SELECT	SELECIONAR
+SELL ALL	VENDER TUDO
+Tap the pieces to sell, then SELL ALL.	Toque nas peças para vender e depois em VENDER TUDO.
+Pick the pieces to sell first.	Escolha antes as peças para vender.
+{0} of them {1} forged or Epic and above: the Exchange may pay far more.	{0} delas estão refinadas ou são Épicas ou melhores: o Mercado pode pagar muito mais.
+Sell {0} piece{1}?	Vender {0} peça{1}?
+SELL	VENDER
+The merchant pays {0} sorn for them. They are gone for good.{1}	O mercador paga {0} sorn por elas. Elas somem para sempre.{1}
+Some of those pieces changed: pick them again.	Algumas dessas peças mudaram: escolha de novo.
+Sold {0} piece{1} for {2} sorn.	{0} peça{1} vendida{1} por {2} sorn.
+Equipped.	Equipada.
+A {0} +{1}: the Exchange may pay far more.	{0} +{1}: o Mercado pode pagar muito mais.
+Sell +{0} {1}?	Vender {1} +{0}?
+The merchant pays {0} sorn. The piece is gone for good.{1}	O mercador paga {0} sorn. A peça some para sempre.{1}
+Sold for {0} sorn.	Vendido por {0} sorn.
+Now playing	Jogando agora
+Book	Livro
+LEVEL {0}	NÍVEL {0}
+RENEW YOUR OATH ›	RENOVE O JURAMENTO ›
+oath {0}/{1}	juramento {0}/{1}
+ATTACK	ATAQUE
+DEFENSE	DEFESA
+CRIT	CRÍTICO
+No pieces in the bag. Drops from the hunt land here.	Nenhuma peça na bolsa. Os drops da caçada caem aqui.
+No Technique Scrolls. Warden chests, the Hunt Marks and Pit shops and the Exchange have them.	Nenhum Pergaminho de Técnica. Baús de Guardiões, as lojas de Marcas de Caça e da Arena e o Mercado os têm.
+Nothing yet: Korstones, bounties and dungeons pay in these.	Nada ainda: Pedras Kor, recompensas e masmorras pagam com isto.
+The bag is empty. Drops from the hunt land here.	A bolsa está vazia. Os drops da caçada caem aqui.
+DONE	PRONTO
+Tap pieces to pick them	Toque nas peças para escolhê-las
+in your bag	na sua bolsa
+worn	equipada
+Worn now.	Equipada agora.
+If worn:	Se equipada:
+no change	sem mudança
+No etchings yet.	Nenhuma gravura ainda.
+(pinned)	(fixada)
+Dead Shard	Fragmento Morto
+No sockets	Sem encaixes
+Sockets:	Encaixes:
+EQUIP	EQUIPAR
+WORN	EQUIPADA
+EXCHANGE	MERCADO
+LIST ON\nEXCHANGE	ANUNCIAR NO\nMERCADO
+SELL FOR\nSORN	VENDER POR\nSORN
+SORN	SORN
+A {0} skill	Uma habilidade de {0}
+you hold {0}	você tem {0}
++{0}% power	+{0}% de poder
+Only a {0} reads it.	Só um {0} pode ler.
+Your {0}: {1}	{0} atual: {1}
+{0} of {1} good reads toward {2}.	{0} de {1} leituras boas rumo a {2}.
+The skill rests another {0}h {1}m.	A habilidade descansa mais {0}h {1}m.
+{0} is past M10: its next steps burn Oathstones and Honor, not scrolls. Sell the scrolls, or trade them to a friend.	{0} já passou de M10: os próximos passos queimam Pedras do Juramento e Honra, não pergaminhos. Venda os pergaminhos ou troque-os com um amigo.
+Sell it on the Exchange, or trade it to a {0}.	Venda no Mercado ou troque com um {0}.
+A read spends one scroll: {0}% it teaches, and the skill rests {1} hours either way.	Uma leitura gasta um pergaminho: {0}% de chance de ensinar, e a habilidade descansa {1} horas de qualquer jeito.
+M1 and M2 need one good read each, M3 two, M4 three, and so on to nine for M10.	M1 e M2 pedem uma leitura boa cada, M3 duas, M4 três, e assim por diante até nove para M10.
+Scrolls come from Warden chests, the Hunt Marks and Pit shops, and the Exchange.	Pergaminhos vêm de baús de Guardiões, das lojas de Marcas de Caça e da Arena, e do Mercado.
+NOT YOUR CLASS	NÃO É SUA CLASSE
+READ	LER
+You hold {0}	Você tem {0}
+It stays with whoever earned it: the Exchange does not take it.	Fica com quem o ganhou: o Mercado não o aceita.
+Average damage	Dano médio
+Skill damage	Dano de habilidade
+No stats	Sem atributos
+At level {0} a hero may renew the oath: back to level 1, with +{1}% attack and HP for good,	No nível {0}, um herói pode renovar o juramento: volta ao nível 1, com +{1}% de ataque e HP para sempre,
+Your oath: {0}/{1} renewals (+{2}% now).	Seu juramento: {0}/{1} renovações (+{2}% agora).
+At level {0} a hero may renew the oath: back to level 1, with +{1}% attack and HP for good, up to {2} times.	No nível {0}, um herói pode renovar o juramento: volta ao nível 1, com +{1}% de ataque e HP para sempre, até {2} vezes.
+Offline: renewal needs the server.	Offline: a renovação precisa do servidor.
+OK	OK
+Oath Renewal	Renovação do Juramento
+Renew your oath?	Renovar seu juramento?
+Your level goes back to 1. Your gear, sorn and stages stay.	Seu nível volta a 1. Seus equipamentos, sorn e fases ficam.
+RENEW	RENOVAR
+GUILDS	GUILDAS
+Any Banner may join any guild. Donate each day, earn Guild Tallies, raise the guild together.	Qualquer Estandarte pode entrar em qualquer guilda. Doe todo dia, ganhe Fichas da Guilda e façam a guilda crescer juntos.
+Search by name or tag	Buscar por nome ou tag
+SEARCH	BUSCAR
+INVITES	CONVITES
+JOIN	ENTRAR
+FOUND A GUILD	FUNDAR UMA GUILDA
+Guild name (3 to 20)	Nome da guilda (3 a 20)
+TAG	TAG
+FOUND THE GUILD	FUNDAR A GUILDA
+GIVE 10K	DOAR 10K
+GIVE 50K	DOAR 50K
+GIVE MAX	DOAR MÁX.
+{0} TALLIES	{0} FICHAS
+PREV	ANT.
+NEXT	PRÓX.
+LEAVE	SAIR
+GUILD CHAT	CHAT DA GUILDA
+GUILD WAR	GUERRA DE GUILDAS
+ASKING TO JOIN	PEDINDO PARA ENTRAR
+LET IN	ACEITAR
+TURN AWAY	RECUSAR
+Nobody is asking to join.	Ninguém está pedindo para entrar.
+INVITE A HERO	CONVIDAR UM HERÓI
+INVITE	CONVIDAR
+GUILD INVITES	CONVITES DE GUILDA
+NO	NÃO
+No guild has invited you. A guild's leader or officers can, from chat or their friend list.	Nenhuma guilda convidou você. O líder ou os oficiais de uma guilda podem convidar pelo chat ou pela lista de amigos.
+INVITES ({0})	CONVITES ({0})
+Lv {0}	Nv. {0}
+invited by {0}	convidado por {0}
+Invites wait {0} days for an answer, and let the hero in even through shut gates.	Convites esperam {0} dias por resposta e deixam o herói entrar mesmo com os portões fechados.
+Invited ({0}/{1}):	Convidados ({0}/{1}):
+HAND OVER THE LEAD	PASSAR A LIDERANÇA
+SEND AWAY	EXPULSAR
+A guild charter costs {0} sorn.	A carta de fundação de uma guilda custa {0} sorn.
+Found {0}?	Fundar {0}?
+The charter costs {0} sorn. You will lead it; anyone may join until you shut the gates.	A carta custa {0} sorn. Você será o líder; qualquer um pode entrar até você fechar os portões.
+FOUND IT	FUNDAR
+Not enough sorn.	Sorn insuficiente.
+You have given all you can today.	Você já doou tudo o que podia hoje.
+every member hunts with +{0}% sorn	cada membro caça com +{0}% de sorn
+room for {0} members	espaço para {0} membros
+RAISE	MELHORAR
+Raise {0} to {1}?	Melhorar {0} para {1}?
+{0} sorn from the treasury: {1}.	{0} sorn do tesouro: {1}.
+You are its last member: the guild disbands, its treasury is lost.	Você é o último membro: a guilda se desfaz e o tesouro se perde.
+The lead passes to your highest officer (or the longest member).	A liderança passa para seu oficial mais alto (ou o membro mais antigo).
+Your Guild Tallies stay with you.	Suas Fichas da Guilda ficam com você.
+Leave {0}?	Sair de {0}?
+MAKE MEMBER	TORNAR MEMBRO
+MAKE OFFICER	TORNAR OFICIAL
+HAND OVER	PASSAR
+Hand over the lead?	Passar a liderança?
+{0} will lead the guild and you become an officer.	{0} vai liderar a guilda e você vira oficial.
+Send {0} away?	Expulsar {0}?
+They leave the guild at once and keep their Guild Tallies.	A pessoa sai da guilda na hora e fica com suas Fichas da Guilda.
+hunting now	caçando agora
+{0}d ago	há {0}d
+{0}h ago	há {0}h
+{0}m ago	há {0}m
+Offline: guilds need the server.	Offline: guildas precisam do servidor.
+ASK	PEDIR
+ASKED	PEDIDO
+FULL	CHEIA
+Gathering word of the guilds...	Reunindo notícias das guildas...
+No guild by that name.	Nenhuma guilda com esse nome.
+No guilds yet. Found the first one below.	Nenhuma guilda ainda. Funde a primeira abaixo.
+flag on {0}	bandeira em {0}
+Level {0}	Nível {0}
+You are {0}	Você é {0}
+guild bonus +{0}% hunting sorn{1}	bônus da guilda +{0}% de sorn na caçada{1}
+treasury {0} sorn	tesouro {0} sorn
+{0}/{1} members	{0}/{1} membros
+GUILD XP	XP DA GUILDA
+TOP LEVEL	NÍVEL MÁX.
+1 Guild Tally per {0} sorn	1 Ficha da Guilda a cada {0} sorn
+Given today {0} / {1}	Doado hoje {0} / {1}
++{0}% hunting sorn for all	+{0}% de sorn na caçada para todos
+PLUNDER {0}/{1}	SAQUE {0}/{1}
+MUSTER {0}/{1}	ALISTAMENTO {0}/{1}
+GUILD SHOP	LOJA DA GUILDA
+{0} Guild Tallies	{0} Fichas da Guilda
+MEMBERS	MEMBROS
+page {0}/{1}	página {0}/{1}
+ASKING ({0})	PEDIDOS ({0})
+GATES OPEN	PORTÕES ABERTOS
+GATES SHUT	PORTÕES FECHADOS
+tap to open	toque para abrir
+tap to shut	toque para fechar
+AT ITS PEAK	NO MÁXIMO
+FIGHT HERE	LUTAR AQUI
+PLANT FLAG	FINCAR BANDEIRA
+LADDER	RANKING
+BACK TO THE GUILD	VOLTAR À GUILDA
+Guild war needs the server.	A guerra de guildas precisa do servidor.
+{0} d {1} h	{0} d {1} h
+{0} h {1} m	{0} h {1} m
+Sounding the horns...	Soando as trompas...
+Rating {0}	Pontuação {0}
+Kills {0} : {1}	Abates {0} : {1}
+the horns fall silent in {0}	as trompas silenciam em {0}
+next duel in {0} s	próximo duelo em {0} s
+your duels are spent	seus duelos acabaram
+{0} duels left	{0} duelos restantes
+our flag	nossa bandeira
+their flag	bandeira deles
++{0} OUR WAY	+{0} A NOSSO FAVOR
+BROKEN AGAINST US	ROMPIDO CONTRA NÓS
+BROKEN BY US	ROMPIDO POR NÓS
+EVEN	EMPATE
+{0} THEIR WAY	{0} A FAVOR DELES
+Next war night: {0}	Próxima noite de guerra: {0}
+Your guild is not signed up.	Sua guilda não está inscrita.
+Your guild is signed up.	Sua guilda está inscrita.
+{0} guild{1} so far	{0} guilda{1} até agora
+The leader signs the guild up.	O líder inscreve a guilda.
+SIGN UP	INSCREVER
+WITHDRAW	RETIRAR
+Last war: {0}	Última guerra: {0}
+Wars are fought on Wednesday and Saturday nights at 21:00, for an hour.	As guerras são às quartas e sábados à noite, às 21:00, por uma hora.
+BAG FULL	BOLSA CHEIA
+SHARDS	FRAGMENTOS
+MENU	MENU
+ZONES	ZONAS
+Dismounted: your skills are ready again.	Desmontado: suas habilidades estão prontas de novo.
+Mounted: plain attacks only until you dismount.	Montado: só ataques simples até desmontar.
+ELDER KORSTONE	PEDRA KOR ANCIÃ
+KORSTONE	PEDRA KOR
+Pack {0}/{1}	Bando {0}/{1}
+Deaths {0}	Mortes {0}
+Korstones {0}	Pedras Kor {0}
+next bell in {0}h {1}m	próximo sino em {0}h {1}m
+THE SMITH STRUCK	O FERREIRO GOLPEOU
+the bag was full: {0} drop{1} left behind	a bolsa estava cheia: {0} peça{1} deixada{1} para trás
+DEFEATED — respawning	DERROTADO — renascendo
+Defense {0}	Defesa {0}
+RIDING	MONTADO
+LV	NV.
+LOCKED	BLOQUEADO
+AUTO OFF	AUTO DESL.
+AUTO ON	AUTO LIG.
+DISMOUNT	DESMONTAR
+MOUNT UP	MONTAR
+ALL CLEARED	TUDO CONCLUÍDO
+Chat needs the server.	O chat precisa do servidor.
+Tap to talk with the steppe.	Toque para falar com a estepe.
+TIER	ETAPA
+TIER {0}	ETAPA {0}
+TRADE WITH {0}: BACK TO THE WINDOW	TROCA COM {0}: VOLTAR À JANELA
+{0} ASKS TO TRADE: ANSWER	{0} QUER TROCAR: RESPONDA
+A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN	UMA GUILDA TE CONVIDA: RESPONDA NA TELA DA GUILDA
+A HERO ASKS TO BE FRIENDS: ANSWER	UM HERÓI QUER SER SEU AMIGO: RESPONDA
+{0} HEROES ASK TO BE FRIENDS: ANSWER	{0} HERÓIS QUEREM SER SEUS AMIGOS: RESPONDA
+A NEW MESSAGE: READ IT	UMA NOVA MENSAGEM: LEIA
+{0} NEW MESSAGES: READ THEM	{0} NOVAS MENSAGENS: LEIA
+A LETTER HAS COME: OPEN THE MAILBOX	CHEGOU UMA CARTA: ABRA O CORREIO
+{0} LETTERS HAVE COME: OPEN THE MAILBOX	CHEGARAM {0} CARTAS: ABRA O CORREIO
+LOCAL MODE	MODO LOCAL
+GOAL MET	META CUMPRIDA
+Every goal met. The steppe is yours.	Todas as metas cumpridas. A estepe é sua.
+NEXT GOAL	PRÓXIMA META
+Ember	Brasa
+Blood	Sangue
+Void	Abismo
+Grave	Túmulo
+Khan	Khan
+Shard	Estilhaço
+WAVE	ONDA
+WAVE {0}	ONDA {0}
+SHIELDED	PROTEGIDO
+DEFEATED	DERROTADO
+Gate Warden	Guardião do Portão
+Yard Captain	Capitão do Pátio
+The Spire Warden	O Guardião do Pináculo
+Lantern Widow	Viúva da Lanterna
+Last Carver	Último Entalhador
+Silkmother	Mãe da Seda
+Coil Mother	Mãe das Espirais
+Rootfather	Pai-Raiz
+Merchant-Prince	Príncipe-Mercador
+Khan's Shadow	Sombra do Khan
+MAILBOX	CORREIO
+No letters. The Salt Exchange writes when something of yours sells or comes back, and the Pits when a season ends.	Nenhuma carta. O Mercado do Sal escreve quando algo seu é vendido ou volta, e as Arenas quando uma temporada termina.
+TAKE ALL	PEGAR TUDO
+THROW AWAY TAKEN	DESCARTAR RECEBIDAS
+THROW AWAY	DESCARTAR
+ALL LETTERS	TODAS AS CARTAS
+Offline: letters need the server.	Offline: cartas precisam do servidor.
+From {0}	De {0}
+NEW	NOVA
+Holds: {0}	Contém: {0}
+A notice	Um aviso
+Taken	Recebido
+Not sold: {0}	Não vendido: {0}
+Sold: {0}	Vendido: {0}
+ARM	ARMD
+BOOK	LIVRO
+BRAC	BRAC
+EAR	BRIN
+GOODS	BENS
+SHLD	ESC
+SHOE	SAP
+WPN	ARMA
+CHEAPEST	MAIS BARATO
+HIGHEST +	MAIOR +
+NEWEST	MAIS NOVO
+SALT EXCHANGE	MERCADO DO SAL
+MY LISTINGS	MEUS ANÚNCIOS
+DIRECT TRADE	TROCA DIRETA
+How many	Quantos
+Price in sorn	Preço em sorn
+e.g. 50000	ex.: 50000
+LIST IT	ANUNCIAR
+A {0} skill's Technique Scroll	Pergaminho de Técnica de uma habilidade de {0}
+No sales of its kind in the last {0} days.	Nenhuma venda desse tipo nos últimos {0} dias.
+Sold lately ({0} days): {1} sale{2}, {3}, about {4}; the last {5}, {6}.	Vendas recentes ({0} dias): {1} venda{2}, {3}, cerca de {4}; a última {5}, {6}.
+No etchings.	Sem gravuras.
+{0}h left	{0}h restantes
+{0}m left	{0}m restantes
+That is your own listing: take it back under MY LISTINGS.	Esse anúncio é seu: retire-o em MEUS ANÚNCIOS.
+Sold by {0}	Vendido por {0}
+You do not have enough sorn.	Você não tem sorn suficiente.
+TAKE BACK	RETIRAR
+Take it back?	Retirar?
+{0} comes off the Exchange and back to you.	{0} sai do Mercado e volta para você.
+The price is for the whole count listed.	O preço vale pela quantidade total anunciada.
+Price {0} sorn. When it sells you receive {1} (the Exchange keeps {2}%).	Preço {0} sorn. Quando vender, você recebe {1} (o Mercado fica com {2}%).
+You hold {0} of these.	Você tem {0} destes.
+List {0}?	Anunciar {0}?
+They leave you now and come back if nobody buys them within {0} hours.	Eles saem de você agora e voltam se ninguém comprar em {0} horas.
+LIST THEM	ANUNCIAR
+You hold {0} of this scroll.	Você tem {0} deste pergaminho.
+It leaves your bag now and comes back if nobody buys it within {0} hours.	Sai da sua bolsa agora e volta se ninguém comprar em {0} horas.
+You hold {0} sorn	Você tem {0} sorn
+the Exchange keeps {0}% of each sale	o Mercado fica com {0}% de cada venda
+Offline: the Exchange needs the server.	Offline: o Mercado precisa do servidor.
+At least {0} sorn.	No mínimo {0} sorn.
+You receive {0} sorn when it sells.	Você recebe {0} sorn quando vender.
+Nothing listed here yet.	Nada anunciado aqui ainda.
+Opening the Exchange...	Abrindo o Mercado...
+Tap to set a count and a price	Toque para definir quantidade e preço
+Tap to set a price	Toque para definir um preço
+Nothing to sell. Worn pieces must be taken off (INVENTORY) before they can be sold.	Nada para vender. Peças equipadas precisam ser removidas (INVENTÁRIO) antes da venda.
+On the Exchange	No Mercado
+tap to take it back	toque para retirar
+Sold: you received {0} sorn	Vendido: você recebeu {0} sorn
+Nobody bought it: back in your bag	Ninguém comprou: de volta à sua bolsa
+Nobody bought them: back with you	Ninguém comprou: de volta com você
+Taken back	Retirado
+Nothing listed. Up to {0} pieces at a time, {1} hours each.	Nada anunciado. Até {0} peças por vez, {1} horas cada.
+CHARACTERS	PERSONAGENS
+HOW TO PLAY	COMO JOGAR
+MESSAGES	MENSAGENS
+PRIVACY POLICY	POLÍTICA DE PRIVACIDADE
+DELETE ACCOUNT	EXCLUIR CONTA
+DEV: GRANT	DEV: CONCEDER
+DEV: TEST SIGN-IN	DEV: LOGIN DE TESTE
+Orsuun: War of Banners	Orsuun: Guerra dos Estandartes
+Offline: nothing of yours is stored on the server right now.	Offline: nada seu está guardado no servidor agora.
+Delete your account?	Excluir sua conta?
+Your hero, every item and all progress are removed from the server for good.	Seu herói, todos os itens e todo o progresso são removidos do servidor para sempre.
+This cannot be undone.	Isto não pode ser desfeito.
+Deleting...	Excluindo...
+Account deleted. A new hunt begins.	Conta excluída. Uma nova caçada começa.
+SOUND: OFF	SOM: DESL.
+SOUND: ON	SOM: LIG.
+HUNT SPEED: x{0}	RITMO DA CAÇADA: x{0}
+SIGN UP / SIGN IN	CADASTRAR / ENTRAR
+MAILBOX ({0})	CORREIO ({0})
+Offline.	Offline.
+This server has no test sign-in.	Este servidor não tem login de teste.
+Pick Tester 1 on the page that opens.	Escolha Tester 1 na página que abrir.
+Granted (playtest server).	Concedido (servidor de teste).
+Granted (local).	Concedido (local).
+A hero's name to write to	Nome do herói para quem escrever
+WRITE	ESCREVER
+No messages yet. Write to a hero by name above, or tap a name in CHAT or on your FRIENDS list.	Nenhuma mensagem ainda. Escreva para um herói pelo nome acima ou toque em um nome no CHAT ou na sua lista de AMIGOS.
+Write a message	Escreva uma mensagem
+ALL MESSAGES	TODAS AS MENSAGENS
+Offline: messages need the server.	Offline: mensagens precisam do servidor.
+Type a hero's name first.	Digite primeiro o nome de um herói.
+You blocked them. Unblock them in CHAT to write again.	Você bloqueou essa pessoa. Desbloqueie-a no CHAT para escrever de novo.
+{0} NEW	{0} NOVAS
+You: {0}	Você: {0}
+LOAD OLDER MESSAGES	CARREGAR ANTERIORES
+No messages yet. Say hello.	Nenhuma mensagem ainda. Diga oi.
+A moderator will read it. To stop their messages, block them in CHAT.	Um moderador vai ler. Para parar as mensagens dessa pessoa, bloqueie-a no CHAT.
+Report this message?	Denunciar esta mensagem?
+Not connected to the server.	Sem conexão com o servidor.
+Sign-in was cancelled.	O login foi cancelado.
+the test sign-in	o login de teste
+Signed in with {0}. Welcome back.	Você entrou com {0}. Bem-vindo de volta.
+Your account is now saved with {0}.	Sua conta agora está salva com {0}.
+LOCAL MODE: {0}	MODO LOCAL: {0}
+choose a hero	escolha um herói
+Choose a character	Escolha um personagem
+Invited	Convidado
+The Salt Exchange	O Mercado do Sal
+Rare Felt Boots	Botas de Feltro Raras
+The Pits	As Arenas
+CHALLENGERS	DESAFIANTES
+LOOK AGAIN	NOVA BUSCA
+FIGHT	LUTAR
+PIT SHOP	LOJA DA ARENA
+{0} Laurels	{0} Louros
+THE SEASON'S BOARD	PLACAR DA TEMPORADA
+BACK TO WAR	VOLTAR À GUERRA
+The Pits need the server.	As Arenas precisam do servidor.
+Bronze	Bronze
+Iron	Ferro
+Silver	Prata
+Gold	Ouro
+Jade	Jade
+Khagan	Khagan
+last season's best: {0}	melhor da última temporada: {0}
+{0} fights to be ranked	{0} lutas para entrar no ranking
+Season ends in {0}	A temporada termina em {0}
+Sanding the pit floor...	Espalhando areia na arena...
+This season {0} won, {1} lost	Nesta temporada: {0} vitórias, {1} derrotas
+tickets {0}/{1}	ingressos {0}/{1}
+a Pit shade	uma sombra da Arena
+No one has fought in the pits yet. Be the first.	Ninguém lutou nas arenas ainda. Seja o primeiro.
+Carved in the vault door, under the Sky Banner's hawk:	Entalhado na porta do cofre, sob o falcão do Estandarte do Céu:
+The right rune opens the vault: the Last Carver's chest then holds a Master's Needle.	A runa certa abre o cofre: o baú do Último Entalhador terá então uma Agulha do Mestre.
+LEAVE IT SHUT	DEIXAR FECHADO
+M1-M10: read the skill's own Technique Scroll ({0}%, then {1} hours of rest).	M1-M10: leia o próprio Pergaminho de Técnica da habilidade ({0}%, depois {1} horas de descanso).
+G1-G10 and Peerless: an Oathstone and Honor ({0}%). Honor comes from Korstones, Pit wins and dungeon Wardens.	G1-G10 e Inigualável: uma Pedra do Juramento e Honra ({0}%). A Honra vem de Pedras Kor, vitórias na Arena e Guardiões de masmorras.
+Offline: skill grades are trained on the server.	Offline: os graus de habilidade são treinados no servidor.
+{0} unlocks at level {1}.	{0} desbloqueia no nível {1}.
+One {0} is spent. {1}% its teaching takes: {2} of {3} good reads toward {4}	Um {0} é gasto. {1}% de chance de o ensinamento pegar: {2} de {3} leituras boas rumo a {4}
+(the skill rises to {0}, +{1}% power)	(a habilidade sobe para {0}, +{1}% de poder)
+Whatever happens, {0} then rests {1} hours before its next read.	Aconteça o que acontecer, {0} descansa {1} horas antes da próxima leitura.
+An Oathstone and {0} Honor are spent either way. {1}% the skill rises to {2} (+{3}% power).	Uma Pedra do Juramento e {0} de Honra são gastas de qualquer jeito. {1}% de chance de a habilidade subir para {2} (+{3}% de poder).
+You hold {0} Oathstones and {1} Honor.	Você tem {0} Pedras do Juramento e {1} de Honra.
+BURN THE STONE	QUEIMAR A PEDRA
+READ IT	LER
+{0}: try for {1}?	{0}: tentar {1}?
+Honor {0}	Honra {0}
+Oathstones {0}	Pedras do Juramento {0}
++{0}% skill power	+{0}% de poder de habilidade
+the summit	o topo
+{0} gives +{1}%	{0} dá +{1}%
+Unlocks at level {0} (you are {1}).	Desbloqueia no nível {0} (você está no {1}).
+Scrolls held: {0}	Pergaminhos: {0}
+LEVEL	NÍVEL
+Peerless: nothing is above it.	Inigualável: nada está acima.
+PEERLESS	INIGUALÁVEL
+Reads toward {0}: {1} of {2}	Leituras rumo a {0}: {1} de {2}
+{0}% a read	{0}% por leitura
+No scroll of this skill: Warden chests, the shops, the Exchange	Sem pergaminho desta habilidade: baús de Guardiões, as lojas, o Mercado
+NO SCROLL	SEM PERGAMINHO
+READ A\nSCROLL	LER UM\nPERGAMINHO
+RESTING	DESCANSANDO
+Next: {0}	Próximo: {0}
+an Oathstone and {0} Honor a try	uma Pedra do Juramento e {0} de Honra por tentativa
+No Oathstone: the Carvers' Archive, the Pit shop	Sem Pedra do Juramento: o Arquivo dos Entalhadores, a loja da Arena
+Not enough Honor ({0} of {1})	Honra insuficiente ({0} de {1})
+Ready.	Pronto.
+BURN AN\nOATHSTONE	QUEIMAR UMA\nPEDRA DO JURAMENTO
+"Chained to this anvil since the Spire rose. One piece from each climber. Choose."	"Acorrentado a esta bigorna desde que o Pináculo se ergueu. Uma peça de cada escalador. Escolha."
+FORGE AT THE SMITH	REFINAR COM O FERREIRO
+WALK ON	SEGUIR
+Choose a worn piece	Escolha uma peça equipada
+It has sworn all nine oaths already.	Ela já fez os nove juramentos.
+Cost {0} sorn	Custo {0} sorn
+To +{0}:	Para +{0}:
+{0} with the smith's hand	{0} pela mão do ferreiro
+not enough	insuficiente
+KORSHARDS	FRAGMENTOS KOR
+Dead Shard removed.	Fragmento Morto removido.
+Shard set: {0}	Fragmento encaixado: {0}
+The shard shattered. A Dead Shard blocks the socket.	O fragmento se estilhaçou. Um Fragmento Morto bloqueia o encaixe.
+NO SOCKETS ON THIS PIECE	ESTA PEÇA NÃO TEM ENCAIXES
+Rarer pieces carry more sockets.	Peças mais raras têm mais encaixes.
+CLEAR DEAD SHARD	REMOVER FRAGMENTO MORTO
+A Dead Shard blocks the socket until it is knocked out.	Um Fragmento Morto bloqueia o encaixe até ser removido.
+SET {0}	ENCAIXAR {0}
+A failed set leaves a Dead Shard in the socket.	Um encaixe que falha deixa um Fragmento Morto no lugar.
+SOCKET {0} HOLDS {1} {2}	ENCAIXE {0} TEM {1} {2}
+TAP TO BEGIN	TOQUE PARA COMEÇAR
+Connecting to the steppe...	Conectando à estepe...
+Ready	Pronto
+TRADE WITH A HERO	TROCAR COM UM HERÓI
+Both of you put pieces, scrolls and sorn on the table, lock, then confirm.	Vocês dois colocam peças, pergaminhos e sorn na mesa, travam e depois confirmam.
+ASK TO TRADE	PEDIR TROCA
+Both need level {0} and an account {1} hours old. {2}% of the sorn goes to the tax. Technique Scrolls trade too. Your own heroes share the depot instead.	Os dois precisam de nível {0} e de uma conta com {1} horas. {2}% do sorn vai para a taxa. Pergaminhos de Técnica também podem ser trocados. Seus próprios heróis usam o depósito.
+ACCEPT	ACEITAR
+Sorn to give	Sorn para dar
+PUT SORN	COLOCAR SORN
+YOUR BAG (TAP TO OFFER)	SUA BOLSA (TOQUE PARA OFERECER)
+CANCEL TRADE	CANCELAR TROCA
+Trading needs the server.	A troca precisa do servidor.
+Locked	Travado
+CONFIRMED	CONFIRMADO
+Confirmed	Confirmado
+None	Nenhum
+Cancelled	Cancelado
+Done	Feito
+The trade is over.	A troca terminou.
+Traded.	Trocado.
+Trade pieces and sorn with another hero.	Troque peças e sorn com outro herói.
+An invitation	Um convite
+Waiting for an answer	Esperando resposta
+Waiting for {0}...	Esperando {0}...
+{0} asks to trade.	{0} quer trocar.
+(playtest: level and age rules off)	(teste: regras de nível e idade desligadas)
+Trading with	Trocando com
+{0} OFFERS	{0} OFERECE
+(you get {0} after the {1}% tax)	(você recebe {0} após a taxa de {1}%)
+Sorn: {0}	Sorn: {0}
+YOU OFFER	VOCÊ OFERECE
+WAIT {0}	AGUARDE {0}
+LOCK OFFER	TRAVAR OFERTA
+CONFIRM	CONFIRMAR
+Nothing yet.	Nada ainda.
+STATS	ATRIBUTOS
+Tap a piece or a scroll below to see it and offer it.	Toque em uma peça ou pergaminho abaixo para ver e oferecer.
+OFFER THEM	OFERECER
+OFFER IT	OFERECER
+At most {0} pieces a trade.	No máximo {0} peças por troca.
+Nothing in the bag to offer (worn pieces stay on).	Nada na bolsa para oferecer (peças equipadas ficam no corpo).
+If you wore it:	Se você a equipasse:
+Your class reads it.	Sua classe pode lê-lo.
+Read at SKILLS to climb {0}'s Mastered grades: {1}% a read, then {2} hours of rest.	Leia em HABILIDADES para subir os graus de Mestria de {0}: {1}% por leitura, depois {2} horas de descanso.
+Between 1 and {0}.	Entre 1 e {0}.
+Bounties pay Trail XP: {0} a daily, {1} a weekly.	Recompensas dão XP da Trilha: {0} por diária, {1} por semanal.
+FREE	GRÁTIS
+THE TRAIL	A TRILHA
+CLAIM ALL	RESGATAR TUDO
+Free	Grátis
+Paid	Pago
+The Campaign Trail needs the server.	A Trilha de Campanha precisa do servidor.
+Tier {0} is {1} Trail XP away.	A etapa {0} está a {1} XP da Trilha.
+Taken.	Recebido.
+The Trail's reward needs the Trail.	O prêmio da Trilha exige a Trilha.
+Not enough Amber: {0} needed.	Âmbar insuficiente: precisa de {0}.
+(you have the Trail: you pay the difference)	(você tem a Trilha: paga só a diferença)
+Trail Plus: the paid track and {0} tiers at once	Trilha Plus: a trilha paga e {0} etapas de uma vez
+The Trail: the paid track	A Trilha: a trilha paga
+Season {0}, {1}: {2} at tier 1, {3} at tier {4}.	Temporada {0}, {1}: {2} na etapa 1, {3} na etapa {4}.
+{0}, for this hero, for {1} Amber.	{0}, para este herói, por {1} Âmbar.
+TRAIL PLUS	TRILHA PLUS
+The Trail is yours: claim its rewards.	A Trilha é sua: resgate seus prêmios.
+Trail Plus is yours: ten tiers climbed.	A Trilha Plus é sua: dez etapas avançadas.
+Season {0}	Temporada {0}
+Ends in {0}.	Termina em {0}.
+Tier 1: {0} ({1})	Etapa 1: {0} ({1})
+Tier {0}: {1} ({2})	Etapa {0}: {1} ({2})
+TIER {0} / {1}	ETAPA {0} / {1}
+{0} / {1} Trail XP to tier {2}	{0} / {1} XP da Trilha até a etapa {2}
+{0} Trail XP: the Trail is climbed.	{0} XP da Trilha: a Trilha está completa.
+THE TRAIL: YOURS	A TRILHA: SUA
+TRAIL PLUS: YOURS	TRILHA PLUS: SUA
+PLUS +{0} TIERS	PLUS +{0} ETAPAS
+THE TRAIL (LOCKED)	A TRILHA (BLOQUEADA)
+CLAIM ALL ({0})	RESGATAR TUDO ({0})
+Last season left {0} rewards unclaimed: CLAIM ALL hands them over.	A última temporada deixou {0} prêmios sem resgate: RESGATAR TUDO os entrega.
+TAP TO CLAIM	TOQUE PARA RESGATAR
+REMOVE	REMOVER
+STOP WHEN ALL OF THESE ARE ON IT	PARAR QUANDO TODAS ESTAS ESTIVEREM NELA
+BACK TO THE FORGE	VOLTAR À FORJA
+ADD A PIECE	ADICIONAR PEÇA
+No other pieces with etchings. Add etchings with Etching Needles first.	Nenhuma outra peça com gravuras. Adicione gravuras com Agulhas de Gravura primeiro.
+Etching	Gravura
+Stopped after {0} turns.	Parou após {0} giros.
+GONE	SUMIU
+Out of Turnstones after {0} turns.	Sem Pedras de Giro após {0} giros.
+no goal	sem meta
+CHECK	CONFERIR
+Turning...	Girando...
+{0} turns so far	{0} giros até agora
+Turn a piece ON and give it a goal first.	Coloque uma peça em LIG. e dê uma meta a ela primeiro.
+All done after {0} turns!	Tudo pronto após {0} giros!
+{0} done, {1} need a look (CHECK).	{0} prontas, {1} precisam de atenção (CONFERIR).
+All done	Tudo pronto
+OFF	DESL.
+ON	LIG.
+TURNING	GIRANDO
+Add a piece	Adicionar uma peça
+That piece is gone	Essa peça sumiu
+It was destroyed or sold: REMOVE it.	Foi destruída ou vendida: use REMOVER.
+Tap + to add pieces, worn or in the bag, and give each one its goal.	Toque em + para adicionar peças, equipadas ou na bolsa, e dê uma meta a cada uma.
+up to T{0}	até T{0}
+you have {0}	você tem {0}
+{0} Turnstone{1} a turn	{0} Pedra{1} de Giro por giro
+Choose an etching	Escolha uma gravura
+Pick up to five etchings and the lowest tier you accept for each.	Escolha até cinco gravuras e a faixa mínima que aceita para cada uma.
+This piece has its goal.	Esta peça atingiu a meta.
+about {0} Turnstones on average	cerca de {0} Pedras de Giro em média
+{0}% a turn	{0}% por giro
+About 1 in {0} turns	Cerca de 1 a cada {0} giros
+{0} Turnstones on average	{0} Pedras de Giro em média
+STOP	PARAR
+STOPPING...	PARANDO...
+START TURNING	COMEÇAR A GIRAR
+START TURNING ({0} PIECES)	COMEÇAR A GIRAR ({0} PEÇAS)
+T1 +{0}	T1 +{0}
+T5 +{0}	T5 +{0}
+BAG	BOLSA
+SKIP	PULAR
+THE HUNT	A CAÇADA
+Your hero hunts on their own: packs fall and loot drops, even while you are away.	Seu herói caça sozinho: bandos tombam e os drops caem, mesmo quando você não está.
+Every wave ends at a Korstone. Break it for the best drops. The deeper you hunt, the darker and deadlier the stones.	Toda onda termina numa Pedra Kor. Quebre-a para os melhores drops. Quanto mais fundo você caça, mais sombrias e mortais são as pedras.
+KORSTONES	PEDRAS KOR
+Skills cast themselves while AUTO is on. Tap a skill to fire it the moment you want: aimed, it hits harder.	As habilidades são usadas sozinhas com o AUTO ligado. Toque numa habilidade para usá-la na hora que quiser: mirada, ela bate mais forte.
+The Forge raises your gear's level and its power. Tap FORGE.	A Forja aumenta o nível e o poder do seu equipamento. Toque em REFINAR.
+Every try shows its chance and cost and asks first. Up to +3 a failure costs a level; from +4 a failed FORGE ALONE destroys the piece, and a Scroll of Mercy keeps it safe. Try once.	Cada tentativa mostra a chance e o custo e pergunta antes. Até +3, uma falha custa um nível; a partir de +4, um SÓ REFINAR que falha destrói a peça, e um Pergaminho da Misericórdia a protege. Tente uma vez.
+FIRST STRIKE	PRIMEIRO GOLPE
+WELL STRUCK	BELO GOLPE
+Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Ganhando ou perdendo, a Forja está sempre lá. Toque em VOLTAR À CAÇADA.
+New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Peças novas caem na sua bolsa: equipe-as no ARSENAL. Refine ou gire qualquer peça lá, equipada ou na bolsa.
+PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	AVANÇAR leva você à próxima fase quando estiver forte o bastante. Cada vitória abre novos territórios de caça em ZONAS.
+THE STEPPE	A ESTEPE
+WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange, and MENU for sound, your account and this guide.	GUERRA pelo seu Estandarte, RECOMPENSAS por Marcas de Caça, GUILDA, TROCAR no Mercado do Sal e MENU para som, sua conta e este guia.
+This line always shows your next goal. Tap it to go there. Good hunting!	Esta linha sempre mostra sua próxima meta. Toque para ir até lá. Boa caçada!
+CHANGE	MUDAR
+FORTRESSES	FORTALEZAS
+KEEP	TORREÃO
+BIDS	LANCES
+BID +{0}	LANCE +{0}
+The keeps need the server.	Os torreões precisam do servidor.
+Bid on the keep of {0}?	Dar lance pelo torreão de {0}?
+{0} sorn leave the guild treasury now; your bid becomes {1}.	{0} sorn saem do tesouro da guilda agora; seu lance passa a ser {1}.
+On Sunday at 20:00 the four highest bids storm the keep and are spent; the rest go back.	No domingo às 20:00, os quatro maiores lances invadem o torreão e são gastos; o resto é devolvido.
+BID	DAR LANCE
+THE KEEP OF {0}	O TORREÃO DE {0}
+No guild holds the keep.	Nenhuma guilda controla o torreão.
+{0} {1} holds the keep: their flag flies here.	{0} {1} controla o torreão: a bandeira deles tremula aqui.
+Bids are open. The keep is stormed on Sunday at 20:00, in {0}.	Os lances estão abertos. O torreão será invadido no domingo às 20:00, em {0}.
+The keep siege is on: {0} left. The best contender must beat {1} plus the {2} its holders mended.	O cerco ao torreão está em andamento: faltam {0}. O melhor desafiante precisa superar {1} mais os {2} que os donos repararam.
+Bids open again on Monday at 20:00.	Os lances reabrem na segunda às 20:00.
+No bids yet this week.	Nenhum lance nesta semana ainda.
+Your guild holds this keep and defends it on Sunday.	Sua guilda controla este torreão e o defende no domingo.
+It storms the keep.	Ela invade o torreão.
+Your guild bids {0} sorn.	Sua guilda deu lance de {0} sorn.
+Bids start at {0} sorn from the treasury.	Os lances começam em {0} sorn do tesouro.
+Offline: the War of Banners needs the server.	Offline: a Guerra dos Estandartes precisa do servidor.
+Swear to a Banner first.	Jure a um Estandarte primeiro.
+Gathering word from the steppe...	Reunindo notícias da estepe...
+Season	Temporada
+points from Korstones, Commanders, pushes and sieges	pontos de Pedras Kor, Comandantes, avanços e cercos
+Offline	Offline
+You have sworn to no Banner yet.	Você ainda não jurou a nenhum Estandarte.
+You ride for the {0}	Você cavalga pelo {0}
+hunting bonus +{0}% sorn	bônus de caçada +{0}% de sorn
+Last season's winner: the {0} (+{1}% sorn this season)	Vencedor da última temporada: o {0} (+{1}% de sorn nesta temporada)
+Last season: no winner.	Última temporada: sem vencedor.
+guild flag [{0}]	bandeira da guilda [{0}]
+the {0} is under siege{1}	o {0} está sob cerco{1}
+Ember {0}	Brasa {0}
+Sky {0}	Céu {0}
+Gold {0}	Ouro {0}
+REGROUP {0}:{1}	REAGRUPAR {0}:{1}
+HOLD KEEP	DEFENDER TORREÃO
+STORM KEEP	INVADIR TORREÃO
+COMPANION	COMPANHEIRO
+MOUNT	MONTARIA
+SKIN	TRAJE
+WEAR	USAR
+Nothing held yet. The Caravan sells skins, mounts and companions, and bosses from Gorak Pass on drop them.	Nada em posse ainda. A Caravana vende trajes, montarias e companheiros, e chefes a partir do Passo de Gorak os dropam.
+TO THE CARAVAN	PARA A CARAVANA
+The wardrobe needs the server.	O guarda-roupa precisa do servidor.
+WHERE TO HUNT	ONDE CAÇAR
+Hunting Grounds pay sorn and levels, Fields pay materials, Commander Grounds pay skins	Territórios de Caça dão sorn e níveis, Campos dão materiais, Territórios do Comandante dão trajes
+Dungeon	Masmorra
+Zone	Zona
+COMMANDERS	COMANDANTES
+DEV: bosses up	DEV: chefes ativos
+9 floors	9 andares
+the Chained Smith on floor 6	o Ferreiro Acorrentado no andar 6
+2 levels, 6 floors	2 níveis, 6 andares
+the Silkmother's Khan's Alloy	a Liga do Khan da Mãe da Seda
+Master's Needles	Agulhas do Mestre
+{0} floors	{0} andares
+a rune lock on floor {0}	uma trava rúnica no andar {0}
+Dungeons need the server.	As masmorras precisam do servidor.
+Clear {0} to open	Conclua {0} para abrir
+The Chained Smith is waiting on floor {0}.	O Ferreiro Acorrentado espera no andar {0}.
+The rune lock waits on floor {0}.	A trava rúnica espera no andar {0}.
+keys today {0}/{1}	chaves hoje {0}/{1}
+CONTINUE	CONTINUAR
+ENTER	ENTRAR
+NO KEYS	SEM CHAVES
+RUN WAITING	EM PAUSA
+Local mode: Commanders are always up.	Modo local: os Comandantes estão sempre ativos.
+Campaign	Campanha
+balanced drops	drops equilibrados
+stages 1-{0}	fases 1-{0}
+Commander Ground	Território do Comandante
+Hunting Ground	Território de Caça
+Korstone Field	Campo de Pedras Kor
+no offline	sem offline
+Clear campaign stage {0} to open	Conclua a fase {0} da campanha para abrir
+Lv {0}-{1}{2}	Nv. {0}-{1}{2}
+HUNT HERE	CAÇAR AQUI
+HUNTING NOW	CAÇANDO AGORA
+next in {0}:{1}	próximo em {0}:{1}
+UP {0}:{1}	ATIVO {0}:{1}
+up {0}:{1}	ativo {0}:{1}
+SLAIN by {0}	ABATIDO por {0}
+Server pool {0} / {1} HP	HP do servidor {0} / {1}
+up (local)	ativo (local)
+shielded by 4 captains, enrages at 30%	protegido por 4 capitães, enfurece a 30%
+splits into reflecting images at 70% and 40%	se divide em imagens refletoras a 70% e 40%
+calls a pack every 15 s	chama um bando a cada 15 s
+Enter your email.	Digite seu e-mail.
+That email is too long.	Esse e-mail é longo demais.
+That does not look like an email.	Isso não parece um e-mail.
+A password has at least {0} characters.	Uma senha tem pelo menos {0} caracteres.
+That password is too long.	Essa senha é longa demais.
+Choose a stronger password.	Escolha uma senha mais forte.
+Break every stone.	Quebre todas as pedras.
+Ember Banner	Estandarte da Brasa
+Emberhearth	Lar das Brasas
+Rider clans of the open steppe: proud, blunt, settled by honour duels.	Clãs de cavaleiros da estepe aberta: orgulhosos, francos, que resolvem tudo em duelos de honra.
+Reseal what was sealed.	Sele de novo o que foi selado.
+Sky Banner	Estandarte do Céu
+Mountain monasteries under the eternal sky: archivists, drum shamans and grave wardens.	Mosteiros nas montanhas sob o céu eterno: arquivistas, xamãs do tambor e guardiões de túmulos.
+Wardenstep	Passo dos Guardiões
+Every stone has a price.	Toda pedra tem um preço.
+Gold Banner	Estandarte do Ouro
+Caravan cities of the salt roads: contracts, guild banks and hired blades.	Cidades-caravana das estradas do sal: contratos, bancos de guilda e lâminas de aluguel.
+Scalehouse	Casa da Balança
+No such Banner.	Esse Estandarte não existe.
+Choose one of the three Banners.	Escolha um dos três Estandartes.
+You ride under that Banner already.	Você já cavalga sob esse Estandarte.
+The Banner changes once a season. Wait for the next one.	O Estandarte só muda uma vez por temporada. Espere a próxima.
+Changing Banners costs {0} Oathstones (the Carvers' Archive).	Trocar de Estandarte custa {0} Pedras do Juramento (o Arquivo dos Entalhadores).
+Stagfort	Forte do Cervo
+The Oathfields	Os Campos do Juramento
+Saltgate	Portão do Sal
+The Salt Flats	As Salinas
+Ravenmoot	Conclave dos Corvos
+The Frost Pasture	O Pasto Gélido
+Gate Warden of {0}	Guardião do Portão de {0}
+Yard Captain of {0}	Capitão do Pátio de {0}
+Lord of {0} Hall	Senhor do Salão de {0}
+Your oath is renewed {0} times: it holds for ever.	Seu juramento foi renovado {0} vezes: vale para sempre.
+Oath Renewal opens at level {0}.	A Renovação do Juramento abre no nível {0}.
+Break 20 Korstones	Quebre 20 Pedras Kor
+Hunt for 30 minutes	Cace por 30 minutos
+Forge 5 times	Refine 5 vezes
+Turn etchings 25 times	Gire gravuras 25 vezes
+Fight a Commander	Enfrente um Comandante
+Break 200 Korstones	Quebre 200 Pedras Kor
+Fight 5 Commanders	Enfrente 5 Comandantes
+Push 10 times	Avance 10 vezes
+Join 3 fortress sieges	Participe de 3 cercos a fortalezas
+Already claimed.	Já resgatado.
+Not finished yet.	Ainda não concluído.
+Adds an etching (1st to 4th)	Adiciona uma gravura (1ª a 4ª)
+Holds one etching through turns	Mantém uma gravura durante os giros
+10 Turnstones	10 Pedras de Giro
+Turn etchings	Girar gravuras
+A failed Forge only loses a level	Um refino que falha só perde um nível
+10 Draughts	10 Poções
+Healing draughts for the hunt	Poções de cura para a caçada
+A book of one of your class's skills	Um livro de uma das habilidades da sua classe
+Technique Scroll	Pergaminho de Técnica
+Unknown shop item.	Item da loja desconhecido.
+Buy 1 to 99 at a time.	Compre de 1 a 99 por vez.
+Not enough Hunt Marks.	Marcas de Caça insuficientes.
+Scrolls of Mercy	Pergaminhos da Misericórdia
+a Scroll of Mercy	um Pergaminho da Misericórdia
+A name has {0} to {1} letters or digits.	Um nome tem de {0} a {1} letras ou dígitos.
+A name starts with a letter.	Um nome começa com uma letra.
+Letters and digits only, no spaces.	Só letras e dígitos, sem espaços.
+Choose another name.	Escolha outro nome.
+Say something first.	Diga algo primeiro.
+At most {0} characters.	No máximo {0} caracteres.
+online	online
+{0} min ago	há {0} min
+{0} h ago	há {0} h
+{0} days ago	há {0} dias
++1 Bloodroot Draught	+1 Poção de Raiz-de-Sangue
+Bloodroot Draught	Poção de Raiz-de-Sangue
+Korstone chest: {0}	Baú da Pedra Kor: {0}
+Elder Korstone chest: {0}	Baú da Pedra Kor Anciã: {0}
+{0} falls: {1}	{0} cai: {1}
+No chest: rank {0} on {1}	Sem baú: posição {0} contra {1}
+{0} from {1}: {2}	{0} de {1}: {2}
+{0} sorn	{0} sorn
++{0} sorn	+{0} sorn
++{0} materials	+{0} materiais
+Commander's chest	Baú do Comandante
+Officer's chest	Baú do Oficial
+Trooper's chest	Baú do Soldado
+Void Lance	Lança Abissal
+Grave Tide	Maré Tumular
+Pact Frenzy	Frenesi do Pacto
+Grave Chains	Correntes Tumulares
+Shroud of Night	Mortalha da Noite
+Sky Hammer	Martelo Celeste
+Storm Drum	Tambor da Tempestade
+War Rhythm	Ritmo de Guerra
+Hunter's Blessing	Bênção do Caçador
+Mirror Ward	Guarda Espelhada
+Heartseeker	Busca-Coração
+Knife Fan	Leque de Facas
+Kestrel's Dive	Mergulho do Kestrel
+Venom Cloud	Nuvem de Veneno
+Shadow Stoop	Rasante Sombrio
+Rending Arc	Arco Dilacerante
+Iron Whirl	Turbilhão de Ferro
+Blood Fury	Fúria Sangrenta
+Honed Edge	Fio Afiado
+Bull Rush	Investida do Touro
+Old Greyjaw	Velho Mandíbula-Cinza
+Wolf Sinew	Tendão de Lobo
+calls a pack	chama um bando
+Shielded by captains	Protegido por capitães
+splits into images	se divide em imagens
+Hollowed Boar	Javali Esvaziado
+Hollowed Wolf	Lobo Esvaziado
+Gorak Marauder	Saqueador Gorak
+Gorak Pass	Passo de Gorak
+Gorak Raider	Invasor Gorak
+Marauder Brand	Ferrete do Saqueador
+War Hound	Cão de Guerra
+Warlord Tul-Gorak	Senhor da Guerra Tul-Gorak
+Caravan Ghoul	Carniçal da Caravana
+Glass Snake	Cobra de Vidro
+Salt Scorpion	Escorpião do Sal
+Scorpion Glass	Vidro de Escorpião
+The Mirage Queen	A Rainha Miragem
+The Salt Sea	O Mar de Sal
+Frost Bear	Urso Gélido
+Frozen Marrow	Tutano Congelado
+Ice Wight	Espectro de Gelo
+Snow Hag	Bruxa da Neve
+Whitefang Range	Serra Presa-Branca
+Ash Fiend	Demônio de Cinzas
+Azhdar the Furnace Wyrm	Azhdar, o Dragão da Fornalha
+Cinder Heart	Coração de Cinza
+Flame Cultist	Cultista da Chama
+Magma Hound	Cão de Magma
+The Cinder Marches	As Fronteiras de Cinza
+Hanging Spirit	Espírito Enforcado
+Hollowed Dead	Morto Esvaziado
+Lantern Wisp	Fogo-Fátuo da Lanterna
+The Lantern Widow	A Viúva da Lanterna
+Whisper Bark	Casca Sussurrante
+Whisperwood	Bosque dos Sussurros
+Birch Stalker	Rondador das Bétulas
+Bloodbirch Resin	Resina de Bétula Sangrenta
+Red Treant	Ente Rubro
+Sap Horror	Horror de Seiva
+The Bloodbirch	A Bétula Sangrenta
+Bloodbirch	Bétula Sangrenta
+The Rootfather	O Pai-Raiz
+Bog Rider	Cavaleiro do Brejo
+Leech Swarm	Enxame de Sanguessugas
+Marsh Serpent	Serpente do Pântano
+Serpent Scale	Escama de Serpente
+The Coil Mother	A Mãe das Espirais
+The Drowned Steppe	A Estepe Afogada
+Bone Picker	Catador de Ossos
+Colossus Graves	Túmulos dos Colossos
+Giant's Knuckle	Falange do Gigante
+Hurm the Unburied	Hurm, o Insepulto
+Siege Beast	Fera de Cerco
+Stone Giant	Gigante de Pedra
+Debt Wraith	Espectro da Dívida
+Gilded Cog	Engrenagem Dourada
+Gilded Construct	Constructo Dourado
+Khan Cultist	Cultista do Khan
+The Last Merchant-Prince	O Último Príncipe-Mercador
+The Sunken Bazaar	O Bazar Submerso
+Marker Dust	Pó de Marco
+Risen Captain	Capitão Reerguido
+Risen Rider	Cavaleiro Reerguido
+Risen Trooper	Soldado Reerguido
+The Thousand Markers	Os Mil Marcos
+Varkesh of the Left Wing	Varkesh da Ala Esquerda
+Khan's Hound	Cão do Khan
+Oath Chanter	Entoador de Juramentos
+The Hollow Throne	O Trono Vazio
+The Khan's Shadow	A Sombra do Khan
+Throne Guard	Guarda do Trono
+Throne Shard	Estilhaço do Trono
+Ember Steppe	Estepe da Brasa
+The Ember Steppe	A Estepe da Brasa
+Salt Flats	Salinas
+Frost Pasture	Pasto Gélido
+Korstone Field I	Campo de Pedras Kor I
+Korstone Field II	Campo de Pedras Kor II
+Korstone Field III	Campo de Pedras Kor III
+Korstone Field IV	Campo de Pedras Kor IV
+Korstone Field V	Campo de Pedras Kor V
+Gorak War Camp	Acampamento de Guerra Gorak
+Tul-Gorak's Warmask	Máscara de Guerra de Tul-Gorak
+Mirage Veil	Véu da Miragem
+Greyjaw Pelt Cloak	Capa de Pele do Mandíbula-Cinza
+Bone Bracelet	Bracelete de Osso
+Felt Boots	Botas de Feltro
+Iron Earrings	Brincos de Ferro
+Lamellar Coat	Casaco Lamelar
+Round Shield	Escudo Redondo
+Steppe Helm	Elmo da Estepe
+Tamga Necklace	Colar Tamga
+Captain	Capitão
+Commander	Comandante
+Guard of the Khan	Guarda do Khan
+Rider	Cavaleiro
+Trooper	Soldado
+{0}, floor {1}	{0}, andar {1}
+A dungeon	Uma masmorra
+Unknown zone	Zona desconhecida
+The Hollow Spire	O Pináculo Vazio
+Nine floors pushed up from the grave plain. A Korstone rush on floor 3, the Chained Smith on floor 6, the Spire Warden on floor 9.	Nove andares erguidos da planície dos túmulos. Uma avalanche de Pedras Kor no andar 3, o Ferreiro Acorrentado no andar 6, o Guardião do Pináculo no andar 9.
+Silkmother's Warren	Toca da Mãe da Seda
+The Silkmother	A Mãe da Seda
+Under the Salt Sea, two levels deep: the Upper Galleries and the Brood Deep, opened by an egg-nest rush. The Silkmother waits at the bottom; her chest always holds a Khan's Alloy.	Sob o Mar de Sal, dois níveis de profundidade: as Galerias Superiores e o Fosso da Ninhada, aberto por uma avalanche de ninhos. A Mãe da Seda espera no fundo; o baú dela sempre tem uma Liga do Khan.
+The Carvers' Archive	O Arquivo dos Entalhadores
+The Last Carver	O Último Entalhador
+A Sky Banner vault in the mountains. On floor 3 a rune lock asks the riddle carved in its door: the right rune opens the vault, and the Last Carver's chest then holds a Master's Needle. His chest always holds an Oathstone (two with the vault open).	Um cofre do Estandarte do Céu nas montanhas. No andar 3, uma trava rúnica faz o enigma entalhado na porta: a runa certa abre o cofre, e o baú do Último Entalhador terá então uma Agulha do Mestre. O baú dele sempre tem uma Pedra do Juramento (duas com o cofre aberto).
+Brood Deep	Fosso da Ninhada
+Upper Galleries	Galerias Superiores
+Floor {0}	Andar {0}
+I have a mouth that never speaks and a bed where I never sleep; I run all my life and never leave home.	Tenho boca que nunca fala e leito onde nunca durmo; corro a vida inteira e nunca saio de casa.
+River	Rio
+Tent	Tenda
+Higher than the Khan's banner I circle, and the whole steppe is my map.	Mais alto que o estandarte do Khan eu circulo, e a estepe inteira é meu mapa.
+Birch	Bétula
+Moon	Lua
+White as bone and sold for gold, I was a sea before I was a road.	Branco como osso e vendido a peso de ouro, fui mar antes de ser estrada.
+Common {0}	{0} (Comum)
+Uncommon {0}	{0} (Incomum)
+Rare {0}	{0} (Raro)
+Epic {0}	{0} (Épico)
+Legendary {0}	{0} (Lendário)
+Common	Comum
+Uncommon	Incomum
+Epic	Épico
+{0}, {1}	{0}, {1}
++{0} {1}	+{0} {1}
+{0}: {1}	{0}: {1}
+{0} +{1}	{0} +{1}
+{0} × {1}	{0} × {1}
+Arrow	Flecha
+Drum	Tambor
+Feathered at one end and sharp at the other, I fly once and never come home.	Tenho penas numa ponta e fio na outra; voo uma vez e nunca volto para casa.
+Banner	Estandarte
+I call the whole host without a mouth; strike my face and I answer.	Chamo o exército inteiro sem ter boca; bata no meu rosto e eu respondo.
+I rise with no legs and set with no fall, and every rider turns to me at dawn.	Subo sem pernas e me ponho sem cair, e todo cavaleiro se volta para mim ao amanhecer.
+Sun	Sol
+My coat is white in summer and in winter, and in the red wood I bleed.	Meu casaco é branco no verão e no inverno, e na mata vermelha eu sangro.
+One leg in the ground and a round roof on my head, I keep the sleepers dry.	Uma perna no chão e um teto redondo na cabeça, mantenho secos os que dormem.
+Four legs for the grass and a rider on my back, I drink where the river bends.	Quatro patas para o capim e um cavaleiro nas costas, bebo onde o rio faz a curva.
+I hunt with my kin and sing to a silver face at night.	Caço com os meus e canto para um rosto de prata à noite.
+I have no light of my own; I borrow the sun's to guide the night caravan.	Não tenho luz própria; tomo a do sol emprestada para guiar a caravana da noite.
+Every Banner flies me, yet I never leave my pole.	Todo Estandarte me hasteia, mas nunca saio do meu mastro.
+{0} Turnstones	{0} Pedras de Giro
+an Etching Needle	uma Agulha de Gravura
+a {0} Korshard	um Fragmento Kor de {0}
+{0} Korshard	Fragmento Kor de {0}
+a Master's Needle	uma Agulha do Mestre
+an Oathstone	uma Pedra do Juramento
+{0} and a Khan's Alloy	{0} e uma Liga do Khan
+a {0}	{0}
+{0}; {1}	{0}; {1}
+Trooper Korshard	Fragmento Kor de Soldado
+Rider Korshard	Fragmento Kor de Cavaleiro
+Captain Korshard	Fragmento Kor de Capitão
+Commander Korshard	Fragmento Kor de Comandante
+Guard of the Khan Korshard	Fragmento Kor de Guarda do Khan
+Strong against Oathsworn	Forte contra Juramentados
+Critical hit chance	Chance de acerto crítico
+Piercing hit chance	Chance de golpe perfurante
+DEX	DES
+INT	INT
+STR	FOR
+VIT	VIT
+Strong against Hollowed	Forte contra Esvaziados
+Strong against Fiends	Forte contra Demônios
+Strong against Marauders	Forte contra Saqueadores
+Strong against Beasts	Forte contra Feras
+Strong against Cultists	Forte contra Cultistas
+Poison chance	Chance de envenenar
+Stun chance	Chance de atordoar
+Casting speed	Velocidade de conjuração
+Attack value	Valor de ataque
+Max HP	HP máx.
+Resistance to Vanguard	Resistência a Vanguard
+Resistance to Kestrel	Resistência a Kestrel
+Resistance to Wraithsworn	Resistência a Wraithsworn
+Resistance to Drumcaller	Resistência a Drumcaller
+HP regeneration	Regeneração de HP
+Block chance	Chance de bloqueio
+Reflect	Reflexão
+Sorn drop	Drop de sorn
+Item drop	Drop de itens
+Evasion	Esquiva
+That piece is gone.	Essa peça não existe mais.
+This piece has all five etchings.	Esta peça já tem as cinco gravuras.
+The fifth etching needs a Master's Needle (the Carvers' Archive or the Pit shop).	A quinta gravura exige uma Agulha do Mestre (o Arquivo dos Entalhadores ou a loja da Arena).
+No Etching Needles.	Sem Agulhas de Gravura.
+No etching there.	Não há gravura aí.
+No Pinning Wax.	Sem Cera de Fixação.
+Item already has 5 etchings.	O item já tem 5 gravuras.
+A Master's Needle only adds the fifth etching.	Uma Agulha do Mestre só adiciona a quinta gravura.
+The fifth etching needs a Master's Needle.	A quinta gravura exige uma Agulha do Mestre.
+Nothing to turn: the item has no etchings.	Nada para girar: o item não tem gravuras.
+Pick at most {0} etchings.	Escolha no máximo {0} gravuras.
+Unknown etching.	Gravura desconhecida.
+Each etching can be picked once.	Cada gravura só pode ser escolhida uma vez.
+Tiers run from T1 to T5.	As faixas vão de T1 a T5.
+A {0} piece rolls up to T{1}.	{0}: a peça rola até T{1}.
+This piece has {0} etching{1}: pick at most {2}.	Esta peça tem {0} gravura{1}: escolha no máximo {2}.
+The etching held by Pinning Wax never changes, and it is below that tier.	A gravura presa pela Cera de Fixação nunca muda, e está abaixo dessa faixa.
+One etching is pinned: pick at most {0} others, or include it.	Uma gravura está fixada: escolha no máximo {0} outras, ou inclua-a.
+Item was destroyed by an Oathbreak.	O item foi destruído por um Juramento Quebrado.
+Korstone Bell: double Korstone chests	Sino das Pedras Kor: baús de Pedra Kor em dobro
+Level Bell: double XP	Sino do Nível: XP em dobro
+Loot Bell: rarer gear drops	Sino do Saque: drops de equipamento mais raros
+Material Bell: double materials	Sino dos Materiais: materiais em dobro
+War Bell: +25% damage	Sino da Guerra: +25% de dano
+Korstone Bell	Sino das Pedras Kor
+Level Bell	Sino do Nível
+Loot Bell	Sino do Saque
+Material Bell	Sino dos Materiais
+War Bell	Sino da Guerra
+Item is already +9.	O item já está em +9.
+Forge your weapon to +1	Refine sua arma para +1
+Wear gear in 3 slots	Equipe peças em 3 espaços
+Forge any piece you wear to +3	Refine qualquer peça equipada para +3
+Reach level 10	Alcance o nível 10
+Join a guild	Entre em uma guilda
+Wear gear in all 8 slots	Equipe peças nos 8 espaços
+Forge your weapon to +7: it starts to glow	Refine sua arma para +7: ela começa a brilhar
+Forge your weapon to +9	Refine sua arma para +9
+A bounty is done: claim its Hunt Marks	Uma recompensa foi concluída: resgate as Marcas de Caça
+Wear the {0} from your bag	Equipe {0} da sua bolsa
+PUSH to beat {0} and clear {1}	AVANÇAR para vencer {0} e concluir {1}
+PUSH to clear {0}	AVANÇAR para concluir {0}
+Centre	Centro
+Left Flank	Flanco Esquerdo
+Right Flank	Flanco Direito
+No war night within a week.	Nenhuma noite de guerra na próxima semana.
+That skill is at its peak.	Essa habilidade está no máximo.
+The guild must reach level {0} first.	A guilda precisa chegar ao nível {0} primeiro.
+Not enough sorn in the treasury.	Sorn insuficiente no tesouro.
+A guild name has 3 to 20 characters.	Um nome de guilda tem de 3 a 20 caracteres.
+Letters, digits, spaces, ' and - only.	Só letras, dígitos, espaços, ' e -.
+One space between words.	Um espaço entre as palavras.
+A tag has 2 to 4 letters or digits.	Uma tag tem de 2 a 4 letras ou dígitos.
+Tags are capital letters and digits.	Tags usam letras maiúsculas e dígitos.
+Choose another tag.	Escolha outra tag.
+A failed Forge keeps its level	Um refino que falha mantém o nível
++10% chance on a Forge	+10% de chance num refino
+A rank 1 shard for a socket	Um fragmento de patente 1 para um encaixe
+Not enough Guild Tallies.	Fichas da Guilda insuficientes.
+Banner Greatsword	Montante do Estandarte
+Crescent Glaive	Glaive Crescente
+Herder's Sword	Espada do Pastor
+Horsebreaker Greatsword	Montante Quebra-Cavalos
+Tamga Sword	Espada Tamga
+Colossus Greatsword	Montante Colossal
+Emberwake Sword	Espada Rastro-de-Brasa
+Glaive of the Nine Oaths	Glaive dos Nove Juramentos
+Khan's Crescent	Crescente do Khan
+Oathkeeper Glaive	Glaive Guarda-Juramento
+Rider's Glaive	Glaive do Cavaleiro
+Bronze Fangs	Presas de Bronze
+Hawkwing Knives	Facas Asa-de-Falcão
+Rider's Talons	Garras do Cavaleiro
+Silver Talons	Garras de Prata
+Twin Skinning Knives	Facas Gêmeas de Esfolar
+Wolf-Fang Knives	Facas Presa-de-Lobo
+Bone Talons	Garras de Osso
+Emberwake Talons	Garras Rastro-de-Brasa
+Khan's Twin Crescents	Crescentes Gêmeos do Khan
+Oathkeeper Knives	Facas Guarda-Juramento
+Talons of the Nine Oaths	Garras dos Nove Juramentos
+Bronze Sabre	Sabre de Bronze
+Duskreaver	Ceifa-Crepúsculo
+Herder's Sabre	Sabre do Pastor
+Rider's Sabre	Sabre do Cavaleiro
+Rune Sabre	Sabre Rúnico
+Voidedge Sabre	Sabre Fio-do-Abismo
+Emberwake Sabre	Sabre Rastro-de-Brasa
+Gravebone Sabre	Sabre Osso-Tumular
+Khan's Nightblade	Lâmina Noturna do Khan
+Oathkeeper Sabre	Sabre Guarda-Juramento
+Sabre of the Nine Oaths	Sabre dos Nove Juramentos
+Bone Charm Staff	Cajado de Amuletos de Osso
+Bronze Bell Staff	Cajado de Sinos de Bronze
+Feathered Staff	Cajado Emplumado
+Silver Crescent Staff	Cajado do Crescente de Prata
+Skycrystal Staff	Cajado de Cristal Celeste
+Wolf-Fang Staff	Cajado Presa-de-Lobo
+Carved Bone Staff	Cajado de Osso Entalhado
+Dragon Crystal Staff	Cajado de Cristal de Dragão
+Eagle Staff	Cajado da Águia
+Emberorb Staff	Cajado Orbe-de-Brasa
+Staff of the Nine Oaths	Cajado dos Nove Juramentos
+Bronzescale Bodice	Corpete de Escamas de Bronze
+Hawkwing Harness	Arnês Asa-de-Falcão
+Leather Jerkin	Gibão de Couro
+Rider's Leathers	Couros do Cavaleiro
+Silverplate Bodice	Corpete de Placas de Prata
+Wolfhide Jerkin	Gibão de Pele de Lobo
+Emberweave Harness	Arnês Trama-de-Brasa
+Gravewrought Bodice	Corpete Tumular
+Khan's Silks	Sedas do Khan
+Oathsworn Leathers	Couros Juramentados
+Raiment of the Nine Oaths	Traje dos Nove Juramentos
+Bronzebound Leathers	Couros Guarnecidos de Bronze
+Horned Plate	Armadura de Chifres
+Padded Coat	Casaco Acolchoado
+Void Robe	Manto Abissal
+Voidsteel Plate	Armadura de Aço Abissal
+Wolfcollar Lamellar	Lamelar Gola-de-Lobo
+Emberplate	Armadura de Brasa
+Gravewrought Plate	Armadura Tumular
+Khan's Nightplate	Armadura Noturna do Khan
+Oathsworn Plate	Armadura Juramentada
+Plate of the Nine Oaths	Armadura dos Nove Juramentos
+Beaded Hides	Peles com Contas
+Bronze-Studded Hides	Peles Tachonadas de Bronze
+Dyed Leathers	Couros Tingidos
+Silverthread Robes	Mantos de Fio de Prata
+Skysilk Regalia	Paramentos de Seda Celeste
+Wolfskin Mantle	Manto de Pele de Lobo
+Emberweave Robes	Mantos Trama-de-Brasa
+Gravebone Regalia	Paramentos Osso-Tumular
+Khan's Stormsilk	Seda-Tormenta do Khan
+Oathsworn Mantle	Manto Juramentado
+Regalia of the Nine Oaths	Paramentos dos Nove Juramentos
+Banner Lamellar	Lamelar do Estandarte
+Bronzescale Lamellar	Lamelar de Escamas de Bronze
+Quilted Coat	Casaco Estofado
+Riveted Cuirass	Couraça Rebitada
+Wolfhide Lamellar	Lamelar de Pele de Lobo
+Gravewrought Lamellar	Lamelar Tumular
+Harness of the Nine Oaths	Arnês dos Nove Juramentos
+Khan's Lamellar	Lamelar do Khan
+Oathsworn Harness	Arnês Juramentado
+The lowest price is {0} sorn.	O preço mínimo é {0} sorn.
+The highest price is {0} sorn.	O preço máximo é {0} sorn.
+Hunt material	Material de caça
+Champion of the Pits	Campeão das Arenas
+Pit Veteran	Veterano da Arena
+5 Turnstones	5 Pedras de Giro
+Nothing is equipped in that slot.	Nada equipado nesse espaço.
+You do not own that item.	Esse item não é seu.
+Already +9	Já está em +9
+Not enough sorn	Sorn insuficiente
+Not enough	Insuficiente
+No Scroll of Mercy	Sem Pergaminho da Misericórdia
+No Khan's Alloy	Sem Liga do Khan
+No Anvil Ward	Sem Guarda da Bigorna
+Only in the Hollow Spire	Só no Pináculo Vazio
+You no longer have that piece	Você não tem mais essa peça
+No etchings to turn yet	Nenhuma gravura para girar ainda
+Not enough Turnstones	Pedras de Giro insuficientes
+You no longer have that piece.	Você não tem mais essa peça.
+Item is not in the bag.	O item não está na bolsa.
+Item is not in the loot list.	O item não está na lista de saque.
+Not unlocked yet.	Ainda não desbloqueado.
+Technique Scroll: {0}	Pergaminho de Técnica: {0}
+Normal	Normal
+Peerless: the skill cannot climb higher.	Inigualável: a habilidade não pode subir mais.
+The next read needs this skill's Technique Scroll (Warden chests, the shops, the Exchange).	A próxima leitura exige o Pergaminho de Técnica desta habilidade (baús de Guardiões, as lojas, o Mercado).
+The mind needs rest: this skill can read again in {0}h {1}m.	A mente precisa descansar: esta habilidade pode ser lida de novo em {0}h {1}m.
+The next step burns an Oathstone (the Carvers' Archive, the Pit shop).	O próximo passo queima uma Pedra do Juramento (o Arquivo dos Entalhadores, a loja da Arena).
+The oath asks {0} Honor for this step; you hold {1}. Honor comes from Korstones, Pit wins and dungeon Wardens.	O juramento pede {0} de Honra para este passo; você tem {1}. A Honra vem de Pedras Kor, vitórias na Arena e Guardiões de masmorras.
+Beast-Slayer	Mata-Feras
+Piercer	Perfurador
+Deathdealer	Ceifador
+Bulwark	Baluarte
+Vigor	Vigor
+Haste	Celeridade
+Warding	Resguardo
++{0}% vs Hollowed	+{0}% contra Esvaziados
++{0} attack	+{0} de ataque
++{0}% crit damage	+{0}% de dano crítico
++{0} defense	+{0} de defesa
++{0} HP	+{0} HP
++{0}% evasion	+{0}% de esquiva
++{0}% attack speed	+{0}% de velocidade de ataque
+-{0}% Commander damage	-{0}% de dano de Comandante
+Item was destroyed	O item foi destruído
+No such socket	Encaixe inexistente
+Socket holds a Dead Shard	O encaixe tem um Fragmento Morto
+Socket is taken	O encaixe está ocupado
+{0} does not fit this slot	{0} não serve neste espaço
+No such rank	Patente inexistente
+No {0} shard	Sem fragmento de {0}
+Nothing dead in that socket	Nada morto nesse encaixe
+Direct trade opens at level {0}.	A troca direta abre no nível {0}.
+An account can trade {0} hours after it was made.	Uma conta pode trocar {0} horas após ser criada.
+That much sorn cannot change hands at once.	Não dá para trocar tanto sorn de uma vez.
+Khan's Alloys	Ligas do Khan
+Anvil Wards	Guardas da Bigorna
+The Amber Road	A Estrada do Âmbar
+The White Steppe	A Estepe Branca
+Already bought.	Já comprado.
+Salt Nomad Garb	Traje do Nômade do Sal
+Sand-bleached wraps of the salt roads.	Panos desbotados pela areia das estradas do sal.
+Frost Hunter Furs	Peles do Caçador Gélido
+White furs over the lamellar, for Whitefang winters.	Peles brancas sobre a lamelar, para os invernos de Presa-Branca.
+Ember Khan Guise	Vestes do Khan da Brasa
+Crimson and gold, cut for a khagan's feast.	Carmesim e ouro, feitas para o banquete de um khagan.
+Grave Warden Shroud	Mortalha do Guardião Tumular
+Black and violet, sewn from a barrow's banners.	Preto e violeta, costurada com os estandartes de um túmulo.
+Taken from the Warlord's camp. Only he drops it.	Tomada do acampamento do Senhor da Guerra. Só ele dropa.
+Shimmers like the Salt Sea at noon. Only the Mirage Queen drops it.	Cintila como o Mar de Sal ao meio-dia. Só a Rainha Miragem dropa.
+Old Greyjaw's grey pelt. Only he drops it.	A pele cinza do Velho Mandíbula-Cinza. Só ele dropa.
+Amber Road Regalia	Paramentos da Estrada do Âmbar
+A caravan master's teal and bronze, set with steppe amber. The Campaign Trail's first season.	O verde-azulado e o bronze de um mestre de caravana, cravejados de âmbar da estepe. A primeira temporada da Trilha de Campanha.
+White Steppe Regalia	Paramentos da Estepe Branca
+Snow-leopard fur over pale silver lamellar and sky-blue silk. The Campaign Trail's second season.	Pele de leopardo-das-neves sobre lamelar de prata pálida e seda azul-celeste. A segunda temporada da Trilha de Campanha.
+Steppe Pony	Pônei da Estepe
+Small, shaggy and never tired.	Pequeno, peludo e incansável.
+Ember Warhorse	Cavalo de Guerra da Brasa
+A heavy charger in crimson lamellar barding.	Um corcel pesado com barda lamelar carmesim.
+Gold Banner Charger	Corcel do Estandarte do Ouro
+Barded in saffron and brass, as the caravan cities ride.	Com barda de açafrão e latão, como cavalgam as cidades-caravana.
+Hollow Steed	Montaria Esvaziada
+One of the herds that went Hollow, tamed again.	Um dos rebanhos que se Esvaziaram, domado de novo.
+Amber Road Courser	Ginete da Estrada do Âmbar
+Barded in honey amber and bronze for the salt roads. The Campaign Trail's first season.	Com barda de âmbar-mel e bronze para as estradas do sal. A primeira temporada da Trilha de Campanha.
+White Steppe Courser	Ginete da Estepe Branca
+A grey-white charger in frost-blue scale barding, furred for the winter steppe. The Campaign Trail's second season.	Um corcel cinza-claro com barda de escamas azul-gelo, forrado de pele para a estepe no inverno. A segunda temporada da Trilha de Campanha.
+Ember Fox	Raposa da Brasa
+Finds the coins the dead forgot.	Acha as moedas que os mortos esqueceram.
+Sky Falcon	Falcão do Céu
+A hooded hunting falcon, taught on the steppe.	Um falcão de caça encapuzado, treinado na estepe.
+Grave Wolf Pup	Filhote de Lobo Tumular
+A Hollow wolf's whelp that chose the living.	A cria de um lobo Esvaziado que escolheu os vivos.
+Khagan's Eagle	Águia do Khagan
+A golden eagle fit for the Khagan league.	Uma águia-real digna da liga Khagan.
+hunting XP	XP de caçada
+hunting sorn	sorn de caçada
+Skin	Traje
+Mount	Montaria
+Companion	Companheiro
+({0} day)	({0} dia)
+({0} days)	({0} dias)
+{0} sign-in is not set up yet.	O login com {0} ainda não está configurado.
+Google did not accept the sign-in. Try again.	O Google não aceitou o login. Tente de novo.
+Google sent no identity.	O Google não enviou identidade.
+Unknown sign-in.	Login desconhecido.
+Bad test identity.	Identidade de teste inválida.
+{0} sign-in could not be verified. Try again.	Não foi possível verificar o login com {0}. Tente de novo.
+That sign-in was not started here.	Esse login não foi iniciado aqui.
+No account id in the sign-in.	Nenhum id de conta no login.
+Sign-in failed.	O login falhou.
+Signed in. Returning to Orsuun...	Você entrou. Voltando a Orsuun...
+Back to Orsuun	Voltar a Orsuun
+Too many tries. Wait a few minutes and try again.	Tentativas demais. Espere alguns minutos e tente de novo.
+That line is gone.	Essa mensagem não existe mais.
+No such player.	Jogador inexistente.
+Already banned.	Já banido.
+That name is taken.	Esse nome já está em uso.
+That tag is taken.	Essa tag já está em uso.
+A moderator renamed the guild to {0} [{1}].	Um moderador renomeou a guilda para {0} [{1}].
+Device token missing or too long.	Token do dispositivo ausente ou longo demais.
+Wrong email or password.	E-mail ou senha incorretos.
+This account already has an email: {0}	Esta conta já tem um e-mail: {0}
+An account with that email exists. Sign in instead.	Já existe uma conta com esse e-mail. Entre com ela.
+Sign in again.	Entre de novo.
+Start the game once, then sign in.	Abra o jogo uma vez e depois entre.
+This account is already linked to another {0} account.	Esta conta já está vinculada a outra conta {0}.
+That sign-in was just linked elsewhere. Try again.	Esse login acabou de ser vinculado a outra conta. Tente de novo.
+Unknown bounty.	Recompensa desconhecida.
+The needle took: T{0} {1} +{2}	A agulha pegou: T{0} {1} +{2}
+The Caravan has no such thing.	A Caravana não tem isso.
+The Caravan does not sell that for so long.	A Caravana não vende isso por tanto tempo.
+No such wardrobe slot.	Espaço de guarda-roupa inexistente.
+No such piece.	Peça inexistente.
+That piece is not yours, or its time has run out.	Essa peça não é sua, ou o tempo dela acabou.
+Amber goes on sale with the App Store and Google Play release.	O Âmbar começa a ser vendido com o lançamento na App Store e no Google Play.
+No such pack.	Pacote inexistente.
+Choose a class.	Escolha uma classe.
+Choose a man or a woman.	Escolha homem ou mulher.
+All {0} slots are taken.	Todos os {0} espaços estão ocupados.
+{0} steps onto the steppe.	{0} pisa na estepe.
+No such character.	Personagem inexistente.
+Type {0} to delete it.	Digite {0} para excluir.
+{0} is gone.	{0} se foi.
+That piece is not in your bag.	Essa peça não está na sua bolsa.
+Take it off first.	Tire-a primeiro.
+The depot holds {0} pieces.	O depósito guarda {0} peças.
+{0} is in the depot.	{0} está no depósito.
+Your bag is full.	Sua bolsa está cheia.
+That piece has left the depot.	Essa peça saiu do depósito.
+{0} is in your bag.	{0} está na sua bolsa.
+You are not in a guild.	Você não está em uma guilda.
+Unknown chat channel.	Canal de chat desconhecido.
+A moderator muted you for {0} more hours.	Um moderador silenciou você por mais {0} horas.
+A moderator muted you for {0} more minutes.	Um moderador silenciou você por mais {0} minutos.
+Slow down a little.	Vá com calma.
+You cannot report that line.	Você não pode denunciar essa mensagem.
+You cannot block that player.	Você não pode bloquear esse jogador.
+You can block at most {0} players.	Você pode bloquear no máximo {0} jogadores.
+Today's gift is taken: the next comes with the evening bell.	O presente de hoje já foi recebido: o próximo vem com o sino do entardecer.
+Unknown dungeon.	Masmorra desconhecida.
+Clear {0} first.	Conclua {0} primeiro.
+A rune lock	Uma trava rúnica
+The Chained Smith	O Ferreiro Acorrentado
+{0} is still waiting for your last run.	{0} ainda espera sua última incursão.
+Today's dungeon keys are used. New ones come at 20:00.	As chaves de masmorra de hoje acabaram. Novas chegam às 20:00.
+You fell on {0} of {1}.	Você caiu no {0} de {1}.
+Floor {0}: a vault door, sealed by a rune lock with a riddle carved in it.	Andar {0}: uma porta de cofre, selada por uma trava rúnica com um enigma entalhado.
+Floor {0}: the Chained Smith waits, hammer in his chained hands.	Andar {0}: o Ferreiro Acorrentado espera, martelo nas mãos acorrentadas.
+{0} is cleared! {1}'s chest: {2}.	Você concluiu {0}! Baú de {1}: {2}.
+No run is waiting on its pause floor.	Nenhuma incursão está esperando no andar de pausa.
+You leave the vault shut.	Você deixa o cofre fechado.
+The {0} rune does not turn: the vault stays shut.	A runa {0} não gira: o cofre continua fechado.
+The {0} rune turns and the vault door opens.	A runa {0} gira e a porta do cofre se abre.
+That piece is already +9.	Essa peça já está em +9.
+Not enough sorn for the smith.	Sorn insuficiente para o ferreiro.
+Not enough materials for the smith.	Materiais insuficientes para o ferreiro.
+{0} forged {1} to +{2} at the Chained Smith!	{0} refinou {1} para +{2} com o Ferreiro Acorrentado!
+The Chained Smith raised your {0} to +{1}.	O Ferreiro Acorrentado elevou {0} para +{1}.
+The Chained Smith broke your {0}.	O Ferreiro Acorrentado quebrou sua peça: {0}.
+The Chained Smith failed: your {0} is +{1}.	O Ferreiro Acorrentado falhou: {0} está em +{1}.
+You fell on floor {0}.	Você caiu no andar {0}.
+Type a hero's name.	Digite o nome de um herói.
+No hero goes by that name.	Nenhum herói tem esse nome.
+That is you.	Esse é você.
+That is one of your own heroes.	Esse é um dos seus próprios heróis.
+You blocked them. Unblock them in CHAT first.	Você bloqueou essa pessoa. Desbloqueie-a no CHAT primeiro.
+They are not taking friend requests.	Essa pessoa não está aceitando pedidos de amizade.
+{0} is on your list already.	{0} já está na sua lista.
+You asked {0} already.	Você já enviou um pedido a {0}.
+Your list holds {0} friends.	Sua lista comporta {0} amigos.
+Their friend list is full.	A lista de amigos dessa pessoa está cheia.
+You and {0} are friends.	Você e {0} são amigos.
+You have {0} requests waiting. Take some back first.	Você tem {0} pedidos pendentes. Cancele alguns primeiro.
+Asked {0}. They will find it on their friend list.	Pedido enviado a {0}. Ele aparecerá na lista de amigos dessa pessoa.
+That request is gone.	Esse pedido não existe mais.
+You turned {0} down.	Você recusou {0}.
+{0} is off your list.	{0} saiu da sua lista.
+That war is over.	Essa guerra acabou.
+Only the leader signs the guild up for war.	Só o líder inscreve a guilda na guerra.
+A guild needs {0} members to go to war.	Uma guilda precisa de {0} membros para ir à guerra.
+{0} signed the guild up for war on {1}.	{0} inscreveu a guilda na guerra de {1}.
+Signed up for {0}. Foes are drawn when the horns sound.	Inscrita para {0}. Os inimigos são sorteados quando as trompas soarem.
+{0} withdrew the guild from the war on {1}.	{0} retirou a guilda da guerra de {1}.
+Withdrawn from the war.	Retirada da guerra.
+No such lane.	Frente inexistente.
+Your guild is not at war now.	Sua guilda não está em guerra agora.
+{0} planted the war flag on the {1}.	{0} fincou a bandeira de guerra no {1}.
+The war flag flies over the {0}.	A bandeira de guerra tremula sobre o {0}.
+The war is over.	A guerra acabou.
+You have fought all your duels in this war.	Você já lutou todos os seus duelos nesta guerra.
+You catch your breath: {0} more seconds.	Você recupera o fôlego: mais {0} segundos.
+The other guild has left the field.	A outra guilda deixou o campo.
+You felled {0} on the {1}.	Você derrubou {0} no {1}.
+{0} felled {1} on the {2}.	{0} derrubou {1} no {2}.
+{0} held the {1} against you.	{0} segurou o {1} contra você.
+{0} held the {1} against {2}.	{0} segurou o {1} contra {2}.
+The {0} is broken!	O {0} foi rompido!
+{0} broke the {1} of [{2}]!	{0} rompeu o {1} de [{2}]!
+[{0}] broke our {1}.	[{0}] rompeu nosso {1}.
+Too few members for tonight's war: a guild needs {0}.	Poucos membros para a guerra desta noite: uma guilda precisa de {0}.
+The horns sound: [{0}] against [{1}].	As trompas soam: [{0}] contra [{1}].
+War! [{0}] {1} is our foe tonight. Fight on the lanes until the horns fall silent.	Guerra! [{0}] {1} é nosso inimigo esta noite. Lute nas frentes até as trompas silenciarem.
+No foe answered the horn tonight.	Nenhum inimigo atendeu à trompa esta noite.
+War night: [{0}] and [{1}] take the field.	Noite de guerra: [{0}] e [{1}] entram em campo.
+War night: {0} guild wars take the field.	Noite de guerra: {0} guerras de guildas entram em campo.
+a scattered guild	uma guilda dispersa
+{0} and {1} fought to a draw, {2} to {3}.	{0} e {1} empataram, {2} a {3}.
+{0} beat {1}, {2} to {3}.	{0} venceu {1}, {2} a {3}.
+The war is over: {0}	A guerra acabou: {0}
+Guild war: {0}	Guerra de guildas: {0}
+A war night began now.	Uma noite de guerra começou agora.
+Every war ended now.	Todas as guerras terminaram agora.
+That guild is gone.	Essa guilda não existe mais.
+Only the leader or an officer can do that.	Só o líder ou um oficial pode fazer isso.
+Leave your guild first.	Saia da sua guilda primeiro.
+Choose one of the guild colours.	Escolha uma das cores de guilda.
+{0} founded {1}.	{0} fundou {1}.
+That name or tag was just taken.	Esse nome ou tag acabou de ser usado.
+{0} is founded. Its banner is yours to raise.	{0} foi fundada. A bandeira é sua para erguer.
+You already asked {0}.	Você já pediu a {0}.
+You can ask at most {0} guilds at once.	Você pode pedir a no máximo {0} guildas por vez.
+{0} asks to join.	{0} pede para entrar.
+You asked to join {0}. Its leader or an officer will answer.	Você pediu para entrar em {0}. O líder ou um oficial vai responder.
+{0} is full.	{0} está cheia.
+Welcome to {0}.	Bem-vindo a {0}.
+{0} left; {1} leads now.	{0} saiu; {1} lidera agora.
+{0} joined, let in by {1}.	{0} entrou, aceito por {1}.
+{0} has joined another guild.	{0} entrou em outra guilda.
+You turned {0} away.	Você recusou {0}.
+the guild	a guilda
+You left {0}.	Você saiu de {0}.
+Use LEAVE to leave.	Use SAIR para sair.
+Not a member of your guild.	Não é membro da sua guilda.
+You cannot remove that member.	Você não pode remover esse membro.
+{0} was sent away by {1}.	{0} foi expulso por {1}.
+{0} is no longer in the guild.	{0} não está mais na guilda.
+Only the leader sets ranks.	Só o líder define cargos.
+Choose another member.	Escolha outro membro.
+Unknown rank.	Cargo desconhecido.
+A guild has at most {0} officers.	Uma guilda tem no máximo {0} oficiais.
+{0} leads {1} now.	{0} lidera {1} agora.
+{0} is a member now.	{0} agora é membro.
+{0} is an officer now.	{0} agora é oficial.
+Donate in whole thousands of sorn.	Doe em milhares inteiros de sorn.
+You can give {0} more sorn today.	Você pode doar mais {0} sorn hoje.
+You gave {0} sorn: +{1} Guild Tallies.	Você doou {0} sorn: +{1} Fichas da Guilda.
+{0} reached level {1}.	{0} chegou ao nível {1}.
+{0} reached level {1}!	{0} chegou ao nível {1}!
+Unknown guild skill.	Habilidade de guilda desconhecida.
+Plunder {0}: every member hunts with +{1}% sorn.	Saque {0}: cada membro caça com +{1}% de sorn.
+Muster {0}: room for {1} members.	Alistamento {0}: espaço para {1} membros.
+Plunder	Saque
+Muster	Alistamento
+Unknown guild shop item.	Item da loja da guilda desconhecido.
+The gates were opened.	Os portões foram abertos.
+The gates were shut.	Os portões foram fechados.
+The gates are open: anyone may join.	Os portões estão abertos: qualquer um pode entrar.
+The gates are shut: no one new may join.	Os portões estão fechados: ninguém novo pode entrar.
+{0} is in your guild already.	{0} já está na sua guilda.
+{0} is in another guild.	{0} está em outra guilda.
+They are not taking invites.	Essa pessoa não está aceitando convites.
+{0} is invited already.	{0} já foi convidado.
+{0} has {1} invites waiting.	{0} tem {1} convites pendentes.
+{0} invited {1}.	{0} convidou {1}.
+{0} is invited: they will find it on their guild screen.	{0} foi convidado: o convite aparecerá na tela da guilda.
+That invite is gone.	Esse convite não existe mais.
+That invite has lapsed.	Esse convite expirou.
+Invite turned down.	Convite recusado.
+{0} joined, invited by {1}.	{0} entrou, convidado por {1}.
+That fortress is not built yet.	Essa fortaleza ainda não foi construída.
+No guild bid for the keep of {0}.	Nenhuma guilda deu lance pelo torreão de {0}.
+No guild bid for the keep of {0}: [{1}] holds it.	Nenhuma guilda deu lance pelo torreão de {0}: [{1}] o controla.
+The keep of {0} is stormed tonight by {1}.	O torreão de {0} será invadido esta noite por {1}.
+[{0}] holds it.	[{0}] o controla.
+[{0}] took the keep of {1} with {2} damage.	[{0}] tomou o torreão de {1} com {2} de dano.
+We hold the keep of {0} for a week: our flag flies over it.	Controlamos o torreão de {0} por uma semana: nossa bandeira tremula sobre ele.
+The keep of {0} stood: no guild broke it.	O torreão de {0} resistiu: nenhuma guilda o rompeu.
+[{0}] held the keep of {1}.	[{0}] defendeu o torreão de {1}.
+Unknown fortress.	Fortaleza desconhecida.
+Bid between 1,000 and 1,000,000,000 sorn.	Dê um lance entre 1.000 e 1.000.000.000 sorn.
+Bids for this week's keeps are closed; they open again on Monday at 20:00.	Os lances pelos torreões desta semana estão fechados; reabrem na segunda às 20:00.
+Your guild holds this keep: it defends it on Sunday.	Sua guilda controla este torreão: ela o defende no domingo.
+Your guild already bids on {0} this week.	Sua guilda já deu lance por {0} nesta semana.
+A bid starts at {0} sorn.	Um lance começa em {0} sorn.
+{0} raised our bid on the keep of {1} to {2} sorn.	{0} aumentou nosso lance pelo torreão de {1} para {2} sorn.
+Your guild bids {0} sorn on the keep of {1}.	Sua guilda dá lance de {0} sorn pelo torreão de {1}.
+Your warband regroups: {0} more minute{1}.	Seu bando se reagrupa: mais {0} minuto{1}.
+No guild bid for this keep this week.	Nenhuma guilda deu lance por este torreão nesta semana.
+The keep is stormed on Sunday from 20:00 for an hour.	O torreão é invadido no domingo a partir das 20:00, por uma hora.
+Only the four highest bidders storm the keep, and its holders hold it.	Só os quatro maiores lances invadem o torreão, e seus donos o defendem.
+You held the keep of {0}: it mended by {1}.	Você defendeu o torreão de {0}: ele foi reparado em {1}.
+You stormed the keep of {0} for {1}; your guild has {2}.	Você atacou o torreão de {0} causando {1}; sua guilda soma {2}.
+The keep sieges began now.	Os cercos aos torreões começaram agora.
+The keep sieges ended now.	Os cercos aos torreões terminaram agora.
+That letter is gone.	Essa carta não existe mais.
+Nothing to take.	Nada para pegar.
+Taken from {0} letters.	Recebido de {0} cartas.
++{0} sorn.	+{0} sorn.
+Taken. +{0} sorn.	Recebido. +{0} sorn.
+Taken from {0} letters. +{1} sorn.	Recebido de {0} cartas. +{1} sorn.
+A piece waits: your bag is full.	Uma peça está esperando: sua bolsa está cheia.
+{0} pieces wait: your bag is full.	{0} peças esperando: sua bolsa está cheia.
+Take what the letter holds first.	Pegue primeiro o que a carta contém.
+Letter thrown away.	Carta descartada.
+Nothing to throw away.	Nada para descartar.
+{0} letters thrown away.	{0} cartas descartadas.
+your piece	sua peça
+Nobody bought {0} at {1} sorn in {2} hours, so it comes back to you with this letter.	Ninguém comprou {0} por {1} sorn em {2} horas, então volta para você com esta carta.
+{0} bought {1} for {2} sorn. The Exchange keeps its {3}% ({4}); {5} sorn is in this letter for you.	{0} comprou {1} por {2} sorn. O Mercado fica com seus {3}% ({4}); {5} sorn estão nesta carta para você.
+Take the piece off before you sell it.	Tire a peça antes de vendê-la.
+You can have {0} pieces on the Exchange at once.	Você pode ter {0} peças no Mercado ao mesmo tempo.
+{0} +{1} is on the Exchange for {2} sorn.	{0} +{1} está no Mercado por {2} sorn.
+No such book.	Livro inexistente.
+You hold {0} of that book.	Você tem {0} desse livro.
+You can have {0} listings on the Exchange at once.	Você pode ter {0} anúncios no Mercado ao mesmo tempo.
+{0} × {1} on the Exchange for {2} sorn.	{0} × {1} no Mercado por {2} sorn.
+The Exchange does not take that.	O Mercado não aceita isso.
+You hold {0} of that.	Você tem {0} disso.
+Which kind of piece?	Que tipo de peça?
+That listing is gone.	Esse anúncio não existe mais.
+Someone was quicker: that piece is gone.	Alguém foi mais rápido: essa peça já era.
+That is your own listing.	Esse anúncio é seu.
+You bought {0} × {1} for {2} sorn.	Você comprou {0} × {1} por {2} sorn.
+You bought {0} for {1} sorn. It is in your bag.	Você comprou {0} por {1} sorn. Está na sua bolsa.
+That is not your listing.	Esse anúncio não é seu.
+That listing has closed.	Esse anúncio foi encerrado.
+Taken off the Exchange: the books are back with you.	Retirado do Mercado: os livros voltaram para você.
+Taken off the Exchange: the {0}s are back with you.	Retirado do Mercado: seu estoque de {0} voltou para você.
+Taken off the Exchange: the piece is back in your bag.	Retirado do Mercado: a peça voltou para sua bolsa.
+{0} left the {1} and rides under the {2} now.	{0} deixou o {1} e agora cavalga sob o {2}.
+{0} renewed the oath ({1}/{2}) and rides again from level 1.	{0} renovou o juramento ({1}/{2}) e cavalga de novo a partir do nível 1.
+no weapon	sem arma
+Shade of {0}	Sombra de {0}
+New challengers step into the pit.	Novos desafiantes entram na arena.
+Today's Pit tickets are spent. New ones come at 20:00.	Os ingressos da Arena de hoje acabaram. Novos chegam às 20:00.
+That challenger has left the pit. Look again.	Esse desafiante saiu da arena. Procure de novo.
+You beat {0} in the pit: rating {1} → {2}, +{3} Laurels.	Você venceu {0} na arena: pontuação {1} → {2}, +{3} Louros.
+{0} threw you down: rating {1} → {2}, +{3} Laurels.	{0} te derrubou: pontuação {1} → {2}, +{3} Louros.
+The Pit shop has no such thing.	A loja da Arena não tem isso.
+Not enough Laurels.	Louros insuficientes.
+{0} for {1} Laurels	{0} por {1} Louros
+{0} for {1} Laurels.	{0} por {1} Louros.
+Pit season {0}: rank {1}	Temporada da Arena {0}: posição {1}
+The season is over. You finished {0} with a rating of {1} and the Pits paid you {2} Laurels. Spend them at the Pit shop.	A temporada acabou. Você terminou em {0} com pontuação {1}, e as Arenas te pagaram {2} Louros. Gaste-os na loja da Arena.
+The season is over. You finished {0} with a rating of {1} and the Pits paid you {2} Laurels, and the title {3} for the next season. Spend them at the Pit shop.	A temporada acabou. Você terminou em {0} com pontuação {1}, e as Arenas te pagaram {2} Louros e o título {3} para a próxima temporada. Gaste-os na loja da Arena.
+The Pits' season is over: {0} is Champion of the Pits.	A temporada das Arenas acabou: {0} é Campeão das Arenas.
+The Pits' season is over: {0} is Champion of the Pits, {1} is a Pit Veteran.	A temporada das Arenas acabou: {0} é Campeão das Arenas, {1} é Veterano da Arena.
+The Pits' season is over: {0} is Champion of the Pits, {1} are Pit Veterans.	A temporada das Arenas acabou: {0} é Campeão das Arenas, {1} são Veteranos da Arena.
+The season was ended (Development).	A temporada foi encerrada (Desenvolvimento).
+No such skill.	Habilidade inexistente.
+{0} rises to {1}: +{2}% skill power.	{0} sobe para {1}: +{2}% de poder de habilidade.
+{0} has made {1} Peerless.	{0} tornou {1} Inigualável.
+The scroll's teaching took: {0} {1}, {2} of {3} reads.	O ensinamento do pergaminho pegou: {0} {1}, {2} de {3} leituras.
+The teaching slipped away: {0} stays {1}, {2} of {3} reads.	O ensinamento escapou: {0} continua {1}, {2} de {3} leituras.
+The Oathstone cracked: {0} stays {1}.	A Pedra do Juramento rachou: {0} continua {1}.
+That trade is gone.	Essa troca não existe mais.
+That trade is not yours.	Essa troca não é sua.
+That hero is gone.	Esse herói não existe mais.
+You cannot trade with yourself.	Você não pode trocar consigo mesmo.
+Your own heroes share the depot: use DEPOT in GEAR.	Seus próprios heróis compartilham o depósito: use DEPÓSITO no ARSENAL.
+They cannot trade yet: {0}	Essa pessoa ainda não pode trocar: {0}
+Finish or cancel your open trade first.	Termine ou cancele sua troca aberta primeiro.
+They are in another trade. Try again in a moment.	Essa pessoa está em outra troca. Tente de novo daqui a pouco.
+Asked. They have {0} minutes to answer.	Pedido enviado. A pessoa tem {0} minutos para responder.
+That invitation is gone.	Esse convite não existe mais.
+That invitation ran out.	Esse convite expirou.
+The window is open.	A janela está aberta.
+The trade is off.	A troca foi cancelada.
+You hold {0} {1}.	Você tem {0} {1}.
+The window is not open.	A janela não está aberta.
+Take the piece off before you trade it.	Tire a peça antes de trocá-la.
+That piece is on the Exchange, in the depot or on another table.	Essa peça está no Mercado, no depósito ou em outra mesa.
+Not yet: the offers just changed, or they have not locked theirs.	Ainda não: as ofertas acabaram de mudar, ou a outra pessoa não travou a dela.
+Confirmed. Waiting for them.	Confirmado. Esperando a outra pessoa.
+Locked. When both are locked, confirm.	Travado. Quando os dois travarem, confirme.
+One of your pieces changed (worn, listed or gone). Check the offers again.	Uma das suas peças mudou (equipada, anunciada ou sumiu). Confira as ofertas de novo.
+One of their pieces changed. Check the offers again.	Uma das peças da outra pessoa mudou. Confira as ofertas de novo.
+You no longer have that sorn.	Você não tem mais esse sorn.
+You no longer hold those books. Check the offers again.	Você não tem mais esses livros. Confira as ofertas de novo.
+They no longer hold those books. Check the offers again.	A outra pessoa não tem mais esses livros. Confira as ofertas de novo.
+Your bag has no room for their pieces.	Sua bolsa não tem espaço para as peças da outra pessoa.
+Their bag has no room for your pieces.	A bolsa da outra pessoa não tem espaço para suas peças.
+They no longer have that sorn.	A outra pessoa não tem mais esse sorn.
+No such tier.	Etapa inexistente.
+Nothing to claim there yet.	Nada para resgatar aí ainda.
+This hero has Trail Plus already.	Este herói já tem a Trilha Plus.
+This hero has the Trail already.	Este herói já tem a Trilha.
+You are already sworn to the {0}.	Você já jurou ao {0}.
+You swore to the {0}.	Você jurou ao {0}.
+{0} stands under the {1}.	{0} está sob o {1}.
+You held the {0} of {1}: the wall mended by {2}.	Você defendeu o {0} de {1}: a muralha foi reparada em {2}.
+You struck the {0} of {1} for {2}.	Você atacou o {0} de {1} causando {2}.
+The {0} took {1}; {2} broke the Hall.	O {0} tomou {1}; {2} rompeu o Salão.
+The Hall of {0} falls! {1} now flies the {2}.	O Salão de {0} cai! {1} agora ergue o {2}.
+{0} of the {1} broke the {2} of {3}.	{0}, do {1}, rompeu o {2} de {3}.
+You broke the {0} of {1}! The {2} lies open.	Você rompeu o {0} de {1}! O {2} está aberto.
+They are not taking your messages.	Essa pessoa não está aceitando suas mensagens.
+You can report only a message sent to you.	Você só pode denunciar uma mensagem enviada a você.
+Reported. A moderator will look at it.	Denunciado. Um moderador vai analisar.
+Too many new accounts from this network today. Try again tomorrow.	Contas novas demais desta rede hoje. Tente de novo amanhã.
+This account is banned.	Esta conta está banida.
+This account is banned: {0}	Esta conta está banida: {0}
+Choose a character first.	Escolha um personagem primeiro.
+That method is not available here.	Esse método não está disponível aqui.
+That item is already +9.	Esse item já está em +9.
+Not enough Wolf Sinew.	Tendão de Lobo insuficiente.
+No Scroll of Mercy.	Sem Pergaminho da Misericórdia.
+No Khan's Alloy.	Sem Liga do Khan.
+{0} forged {1} to +{2}!	{0} refinou {1} para +{2}!
+That item has no etchings to turn yet.	Esse item ainda não tem gravuras para girar.
+Not enough Turnstones.	Pedras de Giro insuficientes.
+Count must be 1 to 50.	A quantidade deve ser de 1 a 50.
+Unknown etching in the stop rule.	Gravura desconhecida na regra de parada.
+{0} {1} shard set: {2}	Fragmento {0} {1} encaixado: {2}
+The shard shattered. A Dead Shard blocks socket {0}.	O fragmento se estilhaçou. Um Fragmento Morto bloqueia o encaixe {0}.
+Dead Shard removed for {0} sorn.	Fragmento Morto removido por {0} sorn.
+That piece is already equipped.	Essa peça já está equipada.
+At most {0} pieces at once.	No máximo {0} peças por vez.
+You do not own that piece.	Essa peça não é sua.
+That stage or zone is not unlocked.	Essa fase ou zona não está desbloqueada.
+Unknown class.	Classe desconhecida.
+Every stage is cleared.	Todas as fases foram concluídas.
+Unknown Commander.	Comandante desconhecido.
+That Commander Ground is not unlocked.	Esse Território do Comandante não está desbloqueado.
+{0} is not up.	{0} não está ativo.
+{0} has already fallen.	{0} já caiu.
+{0} has fallen to the {1}.	{0} caiu diante do {1}.
+You already fought {0} this spawn.	Você já enfrentou {0} nesta aparição.
+{0}, and you struck the last blow	{0}, e você deu o golpe final
+{0}, and your guild's {1} Guild Tallies for rank 1	{0}, e {1} Fichas da Guilda para sua guilda pelo 1º lugar
+{0} has fallen; {1} struck the last blow.	{0} caiu; {1} deu o golpe final.
+{0} has fallen to the {1}; {2} struck the last blow.	{0} caiu diante do {1}; {2} deu o golpe final.
+RequestId missing or too long.	RequestId ausente ou longo demais.
+This request was already processed.	Esta solicitação já foi processada.
+Another request changed this account. Refresh and retry.	Outra solicitação alterou esta conta. Atualize e tente de novo.
+That sign-in expired or belongs to another device. Try again.	Esse login expirou ou pertence a outro dispositivo. Tente de novo.
+Missing or expired session.	Sessão ausente ou expirada.
+Email saved: sign in with it on any device.	E-mail salvo: entre com ele em qualquer dispositivo.
+This sign-in link has expired. Start again in the game.	Este link de login expirou. Comece de novo no jogo.
+This sign-in has expired. Start again in the game.	Este login expirou. Comece de novo no jogo.
+# Formas genéricas: um nome e um número, um número e uma palavra, aspas, dois-pontos no final
+{0} {1#}	{0} {1}
+{0#} {1}	{0} {1}
+"{0}"	"{0}"
+“{0}”	“{0}”
+{0}:	{0}:
+{0} T{1}	{0} T{1}
+{0} needles	{0} agulhas
+{0} wax	{0} cera
+{0} Amber	{0} Âmbar
+{0}+ Amber	{0}+ Âmbar
+LOCAL MODE (-local)	MODO LOCAL (-local)
+Day	Dia
+Holds	Contém
+Jan	Jan
+Feb	Fev
+Mar	Mar
+Apr	Abr
+May	Mai
+Jun	Jun
+Jul	Jul
+Aug	Ago
+Sep	Set
+Oct	Out
+Nov	Nov
+Dec	Dez
+Monday	segunda-feira
+Tuesday	terça-feira
+Wednesday	quarta-feira
+Thursday	quinta-feira
+Friday	sexta-feira
+Saturday	sábado
+Sunday	domingo
+# Nomes que ficam como estão
+Vanguard	Vanguard
+Kestrel	Kestrel
+Wraithsworn	Wraithsworn
+Drumcaller	Drumcaller
+Orsuun	Orsuun
+PvP	PvP
++{0} bonus	+{0} de bônus
+{0} each	{0} cada
+{0} pts	{0} pts
+{0} fortress	{0} fortaleza
+{0} fortresses	{0} fortalezas
+the {0} is under siege	o {0} está sob cerco
+{0} WALL	MURALHA DO {0}
+Gate	Portão
+Yard	Pátio
+Level up!	Subiu de nível!
+Welcome back: {0} h away, {1} Korstones, +{2} sorn	Bem-vindo de volta: {0} h fora, {1} Pedras Kor, +{2} sorn
+server: {0}	servidor: {0}
+sorn	sorn
+yours	seu
+Capital: {0}	Capital: {0}
+BUY {0} DAYS	COMPRAR {0} DIAS
+BUY {0} DAY	COMPRAR {0} DIA
+ADD {0} DAYS	+{0} DIAS
+ADD {0} DAY	+{0} DIA
+Sorn	Sorn
+# Eventos de fim de semana (Rules.WorldEvents)
+Double Sorn Weekend	Fim de Semana de Sorn em Dobro
+Lucky Forge Hour	Hora do Refino da Sorte
+Commander Rush	Enxurrada de Comandantes
+every hunt pays double sorn	toda caçada paga sorn em dobro
++5% chance on every Forge	+5% de chance em todo refino
+Commanders return every 15 minutes	Comandantes voltam a cada 15 minutos
+{0} has begun: {1} until {2}.	{0} começou: {1} até {2}.
+{0} has begun: {1}. Come and hunt it.	{0} começou: {1}. Venha aproveitar.
+{0} begins	{0} começa
+(includes +{0}% Lucky Forge Hour)	(inclui +{0}% da Hora do Refino da Sorte)
+success	sucesso
+T{0}	T{0}
+# Novas montarias e companheiros (27 set 2026)
+Salt Road Camel	Camelo da Estrada do Sal
+Two humps, a saffron saddle and the patience of the salt roads.	Duas corcovas, uma sela cor de açafrão e a paciência das estradas do sal.
+Whitefang Yak	Iaque de Presa-Branca
+Shaggy, red-horned and at home in the Whitefang snows.	Peludo, de chifres vermelhos e em casa nas neves de Presa-Branca.
+Sky Stag	Cervo do Céu
+A great maral hung with blue silk and silver bells: the Sky Banner's pride.	Um grande maral enfeitado com seda azul e sinos de prata: o orgulho do Estandarte do Céu.
+Barrow Raven	Corvo do Túmulo
+It keeps the barrows' secrets and tells you only where the next fight is.	Guarda os segredos dos túmulos e só conta onde está a próxima luta.
+Steppe Lynx Kit	Filhote de Lince da Estepe
+Too young to hunt, old enough to sit on your purse.	Novo demais para caçar, grande o bastante para sentar na sua bolsa de moedas.
+Snow Owl	Coruja da Neve
+Silent over the Whitefang snows; it sees the quarry first.	Silenciosa sobre as neves de Presa-Branca; vê a presa primeiro.
+# Títulos e conquistas (27 set 2026)
+ACHIEVEMENTS	CONQUISTAS
+ACHIEVEMENTS ({0})	CONQUISTAS ({0})
+TITLE: NONE	TÍTULO: NENHUM
+TITLE: {0}	TÍTULO: {0}
+TITLE	TÍTULO
+{0} of {1} claimed	{0} de {1} resgatadas
+DONE: TAP TO CLAIM	PRONTA: TOQUE PARA RESGATAR
++{0} Honor	+{0} de Honra
+title: {0}	título: {0}
+★ {0}	★ {0}
+Offline: achievements need the server.	Offline: conquistas precisam do servidor.
+Nothing to claim yet.	Nada para resgatar ainda.
+Claimed {0} achievements.	{0} conquistas resgatadas.
+Claim an achievement that gives a title first.	Resgate primeiro uma conquista que dê um título.
+You wear no title.	Você não usa nenhum título.
+You wear the title {0}.	Você usa o título {0}.
+Not done yet.	Ainda não concluída.
+No such achievement.	Conquista inexistente.
+Claim it first.	Resgate-a primeiro.
+That achievement gives no title.	Essa conquista não dá título.
+Clear {0}.	Conclua {0}.
+Reach level {0}.	Alcance o nível {0}.
+First Crack	Primeira Rachadura
+Break a Korstone.	Quebre uma Pedra Kor.
+Stone Breaker	Quebra-Pedras
+Break 100 Korstones.	Quebre 100 Pedras Kor.
+Quarry Master	Mestre da Pedreira
+Break 1,000 Korstones.	Quebre 1.000 Pedras Kor.
+Korstone Bane	Flagelo das Pedras Kor
+Break 10,000 Korstones.	Quebre 10.000 Pedras Kor.
+Out on the Steppe	Na Estepe
+Hunt for an hour while you watch.	Cace por uma hora enquanto assiste.
+Long Rides	Longas Cavalgadas
+Hunt for a day while you watch.	Cace por um dia enquanto assiste.
+Steppe-Born	Nascido na Estepe
+Hunt for 200 hours while you watch.	Cace por 200 horas enquanto assiste.
+Blooded	Batizado em Sangue
+Seasoned	Calejado
+Veteran	Veterano
+Warlord	Senhor da Guerra
+Legend	Lenda
+Veteran of the Steppe	Veterano da Estepe
+Legend of the Banners	Lenda dos Estandartes
+First Sparks	Primeiras Faíscas
+Make 10 Forge attempts.	Faça 10 tentativas de refino.
+Anvil Regular	Freguês da Bigorna
+Make 200 Forge attempts.	Faça 200 tentativas de refino.
+Gleam	Brilho
+Forge a piece to +7.	Refine uma peça para +7.
+Gold Shine	Reluzir Dourado
+Forge a piece to +8.	Refine uma peça para +8.
+Ember-Gold	Ouro-Brasa
+Forge a piece to +9.	Refine uma peça para +9.
+Oathsmith	Ferreiro do Juramento
+Oathbreaker	Quebra-Juramentos
+Lose 10 weapons to an Oathbreak.	Perca 10 armas para um Juramento Quebrado.
+Etcher	Gravador
+Turn etchings 100 times.	Gire gravuras 100 vezes.
+Commander Hunter	Caçador de Comandantes
+Fight a Commander 10 times.	Enfrente um Comandante 10 vezes.
+Last Blow	Golpe Final
+Strike a Commander's last blow.	Dê o golpe final num Comandante.
+Commander's Bane	Flagelo dos Comandantes
+Strike 10 Commanders' last blows.	Dê o golpe final em 10 Comandantes.
+Siege Hand	Braço de Cerco
+Fight 20 siege battles.	Lute em 20 batalhas de cerco.
+Wall-Breaker	Quebra-Muralhas
+Fight 200 siege battles.	Lute em 200 batalhas de cerco.
+Pit Blooded	Sangue na Arena
+Win 10 Pit fights.	Vença 10 lutas na Arena.
+Pit Fighter	Lutador da Arena
+Win 100 Pit fights.	Vença 100 lutas na Arena.
+Pit Legend	Lenda da Arena
+Win 500 Pit fights.	Vença 500 lutas na Arena.
+Delver	Explorador
+Clear 5 dungeons.	Conclua 5 masmorras.
+Deep Delver	Explorador das Profundezas
+Clear 50 dungeons.	Conclua 50 masmorras.
+Bounty Hunter	Caçador de Recompensas
+Claim 50 bounties.	Resgate 50 recompensas.
+Faithful	Fiel
+Take 7 daily gifts.	Receba 7 presentes diários.
+Old Friend of the Caravan	Velho Amigo da Caravana
+Take 30 daily gifts.	Receba 30 presentes diários.
+Banner-Brother	Irmão de Estandarte
+Join a guild.	Entre em uma guilda.
+Patron	Patrono
+Give 1,000,000 sorn to your guild.	Doe 1.000.000 sorn à sua guilda.
+Mastered	Mestria
+Raise a skill to M10.	Eleve uma habilidade a M10.
+Peerless	Inigualável
+Raise a skill to Peerless.	Eleve uma habilidade a Inigualável.
+Wayfarer	Viajante
+Walker of the Twelve Roads	Andarilho das Doze Estradas
+Stonebreaker	Quebrador de Pedras
+{0} claimed: +{1} Honor, +{2} sorn.	{0} resgatada: +{1} de Honra, +{2} sorn.
+New title: {0}.	Novo título: {0}.
+# A raid da guilda (27 set 2026)
+GUILD RAID	RAID DA GUILDA
+THE GUILD'S BLADES THIS WEEK	AS LÂMINAS DA GUILDA NESTA SEMANA
+{0} fights a day each. When the boss falls, everyone who fought is paid by his share: Guild Tallies at once, sorn by letter.	{0} lutas por dia para cada um. Quando o chefe cai, todos que lutaram recebem pela sua parte: Fichas da Guilda na hora, sorn por carta.
+Offline: the raid needs the server.	Offline: a raid precisa do servidor.
+Fallen to {0}'s blow	Caiu pelo golpe de {0}
+A new boss comes on Monday at 20:00.	Um novo chefe chega na segunda às 20:00.
+Ends in {0}	Termina em {0}
+Your damage {0}	Seu dano {0}
+fights left today {0}	lutas restantes hoje {0}
+Nobody has fought it yet this week.	Ninguém o enfrentou ainda nesta semana.
+calls a pack every 15 seconds	chama um bando a cada 15 segundos
+casts mirror images at 70% and 40%	conjura imagens espelhadas a 70% e 40%
+You dealt {0} damage to {1}.	Você causou {0} de dano a {1}.
+{0} has fallen! Your pay is in the mailbox.	{0} caiu! Seu pagamento está no correio.
+{0} has fallen this week. The next comes on Monday at 20:00.	{0} caiu nesta semana. O próximo chega na segunda às 20:00.
+You have fought the raid {0} times today. More at 20:00.	Você enfrentou a raid {0} vezes hoje. Mais às 20:00.
+The guild raid	A raid da guilda
+{0} has fallen	{0} caiu
+[{0}] felled {1} in the week's raid. Your share: {2} damage ({3}%). You have +{4} Guild Tallies already; the sorn is here.	[{0}] derrubou {1} na raid da semana. Sua parte: {2} de dano ({3}%). Você já recebeu +{4} Fichas da Guilda; o sorn está aqui.
+THE RAID BOSS HAS FALLEN	O CHEFE DA RAID CAIU
+{0} struck the last blow: {1} has fallen in the guild raid!	{0} deu o golpe final: {1} caiu na raid da guilda!
+{0} felled {1} in their guild raid.	{0} derrubou {1} na raid da guilda.
+THE GUILD	A GUILDA
+{0} / {1} HP	{0} / {1} HP
+BATTERY SAVER: ON	ECONOMIA DE BATERIA: LIG.
+BATTERY SAVER: OFF	ECONOMIA DE BATERIA: DESL.
+Forgot your password?	Esqueceu a senha?
+EMAIL ME A CODE	ENVIAR CÓDIGO
+The 6-digit code	O código de 6 dígitos
+New password (8 or more)	Nova senha (8 ou mais)
+New password again	Nova senha de novo
+SET NEW PASSWORD	SALVAR NOVA SENHA
+Email code	Código do e-mail
+VERIFY	VERIFICAR
+NEW CODE	NOVO CÓDIGO
+Verify your email with the code we sent to it, so a forgotten password can always be reset.	Verifique seu e-mail com o código que enviamos: assim uma senha esquecida sempre pode ser trocada.
+New password	Nova senha
+We email a 6-digit code to your account's address. Enter it with a new password: this phone then signs in.	Enviamos um código de 6 dígitos ao e-mail da sua conta. Digite-o com uma nova senha: este celular então entra na conta.
+Enter the 6-digit code from the email.	Digite o código de 6 dígitos do e-mail.
+New password set. Welcome back.	Nova senha salva. Bem-vindo de volta.
+If that email has an account, a code is on its way. It works for 30 minutes.	Se esse e-mail tiver uma conta, um código está a caminho. Ele vale por 30 minutos.
+Email is not set up on this server yet.	O e-mail ainda não está configurado neste servidor.
+Too many codes asked for. Wait a few minutes and try again.	Códigos demais pedidos. Espere alguns minutos e tente de novo.
+That code is wrong or has run out. Ask for a new one.	Esse código está errado ou expirou. Peça um novo.
+Email verified.	E-mail verificado.
+Save an email to the account first.	Salve primeiro um e-mail na conta.
+Your email is already verified.	Seu e-mail já está verificado.
+A code is on its way to {0}.	Um código está a caminho de {0}.
