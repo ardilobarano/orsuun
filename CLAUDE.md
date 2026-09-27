@@ -50,6 +50,12 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `yaw_degrees=-90`), upscales done locally; Blender then cuts, scales, rigs and exports. fal.ai (key in
   `~/.config/fal/key`, never in chat or git; `tools/art/fal.py`) is out of balance and optional. Item looks go through `art/blender/looks.py` (armour looks are rigged there by
   `rig.py`); other classes' bands through `looks.class_look`; enemies through `looks.mob_model`.
+- Tripo multiview takes its views in the order front, LEFT, back, right. Our sheets' side panel shows the figure's
+  right side (facing the viewer's right): pass front, the side mirrored, back, the side (four views). Passing the side
+  second built ~30 second-look and costume models facing backwards in profile (27 Sep 2026); `looks.py` repairs those
+  by name (`FACE_FORWARD` mirrors the shape and re-projects the front/back paint, `BACKWARDS`, `BACK_FACES` paints over a
+  face on the back of a head, `turn_reversed_feet` turns a boot built backwards). Check a new model in profile and
+  from behind (the lane shows heroes side on) before adding it; the lists are by model name.
 - Active play: the farm lane online is one seeded loop per encounter cycle; anything that rebuilds `PlayerSession.Lane`
   must go through `NewFarmLane`/`StartLoop`, and anything that changes the hero through `RefreshHero`, or loop reports
   stop matching the server's replay (`SessionLoopTests` guards this).
@@ -149,6 +155,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - The Gear screen is the INVENTORY (mockup D): `GearPanel` keeps its name; its `HeroStage` stands at `Below + (60,0,0)`
   and switches off with the canvas (the panel lives on it). Material tiles come from `GearPanel.Goods`: a new material
   or token gets a row there with its icon.
+- `rig.rig_humanoid` pins what distance weights tore: the Drumcaller's drum to forearm.L (`pin_drum`), staff charms to
+  hand.R (`pin_staff_charms`), the Wraithsworn's floating flame into hand.L (`hold_loose`), and eases hip cloth off the
+  drum arm and the void hand (`free_cloth_from_arms`). Local screenshots: `-wear <look,look>` wears wardrobe pieces,
+  `-class X -figure Man|Woman -stage 70 -plus 3 -castshow <slot>` shoots a skill (skill 5 needs level 60).
 - Skills 4 and 5 unlock by `HeroStats.Level` (`SkillDef.UnlockLevel`); a mounted hero (`HeroStats.Mounted`, from the
   worn wardrobe) casts nothing. Both come from `HeroFactory.FromEquipment` on both sides, so replays match; anything that
   changes the worn wardrobe settles and reseeds the lane (`WearAsync`).

@@ -168,6 +168,17 @@ namespace Orsuun.Client
             if (cls != null && !Server.Online && Enum.TryParse(cls, out HeroClass chosen)) Session.SetClass(chosen);
             // -figure Man|Woman plays a class's second look locally (the class's first look otherwise).
             if (!Server.Online) Session.Figure = Enum.TryParse(Arg("-figure"), out Figure figure) ? figure : ItemLooks.NativeFigure(Session.Class);
+            // -wear <look,look,...> wears wardrobe pieces by look key in local play (screenshots of mounts, companions, skins).
+            if (Arg("-wear") != null && !Server.Online)
+            {
+                var wear = new System.Collections.Generic.List<WardrobeDef>();
+                foreach (string look in Arg("-wear").Split(','))
+                {
+                    WardrobeDef def = Array.Find(Orsuun.Rules.Wardrobe.All, d => d.Look == look);
+                    if (def != null) wear.Add(def);
+                }
+                Session.SetWorn(wear);
+            }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-gear") >= 0) Gear.Open();
             // -skills opens SKILLS; -bagtab <n> opens the inventory on a tab (1 gear, 2 books, 3 materials), -bagcard its first tile's card.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-skills") >= 0) Skills.Open();

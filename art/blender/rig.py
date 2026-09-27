@@ -173,6 +173,54 @@ def skin(mesh_obj, arm, radii, only=None):
     mod.object = arm
 
 
+def free_cloth_from_arms(mesh_obj, arm, height, sides=("L", "R"), keep=0.035, fade=0.03):
+    """Capes and skirts hang beside an A-pose forearm, so distance weights gave them to the arm and they stretched into
+    sheets whenever it swung (the Drumcaller's drum beat, 27 Sep 2026). Below the elbow, whatever lies farther than
+    `keep` (a share of the height) from the forearm and fingers hands its arm weights over to the body bones around it,
+    all of them past keep + fade, so the cloth bends over that band instead of tearing. Returns the vertices changed."""
+    me = mesh_obj.data
+    bones = arm.data.bones
+    groups = {g.index: g.name for g in mesh_obj.vertex_groups}
+    changed = 0
+    for side in sides:
+        names = {"upper_arm." + side, "forearm." + side, "hand." + side}
+        elbow = bones["forearm." + side].head_local
+        hand = bones["hand." + side].head_local
+        fingers = hand + Vector((0.0, 0.0, -0.045 * height))
+        for v in me.vertices:
+            if v.co.z > elbow.z:
+                continue
+            ws = {groups[g.group]: g.weight for g in v.groups}
+            arm_w = sum(w for k, w in ws.items() if k in names)
+            if arm_w <= 0.0:
+                continue
+            d = min(_segment_distance(v.co, elbow, hand), _segment_distance(v.co, hand, fingers)) / height
+            share = max(0.0, min(1.0, (keep + fade - d) / fade))
+            if share >= 1.0:
+                continue
+            rest = {k: w for k, w in ws.items() if k not in names and w > 0.0}
+            if not rest:
+                body = [(_segment_distance(v.co, b.head_local, b.tail_local), b.name) for b in bones
+                        if b.use_deform and not b.name.startswith(("upper_arm", "forearm", "hand", "shoulder"))]
+                rest = {min(body)[1]: 1.0}
+            s = sum(rest.values())
+            new = {k: w * share for k, w in ws.items() if k in names}
+            for k, w in rest.items():
+                new[k] = ws.get(k, 0.0) + arm_w * (1.0 - share) * w / s
+            for k in names:
+                if k in ws:
+                    g = mesh_obj.vertex_groups[k]
+                    if new.get(k, 0.0) > 0.001:
+                        g.add([v.index], new[k], 'REPLACE')
+                    else:
+                        g.remove([v.index])
+            for k in rest:
+                mesh_obj.vertex_groups[k].add([v.index], new[k], 'REPLACE')
+            changed += 1
+    print("cloth: %d vertices eased off the arms" % changed)
+    return changed
+
+
 def hold_loose(mesh_obj, arm, height, hand):
     """A Wraithsworn's palm flame (26 Sep 2026): Tripo sometimes sets it floating off the hand (behind the body, or out
     past the fingers), where it was weighted to the chest and hung in the air when the arm swung. A sizeable piece
@@ -241,6 +289,79 @@ def hold_loose(mesh_obj, arm, height, hand):
             group.add([i], 1.0, 'REPLACE')
         moved += len(members)
     print("loose pieces: %d vertices moved into %s" % (moved, hand))
+
+
+def pin_drum(mesh_obj, arm, height):
+    """The Drumcaller's frame drum (the owner, 27 Sep 2026: "drum is fked"): Tripo fuses it into the body, and weighted by
+    distance it stretched between the forearm, the hip and the cape whenever the arm swung. The disc beside the left
+    forearm (facing forward, below the elbow, out past the hip) now rides forearm.L whole. Returns the vertices pinned."""
+    me = mesh_obj.data
+    fore = arm.data.bones["forearm.L"]
+    hand = fore.tail_local
+    near = [v for v in me.vertices if v.co.x > 0.14 * height and 0.28 * height < v.co.z < 0.62 * height
+            and abs(v.co.y - hand.y) < 0.09 * height]
+    if len(near) < 30:
+        return 0
+    cx = sum(v.co.x for v in near) / len(near)
+    cy = sum(v.co.y for v in near) / len(near)
+    cz = sum(v.co.z for v in near) / len(near)
+    group = mesh_obj.vertex_groups.get("forearm.L")
+    pinned = 0
+    for v in me.vertices:
+        p = v.co
+        if p.x < 0.12 * height or abs(p.y - cy) > 0.07 * height:
+            continue
+        if (p.x - cx) ** 2 + (p.z - cz) ** 2 > (0.11 * height) ** 2:
+            continue
+        for g in list(v.groups):
+            mesh_obj.vertex_groups[g.group].remove([v.index])
+        group.add([v.index], 1.0, 'REPLACE')
+        pinned += 1
+    print("drum: %d vertices pinned to forearm.L" % pinned)
+    return pinned
+
+
+def pin_staff_charms(mesh_obj, arm, height, a, b):
+    """Charms and crystals of a staff's head that Tripo left out of the staff line (loose pieces next to it) ride the
+    staff hand, as the staff does, instead of the chest they were weighted to."""
+    import looks
+    me = mesh_obj.data
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.verts.ensure_lookup_table()
+    island = [-1] * len(bm.verts)
+    islands = []
+    for start in bm.verts:
+        if island[start.index] >= 0:
+            continue
+        members, stack = [], [start]
+        island[start.index] = len(islands)
+        while stack:
+            v = stack.pop()
+            members.append(v.index)
+            for e in v.link_edges:
+                o = e.other_vert(v)
+                if island[o.index] < 0:
+                    island[o.index] = len(islands)
+                    stack.append(o)
+        islands.append(members)
+    bm.free()
+    body = max(islands, key=len)
+    group = mesh_obj.vertex_groups.get("hand.R")
+    pinned = 0
+    for members in islands:
+        if members is body or len(members) > 0.05 * len(me.vertices):
+            continue
+        centre = sum((me.vertices[i].co for i in members), Vector()) / len(members)
+        if centre.z < 0.6 * height or looks._distance_to_axis(centre, a, b) > 0.07 * height:
+            continue
+        for i in members:
+            for g in list(me.vertices[i].groups):
+                mesh_obj.vertex_groups[g.group].remove([i])
+            group.add([i], 1.0, 'REPLACE')
+        pinned += len(members)
+    print("staff charms: %d vertices pinned to hand.R" % pinned)
+    return pinned
 
 
 def attach_to_bone(obj, arm, bone):
@@ -324,11 +445,12 @@ ATTACKS = {
         (11, {"upper_arm.R": (18, 0, 0), "forearm.R": (4, 0, 0), "hand.R": (-18, 0, 0), "upper_arm.L": (40, 0, 0), "forearm.L": (18, 0, 0), "chest": (12, -22, 0), "spine": (9, 0, 0)}, (0, -0.07, 0)),
         (16, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "hand.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
     ]),
-    # Drumcaller: the staff rises and slams down while the drum arm beats.
+    # Drumcaller: the staff rises and slams down while the drum arm lifts the drum to meet it (a bigger swing dragged
+    # the cape along, 27 Sep 2026).
     "staff": (15, [
         (0, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
-        (5, {"upper_arm.R": (110, 0, 0), "forearm.R": (20, 0, 0), "upper_arm.L": (25, 0, 0), "forearm.L": (10, 0, 0), "chest": (-10, 6, 0), "spine": (-4, 0, 0)}, (0, 0.03, 0)),
-        (9, {"upper_arm.R": (35, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (50, 0, 0), "forearm.L": (40, 0, 0), "chest": (10, -6, 0), "spine": (6, 0, 0)}, (0, -0.05, 0)),
+        (5, {"upper_arm.R": (110, 0, 0), "forearm.R": (20, 0, 0), "upper_arm.L": (10, 0, 0), "forearm.L": (6, 0, 0), "chest": (-10, 6, 0), "spine": (-4, 0, 0)}, (0, 0.03, 0)),
+        (9, {"upper_arm.R": (35, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (18, 0, 0), "forearm.L": (28, 0, 0), "chest": (10, -6, 0), "spine": (6, 0, 0)}, (0, -0.05, 0)),
         (15, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
     ]),
 }
@@ -431,7 +553,7 @@ def humanoid_layout(verts, height):
 
 
 def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapon_bone=None, attack=None, layout=None,
-                 loose_hand=None):
+                 loose_hand=None, drum=False, staff_axis=None):
     """Rigs an A-pose class model with the shared bone names, so the same five actions play on it. staff=True finds a
     long straight staff in the right hand (the straightest near-vertical line on that side) and pins it to hand.R,
     so it swings as one piece instead of bending with the head and shoulder."""
@@ -449,8 +571,15 @@ def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapo
     arm, radii = build_from_layout(root, layout, rig_name)
     for m in meshes:
         skin(m, arm, radii)
+        if drum or loose_hand:
+            # The drum arm and the Wraithsworn's thrusting void hand swing far from the hip cloth beside them.
+            free_cloth_from_arms(m, arm, height, sides=("L",))
         if loose_hand:
             hold_loose(m, arm, height, loose_hand)
+        if drum:
+            pin_drum(m, arm, height)
+        if staff_axis is not None:
+            pin_staff_charms(m, arm, height, staff_axis[0], staff_axis[1])
         if staff:
             group = m.vertex_groups.get("hand.R")
             pinned = 0
