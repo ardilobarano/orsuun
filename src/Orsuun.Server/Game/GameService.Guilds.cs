@@ -227,6 +227,7 @@ public sealed partial class GameService
             await _db.Fortresses.Where(f => f.FlagGuildId == id).ExecuteUpdateAsync(s => s.SetProperty(f => f.FlagGuildId, (Guid?)null), ct);
             await _db.GuildRequests.Where(r => r.GuildId == id).ExecuteDeleteAsync(ct);
             await _db.GuildInvites.Where(r => r.GuildId == id).ExecuteDeleteAsync(ct);
+            await DeleteRaidsAsync(id, ct);
             string channel = Chat.GuildChannel(id);
             await _db.ChatMessages.Where(m => m.Channel == channel).ExecuteDeleteAsync(ct);
             _db.Guilds.Remove(guild);

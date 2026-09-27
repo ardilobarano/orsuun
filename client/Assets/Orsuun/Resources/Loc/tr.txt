@@ -2169,3 +2169,28 @@ Walker of the Twelve Roads	On İki Yolun Yolcusu
 Stonebreaker	Taşkıran
 {0} claimed: +{1} Honor, +{2} sorn.	{0} alındı: +{1} Onur, +{2} sorn.
 New title: {0}.	Yeni unvan: {0}.
+# The guild raid (27 Sep 2026)
+GUILD RAID	LONCA BASKINI
+THE GUILD'S BLADES THIS WEEK	BU HAFTA LONCANIN KILIÇLARI
+{0} fights a day each. When the boss falls, everyone who fought is paid by his share: Guild Tallies at once, sorn by letter.	Herkese günde {0} dövüş. Boss düşünce dövüşen herkes payına göre ödenir: Lonca Çeteleleri hemen, sorn mektupla.
+Offline: the raid needs the server.	Çevrimdışı: baskın sunucu ister.
+Fallen to {0}'s blow	{0} vuruşuyla düştü
+A new boss comes on Monday at 20:00.	Yeni boss Pazartesi 20:00'de gelir.
+Ends in {0}	{0} sonra biter
+Your damage {0}	Senin hasarın {0}
+fights left today {0}	bugün kalan dövüş {0}
+Nobody has fought it yet this week.	Bu hafta henüz kimse onunla dövüşmedi.
+calls a pack every 15 seconds	her 15 saniyede bir sürü çağırır
+casts mirror images at 70% and 40%	%70 ve %40'ta ayna görüntüleri yaratır
+You dealt {0} damage to {1}.	{1} boss'una {0} hasar verdin.
+{0} has fallen! Your pay is in the mailbox.	{0} düştü! Payın posta kutusunda.
+{0} has fallen this week. The next comes on Monday at 20:00.	{0} bu hafta düştü. Sıradaki Pazartesi 20:00'de gelir.
+You have fought the raid {0} times today. More at 20:00.	Bugün baskında {0} kez dövüştün. Fazlası 20:00'de.
+The guild raid	Lonca baskını
+{0} has fallen	{0} düştü
+[{0}] felled {1} in the week's raid. Your share: {2} damage ({3}%). You have +{4} Guild Tallies already; the sorn is here.	[{0}] haftanın baskınında {1} boss'unu devirdi. Payın: {2} hasar (%{3}). +{4} Lonca Çetelesi zaten sende; sorn burada.
+THE RAID BOSS HAS FALLEN	BASKIN BOSS'U DÜŞTÜ
+{0} struck the last blow: {1} has fallen in the guild raid!	Son darbeyi {0} vurdu: {1} lonca baskınında düştü!
+{0} felled {1} in their guild raid.	{0}, lonca baskınında {1} boss'unu devirdi.
+THE GUILD	LONCA
+{0} / {1} HP	{0} / {1} can

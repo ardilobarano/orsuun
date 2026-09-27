@@ -830,6 +830,38 @@ namespace Orsuun.Client.Net
         /// <summary>The mailbox as the server last showed it.</summary>
         public MailDto Mail { get; private set; }
 
+        // ---- The guild raid (Rules.GuildRaids).
+
+        public GuildRaidDto Raid { get; private set; }
+        /// <summary>When the raid view came (its seconds left count down from here).</summary>
+        public float RaidAt { get; private set; }
+
+        public IEnumerator FetchRaid(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/guild/raid", null, true, json =>
+            {
+                Raid = JsonUtility.FromJson<GuildRaidDto>(json);
+                RaidAt = Time.realtimeSinceStartup;
+            }, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>One raid fight: the server rolls it; the lane replays its seed.</summary>
+        public IEnumerator FightRaid(Action<GuildRaidFightDto, string> done)
+        {
+            GuildRaidFightDto result = null;
+            string failure = null;
+            yield return Post("/v1/guild/raid/fight", JsonUtility.ToJson(new RaidFightRequest { requestId = NewRequestId() }), true, json =>
+            {
+                result = JsonUtility.FromJson<GuildRaidFightDto>(json);
+                Raid = result.raid;
+                RaidAt = Time.realtimeSinceStartup;
+                if (result.state != null && result.state.inventory != null && result.state.items != null) Apply(result.state);
+            }, error => failure = error);
+            done(result, failure);
+        }
+
         // ---- Titles and achievements (Rules.Achievements).
 
         /// <summary>Achievements done and waiting to be claimed (the MENU badge), and the title worn.</summary>
@@ -1540,6 +1572,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class AchievementDto { public int id; public string name; public string text; public long progress; public long target; public int honor; public long sorn; public string title; public bool done; public bool claimed; }
         [Serializable] public class AchievementClaimRequest { public string requestId; public int id; }
         [Serializable] public class TitleRequest { public int id; }
+        [Serializable] public class GuildRaidDto { public string boss; public int map; public string mapName; public string mechanic; public long hpMax; public long hpLeft; public long secondsLeft; public int fightsLeft; public long myDamage; public RaidHitDto[] top; public bool slain; public string slainBy; public string message; }
+        [Serializable] public class RaidHitDto { public string name; public long damage; }
+        [Serializable] public class RaidFightRequest { public string requestId; }
+        [Serializable] public class GuildRaidFightDto { public GuildRaidDto raid; public ulong seed; public long damage; public bool killed; public int potionsAtStart; public StateDto state; }
         [Serializable] public class WorldEventDto { public string kind; public string name; public string effect; public bool running; public long startsInSeconds; public long endsInSeconds; }
         [Serializable] public class DailyDto { public int day; public bool claimable; public string[] gifts; public long secondsToNext; }
         [Serializable] public class MailDto { public StateDto state; public LetterDto[] letters; public int unread; public string message; }

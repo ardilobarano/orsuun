@@ -33,9 +33,21 @@ namespace Orsuun.Rules.Combat
             return lane;
         }
 
-        public static BossRunResult Simulate(BossDef boss, HeroStats hero, Inventory inventory, ulong seed, Bell bell = Bell.None)
+        /// <summary>A boss fight on a stage of its own (a guild raid's): the same rules as a Commander's.</summary>
+        public static LaneSim Create(StageConfig stage, HeroStats hero, Inventory inventory, ulong seed)
         {
-            LaneSim lane = Create(boss, hero, inventory, seed, bell);
+            var lane = new LaneSim(stage, hero, SkillDef.For(hero.Class), inventory, new XorShiftRandom(seed));
+            for (int i = 0; i < lane.AutoCast.Length; i++) lane.AutoCast[i] = true;
+            return lane;
+        }
+
+        public static BossRunResult Simulate(StageConfig stage, HeroStats hero, Inventory inventory, ulong seed) => Run(Create(stage, hero, inventory, seed));
+
+        public static BossRunResult Simulate(BossDef boss, HeroStats hero, Inventory inventory, ulong seed, Bell bell = Bell.None) =>
+            Run(Create(boss, hero, inventory, seed, bell));
+
+        private static BossRunResult Run(LaneSim lane)
+        {
             int ticks = 0;
             while (ticks < MaxTicks && lane.BossesKilled == 0 && lane.Deaths == 0)
             {

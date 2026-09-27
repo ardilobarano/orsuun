@@ -232,3 +232,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   first seven follow `BountyMetric`, so every `Count` also counts a feat; append new metrics, never renumber) and the hero
   as he stands; achievement ids are stored in `FeatsClaimed` and `TitleId`, so never renumber them either. A worn title
   goes on chat lines (`ChatMessage.Title`) and Pit boards (`TitleOf`: the worn title, else the Pits' season title).
+- Guild raids (`Rules.GuildRaids`): a `GuildRaids` row per guild and bounty week, made by the week's first fight
+  (INSERT ... ON CONFLICT) and changed only under FOR UPDATE; `GuildRaidHits` give the day's fights and the shares. When
+  the boss falls, fighters are paid Tallies (the fighter's own row tracked, others by single UPDATEs) and sorn by
+  letter. Code that removes a guild calls `DeleteRaidsAsync`. The client replays a fight with `BossRun.Create(stage, ...)`.

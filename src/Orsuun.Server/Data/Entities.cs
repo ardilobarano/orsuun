@@ -688,3 +688,34 @@ public sealed class WorldEvent
     public bool Announced { get; set; }
     [MaxLength(40)] public string By { get; set; } = "";
 }
+
+/// <summary>
+/// A guild's raid for one week (Rules.GuildRaids): the map whose boss it faces and the pool its members wear down, made by
+/// the week's first fight (unique per guild and week) and changed only with the row locked (FOR UPDATE).
+/// </summary>
+public sealed class GuildRaid
+{
+    public long Id { get; set; }
+    public Guid GuildId { get; set; }
+    [MaxLength(16)] public string Week { get; set; } = "";
+    public int Map { get; set; }
+    public int Members { get; set; }
+    public long HpMax { get; set; }
+    public long HpLeft { get; set; }
+    public DateTime StartsUtc { get; set; }
+    public DateTime EndsUtc { get; set; }
+    public DateTime? SlainUtc { get; set; }
+    [MaxLength(56)] public string SlainBy { get; set; } = "";
+}
+
+/// <summary>One raid fight's damage (the day key limits fights a day; the sums are the shares).</summary>
+public sealed class GuildRaidHit
+{
+    public long Id { get; set; }
+    public long RaidId { get; set; }
+    public Guid AccountId { get; set; }
+    [MaxLength(56)] public string Name { get; set; } = "";
+    public long Damage { get; set; }
+    [MaxLength(16)] public string Day { get; set; } = "";
+    public DateTime Utc { get; set; }
+}

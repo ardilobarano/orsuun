@@ -52,6 +52,7 @@ namespace Orsuun.Client
         public MessagesPanel Messages { get; private set; }
         public MailPanel Mail { get; private set; }
         public AchievementsPanel Achievements { get; private set; }
+        public GuildRaidPanel GuildRaid { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
         public GameNotifications Notifications { get; private set; }
@@ -144,6 +145,8 @@ namespace Orsuun.Client
             Mail.Init(this);
             Achievements = new GameObject("AchievementsPanel").AddComponent<AchievementsPanel>();
             Achievements.Init(this);
+            GuildRaid = new GameObject("GuildRaidPanel").AddComponent<GuildRaidPanel>();
+            GuildRaid.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
             Chat.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
@@ -251,6 +254,8 @@ namespace Orsuun.Client
             _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
             _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
             _openAchievements = Array.IndexOf(Environment.GetCommandLineArgs(), "-achievements") >= 0;
+            _openRaid = Array.IndexOf(Environment.GetCommandLineArgs(), "-raid") >= 0;
+            _raidFight = Array.IndexOf(Environment.GetCommandLineArgs(), "-raidfight") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
             // -friends opens FRIENDS once online (screenshots); -oathchange the change of Banner.
             _openFriends = Array.IndexOf(cmd, "-friends") >= 0;
@@ -357,7 +362,7 @@ namespace Orsuun.Client
         private bool _openPits;
         private int _pitFight = -1;
         private int _caravanTab = -1;
-        private bool _openAchievements;
+        private bool _openAchievements, _openRaid, _raidFight;
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
@@ -469,6 +474,18 @@ namespace Orsuun.Client
             {
                 _openAchievements = false;
                 Achievements.Open();
+            }
+            // Dev switch: -raid opens GUILD RAID once the hero is online (screenshots).
+            if (Server.Online && _openRaid)
+            {
+                _openRaid = false;
+                GuildRaid.Open();
+            }
+            // Dev switch: -raidfight fights the guild raid once online (screenshots of the replay).
+            if (Server.Online && _raidFight && !PushBusy)
+            {
+                _raidFight = false;
+                FightRaid();
             }
             if (Server.Online && Server.Wardrobe != null && (_caravanTab >= 0 || _openWardrobe || _openDepot))
             {
@@ -638,6 +655,40 @@ namespace Orsuun.Client
 
             ReplayBanner = (_replay.BossesKilled > 0 ? "SLAIN  ·  " : "FLED  ·  ") + "rank " + rank + " of 20";
             Hud.Log(chest + PoolNote(bossId));
+            yield return new WaitForSecondsRealtime(2.5f);
+
+            _replay = null;
+            ReplayBanner = "";
+            PushBusy = false;
+        }
+
+        /// <summary>A guild raid fight (Rules.GuildRaids): the server rolls it, then the lane replays the seed.</summary>
+        public void FightRaid()
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(RaidSequence());
+        }
+
+        private IEnumerator RaidSequence()
+        {
+            PushBusy = true;
+            Net.ServerLink.GuildRaidFightDto result = null;
+            string failure = null;
+            yield return Server.FightRaid((r, e) => { result = r; failure = e; });
+            if (result == null)
+            {
+                Hud.Log(failure ?? "No answer from the server.");
+                PushBusy = false;
+                yield break;
+            }
+            StageConfig stage = GuildRaids.Stage(result.raid.map);
+            _replay = BossRun.Create(stage, Session.Hero, new Inventory { Potions = result.potionsAtStart }, result.seed);
+            ReplayBanner = "GUILD RAID  ·  " + (stage.BossName ?? "").ToUpperInvariant();
+            int guard = BossRun.MaxTicks;
+            while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+
+            ReplayBanner = result.raid.slain ? "THE RAID BOSS HAS FALLEN" : $"{result.damage.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)} DAMAGE";
+            Hud.Log(result.raid.message);
             yield return new WaitForSecondsRealtime(2.5f);
 
             _replay = null;

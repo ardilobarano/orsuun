@@ -286,6 +286,8 @@ v1.MapPost("/guild/invite", (HttpContext ctx, GuildInviteRequest req, GameServic
 v1.MapPost("/guild/invite/answer", (HttpContext ctx, GuildInviteAnswerRequest req, GameService game, CancellationToken ct) => game.AnswerGuildInviteAsync(Me(ctx), req, ct));
 // Friends (25 Sep 2026): each hero's list, requests, and taking one off.
 // Private messages (Rules.Whispers): the conversation list, one conversation (after: new lines; before: older), send, report.
+v1.MapGet("/guild/raid", (HttpContext ctx, GameService game, CancellationToken ct) => game.GuildRaidAsync(Me(ctx), ct));
+v1.MapPost("/guild/raid/fight", (HttpContext ctx, RaidFightRequest req, GameService game, CancellationToken ct) => game.FightRaidAsync(Me(ctx), req, ct));
 v1.MapGet("/achievements", (HttpContext ctx, GameService game, CancellationToken ct) => game.AchievementsAsync(Me(ctx), ct));
 v1.MapPost("/achievements/claim", (HttpContext ctx, AchievementClaimRequest req, GameService game, CancellationToken ct) => game.ClaimAchievementAsync(Me(ctx), req, ct));
 v1.MapPost("/achievements/title", (HttpContext ctx, TitleRequest req, GameService game, CancellationToken ct) => game.WearTitleAsync(Me(ctx), req, ct));

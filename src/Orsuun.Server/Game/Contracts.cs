@@ -271,6 +271,13 @@ public sealed record AchievementDto(int Id, string Name, string Text, long Progr
 public sealed record AchievementClaimRequest(string RequestId, int Id);
 public sealed record TitleRequest(int Id);
 
+/// <summary>The guild's raid this week (Rules.GuildRaids): its boss, the pool, the hero's fights left today, the top ten.</summary>
+public sealed record GuildRaidDto(string Boss, int Map, string MapName, string Mechanic, long HpMax, long HpLeft, long SecondsLeft, int FightsLeft,
+    long MyDamage, RaidHitDto[] Top, bool Slain, string SlainBy, string Message);
+public sealed record RaidHitDto(string Name, long Damage);
+public sealed record RaidFightRequest(string RequestId);
+public sealed record GuildRaidFightDto(GuildRaidDto Raid, ulong Seed, long Damage, bool Killed, int PotionsAtStart, StateDto State);
+
 /// <summary>A world event on the server's calendar (Rules.WorldEvents) that runs now or comes within the week.</summary>
 public sealed record WorldEventDto(string Kind, string Name, string Effect, bool Running, long StartsInSeconds, long EndsInSeconds);
 
