@@ -341,7 +341,8 @@ namespace Orsuun.Client
         {
             yield return new WaitForSecondsRealtime(after);
             yield return new WaitForEndOfFrame();
-            ScreenCapture.CaptureScreenshot(path);
+            // -shotScale n renders the shot n times larger (close looks at small things, e.g. a rider in the saddle).
+            ScreenCapture.CaptureScreenshot(path, int.TryParse(Arg("-shotScale"), out int scale) ? Mathf.Clamp(scale, 1, 4) : 1);
             yield return new WaitForSecondsRealtime(1.5f);
             Application.Quit();
         }

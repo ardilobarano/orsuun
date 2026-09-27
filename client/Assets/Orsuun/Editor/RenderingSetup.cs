@@ -218,6 +218,8 @@ namespace Orsuun.Client.EditorTools
                 string id = Path.GetFileNameWithoutExtension(fbx);
                 // Mobs are rigged with their own clips since 24 Sep 2026 (art/blender/mobrig.py).
                 EnsureAnimatedImport(models + id + ".fbx");
+                // Mounts stay readable: the lane measures each one's saddle and barrel from its mesh (LaneView.Seat).
+                if (id.StartsWith("Mount")) EnsureReadable(models + id + ".fbx");
                 string matPath = Con + "Mobs/" + id + ".mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
                 if (mat == null) { mat = new Material(lit); AssetDatabase.CreateAsset(mat, matPath); }
@@ -522,6 +524,13 @@ namespace Orsuun.Client.EditorTools
             if (same && importer.animationType == ModelImporterAnimationType.Legacy && importer.importAnimation
                 && importer.materialImportMode == ModelImporterMaterialImportMode.None) return;
             importer.clipAnimations = clips.ToArray();
+            importer.SaveAndReimport();
+        }
+
+        private static void EnsureReadable(string path)
+        {
+            if (!(AssetImporter.GetAtPath(path) is ModelImporter importer) || importer.isReadable) return;
+            importer.isReadable = true;
             importer.SaveAndReimport();
         }
 

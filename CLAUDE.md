@@ -222,3 +222,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   reloads `EventCalendar`, the singleton requests read (never query the table per request). Moderators add or call off
   events on /admin's Events tab; `/v1/dev/event` starts one now (Development). Commander clocks move only through
   `RollClock` (spawns come faster in a rush): never step `BossDef.RespawnSeconds` by hand. Kinds are stored by number.
+- Riders (`LaneView.FitRider`): a mount's saddle and barrel are measured from its mesh (`Seat`), so mount models
+  (`Models/Mobs/Mount*`: a new mount's name must start with Mount) import readable; the legs are aimed in the rider's
+  own frame, never by per-bone Euler angles (the rigs' left and right thighs have mirrored axes).

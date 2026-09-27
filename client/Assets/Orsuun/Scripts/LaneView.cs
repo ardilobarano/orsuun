@@ -979,19 +979,62 @@ namespace Orsuun.Client
             ["Eagle"] = ("PetEagle", 1.8f, true),
         };
 
-        /// <summary>The seat above the ground, as a share of the mount's height, and the rider's hips above his feet.</summary>
-        private const float SaddleShare = 0.56f, HipHeight = 1.0f;
+        /// <summary>
+        /// Seating (owner, 27 Sep 2026: "make classes mounted well to all mounts"): the rider's hip joints sit SeatClear above
+        /// the saddle's top, and his thighs open until his knees clear the mount's barrel by KneeClear, both measured from
+        /// the meshes (Seat, RiderFit), so every class and figure fits every mount. The rest is the old guess for a mount
+        /// or a rig the measure cannot read.
+        /// </summary>
+        private const float SeatClear = 0.07f, KneeClear = 0.04f, MinThighOut = 8f, MaxThighOut = 48f, MaxShinOut = 30f;
         /// <summary>
         /// Mounted, the rider is drawn this far right of HeroX (so the horse's hindquarters stay in frame), the saddle sits
         /// this far behind the mount's centre, and the mobs line up this much further off (clear of the horse's head).
         /// </summary>
         private const float MountShift = 0.6f, SaddleBack = 0.6f, MountMobPush = 1.3f;
         private float RideShift => _mount != null && !_heroDown ? MountShift : 0f;
-        /// <summary>Riding pose, degrees about each leg bone's local X (positive swings the tip forward) and Z (outward).</summary>
-        private static readonly (string Bone, float Forward, float Out)[] RidePose =
+        /// <summary>
+        /// The riding legs, aimed in the rider's own frame (models face +Z, up +Y) so the bones' rolls do not matter: the
+        /// rigs' left and right thighs have mirrored axes, and one Euler swing for both sent the right leg back into the
+        /// mount. Thighs pitch RideThighPitch forward of straight down and open to clear the barrel (FitRider); shins hang
+        /// RideShinPitch from straight down (negative: heels back) and a little out; feet keep their rest angle.
+        /// </summary>
+        private static readonly float RideThighPitch = ArgFloat("-ridethigh", 55f), RideShinPitch = ArgFloat("-rideshin", -8f), RideShinOut = 4f;
+
+        private sealed class RideLeg
         {
-            ("thigh.L", 78f, 16f), ("thigh.R", 78f, -16f), ("shin.L", -82f, 0f), ("shin.R", -82f, 0f), ("foot.L", 20f, 0f), ("foot.R", 20f, 0f),
-        };
+            public Transform Thigh, Shin, Foot;
+            /// <summary>Rest rotations and directions (hip to knee, knee to ankle) in the look's own space.</summary>
+            public Quaternion ThighRest, ShinRest, FootRest;
+            public Vector3 ThighDir, ShinDir;
+            /// <summary>Which way along the look's X is outward for this leg (the hip's side).</summary>
+            public float Side;
+        }
+
+        private readonly List<RideLeg> _rideLegs = new List<RideLeg>();
+
+        private static readonly float RideSeatClear = ArgFloat("-rideclear", SeatClear);
+
+        private static float ArgFloat(string name, float fallback)
+        {
+            string[] args = System.Environment.GetCommandLineArgs();
+            int i = System.Array.IndexOf(args, name);
+            return i >= 0 && i + 1 < args.Length && float.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v) ? v : fallback;
+        }
+
+        /// <summary>
+        /// A mount model's saddle top and its barrel's half-width at each height (SeatBin steps from the ground up) along the
+        /// rider's legs, in its own units (times its scale on the lane).
+        /// </summary>
+        private sealed class MountSeat
+        {
+            public float Top;
+            public float[] Half;
+        }
+
+        private const float SeatBin = 0.05f;
+        private static readonly Dictionary<string, MountSeat> Seats = new Dictionary<string, MountSeat>();
+        private MountSeat _seat;
+        private float _mountScale = 1f, _thighOut = 16f, _shinOut = 4f;
 
         private Color _skinTint = Color.white;
         private string _mountKey, _companionKey;
@@ -1000,7 +1043,6 @@ namespace Orsuun.Client
         private float _rideY;
         private bool _companionFlies;
         private GameObject _ridePoseFor;
-        private readonly List<(Transform Bone, Quaternion Bind, Quaternion Ride)> _rideBones = new List<(Transform, Quaternion, Quaternion)>();
 
         private float RideY => _mount != null && !_heroDown ? _rideY + (_sim != null && _sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 7f)) * 0.05f : 0f) : 0f;
 
@@ -1016,8 +1058,14 @@ namespace Orsuun.Client
                 _mount = null;
                 _mountAnim = null;
                 _ridePoseFor = null;
-                if (mountLook != null && MountLooks.TryGetValue(mountLook, out var m)) _mount = Companion(m.Model, m.Scale, out _mountAnim, out _mountHeight);
-                if (_mount != null) _rideY = Mathf.Max(0f, _mountHeight * SaddleShare - HipHeight * _rig.localScale.y);
+                if (mountLook != null && MountLooks.TryGetValue(mountLook, out var m))
+                {
+                    _mount = Companion(m.Model, m.Scale, out _mountAnim, out _mountHeight);
+                    _mountScale = m.Scale;
+                    _seat = _mount != null ? Seat(m.Model, _mount, m.Scale) : null;
+                }
+                // The seat is fitted to the rider in LateUpdate (his hips and thighs); until then the old guess.
+                if (_mount != null) _rideY = Mathf.Max(0f, _mountHeight * 0.56f - _rig.localScale.y);
             }
             if (companionLook != _companionKey)
             {
@@ -1034,6 +1082,50 @@ namespace Orsuun.Client
         }
 
         private float _mountHeight;
+
+        /// <summary>
+        /// Measures a mount once: the top of its back over the saddle (SaddleBack behind its origin, which faces +Z) and, at
+        /// each height below it, how wide its barrel gets between the saddle and a stride ahead, from the mesh's rest shape.
+        /// Null when the mesh cannot be read (then the rider keeps the old guess).
+        /// </summary>
+        private static MountSeat Seat(string model, Transform root, float scale)
+        {
+            if (Seats.TryGetValue(model, out MountSeat known)) return known;
+            float saddle = -SaddleBack / scale, stride = 0.7f / scale, slab = 0.15f / scale;
+            var points = new List<Vector3>();
+            foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
+            {
+                Mesh mesh = r is SkinnedMeshRenderer skinned ? skinned.sharedMesh : r.GetComponent<MeshFilter>()?.sharedMesh;
+                if (mesh == null || !mesh.isReadable) continue;
+                foreach (Vector3 v in mesh.vertices)
+                {
+                    Vector3 p = root.InverseTransformPoint(r.transform.TransformPoint(v));
+                    if (p.z > saddle - slab && p.z < saddle + stride) points.Add(p);
+                }
+            }
+            float top = 0f;
+            foreach (Vector3 p in points)
+                if (Mathf.Abs(p.z - saddle) < slab) top = Mathf.Max(top, p.y);
+            MountSeat seat = null;
+            if (top > 0f)
+            {
+                seat = new MountSeat { Top = top, Half = new float[Mathf.CeilToInt(top / SeatBin) + 1] };
+                foreach (Vector3 p in points)
+                {
+                    int bin = Mathf.FloorToInt(p.y / SeatBin);
+                    if (bin >= 0 && bin < seat.Half.Length) seat.Half[bin] = Mathf.Max(seat.Half[bin], Mathf.Abs(p.x));
+                }
+            }
+            Seats[model] = seat;
+            return seat;
+        }
+
+        /// <summary>The mount's barrel half-width at a height above the ground, in lane units.</summary>
+        private float BarrelHalf(float y)
+        {
+            int bin = Mathf.FloorToInt(y / _mountScale / SeatBin);
+            return _seat == null || bin < 0 || bin >= _seat.Half.Length ? 0f : _seat.Half[bin] * _mountScale;
+        }
 
         private Transform Companion(string model, float scale, out Animation anim, out float height)
         {
@@ -1103,28 +1195,96 @@ namespace Orsuun.Client
             if (_ridePoseFor != look)
             {
                 _ridePoseFor = look;
-                _rideBones.Clear();
+                _rideLegs.Clear();
                 SkinnedMeshRenderer skin = look.GetComponentInChildren<SkinnedMeshRenderer>();
-                foreach ((string bone, float forward, float outward) in RidePose)
-                {
-                    Transform t = FindDeep(look.transform, bone);
-                    if (t == null) continue;
-                    Quaternion rest = skin != null ? RestLocal(skin, t) : t.localRotation;
-                    _rideBones.Add((t, rest, Quaternion.Euler(forward, 0f, outward)));
-                }
+                FitRider(look, skin);
+                if (skin != null)
+                    foreach (string side in new[] { "L", "R" })
+                    {
+                        if (!RestPose(look, skin, "thigh." + side, out Transform thigh, out Vector3 hip, out Quaternion thighRest)
+                            || !RestPose(look, skin, "shin." + side, out Transform shin, out Vector3 knee, out Quaternion shinRest)
+                            || !RestPose(look, skin, "foot." + side, out Transform foot, out Vector3 ankle, out Quaternion footRest)) continue;
+                        _rideLegs.Add(new RideLeg
+                        {
+                            Thigh = thigh, Shin = shin, Foot = foot, ThighRest = thighRest, ShinRest = shinRest, FootRest = footRest,
+                            ThighDir = (knee - hip).normalized, ShinDir = (ankle - knee).normalized, Side = Mathf.Sign(hip.x),
+                        });
+                    }
             }
-            foreach ((Transform bone, Quaternion bind, Quaternion ride) in _rideBones) bone.localRotation = bind * ride;
+            if (_rideLegs.Count == 0) return;
+            Quaternion frame = look.transform.rotation;
+            float pitch = RideThighPitch * Mathf.Deg2Rad, open = _thighOut * Mathf.Deg2Rad, hang = RideShinPitch * Mathf.Deg2Rad, flare = _shinOut * Mathf.Deg2Rad;
+            foreach (RideLeg leg in _rideLegs)
+            {
+                var outward = new Vector3(leg.Side, 0f, 0f);
+                Vector3 thighTo = (Vector3.forward * Mathf.Sin(pitch) + Vector3.down * Mathf.Cos(pitch)) * Mathf.Cos(open) + outward * Mathf.Sin(open);
+                Vector3 shinTo = (Vector3.forward * Mathf.Sin(hang) + Vector3.down * Mathf.Cos(hang)) * Mathf.Cos(flare) + outward * Mathf.Sin(flare);
+                leg.Thigh.rotation = frame * Quaternion.FromToRotation(leg.ThighDir, thighTo) * leg.ThighRest;
+                leg.Shin.rotation = frame * Quaternion.FromToRotation(leg.ShinDir, shinTo) * leg.ShinRest;
+                leg.Foot.rotation = frame * leg.FootRest;
+            }
+            // The clips lift and drop the hips: the hip joints are held on the saddle, the body above them moves as it likes.
+            if (_seat != null)
+            {
+                float hipY = 0f;
+                foreach (RideLeg leg in _rideLegs) hipY += leg.Thigh.position.y / _rideLegs.Count;
+                float want = _mount.position.y + _seat.Top * _mountScale + RideSeatClear + (RideY - _rideY);
+                _hero.position += Vector3.up * (want - hipY);
+            }
+
         }
 
-        /// <summary>A bone's rest rotation relative to its parent, from the skin's bind poses (the clips never touch them).</summary>
-        private static Quaternion RestLocal(SkinnedMeshRenderer skin, Transform bone)
+        /// <summary>
+        /// Seats this rider on this mount: his hip joints (the thighs' heads at rest) go SeatClear above the saddle, his
+        /// thighs open until the knees clear the barrel at knee height by KneeClear, and his shins flare just enough to clear
+        /// it below the knee (the barrel is widest at the belly).
+        /// </summary>
+        private void FitRider(GameObject look, SkinnedMeshRenderer skin)
         {
-            Transform[] bones = skin.bones;
-            Matrix4x4[] binds = skin.sharedMesh.bindposes;
-            int i = System.Array.IndexOf(bones, bone), p = System.Array.IndexOf(bones, bone.parent);
-            if (i < 0 || p < 0) return bone.localRotation;
-            Quaternion world = binds[i].inverse.rotation, parent = binds[p].inverse.rotation;
-            return Quaternion.Inverse(parent) * world;
+            _thighOut = 16f;
+            _shinOut = RideShinOut;
+            if (_seat == null || skin == null) return;
+            if (!RestPoint(look, skin, "thigh.L", out Vector3 hip) || !RestPoint(look, skin, "shin.L", out Vector3 knee)
+                || !RestPoint(look, skin, "foot.L", out Vector3 ankle)) return;
+            float s = look.transform.lossyScale.y / Mathf.Max(0.0001f, transform.lossyScale.y);
+            float hipY = hip.y * s, hipHalf = Mathf.Abs(hip.x) * s, thigh = Vector3.Distance(hip, knee) * s, shin = Vector3.Distance(knee, ankle) * s;
+            float seatY = _seat.Top * _mountScale + SeatClear, pitch = RideThighPitch * Mathf.Deg2Rad;
+            _rideY = Mathf.Max(0f, seatY - hipY);
+            // The knee's height depends on how far the thigh opens: settle it in a few passes.
+            float open = MinThighOut * Mathf.Deg2Rad, kneeY = seatY;
+            for (int pass = 0; pass < 4; pass++)
+            {
+                kneeY = seatY - thigh * Mathf.Cos(pitch) * Mathf.Cos(open);
+                float need = (BarrelHalf(kneeY) + KneeClear - hipHalf) / Mathf.Max(0.05f, thigh);
+                open = Mathf.Clamp(Mathf.Asin(Mathf.Clamp(need, -1f, 1f)), MinThighOut * Mathf.Deg2Rad, MaxThighOut * Mathf.Deg2Rad);
+            }
+            _thighOut = open * Mathf.Rad2Deg;
+            // Down the shin, the barrel may be wider than at the knee: flare the shin to clear it.
+            float kneeOut = hipHalf + thigh * Mathf.Sin(open), flare = RideShinOut * Mathf.Deg2Rad;
+            for (float drop = SeatBin; drop <= shin; drop += SeatBin)
+            {
+                float wide = BarrelHalf(kneeY - drop) + KneeClear - kneeOut;
+                if (wide > 0f) flare = Mathf.Max(flare, Mathf.Atan2(wide, drop));
+            }
+            _shinOut = Mathf.Min(flare * Mathf.Rad2Deg, MaxShinOut);
+        }
+
+        /// <summary>Where a bone's head sits at rest, in the look's own space (from the skin's bind poses).</summary>
+        private static bool RestPoint(GameObject look, SkinnedMeshRenderer skin, string bone, out Vector3 point) =>
+            RestPose(look, skin, bone, out _, out point, out _);
+
+        /// <summary>A bone, and its head and rotation at rest in the look's own space (from the skin's bind poses).</summary>
+        private static bool RestPose(GameObject look, SkinnedMeshRenderer skin, string bone, out Transform t, out Vector3 point, out Quaternion rotation)
+        {
+            point = Vector3.zero;
+            rotation = Quaternion.identity;
+            t = FindDeep(look.transform, bone);
+            int i = t == null ? -1 : System.Array.IndexOf(skin.bones, t);
+            if (i < 0) return false;
+            Matrix4x4 inLook = look.transform.worldToLocalMatrix * skin.transform.localToWorldMatrix * skin.sharedMesh.bindposes[i].inverse;
+            point = inLook.MultiplyPoint3x4(Vector3.zero);
+            rotation = Quaternion.LookRotation(inLook.GetColumn(2), inLook.GetColumn(1));
+            return true;
         }
 
         /// <summary>
