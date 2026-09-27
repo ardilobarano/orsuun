@@ -150,7 +150,7 @@ public sealed record FriendRemoveRequest(Guid AccountId);
 public sealed record GuildAnswerRequest(string RequestId, Guid AccountId, bool Accept);
 
 /// <summary>One chat line; System lines (guild and world events) have no speaker.</summary>
-public sealed record ChatLineDto(long Id, Guid AccountId, string Name, Banner Banner, string Text, DateTime Utc, bool System, bool Mine);
+public sealed record ChatLineDto(long Id, Guid AccountId, string Name, Banner Banner, string Text, DateTime Utc, bool System, bool Mine, string? Title = null);
 /// <summary>A channel's lines after the id the client asked from (at most Rules.Chat.PageSize), and the newest id.</summary>
 public sealed record ChatDto(string Channel, ChatLineDto[] Lines, long LatestId, int Blocked);
 public sealed record ChatSayRequest(string Channel, string Text, long After = 0);
@@ -261,7 +261,15 @@ public sealed record StateDto(
     Figure Figure = Figure.Man,
     DailyDto? Daily = null,
     int Mail = 0,
-    WorldEventDto[]? Events = null);
+    WorldEventDto[]? Events = null,
+    int AchievementsReady = 0,
+    string? Title = null);
+
+/// <summary>The ACHIEVEMENTS screen (Rules.Achievements): every achievement with its progress, and the title worn.</summary>
+public sealed record AchievementsDto(StateDto State, AchievementDto[] List, int TitleId, string Title, string Message);
+public sealed record AchievementDto(int Id, string Name, string Text, long Progress, long Target, int Honor, long Sorn, string? Title, bool Done, bool Claimed);
+public sealed record AchievementClaimRequest(string RequestId, int Id);
+public sealed record TitleRequest(int Id);
 
 /// <summary>A world event on the server's calendar (Rules.WorldEvents) that runs now or comes within the week.</summary>
 public sealed record WorldEventDto(string Kind, string Name, string Effect, bool Running, long StartsInSeconds, long EndsInSeconds);

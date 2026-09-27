@@ -77,6 +77,7 @@ public sealed partial class GameService
         {
             chest = Chest(account, level, dungeon, false);
             text = $"{dungeon.Name} is cleared! {dungeon.WardenName}'s chest: {chest}.";
+            Feat(account, FeatMetric.DungeonClears, 1);
         }
         await SaveAsync(ct);   // the run's id
         if (atSmith)
@@ -188,6 +189,7 @@ public sealed partial class GameService
                 if (worn) account.Items.Add(Item.From(NewStarter(item.Slot), account.Id, equipped: true));
             }
             Count(account, BountyMetric.ForgeAttempts, 1);
+            FeatBest(account, FeatMetric.BestUpgrade, result.LevelAfter);
             if (result.LevelAfter > result.LevelBefore && result.LevelAfter >= 8)
                 SystemLine(Chat.World, $"{DisplayName(account)} forged {Content.ItemName(state, account.Class)} to +{result.LevelAfter} at the Chained Smith!");
             _db.Ledger.Add(Entry(account.Id, item.Id, "smith",
@@ -209,6 +211,7 @@ public sealed partial class GameService
         {
             chest = Chest(account, run.Level, dungeon, vaultOpen);
             text += $"{dungeon.Name} is cleared! {dungeon.WardenName}'s chest: {chest}.";
+            Feat(account, FeatMetric.DungeonClears, 1);
         }
         _db.Ledger.Add(Entry(account.Id, null, "dungeon-end", $"run={run.Id} floors={run.FloorsCleared} fell={fellOn}", 0, request.RequestId));
         await SaveAsync(ct);

@@ -87,7 +87,7 @@ public sealed partial class GameService
         var tags = await _db.Guilds.AsNoTracking().Where(g => guildIds.Contains(g.Id)).Select(g => new { g.Id, g.Tag }).ToListAsync(ct);
         PitBoardDto[] board = top.Select((a, i) => new PitBoardDto(i + 1, NameOf(a),
             tags.Where(t => t.Id == a.GuildId).Select(t => t.Tag).FirstOrDefault() ?? "", a.PitRating, Pits.League(a.PitRating), a.PitSeasonWins, a.PitSeasonLosses,
-            WeaponLine(Worn(a), a.Class), a.Id == account.Id, a.PitTitle ?? "")).ToArray();
+            WeaponLine(Worn(a), a.Class), a.Id == account.Id, TitleOf(a) ?? "")).ToArray();
 
         bool inSeason = account.PitSeason == season;
         bool ranked = account.PitLastSeason == last;

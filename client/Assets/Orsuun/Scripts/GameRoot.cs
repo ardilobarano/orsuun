@@ -51,6 +51,7 @@ namespace Orsuun.Client
         public FriendsPanel Friends { get; private set; }
         public MessagesPanel Messages { get; private set; }
         public MailPanel Mail { get; private set; }
+        public AchievementsPanel Achievements { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
         public GameNotifications Notifications { get; private set; }
@@ -141,6 +142,8 @@ namespace Orsuun.Client
             Messages.Init(this);
             Mail = new GameObject("MailPanel").AddComponent<MailPanel>();
             Mail.Init(this);
+            Achievements = new GameObject("AchievementsPanel").AddComponent<AchievementsPanel>();
+            Achievements.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
             Chat.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
@@ -247,6 +250,7 @@ namespace Orsuun.Client
             _openWardrobe = Array.IndexOf(Environment.GetCommandLineArgs(), "-wardrobe") >= 0;
             _openDepot = Array.IndexOf(Environment.GetCommandLineArgs(), "-depot") >= 0;
             _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
+            _openAchievements = Array.IndexOf(Environment.GetCommandLineArgs(), "-achievements") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
             // -friends opens FRIENDS once online (screenshots); -oathchange the change of Banner.
             _openFriends = Array.IndexOf(cmd, "-friends") >= 0;
@@ -353,6 +357,7 @@ namespace Orsuun.Client
         private bool _openPits;
         private int _pitFight = -1;
         private int _caravanTab = -1;
+        private bool _openAchievements;
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
@@ -458,6 +463,12 @@ namespace Orsuun.Client
             {
                 _enterDungeon = false;
                 EnterDungeon(_dungeonToEnter);
+            }
+            // Dev switch: -achievements opens ACHIEVEMENTS once the hero is online (screenshots).
+            if (Server.Online && _openAchievements)
+            {
+                _openAchievements = false;
+                Achievements.Open();
             }
             if (Server.Online && Server.Wardrobe != null && (_caravanTab >= 0 || _openWardrobe || _openDepot))
             {

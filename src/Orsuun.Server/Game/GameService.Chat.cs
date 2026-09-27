@@ -44,7 +44,7 @@ public sealed partial class GameService
         List<ChatMessage> rows = await query.OrderByDescending(m => m.Id).Take(Chat.PageSize).ToListAsync(ct);
         rows.Reverse();
         ChatLineDto[] lines = rows.Where(m => !blocked.Contains(m.AccountId))
-            .Select(m => new ChatLineDto(m.Id, m.AccountId, m.Name, m.Banner, m.Text, m.Utc, m.AccountId == Guid.Empty, m.AccountId == account.Id))
+            .Select(m => new ChatLineDto(m.Id, m.AccountId, m.Name, m.Banner, m.Text, m.Utc, m.AccountId == Guid.Empty, m.AccountId == account.Id, m.Title))
             .ToArray();
         long latest = rows.Count > 0 ? rows[^1].Id : after;
         return new ChatDto(stored == Chat.World ? Chat.World : "guild", lines, latest, blocked.Count);
@@ -64,7 +64,7 @@ public sealed partial class GameService
         if (account.LastChatUtc is DateTime last && (now - last).TotalSeconds < Chat.CooldownSeconds)
             throw new GameException("chat_cooldown", "Slow down a little.");
         account.LastChatUtc = now;
-        _db.ChatMessages.Add(new ChatMessage { Channel = stored, AccountId = account.Id, Name = DisplayName(account), Banner = account.Banner, Text = text, Utc = now });
+        _db.ChatMessages.Add(new ChatMessage { Channel = stored, AccountId = account.Id, Name = DisplayName(account), Title = TitleOf(account), Banner = account.Banner, Text = text, Utc = now });
         await SaveAsync(ct);
         // Old lines go now and then; a week of chat is plenty for a playtest.
         if (Random.Shared.Next(100) == 0)

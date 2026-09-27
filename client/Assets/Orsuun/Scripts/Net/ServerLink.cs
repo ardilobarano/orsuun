@@ -830,6 +830,49 @@ namespace Orsuun.Client.Net
         /// <summary>The mailbox as the server last showed it.</summary>
         public MailDto Mail { get; private set; }
 
+        // ---- Titles and achievements (Rules.Achievements).
+
+        /// <summary>Achievements done and waiting to be claimed (the MENU badge), and the title worn.</summary>
+        public int AchievementsReady { get; private set; }
+        public string Title { get; private set; } = "";
+        public AchievementsDto Achievements { get; private set; }
+
+        public IEnumerator FetchAchievements(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/achievements", null, true, ApplyAchievements, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        public IEnumerator ClaimAchievement(int id, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/achievements/claim", JsonUtility.ToJson(new AchievementClaimRequest { requestId = NewRequestId(), id = id }), true,
+                ApplyAchievements, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Wears a claimed achievement's title (0: none).</summary>
+        public IEnumerator WearTitle(int id, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/achievements/title", JsonUtility.ToJson(new TitleRequest { id = id }), true, ApplyAchievements, error => failure = error);
+            done(failure);
+        }
+
+        private void ApplyAchievements(string json)
+        {
+            AchievementsDto view = JsonUtility.FromJson<AchievementsDto>(json);
+            Achievements = view;
+            Title = view.title ?? "";
+            if (view.state != null && view.state.inventory != null && view.state.items != null) Apply(view.state);
+            int ready = 0;
+            if (view.list != null)
+                foreach (AchievementDto a in view.list)
+                    if (a.done && !a.claimed) ready++;
+            AchievementsReady = ready;
+        }
+
         public IEnumerator FetchMail(Action<string> done)
         {
             string failure = null;
@@ -1322,6 +1365,8 @@ namespace Orsuun.Client.Net
                 GuildInvites = s.guildInvites;
                 WhisperUnread = s.whispers;
                 MailUnread = s.mail;
+                AchievementsReady = s.achievementsReady;
+                Title = s.title ?? "";
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
             }
@@ -1490,7 +1535,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; }
+        [Serializable] public class AchievementsDto { public StateDto state; public AchievementDto[] list; public int titleId; public string title; public string message; }
+        [Serializable] public class AchievementDto { public int id; public string name; public string text; public long progress; public long target; public int honor; public long sorn; public string title; public bool done; public bool claimed; }
+        [Serializable] public class AchievementClaimRequest { public string requestId; public int id; }
+        [Serializable] public class TitleRequest { public int id; }
         [Serializable] public class WorldEventDto { public string kind; public string name; public string effect; public bool running; public long startsInSeconds; public long endsInSeconds; }
         [Serializable] public class DailyDto { public int day; public bool claimable; public string[] gifts; public long secondsToNext; }
         [Serializable] public class MailDto { public StateDto state; public LetterDto[] letters; public int unread; public string message; }
@@ -1556,7 +1605,7 @@ namespace Orsuun.Client.Net
         /// <summary>mine is never null after JsonUtility: an empty id means no guild.</summary>
         [Serializable] public class GuildViewDto { public StateDto state; public GuildDto mine; public GuildMemberDto[] members; public GuildListItemDto[] browse; public long donatedToday; public long donationCap; public string message; public GuildMemberDto[] requests; public string[] log; public GuildListItemDto[] invites; public GuildMemberDto[] invited; }
         [Serializable] public class GuildAnswerRequest { public string requestId; public string accountId; public bool accept; }
-        [Serializable] public class ChatLineDto { public long id; public string accountId; public string name; public string banner; public string text; public string utc; public bool system; public bool mine; }
+        [Serializable] public class ChatLineDto { public long id; public string accountId; public string name; public string banner; public string text; public string utc; public bool system; public bool mine; public string title; }
         [Serializable] public class ChatDto { public string channel; public ChatLineDto[] lines; public long latestId; public int blocked; }
         [Serializable] public class ChatSayRequest { public string channel; public string text; public long after; }
         [Serializable] public class ChatReportRequest { public long messageId; public string channel; }

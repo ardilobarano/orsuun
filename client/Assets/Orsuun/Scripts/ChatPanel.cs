@@ -298,7 +298,9 @@ namespace Orsuun.Client
             if (line.system) return time + $"<color=#E8C170><i>{text}</i></color>";
             string mark = ColorUtility.ToHtmlStringRGB(BannerLook.Color(BannerLook.Parse(line.banner)));
             string name = line.mine ? $"<color=#9FE39F><b>{line.name}</b></color>" : $"<b>{line.name}</b>";
-            return time + $"<color=#{mark}>■</color> {name}: {text}";
+            // A worn title (Rules.Achievements) before the name, in the reader's language (the row itself stays raw).
+            string title = string.IsNullOrEmpty(line.title) ? "" : $"<color=#FFD66B>‹{Loc.T(line.title)}›</color> ";
+            return time + $"<color=#{mark}>■</color> {title}{name}: {text}";
         }
 
         private void Update()

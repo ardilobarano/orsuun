@@ -22,6 +22,7 @@ public sealed partial class GameService
         BountyProgress p = Progress(account);
         p.Add(metric, amount);
         account.Bounties = p.Serialize();
+        Feat(account, (FeatMetric)(int)metric, amount);   // the first FeatMetrics follow BountyMetric
     }
 
     private BountyBoardDto Board(Account account)
@@ -43,6 +44,7 @@ public sealed partial class GameService
         if (!p.Claimable(bounty)) throw new GameException("not_done", "Not finished yet.");
         int marks = p.Claim(bounty);
         account.HuntMarks += marks;
+        Feat(account, FeatMetric.BountiesClaimed, 1);
         account.Bounties = p.Serialize();
         // The day's missions pay Campaign Trail XP (GDD section 3).
         TrailProgress trail = RollTrail(account, out _);

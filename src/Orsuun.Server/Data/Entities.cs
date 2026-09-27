@@ -109,6 +109,11 @@ public sealed class Account
     public int PitLastLaurels { get; set; }
     /// <summary>A title from the last season's end (Rules.Pits.Title), held through the next.</summary>
     [MaxLength(32)] public string? PitTitle { get; set; }
+    /// <summary>Lifetime counters for achievements (Rules.FeatCounters), claimed achievements' ids, and the one whose
+    /// title the hero wears (0: none).</summary>
+    [MaxLength(256)] public string Feats { get; set; } = "";
+    [MaxLength(512)] public string FeatsClaimed { get; set; } = "";
+    public int TitleId { get; set; }
     /// <summary>
     /// The wardrobe (Rules.Wardrobe.Format: "id:expiresUnix;...") and the piece worn in each slot ("" for none). Amber is
     /// on the Login since characters came (25 Sep 2026).
@@ -444,6 +449,8 @@ public sealed class ChatMessage
     [MaxLength(40)] public string Channel { get; set; } = "";
     public Guid AccountId { get; set; }
     [MaxLength(56)] public string Name { get; set; } = "";
+    /// <summary>The title the sender wore when he wrote the line (Rules.Achievements), or null.</summary>
+    [MaxLength(40)] public string? Title { get; set; }
     public Banner Banner { get; set; }
     [MaxLength(200)] public string Text { get; set; } = "";
     public DateTime Utc { get; set; }

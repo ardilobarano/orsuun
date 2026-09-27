@@ -21,6 +21,7 @@ namespace Orsuun.Client
         private Text _accountLabel;
         private Text _mailLabel;
         private Text _languageLabel;
+        private Text _achievementsLabel;
         private ConfirmDialog _confirm;
         private bool _deleting;
 
@@ -71,7 +72,12 @@ namespace Orsuun.Client
                 Close();
                 _root.Daily.Open();
             }, out _);
-            Ui.Button("Privacy", canvas, 0.15f, 0.455f, 0.85f, 0.515f, "PRIVACY POLICY", 32, Palette.ButtonIdle,
+            Ui.Button("Achievements", canvas, 0.15f, 0.455f, 0.49f, 0.515f, "ACHIEVEMENTS", 24, Palette.ButtonForge, () =>
+            {
+                Close();
+                _root.Achievements.Open();
+            }, out _achievementsLabel);
+            Ui.Button("Privacy", canvas, 0.51f, 0.455f, 0.85f, 0.515f, "PRIVACY POLICY", 24, Palette.ButtonIdle,
                 () => Application.OpenURL(_root.Server.BaseUrl + "/privacy"), out _);
             Ui.Button("Delete", canvas, 0.15f, 0.38f, 0.85f, 0.44f, "DELETE ACCOUNT", 32, Palette.Danger, AskDelete, out _);
             if (ShowDevGrant)
@@ -160,6 +166,8 @@ namespace Orsuun.Client
             _accountLabel.text = _root.Server.Registered ? "ACCOUNT\n<size=16>" + _root.Server.Email + "</size>" : "SIGN UP / SIGN IN";
             int unread = _root.Server.Online ? _root.Server.MailUnread : 0;
             _mailLabel.text = unread > 0 ? $"MAILBOX ({unread})" : "MAILBOX";
+            int ready = _root.Server.Online ? _root.Server.AchievementsReady : 0;
+            _achievementsLabel.text = ready > 0 ? $"ACHIEVEMENTS ({ready})" : "ACHIEVEMENTS";
         }
 
         private void DevSignIn()

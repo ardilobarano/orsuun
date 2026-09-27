@@ -362,6 +362,7 @@ public sealed partial class GameService
         int tallies = Guilds.TalliesFor(today + sorn) - Guilds.TalliesFor(today);
         account.Sorn -= sorn;
         account.Tallies += tallies;
+        Feat(account, FeatMetric.SornDonated, sorn);
         account.GuildDonated += sorn;
         account.GuildDonatedToday = today + sorn;
         account.GuildDonationDay = Rules.Bounties.DayKey(_bells.LocalNow);

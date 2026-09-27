@@ -297,6 +297,7 @@ public sealed partial class GameService
         }
 
         Count(account, BountyMetric.ForgeAttempts, 1);
+        FeatBest(account, FeatMetric.BestUpgrade, result.LevelAfter);
         if (result.LevelAfter > result.LevelBefore && result.LevelAfter >= 8)
             SystemLine(Chat.World, $"{DisplayName(account)} forged {Content.ItemName(state, account.Class)} to +{result.LevelAfter}!");
         _db.Ledger.Add(Entry(account.Id, item.Id, "forge",
@@ -588,6 +589,7 @@ public sealed partial class GameService
             clock.SlainBanner = account.Banner;
             clock.SlainBy = name;
             chest += ", and you struck the last blow";
+            Feat(account, FeatMetric.CommanderLastBlows, 1);
             SystemLine(Chat.World, account.Banner == Banner.None ? $"{boss.Name} has fallen; {name} struck the last blow."
                 : $"{boss.Name} has fallen to the {Banners.Def(account.Banner).Name}; {name} struck the last blow.");
             if (await RewardTopGuildAsync(boss, clock, account, run.Damage, ct)) chest += $", and your guild's {Guilds.CommanderTopTallies} Guild Tallies for rank 1";
@@ -859,7 +861,9 @@ public sealed partial class GameService
             Honor: account.Honor,
             Figure: account.Figure,
             Daily: DailyOf(account),
-            Events: _events.Dto(DateTime.UtcNow));
+            Events: _events.Dto(DateTime.UtcNow),
+            AchievementsReady: AchievementsReady(account),
+            Title: TitleOf(account));
     }
 
     private static ItemDto ToDto(Item item)

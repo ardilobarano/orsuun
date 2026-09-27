@@ -2071,3 +2071,101 @@ Steppe Lynx Kit	Bozkır Vaşak Yavrusu
 Too young to hunt, old enough to sit on your purse.	Avlanmak için çok küçük, kesenin üstüne oturacak kadar büyük.
 Snow Owl	Kar Baykuşu
 Silent over the Whitefang snows; it sees the quarry first.	Akdiş karlarının üstünde sessiz; avı ilk o görür.
+# Titles and achievements (27 Sep 2026)
+ACHIEVEMENTS	BAŞARIMLAR
+ACHIEVEMENTS ({0})	BAŞARIMLAR ({0})
+TITLE: NONE	UNVAN: YOK
+TITLE: {0}	UNVAN: {0}
+TITLE	UNVAN
+{0} of {1} claimed	{1} başarımdan {0} alındı
+DONE: TAP TO CLAIM	TAMAM: ALMAK İÇİN DOKUN
++{0} Honor	+{0} Onur
+title: {0}	unvan: {0}
+★ {0}	★ {0}
+Offline: achievements need the server.	Çevrimdışı: başarımlar sunucu ister.
+Nothing to claim yet.	Henüz alınacak bir şey yok.
+Claimed {0} achievements.	{0} başarım alındı.
+Claim an achievement that gives a title first.	Önce unvan veren bir başarımı al.
+You wear no title.	Unvan taşımıyorsun.
+You wear the title {0}.	{0} unvanını taşıyorsun.
+Not done yet.	Henüz tamamlanmadı.
+No such achievement.	Böyle bir başarım yok.
+Claim it first.	Önce onu al.
+That achievement gives no title.	O başarım unvan vermez.
+Clear {0}.	{0} haritasını temizle.
+Reach level {0}.	{0}. seviyeye ulaş.
+First Crack	İlk Çatlak
+Break a Korstone.	Bir Kortaşı kır.
+Stone Breaker	Taş Kıran
+Break 100 Korstones.	100 Kortaşı kır.
+Quarry Master	Ocak Ustası
+Break 1,000 Korstones.	1.000 Kortaşı kır.
+Korstone Bane	Kortaşı Belası
+Break 10,000 Korstones.	10.000 Kortaşı kır.
+Out on the Steppe	Bozkırda
+Hunt for an hour while you watch.	İzlerken bir saat avlan.
+Long Rides	Uzun Yolculuklar
+Hunt for a day while you watch.	İzlerken bir gün avlan.
+Steppe-Born	Bozkır Doğumlu
+Hunt for 200 hours while you watch.	İzlerken 200 saat avlan.
+Blooded	Kan Görmüş
+Seasoned	Pişmiş
+Veteran	Kıdemli
+Warlord	Savaş Beyi
+Legend	Efsane
+Veteran of the Steppe	Bozkırın Kıdemlisi
+Legend of the Banners	Sancakların Efsanesi
+First Sparks	İlk Kıvılcımlar
+Make 10 Forge attempts.	10 kez güçlendirmeyi dene.
+Anvil Regular	Örsün Müdavimi
+Make 200 Forge attempts.	200 kez güçlendirmeyi dene.
+Gleam	Parıltı
+Forge a piece to +7.	Bir parçayı +7'ye güçlendir.
+Gold Shine	Altın Işıltı
+Forge a piece to +8.	Bir parçayı +8'e güçlendir.
+Ember-Gold	Kor-Altın
+Forge a piece to +9.	Bir parçayı +9'a güçlendir.
+Oathsmith	Yemin Demircisi
+Oathbreaker	Yeminbozan
+Lose 10 weapons to an Oathbreak.	Yemin Bozumunda 10 silah kaybet.
+Etcher	Oymacı
+Turn etchings 100 times.	Oymaları 100 kez çevir.
+Commander Hunter	Komutan Avcısı
+Fight a Commander 10 times.	Bir Komutanla 10 kez dövüş.
+Last Blow	Son Darbe
+Strike a Commander's last blow.	Bir Komutana son darbeyi vur.
+Commander's Bane	Komutanların Belası
+Strike 10 Commanders' last blows.	10 Komutana son darbeyi vur.
+Siege Hand	Kuşatma Eri
+Fight 20 siege battles.	20 kuşatma savaşında dövüş.
+Wall-Breaker	Sur Yıkan
+Fight 200 siege battles.	200 kuşatma savaşında dövüş.
+Pit Blooded	Çukurda Kan Görmüş
+Win 10 Pit fights.	Çukurda 10 dövüş kazan.
+Pit Fighter	Çukur Dövüşçüsü
+Win 100 Pit fights.	Çukurda 100 dövüş kazan.
+Pit Legend	Çukur Efsanesi
+Win 500 Pit fights.	Çukurda 500 dövüş kazan.
+Delver	Derinlere İnen
+Clear 5 dungeons.	5 zindan temizle.
+Deep Delver	Derinlerin Kaşifi
+Clear 50 dungeons.	50 zindan temizle.
+Bounty Hunter	Ödül Avcısı
+Claim 50 bounties.	50 görev ödülü al.
+Faithful	Sadık
+Take 7 daily gifts.	7 günlük hediye al.
+Old Friend of the Caravan	Kervanın Eski Dostu
+Take 30 daily gifts.	30 günlük hediye al.
+Banner-Brother	Sancak Kardeşi
+Join a guild.	Bir loncaya katıl.
+Patron	Hami
+Give 1,000,000 sorn to your guild.	Loncana 1.000.000 sorn bağışla.
+Mastered	Ustalaşmış
+Raise a skill to M10.	Bir beceriyi M10'a yükselt.
+Peerless	Eşsiz
+Raise a skill to Peerless.	Bir beceriyi Eşsiz'e yükselt.
+Wayfarer	Yolcu
+Walker of the Twelve Roads	On İki Yolun Yolcusu
+Stonebreaker	Taşkıran
+{0} claimed: +{1} Honor, +{2} sorn.	{0} alındı: +{1} Onur, +{2} sorn.
+New title: {0}.	Yeni unvan: {0}.

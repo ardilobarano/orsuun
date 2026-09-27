@@ -228,3 +228,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Creature models (`looks.mob_model`: enemies, mounts, companions) weld the mesh's UV-seam splits before decimating
   (`_bake(weld=True)`); decimated split, the seams opened into hairline cracks the lane's bright ground showed through.
   Hero looks (`class_look`, `armor_look`) keep the split mesh: their weapon cut (`_held_islands`) relies on it.
+- Achievements (`Rules.Achievements`, since 27 Sep 2026) read lifetime counters (`Account.Feats`, `FeatMetric`: its
+  first seven follow `BountyMetric`, so every `Count` also counts a feat; append new metrics, never renumber) and the hero
+  as he stands; achievement ids are stored in `FeatsClaimed` and `TitleId`, so never renumber them either. A worn title
+  goes on chat lines (`ChatMessage.Title`) and Pit boards (`TitleOf`: the worn title, else the Pits' season title).

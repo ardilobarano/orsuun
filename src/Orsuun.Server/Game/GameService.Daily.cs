@@ -35,6 +35,7 @@ public sealed partial class GameService
         Apply(account, inventory);
         login.DailyDay = day;
         login.DailyClaimedOn = today;
+        Feat(account, FeatMetric.GiftsClaimed, 1);
         _db.Ledger.Add(Entry(account.Id, null, "daily", $"day={day} {reward.Text}", reward.Sorn, request.RequestId));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);

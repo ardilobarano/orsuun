@@ -493,6 +493,7 @@ namespace Orsuun.Client
                 : letters == 1 ? "A LETTER HAS COME: OPEN THE MAILBOX" : $"{letters} LETTERS HAVE COME: OPEN THE MAILBOX";
             bool claim = _root.Bounties.AnyClaimable;
             _navBadges[2].gameObject.SetActive(claim);
+            _navBadges[5].gameObject.SetActive(_root.Server.Online && _root.Server.AchievementsReady > 0);
             BannerLook.Show(_flag, _root.Server.Banner);
             if (_lastLevel > 0 && inv.Level > _lastLevel)
             {
