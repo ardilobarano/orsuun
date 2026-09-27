@@ -272,6 +272,9 @@ namespace Orsuun.Client
 
         private string _backdropKey;
 
+        /// <summary>The lane's backdrop now ("HuntingGround", "SaltFlats", "Whisperwood"...): the music follows it.</summary>
+        public string BackdropKeyNow => _backdropKey;
+
         /// <summary>
         /// Backdrop and ground tint for a stage: by zone type, with the Salt Flats and the Frost Pasture on their own
         /// environment keys. Campaign stages use the Hunting Grounds key for now.

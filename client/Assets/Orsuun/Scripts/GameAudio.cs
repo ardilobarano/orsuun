@@ -22,6 +22,25 @@ namespace Orsuun.Client
         private AudioSource _musicA, _musicB;
         private AudioSource _musicNow;
         private float _fade = 1f;
+        /// <summary>-musiclog writes each track change to the log (the Mac player cannot be listened to headless).</summary>
+        private static readonly bool MusicLog = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-musiclog") >= 0;
+        private float _fadeSeconds = 1.5f;
+        /// <summary>A track starts again this long before its end, crossfading over LoopFade (the generated themes fade
+        /// out over their last seconds, so a plain loop would dip).</summary>
+        private const float LoopTail = 6f, LoopFade = 4f;
+
+        /// <summary>
+        /// The generated themes (ElevenLabs Music, 27 Sep 2026), measured: a gain in dB that brings each to about -17.5 dBFS,
+        /// and where a repeat starts for one that fades in (the swamp's first four seconds rise from silence).
+        /// </summary>
+        private static readonly System.Collections.Generic.Dictionary<string, (float db, float start)> Tracks =
+            new System.Collections.Generic.Dictionary<string, (float, float)>
+            {
+                ["MusicMap02"] = (-1.3f, 0f), ["MusicMap04"] = (2.7f, 0f), ["MusicMap05"] = (1.1f, 0f), ["MusicMap06"] = (-0.8f, 0f),
+                ["MusicMap07"] = (-2.6f, 0f), ["MusicMap08"] = (0.4f, 4f), ["MusicMap10"] = (2.9f, 0f), ["MusicMap11"] = (-2.6f, 0f),
+            };
+
+        private static float Gain(AudioClip clip) => clip != null && Tracks.TryGetValue(clip.name, out var t) ? Mathf.Pow(10f, t.db / 20f) : 1f;
         private int _next;
 
         public bool Muted { get; private set; }
@@ -48,7 +67,7 @@ namespace Orsuun.Client
             _musicB = gameObject.AddComponent<AudioSource>();
             foreach (AudioSource m in new[] { _musicA, _musicB })
             {
-                m.loop = true;
+                m.loop = false;   // Update loops each track into itself (LoopTail)
                 m.playOnAwake = false;
                 m.volume = 0f;
             }
@@ -66,8 +85,9 @@ namespace Orsuun.Client
         {
             if (!_clips.TryGetValue(name, out AudioClip clip))
             {
-                clip = Resources.Load<AudioClip>("Audio/" + name);
-                _clips[name] = clip;
+                // Sounds live in Resources/Audio; the map music and stings are downloaded art (Content/Music).
+                clip = Resources.Load<AudioClip>("Audio/" + name) ?? Art.Load<AudioClip>("Music/" + name);
+                if (clip != null) _clips[name] = clip;   // a miss is asked again (the art may still be downloading)
             }
             return clip;
         }
@@ -86,26 +106,39 @@ namespace Orsuun.Client
             voice.PlayOneShot(clip, volume);
         }
 
-        /// <summary>Crossfades to a music track (Resources/Audio/Music*.wav), over about a second and a half.</summary>
-        public void Music(string name)
+        /// <summary>Crossfades to a music track (Resources/Audio or the downloaded Content/Music) over about a second and a
+        /// half; a track not there yet (art still downloading) plays <paramref name="fallback"/>.</summary>
+        public void Music(string name, string fallback = null)
         {
-            AudioClip clip = Clip(name);
+            AudioClip clip = Clip(name) ?? (fallback != null ? Clip(fallback) : null);
             if (clip == null || (_musicNow != null && _musicNow.clip == clip)) return;
+            StartMusic(clip, 1.5f);
+        }
+
+        private void StartMusic(AudioClip clip, float fadeSeconds, float from = 0f)
+        {
             AudioSource next = _musicNow == _musicA ? _musicB : _musicA;
             next.clip = clip;
+            next.time = from;
+            if (MusicLog) Debug.Log("MUSIC " + clip.name + " from " + from.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture));
             next.volume = 0f;
             next.Play();
             _musicNow = next;
             _fade = 0f;
+            _fadeSeconds = fadeSeconds;
         }
 
         private void Update()
         {
+            // The track runs into itself before its end.
+            if (_musicNow != null && _musicNow.clip != null && _musicNow.clip.length > LoopTail * 2f && _fade >= 1f
+                && _musicNow.time >= _musicNow.clip.length - LoopTail)
+                StartMusic(_musicNow.clip, LoopFade, Tracks.TryGetValue(_musicNow.clip.name, out var t) ? t.start : 0f);
             if (_musicNow == null || _fade >= 1f) return;
-            _fade = Mathf.Min(1f, _fade + Time.unscaledDeltaTime / 1.5f);
+            _fade = Mathf.Min(1f, _fade + Time.unscaledDeltaTime / _fadeSeconds);
             AudioSource other = _musicNow == _musicA ? _musicB : _musicA;
-            _musicNow.volume = MusicVolume * _fade;
-            other.volume = MusicVolume * (1f - _fade);
+            _musicNow.volume = MusicVolume * Gain(_musicNow.clip) * _fade;
+            other.volume = MusicVolume * Gain(other.clip) * (1f - _fade);
             if (_fade >= 1f) other.Stop();
         }
     }

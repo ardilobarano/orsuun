@@ -262,3 +262,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Funnel milestones (`GameService.Funnel`): `Mark(account, name)` queues a first, written after `SaveAsync` with ON
   CONFLICT (one row per hero and name). `Feat` marks "first-<metric>" by itself; a new first elsewhere calls `Mark` and
   gets a row in `FunnelSteps`. Phones may send only `tutorial-*` names.
+- Music (27 Sep 2026) is downloaded art: `Content/Music/<Name>.mp3` (ElevenLabs Music), played through
+  `GameAudio.Music(name, fallback)`; `GameRoot.UpdateMusic` picks it from the lane's backdrop (`MapMusic`). A new map or
+  backdrop needs its entry there; a new theme that fades in or is louder than about -17.5 dBFS gets a row in
+  `GameAudio.Tracks`. Higgsfield cannot make music (its audio tools are speech only).

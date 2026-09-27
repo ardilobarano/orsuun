@@ -155,6 +155,8 @@ namespace Orsuun.Client
                     bool nine = result.LevelAfter >= ItemState.MaxUpgradeLevel;
                     Color c = result.LevelAfter >= 7 ? ForgePanel.LevelColor(result.LevelAfter) : new Color(1f, 0.85f, 0.45f);
                     Play(nine ? _nine : _success, 1f);
+                    // +7 and +8 (the glow begins) add the Forge's fanfare; +9 has its own sound.
+                    if (!nine && result.LevelAfter >= 7) GameAudio.Instance?.Play("StingForge", 0.85f, 0f, 0f);
                     Flash(new Color(1f, 0.93f, 0.75f), nine ? 1f : 0.8f);
                     _raysAlpha = nine ? 1f : 0.75f;
                     _rays.color = c;

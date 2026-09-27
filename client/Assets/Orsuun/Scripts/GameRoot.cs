@@ -480,8 +480,42 @@ namespace Orsuun.Client
 
         }
 
+        private float _musicCheck;
+        private bool _bossOnLane;
+
+        /// <summary>
+        /// Music (owner, 27 Sep 2026: "Music per map"): each map's theme under its backdrop (Content/Music, downloaded;
+        /// the old hunt track until it is there), the boss loop and a sting while a boss stands on the lane. The title
+        /// screen keeps its own.
+        /// </summary>
+        private void UpdateMusic()
+        {
+            if (GameAudio.Instance == null || Title.Showing || Lane.BackdropKeyNow == null) return;
+            _musicCheck -= Time.unscaledDeltaTime;
+            if (_musicCheck > 0f) return;
+            _musicCheck = 0.5f;
+            LaneSim lane = ActiveLane;
+            bool boss = lane.IsBossEncounter && lane.Phase == LanePhase.Fighting;
+            if (boss && !_bossOnLane) GameAudio.Instance.Play("StingBoss", 0.9f, 0f, 0f);
+            _bossOnLane = boss;
+            GameAudio.Instance.Music(boss ? "MusicBoss" : MapMusic(Lane.BackdropKeyNow), "MusicHunt");
+        }
+
+        /// <summary>The theme for a lane backdrop: a map's own, dungeons and fields borrowing a fitting one.</summary>
+        private static string MapMusic(string backdrop) => "MusicMap" + (backdrop switch
+        {
+            "CommanderGround" => 2, "SaltFlats" => 3, "FrostPasture" => 4, "CinderMarches" => 5, "Whisperwood" => 6,
+            "Bloodbirch" => 7, "DrownedSteppe" => 8, "ColossusGraves" => 9, "SunkenBazaar" => 10, "ThousandMarkers" => 11,
+            "HollowThrone" => 12, "HollowSpire" => 6, "SilkWarren" => 8, "CarversArchive" => 9,
+            _ => 1,
+        }).ToString("00");
+
+        /// <summary>The short fanfare of a fight won (a push, a Commander, a raid boss, a dungeon, a duel).</summary>
+        private static void Victory() => GameAudio.Instance?.Play("StingVictory", 0.9f, 0f, 0f);
+
         private void Update()
         {
+            UpdateMusic();
             CastShow();
             // Screenshots: the conversation opens once the hero is on line (its id comes from the server).
             if (_messagesTo != null && Server.Online && !Server.WaitingForHero)
@@ -686,6 +720,7 @@ namespace Orsuun.Client
             while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
 
             ReplayBanner = (_replay.BossesKilled > 0 ? "SLAIN  ·  " : "FLED  ·  ") + "rank " + rank + " of 20";
+            if (_replay.BossesKilled > 0) Victory();
             Hud.Log(chest + PoolNote(bossId));
             yield return new WaitForSecondsRealtime(2.5f);
 
@@ -720,6 +755,7 @@ namespace Orsuun.Client
             while (_replay.BossesKilled == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
 
             ReplayBanner = result.raid.slain ? "THE RAID BOSS HAS FALLEN" : $"{result.damage.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)} DAMAGE";
+            if (result.raid.slain) Victory();
             Hud.Log(result.raid.message);
             yield return new WaitForSecondsRealtime(2.5f);
 
@@ -868,6 +904,7 @@ namespace Orsuun.Client
             DungeonDef dungeon = Dungeons.Find(run.dungeonId);
             string name = dungeon != null ? dungeon.Name.ToUpperInvariant() : "THE DUNGEON";
             ReplayBanner = run.cleared ? name + " CLEARED" : run.fellOn > 0 ? $"FELL ON FLOOR {run.fellOn}" : "";
+            if (run.cleared) Victory();
             if (run.cleared) GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.5f, 0f);
             Hud.Log(run.text);
             yield return new WaitForSecondsRealtime(2.5f);
@@ -949,6 +986,7 @@ namespace Orsuun.Client
 
             int moved = fight.ratingAfter - fight.ratingBefore;
             ReplayBanner = (duel.won ? "VICTORY  ·  " : "DEFEAT  ·  ") + (moved >= 0 ? "+" : "") + moved;
+            if (duel.won) Victory();
             GameAudio.Instance?.Play(duel.won ? "LaneLevelUp" : "LaneHeroHurt", 1f, 0.5f, 0f);
             Hud.Log(duel.text);
             yield return new WaitForSecondsRealtime(2.5f);
@@ -1040,6 +1078,7 @@ namespace Orsuun.Client
             while (_replay.Clears == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
 
             ReplayBanner = (cleared ? "CLEARED  ·  " : "FAILED  ·  ") + Content.StageName(stage);
+            if (cleared) Victory();
             yield return new WaitForSecondsRealtime(2f);
 
             _replay = null;

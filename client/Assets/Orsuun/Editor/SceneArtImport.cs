@@ -17,6 +17,22 @@ namespace Orsuun.Client.EditorTools
     {
         public override uint GetVersion() => 3;
 
+        /// <summary>The map music (Content/Music, downloaded, 27 Sep 2026): the long themes stream from their bundle (only the
+        /// one playing and the one fading are read); the short stings load whole. Vorbis for both.</summary>
+        private void OnPreprocessAudio()
+        {
+            string path = assetPath.Replace('\\', '/');
+            if (!path.Contains("/Content/Music/")) return;
+            var importer = (AudioImporter)assetImporter;
+            bool sting = System.IO.Path.GetFileName(path).StartsWith("Sting");
+            AudioImporterSampleSettings settings = importer.defaultSampleSettings;
+            settings.loadType = sting ? UnityEngine.AudioClipLoadType.DecompressOnLoad : UnityEngine.AudioClipLoadType.Streaming;
+            settings.compressionFormat = UnityEngine.AudioCompressionFormat.Vorbis;
+            settings.quality = 0.6f;
+            importer.defaultSampleSettings = settings;
+            importer.loadInBackground = !sting;
+        }
+
         private void OnPreprocessTexture()
         {
             string path = assetPath.Replace('\\', '/');
