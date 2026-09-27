@@ -105,6 +105,13 @@ namespace Orsuun.Rules
                 "Barded in saffron and brass, as the caravan cities ride."),
             new WardrobeDef("hollow-steed", "Hollow Steed", WardrobeKind.Mount, 4, WardrobePerk.Attack, 6, true, "HorseHollow",
                 "One of the herds that went Hollow, tamed again."),
+            // Owner, 27 Sep 2026: "create new different mounts and companions".
+            new WardrobeDef("salt-road-camel", "Salt Road Camel", WardrobeKind.Mount, 2, WardrobePerk.Attack, 4, true, "Camel",
+                "Two humps, a saffron saddle and the patience of the salt roads."),
+            new WardrobeDef("whitefang-yak", "Whitefang Yak", WardrobeKind.Mount, 3, WardrobePerk.Attack, 5, true, "Yak",
+                "Shaggy, red-horned and at home in the Whitefang snows."),
+            new WardrobeDef("sky-stag", "Sky Stag", WardrobeKind.Mount, 4, WardrobePerk.Attack, 6, true, "Stag",
+                "A great maral hung with blue silk and silver bells: the Sky Banner's pride."),
             new WardrobeDef("amber-road-courser", "Amber Road Courser", WardrobeKind.Mount, 4, WardrobePerk.Attack, 5, false, "HorseAmber",
                 "Barded in honey amber and bronze for the salt roads. The Campaign Trail's first season."),
             new WardrobeDef("white-steppe-courser", "White Steppe Courser", WardrobeKind.Mount, 4, WardrobePerk.Attack, 5, false, "HorseWhite",
@@ -118,6 +125,12 @@ namespace Orsuun.Rules
                 "A Hollow wolf's whelp that chose the living."),
             new WardrobeDef("khagan-eagle", "Khagan's Eagle", WardrobeKind.Companion, 4, WardrobePerk.Xp, 8, true, "Eagle",
                 "A golden eagle fit for the Khagan league."),
+            new WardrobeDef("barrow-raven", "Barrow Raven", WardrobeKind.Companion, 1, WardrobePerk.Xp, 3, true, "Raven",
+                "It keeps the barrows' secrets and tells you only where the next fight is."),
+            new WardrobeDef("steppe-lynx-kit", "Steppe Lynx Kit", WardrobeKind.Companion, 2, WardrobePerk.Sorn, 4, true, "Lynx",
+                "Too young to hunt, old enough to sit on your purse."),
+            new WardrobeDef("snow-owl", "Snow Owl", WardrobeKind.Companion, 3, WardrobePerk.Xp, 6, true, "Owl",
+                "Silent over the Whitefang snows; it sees the quarry first."),
         };
 
         public static WardrobeDef? Find(string? id)

@@ -2058,3 +2058,16 @@ Commanders return every 15 minutes	Komutanlar her 15 dakikada bir döner
 (includes +{0}% Lucky Forge Hour)	(+%{0} Şanslı Demirhane Saati dahil)
 success	başarı
 T{0}	K{0}
+# New mounts and companions (27 Sep 2026)
+Salt Road Camel	Tuz Yolu Devesi
+Two humps, a saffron saddle and the patience of the salt roads.	İki hörgüç, safran bir eyer ve tuz yollarının sabrı.
+Whitefang Yak	Akdiş Yakı
+Shaggy, red-horned and at home in the Whitefang snows.	Tüylü, kızıl boynuzlu ve Akdiş karlarında evinde.
+Sky Stag	Gök Geyiği
+A great maral hung with blue silk and silver bells: the Sky Banner's pride.	Mavi ipek ve gümüş çıngıraklarla süslü büyük bir maral: Gök Sancağı'nın gururu.
+Barrow Raven	Kurgan Kuzgunu
+It keeps the barrows' secrets and tells you only where the next fight is.	Kurganların sırlarını saklar, sana yalnızca bir sonraki kavganın yerini söyler.
+Steppe Lynx Kit	Bozkır Vaşak Yavrusu
+Too young to hunt, old enough to sit on your purse.	Avlanmak için çok küçük, kesenin üstüne oturacak kadar büyük.
+Snow Owl	Kar Baykuşu
+Silent over the Whitefang snows; it sees the quarry first.	Akdiş karlarının üstünde sessiz; avı ilk o görür.

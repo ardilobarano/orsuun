@@ -961,14 +961,19 @@ namespace Orsuun.Client
             ["WhiteSteppe"] = (4, new Color(0.88f, 0.94f, 1f)),
         };
 
-        private static readonly Dictionary<string, (string Model, float Scale)> MountLooks = new Dictionary<string, (string, float)>
+        /// <summary>A mount's model, its scale on the lane, and how far behind its middle the saddle sits (the camel's is
+        /// between its humps).</summary>
+        private static readonly Dictionary<string, (string Model, float Scale, float Saddle)> MountLooks = new Dictionary<string, (string, float, float)>
         {
-            ["HorsePony"] = ("MountPony", 1f),
-            ["HorseEmber"] = ("MountWarhorse", 0.88f),
-            ["HorseGold"] = ("MountWarhorseGold", 0.9f),
-            ["HorseHollow"] = ("MountWarhorseHollow", 0.92f),
-            ["HorseAmber"] = ("MountWarhorseAmber", 0.91f),
-            ["HorseWhite"] = ("MountWarhorseWhite", 0.91f),
+            ["HorsePony"] = ("MountPony", 1f, SaddleBack),
+            ["HorseEmber"] = ("MountWarhorse", 0.88f, SaddleBack),
+            ["HorseGold"] = ("MountWarhorseGold", 0.9f, SaddleBack),
+            ["HorseHollow"] = ("MountWarhorseHollow", 0.92f, SaddleBack),
+            ["HorseAmber"] = ("MountWarhorseAmber", 0.91f, SaddleBack),
+            ["HorseWhite"] = ("MountWarhorseWhite", 0.91f, SaddleBack),
+            ["Camel"] = ("MountCamel", 0.88f, 0.27f),
+            ["Yak"] = ("MountYak", 0.95f, SaddleBack),
+            ["Stag"] = ("MountStag", 0.9f, SaddleBack),
         };
 
         private static readonly Dictionary<string, (string Model, float Scale, bool Flies)> CompanionLooks = new Dictionary<string, (string, float, bool)>
@@ -977,6 +982,9 @@ namespace Orsuun.Client
             ["WolfPup"] = ("Wolf", 0.5f, false),
             ["Falcon"] = ("PetFalcon", 1.4f, true),
             ["Eagle"] = ("PetEagle", 1.8f, true),
+            ["Lynx"] = ("PetLynx", 1f, false),
+            ["Owl"] = ("PetOwl", 1.6f, true),
+            ["Raven"] = ("PetRaven", 1.5f, true),
         };
 
         /// <summary>
@@ -1034,7 +1042,7 @@ namespace Orsuun.Client
         private const float SeatBin = 0.05f;
         private static readonly Dictionary<string, MountSeat> Seats = new Dictionary<string, MountSeat>();
         private MountSeat _seat;
-        private float _mountScale = 1f, _thighOut = 16f, _shinOut = 4f;
+        private float _mountScale = 1f, _saddleBack = SaddleBack, _thighOut = 16f, _shinOut = 4f;
 
         private Color _skinTint = Color.white;
         private string _mountKey, _companionKey;
@@ -1062,7 +1070,8 @@ namespace Orsuun.Client
                 {
                     _mount = Companion(m.Model, m.Scale, out _mountAnim, out _mountHeight);
                     _mountScale = m.Scale;
-                    _seat = _mount != null ? Seat(m.Model, _mount, m.Scale) : null;
+                    _saddleBack = m.Saddle;
+                    _seat = _mount != null ? Seat(m.Model, _mount, m.Scale, m.Saddle) : null;
                 }
                 // The seat is fitted to the rider in LateUpdate (his hips and thighs); until then the old guess.
                 if (_mount != null) _rideY = Mathf.Max(0f, _mountHeight * 0.56f - _rig.localScale.y);
@@ -1084,14 +1093,14 @@ namespace Orsuun.Client
         private float _mountHeight;
 
         /// <summary>
-        /// Measures a mount once: the top of its back over the saddle (SaddleBack behind its origin, which faces +Z) and, at
+        /// Measures a mount once: the top of its back over the saddle (<paramref name="back"/> behind its origin, which faces +Z) and, at
         /// each height below it, how wide its barrel gets between the saddle and a stride ahead, from the mesh's rest shape.
         /// Null when the mesh cannot be read (then the rider keeps the old guess).
         /// </summary>
-        private static MountSeat Seat(string model, Transform root, float scale)
+        private static MountSeat Seat(string model, Transform root, float scale, float back)
         {
             if (Seats.TryGetValue(model, out MountSeat known)) return known;
-            float saddle = -SaddleBack / scale, stride = 0.7f / scale, slab = 0.15f / scale;
+            float saddle = -back / scale, stride = 0.7f / scale, slab = 0.15f / scale;
             var points = new List<Vector3>();
             foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
             {
@@ -1159,9 +1168,9 @@ namespace Orsuun.Client
             bool running = _sim.Phase == LanePhase.Running;
             if (_mount != null)
             {
-                // The saddle under the rider: the mount's centre sits SaddleBack ahead of him along its facing.
+                // The saddle under the rider: the mount's centre sits its saddle distance ahead of him along its facing.
                 Vector3 facing = _mount.rotation * Vector3.forward;
-                _mount.position = new Vector3(HeroX + MountShift + _heroPunch * 0.12f, 0f, 0f) + new Vector3(facing.x, 0f, facing.z) * SaddleBack;
+                _mount.position = new Vector3(HeroX + MountShift + _heroPunch * 0.12f, 0f, 0f) + new Vector3(facing.x, 0f, facing.z) * _saddleBack;
                 string loop = running ? "Run" : "Idle";
                 if (_mountAnim != null && !_mountAnim.IsPlaying(loop)) _mountAnim.CrossFade(loop, 0.2f);
             }

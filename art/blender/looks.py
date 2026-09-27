@@ -562,26 +562,18 @@ def turn_reversed_feet(mesh, height):
 # Models whose Tripo build painted a face on the back of the head too (a view of each head from behind, 27 Sep 2026):
 # paint_back_of_head runs on these only, since red ribbons and collars read like skin to any colour rule. Check a new
 # model from behind and add it here if a face shows.
-BACK_FACES = frozenset(
-    ["WraithswornAlt_T%d" % b for b in range(3, 11)]
-    + ["Wraithsworn_T%d" % b for b in range(3, 10)]
-    + ["Wraithsworn_Skin%sAlt" % k for k in ("FrostHunter", "GraveWarden", "GreyjawPelt", "SaltNomad", "TulGorak",
-                                              "WhiteSteppe", "AmberRoad")]
-    + ["Wraithsworn_SkinWhiteSteppe", "Kestrel_T1", "Kestrel_T2"])
+BACK_FACES = frozenset()
 
 # Models Tripo built facing +Y as a whole (face, bust and boots behind, the back of the head in front; same audit):
 # class_look mirrors them front to back, which keeps the sabre in the right hand.
-BACKWARDS = frozenset(["Wraithsworn_SkinMirageVeilAlt"])
+BACKWARDS = frozenset()
 # Models whose shape and side views face +Y while their front and back paint face the right way (the concept sheet's
 # side view looked the other way; same audit): seen from the side, as the lane shows them, they walked backwards, feet
 # and face and bust turned round. face_forward mirrors the shape and keeps the front and back paint where they were.
 # True: the head's paint was turned round too, so it keeps the mirrored paint.
-FACE_FORWARD = dict(
-    [("WraithswornAlt_T%d" % b, False) for b in range(11)]
-    + [("Wraithsworn_Skin%sAlt" % k, False) for k in ("AmberRoad", "FrostHunter", "GraveWarden", "GreyjawPelt",
-                                                        "SaltNomad", "TulGorak", "WhiteSteppe")]
-    + [("Wraithsworn_T%d" % b, False) for b in range(3, 9)]
-    + [("Wraithsworn_SkinWhiteSteppe", False), ("Kestrel_T1", False), ("Drumcaller_T0", False)])
+# All three lists are empty since 27 Sep 2026: the thirty models on them were made again with the views in Tripo's
+# order (front, left, back, right). The repairs stay for a model that comes out wrong again.
+FACE_FORWARD = dict()
 
 
 def _uv_coverage(me, w, h):

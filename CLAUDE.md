@@ -50,12 +50,12 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `yaw_degrees=-90`), upscales done locally; Blender then cuts, scales, rigs and exports. fal.ai (key in
   `~/.config/fal/key`, never in chat or git; `tools/art/fal.py`) is out of balance and optional. Item looks go through `art/blender/looks.py` (armour looks are rigged there by
   `rig.py`); other classes' bands through `looks.class_look`; enemies through `looks.mob_model`.
-- Tripo multiview takes its views in the order front, LEFT, back, right. Our sheets' side panel shows the figure's
-  right side (facing the viewer's right): pass front, the side mirrored, back, the side (four views). Passing the side
-  second built ~30 second-look and costume models facing backwards in profile (27 Sep 2026); `looks.py` repairs those
-  by name (`FACE_FORWARD` mirrors the shape and re-projects the front/back paint, `BACKWARDS`, `BACK_FACES` paints over a
-  face on the back of a head, `turn_reversed_feet` turns a boot built backwards). Check a new model in profile and
-  from behind (the lane shows heroes side on) before adding it; the lists are by model name.
+- Tripo multiview takes its views in the order front, LEFT, back, right. The left view is the one facing the viewer's
+  left: most class sheets' side panels face right (pass front, the side mirrored, back, the side), but some face left
+  (Kestrel T2; every Caravan animal sheet) and go in as drawn, mirrored for right. A wrong one comes out two-faced or
+  backwards in profile. The ~30 models built the wrong way were made again on 27 Sep 2026; `looks.py` keeps its repairs
+  (`FACE_FORWARD`, `BACKWARDS`, `BACK_FACES`, all empty now, and `turn_reversed_feet`) for one that comes out wrong.
+  Check a new model in profile and from behind (the lane shows heroes side on) before adding it.
 - Active play: the farm lane online is one seeded loop per encounter cycle; anything that rebuilds `PlayerSession.Lane`
   must go through `NewFarmLane`/`StartLoop`, and anything that changes the hero through `RefreshHero`, or loop reports
   stop matching the server's replay (`SessionLoopTests` guards this).
