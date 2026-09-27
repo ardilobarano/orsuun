@@ -1027,7 +1027,7 @@ FIRST STRIKE	PIERWSZE UDERZENIE
 WELL STRUCK	DOBRZE WYKUTE
 Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Wygrana czy przegrana, Kuźnia zawsze czeka. Dotknij WRÓĆ NA ŁOWY.
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Nowe przedmioty trafiają do torby: zakładaj je w EKWIPUNKU. Tam ulepszysz lub przemienisz każdy przedmiot, założony lub w torbie.
-PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	NAPRZÓD zdobywa kolejny etap, gdy starczy ci sił. Każdy ukończony etap otwiera nowe łowiska w STREFACH.
+PUSH takes the next stage when you are strong enough, and your hunt moves on with it. Each clear opens new hunting grounds in ZONES.	NAPRZÓD zdobywa kolejny etap, gdy starczy ci sił, a twoje łowy idą za nim. Każde zwycięstwo otwiera nowe tereny łowieckie w STREFACH.
 THE STEPPE	STEP
 These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Te otwierają się wraz z poziomem: WOJNA dla twojej Chorągwi, ZLECENIA dla Znaków Łowów, GILDIA, HANDEL na Solnej Giełdzie. W MENU są dźwięk, konto i ten poradnik.
 This line always shows your next goal. Tap it to go there. Good hunting!	Ten wiersz zawsze pokazuje twój następny cel. Dotknij go, by tam przejść. Udanych łowów!
@@ -2261,3 +2261,12 @@ Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Kupuj i sprzeda
 Your Banner fights for the fortresses. Lay siege in WAR.	Twoja Chorągiew walczy o twierdze. Oblegaj je w WOJNIE.
 Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Lochy otwierają się w STREFACH: głębokie piętra, dwa klucze dziennie i Skuty Kowal.
 Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Pojedynkuj się z innymi bohaterami na Arenie, z WOJNY, o Laury i tytuł sezonu.
+Finish a bounty and claim its Hunt Marks	Wykonaj zlecenie i odbierz Znaki Łowów
+Fight a Commander from ZONES	Walcz z Dowódcą w STREFACH
+Clear a dungeon from ZONES	Oczyść loch w STREFACH
+Win a duel in the Pits	Wygraj pojedynek na Arenie
+Reach level {0}: your fourth skill opens	Osiągnij poziom {0}: otwiera się czwarta umiejętność
+Reach level {0} to open {1}	Osiągnij poziom {0}, by otworzyć: {1}
+WEAKER	SŁABSZE
+Nothing weaker than what you wear.	Nic słabszego od tego, co nosisz.
+Picked {0} weaker piece{1}: check them, then SELL ALL.	Wybrane słabsze przedmioty: {0}. Sprawdź je, potem SPRZEDAJ WSZYSTKO.

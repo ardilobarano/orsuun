@@ -540,13 +540,29 @@ public sealed partial class GameService
         var inventory = Snapshot(account);
         StageRunResult run = StageRun.Simulate(EveningBells.Apply(Content.Stage(target), _bells.Active), Hero(account), inventory, seed);
         Apply(account, inventory, hunt: true);
-        if (run.Cleared) account.HighestStageCleared = target;
+        SettlementDto? moved = null;
+        if (run.Cleared)
+        {
+            int before = account.HighestStageCleared;
+            account.HighestStageCleared = target;
+            // The hunt follows the push on the campaign's front (Content.HuntFollowsPush): settled and parked like a park.
+            if (Content.HuntFollowsPush(account.ParkedStage, before) && account.ParkedStage != target)
+            {
+                DateTime now = DateTime.UtcNow;
+                moved = Settle(account, now);
+                account.LastHeartbeatUtc = now;
+                account.ParkedStage = target;
+                account.HuntCarryTicks = 0;
+                account.HuntEncounter = 0;
+                NewLane(account);
+            }
+        }
         Count(account, BountyMetric.Pushes, 1);
 
         _db.Ledger.Add(Entry(account.Id, null, "push", $"stage={target} seed={seed} cleared={run.Cleared} ticks={run.Ticks}", 0, request.RequestId));
         await SaveAsync(ct);
         if (run.Cleared) await AddPointsAsync(account.Banner, Banners.PointsPushCleared, ct);
-        return ToState(account, push: new PushResultDto(target, run.Cleared, seed, run.Ticks, account.HighestStageCleared, potionsAtStart, _bells.Active));
+        return ToState(account, settlement: moved, push: new PushResultDto(target, run.Cleared, seed, run.Ticks, account.HighestStageCleared, potionsAtStart, _bells.Active));
     }
 
     /// <summary>
@@ -871,7 +887,14 @@ public sealed partial class GameService
             Events: _events.Dto(DateTime.UtcNow),
             AchievementsReady: AchievementsReady(account),
             Title: TitleOf(account),
-            EmailVerified: _login?.EmailVerified ?? false);
+            EmailVerified: _login?.EmailVerified ?? false,
+            GoalCounts: GoalCountsOf(account));
+    }
+
+    private static GoalCountsDto GoalCountsOf(Account account)
+    {
+        FeatCounters c = FeatCounters.Parse(account.Feats);
+        return new GoalCountsDto(c[FeatMetric.CommanderFights], c[FeatMetric.DungeonClears], c[FeatMetric.BountiesClaimed], account.PitWins);
     }
 
     private static ItemDto ToDto(Item item)

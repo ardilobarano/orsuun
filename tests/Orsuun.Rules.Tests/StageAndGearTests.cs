@@ -177,4 +177,24 @@ public class StageAndGearTests
             Assert.Equal(2, session.ParkedStage);
         }
     }
+
+    [Fact]
+    public void The_hunt_follows_a_won_push_on_the_campaign_front_only()
+    {
+        // 27 Sep 2026: pushing on while the hunt stayed on the Oathfields 1 made the first hour needlessly slow.
+        Assert.True(Content.HuntFollowsPush(1, 0));        // a new hero on stage 1
+        Assert.True(Content.HuntFollowsPush(7, 7));        // hunting the stage last cleared
+        Assert.False(Content.HuntFollowsPush(3, 7));       // an older stage, chosen in ZONES
+        Assert.False(Content.HuntFollowsPush(Content.EmberSteppe, 7));   // a zone
+
+        var s = new PlayerSession(new XorShiftRandom(5));
+        s.Push(out _);
+        s.Push(out _);
+        Assert.Equal(2, s.HighestStageCleared);
+        Assert.Equal(2, s.ParkedStage);
+        s.Park(1);
+        s.Push(out _);
+        Assert.Equal(1, s.ParkedStage);
+    }
 }
+

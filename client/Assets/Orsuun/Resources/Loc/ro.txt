@@ -1035,7 +1035,7 @@ FIRST STRIKE	PRIMA LOVITURĂ
 WELL STRUCK	BINE LOVIT
 Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Câștigi sau pierzi, Fierăria e mereu acolo. Atinge ÎNAPOI LA VÂNĂTOARE.
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Piesele noi cad în traistă: poartă-le din INVENTAR. Acolo rafinezi sau răsucești orice piesă, purtată sau din traistă.
-PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	ÎNAINTE cucerește etapa următoare când ești destul de puternic. Fiecare etapă curățată deschide noi terenuri de vânătoare în ZONE.
+PUSH takes the next stage when you are strong enough, and your hunt moves on with it. Each clear opens new hunting grounds in ZONES.	ÎNAINTE cucerește etapa următoare când ești destul de puternic, iar vânătoarea ta merge odată cu ea. Fiecare victorie deschide noi terenuri de vânătoare în ZONE.
 THE STEPPE	STEPA
 These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Acestea se deschid pe măsură ce crești în nivel: RĂZBOI pentru Stindardul tău, MISIUNI pentru Semne de Vânătoare, BREASLĂ, SCHIMB la Bursa de Sare. În MENIU găsești sunetul, contul și acest ghid.
 This line always shows your next goal. Tap it to go there. Good hunting!	Rândul acesta îți arată mereu următorul obiectiv. Atinge-l ca să mergi acolo. Vânătoare bună!
@@ -2269,3 +2269,12 @@ Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Cumpără și v
 Your Banner fights for the fortresses. Lay siege in WAR.	Stindardul tău luptă pentru fortărețe. Asediază-le din RĂZBOI.
 Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Temnițele se deschid în ZONE: etaje adânci, două chei pe zi și Fierarul Înlănțuit.
 Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Dă-te în duel cu alți eroi în Groapă, din RĂZBOI, pentru Lauri și un titlu de sezon.
+Finish a bounty and claim its Hunt Marks	Termină o misiune și revendică Semnele de Vânătoare
+Fight a Commander from ZONES	Înfruntă un Comandant din ZONE
+Clear a dungeon from ZONES	Termină o temniță din ZONE
+Win a duel in the Pits	Câștigă un duel în Groapă
+Reach level {0}: your fourth skill opens	Atinge nivelul {0}: se deschide a patra abilitate
+Reach level {0} to open {1}	Atinge nivelul {0} ca să deschizi: {1}
+WEAKER	MAI SLABE
+Nothing weaker than what you wear.	Nimic mai slab decât ce porți.
+Picked {0} weaker piece{1}: check them, then SELL ALL.	Piese mai slabe alese: {0}. Verifică-le, apoi VINDE TOT.

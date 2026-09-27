@@ -256,3 +256,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Screens that open by level (`Rules.Unlocks`, 27 Sep 2026) are gated on the client through `GameRoot.Unlocked(Feature)`
   (bottom bar, SHARDS, the Banner flag, dungeons and Commanders in ZONES, the Pits in WAR); a new way into one of them
   must ask it too. The server does not enforce them.
+- A won push moves the hunt when the hero hunts the campaign's front (`Content.HuntFollowsPush`, server `PushAsync` and
+  `PlayerSession.Push` alike). The goal line's reached step is saved per hero as `orsuun.goalSteps2.<name>`: reordering
+  `Goals.Chain` needs a new key (the line then starts again and passes what is done).

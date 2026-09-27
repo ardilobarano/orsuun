@@ -269,7 +269,11 @@ public sealed record StateDto(
     WorldEventDto[]? Events = null,
     int AchievementsReady = 0,
     string? Title = null,
-    bool EmailVerified = false);
+    bool EmailVerified = false,
+    GoalCountsDto? GoalCounts = null);
+
+/// <summary>What the goal line asks of a hero's own history (Rules.GoalWorld; lifetime counters since 27 Sep 2026).</summary>
+public sealed record GoalCountsDto(long Commanders, long Dungeons, long Bounties, int PitWins);
 
 /// <summary>The ACHIEVEMENTS screen (Rules.Achievements): every achievement with its progress, and the title worn.</summary>
 public sealed record AchievementsDto(StateDto State, AchievementDto[] List, int TitleId, string Title, string Message);

@@ -263,8 +263,10 @@ namespace Orsuun.Client
             // Bulk sale (owner, 26 Sep 2026: "we need a bulk sell but user can select items then press sell all"): SELECT
             // turns taps on bag pieces into picks; this bar, over the purse, counts them and sells them all at once.
             _pickBar = Ui.Framed("PickBar", canvas, 0.02f, 0.078f, 0.98f, 0.125f, new Color(0.14f, 0.06f, 0.05f, 0.97f)).gameObject;
-            _pickLabel = Ui.Label("PickLabel", _pickBar.transform, 0.04f, 0.05f, 0.62f, 0.95f, "", 21, TextAnchor.MiddleLeft, Palette.Parchment);
+            _pickLabel = Ui.Label("PickLabel", _pickBar.transform, 0.04f, 0.05f, 0.42f, 0.95f, "", 21, TextAnchor.MiddleLeft, Palette.Parchment);
             _pickLabel.supportRichText = true;
+            // A full bag in one tap (27 Sep 2026: a first hour fills 100 pieces): every piece under what is worn in its slot.
+            Ui.Button("PickWeaker", _pickBar.transform, 0.43f, 0.1f, 0.63f, 0.9f, "WEAKER", 20, Palette.ButtonIdle, PickWeaker, out _);
             _pickSell = Ui.Button("PickSell", _pickBar.transform, 0.64f, 0.1f, 0.97f, 0.9f, "SELL ALL", 22, Palette.Danger, AskSellPicked, out _);
             _pickBar.SetActive(false);
 
@@ -405,6 +407,25 @@ namespace Orsuun.Client
             _picked.Clear();
             _tab = Tab.Gear;
             _message.text = "Tap the pieces to sell, then SELL ALL.";
+        }
+
+        /// <summary>
+        /// Picks the bag's plain pieces weaker than what the hero wears in their slot: unforged, below Epic, with no
+        /// etching of tier 4 or more, and of a lower item level (or the same level and a lower rarity). An empty slot keeps
+        /// its pieces. Taps still pick and unpick after.
+        /// </summary>
+        private void PickWeaker()
+        {
+            int added = 0;
+            foreach (ItemState piece in _root.Session.Inventory.Loot)
+            {
+                ItemState worn = _root.Session.Equipped(piece.Slot);
+                if (piece.Destroyed || worn == null || piece.UpgradeLevel > 0 || piece.Rarity >= Rarity.Epic) continue;
+                if (piece.Etchings.Any(x => x.Tier >= 4)) continue;
+                bool weaker = piece.ItemLevel < worn.ItemLevel || (piece.ItemLevel == worn.ItemLevel && piece.Rarity < worn.Rarity);
+                if (weaker && _picked.Add(PickKey(piece))) added++;
+            }
+            _message.text = added == 0 ? "Nothing weaker than what you wear." : $"Picked {added} weaker piece{(added == 1 ? "" : "s")}: check them, then SELL ALL.";
         }
 
         private void StopPicking()

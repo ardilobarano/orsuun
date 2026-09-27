@@ -607,7 +607,12 @@ namespace Orsuun.Client
             if (key != null && _goalCheckIn <= 0f)
             {
                 _goalCheckIn = 0.5f;
-                var world = new GoalWorld { Online = server.Online, BountyReady = _root.Bounties.AnyClaimable && _root.Unlocked(Feature.Bounties), InGuild = server.InGuild };
+                Net.ServerLink.GoalCountsDto counts = server.GoalCounts;
+                var world = new GoalWorld
+                {
+                    Online = server.Online, BountyReady = _root.Bounties.AnyClaimable && _root.Unlocked(Feature.Bounties), InGuild = server.InGuild,
+                    CommanderFights = counts.commanders, DungeonClears = counts.dungeons, BountiesClaimed = counts.bounties, PitWins = counts.pitWins,
+                };
                 Goal chain = Goals.OnChain(session, world, _goalReached);
                 if (chain != null && chain.Step > _goalReached)
                 {
@@ -664,6 +669,7 @@ namespace Orsuun.Client
             GoalScreen.Push => "NavPush",
             GoalScreen.Bounties => "NavBounties",
             GoalScreen.Guild => "NavGuild",
+            GoalScreen.Pits => "NavWar",
             _ => "NavZones",
         };
 
@@ -674,8 +680,10 @@ namespace Orsuun.Client
             {
                 case GoalScreen.Forge: _root.Forge.Open(); break;
                 case GoalScreen.Gear: _root.Gear.Open(); break;
-                case GoalScreen.Bounties: _root.Bounties.Open(); break;
-                case GoalScreen.Guild: _root.Guild.Open(); break;
+                case GoalScreen.Bounties: Gate(Feature.Bounties, () => _root.Bounties.Open()); break;
+                case GoalScreen.Guild: Gate(Feature.Guild, () => _root.Guild.Open()); break;
+                case GoalScreen.Zones: _root.Zones.Open(); break;
+                case GoalScreen.Pits: Gate(Feature.Pits, () => _root.Pits.Open()); break;
                 case GoalScreen.Push:
                     _pushNudge = 2.2f;
                     Log("Tap PUSH to take the next stage.");
@@ -688,12 +696,12 @@ namespace Orsuun.Client
 
         private static int LoadGoalStep(string key)
         {
-            try { return PlayerPrefs.GetInt("orsuun.goalStep." + key, 0); } catch { return 0; }
+            try { return PlayerPrefs.GetInt("orsuun.goalSteps2." + key, 0); } catch { return 0; }
         }
 
         private static void SaveGoalStep(string key, int step)
         {
-            try { PlayerPrefs.SetInt("orsuun.goalStep." + key, step); PlayerPrefs.Save(); } catch { }
+            try { PlayerPrefs.SetInt("orsuun.goalSteps2." + key, step); PlayerPrefs.Save(); } catch { }
         }
     }
 }

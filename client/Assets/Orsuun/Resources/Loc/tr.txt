@@ -997,7 +997,7 @@ FIRST STRIKE	İLK VURUŞ
 WELL STRUCK	İYİ VURDUN
 Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Kazan ya da kaybet, Demirhane hep orada. AVA DÖN'e dokun.
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Yeni parçalar çantana düşer: onları TEÇHİZAT'tan giy. Giyili ya da çantadaki her parçayı orada güçlendir ya da çevir.
-PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	Yeterince güçlüysen İLERLE sonraki aşamayı alır. Her temizlik BÖLGELER'de yeni av alanları açar.
+PUSH takes the next stage when you are strong enough, and your hunt moves on with it. Each clear opens new hunting grounds in ZONES.	İLERLE, yeterince güçlü olduğunda bir sonraki aşamayı alır ve avın da onunla ilerler. Her temizlik BÖLGELER'de yeni av alanları açar.
 THE STEPPE	BOZKIR
 These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Bunlar seviye atladıkça açılır: Sancağın için SAVAŞ, Av Nişanları için GÖREVLER, LONCA, Tuz Borsası'nda TAKAS. MENÜ'de ses, hesabın ve bu rehber var.
 This line always shows your next goal. Tap it to go there. Good hunting!	Bu satır her zaman sonraki hedefini gösterir. Oraya gitmek için dokun. İyi avlar!
@@ -2231,3 +2231,12 @@ Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Tuz Borsası'nd
 Your Banner fights for the fortresses. Lay siege in WAR.	Sancağın kaleler için savaşıyor. SAVAŞ'ta kuşatmaya katıl.
 Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Zindanlar BÖLGELER'de açılır: derin katlar, günde iki anahtar ve Zincirli Demirci.
 Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Defne ve bir sezon unvanı için SAVAŞ'tan Çukur'da diğer kahramanlarla düello yap.
+Finish a bounty and claim its Hunt Marks	Bir görevi bitir ve Av Nişanlarını al
+Fight a Commander from ZONES	BÖLGELER'den bir Komutanla savaş
+Clear a dungeon from ZONES	BÖLGELER'den bir zindanı temizle
+Win a duel in the Pits	Çukur'da bir düello kazan
+Reach level {0}: your fourth skill opens	Seviye {0}'a ulaş: dördüncü yeteneğin açılır
+Reach level {0} to open {1}	{1} için seviye {0} gerekli
+WEAKER	ZAYIFLAR
+Nothing weaker than what you wear.	Giydiğinden zayıf bir şey yok.
+Picked {0} weaker piece{1}: check them, then SELL ALL.	Seçilen zayıf parça: {0}. Kontrol et, sonra HEPSİNİ SAT.

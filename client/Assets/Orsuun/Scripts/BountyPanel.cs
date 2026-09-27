@@ -164,8 +164,12 @@ namespace Orsuun.Client
                 float done = b.target > 0 ? Mathf.Clamp01(b.count / (float)b.target) : 0f;
                 r.Fill.anchorMax = new Vector2(0.045f + 0.69f * done, r.Fill.anchorMax.y);
                 bool ready = !b.claimed && b.count >= b.target;
+                // A bounty whose screen is still locked (Rules.Unlocks) says the level it opens at.
+                Feature? needs = b.title.Contains("Commander") ? Feature.Commanders : b.title.Contains("siege") ? Feature.War : (Feature?)null;
+                bool locked = needs != null && !_root.Unlocked(needs.Value) && !ready && !b.claimed;
+                if (locked) r.Label.color = Palette.Muted;
                 // Unfinished bounties show how far along they are on a quiet plate; only a finished one glows green.
-                r.ClaimLabel.text = b.claimed ? "CLAIMED" : ready ? "CLAIM" : $"{Mathf.FloorToInt(done * 100f)}%";
+                r.ClaimLabel.text = b.claimed ? "CLAIMED" : ready ? "CLAIM" : locked ? "LV " + Unlocks.Level(needs.Value) : $"{Mathf.FloorToInt(done * 100f)}%";
                 r.Claim.GetComponent<Image>().color = ready ? Palette.Safe : Palette.ButtonIdle;
                 r.Claim.interactable = ready && !_busy;
             }

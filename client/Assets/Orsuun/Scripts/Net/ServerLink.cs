@@ -908,6 +908,8 @@ namespace Orsuun.Client.Net
 
         /// <summary>Achievements done and waiting to be claimed (the MENU badge), and the title worn.</summary>
         public int AchievementsReady { get; private set; }
+        /// <summary>The hero's Commander fights, dungeon clears, bounties claimed and Pit wins, for the goal line.</summary>
+        public GoalCountsDto GoalCounts { get; private set; } = new GoalCountsDto();
         public string Title { get; private set; } = "";
         public AchievementsDto Achievements { get; private set; }
 
@@ -1440,6 +1442,7 @@ namespace Orsuun.Client.Net
                 WhisperUnread = s.whispers;
                 MailUnread = s.mail;
                 AchievementsReady = s.achievementsReady;
+                if (s.goalCounts != null) GoalCounts = s.goalCounts;
                 Title = s.title ?? "";
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
@@ -1610,7 +1613,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; }
+        [Serializable] public class GoalCountsDto { public long commanders; public long dungeons; public long bounties; public int pitWins; }
         [Serializable] public class AchievementsDto { public StateDto state; public AchievementDto[] list; public int titleId; public string title; public string message; }
         [Serializable] public class AchievementDto { public int id; public string name; public string text; public long progress; public long target; public int honor; public long sorn; public string title; public bool done; public bool claimed; }
         [Serializable] public class AchievementClaimRequest { public string requestId; public int id; }

@@ -1041,7 +1041,7 @@ FIRST STRIKE	PRIMEIRO GOLPE
 WELL STRUCK	BELO GOLPE
 Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Ganhando ou perdendo, a Forja está sempre lá. Toque em VOLTAR À CAÇADA.
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Peças novas caem na sua bolsa: equipe-as no ARSENAL. Refine ou gire qualquer peça lá, equipada ou na bolsa.
-PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	AVANÇAR leva você à próxima fase quando estiver forte o bastante. Cada vitória abre novos territórios de caça em ZONAS.
+PUSH takes the next stage when you are strong enough, and your hunt moves on with it. Each clear opens new hunting grounds in ZONES.	AVANÇAR leva você à próxima fase quando você estiver forte o bastante, e sua caçada vai junto. Cada vitória abre novos campos de caça em ZONAS.
 THE STEPPE	A ESTEPE
 These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Estes abrem conforme você sobe de nível: GUERRA pelo seu Estandarte, RECOMPENSAS por Marcas de Caça, GUILDA, TROCAR no Mercado do Sal. No MENU ficam o som, sua conta e este guia.
 This line always shows your next goal. Tap it to go there. Good hunting!	Esta linha sempre mostra sua próxima meta. Toque para ir até lá. Boa caçada!
@@ -2275,3 +2275,12 @@ Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Compre e venda 
 Your Banner fights for the fortresses. Lay siege in WAR.	Seu Estandarte luta pelas fortalezas. Cerque-as em GUERRA.
 Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	As masmorras abrem em ZONAS: andares profundos, duas chaves por dia e o Ferreiro Acorrentado.
 Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Duele com outros heróis nas Arenas, em GUERRA, por Louros e um título de temporada.
+Finish a bounty and claim its Hunt Marks	Complete uma recompensa e resgate as Marcas de Caça
+Fight a Commander from ZONES	Enfrente um Comandante em ZONAS
+Clear a dungeon from ZONES	Conclua uma masmorra em ZONAS
+Win a duel in the Pits	Vença um duelo nas Arenas
+Reach level {0}: your fourth skill opens	Alcance o nível {0}: sua quarta habilidade abre
+Reach level {0} to open {1}	Alcance o nível {0} para abrir: {1}
+WEAKER	MAIS FRACOS
+Nothing weaker than what you wear.	Nada mais fraco do que você usa.
+Picked {0} weaker piece{1}: check them, then SELL ALL.	Peças mais fracas escolhidas: {0}. Confira, depois VENDER TUDO.

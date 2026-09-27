@@ -125,7 +125,7 @@ namespace Orsuun.Client
                            Done = () => !_root.Forge.IsOpen, AllowNext = false },
                 new Step { Title = "GEAR", Text = "New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.",
                            Frame = () => _root.Hud.Area("Gear"), BoxY = BoxOverLane },
-                new Step { Title = "PUSH", Text = "PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.",
+                new Step { Title = "PUSH", Text = "PUSH takes the next stage when you are strong enough, and your hunt moves on with it. Each clear opens new hunting grounds in ZONES.",
                            Frame = () => _root.Hud.Area("Push"), BoxY = BoxOverLane },
                 new Step { Title = "THE STEPPE", Text = "These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.",
                            Frame = () => _root.Hud.Area("Zones", "Menu"), BoxY = 0.125f },

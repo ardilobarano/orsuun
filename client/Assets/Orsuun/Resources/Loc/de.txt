@@ -1073,7 +1073,7 @@ FIRST STRIKE	ERSTER SCHLAG
 WELL STRUCK	GUT GESCHLAGEN
 Win or lose, the Forge is always there. Tap BACK TO THE HUNT.	Sieg oder Niederlage, die Schmiede ist immer da. Tippe auf ZURÜCK ZUR JAGD.
 New pieces drop into your bag: wear them from GEAR. Forge or turn any piece there, worn or in the bag.	Neue Stücke landen in deiner Tasche: Lege sie unter AUSRÜSTUNG an. Dort kannst du jedes Stück schmieden oder wenden, angelegt oder in der Tasche.
-PUSH takes the next stage when you are strong enough. Each clear opens new hunting grounds in ZONES.	VORSTOSS nimmt die nächste Etappe, wenn du stark genug bist. Jeder Sieg öffnet neue Jagdgründe unter GEBIETE.
+PUSH takes the next stage when you are strong enough, and your hunt moves on with it. Each clear opens new hunting grounds in ZONES.	VORSTOSS nimmt die nächste Etappe, wenn du stark genug bist, und deine Jagd zieht mit. Jeder Sieg öffnet neue Jagdgründe unter GEBIETE.
 THE STEPPE	DIE STEPPE
 These open as you level: WAR for your Banner, BOUNTIES for Hunt Marks, GUILD, TRADE on the Salt Exchange. MENU holds sound, your account and this guide.	Diese öffnen sich mit deiner Stufe: KRIEG für dein Banner, KOPFGELDER für Jagdmarken, GILDE, HANDEL an der Salzbörse. Im MENÜ findest du Ton, dein Konto und diese Anleitung.
 This line always shows your next goal. Tap it to go there. Good hunting!	Diese Zeile zeigt immer dein nächstes Ziel. Tippe darauf, um dorthin zu gelangen. Waidmannsheil!
@@ -2307,3 +2307,12 @@ Buy and sell gear with other heroes on the Salt Exchange: TRADE.	Kaufe und verka
 Your Banner fights for the fortresses. Lay siege in WAR.	Dein Banner kämpft um die Festungen. Belagere sie unter KRIEG.
 Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.	Verliese öffnen sich unter GEBIETE: tiefe Ebenen, zwei Schlüssel am Tag und der Gekettete Schmied.
 Duel other heroes in the Pits, from WAR, for Laurels and a season title.	Duelliere andere Helden in der Grube, über KRIEG, für Lorbeeren und einen Saisontitel.
+Finish a bounty and claim its Hunt Marks	Erfülle ein Kopfgeld und hol dir die Jagdmarken
+Fight a Commander from ZONES	Bekämpfe einen Kommandanten über GEBIETE
+Clear a dungeon from ZONES	Schließe ein Verlies über GEBIETE ab
+Win a duel in the Pits	Gewinne ein Duell in der Grube
+Reach level {0}: your fourth skill opens	Erreiche Stufe {0}: deine vierte Fähigkeit öffnet sich
+Reach level {0} to open {1}	Erreiche Stufe {0}, um {1} zu öffnen
+WEAKER	SCHWÄCHERE
+Nothing weaker than what you wear.	Nichts Schwächeres als deine getragene Ausrüstung.
+Picked {0} weaker piece{1}: check them, then SELL ALL.	Schwächere Teile gewählt: {0}. Prüfe sie, dann ALLE VERKAUFEN.

@@ -96,4 +96,33 @@ public class GoalTests
         Assert.Equal("forge-3", forge.Id);
         Assert.Equal(1, forge.Current);
     }
+
+    [Fact]
+    public void A_goal_whose_screen_is_locked_asks_for_its_level()
+    {
+        // Levels 10-30 (27 Sep 2026): the Commander goal waits for level 8, then asks for a fight.
+        PlayerSession s = Fresh();
+        int at = -1;
+        for (int i = 0; i < Goals.ChainLength && at < 0; i++)
+            if (Goals.Next(s, new GoalWorld { Online = true }, i)?.Id == "commander-1") at = i;
+        Goal locked = Goals.Next(s, new GoalWorld { Online = true }, at)!;
+        Assert.Equal(GoalScreen.Hunt, locked.Screen);
+        Assert.Equal(Unlocks.Level(Feature.Commanders), locked.Target);
+        Assert.Contains("Reach level", locked.Text);
+
+        s.Inventory.Xp = Content.XpForLevel(Unlocks.Level(Feature.Commanders));
+        Goal open = Goals.Next(s, new GoalWorld { Online = true }, at)!;
+        Assert.Equal("commander-1", open.Id);
+        Assert.Equal(GoalScreen.Zones, open.Screen);
+        Assert.NotEqual("commander-1", Goals.Next(s, new GoalWorld { Online = true, CommanderFights = 1 }, at)!.Id);
+    }
+
+    [Fact]
+    public void The_chain_runs_to_the_last_stage()
+    {
+        PlayerSession s = Fresh();
+        Goal last = Goals.Next(s, default, Goals.ChainLength - 1)!;
+        Assert.Equal("push-" + Content.TotalStages, last.Id);
+    }
 }
+

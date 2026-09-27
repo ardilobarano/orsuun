@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Orsuun.Rules.Combat;
 
 namespace Orsuun.Rules
 {
@@ -13,6 +14,8 @@ namespace Orsuun.Rules
         Push,
         Bounties,
         Guild,
+        Zones,
+        Pits,
     }
 
     public sealed class Goal
@@ -42,6 +45,11 @@ namespace Orsuun.Rules
         public bool Online;
         public bool BountyReady;
         public bool InGuild;
+        /// <summary>The hero's lifetime counts (the server's feat counters, since 27 Sep 2026).</summary>
+        public long CommanderFights;
+        public long DungeonClears;
+        public long BountiesClaimed;
+        public int PitWins;
     }
 
     /// <summary>
@@ -55,7 +63,8 @@ namespace Orsuun.Rules
     {
         private sealed class Step
         {
-            public Step(string id, GoalScreen screen, int target, Func<PlayerSession, GoalWorld, int> current, Func<string> text, bool onlineOnly = false)
+            public Step(string id, GoalScreen screen, int target, Func<PlayerSession, GoalWorld, int> current, Func<string> text, bool onlineOnly = false,
+                Feature? feature = null)
             {
                 Id = id;
                 Screen = screen;
@@ -63,6 +72,7 @@ namespace Orsuun.Rules
                 Current = current;
                 Text = text;
                 OnlineOnly = onlineOnly;
+                Feature = feature;
             }
 
             public string Id { get; }
@@ -71,6 +81,8 @@ namespace Orsuun.Rules
             public Func<PlayerSession, GoalWorld, int> Current { get; }
             public Func<string> Text { get; }
             public bool OnlineOnly { get; }
+            /// <summary>The screen it needs (Rules.Unlocks): until its level the goal is to reach that level.</summary>
+            public Feature? Feature { get; }
         }
 
         private static readonly Step[] Chain =
@@ -80,16 +92,32 @@ namespace Orsuun.Rules
             new Step("wear-3", GoalScreen.Gear, 3, (s, w) => Worn(s), () => "Wear gear in 3 slots"),
             new Step("push-3", GoalScreen.Push, 3, (s, w) => s.HighestStageCleared, () => Clear(3)),
             new Step("forge-3", GoalScreen.Forge, 3, (s, w) => BestWorn(s), () => "Forge any piece you wear to +3"),
-            new Step("level-10", GoalScreen.Hunt, 10, (s, w) => s.Level, () => "Reach level 10"),
+            // Levels 10-30 (27 Sep 2026): each screen as it opens (Rules.Unlocks), in the order a hero meets them, with
+            // pushes between; a first hour's play reaches stage 40 and level 20 (tools' first-hour simulation).
             new Step("push-5", GoalScreen.Push, 5, (s, w) => s.HighestStageCleared, () => Clear(5)),
-            new Step("guild", GoalScreen.Guild, 1, (s, w) => w.InGuild ? 1 : 0, () => "Join a guild", onlineOnly: true),
+            new Step("bounty-1", GoalScreen.Bounties, 1, (s, w) => (int)Math.Min(1, w.BountiesClaimed), () => "Finish a bounty and claim its Hunt Marks",
+                onlineOnly: true, feature: Rules.Feature.Bounties),
             new Step("wear-8", GoalScreen.Gear, 8, (s, w) => Worn(s), () => "Wear gear in all 8 slots"),
             new Step("push-10", GoalScreen.Push, 10, (s, w) => s.HighestStageCleared, () => Clear(10)),
+            new Step("push-15", GoalScreen.Push, 15, (s, w) => s.HighestStageCleared, () => Clear(15)),
+            new Step("commander-1", GoalScreen.Zones, 1, (s, w) => (int)Math.Min(1, w.CommanderFights), () => "Fight a Commander from ZONES",
+                onlineOnly: true, feature: Rules.Feature.Commanders),
             new Step("push-20", GoalScreen.Push, 20, (s, w) => s.HighestStageCleared, () => Clear(20)),
+            new Step("guild", GoalScreen.Guild, 1, (s, w) => w.InGuild ? 1 : 0, () => "Join a guild", onlineOnly: true, feature: Rules.Feature.Guild),
             new Step("forge-7", GoalScreen.Forge, 7, (s, w) => s.Weapon.UpgradeLevel, () => "Forge your weapon to +7: it starts to glow"),
             new Step("push-30", GoalScreen.Push, 30, (s, w) => s.HighestStageCleared, () => Clear(30)),
-            new Step("forge-9", GoalScreen.Forge, 9, (s, w) => s.Weapon.UpgradeLevel, () => "Forge your weapon to +9"),
             new Step("push-40", GoalScreen.Push, 40, (s, w) => s.HighestStageCleared, () => Clear(40)),
+            new Step("dungeon-1", GoalScreen.Zones, 1, (s, w) => (int)Math.Min(1, w.DungeonClears), () => "Clear a dungeon from ZONES",
+                onlineOnly: true, feature: Rules.Feature.Dungeons),
+            new Step("pits-1", GoalScreen.Pits, 1, (s, w) => Math.Min(1, w.PitWins), () => "Win a duel in the Pits",
+                onlineOnly: true, feature: Rules.Feature.Pits),
+            new Step("push-50", GoalScreen.Push, 50, (s, w) => s.HighestStageCleared, () => Clear(50)),
+            new Step("forge-9", GoalScreen.Forge, 9, (s, w) => s.Weapon.UpgradeLevel, () => "Forge your weapon to +9"),
+            new Step("level-30", GoalScreen.Hunt, SkillDef.FourthSkillLevel, (s, w) => s.Level, () => $"Reach level {SkillDef.FourthSkillLevel}: your fourth skill opens"),
+            new Step("push-60", GoalScreen.Push, 60, (s, w) => s.HighestStageCleared, () => Clear(60)),
+            new Step("push-80", GoalScreen.Push, 80, (s, w) => s.HighestStageCleared, () => Clear(80)),
+            new Step("push-100", GoalScreen.Push, 100, (s, w) => s.HighestStageCleared, () => Clear(100)),
+            new Step("push-120", GoalScreen.Push, Content.TotalStages, (s, w) => s.HighestStageCleared, () => Clear(Content.TotalStages)),
         };
 
         public static int ChainLength => Chain.Length;
@@ -121,6 +149,9 @@ namespace Orsuun.Rules
                 if (step.OnlineOnly && !world.Online) continue;
                 int current = step.Current(session, world);
                 if (current >= step.Target) continue;
+                // Its screen still locked: the goal is the level that opens it.
+                if (step.Feature is Feature locked && !Unlocks.Open(locked, session.Level))
+                    return new Goal(step.Id, $"Reach level {Unlocks.Level(locked)} to open {Unlocks.Name(locked)}", session.Level, Unlocks.Level(locked), GoalScreen.Hunt, i);
                 return new Goal(step.Id, step.Text(), Math.Max(0, current), step.Target, step.Screen, i);
             }
             return null;

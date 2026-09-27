@@ -171,6 +171,14 @@ namespace Orsuun.Rules
             return null;
         }
 
+        /// <summary>
+        /// Whether a won push moves the hunt to the stage it cleared (27 Sep 2026: a new player otherwise farmed the
+        /// Oathfields 1 while pushing on to stage 40, the move hidden in ZONES): yes for a hero hunting the campaign at its
+        /// front (the stage last cleared, or stage 1 before any); a hero hunting a zone, or an older stage by choice, stays.
+        /// </summary>
+        public static bool HuntFollowsPush(int parkedStage, int clearedBefore) =>
+            parkedStage >= 1 && parkedStage <= TotalStages && parkedStage >= Math.Max(1, clearedBefore);
+
         /// <summary>Campaign stages and zones the player may park in, given the highest cleared campaign stage.</summary>
         public static bool IsUnlocked(int parkId, int highestStageCleared)
         {

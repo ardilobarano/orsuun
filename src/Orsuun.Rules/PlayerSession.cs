@@ -699,8 +699,14 @@ namespace Orsuun.Rules
         public StageRunResult Push(out ulong seed)
         {
             seed = ((ulong)_rng.NextInt(int.MaxValue) << 31) ^ (ulong)_rng.NextInt(int.MaxValue);
-            StageRunResult result = StageRun.Simulate(Content.Stage(PushTarget), Hero, Inventory, seed);
-            if (result.Cleared) HighestStageCleared = Math.Max(HighestStageCleared, PushTarget);
+            int target = PushTarget, before = HighestStageCleared;
+            StageRunResult result = StageRun.Simulate(Content.Stage(target), Hero, Inventory, seed);
+            if (result.Cleared)
+            {
+                HighestStageCleared = Math.Max(HighestStageCleared, target);
+                // The hunt follows the push on the campaign's front, as the server does.
+                if (Content.HuntFollowsPush(ParkedStage, before) && ParkedStage != target) Park(target);
+            }
             return result;
         }
 
