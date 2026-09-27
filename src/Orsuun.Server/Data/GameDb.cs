@@ -12,6 +12,7 @@ public sealed class GameDb : DbContext
     public DbSet<BossClock> BossClocks => Set<BossClock>();
     public DbSet<ClientLog> ClientLogs => Set<ClientLog>();
     public DbSet<Milestone> Milestones => Set<Milestone>();
+    public DbSet<Purchase> Purchases => Set<Purchase>();
     public DbSet<BossHit> BossHits => Set<BossHit>();
     public DbSet<BannerScore> BannerScores => Set<BannerScore>();
     public DbSet<Fortress> Fortresses => Set<Fortress>();
@@ -80,6 +81,7 @@ public sealed class GameDb : DbContext
 
         b.Entity<ClientLog>(e => e.HasIndex(l => new { l.AccountId, l.Utc }));
         b.Entity<Milestone>(e => e.HasIndex(m => new { m.AccountId, m.Name }).IsUnique());
+        b.Entity<Purchase>(e => { e.HasIndex(p => new { p.Store, p.TransactionId }).IsUnique(); e.HasIndex(p => p.LoginId); });
 
         b.Entity<BossHit>(e => e.HasIndex(h => new { h.BossId, h.SpawnUtc }));
         b.Entity<BannerScore>(e => e.HasKey(s => new { s.Season, s.Banner }));

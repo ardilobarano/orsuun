@@ -6,7 +6,10 @@
     "UnityEngine.UI",
     "Unity.RenderPipelines.Core.Runtime",
     "Unity.RenderPipelines.Universal.Runtime",
-    "Unity.Notifications.Unified"
+    "Unity.Notifications.Unified",
+    "UnityEngine.Purchasing",
+    "UnityEngine.Purchasing.Stores",
+    "Unity.Services.Core"
   ],
   "autoReferenced": true
 }

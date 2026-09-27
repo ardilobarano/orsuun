@@ -37,6 +37,7 @@ public sealed partial class GameService
         ("stage-40", "Cleared stage 40"),
         ("level-30", "Level 30"),
         ("stage-60", "Cleared stage 60"),
+        ("purchase", "Bought Amber"),
         ("day-1", "Came back after a day"),
         ("day-7", "Came back after a week"),
     };

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Orsuun.Rules;
 using Orsuun.Server.Data;
 
@@ -113,6 +114,38 @@ public sealed partial class GameService
     /// An Amber pack. Real purchases need the stores (receipt checks come with the App Store and Google Play release);
     /// the playtest server (<paramref name="testStore"/>) grants packs free so the Caravan can be tried.
     /// </summary>
+    /// <summary>
+    /// A pack bought in a store: the store confirms the purchase (StoreReceipts), then the login is credited once per store
+    /// transaction (a retry or a replayed receipt answers "already added"). The phone finishes the purchase with the store
+    /// only after this answers, so nothing paid is lost.
+    /// </summary>
+    public async Task<AmberPurchaseDto> AmberPurchaseAsync(Account account, AmberPurchaseRequest request, CancellationToken ct)
+    {
+        AmberPack pack = Amber.Packs.FirstOrDefault(p => p.StoreId == request.ProductId) ?? throw new GameException("no_pack", "No such pack.");
+        StoreReceipt receipt = await _stores.CheckAsync(request.Store ?? "", pack.StoreId, request.Receipt ?? "", ct);
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        Login login = await LockLoginAsync(ct);
+        // A purchase names the login it was made for: another account cannot claim it with a leaked transaction id.
+        if (!string.IsNullOrEmpty(receipt.Account) && !string.Equals(receipt.Account, login.Id.ToString(), StringComparison.OrdinalIgnoreCase))
+            throw new GameException("bad_receipt", "That purchase belongs to another account.");
+        if (await _db.Purchases.AnyAsync(p => p.Store == receipt.Store && p.TransactionId == receipt.TransactionId, ct))
+            return new AmberPurchaseDto(ToState(account), "That purchase is already in your Amber.", false, 0);
+        int paid = Amber.Paid(pack, login.AmberPurchases == 0);
+        login.Amber += paid;
+        login.AmberPurchases++;
+        _db.Purchases.Add(new Purchase
+        {
+            LoginId = login.Id, AccountId = account.Id, Store = receipt.Store, TransactionId = receipt.TransactionId, ProductId = pack.StoreId,
+            Amber = paid, Sandbox = receipt.Sandbox, Utc = DateTime.UtcNow,
+        });
+        _db.Ledger.Add(Entry(account.Id, null, "amber-purchase", $"{receipt.Store} {pack.StoreId} {receipt.TransactionId}{(receipt.Sandbox ? " sandbox" : "")} paid {paid} Amber", 0,
+            receipt.Store + ":" + receipt.TransactionId));
+        Mark(account, "purchase");
+        await SaveAsync(ct);
+        await tx.CommitAsync(ct);
+        return new AmberPurchaseDto(ToState(account), $"{paid:N0} Amber added. Thank you!", true, paid);
+    }
+
     public async Task<StateDto> AmberPackAsync(Account account, AmberPackRequest request, bool testStore, CancellationToken ct)
     {
         if (!testStore) throw new GameException("store_closed", "Amber goes on sale with the App Store and Google Play release.");

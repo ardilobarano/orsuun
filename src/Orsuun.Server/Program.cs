@@ -15,6 +15,7 @@ builder.Services.AddSingleton<IRandom>(CryptoRandom.Instance);
 builder.Services.AddSingleton<BellClock>();
 builder.Services.AddSingleton<EventCalendar>();
 builder.Services.AddSingleton<MailSender>();
+builder.Services.AddSingleton<StoreReceipts>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ExternalAuth>();
@@ -257,6 +258,7 @@ v1.MapPost("/pits/refresh", (HttpContext ctx, GameService game, CancellationToke
 v1.MapPost("/pits/fight", (HttpContext ctx, PitFightRequest req, GameService game, CancellationToken ct) => game.PitFightAsync(Me(ctx), req, ct));
 v1.MapPost("/pits/shop", (HttpContext ctx, PitShopRequest req, GameService game, CancellationToken ct) => game.PitShopAsync(Me(ctx), req, ct));
 v1.MapPost("/caravan/buy", (HttpContext ctx, CaravanBuyRequest req, GameService game, CancellationToken ct) => game.CaravanBuyAsync(Me(ctx), req, ct));
+v1.MapPost("/caravan/purchase", (HttpContext ctx, AmberPurchaseRequest req, GameService game, CancellationToken ct) => game.AmberPurchaseAsync(Me(ctx), req, ct));
 v1.MapPost("/caravan/amber", (HttpContext ctx, AmberPackRequest req, GameService game, CancellationToken ct) =>
     game.AmberPackAsync(Me(ctx), req, app.Environment.IsDevelopment(), ct));
 v1.MapPost("/wardrobe/wear", (HttpContext ctx, WearRequest req, GameService game, CancellationToken ct) => game.WearAsync(Me(ctx), req, ct));

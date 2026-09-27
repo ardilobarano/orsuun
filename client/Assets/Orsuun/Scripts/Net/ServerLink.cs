@@ -97,6 +97,35 @@ namespace Orsuun.Client.Net
         /// the server caps an account at 20 an hour). Only the message, the stack, the platform and the version are
         /// sent; the privacy policy lists them.
         /// </summary>
+        /// <summary>
+        /// A store purchase to credit (StoreFront): completes with (message, error, final). final is true when the server
+        /// has answered for good (credited, already credited, or refused as not a real purchase): only then may the phone
+        /// finish the purchase with the store. A missing store setup, a store outage or no answer keep it pending, so the
+        /// store hands it over again later.
+        /// </summary>
+        public IEnumerator AmberPurchase(string store, string productId, string receipt, Action<string, string, bool> done)
+        {
+            if (_session == null) { done(null, "Not connected to the server.", false); yield break; }
+            using var req = new UnityWebRequest(_baseUrl + "/v1/caravan/purchase", "POST");
+            string body = JsonUtility.ToJson(new AmberPurchaseRequest { store = store, productId = productId, receipt = receipt });
+            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+            req.SetRequestHeader("Content-Type", "application/json");
+            req.downloadHandler = new DownloadHandlerBuffer();
+            req.SetRequestHeader("X-Session", _session);
+            req.timeout = 20;
+            yield return req.SendWebRequest();
+            if (req.result == UnityWebRequest.Result.Success)
+            {
+                var answer = JsonUtility.FromJson<AmberPurchaseDto>(req.downloadHandler.text);
+                if (answer.state != null) Apply(answer.state);
+                done(answer.message, null, true);
+                yield break;
+            }
+            ErrorDto error = req.responseCode >= 400 && req.downloadHandler.text.Length > 0 ? JsonUtility.FromJson<ErrorDto>(req.downloadHandler.text) : null;
+            bool final = error != null && (error.code == "bad_receipt" || error.code == "no_pack" || error.code == "bad_store");
+            done(null, error?.message ?? "No answer from the server.", final);
+        }
+
         private readonly HashSet<string> _milestones = new HashSet<string>();
 
         /// <summary>A first only the phone sees ("tutorial-3", "tutorial-done", "tutorial-skipped") for the team's funnel;
@@ -261,9 +290,13 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>The login (the player's account) this device plays: store purchases are tagged with it.</summary>
+        public string LoginId { get; private set; } = "";
+
         private void ApplyLobby(LobbyDto lobby)
         {
             Lobby = lobby;
+            if (!string.IsNullOrEmpty(lobby.loginId)) LoginId = lobby.loginId;
             Email = lobby.email ?? "";
             EmailVerified = lobby.emailVerified;
             if (lobby.links > 0 && Logins.Length == 0) Logins = new[] { "linked" };
@@ -429,7 +462,12 @@ namespace Orsuun.Client.Net
             }
 
             yield return Post("/v1/auth/guest", JsonUtility.ToJson(new GuestLoginRequest { deviceToken = token, lobby = true }), false,
-                json => { _session = JsonUtility.FromJson<GuestLoginResponse>(json).sessionToken; },
+                json =>
+                {
+                    var r = JsonUtility.FromJson<GuestLoginResponse>(json);
+                    _session = r.sessionToken;
+                    if (!string.IsNullOrEmpty(r.loginId)) LoginId = r.loginId;
+                },
                 error => Status = "LOCAL MODE: " + error);
 
             if (_session == null) yield break;
@@ -1714,6 +1752,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }
         [Serializable] public class ForgotRequest { public string email; }
         [Serializable] public class MilestoneRequest { public string name; }
+        [Serializable] public class AmberPurchaseRequest { public string store; public string productId; public string receipt; }
+        [Serializable] public class AmberPurchaseDto { public StateDto state; public string message; public bool added; public long amber; }
         [Serializable] public class ResetRequest { public string email; public string code; public string password; public string deviceToken; }
         [Serializable] public class VerifyRequest { public string code; }
         [Serializable] public class MessageDto { public string message; public bool emailVerified; }

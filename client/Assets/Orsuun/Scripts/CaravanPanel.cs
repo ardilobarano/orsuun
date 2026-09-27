@@ -32,6 +32,7 @@ namespace Orsuun.Client
             public Text Amount;
             public Text Bonus;
             public Button Buy;
+            public Text Price;
         }
 
         private GameRoot _root;
@@ -154,7 +155,7 @@ namespace Orsuun.Client
                 p.Picture = Ui.Picture("Picture", back.transform, 0.18f, 0.4f, 0.82f, 0.96f, "Thumbs/Caravan/pack-" + pack.Id, frame: false);
                 p.Amount = Ui.Title("Amount", back.transform, 0.04f, 0.27f, 0.96f, 0.42f, pack.Amber.ToString("N0") + " Amber", 26, TextAnchor.MiddleCenter, Palette.Parchment);
                 p.Bonus = Ui.Label("Bonus", back.transform, 0.04f, 0.19f, 0.96f, 0.29f, pack.Bonus > 0 ? "+" + pack.Bonus.ToString("N0") + " bonus" : "", 20, TextAnchor.MiddleCenter, Palette.Sorn);
-                p.Buy = Ui.Button("Buy", back.transform, 0.2f, 0.03f, 0.8f, 0.19f, pack.PriceText, 24, Palette.Danger, () => AskPack(pack), out _);
+                p.Buy = Ui.Button("Buy", back.transform, 0.2f, 0.03f, 0.8f, 0.19f, pack.PriceText, 24, Palette.Danger, () => AskPack(pack), out p.Price);
                 _packCells[i] = p;
             }
             Ui.Label("Note", parent, 0.04f, 0.074f, 0.96f, 0.118f,
@@ -253,6 +254,19 @@ namespace Orsuun.Client
             if (_busy) return;
             bool first = _root.Server.Wardrobe?.firstPurchase ?? false;
             int paid = Amber.Paid(pack, first);
+            // Phones buy in their store (StoreFront; it asks with its own sheet, so no dialog of ours first).
+            if (_root.Store.Ready)
+            {
+                _busy = true;
+                _message.text = "...";
+                _root.Store.Buy(pack, (message, error) =>
+                {
+                    _busy = false;
+                    _message.text = error ?? message;
+                    if (error == null) GameAudio.Instance?.Play("LaneKorstoneBreak", 0.9f, 0.3f, 0f);
+                });
+                return;
+            }
             _confirm.Show("AMBER", $"{paid:N0} Amber for {pack.PriceText}{(first ? " (first purchase: double)" : "")}.\nPlaytest: free until the stores open.",
                 "BUY  " + pack.PriceText, Palette.Danger, () =>
                 {
@@ -275,7 +289,13 @@ namespace Orsuun.Client
             if (_tab == AmberTab)
             {
                 _firstBanner.SetActive(_root.Server.Wardrobe?.firstPurchase ?? false);
-                foreach (PackCell p in _packCells) p.Buy.interactable = !_busy && _root.Server.Online;
+                for (int i = 0; i < _packCells.Length; i++)
+                {
+                    PackCell p = _packCells[i];
+                    p.Buy.interactable = !_busy && _root.Server.Online;
+                    // The store's own price in the player's currency once it has said; the dollar price before.
+                    p.Price.text = _root.Store.Price(Amber.Packs[i]) ?? Amber.Packs[i].PriceText;
+                }
                 return;
             }
 

@@ -48,6 +48,14 @@ services:
       Mail__User: ${MAIL_USER:-}
       Mail__Password: ${MAIL_PASSWORD:-}
       Mail__From: ${MAIL_FROM:-}
+      # Store purchases (Game/StoreReceipts.cs): the App Store's In-App Purchase key and Google Play's service account,
+      # as files in deploy/secrets (git-ignored); empty = that store answers "store_closed".
+      Store__Apple__IssuerId: ${STORE_APPLE_ISSUER_ID:-}
+      Store__Apple__KeyId: ${STORE_APPLE_KEY_ID:-}
+      Store__Apple__PrivateKeyFile: /secrets/apple-iap.p8
+      Store__Google__ServiceAccountJsonFile: /secrets/google-play.json
+    volumes:
+      - ./secrets:/secrets:ro
     expose:
       - "8080"
 

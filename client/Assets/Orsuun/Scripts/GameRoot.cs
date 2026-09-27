@@ -56,6 +56,8 @@ namespace Orsuun.Client
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
         public GameNotifications Notifications { get; private set; }
+        /// <summary>Amber in the App Store and Google Play (phones; the Mac keeps the playtest's free packs).</summary>
+        public StoreFront Store { get; private set; }
         public Tutorial Tutorial { get; private set; }
         public int SpeedMultiplier { get; set; } = 1;
 
@@ -92,6 +94,8 @@ namespace Orsuun.Client
 
             GameAudio.Create();
             Notifications = new GameObject("GameNotifications").AddComponent<GameNotifications>();
+            Store = new GameObject("StoreFront").AddComponent<StoreFront>();
+            Store.Init(this);
             BuildCameras();
             gameObject.AddComponent<Performance>().Init(GameObject.Find("LaneCamera")?.GetComponent<Camera>());
             Lane = new GameObject("LaneView").AddComponent<LaneView>();

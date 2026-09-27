@@ -266,3 +266,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `GameAudio.Music(name, fallback)`; `GameRoot.UpdateMusic` picks it from the lane's backdrop (`MapMusic`). A new map or
   backdrop needs its entry there; a new theme that fades in or is louder than about -17.5 dBFS gets a row in
   `GameAudio.Tracks`. Higgsfield cannot make music (its audio tools are speech only).
+- Store purchases: Amber is credited only by `/v1/caravan/purchase` after `StoreReceipts` has checked the receipt with
+  Apple or Google, once per `(Store, TransactionId)` (`Purchases`), under `LockLoginAsync`. The phone confirms a purchase
+  to the store only on a final answer (`ServerLink.AmberPurchase`), never on "store_closed" or no answer. The store keys
+  live in `deploy/secrets` (git-ignored, like the fal key: never in chat or git). Store code compiles only with
+  `UNITY_ANDROID || UNITY_IOS` (ClientCheck does not see it: check a phone build).

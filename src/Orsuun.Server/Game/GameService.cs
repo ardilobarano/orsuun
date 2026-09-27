@@ -28,13 +28,15 @@ public sealed partial class GameService
     private readonly BellClock _bells;
     private readonly EventCalendar _events;
     private readonly MailSender _mail;
+    private readonly StoreReceipts _stores;
     private readonly ForgeService _forge;
     private readonly EtchingService _etchings = new();
     private readonly SocketService _sockets = new();
 
-    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events, MailSender mail)
+    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events, MailSender mail, StoreReceipts stores)
     {
         _mail = mail;
+        _stores = stores;
         _db = db;
         _rng = rng;
         _bells = bells;

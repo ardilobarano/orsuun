@@ -332,6 +332,11 @@ public sealed record CaravanBuyRequest(string RequestId, string PieceId, int Day
 /// <summary>Wears PieceId (a held piece with time left); an empty PieceId takes off the piece worn in Kind ("Skin", "Mount", "Companion").</summary>
 public sealed record WearRequest(string RequestId, string PieceId, string Kind);
 public sealed record AmberPackRequest(string RequestId, int PackId);
+/// <summary>A store purchase to credit: the store ("apple", "google"; "test" on a Development server), the pack's store
+/// product id and what the store gave the phone (Apple: the transaction id; Google: the purchase token).</summary>
+public sealed record AmberPurchaseRequest(string Store, string ProductId, string Receipt);
+/// <summary>Added false: that store transaction was credited before (the phone may finish it with the store all the same).</summary>
+public sealed record AmberPurchaseDto(StateDto State, string Message, bool Added, long Amber);
 
 /// <summary>
 /// The Campaign Trail (Rules.CampaignTrail): the season, its XP and tier, the pass bought (0 none, 1 Trail, 2 Plus) and the
