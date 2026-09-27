@@ -225,3 +225,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Riders (`LaneView.FitRider`): a mount's saddle and barrel are measured from its mesh (`Seat`), so mount models
   (`Models/Mobs/Mount*`: a new mount's name must start with Mount) import readable; the legs are aimed in the rider's
   own frame, never by per-bone Euler angles (the rigs' left and right thighs have mirrored axes).
+- Creature models (`looks.mob_model`: enemies, mounts, companions) weld the mesh's UV-seam splits before decimating
+  (`_bake(weld=True)`); decimated split, the seams opened into hairline cracks the lane's bright ground showed through.
+  Hero looks (`class_look`, `armor_look`) keep the split mesh: their weapon cut (`_held_islands`) relies on it.

@@ -35,9 +35,20 @@ def _import(glb):
     return mesh
 
 
-def _bake(mesh, tris=TRIS):
+def _bake(mesh, tris=TRIS, weld=False):
     """Decimate to the budget and bake the object transform into the vertices."""
     t0 = sum(len(p.vertices) - 2 for p in mesh.data.polygons)
+    if weld:
+        # glTF splits vertices along every UV seam; decimated split, each side of a seam collapses on its own and the
+        # seams open into hairline cracks the background shows through (27 Sep 2026: white flecks on the camel).
+        # Welded first they stay shut; UVs live on the face corners, so the texture mapping is unchanged. The heroes
+        # keep the split mesh: their weapon cut (_held_islands) is tuned to it, and welded a sabre joins a boot it
+        # touches.
+        bm = bmesh.new()
+        bm.from_mesh(mesh.data)
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
+        bm.to_mesh(mesh.data)
+        bm.free()
     if t0 > tris:
         dec = mesh.modifiers.new("Decimate", 'DECIMATE')
         dec.ratio = tris / t0
@@ -369,7 +380,7 @@ def mob_model(glb, name, height, tris=MOB_TRIS, yaw_degrees=0.0, out_dir=None, r
     global OUT
     _clear()
     mesh = _import(glb)
-    t0 = _bake(mesh, tris=tris)
+    t0 = _bake(mesh, tris=tris, weld=True)
     if yaw_degrees:
         mesh.data.transform(Matrix.Rotation(math.radians(yaw_degrees), 4, 'Z'))
     vs = [v.co for v in mesh.data.vertices]
