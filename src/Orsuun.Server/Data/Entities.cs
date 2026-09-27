@@ -205,8 +205,11 @@ public sealed class Item
     /// </summary>
     public long? TradeId { get; set; }
 
-    /// <summary>Out of the bag: on the Salt Exchange, in the depot or on a trade table (not worn, forged, turned or counted in the bag).</summary>
-    public bool OutOfBag => Listed || DepotLoginId != null || TradeId != null;
+    /// <summary>Held by a letter in its owner's mailbox (Rules.Mail) until taken: out of the bag like a listed piece.</summary>
+    public bool InMail { get; set; }
+
+    /// <summary>Out of the bag: on the Salt Exchange, in the depot, on a trade table or in a letter (not worn, forged, turned or counted in the bag).</summary>
+    public bool OutOfBag => Listed || DepotLoginId != null || TradeId != null || InMail;
 
     public ItemState ToState()
     {
@@ -484,6 +487,31 @@ public sealed class PrivateMessage
     public DateTime Utc { get; set; }
     /// <summary>The recipient has opened the conversation since it arrived.</summary>
     public bool Read { get; set; }
+}
+
+/// <summary>
+/// A letter in a hero's mailbox (Rules.Mail): a notice, or sorn, goods (Rules.TradeGoods), Technique Scrolls or a piece
+/// (Item.InMail) held until the hero takes them. GoodId and BookId are -1 when the letter holds none.
+/// </summary>
+public sealed class Letter
+{
+    public long Id { get; set; }
+    public Guid AccountId { get; set; }
+    [MaxLength(16)] public string Kind { get; set; } = "";
+    [MaxLength(40)] public string From { get; set; } = "";
+    [MaxLength(80)] public string Title { get; set; } = "";
+    [MaxLength(400)] public string Body { get; set; } = "";
+    public long Sorn { get; set; }
+    public int GoodId { get; set; } = -1;
+    public int GoodCount { get; set; }
+    public int BookId { get; set; } = -1;
+    public int BookCount { get; set; }
+    public Guid? ItemId { get; set; }
+    public DateTime Utc { get; set; }
+    public bool Read { get; set; }
+    public DateTime? TakenUtc { get; set; }
+
+    public bool HoldsSomething => Sorn > 0 || GoodId >= 0 || BookId >= 0 || ItemId != null;
 }
 
 public sealed class ChatReport

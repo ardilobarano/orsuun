@@ -18,6 +18,7 @@ public sealed class GameDb : DbContext
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<ChatReport> ChatReports => Set<ChatReport>();
     public DbSet<PrivateMessage> PrivateMessages => Set<PrivateMessage>();
+    public DbSet<Letter> Letters => Set<Letter>();
     public DbSet<GuildRequest> GuildRequests => Set<GuildRequest>();
     public DbSet<GuildInvite> GuildInvites => Set<GuildInvite>();
     public DbSet<Friendship> Friendships => Set<Friendship>();
@@ -102,6 +103,11 @@ public sealed class GameDb : DbContext
         {
             e.HasIndex(m => new { m.FromId, m.ToId, m.Id });
             e.HasIndex(m => new { m.ToId, m.Read });
+        });
+        b.Entity<Letter>(e =>
+        {
+            e.HasIndex(l => new { l.AccountId, l.Id });
+            e.HasIndex(l => new { l.AccountId, l.Read });
         });
         b.Entity<GuildRequest>(e =>
         {

@@ -251,7 +251,8 @@ namespace Orsuun.Client
         {
             if (_root.Server.GuildInvites > _seenGuildInvites) _root.Guild.Open();
             else if (_root.Server.FriendAsks > _root.Friends.SeenAsks) _root.Friends.Open();
-            else _root.Messages.Open();
+            else if (_root.Server.WhisperUnread > 0) _root.Messages.Open();
+            else _root.Mail.Open();
         }
 
         /// <summary>Resources/Icons/Skills name for a skill: its letters ("Kestrel's Dive" is KestrelsDive).</summary>
@@ -474,11 +475,13 @@ namespace Orsuun.Client
             bool newAsks = asks > _root.Friends.SeenAsks && !_root.Friends.IsOpen;
             bool newInvites = invites > _seenGuildInvites && !_root.Guild.IsOpen;
             int whispers = _root.Server.Online && !_root.Messages.IsOpen ? _root.Server.WhisperUnread : 0;
-            bool social = !calling && (newAsks || newInvites || whispers > 0);
+            int letters = _root.Server.Online && !_root.Mail.IsOpen ? _root.Server.MailUnread : 0;
+            bool social = !calling && (newAsks || newInvites || whispers > 0 || letters > 0);
             if (_socialCall.gameObject.activeSelf != social) _socialCall.gameObject.SetActive(social);
             if (social) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
                 : newAsks ? (asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER")
-                : whispers == 1 ? "A NEW MESSAGE: READ IT" : $"{whispers} NEW MESSAGES: READ THEM";
+                : whispers > 0 ? (whispers == 1 ? "A NEW MESSAGE: READ IT" : $"{whispers} NEW MESSAGES: READ THEM")
+                : letters == 1 ? "A LETTER HAS COME: OPEN THE MAILBOX" : $"{letters} LETTERS HAVE COME: OPEN THE MAILBOX";
             bool claim = _root.Bounties.AnyClaimable;
             _navBadges[2].gameObject.SetActive(claim);
             BannerLook.Show(_flag, _root.Server.Banner);

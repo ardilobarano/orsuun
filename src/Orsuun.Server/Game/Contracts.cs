@@ -259,7 +259,8 @@ public sealed record StateDto(
     long Honor = 0,
     int Whispers = 0,
     Figure Figure = Figure.Man,
-    DailyDto? Daily = null);
+    DailyDto? Daily = null,
+    int Mail = 0);
 
 /// <summary>
 /// The login calendar: the day a claim now takes (1..7), whether today's is still to claim, the seven gifts for this
@@ -267,6 +268,18 @@ public sealed record StateDto(
 /// </summary>
 public sealed record DailyDto(int Day, bool Claimable, string[] Gifts, long SecondsToNext);
 public sealed record DailyClaimRequest(string RequestId);
+
+/// <summary>
+/// The mailbox (Rules.Mail): the newest letters first, with what each still holds (Taken once it was taken), and the
+/// hero's state after a take.
+/// </summary>
+public sealed record MailDto(StateDto State, LetterDto[] Letters, int Unread, string Message);
+public sealed record LetterDto(long Id, string Kind, string From, string Title, string Body, DateTime Utc, bool Read, bool Taken,
+    long Sorn, int GoodId, int GoodCount, int BookId, int BookCount, ItemDto? Item);
+/// <summary>Takes what letter LetterId holds; 0 takes every letter's (a piece stays when the bag is full).</summary>
+public sealed record MailTakeRequest(string RequestId, long LetterId);
+/// <summary>Deletes letter LetterId once nothing is left in it; 0 deletes every such letter.</summary>
+public sealed record MailDeleteRequest(long LetterId);
 
 /// <summary>Private messages (Rules.Whispers): one conversation in the list.</summary>
 public sealed record WhisperConversationDto(Guid AccountId, string Name, string Class, int Level, int MinutesAway, string LastText, DateTime LastUtc, bool LastMine, int Unread);

@@ -199,8 +199,12 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `PlayerSession.LeaveBehindOverflow` drops only pieces without a server id. Pieces are sold to the merchant by hand
   (`/v1/bag/sell`, `Bag.SellPrice`), never automatically.
 - Exchange goods (`Rules.TradeGoods`, stored as `MarketListing.GoodId`/`GoodCount`; -1 means none, 0 is the Draught):
-  ids are on listings, so append goods, never renumber. A good returned to someone else (a listing that ran out on
-  another hero's read) goes through `AddGoodElsewhereAsync` (single UPDATEs; Korshards rewrite their "n;n;n;n;n" place in SQL).
+  ids are on listings (and letters), so append goods, never renumber.
+- The mailbox (`Rules.Mail`, `Letters`, since 27 Sep 2026): `SendLetter` is one insert, so any request may write to any
+  hero without touching its row. The Exchange pays sellers and returns what ran out by letter (a returned piece keeps
+  `Item.InMail`, out of the bag like a listed one: SQL bag counts must add `!i.InMail`). Taking locks the hero's letters
+  (`FOR UPDATE`); a piece waits while the bag is full. New money or items owed to a hero who is not the request's own
+  should go by letter too.
 - Every character is a man or a woman (`Rules.Figure`, since 26 Sep 2026); `ItemLooks.SecondLook(class, figure)` says
   when the class's other figure is shown: second-look models are named with "Alt" (`LaneView.AltName`: `ArmorAlt_T3`,
   `KestrelAlt_T3`), and `ClassLookName` / `SetLooks` / `HeroStage` fall back to the first look when one is missing.

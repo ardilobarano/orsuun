@@ -228,7 +228,7 @@ public sealed partial class GameService
             : await _db.Items.FromSql($@"SELECT * FROM ""Items"" WHERE ""Id"" = ANY({all}) FOR UPDATE").ToListAsync(ct);
         foreach (Item i in locked) await _db.Entry(i).ReloadAsync(ct);
         bool Tradable(Item? i, Guid owner) => i != null && i.OwnerId == owner && !i.Destroyed && !i.Equipped && i.TradeId == t.Id
-            && !i.Listed && i.DepotLoginId == null;
+            && !i.Listed && i.DepotLoginId == null && !i.InMail;
         foreach (Guid id in mine)
             if (!Tradable(locked.FirstOrDefault(i => i.Id == id), account.Id)) return "One of your pieces changed (worn, listed or gone). Check the offers again.";
         foreach (Guid id in theirs)
@@ -251,7 +251,7 @@ public sealed partial class GameService
         // Pieces on the table are out of both bags already.
         int myBag = account.Items.Count(i => !i.Equipped && !i.Destroyed && !i.OutOfBag);
         int theirBag = await _db.Items.CountAsync(i => i.OwnerId == otherId && !i.Equipped && !i.Destroyed && !i.Listed && i.DepotLoginId == null
-            && i.TradeId == null, ct);
+            && i.TradeId == null && !i.InMail, ct);
         if (myBag + theirs.Count > MaxLoot) return "Your bag has no room for their pieces.";
         if (theirBag + mine.Count > MaxLoot) return "Their bag has no room for your pieces.";
 

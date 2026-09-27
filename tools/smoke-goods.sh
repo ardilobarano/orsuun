@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Exchange goods smoke test (26 Sep 2026; a Development server: dev grant). Two fresh Vanguards: A lists 5 Turnstones and
 # 2 Rider Korshards, B buys the Turnstones, the price history then shows the sale for one, A takes the Korshards back,
-# and (with LOCAL_DB set, a psql connection string) a listing forced past its time returns to A on B's read. Deletes both.
+# and (with LOCAL_DB set, a psql connection string) a listing forced past its time returns to A on B's read. Since the
+# mailbox (27 Sep 2026) the pay and the returned stack come by letter: A takes them. Deletes both.
 # Needs curl, jq.
 #   tools/smoke-goods.sh [http://localhost:5080]
 #   LOCAL_DB=postgresql://orsuun:orsuun-dev@localhost/orsuun tools/smoke-goods.sh
@@ -27,13 +28,14 @@ echo "WPN does not list them: $(g "$B" "/v1/market?slot=Weapon" | jq -c '[.listi
 L=$(g "$B" "/v1/market?goods=true" | jq -r '[.listings[] | select(.goodId == 5 and .mine == false)][0].id')
 echo "B buys the Turnstones: $(p "$B" /v1/market/buy "$(j --arg r "$(rid)" --argjson l "$L" '{requestId:$r, listingId:$l}')" | jq -c '{message, turnstones: .state.inventory.turnstones}')"
 echo "history after: $(g "$A" "/v1/market/history?kind=good&id=5" | jq -c '{what, sales, average, last, recent}')"
-echo "A was paid: $(g "$A" /v1/me | jq -c "$K")"
+echo "A takes the pay from the mailbox: $(p "$A" /v1/mail/take "$(j --arg r "$(rid)" '{requestId:$r, letterId:0}')" | jq -c '{message, sorn: .state.inventory.sorn}')"
 K2=$(g "$A" /v1/market | jq -r '[.mine[] | select(.goodId == 12 and .status == "Active")][0].id')
 echo "A takes the Korshards back: $(p "$A" /v1/market/cancel "$(j --arg r "$(rid)" --argjson l "$K2" '{requestId:$r, listingId:$l}')" | jq -c '{message, korshards: .state.inventory.korshards}')"
 if [ -n "${LOCAL_DB:-}" ]; then
   echo "A lists 3 Captain Korshards: $(p "$A" /v1/market/list "$(j --arg r "$(rid)" --arg e "$EMPTY" '{requestId:$r, itemId:$e, price:3000, goodId:13, goodCount:3}')" | jq -c '.state.inventory.korshards')"
   psql "$LOCAL_DB" -qc "UPDATE \"MarketListings\" SET \"ExpiresUtc\" = now() - interval '1 minute' WHERE \"GoodId\" = 13 AND \"Status\" = 0" > /dev/null
   g "$B" /v1/market > /dev/null
-  echo "after it ran out on B's read, A holds: $(g "$A" /v1/me | jq -c .inventory.korshards)"
+  echo "after it ran out on B's read, A's letter: $(g "$A" /v1/mail | jq -c '[.letters[] | select(.taken == false) | .title]')"
+  echo "A takes it: $(p "$A" /v1/mail/take "$(j --arg r "$(rid)" '{requestId:$r, letterId:0}')" | jq -c .state.inventory.korshards)"
 fi
 for S in "$A" "$B"; do curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $S" | jq -c .; done

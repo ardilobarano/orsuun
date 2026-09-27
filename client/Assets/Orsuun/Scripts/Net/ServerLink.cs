@@ -823,6 +823,70 @@ namespace Orsuun.Client.Net
             FriendAsks = Friends.asking?.Length ?? 0;
         }
 
+        // ---- The mailbox (Rules.Mail): letters from the Exchange and the Pits, with what they hold until taken.
+
+        /// <summary>Unread letters (from the last /me or heartbeat; opening the mailbox reads them all).</summary>
+        public int MailUnread { get; private set; }
+        /// <summary>The mailbox as the server last showed it.</summary>
+        public MailDto Mail { get; private set; }
+
+        public IEnumerator FetchMail(Action<string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/mail", null, true, ApplyMail, error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>Takes what a letter holds (letterId 0: every letter's). Completes with an error, or null.</summary>
+        public IEnumerator TakeMail(long letterId, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/mail/take", JsonUtility.ToJson(new MailTakeRequest { requestId = NewRequestId(), letterId = letterId }), true,
+                ApplyMail, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Throws away a letter with nothing left in it (letterId 0: every such letter).</summary>
+        public IEnumerator DeleteMail(long letterId, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/mail/delete", JsonUtility.ToJson(new MailDeleteRequest { letterId = letterId }), true,
+                ApplyMail, error => failure = error);
+            done(failure);
+        }
+
+        /// <summary>Screenshots in local play (-mail): a mailbox of made-up letters.</summary>
+        public void SampleMail()
+        {
+            string now = DateTime.UtcNow.ToString("o"), before = DateTime.UtcNow.AddDays(-2).ToString("o");
+            var boots = new ItemDto { id = "sample", slot = "Shoes", name = "Rare Felt Boots", itemLevel = 24, rarity = "Rare", upgradeLevel = 3,
+                lockedEtchingIndex = -1, etchings = new EtchingDto[0], sockets = new SocketDto[0] };
+            Mail = new MailDto
+            {
+                message = "",
+                letters = new[]
+                {
+                    new LetterDto { id = 4, kind = "sale", from = "The Salt Exchange", title = "Sold: Epic Tamga Sword +7", utc = now, sorn = 1_425_000,
+                        body = "Talon Varga bought Epic Tamga Sword +7 for 1,500,000 sorn. The Exchange keeps its 5% (75,000); 1,425,000 sorn is in this letter for you." },
+                    new LetterDto { id = 3, kind = "sale", from = "The Salt Exchange", title = "Sold: 5 × Turnstone", utc = now, sorn = 4_750,
+                        body = "Ash Keller bought 5 × Turnstone for 5,000 sorn. The Exchange keeps its 5% (250); 4,750 sorn is in this letter for you." },
+                    new LetterDto { id = 2, kind = "returned", from = "The Salt Exchange", title = "Not sold: Rare Felt Boots +3", utc = before, read = true, item = boots,
+                        body = "Nobody bought Rare Felt Boots +3 at 90,000 sorn in 48 hours, so it comes back to you with this letter." },
+                    new LetterDto { id = 1, kind = "pits", from = "The Pits", title = "Pit season 2026-38: rank 4", utc = before, read = true, taken = true,
+                        body = "The season is over. You finished 4 with a rating of 1,412 and the Pits paid you 110 Laurels. Spend them at the Pit shop." },
+                },
+            };
+            MailUnread = 2;
+        }
+
+        private void ApplyMail(string json)
+        {
+            MailDto view = JsonUtility.FromJson<MailDto>(json);
+            Mail = view;
+            MailUnread = view.unread;
+            if (view.state != null && view.state.inventory != null && view.state.items != null) Apply(view.state);
+        }
+
         // ---- Private messages (Rules.Whispers): kept with no expiry, on the MESSAGES screen.
 
         /// <summary>Unread messages for this hero (from the last /me or heartbeat, and the message calls).</summary>
@@ -1238,6 +1302,7 @@ namespace Orsuun.Client.Net
                 FriendAsks = s.friendAsks;
                 GuildInvites = s.guildInvites;
                 WhisperUnread = s.whispers;
+                MailUnread = s.mail;
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
             }
@@ -1400,8 +1465,17 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; }
         [Serializable] public class DailyDto { public int day; public bool claimable; public string[] gifts; public long secondsToNext; }
+        [Serializable] public class MailDto { public StateDto state; public LetterDto[] letters; public int unread; public string message; }
+        /// <summary>A letter; goodId and bookId are -1 when it holds none (JsonUtility leaves a missing int at 0).</summary>
+        [Serializable] public class LetterDto
+        {
+            public long id; public string kind; public string from; public string title; public string body; public string utc; public bool read; public bool taken;
+            public long sorn; public int goodId = -1; public int goodCount; public int bookId = -1; public int bookCount; public ItemDto item;
+        }
+        [Serializable] public class MailTakeRequest { public string requestId; public long letterId; }
+        [Serializable] public class MailDeleteRequest { public long letterId; }
         [Serializable] public class DailyClaimRequest { public string requestId; }
         [Serializable] public class WardrobePieceDto { public string id; public long secondsLeft; }
         [Serializable] public class WardrobeDto { public long amber; public WardrobePieceDto[] pieces; public string skin; public string mount; public string companion; public bool firstPurchase; }

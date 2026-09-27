@@ -218,6 +218,9 @@ public sealed partial class GameService
                 .SetProperty(a => a.Laurels, a => a.Laurels + laurels).SetProperty(a => a.PitLastSeason, ended).SetProperty(a => a.PitLastRank, rank)
                 .SetProperty(a => a.PitLastRating, rating).SetProperty(a => a.PitLastLaurels, laurels).SetProperty(a => a.PitTitle, title), ct);
             if (rank <= 3) champions.Add(ShownName(f.Id, f.Name));
+            SendLetter(f.Id, "pits", "The Pits", $"Pit season {ended}: rank {rank}",
+                $"The season is over. You finished {rank} with a rating of {rating} and the Pits paid you {laurels} Laurels"
+                + (title != null ? $", and the title {title} for the next season." : ".") + " Spend them at the Pit shop.");
         }
         await _db.Accounts.Where(a => a.PitSeason != next && a.PitRating != Pits.StartRating)
             .ExecuteUpdateAsync(s => s.SetProperty(a => a.PitRating, a => Pits.StartRating + (a.PitRating - Pits.StartRating) / 2), ct);

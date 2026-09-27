@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 using Orsuun.Server.Data;
 
 namespace Orsuun.Server.Game;
@@ -8,7 +9,8 @@ namespace Orsuun.Server.Game;
 /// <summary>
 /// The Salt Exchange (owner, 24 Sep 2026): any bag piece listed for sorn, bought by anyone, the seller paid the price
 /// less the 5% tax. A listed piece keeps its owner with Item.Listed set, so it is out of the bag until the listing
-/// closes. The listing row is locked for a buy or a cancel; the seller's sorn is added with one UPDATE. Technique
+/// closes. The listing row is locked for a buy or a cancel; the seller is paid by letter (the mailbox, 27 Sep 2026), and
+/// what runs out unsold goes home by letter too. Technique
 /// Scrolls (owner, 26 Sep 2026: books trade) list as stacks: the count leaves the seller's stack into the listing and
 /// goes to the buyer, or back to the seller when the listing is cancelled or runs out. Goods (owner, 26 Sep 2026:
 /// "Exchange: materials + prices"; Rules.TradeGoods) list as stacks the same way, and a price history reads the sales of
@@ -29,23 +31,52 @@ public sealed partial class GameService
         await _db.MarketListings.Where(l => ids.Contains(l.Id) && l.Status == ListingStatus.Active).ExecuteUpdateAsync(s => s
             .SetProperty(l => l.Status, ListingStatus.Expired).SetProperty(l => l.ClosedUtc, (DateTime?)now), ct);
         var expired = await _db.MarketListings.AsNoTracking().Where(l => ids.Contains(l.Id) && l.Status == ListingStatus.Expired)
-            .Select(l => new { l.ItemId, l.SellerId, l.BookId, l.BookCount, l.GoodId, l.GoodCount }).ToListAsync(ct);
+            .Select(l => new { l.ItemId, l.SellerId, l.BookId, l.BookCount, l.GoodId, l.GoodCount, l.Price }).ToListAsync(ct);
         var expiredItems = expired.Where(l => l.BookId < 0 && l.GoodId < 0).Select(l => l.ItemId).ToList();
-        // Book stacks go back to their sellers (this request's own hero on its tracked row).
-        foreach (var b in expired.Where(l => l.BookId >= 0))
-        {
-            if (account != null && b.SellerId == account.Id) AddBooks(account, b.BookId, b.BookCount);
-            else await AddBooksElsewhereAsync(b.SellerId, b.BookId, b.BookCount, ct);
-        }
-        foreach (var g in expired.Where(l => l.GoodId >= 0))
-        {
-            if (account != null && g.SellerId == account.Id) AddGood(account, g.GoodId, g.GoodCount);
-            else await AddGoodElsewhereAsync(g.SellerId, g.GoodId, g.GoodCount, ct);
-        }
-        await _db.Items.Where(i => expiredItems.Contains(i.Id) && i.Listed).ExecuteUpdateAsync(s => s.SetProperty(i => i.Listed, false), ct);
+        // What did not sell goes home by letter: stacks inside it, pieces held by it (out of the bag until taken).
+        await _db.Items.Where(i => expiredItems.Contains(i.Id) && i.Listed)
+            .ExecuteUpdateAsync(s => s.SetProperty(i => i.Listed, false).SetProperty(i => i.InMail, true), ct);
         // The request's own account is already loaded: keep its copy in step.
         if (account != null)
-            foreach (Item item in account.Items.Where(i => expiredItems.Contains(i.Id))) item.Listed = false;
+            foreach (Item item in account.Items.Where(i => expiredItems.Contains(i.Id)))
+            {
+                item.Listed = false;
+                item.InMail = true;
+            }
+        var names = await _db.Items.AsNoTracking().Where(i => expiredItems.Contains(i.Id)).ToDictionaryAsync(i => i.Id, ct);
+        var classes = await ClassesOfAsync(expired.Select(l => l.SellerId), ct);
+        foreach (var l in expired)
+        {
+            string what = l.GoodId >= 0 ? $"{l.GoodCount} × {TradeGoods.Name(l.GoodId)}"
+                : l.BookId >= 0 ? $"{l.BookCount} × {Books.Name(l.BookId)}"
+                : names.TryGetValue(l.ItemId, out Item? piece) ? PieceName(piece, classes.GetValueOrDefault(l.SellerId)) : "your piece";
+            SendLetter(l.SellerId, "returned", "The Salt Exchange", "Not sold: " + what,
+                $"Nobody bought {what} at {SornText(l.Price)} sorn in {Market.ListingHours} hours, so it comes back to you with this letter.",
+                goodId: l.GoodId, goodCount: l.GoodId >= 0 ? l.GoodCount : 0, bookId: l.BookId, bookCount: l.BookId >= 0 ? l.BookCount : 0,
+                itemId: l.BookId < 0 && l.GoodId < 0 ? l.ItemId : null);
+        }
+    }
+
+    private static string PieceName(Item item, HeroClass cls) => Content.ItemName(item.ToState(), cls) + " +" + item.UpgradeLevel;
+
+    private async Task<Dictionary<Guid, HeroClass>> ClassesOfAsync(IEnumerable<Guid> ids, CancellationToken ct)
+    {
+        var list = ids.Distinct().ToList();
+        return await _db.Accounts.AsNoTracking().Where(a => list.Contains(a.Id)).ToDictionaryAsync(a => a.Id, a => a.Class, ct);
+    }
+
+    /// <summary>The seller's pay for a sale, by letter (one insert: the seller's row is never touched).</summary>
+    private async Task PaySellerAsync(MarketListing listing, Account buyer, string what, long payout, CancellationToken ct)
+    {
+        if (what.Length == 0)
+        {
+            Item? piece = await _db.Items.AsNoTracking().FirstOrDefaultAsync(i => i.Id == listing.ItemId, ct);
+            var classes = await ClassesOfAsync(new[] { listing.SellerId }, ct);
+            what = piece != null ? PieceName(piece, classes.GetValueOrDefault(listing.SellerId)) : "your piece";
+        }
+        SendLetter(listing.SellerId, "sale", "The Salt Exchange", "Sold: " + what,
+            $"{DisplayName(buyer)} bought {what} for {SornText(listing.Price)} sorn. The Exchange keeps its {Market.TaxPercent}% ({SornText(Market.Tax(listing.Price))}); "
+            + $"{SornText(payout)} sorn is in this letter for you.", sorn: payout);
     }
 
     private static int MinutesLeft(MarketListing l, DateTime now) => Math.Max(0, (int)(l.ExpiresUtc - now).TotalMinutes);
@@ -172,36 +203,6 @@ public sealed partial class GameService
     }
 
     /// <summary>
-    /// Hands goods to another hero in one statement (a listing that ran out, found by someone else's request): never
-    /// loaded and saved, so the owner's own requests keep their row (its xmin moves and a stale save retries).
-    /// </summary>
-    private async Task AddGoodElsewhereAsync(Guid accountId, int good, int count, CancellationToken ct)
-    {
-        IQueryable<Account> row = _db.Accounts.Where(a => a.Id == accountId);
-        switch (good)
-        {
-            case 0: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.Potions, a => a.Potions + count), ct); break;
-            case 1: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.Materials, a => a.Materials + count), ct); break;
-            case 2: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.ScrollsOfMercy, a => a.ScrollsOfMercy + count), ct); break;
-            case 3: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.KhansAlloys, a => a.KhansAlloys + count), ct); break;
-            case 4: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.AnvilWards, a => a.AnvilWards + count), ct); break;
-            case 5: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.Turnstones, a => a.Turnstones + count), ct); break;
-            case 6: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.EtchingNeedles, a => a.EtchingNeedles + count), ct); break;
-            case 7: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.MastersNeedles, a => a.MastersNeedles + count), ct); break;
-            case 8: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.PinningWax, a => a.PinningWax + count), ct); break;
-            case 9: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.Oathstones, a => a.Oathstones + count), ct); break;
-            case 10: await row.ExecuteUpdateAsync(s => s.SetProperty(a => a.SummoningMarkers, a => a.SummoningMarkers + count), ct); break;
-            default:
-                // Korshards live in one "n;n;n;n;n" column: add to the rank's place in the same statement.
-                int place = good - TradeGoods.FirstKorshard + 1;
-                await _db.Database.ExecuteSqlInterpolatedAsync($@"UPDATE ""Accounts"" SET ""Korshards"" = (
-                    SELECT string_agg(CASE WHEN t.ord = {place} THEN (COALESCE(NULLIF(t.v, ''), '0')::int + {count})::text ELSE t.v END, ';' ORDER BY t.ord)
-                    FROM unnest(string_to_array(""Korshards"", ';')) WITH ORDINALITY AS t(v, ord)) WHERE ""Id"" = {accountId}", ct);
-                break;
-        }
-    }
-
-    /// <summary>
     /// What a kind of thing sold for over the last Market.HistoryDays: goods and Technique Scrolls by their id (priced for
     /// one), pieces by slot, rarity, forge level and look band.
     /// </summary>
@@ -261,12 +262,12 @@ public sealed partial class GameService
             listing.Status = ListingStatus.Sold;
             listing.BuyerId = account.Id;
             listing.ClosedUtc = now;
-            await _db.Accounts.Where(a => a.Id == listing.SellerId).ExecuteUpdateAsync(s => s.SetProperty(a => a.Sorn, a => a.Sorn + goodPayout), ct);
+            await PaySellerAsync(listing, account, $"{listing.GoodCount} × {TradeGoods.Name(listing.GoodId)}", goodPayout, ct);
             await PayKeepHoldersAsync(Market.Tax(listing.Price), ct);
             _db.Ledger.Add(Entry(account.Id, null, "market-buy", $"listing={listing.Id} good={listing.GoodId} count={listing.GoodCount} price={listing.Price} seller={listing.SellerId}",
                 -listing.Price, request.RequestId));
-            _db.Ledger.Add(Entry(listing.SellerId, null, "market-sale", $"listing={listing.Id} good={listing.GoodId} count={listing.GoodCount} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id}",
-                goodPayout, "sale-" + listing.Id));
+            _db.Ledger.Add(Entry(listing.SellerId, null, "market-sale", $"listing={listing.Id} good={listing.GoodId} count={listing.GoodCount} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id} letter={goodPayout}",
+                0, "sale-" + listing.Id));
             await SaveAsync(ct);
             await tx.CommitAsync(ct);
             return await MarketViewAsync(account, null, null, 0,
@@ -280,12 +281,12 @@ public sealed partial class GameService
             listing.Status = ListingStatus.Sold;
             listing.BuyerId = account.Id;
             listing.ClosedUtc = now;
-            await _db.Accounts.Where(a => a.Id == listing.SellerId).ExecuteUpdateAsync(s => s.SetProperty(a => a.Sorn, a => a.Sorn + bookPayout), ct);
+            await PaySellerAsync(listing, account, $"{listing.BookCount} × {Books.Name(listing.BookId)}", bookPayout, ct);
             await PayKeepHoldersAsync(Market.Tax(listing.Price), ct);
             _db.Ledger.Add(Entry(account.Id, null, "market-buy", $"listing={listing.Id} book={listing.BookId} count={listing.BookCount} price={listing.Price} seller={listing.SellerId}",
                 -listing.Price, request.RequestId));
-            _db.Ledger.Add(Entry(listing.SellerId, null, "market-sale", $"listing={listing.Id} book={listing.BookId} count={listing.BookCount} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id}",
-                bookPayout, "sale-" + listing.Id));
+            _db.Ledger.Add(Entry(listing.SellerId, null, "market-sale", $"listing={listing.Id} book={listing.BookId} count={listing.BookCount} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id} letter={bookPayout}",
+                0, "sale-" + listing.Id));
             await SaveAsync(ct);
             await tx.CommitAsync(ct);
             return await MarketViewAsync(account, null, null, 0,
@@ -303,12 +304,12 @@ public sealed partial class GameService
         listing.Status = ListingStatus.Sold;
         listing.BuyerId = account.Id;
         listing.ClosedUtc = now;
-        await _db.Accounts.Where(a => a.Id == listing.SellerId).ExecuteUpdateAsync(s => s.SetProperty(a => a.Sorn, a => a.Sorn + payout), ct);
+        await PaySellerAsync(listing, account, "", payout, ct);
         await PayKeepHoldersAsync(Market.Tax(listing.Price), ct);
-        string name = Content.ItemName(item.ToState(), account.Class) + " +" + item.UpgradeLevel;
+        string name = PieceName(item, account.Class);
         _db.Ledger.Add(Entry(account.Id, item.Id, "market-buy", $"listing={listing.Id} price={listing.Price} seller={listing.SellerId}", -listing.Price, request.RequestId));
-        _db.Ledger.Add(Entry(listing.SellerId, item.Id, "market-sale", $"listing={listing.Id} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id}",
-            payout, "sale-" + listing.Id));
+        _db.Ledger.Add(Entry(listing.SellerId, item.Id, "market-sale", $"listing={listing.Id} price={listing.Price} tax={Market.Tax(listing.Price)} buyer={account.Id} letter={payout}",
+            0, "sale-" + listing.Id));
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
         return await MarketViewAsync(account, null, null, 0, $"You bought {name} for {listing.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn. It is in your bag.", ct);

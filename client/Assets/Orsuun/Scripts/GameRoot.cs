@@ -50,6 +50,7 @@ namespace Orsuun.Client
         public ChatPanel Chat { get; private set; }
         public FriendsPanel Friends { get; private set; }
         public MessagesPanel Messages { get; private set; }
+        public MailPanel Mail { get; private set; }
         public MarketPanel Market { get; private set; }
         public AccountPanel Account { get; private set; }
         public GameNotifications Notifications { get; private set; }
@@ -137,6 +138,8 @@ namespace Orsuun.Client
             Friends.Init(this);
             Messages = new GameObject("MessagesPanel").AddComponent<MessagesPanel>();
             Messages.Init(this);
+            Mail = new GameObject("MailPanel").AddComponent<MailPanel>();
+            Mail.Init(this);
             Chat = new GameObject("ChatPanel").AddComponent<ChatPanel>();
             Chat.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
@@ -189,6 +192,13 @@ namespace Orsuun.Client
                 else Messages.Open();
             }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-menu") >= 0) Menu.Open();
+            // -mail opens the MAILBOX (sample letters in local play; -mailletter shows the first one open).
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-mail") >= 0)
+            {
+                if (!Server.Online) Server.SampleMail();
+                Mail.Open();
+                if (Array.IndexOf(Environment.GetCommandLineArgs(), "-mailletter") >= 0) Mail.OpenFirst();
+            }
             // Screenshots: -oath shows the Banner oath, -war the War of Banners, -bounties the bounty board.
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-oath") >= 0) Oath.Open();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-war") >= 0) War.Open();

@@ -284,6 +284,9 @@ v1.MapPost("/guild/invite", (HttpContext ctx, GuildInviteRequest req, GameServic
 v1.MapPost("/guild/invite/answer", (HttpContext ctx, GuildInviteAnswerRequest req, GameService game, CancellationToken ct) => game.AnswerGuildInviteAsync(Me(ctx), req, ct));
 // Friends (25 Sep 2026): each hero's list, requests, and taking one off.
 // Private messages (Rules.Whispers): the conversation list, one conversation (after: new lines; before: older), send, report.
+v1.MapGet("/mail", (HttpContext ctx, GameService game, CancellationToken ct) => game.MailAsync(Me(ctx), ct));
+v1.MapPost("/mail/take", (HttpContext ctx, MailTakeRequest req, GameService game, CancellationToken ct) => game.TakeMailAsync(Me(ctx), req, ct));
+v1.MapPost("/mail/delete", (HttpContext ctx, MailDeleteRequest req, GameService game, CancellationToken ct) => game.DeleteMailAsync(Me(ctx), req, ct));
 v1.MapGet("/whispers", (HttpContext ctx, GameService game, CancellationToken ct) => game.WhispersAsync(Me(ctx), "", ct));
 v1.MapGet("/whispers/thread", (HttpContext ctx, Guid? id, string? name, long? after, long? before, GameService game, CancellationToken ct) =>
     game.WhisperThreadByAsync(Me(ctx), id ?? Guid.Empty, name, after ?? 0, before ?? 0, ct));

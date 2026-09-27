@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace Orsuun.Client
 {
     /// <summary>
-    /// MENU (where the DEV button was): replay the tutorial, hunt speed, sound on or off, read the privacy policy, delete
+    /// MENU (where the DEV button was): the mailbox, replay the tutorial, hunt speed, sound on or off, read the privacy policy, delete
     /// the account (store requirement: an account made in the app can be deleted in the app), and the playtest grant.
     /// </summary>
     public sealed class MenuPanel : MonoBehaviour
@@ -19,6 +19,7 @@ namespace Orsuun.Client
         private Text _soundLabel;
         private Text _speedLabel;
         private Text _accountLabel;
+        private Text _mailLabel;
         private ConfirmDialog _confirm;
         private bool _deleting;
 
@@ -32,8 +33,8 @@ namespace Orsuun.Client
             transform.SetParent(canvas, false);
 
             Ui.Backdrop(canvas, "Gate");
-            Ui.Title("Title", canvas, 0.05f, 0.84f, 0.95f, 0.91f, "MENU", 60, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
-            Ui.Trim("Rule", canvas, 0.25f, 0.835f, 0.75f, 0.838f);
+            Ui.Title("Title", canvas, 0.05f, 0.905f, 0.95f, 0.965f, "MENU", 60, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
+            Ui.Trim("Rule", canvas, 0.25f, 0.9f, 0.75f, 0.903f);
 
             Ui.Button("Friends", canvas, 0.51f, 0.83f, 0.85f, 0.89f, "FRIENDS", 30, Palette.Safe, () =>
             {
@@ -52,7 +53,12 @@ namespace Orsuun.Client
                 Close();
                 _root.Messages.Open();
             }, out _);
-            Ui.Button("Account", canvas, 0.15f, 0.68f, 0.85f, 0.74f, "", 30, Palette.Safe, OpenAccount, out _accountLabel);
+            Ui.Button("Account", canvas, 0.15f, 0.68f, 0.49f, 0.74f, "", 26, Palette.Safe, OpenAccount, out _accountLabel);
+            Ui.Button("Mailbox", canvas, 0.51f, 0.68f, 0.85f, 0.74f, "MAILBOX", 30, Palette.Safe, () =>
+            {
+                Close();
+                _root.Mail.Open();
+            }, out _mailLabel);
             Ui.Button("Speed", canvas, 0.15f, 0.605f, 0.85f, 0.665f, "", 32, Palette.ButtonIdle, CycleSpeed, out _speedLabel);
             Ui.Button("Sound", canvas, 0.15f, 0.53f, 0.49f, 0.59f, "", 28, Palette.ButtonIdle, () => GameAudio.Instance?.ToggleMute(), out _soundLabel);
             Ui.Button("Daily", canvas, 0.51f, 0.53f, 0.85f, 0.59f, "DAILY GIFTS", 28, Palette.ButtonForge, () =>
@@ -145,7 +151,9 @@ namespace Orsuun.Client
             if (!_canvas.activeSelf) return;
             _soundLabel.text = GameAudio.Instance != null && GameAudio.Instance.Muted ? "SOUND: OFF" : "SOUND: ON";
             _speedLabel.text = $"HUNT SPEED: x{_root.SpeedMultiplier}";
-            _accountLabel.text = _root.Server.Registered ? "ACCOUNT\n<size=18>" + _root.Server.Email + "</size>" : "SIGN UP / SIGN IN";
+            _accountLabel.text = _root.Server.Registered ? "ACCOUNT\n<size=16>" + _root.Server.Email + "</size>" : "SIGN UP / SIGN IN";
+            int unread = _root.Server.Online ? _root.Server.MailUnread : 0;
+            _mailLabel.text = unread > 0 ? $"MAILBOX ({unread})" : "MAILBOX";
         }
 
         private void DevSignIn()
