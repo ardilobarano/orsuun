@@ -217,3 +217,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   its line in tr.txt: `-lang tr -locmiss <file>` on the Mac player writes the pieces that found none.
 - `Resources/server-url.txt` (git-ignored) is baked by phone builds and stays, so a later Mac player talks to the playtest
   server: online screenshots against the local server pass `-server http://localhost:5080` (and `-autoselect`).
+- Weekend events (`Rules.WorldEvents`) are `WorldEvents` rows: `WorldClock` writes the weekly calendar a week ahead
+  (ON CONFLICT on Kind + StartsUtc, so a called-off weekly row is not written again), says each in world chat once and
+  reloads `EventCalendar`, the singleton requests read (never query the table per request). Moderators add or call off
+  events on /admin's Events tab; `/v1/dev/event` starts one now (Development). Commander clocks move only through
+  `RollClock` (spawns come faster in a rush): never step `BossDef.RespawnSeconds` by hand. Kinds are stored by number.

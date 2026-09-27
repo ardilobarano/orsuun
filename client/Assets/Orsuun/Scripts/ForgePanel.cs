@@ -490,6 +490,7 @@ namespace Orsuun.Client
             {
                 int target = weapon.UpgradeLevel + 1;
                 string patience = weapon.PatienceBp > 0 ? $"  (includes +{weapon.PatienceBp / 100}% Forgemaster's Patience)" : "";
+                if (session.ForgeLuckBp > 0) patience += $"  (includes +{session.ForgeLuckBp / 100}% Lucky Forge Hour)";
                 string materials = session.ForgeMaterials > 0 ? $"  ·  {session.ForgeMaterials} {session.Lane.Stage.MaterialName}" : "";
                 _attemptInfo.text = $"Attempt +{target}:  {ConfirmDialog.Tint(session.ForgeChanceBp(ForgeMethod.ForgeAlone) / 100 + "%", Palette.Good)} success{patience}  ·  Cost {session.ForgeCost:N0} sorn{materials}";
             }

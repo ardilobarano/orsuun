@@ -664,3 +664,20 @@ public sealed class TradeSession
     public DateTime? ClosedUtc { get; set; }
     [MaxLength(64)] public string ClosedReason { get; set; } = "";
 }
+
+/// <summary>
+/// A timed world event on the server's calendar (Rules.WorldEvents): the weekly ones are written a week ahead by
+/// WorldClock (Weekly), moderators add others or call one off (Cancelled; a called-off weekly row stays, so the week's
+/// calendar does not write it again). Announced once it has been said in world chat.
+/// </summary>
+public sealed class WorldEvent
+{
+    public long Id { get; set; }
+    public WorldEventKind Kind { get; set; }
+    public DateTime StartsUtc { get; set; }
+    public DateTime EndsUtc { get; set; }
+    public bool Weekly { get; set; }
+    public bool Cancelled { get; set; }
+    public bool Announced { get; set; }
+    [MaxLength(40)] public string By { get; set; } = "";
+}

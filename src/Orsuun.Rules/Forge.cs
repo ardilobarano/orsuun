@@ -112,12 +112,16 @@ namespace Orsuun.Rules
             _patienceEnabled = patienceEnabled;
         }
 
+        /// <summary>Extra chance on every attempt (a lucky forge hour, WorldEvents.ForgeLuckBp), in basis points.</summary>
+        public int LuckBp { get; set; }
+
         /// <summary>The chance the next attempt on this item will be rolled against.</summary>
         public int ChanceBp(ItemState item, ForgeMethod method)
         {
             int target = item.UpgradeLevel + 1;
             int chance = ForgeRules.BaseSuccessBp(target) + ForgeRules.MethodBonus(method);
             if (_patienceEnabled) chance += item.PatienceBp;
+            chance += LuckBp;
             return Math.Min(chance, RandomExtensions.FullBp);
         }
 

@@ -326,6 +326,10 @@ namespace Orsuun.Client
             Log(e.Text);
         }
 
+        /// <summary>A time left, short: "1d 4h", "2h 05m", "12m".</summary>
+        private static string Span(long seconds) =>
+            seconds >= 86400 ? $"{seconds / 86400}d {seconds % 86400 / 3600}h" : seconds >= 3600 ? $"{seconds / 3600}h {seconds % 3600 / 60:00}m" : $"{System.Math.Max(1, seconds / 60)}m";
+
         public void Log(string text)
         {
             _log.text = text;
@@ -358,8 +362,13 @@ namespace Orsuun.Client
             if (bell != Bell.None) bellText = "  ·  " + EveningBells.Name(bell).ToUpperInvariant();
             else if (_root.Server.Online && _root.Server.Bell != null) bellText = $"  ·  next bell in {_root.Server.Bell.minutesUntilNext / 60}h {_root.Server.Bell.minutesUntilNext % 60:00}m";
             else { EveningBells.Next(System.DateTime.Now, out int mins); bellText = $"  ·  next bell in {mins / 60}h {mins % 60:00}m"; }
-            _link.text = _root.Server.Status + bellText;
-            _link.color = bell != Bell.None ? Palette.Sorn : _root.Server.Online ? Palette.Good : Palette.Warn;
+            // Weekend events (Rules.WorldEvents) that run now, with the time they have left.
+            string eventText = "";
+            foreach (Net.ServerLink.WorldEventDto e in _root.Server.Events)
+                if (_root.Server.EventRunning(e)) eventText += "  ·  " + e.name.ToUpperInvariant() + "  ·  " + Span(_root.Server.EventEndsIn(e));
+            // A running event takes the server's address and the bell countdown's place, or the line runs over.
+            _link.text = eventText.Length > 0 ? eventText.Substring(5) + (bell != Bell.None ? bellText : "") : _root.Server.Status + bellText;
+            _link.color = bell != Bell.None || eventText.Length > 0 ? Palette.Sorn : _root.Server.Online ? Palette.Good : Palette.Warn;
             _banner.text = _root.ReplayBanner;
             string shown = _root.ReplayBanner;
             _banner.color = shown.StartsWith("CLEARED") || shown.StartsWith("FELLED") || shown.EndsWith("CLEARED") || shown.StartsWith("THE SMITH STRUCK") || shown.StartsWith("VICTORY") ? Palette.Good

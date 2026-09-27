@@ -129,8 +129,7 @@ public sealed partial class GameService
     {
         BossClock? clock = (await _db.BossClocks.FromSql($@"SELECT * FROM ""BossClocks"" WHERE ""BossId"" = {boss.Id} FOR UPDATE").ToListAsync(ct)).FirstOrDefault();
         if (clock == null) clock = await ClockAsync(boss, now, ct);
-        while (now >= clock.SpawnUtc.AddSeconds(boss.RespawnSeconds))
-            clock.SpawnUtc = clock.SpawnUtc.AddSeconds(boss.RespawnSeconds);
+        RollClock(boss, clock, now);
         if (clock.PoolSpawnUtc != clock.SpawnUtc)
         {
             long pool = boss.Hp * await PoolFightersAsync(now, ct);

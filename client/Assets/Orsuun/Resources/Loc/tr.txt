@@ -2045,3 +2045,16 @@ BUY {0} DAY	{0} GÜN SATIN AL
 ADD {0} DAYS	{0} GÜN EKLE
 ADD {0} DAY	{0} GÜN EKLE
 Sorn	Sorn
+# Weekend events (Rules.WorldEvents)
+Double Sorn Weekend	Çift Sorn Hafta Sonu
+Lucky Forge Hour	Şanslı Demirhane Saati
+Commander Rush	Komutan Akını
+every hunt pays double sorn	her av iki kat sorn getirir
++5% chance on every Forge	her Güçlendirmede +%5 şans
+Commanders return every 15 minutes	Komutanlar her 15 dakikada bir döner
+{0} has begun: {1} until {2}.	{0} başladı: {2} saatine kadar {1}.
+{0} has begun: {1}. Come and hunt it.	{0} başladı: {1}. Gel ve avla.
+{0} begins	{0} başlıyor
+(includes +{0}% Lucky Forge Hour)	(+%{0} Şanslı Demirhane Saati dahil)
+success	başarı
+T{0}	K{0}

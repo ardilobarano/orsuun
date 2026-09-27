@@ -374,6 +374,10 @@ namespace Orsuun.Rules
         public int ForgeMaterials => OnAnvil.UpgradeLevel >= ItemState.MaxUpgradeLevel ? 0 : ForgeRules.MaterialsNeeded(OnAnvil.UpgradeLevel + 1);
         public int ForgeChanceBp(ForgeMethod method) => _forge.ChanceBp(OnAnvil, method);
 
+        /// <summary>A lucky forge hour's extra chance (Rules.WorldEvents), from the server's state.</summary>
+        public void SetForgeLuck(int bp) => _forge.LuckBp = bp;
+        public int ForgeLuckBp => _forge.LuckBp;
+
         /// <summary>Null when the attempt may run, otherwise the reason to show the player.</summary>
         public string? ForgeBlocker(ForgeMethod method)
         {

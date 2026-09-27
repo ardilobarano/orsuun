@@ -117,7 +117,7 @@ namespace Orsuun.Client
                 _forge.interactable = false;
                 return;
             }
-            int chance = new ForgeService().ChanceBp(piece, ForgeMethod.ChainedSmith) / 100;
+            int chance = new ForgeService { LuckBp = _root.Server.ForgeLuckBp }.ChanceBp(piece, ForgeMethod.ChainedSmith) / 100;
             long cost = ForgeRules.Cost(piece.ItemLevel, piece.UpgradeLevel);
             int materials = ForgeRules.MaterialsNeeded(piece.UpgradeLevel + 1);
             bool canPay = session.Inventory.Sorn >= cost && session.Inventory.Materials >= materials;

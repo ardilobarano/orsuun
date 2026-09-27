@@ -375,6 +375,7 @@ public sealed partial class GameService
     /// <summary>Everything the world clock does on a tick (WorldClock, every 30 seconds). Each step has its own row locks.</summary>
     public async Task TickWorldAsync(CancellationToken ct)
     {
+        await TickEventsAsync(ct);
         await PairTonightAsync(ct);
         await SettleWarsAsync(ct);
         foreach (FortressDef def in Fortresses.All) await AdvanceKeepAsync(def.Id, ct);

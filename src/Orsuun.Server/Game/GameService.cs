@@ -26,15 +26,19 @@ public sealed partial class GameService
     private readonly GameDb _db;
     private readonly IRandom _rng;
     private readonly BellClock _bells;
-    private readonly ForgeService _forge = new();
+    private readonly EventCalendar _events;
+    private readonly ForgeService _forge;
     private readonly EtchingService _etchings = new();
     private readonly SocketService _sockets = new();
 
-    public GameService(GameDb db, IRandom rng, BellClock bells)
+    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events)
     {
         _db = db;
         _rng = rng;
         _bells = bells;
+        _events = events;
+        // A lucky forge hour (Rules.WorldEvents) adds its chance to every attempt this request makes.
+        _forge = new ForgeService { LuckBp = events.ForgeLuckBp(DateTime.UtcNow) };
     }
 
     /// <summary>
@@ -192,7 +196,8 @@ public sealed partial class GameService
         DateTime now = DateTime.UtcNow;
         bool online = now - account.LastHeartbeatUtc <= OnlineGrace;
         (int activeBp, int verified) = online ? VerifyLoops(account, request?.Loops, now) : (RandomExtensions.FullBp, 0);
-        int bonus = await SornBonusPercentAsync(account.Banner, ct) + await GuildBonusPercentAsync(account, ct);
+        int bonus = await SornBonusPercentAsync(account.Banner, ct) + await GuildBonusPercentAsync(account, ct)
+            + _events.SornBonusPercent(account.LastHeartbeatUtc, now);
         SettlementDto settlement = Settle(account, now, activeBp, verified, bonus) with { ActiveBp = activeBp, LoopsVerified = verified };
         account.LastHeartbeatUtc = now;
         Count(account, BountyMetric.Korstones, settlement.Korstones);
@@ -669,17 +674,23 @@ public sealed partial class GameService
             clock = new BossClock { BossId = boss.Id, SpawnUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
             _db.BossClocks.Add(clock);
         }
-        while (now >= clock.SpawnUtc.AddSeconds(boss.RespawnSeconds))
-            clock.SpawnUtc = clock.SpawnUtc.AddSeconds(boss.RespawnSeconds);
+        RollClock(boss, clock, now);
         return clock;
     }
 
-    private static BossStatusDto BossStatus(BossDef boss, BossClock clock, bool fought, long freshPool, BossHitDto[] top, DateTime now)
+    /// <summary>Moves a Commander's clock to its current spawn; spawns come faster during a Commander rush.</summary>
+    private void RollClock(BossDef boss, BossClock clock, DateTime now)
+    {
+        for (DateTime next = _events.NextSpawn(clock.SpawnUtc, boss.RespawnSeconds); now >= next; next = _events.NextSpawn(next, boss.RespawnSeconds))
+            clock.SpawnUtc = next;
+    }
+
+    private BossStatusDto BossStatus(BossDef boss, BossClock clock, bool fought, long freshPool, BossHitDto[] top, DateTime now)
     {
         DateTime windowEnd = clock.SpawnUtc.AddSeconds(BossDef.WindowSeconds);
         bool slain = clock.PoolSpawnUtc == clock.SpawnUtc && clock.SlainUtc != null;
         bool up = now >= clock.SpawnUtc && now < windowEnd && !slain;
-        long secondsLeft = up ? (long)(windowEnd - now).TotalSeconds : (long)(clock.SpawnUtc.AddSeconds(boss.RespawnSeconds) - now).TotalSeconds;
+        long secondsLeft = up ? (long)(windowEnd - now).TotalSeconds : (long)(_events.NextSpawn(clock.SpawnUtc, boss.RespawnSeconds) - now).TotalSeconds;
         // A spawn nobody has fought yet shows the pool it will open with.
         bool current = clock.PoolSpawnUtc == clock.SpawnUtc;
         return new BossStatusDto(boss.Id, boss.Name, boss.Mechanic.ToString(), up, Math.Max(0, secondsLeft), fought,
@@ -795,7 +806,7 @@ public sealed partial class GameService
     {
         Item weapon = account.Weapon;
         ItemState state = weapon.ToState();
-        var forgeService = new ForgeService();
+        ForgeService forgeService = _forge;
         bool maxed = state.UpgradeLevel >= ItemState.MaxUpgradeLevel;
         HeroStats hero = Hero(account);
 
@@ -847,7 +858,8 @@ public sealed partial class GameService
             SkillReadySeconds: SkillReadySeconds(account),
             Honor: account.Honor,
             Figure: account.Figure,
-            Daily: DailyOf(account));
+            Daily: DailyOf(account),
+            Events: _events.Dto(DateTime.UtcNow));
     }
 
     private static ItemDto ToDto(Item item)

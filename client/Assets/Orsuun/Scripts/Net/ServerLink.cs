@@ -1253,6 +1253,25 @@ namespace Orsuun.Client.Net
         public float BossesReceivedAt { get; private set; }
         /// <summary>The server's Evening Bell state from the last response.</summary>
         public BellDto Bell { get; private set; }
+
+        /// <summary>Timed world events (Rules.WorldEvents): what runs now and what comes within the week, as last sent.</summary>
+        public WorldEventDto[] Events { get; private set; } = Array.Empty<WorldEventDto>();
+        private float _eventsAt;
+        /// <summary>Seconds until the event begins (0 once it runs), counted on from when the state came.</summary>
+        public long EventStartsIn(WorldEventDto e) => Math.Max(0, e.startsInSeconds - (long)(Time.realtimeSinceStartup - _eventsAt));
+        public long EventEndsIn(WorldEventDto e) => Math.Max(0, e.endsInSeconds - (long)(Time.realtimeSinceStartup - _eventsAt));
+        public bool EventRunning(WorldEventDto e) => EventStartsIn(e) == 0 && EventEndsIn(e) > 0;
+
+        public bool EventOn(WorldEventKind kind)
+        {
+            if (!Online) return false;
+            foreach (WorldEventDto e in Events)
+                if (e.kind == kind.ToString() && EventRunning(e)) return true;
+            return false;
+        }
+
+        /// <summary>The lucky forge hour's extra chance while it runs (the server rolls with its own).</summary>
+        public int ForgeLuckBp => EventOn(WorldEventKind.LuckyForge) ? WorldEvents.ForgeLuckBp : 0;
         private Bell _appliedBell = Rules.Bell.None;
         public Bell ActiveBell => _appliedBell;
 
@@ -1305,6 +1324,12 @@ namespace Orsuun.Client.Net
                 MailUnread = s.mail;
                 Bosses = s.bosses;
                 BossesReceivedAt = Time.realtimeSinceStartup;
+            }
+            if (s.events != null)
+            {
+                Events = s.events;
+                _eventsAt = Time.realtimeSinceStartup;
+                _player.SetForgeLuck(ForgeLuckBp);
             }
             if (s.bell != null)
             {
@@ -1465,7 +1490,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; }
+        [Serializable] public class WorldEventDto { public string kind; public string name; public string effect; public bool running; public long startsInSeconds; public long endsInSeconds; }
         [Serializable] public class DailyDto { public int day; public bool claimable; public string[] gifts; public long secondsToNext; }
         [Serializable] public class MailDto { public StateDto state; public LetterDto[] letters; public int unread; public string message; }
         /// <summary>A letter; goodId and bookId are -1 when it holds none (JsonUtility leaves a missing int at 0).</summary>

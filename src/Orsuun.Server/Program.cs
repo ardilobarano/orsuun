@@ -13,6 +13,7 @@ string connection = builder.Configuration.GetConnectionString("Game")
 builder.Services.AddDbContext<GameDb>(o => o.UseNpgsql(connection));
 builder.Services.AddSingleton<IRandom>(CryptoRandom.Instance);
 builder.Services.AddSingleton<BellClock>();
+builder.Services.AddSingleton<EventCalendar>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ExternalAuth>();
@@ -54,6 +55,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
     await GameService.BackfillNamesAsync(db, CancellationToken.None);   // characters made before names (25 Sep 2026)
     await GameService.SeedFortressesAsync(db, CancellationToken.None);
+    await app.Services.GetRequiredService<EventCalendar>().ReloadAsync(db, CancellationToken.None);
 }
 
 app.Use(async (ctx, next) =>
@@ -391,6 +393,22 @@ mod.MapPost("/players/{id:guid}/unban", async (HttpContext ctx, Guid id, GameSer
     return Results.Ok(new { ok = true });
 });
 mod.MapGet("/guilds", (string? q, GameService game, CancellationToken ct) => game.AdminGuildsAsync(q, ct));
+mod.MapGet("/events", (GameService game, CancellationToken ct) => game.AdminEventsAsync(ct));
+mod.MapPost("/events", async (HttpContext ctx, AdminEventRequest req, GameService game, CancellationToken ct) =>
+{
+    await game.AdminAddEventAsync(Mod(ctx), req, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapPost("/events/{id:long}/off", async (HttpContext ctx, long id, GameService game, CancellationToken ct) =>
+{
+    await game.AdminCancelEventAsync(Mod(ctx), id, true, ct);
+    return Results.Ok(new { ok = true });
+});
+mod.MapPost("/events/{id:long}/on", async (HttpContext ctx, long id, GameService game, CancellationToken ct) =>
+{
+    await game.AdminCancelEventAsync(Mod(ctx), id, false, ct);
+    return Results.Ok(new { ok = true });
+});
 mod.MapPost("/guilds/{id:guid}/rename", async (HttpContext ctx, Guid id, AdminRenameRequest req, GameService game, CancellationToken ct) =>
 {
     await game.AdminRenameGuildAsync(Mod(ctx), id, req, ct);
@@ -406,6 +424,7 @@ mod.MapGet("/log", (GameService game, CancellationToken ct) => game.AdminLogAsyn
 if (app.Environment.IsDevelopment())
 {
     v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
+    v1.MapPost("/dev/event", (HttpContext ctx, DevEventRequest req, GameService game, CancellationToken ct) => game.DevEventAsync(Me(ctx), req.Kind, req.Minutes, ct));
     v1.MapPost("/dev/level", (HttpContext ctx, int level, GameService game, CancellationToken ct) => game.DevLevelAsync(Me(ctx), level, ct));
     v1.MapPost("/dev/pit-season-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevPitSeasonEndAsync(Me(ctx), ct));
     v1.MapPost("/dev/skill", (HttpContext ctx, int book, int grade, GameService game, CancellationToken ct) => game.DevSkillAsync(Me(ctx), book, grade, ct));

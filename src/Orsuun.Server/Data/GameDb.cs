@@ -36,6 +36,7 @@ public sealed class GameDb : DbContext
     public DbSet<DungeonRun> DungeonRuns => Set<DungeonRun>();
     public DbSet<Login> Logins => Set<Login>();
     public DbSet<TradeSession> Trades => Set<TradeSession>();
+    public DbSet<WorldEvent> WorldEvents => Set<WorldEvent>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -154,6 +155,11 @@ public sealed class GameDb : DbContext
 
         b.Entity<GuildWarSignup>(e => e.HasKey(w => new { w.Night, w.GuildId }));
         b.Entity<GuildWarNight>(e => e.HasKey(n => n.Night));
+        b.Entity<WorldEvent>(e =>
+        {
+            e.HasIndex(w => new { w.Kind, w.StartsUtc }).IsUnique();
+            e.HasIndex(w => w.EndsUtc);
+        });
         b.Entity<GuildWar>(e =>
         {
             e.HasIndex(w => new { w.Night, w.GuildA });

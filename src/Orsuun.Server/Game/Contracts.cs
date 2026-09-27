@@ -260,7 +260,11 @@ public sealed record StateDto(
     int Whispers = 0,
     Figure Figure = Figure.Man,
     DailyDto? Daily = null,
-    int Mail = 0);
+    int Mail = 0,
+    WorldEventDto[]? Events = null);
+
+/// <summary>A world event on the server's calendar (Rules.WorldEvents) that runs now or comes within the week.</summary>
+public sealed record WorldEventDto(string Kind, string Name, string Effect, bool Running, long StartsInSeconds, long EndsInSeconds);
 
 /// <summary>
 /// The login calendar: the day a claim now takes (1..7), whether today's is still to claim, the seven gifts for this
@@ -374,6 +378,11 @@ public sealed record AdminBanRequest(string Reason, bool HideLines = true);
 public sealed record AdminGuildDto(Guid Id, string Name, string Tag, int Level, int Members, string Leader, DateTime CreatedUtc, bool Open);
 public sealed record AdminRenameRequest(string Name, string Tag);
 public sealed record AdminActionDto(DateTime Utc, string Admin, string Action, string Target, string Detail);
+/// <summary>A world event on the moderation page's calendar, with its times in server time.</summary>
+public sealed record AdminEventDto(long Id, string Kind, string Name, DateTime StartsUtc, DateTime EndsUtc, string StartsLocal, string EndsLocal,
+    bool Weekly, bool Cancelled, bool Announced, string By);
+public sealed record AdminEventRequest(string Kind, string StartsLocal, int Hours);
+public sealed record DevEventRequest(string Kind, int Minutes = 60);
 
 /// <summary>The character screen (25 Sep 2026): the login's characters, its Banner and Amber.</summary>
 public sealed record LobbyDto(Guid LoginId, CharacterSlotDto[] Characters, int MaxSlots, Banner Banner, long Amber, string? Email, string Message = "", int Links = 0);

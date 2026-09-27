@@ -113,6 +113,19 @@ namespace Orsuun.Client
                 long left = server.Bounties.dailyResetSeconds - (long)age;
                 if (left > 60) Add(4, "New bounties", "Fresh bounties are posted. Hunt Marks are waiting.", now.AddSeconds(left));
             }
+
+            // The next weekend events to begin (Rules.WorldEvents), one notice each kind.
+            if (server.Online)
+            {
+                int id = 10;
+                var told = new System.Collections.Generic.HashSet<string>();
+                foreach (Net.ServerLink.WorldEventDto e in server.Events)
+                {
+                    long wait = server.EventStartsIn(e);
+                    if (wait <= 60 || !told.Add(e.kind)) continue;
+                    Add(id++, e.name + " begins", $"{e.name} has begun: {e.effect}. Come and hunt it.", now.AddSeconds(wait));
+                }
+            }
         }
 
         private void Add(int id, string title, string text, DateTime when)

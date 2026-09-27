@@ -123,7 +123,15 @@ namespace Orsuun.Client
         private static bool Find(string piece, int depth, out string done, bool split = true)
         {
             done = piece;
-            if (piece.Length == 0 || NoWords.IsMatch(piece) || Letters(piece) < 2 || IsAddress(piece)) return true;
+            if (piece.Length == 0 || NoWords.IsMatch(piece) || IsAddress(piece)) return true;
+            if (Letters(piece) < 2)
+            {
+                // A unit or a code ("19m", "T3", "X"): a template may know it ("{0}m"), else it stays as it is.
+                string none = null;
+                if (Exact.TryGetValue(piece, out done) || depth < MaxDepth && Templates(Open, piece, depth, ref none, out done)) return true;
+                done = piece;
+                return true;
+            }
             if (Exact.TryGetValue(piece, out done)) return true;
             if (IsCapitals(piece) && Upper.TryGetValue(piece, out done)) { done = ToUpperTr(done); return true; }
             done = piece;

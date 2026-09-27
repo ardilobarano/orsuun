@@ -92,7 +92,7 @@ function show() {
 }
 
 // ---- tabs ----
-const TABS = [["overview", "Overview"], ["reports", "Reports"], ["chat", "World chat"], ["players", "Players"], ["guilds", "Guilds"], ["log", "Log"]];
+const TABS = [["overview", "Overview"], ["reports", "Reports"], ["chat", "World chat"], ["players", "Players"], ["guilds", "Guilds"], ["events", "Events"], ["log", "Log"]];
 
 function tabs(openReports) {
   const nav = $("tabs");
@@ -112,6 +112,7 @@ async function render() {
     else if (tab === "chat") view.replaceChildren(await chatView());
     else if (tab === "players") view.replaceChildren(await playersView());
     else if (tab === "guilds") view.replaceChildren(await guildsView());
+    else if (tab === "events") view.replaceChildren(await eventsView());
     else view.replaceChildren(await logView());
   } catch (e) {
     if (e.message !== "signed out") view.replaceChildren(el("div", { class: "empty" }, e.message));
@@ -228,6 +229,36 @@ async function guildsView() {
         onclick: () => { if (confirm("Disband [" + g.tag + "] " + g.name + "? Every member leaves and its treasury is lost.")) act(() => api("POST", "/guilds/" + g.id + "/disband"), "Guild disbanded."); },
       }, "Disband"))));
   return el("div", {}, searchRow("guilds", "Guild name or tag"), rows.length ? el("div", {}, ...rows) : el("div", { class: "empty" }, "No guilds."));
+}
+
+// ---- weekend events: the server's calendar (times are server time) ----
+const EVENT_KINDS = [["DoubleSorn", "Double Sorn Weekend"], ["LuckyForge", "Lucky Forge Hour"], ["CommanderRush", "Commander Rush"]];
+
+async function eventsView() {
+  const events = await api("GET", "/events");
+  const kind = el("select", {}, ...EVENT_KINDS.map(([k, label]) => el("option", { value: k }, label)));
+  const start = el("input", { type: "text", placeholder: "2026-10-10 20:00" });
+  const hours = el("input", { type: "number", min: "1", max: "168", value: "2" });
+  const add = el("div", { class: "card" },
+    el("div", { class: "meta" }, "Put an event on the calendar. The start is server time (Europe/Istanbul); it is announced in world chat when it begins."),
+    el("div", { class: "row" }, kind, start, hours,
+      el("button", { class: "good", onclick: () => act(() => api("POST", "/events", { kind: kind.value, startsLocal: start.value, hours: parseInt(hours.value, 10) || 0 }), "Event added.") }, "Add")));
+  const now = Date.now();
+  const rows = events.map(e => {
+    const running = new Date(e.startsUtc).getTime() <= now && now < new Date(e.endsUtc).getTime();
+    const tags = [];
+    if (e.weekly) tags.push(el("span", { class: "tag" }, "weekly"));
+    if (running && !e.cancelled) tags.push(el("span", { class: "tag warn" }, "running"));
+    if (e.cancelled) tags.push(el("span", { class: "tag bad" }, "called off"));
+    if (e.announced) tags.push(el("span", { class: "tag" }, "announced"));
+    return el("div", { class: "card" + (e.cancelled ? " hidden" : "") },
+      el("div", { class: "meta" }, el("b", {}, e.name), ...tags),
+      el("div", { class: "meta" }, e.startsLocal + " to " + e.endsLocal + " server time · set by " + e.by),
+      el("div", { class: "actions" }, e.cancelled
+        ? el("button", { class: "good", onclick: () => act(() => api("POST", "/events/" + e.id + "/on"), "Event back on.") }, "Put back on")
+        : el("button", { class: "bad", onclick: () => { if (confirm("Call off " + e.name + " (" + e.startsLocal + ")?")) act(() => api("POST", "/events/" + e.id + "/off"), "Event called off."); } }, "Call off")));
+  });
+  return el("div", {}, add, rows.length ? el("div", {}, ...rows) : el("div", { class: "empty" }, "Nothing on the calendar."));
 }
 
 async function logView() {
