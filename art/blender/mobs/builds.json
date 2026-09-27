@@ -1,0 +1,341 @@
+{
+ "AshFiend": {
+  "src": "art/blender/mobs/AshFiend-tripo.glb",
+  "height": 2.1,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "Azhdar": {
+  "src": "art/blender/mobs/Azhdar-tripo.glb",
+  "height": 3.2,
+  "rig": "serpent",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "BirchStalker": {
+  "src": "art/blender/mobs/BirchStalker-tripo.glb",
+  "height": 1.4,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Boar": {
+  "src": "art/blender/mob-boar-rodin.glb",
+  "height": 1.15,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": 0.0
+ },
+ "BogRider": {
+  "src": "art/blender/mobs/BogRider-tripo.glb",
+  "height": 2.3,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "BonePicker": {
+  "src": "art/blender/mobs/BonePicker-tripo.glb",
+  "height": 1.8,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "CoilMother": {
+  "src": "art/blender/mobs/CoilMother-tripo.glb",
+  "height": 3.4,
+  "rig": "serpent",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "DebtWraith": {
+  "src": "art/blender/mobs/DebtWraith-tripo.glb",
+  "height": 1.9,
+  "rig": null,
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Deserter": {
+  "src": "art/blender/mob-deserter-rodin.glb",
+  "height": 1.9,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": 0.0
+ },
+ "FlameCultist": {
+  "src": "art/blender/mobs/FlameCultist-tripo.glb",
+  "height": 1.95,
+  "rig": "biped",
+  "attack": "staff_wide",
+  "yaw": -90.0
+ },
+ "FrostBear": {
+  "src": "art/blender/bear-tripo.glb",
+  "height": 1.6,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Ghoul": {
+  "src": "art/blender/ghoul-tripo.glb",
+  "height": 1.85,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "GildedConstruct": {
+  "src": "art/blender/mobs/GildedConstruct-tripo.glb",
+  "height": 2.3,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "GlassSnake": {
+  "src": "art/blender/snake-tripo.glb",
+  "height": 1.3,
+  "rig": "serpent",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Gorak": {
+  "src": "art/blender/gorak-rodin.glb",
+  "height": 2.45,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": 0.0
+ },
+ "Greyjaw": {
+  "src": "art/blender/greyjaw-rodin.glb",
+  "height": 2.0,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": 0.0
+ },
+ "HangingSpirit": {
+  "src": "art/blender/mobs/HangingSpirit-tripo.glb",
+  "height": 2.0,
+  "rig": null,
+  "attack": null,
+  "yaw": -90.0
+ },
+ "HollowedDead": {
+  "src": "art/blender/mobs/HollowedDead-tripo.glb",
+  "height": 1.9,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "Hurm": {
+  "src": "art/blender/mobs/Hurm-tripo.glb",
+  "height": 3.4,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "IceWight": {
+  "src": "art/blender/wight-tripo.glb",
+  "height": 1.9,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "KhanCultist": {
+  "src": "art/blender/mobs/KhanCultist-tripo.glb",
+  "height": 1.85,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "KhanHound": {
+  "src": "art/blender/mobs/KhanHound-repaired.glb",
+  "height": 1.5,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "KhanShadow": {
+  "src": "art/blender/mobs/KhanShadow-repaired.glb",
+  "height": 3.6,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "LanternWidow": {
+  "src": "art/blender/mobs/LanternWidow-tripo.glb",
+  "height": 2.8,
+  "rig": "biped",
+  "attack": "cast",
+  "yaw": -90.0,
+  "robe": true
+ },
+ "LanternWisp": {
+  "src": "art/blender/mobs/LanternWisp-tripo.glb",
+  "height": 1.6,
+  "rig": "biped",
+  "attack": "staff_wide",
+  "yaw": -90.0
+ },
+ "LastCarver": {
+  "src": "art/blender/mobs/LastCarver-tripo.glb",
+  "height": 3.0,
+  "rig": "biped",
+  "attack": "staff_wide",
+  "yaw": -90.0
+ },
+ "LeechSwarm": {
+  "src": "art/blender/mobs/LeechSwarm-tripo.glb",
+  "height": 0.9,
+  "rig": null,
+  "attack": null,
+  "yaw": -90.0
+ },
+ "MagmaHound": {
+  "src": "art/blender/mobs/MagmaHound-tripo.glb",
+  "height": 1.3,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "MarshSerpent": {
+  "src": "art/blender/mobs/MarshSerpent-tripo.glb",
+  "height": 1.6,
+  "rig": "serpent",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "MerchantPrince": {
+  "src": "art/blender/mobs/MerchantPrince-tripo.glb",
+  "height": 3.4,
+  "rig": "biped",
+  "attack": "cast",
+  "yaw": -90.0,
+  "robe": true
+ },
+ "OathChanter": {
+  "src": "art/blender/mobs/OathChanter-repaired.glb",
+  "height": 2.3,
+  "rig": null,
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Queen": {
+  "src": "art/blender/queen-rodin.glb",
+  "height": 2.4,
+  "rig": "biped",
+  "attack": "cast",
+  "yaw": 0.0,
+  "robe": true
+ },
+ "RedTreant": {
+  "src": "art/blender/mobs/RedTreant-tripo.glb",
+  "height": 2.3,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "RisenCaptain": {
+  "src": "art/blender/mobs/RisenCaptain-repaired.glb",
+  "height": 2.6,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "RisenRider": {
+  "src": "art/blender/mobs/RisenRider-repaired.glb",
+  "height": 2.7,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "RisenTrooper": {
+  "src": "art/blender/mobs/RisenTrooper-repaired.glb",
+  "height": 2.2,
+  "rig": "biped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Rootfather": {
+  "src": "art/blender/mobs/Rootfather-tripo.glb",
+  "height": 3.4,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "SapHorror": {
+  "src": "art/blender/mobs/SapHorror-tripo.glb",
+  "height": 1.1,
+  "rig": null,
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Scorpion": {
+  "src": "art/blender/scorpion-tripo.glb",
+  "height": 1.0,
+  "rig": "scorpion",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "SiegeBeast": {
+  "src": "art/blender/mobs/SiegeBeast-tripo.glb",
+  "height": 2.2,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "SilkSpider": {
+  "src": "art/blender/mobs/SilkSpider-tripo.glb",
+  "height": 1.0,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Silkmother": {
+  "src": "art/blender/mobs/Silkmother-tripo.glb",
+  "height": 2.8,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "SnowHag": {
+  "src": "art/blender/hag-tripo.glb",
+  "height": 2.0,
+  "rig": "biped",
+  "attack": "staff_wide",
+  "yaw": -90.0
+ },
+ "StoneGiant": {
+  "src": "art/blender/mobs/StoneGiant-tripo.glb",
+  "height": 2.5,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "StoneSentinel": {
+  "src": "art/blender/mobs/StoneSentinel-tripo.glb",
+  "height": 2.2,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "ThroneGuard": {
+  "src": "art/blender/mobs/ThroneGuard-repaired.glb",
+  "height": 2.5,
+  "rig": "biped",
+  "attack": null,
+  "yaw": -90.0
+ },
+ "Varkesh": {
+  "src": "art/blender/mobs/Varkesh-repaired.glb",
+  "height": 3.6,
+  "rig": "biped",
+  "attack": "sword",
+  "yaw": -90.0
+ },
+ "Wolf": {
+  "src": "art/blender/mob-wolf-rodin.glb",
+  "height": 1.25,
+  "rig": "quadruped",
+  "attack": null,
+  "yaw": 0.0
+ }
+}

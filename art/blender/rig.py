@@ -221,6 +221,46 @@ def free_cloth_from_arms(mesh_obj, arm, height, sides=("L", "R"), keep=0.035, fa
     return changed
 
 
+LEG_BONES = ("thigh.L", "shin.L", "foot.L", "thigh.R", "shin.R", "foot.R")
+
+
+def free_robe_from_legs(mesh_obj, arm, height, keep=0.04, fade=0.06):
+    """A robe hangs around the legs, so distance weights gave its hem to the thighs and shins and it tore into a flared
+    sheet whenever a leg swung (the Mirage Queen, the Merchant-Prince and the Lantern Widow, 27 Sep 2026). Below the
+    hips, whatever lies farther than `keep` (a share of the height) from every leg bone hands its leg weights to the
+    hips, all of them past keep + fade, so the robe sways with the body and bends over that band. Returns the vertices
+    changed."""
+    me = mesh_obj.data
+    bones = arm.data.bones
+    groups = {g.index: g.name for g in mesh_obj.vertex_groups}
+    hips_z = bones["thigh.L"].head_local.z
+    segments = [(bones[n].head_local, bones[n].tail_local) for n in LEG_BONES]
+    hips = mesh_obj.vertex_groups["hips"]
+    changed = 0
+    for v in me.vertices:
+        if v.co.z > hips_z:
+            continue
+        ws = {groups[g.group]: g.weight for g in v.groups}
+        leg_w = sum(w for k, w in ws.items() if k in LEG_BONES)
+        if leg_w <= 0.0:
+            continue
+        d = min(_segment_distance(v.co, a, b) for a, b in segments) / height
+        share = max(0.0, min(1.0, (keep + fade - d) / fade))
+        if share >= 1.0:
+            continue
+        for k in LEG_BONES:
+            if k in ws:
+                g = mesh_obj.vertex_groups[k]
+                if ws[k] * share > 0.001:
+                    g.add([v.index], ws[k] * share, 'REPLACE')
+                else:
+                    g.remove([v.index])
+        hips.add([v.index], ws.get("hips", 0.0) + leg_w * (1.0 - share), 'REPLACE')
+        changed += 1
+    print("robe: %d vertices eased off the legs" % changed)
+    return changed
+
+
 def hold_loose(mesh_obj, arm, height, hand):
     """A Wraithsworn's palm flame (26 Sep 2026): Tripo sometimes sets it floating off the hand (behind the body, or out
     past the fingers), where it was weighted to the chest and hung in the air when the arm swung. A sizeable piece
@@ -453,15 +493,39 @@ ATTACKS = {
         (9, {"upper_arm.R": (35, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (18, 0, 0), "forearm.L": (28, 0, 0), "chest": (10, -6, 0), "spine": (6, 0, 0)}, (0, -0.05, 0)),
         (15, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
     ]),
+    # The enemies' staff blow (FlameCultist, LanternWisp, LastCarver, SnowHag): "staff" as it was before the drum arm was
+    # calmed for the Drumcaller's cape (27 Sep 2026), their free arm swinging wider.
+    "staff_wide": (15, [
+        (0, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+        (5, {"upper_arm.R": (110, 0, 0), "forearm.R": (20, 0, 0), "upper_arm.L": (25, 0, 0), "forearm.L": (10, 0, 0), "chest": (-10, 6, 0), "spine": (-4, 0, 0)}, (0, 0.03, 0)),
+        (9, {"upper_arm.R": (35, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (50, 0, 0), "forearm.L": (40, 0, 0), "chest": (10, -6, 0), "spine": (6, 0, 0)}, (0, -0.05, 0)),
+        (15, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0)}, (0, 0, 0)),
+    ]),
+    # Robed casters (the Mirage Queen, the Merchant-Prince, the Lantern Widow, 27 Sep 2026): the staff hand stays low, so
+    # a staff standing on the ground does not bend, and the free hand draws back and thrusts the spell forward.
+    "cast": (15, [
+        (0, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0), "neck": (0, 0, 0)}, (0, 0, 0)),
+        (5, {"upper_arm.R": (4, 0, 0), "forearm.R": (3, 0, 0), "upper_arm.L": (-12, 0, 0), "forearm.L": (30, 0, 0), "chest": (-6, 8, 0), "spine": (-3, 0, 0), "neck": (-4, 0, 0)}, (0, 0.02, 0)),
+        (9, {"upper_arm.R": (6, 0, 0), "forearm.R": (4, 0, 0), "upper_arm.L": (58, 0, 0), "forearm.L": (12, 0, 0), "chest": (9, -10, 0), "spine": (5, 0, 0), "neck": (6, 0, 0)}, (0, -0.04, 0)),
+        (15, {"upper_arm.R": (0, 0, 0), "forearm.R": (0, 0, 0), "upper_arm.L": (0, 0, 0), "forearm.L": (0, 0, 0), "chest": (0, 0, 0), "spine": (0, 0, 0), "neck": (0, 0, 0)}, (0, 0, 0)),
+    ]),
 }
 
 
-def key_actions(arm, attack=None):
+# A robed figure glides: its run takes this share of the legs' swing, so the hem is not kicked out.
+ROBE_STRIDE = 0.35
+
+
+def key_actions(arm, attack=None, robe=False):
     """Keys every action on the armature (fake users keep them); the FBX exporter writes one take per action.
-    attack: a style from ATTACKS that replaces the Vanguard's glaive chop."""
+    attack: a style from ATTACKS that replaces the Vanguard's glaive chop; robe: the run's stride is shortened."""
     actions = dict(ACTIONS)
     if attack:
         actions["Attack"] = ATTACKS[attack]
+    if robe:
+        length, keys = actions["Run"]
+        actions["Run"] = (length, [(f, {b: tuple(a * ROBE_STRIDE for a in deg) if b in LEG_BONES else deg for b, deg in rots.items()}, loc)
+                                   for f, rots, loc in keys])
     arm.animation_data_create()
     for pb in arm.pose.bones:
         pb.rotation_mode = 'QUATERNION'
@@ -553,10 +617,11 @@ def humanoid_layout(verts, height):
 
 
 def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapon_bone=None, attack=None, layout=None,
-                 loose_hand=None, drum=False, staff_axis=None):
+                 loose_hand=None, drum=False, staff_axis=None, robe=False):
     """Rigs an A-pose class model with the shared bone names, so the same five actions play on it. staff=True finds a
     long straight staff in the right hand (the straightest near-vertical line on that side) and pins it to hand.R,
-    so it swings as one piece instead of bending with the head and shoulder."""
+    so it swings as one piece instead of bending with the head and shoulder. robe=True (a figure in a long robe) eases
+    the robe off both arms and the legs and shortens the run's stride."""
     verts = [v.co.copy() for m in meshes for v in m.data.vertices]
     if weapon is not None:
         verts += [v.co.copy() for v in weapon.data.vertices]
@@ -574,6 +639,9 @@ def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapo
         if drum or loose_hand:
             # The drum arm and the Wraithsworn's thrusting void hand swing far from the hip cloth beside them.
             free_cloth_from_arms(m, arm, height, sides=("L",))
+        if robe:
+            free_cloth_from_arms(m, arm, height)
+            free_robe_from_legs(m, arm, height)
         if loose_hand:
             hold_loose(m, arm, height, loose_hand)
         if drum:
@@ -594,5 +662,5 @@ def rig_humanoid(meshes, root, height, rig_name, staff=False, weapon=None, weapo
         # The weapon part rides its hand whole: hand.R for a staff or sword; paired blades pass a function of the
         # position, so each rides its own hand.
         skin(weapon, arm, radii, only=weapon_bone)
-    key_actions(arm, attack)
+    key_actions(arm, attack, robe=robe)
     return arm, layout

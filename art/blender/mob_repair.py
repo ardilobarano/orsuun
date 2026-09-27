@@ -9,8 +9,7 @@ source's, untouched. Exports in the source's frame (same yaw and scale), smooth 
 
 Args: -- <name> <src_glb> <voxel_frac_of_height> <work_tris> <out_glb> <work_prefix>
 Used on the 8 enemies still cracked after mob_model's UV weld (27 Sep 2026): voxel 0.002, 60000 work tris, then
-looks.mob_model(out_glb, name, height, tris=looks.MOB_TRIS, yaw_degrees=yaw, rig=plan, attack=attack) with each one's
-settings in mobs/repaired.json. 0.0015 leaks (the body dissolves), 0.0025 blurs small openings.
+looks.mob_model (build_mob.py) with each one's settings in mobs/builds.json. 0.0015 leaks (the body dissolves), 0.0025 blurs small openings.
   Blender -b -P art/blender/mob_repair.py -- Varkesh art/blender/mobs/Varkesh-tripo.glb 0.002 60000 art/blender/mobs/Varkesh-repaired.glb /tmp/varkesh
 """
 import json

@@ -310,11 +310,12 @@ def scorpion_clips(H, L):
     }
 
 
-def rig_mob(mesh, root, height, rig_name, plan, attack=None):
-    """Builds and skins the rig for one enemy and keys its clips. plan: biped, quadruped, serpent or scorpion."""
+def rig_mob(mesh, root, height, rig_name, plan, attack=None, robe=False):
+    """Builds and skins the rig for one enemy and keys its clips. plan: biped, quadruped, serpent or scorpion; robe: a
+    biped in a long robe (rig.rig_humanoid)."""
     verts = [v.co.copy() for v in mesh.data.vertices]
     if plan == "biped":
-        arm, _layout = rigging.rig_humanoid([mesh], root, height, rig_name, attack=attack)
+        arm, _layout = rigging.rig_humanoid([mesh], root, height, rig_name, attack=attack, robe=robe)
         return arm
     level = ()
     if plan == "quadruped":

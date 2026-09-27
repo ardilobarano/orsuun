@@ -231,7 +231,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   (`_bake(weld=True)`); decimated split, the seams opened into hairline cracks the lane's bright ground showed through.
   Hero looks (`class_look`, `armor_look`) keep the split mesh: their weapon cut (`_held_islands`) relies on it.
   A source already decimated before the weld (split pieces, nothing to weld) goes through `art/blender/mob_repair.py`
-  first (voxel remesh, keeping the source's own UV charts and texture), as the eight in `mobs/repaired.json` did.
+  first (voxel remesh, keeping the source's own UV charts and texture). Every enemy's settings are in
+  `art/blender/mobs/builds.json`; `build_mob.py -- <Name>` rebuilds one. A robed biped takes `robe` (its robe eased off
+  the arms and legs, a gliding run) and the `cast` attack: a staff standing on the ground bends if its hand swings.
 - Achievements (`Rules.Achievements`, since 27 Sep 2026) read lifetime counters (`Account.Feats`, `FeatMetric`: its
   first seven follow `BountyMetric`, so every `Count` also counts a feat; append new metrics, never renumber) and the hero
   as he stands; achievement ids are stored in `FeatsClaimed` and `TitleId`, so never renumber them either. A worn title
