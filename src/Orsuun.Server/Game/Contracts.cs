@@ -51,6 +51,12 @@ public sealed record BagSellRequest(string RequestId, Guid ItemId, Guid[]? ItemI
 public sealed record ParkRequest(int Stage);
 /// <summary>An error the client caught; stored for the team, at most ClientLogsPerHour per account.</summary>
 public sealed record ClientLogRequest(string Platform, string Version, string Message, string? Stack = null);
+
+/// <summary>A first only the phone sees (GameService.Funnel): "tutorial-3", "tutorial-done", "tutorial-skipped".</summary>
+public sealed record MilestoneRequest(string Name);
+public sealed record AdminFunnelStepDto(string Name, string Label, int Count, double MedianMinutes);
+public sealed record AdminFunnelDto(int Days, int Heroes, AdminFunnelStepDto[] WayIn, AdminFunnelStepDto[] Steps);
+public sealed record AdminErrorDto(string Message, int Count, int Heroes, string Platforms, string Versions, DateTime FirstUtc, DateTime LastUtc, string Stack);
 /// <summary>Switches the class being played (playtest: free and instant).</summary>
 public sealed record ClassRequest(HeroClass HeroClass);
 public sealed record PushRequest(string RequestId);

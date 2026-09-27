@@ -168,6 +168,7 @@ public sealed partial class GameService
         await _db.GuildRequests.Where(r => r.AccountId == account.Id).ExecuteDeleteAsync(ct);
         account.Sorn -= Guilds.CreateCost;
         account.GuildId = guild.Id;
+        Mark(account, "guild");
         account.GuildRank = GuildRank.Leader;
         account.GuildJoinedUtc = now;
         account.GuildDonated = 0;
@@ -200,6 +201,7 @@ public sealed partial class GameService
         }
         if (await MemberCountAsync(guild.Id, ct) >= Guilds.MaxMembers(guild.Muster)) throw new GameException("guild_full", guild.Name + " is full.");
         account.GuildId = guild.Id;
+        Mark(account, "guild");
         account.GuildRank = GuildRank.Member;
         account.GuildJoinedUtc = DateTime.UtcNow;
         account.GuildDonated = 0;
@@ -485,6 +487,7 @@ public sealed partial class GameService
         Guild guild = await LockGuildAsync(request.GuildId, ct);
         if (await MemberCountAsync(guild.Id, ct) >= Guilds.MaxMembers(guild.Muster)) throw new GameException("guild_full", guild.Name + " is full.");
         account.GuildId = guild.Id;
+        Mark(account, "guild");
         account.GuildRank = GuildRank.Member;
         account.GuildJoinedUtc = DateTime.UtcNow;
         account.GuildDonated = 0;

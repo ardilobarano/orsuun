@@ -7,10 +7,11 @@ namespace Orsuun.Server.Game;
 public sealed partial class GameService
 {
     /// <summary>Adds to a hero's lifetime counter (Count does this for every bounty metric too).</summary>
-    private static void Feat(Account account, FeatMetric metric, long amount)
+    private void Feat(Account account, FeatMetric metric, long amount)
     {
         if (amount <= 0) return;
         FeatCounters c = FeatCounters.Parse(account.Feats);
+        if (c[metric] == 0) Mark(account, "first-" + metric);   // the funnel's firsts (GameService.Funnel)
         c.Add(metric, amount);
         account.Feats = c.Serialize();
     }

@@ -125,6 +125,7 @@ public sealed partial class GameService
         (int mine, int theirs) = Pits.Rate(account.PitRating, foe.Rating, won, foe.Account != null);
         account.PitRating = mine;
         if (won) account.PitWins++; else account.PitLosses++;
+        if (won) Mark(account, "pit-win");
         // The hero's first fight of a season opens its record for the season.
         string season = PitSeasonNow();
         if (account.PitSeason != season)

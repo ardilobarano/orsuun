@@ -259,3 +259,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - A won push moves the hunt when the hero hunts the campaign's front (`Content.HuntFollowsPush`, server `PushAsync` and
   `PlayerSession.Push` alike). The goal line's reached step is saved per hero as `orsuun.goalSteps2.<name>`: reordering
   `Goals.Chain` needs a new key (the line then starts again and passes what is done).
+- Funnel milestones (`GameService.Funnel`): `Mark(account, name)` queues a first, written after `SaveAsync` with ON
+  CONFLICT (one row per hero and name). `Feat` marks "first-<metric>" by itself; a new first elsewhere calls `Mark` and
+  gets a row in `FunnelSteps`. Phones may send only `tutorial-*` names.

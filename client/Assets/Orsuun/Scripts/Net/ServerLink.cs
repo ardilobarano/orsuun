@@ -97,6 +97,16 @@ namespace Orsuun.Client.Net
         /// the server caps an account at 20 an hour). Only the message, the stack, the platform and the version are
         /// sent; the privacy policy lists them.
         /// </summary>
+        private readonly HashSet<string> _milestones = new HashSet<string>();
+
+        /// <summary>A first only the phone sees ("tutorial-3", "tutorial-done", "tutorial-skipped") for the team's funnel;
+        /// sent once a run, answer ignored.</summary>
+        public void Milestone(string name)
+        {
+            if (!Online || !_milestones.Add(name)) return;
+            StartCoroutine(Send("POST", "/v1/milestone", JsonUtility.ToJson(new MilestoneRequest { name = name }), true, _ => { }, _ => { }));
+        }
+
         private void OnLog(string message, string stack, LogType type)
         {
             if (type != LogType.Exception || _session == null || _reported.Count >= CrashReportsPerRun || !_reported.Add(message)) return;
@@ -1703,6 +1713,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class RegisterRequest { public string email; public string password; }
         [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }
         [Serializable] public class ForgotRequest { public string email; }
+        [Serializable] public class MilestoneRequest { public string name; }
         [Serializable] public class ResetRequest { public string email; public string code; public string password; public string deviceToken; }
         [Serializable] public class VerifyRequest { public string code; }
         [Serializable] public class MessageDto { public string message; public bool emailVerified; }

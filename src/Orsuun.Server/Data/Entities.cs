@@ -631,6 +631,16 @@ public sealed class Device
 
 /// <summary>Append-only record of every roll and every currency change. Support and rate audits read this.</summary>
 /// <summary>An error the game client caught on a player's device (store readiness: crash reports without a third party).</summary>
+/// <summary>A first a hero reached (GameService.Funnel, 27 Sep 2026): one row per hero and name, for the moderation
+/// page's funnel.</summary>
+public sealed class Milestone
+{
+    public long Id { get; set; }
+    public Guid AccountId { get; set; }
+    [MaxLength(32)] public string Name { get; set; } = "";
+    public DateTime Utc { get; set; }
+}
+
 public sealed class ClientLog
 {
     public long Id { get; set; }

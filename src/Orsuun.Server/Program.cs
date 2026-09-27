@@ -343,6 +343,7 @@ v1.MapPost("/auth/signout", async (HttpContext ctx, GameService game, Cancellati
     await game.SignOutAsync(ctx.Request.Headers["X-Session"], ct);
     return Results.Ok(new { signedOut = true });
 });
+v1.MapPost("/milestone", (HttpContext ctx, MilestoneRequest req, GameService game, CancellationToken ct) => game.PhoneMilestoneAsync(Me(ctx), req, ct));
 v1.MapPost("/client-log", async (HttpContext ctx, ClientLogRequest req, GameService game, CancellationToken ct) =>
 {
     await game.LogClientErrorAsync(Me(ctx), req, ct);
@@ -436,6 +437,8 @@ mod.MapPost("/guilds/{id:guid}/disband", async (HttpContext ctx, Guid id, GameSe
     return Results.Ok(new { ok = true });
 });
 mod.MapGet("/log", (GameService game, CancellationToken ct) => game.AdminLogAsync(ct));
+mod.MapGet("/funnel", (int? days, GameService game, CancellationToken ct) => game.AdminFunnelAsync(days ?? 7, ct));
+mod.MapGet("/errors", (GameService game, CancellationToken ct) => game.AdminErrorsAsync(ct));
 
 if (app.Environment.IsDevelopment())
 {

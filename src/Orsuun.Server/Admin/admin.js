@@ -92,7 +92,8 @@ function show() {
 }
 
 // ---- tabs ----
-const TABS = [["overview", "Overview"], ["reports", "Reports"], ["chat", "World chat"], ["players", "Players"], ["guilds", "Guilds"], ["events", "Events"], ["log", "Log"]];
+const TABS = [["overview", "Overview"], ["reports", "Reports"], ["chat", "World chat"], ["players", "Players"], ["guilds", "Guilds"], ["events", "Events"],
+  ["funnel", "Funnel"], ["errors", "Errors"], ["log", "Log"]];
 
 function tabs(openReports) {
   const nav = $("tabs");
@@ -113,6 +114,8 @@ async function render() {
     else if (tab === "players") view.replaceChildren(await playersView());
     else if (tab === "guilds") view.replaceChildren(await guildsView());
     else if (tab === "events") view.replaceChildren(await eventsView());
+    else if (tab === "funnel") view.replaceChildren(await funnelView());
+    else if (tab === "errors") view.replaceChildren(await errorsView());
     else view.replaceChildren(await logView());
   } catch (e) {
     if (e.message !== "signed out") view.replaceChildren(el("div", { class: "empty" }, e.message));
@@ -259,6 +262,42 @@ async function eventsView() {
         : el("button", { class: "bad", onclick: () => { if (confirm("Call off " + e.name + " (" + e.startsLocal + ")?")) act(() => api("POST", "/events/" + e.id + "/off"), "Event called off."); } }, "Call off")));
   });
   return el("div", {}, add, rows.length ? el("div", {}, ...rows) : el("div", { class: "empty" }, "Nothing on the calendar."));
+}
+
+// ---- funnel and errors (tester analytics, 27 Sep 2026) ----
+let funnelDays = 7;
+
+function minutes(m) {
+  if (!m) return "";
+  return m < 60 ? Math.round(m) + " min" : m < 1440 ? (m / 60).toFixed(1) + " h" : (m / 1440).toFixed(1) + " days";
+}
+
+function headRow(cols) { return el("tr", {}, ...cols.map(c => el("th", {}, c))); }
+
+async function funnelView() {
+  const f = await api("GET", "/funnel?days=" + funnelDays);
+  const rows = (list, base, timed) => list.map(s => el("tr", {},
+    el("td", {}, s.label), el("td", {}, String(s.count)), el("td", {}, base ? Math.round(100 * s.count / base) + "%" : "-"),
+    el("td", {}, timed ? minutes(s.medianMinutes) : "")));
+  const installs = f.wayIn.length ? f.wayIn[0].count : 0;
+  return el("div", {},
+    el("div", { class: "row" }, "Made in the last",
+      ...[1, 7, 30].map(d => el("button", { class: funnelDays === d ? "on" : "", onclick: () => { funnelDays = d; render(); } }, d === 1 ? "day" : d + " days"))),
+    el("h3", {}, "The way in"),
+    el("table", {}, headRow(["", "logins", "of installs", ""]), ...rows(f.wayIn, installs, false)),
+    el("h3", {}, f.heroes + " heroes made"),
+    el("table", {}, headRow(["", "heroes", "of heroes", "median time from making"]), ...rows(f.steps, f.heroes, true)),
+    el("p", { class: "meta" }, "Each first is written once per hero when it happens (Korstones, Forge, pushes, bounties, Commanders, dungeons and sieges count from 27 Sep 2026). The guide's steps come from the phones."));
+}
+
+async function errorsView() {
+  const list = await api("GET", "/errors");
+  if (!list.length) return el("div", { class: "empty" }, "No errors from the phones in the last week.");
+  return el("div", {}, ...list.map(e => el("div", { class: "card" },
+    el("div", { class: "meta" }, el("b", {}, e.count + " x"), " on " + e.heroes + (e.heroes === 1 ? " hero" : " heroes"),
+      " · " + e.platforms + " · " + e.versions + " · last " + when(e.lastUtc)),
+    el("div", { class: "text" }, e.message),
+    e.stack ? el("details", {}, el("summary", {}, "Stack"), el("pre", {}, e.stack)) : null)));
 }
 
 async function logView() {

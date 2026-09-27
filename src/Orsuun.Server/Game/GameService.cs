@@ -202,6 +202,7 @@ public sealed partial class GameService
             + _events.SornBonusPercent(account.LastHeartbeatUtc, now);
         SettlementDto settlement = Settle(account, now, activeBp, verified, bonus) with { ActiveBp = activeBp, LoopsVerified = verified };
         account.LastHeartbeatUtc = now;
+        MarkVisit(account, settlement.CountedSeconds, now);
         Count(account, BountyMetric.Korstones, settlement.Korstones);
         if (!settlement.Offline) Count(account, BountyMetric.HuntSeconds, settlement.CountedSeconds);
         await SaveAsync(ct);
@@ -545,6 +546,7 @@ public sealed partial class GameService
         {
             int before = account.HighestStageCleared;
             account.HighestStageCleared = target;
+            MarkStage(account, target);
             // The hunt follows the push on the campaign's front (Content.HuntFollowsPush): settled and parked like a park.
             if (Content.HuntFollowsPush(account.ParkedStage, before) && account.ParkedStage != target)
             {
@@ -770,6 +772,7 @@ public sealed partial class GameService
         try
         {
             await _db.SaveChangesAsync(ct);
+            await FlushMarksAsync(ct);
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -960,6 +963,7 @@ public sealed partial class GameService
     /// </summary>
     private void Apply(Account a, Inventory i, bool hunt = false)
     {
+        int levelBefore = Content.LevelFor(a.Xp);
         if (hunt)
         {
             List<WardrobeDef> worn = WornPieces(a);
@@ -972,6 +976,7 @@ public sealed partial class GameService
         a.Sorn = i.Sorn; a.Potions = i.Potions; a.Materials = i.Materials; a.ScrollsOfMercy = i.ScrollsOfMercy;
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
         a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;
+        MarkLevels(a, levelBefore, Content.LevelFor(a.Xp));
         a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax; a.MastersNeedles = i.MastersNeedles; a.Oathstones = i.Oathstones;
         for (int b = 0; b < Books.Count; b++) SetBooks(a, b, i.Books[b]);
         a.Korshards = string.Join(';', i.Korshards);

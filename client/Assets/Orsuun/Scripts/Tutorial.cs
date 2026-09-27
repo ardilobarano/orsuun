@@ -102,7 +102,7 @@ namespace Orsuun.Client
             Ui.Sliced("TitleRule", _box, 0.04f, 0.71f, 0.96f, 0.76f, "Rule", Color.white).raycastTarget = false;
             _text = Ui.Label("Text", _box, 0.05f, 0.31f, 0.95f, 0.71f, "", 30, TextAnchor.MiddleLeft, Palette.Parchment);
             _count = Ui.Title("Count", _box, 0.36f, 0.05f, 0.64f, 0.28f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Button("Skip", _box, 0.03f, 0.05f, 0.30f, 0.29f, "SKIP", 26, Palette.ButtonIdle, Finish, out _);
+            Ui.Button("Skip", _box, 0.03f, 0.05f, 0.30f, 0.29f, "SKIP", 26, Palette.ButtonIdle, () => Finish(skipped: true), out _);
             _next = Ui.Button("Next", _box, 0.70f, 0.05f, 0.97f, 0.29f, "NEXT", 28, Palette.ButtonForge, Next, out _nextLabel).gameObject;
 
             Rect Fixed(float x0, float y0, float x1, float y1) => Rect.MinMaxRect(x0, y0, x1, y1);
@@ -145,12 +145,13 @@ namespace Orsuun.Client
         {
             if (!Running) return;
             _index++;
-            if (_index >= _steps.Length) Finish();
+            if (_index >= _steps.Length) Finish(skipped: false);
             else Show();
         }
 
-        private void Finish()
+        private void Finish(bool skipped)
         {
+            _root.Server.Milestone(skipped ? "tutorial-skipped" : "tutorial-done");
             _index = -1;
             _canvas.SetActive(false);
             try { PlayerPrefs.SetInt(DoneKey, 1); PlayerPrefs.Save(); } catch { }
@@ -161,6 +162,7 @@ namespace Orsuun.Client
             Step step = _steps[_index];
             _sawForgeBusy = false;
             _shownAt = Time.unscaledTime;
+            _root.Server.Milestone("tutorial-" + (_index + 1));
             _title.text = step.Title;
             _text.text = step.Text;
             _count.text = $"{_index + 1} / {_steps.Length}";
