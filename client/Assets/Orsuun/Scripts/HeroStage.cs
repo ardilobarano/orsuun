@@ -45,23 +45,41 @@ namespace Orsuun.Client
         private MaterialPropertyBlock _block;
         /// <summary>Above 1 the camera comes closer than the whole-figure framing (the inventory's smaller frame).</summary>
         public float Zoom { get; set; } = 1f;
+        private float _aspect = Aspect;
 
-        public void Init(RectTransform box, Vector3? at = null)
+        /// <summary>
+        /// Old Nergui's river (owner, 28 Sep 2026: "we need to see the char from behind"): the hero stands with his back to
+        /// the camera looking out over the painted water, the camera above and behind him, his weapon put away and a rod in
+        /// his fist, its line running to a float the river screen moves (SetFloat).
+        /// </summary>
+        public bool FromBehind { get; private set; }
+        private Transform _hand, _rod, _float;
+        private LineRenderer _line;
+        private Animation _anim;
+        private float _height = 2f;
+        private Vector3? _floatAt;
+
+        public void Init(RectTransform box, Vector3? at = null, bool fromBehind = false)
         {
             _at = at ?? Below;
-            _texture = new RenderTexture(640, 800, 24, RenderTextureFormat.ARGB32) { name = "HeroStage", antiAliasing = 2 };
+            FromBehind = fromBehind;
+            // From behind, the view fills a phone screen; otherwise the hero's portrait frame.
+            _aspect = fromBehind ? 9f / 16f : Aspect;
+            _texture = fromBehind
+                ? new RenderTexture(720, 1280, 24, RenderTextureFormat.ARGB32) { name = "RiverStage", antiAliasing = 2 }
+                : new RenderTexture(640, 800, 24, RenderTextureFormat.ARGB32) { name = "HeroStage", antiAliasing = 2 };
             _view = Ui.Rect("Hero", box, 0f, 0f, 1f, 1f).gameObject.AddComponent<RawImage>();
             var fit = _view.gameObject.AddComponent<AspectRatioFitter>();
-            fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-            fit.aspectRatio = Aspect;
+            fit.aspectMode = fromBehind ? AspectRatioFitter.AspectMode.EnvelopeParent : AspectRatioFitter.AspectMode.FitInParent;
+            fit.aspectRatio = _aspect;
             _view.texture = _texture;
-            _view.raycastTarget = true;
-            _view.gameObject.AddComponent<Turner>().Stage = this;
+            _view.raycastTarget = !fromBehind;
+            if (!fromBehind) _view.gameObject.AddComponent<Turner>().Stage = this;
 
             _camera = new GameObject("HeroStageCamera").AddComponent<Camera>();
             _camera.transform.SetParent(transform, false);
-            _camera.fieldOfView = Fov;
-            _camera.aspect = Aspect;
+            _camera.fieldOfView = fromBehind ? 40f : Fov;
+            _camera.aspect = _aspect;
             _camera.clearFlags = CameraClearFlags.SolidColor;
             _camera.backgroundColor = new Color(0f, 0f, 0f, 0f);   // the screen's scene shows through
             _camera.targetTexture = _texture;
@@ -106,6 +124,15 @@ namespace Orsuun.Client
                 Build(cls.Value, armorBand, weaponBand, string.IsNullOrEmpty(skinLook) ? null : skinLook, secondLook);
             }
             if (!Mathf.Approximately(armorGlow, _armorGlow) || !Mathf.Approximately(weaponGlow, _weaponGlow)) Glow(armorGlow, weaponGlow);
+            if (FromBehind)
+            {
+                // His back to us, looking out over the water; the camera above and behind his shoulder.
+                _pivot.rotation = Quaternion.identity;
+                // Framed so he stands on the painted jetty's end (a third of the way up the screen, a third of it tall).
+                _camera.transform.position = _at + new Vector3(0f, 0.9f * _height, -4.3f * _height);
+                _camera.transform.LookAt(_at + new Vector3(0f, 0.7f * _height, 0f));
+                return;
+            }
             float dt = Time.unscaledDeltaTime;
             float idle = _held ? 0f : Time.unscaledTime - _touchedAt;
             // A finger held still stops the turn it would hand on.
@@ -216,7 +243,7 @@ namespace Orsuun.Client
                 // A skin's costume is no armour look: it does not glow.
                 if (skin == null) foreach (Renderer r in armor.GetComponentsInChildren<Renderer>()) _pieces.Add((r, false));
                 anim = armor.GetComponent<Animation>();
-                if (weaponPrefab != null)
+                if (weaponPrefab != null && !FromBehind)
                 {
                     GameObject weapon = Instantiate(weaponPrefab, _model.transform);
                     Dress(weapon, "Looks/" + weaponUsed, renderers);
@@ -237,6 +264,8 @@ namespace Orsuun.Client
                         if (LaneView.SlotOf(r.name) is int slot && slot >= 0) _pieces.Add((r, slot == (int)EquipSlot.Weapon));
                 anim = body.GetComponent<Animation>();
             }
+            _anim = anim;
+            if (FromBehind) TakeRod(renderers);
             if (anim != null && anim.GetClip("Idle") != null)
             {
                 anim.cullingType = AnimationCullingType.AlwaysAnimate;
@@ -249,7 +278,99 @@ namespace Orsuun.Client
             b = Measure(renderers, _at);
             float half = Mathf.Tan(Fov * 0.5f * Mathf.Deg2Rad);
             _centreY = b.extents.y;
+            _height = Mathf.Max(0.5f, b.size.y);
             _distance = Mathf.Max(b.extents.y / half, Mathf.Max(b.extents.x, b.extents.z) / (half * Aspect)) * 1.12f + b.extents.z;
+        }
+
+        /// <summary>From behind: the weapon put away (the Vanguard's is not laid; the other classes' weapon parts hidden) and
+        /// a birch rod in the fist (the Vanguard's WeaponGrip, else hand.R), with its line and float.</summary>
+        private void TakeRod(List<Renderer> renderers)
+        {
+            foreach (Renderer r in renderers)
+                if (LaneView.SlotOf(r.name) == (int)EquipSlot.Weapon) r.enabled = false;
+            _hand = FindDeep(_model.transform, "WeaponGrip") ?? FindDeep(_model.transform, "hand.R") ?? FindDeep(_model.transform, "Hand.R");
+            _rod = MakePart(PrimitiveType.Cylinder, "Rod", new Color(0.55f, 0.43f, 0.3f));
+            _float = MakePart(PrimitiveType.Sphere, "Float", new Color(0.92f, 0.22f, 0.14f));
+            if (_line == null)
+            {
+                _line = new GameObject("RodLine").AddComponent<LineRenderer>();
+                _line.transform.SetParent(transform, false);
+                _line.useWorldSpace = true;
+                _line.positionCount = 2;
+                _line.numCapVertices = 1;
+                _line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                _line.receiveShadows = false;
+                var grey = Art.Load<Material>("GreyBox");
+                if (grey != null) { _line.sharedMaterial = grey; _line.material.color = new Color(0.85f, 0.82f, 0.72f); }
+            }
+            _floatAt = null;
+        }
+
+        private Transform MakePart(PrimitiveType type, string name, Color color)
+        {
+            GameObject go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            Destroy(go.GetComponent<Collider>());
+            go.transform.SetParent(_model.transform, false);
+            var r = go.GetComponent<Renderer>();
+            var grey = Art.Load<Material>("GreyBox");
+            if (grey != null) r.sharedMaterial = grey;
+            r.material.color = color;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            return go.transform;
+        }
+
+        /// <summary>The shown hero's height (world units), for placing things around him.</summary>
+        public float Height => _height;
+
+        /// <summary>A stage point on the screen (an overlay canvas's world space is the screen's pixels).</summary>
+        public Vector3 ScreenOf(Vector3 world)
+        {
+            Vector3 v = _camera.WorldToViewportPoint(world);
+            var corners = new Vector3[4];
+            _view.rectTransform.GetWorldCorners(corners);
+            return new Vector3(Mathf.LerpUnclamped(corners[0].x, corners[2].x, v.x), Mathf.LerpUnclamped(corners[0].y, corners[2].y, v.y), 0f);
+        }
+
+        /// <summary>The rod's tip, where the line leaves it (world).</summary>
+        public Vector3 RodTip { get; private set; }
+
+        /// <summary>Where a cast float rests on the water (world): out in front, on the painted river.</summary>
+        public Vector3 FloatRest => _at + new Vector3(1.7f * _height, 0.1f * _height, 10f * _height);
+
+        /// <summary>The float's place (world), or null: out of the water, hanging at the rod's tip.</summary>
+        public void SetFloat(Vector3? at) => _floatAt = at;
+
+        /// <summary>Plays a clip once (the cast and the strike use the attack), then the idle again.</summary>
+        public void PlayOnce(string clip)
+        {
+            if (_anim == null || _anim.GetClip(clip) == null) return;
+            _anim.Stop();
+            _anim.Play(clip);
+            if (_anim.GetClip("Idle") != null) _anim.CrossFadeQueued("Idle", 0.25f);
+        }
+
+        private void LateUpdate()
+        {
+            if (!FromBehind || _rod == null || _hand == null) return;
+            // The rod follows the fist through the idle, pointing out and up over the water.
+            float length = 1.35f * _height;
+            Vector3 dir = new Vector3(0.18f, 0.55f, 1f).normalized;
+            Vector3 grip = _hand.position;
+            _rod.position = grip + dir * (length * 0.42f);
+            _rod.rotation = Quaternion.FromToRotation(Vector3.up, dir);
+            float thick = 0.012f * _height;
+            _rod.localScale = new Vector3(thick, length * 0.5f, thick) / Mathf.Max(0.01f, _model.transform.lossyScale.x);
+            RodTip = grip + dir * (length * 0.92f);
+            Vector3 bob = _floatAt ?? RodTip + Vector3.down * (0.35f * _height);
+            _float.position = bob;
+            // The float grows with its distance, so it reads out on the water as it does at the rod.
+            float far = Mathf.Clamp01((bob - grip).magnitude / (8f * _height));
+            _float.localScale = Vector3.one * (Mathf.Lerp(0.06f, 0.16f, far) * _height) / Mathf.Max(0.01f, _model.transform.lossyScale.x);
+            _line.startWidth = 0.005f * _height;
+            _line.endWidth = 0.012f * _height;
+            _line.SetPosition(0, RodTip);
+            _line.SetPosition(1, bob);
         }
 
         /// <summary>Lights the pieces by their glow through property blocks (the looks' materials are shared) and sparkles.</summary>

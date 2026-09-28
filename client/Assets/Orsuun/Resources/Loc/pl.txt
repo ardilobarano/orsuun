@@ -2310,3 +2310,135 @@ Your name was changed	Twoje imię zostało zmienione
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Imię twojego bohatera ({0}) zostało zgłoszone i nie pasowało do zasad gry, więc moderator je zmienił: {1}.
 Your bag is full	Torba jest pełna
 New drops are being left behind. Sell or store some pieces to keep them.	Nowe łupy zostają w tyle. Sprzedaj lub zdeponuj kilka przedmiotów, by je zatrzymać.
+# Leaderboards and Inspect (28 Sep 2026)
+LEADERBOARDS	RANKINGI
+STAGE	ETAP
+ALL TIME	WSZECH CZASÓW
+INSPECT	OBEJRZYJ
+BANNED	ZBANOWANY
++{0} XP	+{0} PD
++{0} stages	+{0} etapów
+You are not on this board yet.	Nie ma cię jeszcze w tym rankingu.
+Your guild is not on this board yet.	Twojej gildii nie ma jeszcze w tym rankingu.
+Nobody is on this board yet.	W tym rankingu nikogo jeszcze nie ma.
+Offline: the leaderboards need the server.	Offline: rankingi wymagają serwera.
+Inspecting a hero needs the server.	Oglądanie bohatera wymaga serwera.
+Tap a piece to see its etchings.	Dotknij przedmiotu, by zobaczyć jego ryty.
+Nothing worn there.	Nic tam nie założono.
+Furthest: {0}	Najdalej: {0}
+Pit rating {0} ({1} wins)	Ranking Areny {0} ({1} zwycięstw)
+The Pits' season rating.	Ranking sezonu Areny.
+Gained since this week began (Monday 20:00).	Zdobyte od początku tego tygodnia (poniedziałek 20:00).
+# Invite a friend (28 Sep 2026)
+INVITE A FRIEND	ZAPROŚ ZNAJOMEGO
+YOUR CODE	TWÓJ KOD
+COPY	KOPIUJ
+SHARE	UDOSTĘPNIJ
+USE CODE	UŻYJ KODU
+HAVE A FRIEND'S CODE?	MASZ KOD ZNAJOMEGO?
+Their code	Kod znajomego
+Offline: invites need the server.	Offline: zaproszenia wymagają serwera.
+When a friend's hero reaches level {0}, you both get:	Gdy bohater znajomego osiągnie poziom {0}, oboje dostaniecie:
+{0} Scrolls of Mercy	Zwoje Łaski: {0}
+Friends brought in: {0}/{1}	Zaproszeni znajomi: {0}/{1}
+paid: {0}	wypłacone: {0}
+You came on {0}'s invitation. Your share was sent by letter.	Przybyłeś z zaproszenia {0}. Twoja część przyszła listem.
+You came on {0}'s invitation. Reach level {1} and you are both paid.	Przybyłeś z zaproszenia {0}. Osiągnij poziom {1}, a oboje dostaniecie nagrodę.
+A friend's code is entered before level {0}.	Kod znajomego wpisuje się przed poziomem {0}.
+Copied.	Skopiowano.
+The invitation is copied: paste it to a friend.	Zaproszenie skopiowane: wklej je znajomemu.
+That code could not be read: it has six letters and numbers.	Nie udało się odczytać kodu: ma sześć liter i cyfr.
+Join me in Orsuun: War of Banners. Enter my code {0} under MENU, INVITE A FRIEND, and we both get sorn and a Scroll of Mercy at level {1}.	Zagraj ze mną w Orsuun: War of Banners. Wpisz mój kod {0} w MENU, ZAPROŚ ZNAJOMEGO, a na poziomie {1} oboje dostaniemy sorn i Zwój Łaski.
+No hero has that code.	Żaden bohater nie ma takiego kodu.
+That code is your own account's. Share it with a friend.	To kod twojego własnego konta. Podziel się nim ze znajomym.
+That code has brought in all the heroes it can.	Ten kod sprowadził już wszystkich bohaterów, ilu mógł.
+This hero has already entered a friend's code.	Ten bohater wpisał już kod znajomego.
+Code taken: reach level {0} and you and {1} are both paid.	Kod przyjęty: osiągnij poziom {0}, a ty i {1} dostaniecie nagrodę.
+The Caravan	Karawana
+A friend's welcome	Powitanie od znajomego
+Your friend reached level {0}	Twój znajomy osiągnął poziom {0}
+You reached level {0} on a friend's invitation ({1}). Here is your share.	Osiągnąłeś poziom {0} z zaproszenia znajomego ({1}). Oto twoja część.
+You reached level {0} on a friend's invitation. Here is your share.	Osiągnąłeś poziom {0} z zaproszenia znajomego. Oto twoja część.
+{0} came on your invitation and has reached level {1}. Here is your share.	{0} przybył z twojego zaproszenia i osiągnął poziom {1}. Oto twoja część.
+empty	puste
+PITS	ARENA
+THIS WEEK	TEN TYDZIEŃ
+YOU	TY
+# Old Nergui's river (28 Sep 2026)
+OLD NERGUI'S RIVER	RZEKA STAREGO NERGUIEGO
+Old Nergui's River	Rzeka starego Nerguiego
+CAST	ZARZUĆ
+REEL	ZATNIJ
+REEL!	ZATNIJ!
+CREEL	KOSZYK
+THE CREEL	KOSZYK NA RYBY
+TIRELESS ROD	NIESTRUDZONA WĘDKA
+THE TIRELESS ROD	NIESTRUDZONA WĘDKA
+Tireless Rod: {0}	Niestrudzona wędka: {0}
+EAT	ZJEDZ
+OPEN 1	OTWÓRZ 1
+OPEN ALL	OTWÓRZ WSZYSTKIE
+GO FISHING	IDŹ NA RYBY
+CAST, and REEL when the float goes under.	ZARZUĆ i ZATNIJ, gdy spławik zanurkuje.
+Wait for it...	Czekaj...
+Too slow: it stole the bait and swam off.	Za wolno: ukradła przynętę i odpłynęła.
+Too soon: nothing had bitten yet.	Za wcześnie: jeszcze nic nie brało.
+A river mussel! Old Nergui can open it.	Małż rzeczny! Stary Nergui może go otworzyć.
+You caught a {0}!	Złowiłeś: {0}!
+You ate the {0}: {1}.	Zjadłeś: {0}. {1}.
+Eat the {0}?	Zjeść: {0}?
+It replaces your {0} ({1} left). {2}.	Zastąpi: {0} (zostało {1}). {2}.
+Not enough Amber	Za mało Bursztynu
+The rod for {0} day costs {1} Amber; you have {2}.	Wędka na {0} dzień kosztuje {1} Bursztynu; masz {2}.
+The rod for {0} days costs {1} Amber; you have {2}.	Wędka na {0} dni kosztuje {1} Bursztynu; masz {2}.
+{0} day for {1} Amber (you have {2}). Days add to a rod you hold.	{0} dzień za {1} Bursztynu (masz {2}). Dni dodają się do posiadanej wędki.
+{0} days for {1} Amber (you have {2}). Days add to a rod you hold.	{0} dni za {1} Bursztynu (masz {2}). Dni dodają się do posiadanej wędki.
+The Tireless Rod is yours. It fishes while you stay here.	Niestrudzona wędka jest twoja. Łowi, dopóki tu zostajesz.
+The Tireless Rod brought in a catch.	Niestrudzona wędka przyniosła połów.
+The Tireless Rod brought in {0} catches.	Niestrudzona wędka przyniosła połowy: {0}.
+{0}: {1} left	{0}: zostało {1}
+No meal: eat a fish for a hunting boost	Brak posiłku: zjedz rybę, by wzmocnić polowanie
+No hunting here	Tu się nie poluje
+Held: {0} left	Posiadana: zostało {0}
+Fishes by itself while you stay at the river, even with the game closed: one catch every {0} seconds, up to {1} hours between visits.	Łowi sama, dopóki zostajesz nad rzeką, nawet gdy gra jest zamknięta: jeden połów co {0} sekund, do {1} godzin między wizytami.
+{0} DAY	{0} DZIEŃ
+{0} DAYS	{0} DNI
+A pearl pays the materials of a +7 (Moon), +8 (Tide) or +9 (Heart) attempt at the Forge.	Perła pokrywa materiały próby na +7 (Księżycowa), +8 (Pływowa) lub +9 (Serca) w Kuźni.
+River mussels	Małże rzeczne
++{0}% hunting XP for {1} minutes	+{0}% PD z polowania przez {1} minut
++{0}% hunting sorn for {1} minutes	+{0}% sornu z polowania przez {1} minut
++{0}% hunting XP and sorn for {1} minutes	+{0}% PD i sornu z polowania przez {1} minut
+Steppe Carp	Karp stepowy
+Silver Grayling	Srebrny lipień
+River Pike	Szczupak rzeczny
+Spotted Lenok	Lenok cętkowany
+Golden Taimen	Złoty tajmień
+Moon Pearl	Perła Księżycowa
+Tide Pearl	Perła Pływów
+Heart Pearl	Perła Serca
+Moon Pearls	Perły Księżycowe
+Tide Pearls	Perły Pływów
+Heart Pearls	Perły Serca
+Fishing needs the server.	Łowienie wymaga serwera.
+Fishing	Wędkowanie
+fish to eat for boosts, mussels with pearls	ryby do jedzenia dla premii, małże z perłami
+Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.	Stary Nergui łowi w rzece w STREFACH: łów ryby, które zjesz dla premii do polowania, i małże z perłami w środku.
+From a river mussel. Pays the materials of a {0} attempt at the Forge.	Z małża rzecznego. Pokrywa materiały próby na {0} w Kuźni.
+Caught at Old Nergui's river. Eaten there (CREEL): {0}.	Złowiona w rzece starego Nerguiego. Zjadana tam (KOSZYK): {0}.
+Caught at Old Nergui's river; he opens them (CREEL). Some hold a Moon, Tide or Heart Pearl.	Łowione w rzece starego Nerguiego; on je otwiera (KOSZYK). Niektóre kryją Perłę Księżycową, Pływów lub Serca.
+{0} or 1 {1} ({2})	{0} lub 1 {1} ({2})
+No pearl pays this attempt	Perła nie pokryje tej próby
+No {0}	Brak: {0}
+Go to Old Nergui's river first (ZONES).	Najpierw idź nad rzekę starego Nerguiego (STREFY).
+Cast first.	Najpierw zarzuć.
+You have no {0}.	Nie masz: {0}.
+You have no mussels to open.	Nie masz małży do otwarcia.
+Empty. "Most of them are," says Old Nergui.	Pusty. „Większość taka jest” – mówi stary Nergui.
+{0} mussels, all empty. "Most of them are," says Old Nergui.	Małże: {0}, wszystkie puste. „Większość taka jest” – mówi stary Nergui.
+{0} opened: {1}!	Otwarto: {0}. {1}!
+The Caravan does not sell the rod for so long.	Karawana nie sprzedaje wędki na tak długo.
+Leave Old Nergui's river first.	Najpierw opuść rzekę starego Nerguiego.
+A pearl pays only the +7, +8 and +9 attempts.	Perła pokrywa tylko próby na +7, +8 i +9.
+No {0}.	Brak: {0}.
+{0} landed a Golden Taimen at Old Nergui's river!	{0} złowił złotego tajmienia w rzece starego Nerguiego!
+{0} found a Heart Pearl in a river mussel!	{0} znalazł Perłę Serca w małżu rzecznym!

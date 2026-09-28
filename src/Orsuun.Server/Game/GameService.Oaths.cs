@@ -60,6 +60,7 @@ public sealed partial class GameService
     {
         int l = Math.Max(1, Math.Min(Content.MaxLevel, level));
         account.Xp = Content.XpPerLevelSquare * l * l;
+        CheckInvite(account);
         await SaveAsync(ct);
         return ToState(account);
     }

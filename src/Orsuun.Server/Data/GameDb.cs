@@ -56,6 +56,8 @@ public sealed class GameDb : DbContext
             e.HasIndex(a => a.PitRating);
             e.HasIndex(a => a.LoginId);
             e.HasIndex(a => a.NameKey).IsUnique().HasFilter("\"NameKey\" <> ''");
+            e.HasIndex(a => a.InviteCode).IsUnique().HasFilter("\"InviteCode\" <> ''");
+            e.HasIndex(a => a.InvitedById);
             // Optimistic concurrency on PostgreSQL's xmin system column: two requests for one account never both win.
             e.Property(a => a.Version).IsRowVersion();
             e.HasMany(a => a.Items).WithOne().HasForeignKey(i => i.OwnerId);

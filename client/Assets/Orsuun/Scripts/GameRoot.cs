@@ -58,6 +58,11 @@ namespace Orsuun.Client
         public GameNotifications Notifications { get; private set; }
         /// <summary>Amber in the App Store and Google Play (phones; the Mac keeps the playtest's free packs).</summary>
         public StoreFront Store { get; private set; }
+        public LeaderboardPanel Leaderboards { get; private set; }
+        public InvitePanel Invites { get; private set; }
+        public RiverPanel River { get; private set; }
+        /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
+        public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
         public StoryPanel Story { get; private set; }
         public Tutorial Tutorial { get; private set; }
@@ -100,6 +105,15 @@ namespace Orsuun.Client
             Store.Init(this);
             Story = new GameObject("StoryPanel").AddComponent<StoryPanel>();
             Story.Init(this);
+            Leaderboards = new GameObject("LeaderboardPanel").AddComponent<LeaderboardPanel>();
+            Leaderboards.Init(this);
+            Invites = new GameObject("InvitePanel").AddComponent<InvitePanel>();
+            Invites.Init(this);
+            // Stays off its canvas: it shows itself whenever the server says the hero is at the river.
+            River = new GameObject("RiverPanel").AddComponent<RiverPanel>();
+            River.Init(this);
+            Inspect = new GameObject("InspectPanel").AddComponent<InspectPanel>();
+            Inspect.Init(this);
             BuildCameras();
             gameObject.AddComponent<Performance>().Init(GameObject.Find("LaneCamera")?.GetComponent<Camera>());
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
@@ -269,6 +283,10 @@ namespace Orsuun.Client
             _openTrail = Array.IndexOf(Environment.GetCommandLineArgs(), "-trail") >= 0;
             _openAchievements = Array.IndexOf(Environment.GetCommandLineArgs(), "-achievements") >= 0;
             _openRaid = Array.IndexOf(Environment.GetCommandLineArgs(), "-raid") >= 0;
+            _openBoard = Arg("-leaderboard");
+            _inspectShot = Arg("-inspect");
+            _openInvite = Array.IndexOf(cmd, "-invite") >= 0;
+            _goFishing = Array.IndexOf(cmd, "-river") >= 0;
             _raidFight = Array.IndexOf(Environment.GetCommandLineArgs(), "-raidfight") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
             // -friends opens FRIENDS once online (screenshots); -oathchange the change of Banner.
@@ -397,6 +415,8 @@ namespace Orsuun.Client
         private int _pitFight = -1;
         private int _caravanTab = -1;
         private bool _openAchievements, _openRaid, _raidFight;
+        private string _openBoard, _inspectShot;
+        private bool _openInvite, _goFishing;
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
@@ -550,6 +570,29 @@ namespace Orsuun.Client
                 _openAchievements = false;
                 Achievements.Open();
             }
+            // Screenshots: -leaderboard <level|stage|pits|guilds>[:week] opens LEADERBOARDS; -inspect <hero id|me> a hero's gear.
+            if (Server.Online && !string.IsNullOrEmpty(_openBoard))
+            {
+                string[] board = _openBoard.Split(':');
+                _openBoard = null;
+                Leaderboards.OpenForShot(board[0], board.Length > 1 && board[1] == "week");
+            }
+            // Screenshots: -river goes to Old Nergui's river once online (-rivershot creel|rod|bite opens a part of it).
+            if (Server.Online && _goFishing && !Server.WaitingForHero)
+            {
+                _goFishing = false;
+                if (!Server.AtRiver) River.Go();
+            }
+            if (Server.Online && _openInvite)
+            {
+                _openInvite = false;
+                Invites.Open();
+            }
+            if (Server.Online && !string.IsNullOrEmpty(_inspectShot) && !string.IsNullOrEmpty(Server.AccountId))
+            {
+                Inspect.Open(_inspectShot == "me" ? Server.AccountId : _inspectShot);
+                _inspectShot = null;
+            }
             // Dev switch: -raid opens GUILD RAID once the hero is online (screenshots).
             if (Server.Online && _openRaid)
             {
@@ -615,6 +658,8 @@ namespace Orsuun.Client
                 if (now != _localBellApplied) { _localBellApplied = now; Session.ApplyBell(now); }
             }
 
+            // No hunting at Old Nergui's river: the lane stands still while the hero fishes (RiverPanel).
+            if (Server.AtRiver) return;
             LaneSim lane = ActiveLane;
             if (Lane.Sim != lane) Lane.Bind(lane);
             // The other classes' looks follow the armour's level band (the Vanguard's armour and glaive have their own).

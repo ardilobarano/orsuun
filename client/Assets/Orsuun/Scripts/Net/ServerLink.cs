@@ -290,6 +290,9 @@ namespace Orsuun.Client.Net
             done(failure);
         }
 
+        /// <summary>The hero (character) this device plays, once the server has said.</summary>
+        public string AccountId { get; private set; } = "";
+
         /// <summary>The login (the player's account) this device plays: store purchases are tagged with it.</summary>
         public string LoginId { get; private set; } = "";
 
@@ -537,9 +540,9 @@ namespace Orsuun.Client.Net
         /// Server Forge on the piece on the anvil: by item id when known (bag pieces need it), else the piece worn in
         /// the slot. JsonUtility writes a null string as "", which the server cannot read as an id, so it is dropped.
         /// </summary>
-        public IEnumerator Forge(ForgeMethod method, EquipSlot slot, string itemId, Action<ForgeResultDto, string> done)
+        public IEnumerator Forge(ForgeMethod method, EquipSlot slot, string itemId, Action<ForgeResultDto, string> done, bool pearl = false)
         {
-            var req = new ForgeRequest { requestId = Guid.NewGuid().ToString("N"), method = method.ToString(), slot = slot.ToString(), itemId = itemId };
+            var req = new ForgeRequest { requestId = Guid.NewGuid().ToString("N"), method = method.ToString(), slot = slot.ToString(), itemId = itemId, pearl = pearl };
             ForgeResultDto result = null;
             string failure = null;
             yield return Post("/v1/forge", WithoutEmptyItemId(JsonUtility.ToJson(req)), true, json =>
@@ -917,6 +920,14 @@ namespace Orsuun.Client.Net
 
         /// <summary>Unread letters (from the last /me or heartbeat; opening the mailbox reads them all).</summary>
         public int MailUnread { get; private set; }
+        /// <summary>Fishing (Rules.Fishing): at Old Nergui's river (no hunting there), the meal and the Tireless Rod, and the
+        /// rod's catches not yet shown (the river screen takes them).</summary>
+        public RiverDto River { get; private set; }
+        public float RiverAt { get; private set; }
+        public bool AtRiver => Online && River != null && River.atRiver;
+        public int AutoCatches { get; set; }
+        public long MealSecondsLeft => River == null ? 0 : Math.Max(0, River.mealSecondsLeft - (long)(Time.realtimeSinceStartup - RiverAt));
+        public long RodSecondsLeft => River == null ? 0 : Math.Max(0, River.rodSecondsLeft - (long)(Time.realtimeSinceStartup - RiverAt));
         /// <summary>The mailbox as the server last showed it.</summary>
         public MailDto Mail { get; private set; }
 
@@ -1338,6 +1349,104 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        /// <summary>A leaderboard ("level", "stage", "pits", "guilds"; period "week" or "all"). Completes with (board, error).</summary>
+        public IEnumerator FetchLeaderboard(string board, string period, Action<LeaderboardDto, string> done)
+        {
+            LeaderboardDto result = null;
+            string failure = null;
+            yield return Send("GET", $"/v1/leaderboard?board={board}&period={period}", null, true,
+                json => result = JsonUtility.FromJson<LeaderboardDto>(json), error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        /// <summary>Goes to Old Nergui's river (the hunt stops) or back to the hunt.</summary>
+        public IEnumerator GoRiver(bool go, Action<string> done)
+        {
+            string failure = null;
+            yield return Post(go ? "/v1/river/go" : "/v1/river/leave", "{}", true, json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>A cast: completes with (the bite's delay and window, error).</summary>
+        public IEnumerator Cast(Action<CastBiteDto, string> done)
+        {
+            CastBiteDto result = null;
+            string failure = null;
+            yield return Post("/v1/river/cast", "{}", true, json => result = JsonUtility.FromJson<CastBiteDto>(json), error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        public IEnumerator Reel(Action<ReelDto, string> done)
+        {
+            ReelDto result = null;
+            string failure = null;
+            yield return Post("/v1/river/reel", "{}", true, json =>
+            {
+                result = JsonUtility.FromJson<ReelDto>(json);
+                if (result.state != null) Apply(result.state);
+            }, error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        public IEnumerator Eat(int fish, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/river/eat", JsonUtility.ToJson(new EatRequest { requestId = Guid.NewGuid().ToString("N"), fish = fish }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        public IEnumerator OpenMussels(int count, Action<OpenMusselsDto, string> done)
+        {
+            OpenMusselsDto result = null;
+            string failure = null;
+            yield return Post("/v1/river/open", JsonUtility.ToJson(new OpenMusselsRequest { requestId = Guid.NewGuid().ToString("N"), count = count }), true, json =>
+            {
+                result = JsonUtility.FromJson<OpenMusselsDto>(json);
+                if (result.state != null) Apply(result.state);
+            }, error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        /// <summary>The Tireless Rod from the Caravan, for Amber.</summary>
+        public IEnumerator BuyRod(int days, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/caravan/rod", JsonUtility.ToJson(new AutoRodRequest { requestId = Guid.NewGuid().ToString("N"), days = days }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
+        /// <summary>INVITE A FRIEND: this hero's code and what it brought in. Completes with (invite, error).</summary>
+        public IEnumerator FetchInvite(Action<InviteDto, string> done)
+        {
+            InviteDto result = null;
+            string failure = null;
+            yield return Send("GET", "/v1/invite", null, true,
+                json => result = JsonUtility.FromJson<InviteDto>(json), error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        /// <summary>Enters a friend's code (before level 10, once). Completes with (invite, error).</summary>
+        public IEnumerator EnterInvite(string code, Action<InviteDto, string> done)
+        {
+            InviteDto result = null;
+            string failure = null;
+            yield return Post("/v1/invite", JsonUtility.ToJson(new InviteRequest { code = code }), true,
+                json => result = JsonUtility.FromJson<InviteDto>(json), error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        /// <summary>Another hero as anyone may see them (INSPECT). Completes with (hero, error).</summary>
+        public IEnumerator Inspect(string heroId, Action<InspectDto, string> done)
+        {
+            InspectDto result = null;
+            string failure = null;
+            yield return Send("GET", "/v1/hero/" + heroId, null, true, json => result = JsonUtility.FromJson<InspectDto>(json),
+                error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         /// <summary>Hands the server this phone's push token (PushSender): letters then reach the phone while the game is shut.</summary>
         public IEnumerator PushToken(string platform, string token)
         {
@@ -1497,6 +1606,18 @@ namespace Orsuun.Client.Net
             if (s.inventory.korshards != null) Array.Copy(s.inventory.korshards, inventory.Korshards, Math.Min(5, s.inventory.korshards.Length));
             if (s.inventory.books != null) Array.Copy(s.inventory.books, inventory.Books, Math.Min(Rules.Books.Count, s.inventory.books.Length));
             if (s.inventory.skins != null) inventory.Skins.AddRange(s.inventory.skins);
+            if (s.inventory.fish != null) Array.Copy(s.inventory.fish, inventory.Fish, Math.Min(inventory.Fish.Length, s.inventory.fish.Length));
+            if (s.inventory.pearls != null) Array.Copy(s.inventory.pearls, inventory.Pearls, Math.Min(3, s.inventory.pearls.Length));
+            inventory.Mussels = s.inventory.mussels;
+            if (s.river != null)
+            {
+                River = s.river;
+                RiverAt = Time.realtimeSinceStartup;
+                // The Tireless Rod's catches since the last state, for the river screen's log.
+                int auto = s.river.autoMussels;
+                if (s.river.autoFish != null) foreach (int n in s.river.autoFish) auto += n;
+                if (auto > 0) AutoCatches += auto;
+            }
             if (s.bosses != null && s.bosses.Length > 0)
             {
                 // Only /me and the heartbeat carry the Commanders, and with them the live trade (none: id 0).
@@ -1557,6 +1678,7 @@ namespace Orsuun.Client.Net
             Tallies = s.inventory.tallies;
             Email = s.email ?? "";
             EmailVerified = s.emailVerified;
+            if (!string.IsNullOrEmpty(s.accountId)) AccountId = s.accountId;
             Logins = s.logins ?? new string[0];
             // The farm lane's seed: new on login and on every park; the lane then plays seeded loops the server replays.
             if (s.lane != null && ulong.TryParse(s.lane.seed, out ulong laneSeed)) _player.SetLaneSeed(laneSeed, s.lane.loop);
@@ -1623,7 +1745,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class CharacterRequest { public string characterId; public string name; }
         [Serializable] public class DepotDto { public StateDto state; public ItemDto[] items; public int capacity; public string message; }
         [Serializable] public class DepotRequest { public string requestId; public string itemId; }
-        [Serializable] public class ForgeRequest { public string requestId; public string method; public string slot; public string itemId; }
+        [Serializable] public class ForgeRequest { public string requestId; public string method; public string slot; public string itemId; public bool pearl; }
         [Serializable] public class TurnRequest { public string requestId; public int count; public string slot; public string itemId; public TurnTargetDto[] targets; }
         [Serializable] public class TurnTargetDto { public int entryId; public int minTier; }
         [Serializable] public class TurnResultDto { public int turns; public int turnstonesSpent; public bool stopped; }
@@ -1639,7 +1761,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
         [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
         [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }
-        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; public int oathstones; public int[] books; }
+        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; public int oathstones; public int[] books; public int[] fish; public int mussels; public int[] pearls; }
         [Serializable] public class BountyDto { public int id; public string title; public string period; public long count; public int target; public int marks; public bool claimed; }
         [Serializable] public class BountyBoardDto { public BountyDto[] items; public int dailyResetSeconds; public int weeklyResetSeconds; }
         [Serializable] public class ClaimBountyRequest { public string requestId; public int bountyId; }
@@ -1677,7 +1799,14 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; }
+        [Serializable] public class RiverDto { public bool atRiver; public int mealFish = -1; public long mealSecondsLeft; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }
+        [Serializable] public class CastBiteDto { public int biteMs; public int windowMs; }
+        [Serializable] public class ReelDto { public StateDto state; public string kind; public int fish = -1; public string message; }
+        [Serializable] public class OpenMusselsRequest { public string requestId; public int count; }
+        [Serializable] public class OpenMusselsDto { public StateDto state; public int opened; public int[] pearls; public string message; }
+        [Serializable] public class EatRequest { public string requestId; public int fish; }
+        [Serializable] public class AutoRodRequest { public string requestId; public int days; }
         [Serializable] public class GoalCountsDto { public long commanders; public long dungeons; public long bounties; public int pitWins; }
         [Serializable] public class AchievementsDto { public StateDto state; public AchievementDto[] list; public int titleId; public string title; public string message; }
         [Serializable] public class AchievementDto { public int id; public string name; public string text; public long progress; public long target; public int honor; public long sorn; public string title; public bool done; public bool claimed; }
@@ -1731,7 +1860,9 @@ namespace Orsuun.Client.Net
         [Serializable] public class TradeOfferRequest { public string requestId; public long tradeId; public string[] itemIds; public long sorn; public BookOfferDto[] books; }
         [Serializable] public class TrailBuyRequest { public string requestId; public bool plus; }
         [Serializable] public class PitChallengerDto { public string id; public string name; public string tag; public int rating; public string league; public string @class; public string weapon; public int winChancePercent; public bool shade; }
-        [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; public string title; }
+        [Serializable] public class PitBoardDto { public int rank; public string name; public string tag; public int rating; public string league; public int wins; public int losses; public string weapon; public bool me; public string title; public string id; }
+        [Serializable] public class InviteDto { public string code; public int invited; public int rewarded; public int maxInvited; public int rewardLevel; public long sorn; public int scrolls; public string invitedBy; public bool mineRewarded; public bool canEnter; public string message; }
+        [Serializable] public class InviteRequest { public string code; }
         [Serializable] public class PitsDto { public int rating; public string league; public int wins; public int losses; public int laurels; public int ticketsLeft; public PitChallengerDto[] challengers; public PitBoardDto[] board; public string message; public int seasonWins; public int seasonLosses; public long seasonSecondsLeft; public string title; public int lastRank; public int lastRating; public int lastLaurels; public string lastChampions; }
         [Serializable] public class PitFightRequest { public string requestId; public string opponentId; }
         [Serializable] public class PitShopRequest { public string requestId; public int itemId; }
@@ -1770,6 +1901,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class MilestoneRequest { public string name; }
         [Serializable] public class NameReportRequest { public string kind; public string accountId; }
         [Serializable] public class PushTokenRequest { public string platform; public string token; }
+        [Serializable] public class LeaderRowDto { public int rank; public string id; public string name; public string title; public string @class; public int level; public string banner; public long value; public string tag; }
+        [Serializable] public class LeaderboardDto { public string board; public string period; public LeaderRowDto[] rows; public LeaderRowDto mine; public string note; }
+        [Serializable] public class InspectDto { public string id; public string name; public string title; public string @class; public string figure; public int level; public string banner;
+            public string guildName; public string guildTag; public int highestStage; public int pitRating; public int pitWins; public string skin; public ItemDto[] worn; public bool banned; }
         [Serializable] public class AmberPurchaseRequest { public string store; public string productId; public string receipt; }
         [Serializable] public class AmberPurchaseDto { public StateDto state; public string message; public bool added; public long amber; }
         [Serializable] public class ResetRequest { public string email; public string code; public string password; public string deviceToken; }

@@ -206,9 +206,12 @@ namespace Orsuun.Client
         /// </summary>
         public static string ItemIcon(ItemState item) => ItemIcon(item.Slot, item.ItemLevel);
 
-        public static string ItemIcon(EquipSlot slot, int itemLevel)
+        public static string ItemIcon(EquipSlot slot, int itemLevel) => ItemIcon(slot, itemLevel, IconClass);
+
+        /// <summary>A piece's icon as a given class's hero shows it (another hero, inspected).</summary>
+        public static string ItemIcon(EquipSlot slot, int itemLevel, HeroClass heroClass)
         {
-            string cls = ItemLooks.HasLooks(slot) && IconClass != HeroClass.Vanguard ? IconClass.ToString() : "";
+            string cls = ItemLooks.HasLooks(slot) && heroClass != HeroClass.Vanguard ? heroClass.ToString() : "";
             string name = "Items/" + cls + slot + "_T" + ItemLooks.Tier(itemLevel);
             if (!IconExists.TryGetValue(name, out bool exists))
                 IconExists[name] = exists = Resources.Load<Texture2D>("Icons/" + name) != null;

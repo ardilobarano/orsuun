@@ -9,7 +9,7 @@ public class TradeGoodsTests
     [Fact]
     public void Every_good_moves_its_own_count_and_nothing_else()
     {
-        Assert.Equal(16, TradeGoods.Count);
+        Assert.Equal(24, TradeGoods.Count);   // 16 until the river's pearls and fish were appended (28 Sep 2026)
         for (int id = 0; id < TradeGoods.Count; id++)
         {
             var inv = new Inventory();
@@ -30,7 +30,7 @@ public class TradeGoodsTests
         Assert.Equal("Turnstone", TradeGoods.Name(5));
         Assert.Equal("Master's Needle", TradeGoods.Name(7));
         Assert.Equal("Trooper Korshard", TradeGoods.Name(TradeGoods.FirstKorshard));
-        Assert.Equal("Guard of the Khan Korshard", TradeGoods.Name(TradeGoods.Count - 1));
+        Assert.Equal("Guard of the Khan Korshard", TradeGoods.Name(TradeGoods.FirstPearl - 1));
         Assert.False(TradeGoods.Valid(-1));
         Assert.False(TradeGoods.Valid(TradeGoods.Count));
         var inv = new Inventory();

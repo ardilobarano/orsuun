@@ -28,6 +28,10 @@ namespace Orsuun.Rules
         /// <summary>Holds one etching of a piece through turns (GDD: the etching lock).</summary>
         public int PinningWax { get; set; }
         public long Xp { get; set; }
+        /// <summary>Fish held, by Fishing.Fish id; river mussels still shut; pearls by Rules.Pearl (Moon, Tide, Heart).</summary>
+        public int[] Fish { get; } = new int[Fishing.Fish.Length];
+        public int Mussels { get; set; }
+        public int[] Pearls { get; } = new int[3];
         /// <summary>Korshards held, by rank index (Trooper .. Guard of the Khan). Sockets come in the next step.</summary>
         public int[] Korshards { get; } = new int[5];
         /// <summary>Trophy names the Commanders dropped before the wardrobe (kept, shown nowhere yet).</summary>
@@ -48,6 +52,9 @@ namespace Orsuun.Rules
             Array.Copy(other.Books, Books, Books.Length);
             HuntMarks = other.HuntMarks; PinningWax = other.PinningWax;
             Array.Copy(other.Korshards, Korshards, Korshards.Length);
+            Array.Copy(other.Fish, Fish, Fish.Length);
+            Array.Copy(other.Pearls, Pearls, Pearls.Length);
+            Mussels = other.Mussels;
             Skins.Clear();
             Skins.AddRange(other.Skins);
             WardrobeDrops.Clear();
@@ -379,11 +386,19 @@ namespace Orsuun.Rules
         public int ForgeLuckBp => _forge.LuckBp;
 
         /// <summary>Null when the attempt may run, otherwise the reason to show the player.</summary>
-        public string? ForgeBlocker(ForgeMethod method)
+        /// <summary>The pearl that may pay this attempt's materials (+7 Moon, +8 Tide, +9 Heart), or null.</summary>
+        public Pearl? ForgePearl => OnAnvil.UpgradeLevel >= ItemState.MaxUpgradeLevel ? null : Fishing.PearlFor(OnAnvil.UpgradeLevel + 1);
+
+        public string? ForgeBlocker(ForgeMethod method, bool pearl = false)
         {
             if (OnAnvil.UpgradeLevel >= ItemState.MaxUpgradeLevel) return "Already +9";
             if (Inventory.Sorn < ForgeCost) return "Not enough sorn";
-            if (Inventory.Materials < ForgeMaterials) return "Not enough " + Lane.Stage.MaterialName;
+            if (pearl)
+            {
+                if (ForgePearl is not Pearl p) return "No pearl pays this attempt";
+                if (Inventory.Pearls[(int)p] <= 0) return "No " + Fishing.PearlNames[(int)p];
+            }
+            else if (Inventory.Materials < ForgeMaterials) return "Not enough " + Lane.Stage.MaterialName;
             switch (method)
             {
                 case ForgeMethod.ScrollOfMercy: return Inventory.ScrollsOfMercy > 0 ? null : "No Scroll of Mercy";
@@ -394,13 +409,14 @@ namespace Orsuun.Rules
             }
         }
 
-        public ForgeResult Forge(ForgeMethod method)
+        public ForgeResult Forge(ForgeMethod method, bool pearl = false)
         {
-            string? blocker = ForgeBlocker(method);
+            string? blocker = ForgeBlocker(method, pearl);
             if (blocker != null) throw new InvalidOperationException(blocker);
 
             Inventory.Sorn -= ForgeCost;
-            Inventory.Materials -= ForgeMaterials;
+            if (pearl && ForgePearl is Pearl p) Inventory.Pearls[(int)p]--;
+            else Inventory.Materials -= ForgeMaterials;
             switch (method)
             {
                 case ForgeMethod.ScrollOfMercy: Inventory.ScrollsOfMercy--; break;

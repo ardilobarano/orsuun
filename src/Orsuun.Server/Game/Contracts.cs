@@ -19,7 +19,7 @@ public sealed record HeartbeatRequest(LoopReportDto[]? Loops = null);
 public sealed record LaneDto(string Seed, int Loop);
 
 /// <summary>ItemId picks any owned piece, worn or in the bag; without it the piece worn in Slot is used.</summary>
-public sealed record ForgeRequest(string RequestId, ForgeMethod Method, EquipSlot Slot = EquipSlot.Weapon, Guid? ItemId = null);
+public sealed record ForgeRequest(string RequestId, ForgeMethod Method, EquipSlot Slot = EquipSlot.Weapon, Guid? ItemId = null, bool Pearl = false);
 /// <summary>
 /// Count 1..50 (10 without Hearthfire Blessing). Targets (the turning helper, up to five etchings with tiers) stop the
 /// batch once all are on the item; StopEntryId/MinTier is the older one-etching stop rule, used when Targets is empty.
@@ -69,7 +69,7 @@ public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChan
 
 public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
     int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0, int Tallies = 0,
-    int MastersNeedles = 0, int Oathstones = 0, int[]? Books = null);
+    int MastersNeedles = 0, int Oathstones = 0, int[]? Books = null, int[]? Fish = null, int Mussels = 0, int[]? Pearls = null);
 
 /// <summary>One bounty with this account's count toward it (the server counts; the client only shows).</summary>
 public sealed record BountyDto(int Id, string Title, BountyPeriod Period, long Count, int Target, int Marks, bool Claimed);
@@ -276,7 +276,18 @@ public sealed record StateDto(
     int AchievementsReady = 0,
     string? Title = null,
     bool EmailVerified = false,
-    GoalCountsDto? GoalCounts = null);
+    GoalCountsDto? GoalCounts = null,
+    RiverDto? River = null);
+
+/// <summary>Fishing (Rules.Fishing): at the river or not, the meal eaten and its seconds left, the Tireless Rod's seconds
+/// left, and what the rod brought in since the last state (a heartbeat's auto catches).</summary>
+public sealed record RiverDto(bool AtRiver, int MealFish, long MealSecondsLeft, long RodSecondsLeft, int[]? AutoFish = null, int AutoMussels = 0);
+public sealed record CastBiteDto(int BiteMs, int WindowMs);
+public sealed record ReelDto(StateDto State, string Kind, int Fish, string Message);
+public sealed record OpenMusselsRequest(string RequestId, int Count);
+public sealed record OpenMusselsDto(StateDto State, int Opened, int[] Pearls, string Message);
+public sealed record EatRequest(string RequestId, int Fish);
+public sealed record AutoRodRequest(string RequestId, int Days);
 
 /// <summary>What the goal line asks of a hero's own history (Rules.GoalWorld; lifetime counters since 27 Sep 2026).</summary>
 public sealed record GoalCountsDto(long Commanders, long Dungeons, long Bounties, int PitWins);
@@ -376,7 +387,7 @@ public sealed record PitsDto(int Rating, string League, int Wins, int Losses, in
     int LastRank = 0, int LastRating = 0, int LastLaurels = 0, string LastChampions = "");
 /// <summary>A challenger: Id is an account id, or "shade:-1|0|1" for a Pit shade cut from the attacker's own gear.</summary>
 public sealed record PitChallengerDto(string Id, string Name, string Tag, int Rating, string League, HeroClass Class, string Weapon, int WinChancePercent, bool Shade);
-public sealed record PitBoardDto(int Rank, string Name, string Tag, int Rating, string League, int Wins, int Losses, string Weapon, bool Me, string Title = "");
+public sealed record PitBoardDto(int Rank, string Name, string Tag, int Rating, string League, int Wins, int Losses, string Weapon, bool Me, string Title = "", Guid Id = default);
 public sealed record PitFightRequest(string RequestId, string OpponentId);
 public sealed record PitShopRequest(string RequestId, int ItemId);
 public sealed record PitFightDto(StateDto State, DuelResultDto Duel, PitsDto Pits, int RatingBefore, int RatingAfter, int LaurelsGained);
@@ -415,6 +426,15 @@ public sealed record AdminGuildDto(Guid Id, string Name, string Tag, int Level, 
 public sealed record AdminRenameRequest(string Name, string Tag);
 /// <summary>A name to report: Kind "hero" reports the hero's name, "guild" the name of the guild that hero is in.</summary>
 public sealed record NameReportRequest(string Kind, Guid AccountId);
+/// <summary>A leaderboard row: a hero (Tag its guild's) or a guild (Name, Tag, Level; Class empty).</summary>
+public sealed record LeaderRowDto(int Rank, Guid Id, string Name, string Title, string Class, int Level, Banner Banner, long Value, string Tag);
+public sealed record LeaderboardDto(string Board, string Period, LeaderRowDto[] Rows, LeaderRowDto? Mine, string Note);
+/// <summary>Another hero as anyone may see them (INSPECT): who they are and what they wear.</summary>
+public sealed record InviteDto(string Code, int Invited, int Rewarded, int MaxInvited, int RewardLevel, long Sorn, int Scrolls, string InvitedBy,
+    bool MineRewarded, bool CanEnter, string Message);
+public sealed record InviteRequest(string Code);
+public sealed record InspectDto(Guid Id, string Name, string Title, HeroClass Class, Figure Figure, int Level, Banner Banner, string GuildName, string GuildTag,
+    int HighestStage, int PitRating, int PitWins, string Skin, ItemDto[] Worn, bool Banned);
 /// <summary>A phone's push token ("ios": APNs, "android": Firebase), sent after the player allows notifications.</summary>
 public sealed record PushTokenRequest(string Platform, string Token);
 public sealed record AdminNameDto(string Kind, Guid TargetId, string Name, string Tag, int Reports, DateTime FirstUtc, DateTime LastUtc, bool Banned);

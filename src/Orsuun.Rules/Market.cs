@@ -65,7 +65,11 @@ namespace Orsuun.Rules
     /// </summary>
     public static class TradeGoods
     {
+        public const int ScrollOfMercy = 2;
         public const int FirstKorshard = 11;
+        /// <summary>Moon, Tide and Heart Pearls, then the fish (Fishing.Fish), after the five Korshard ranks.</summary>
+        public const int FirstPearl = 16;
+        public const int FirstFish = 19;
 
         private static readonly string[] Names =
         {
@@ -73,12 +77,13 @@ namespace Orsuun.Rules
             "Master's Needle", "Pinning Wax", "Oathstone", "Summoning Marker",
         };
 
-        public static int Count => FirstKorshard + Content.KorshardRanks.Length;
+        public static int Count => FirstFish + Fishing.Fish.Length;
 
         public static bool Valid(int id) => id >= 0 && id < Count;
 
         public static string Name(int id) =>
-            !Valid(id) ? "?" : id < FirstKorshard ? Names[id] : Content.KorshardRanks[id - FirstKorshard] + " Korshard";
+            !Valid(id) ? "?" : id < FirstKorshard ? Names[id] : id < FirstPearl ? Content.KorshardRanks[id - FirstKorshard] + " Korshard"
+            : id < FirstFish ? Fishing.PearlNames[id - FirstPearl] : Fishing.Fish[id - FirstFish].Name;
 
         public static int Held(Inventory inventory, int id) => id switch
         {
@@ -93,6 +98,8 @@ namespace Orsuun.Rules
             8 => inventory.PinningWax,
             9 => inventory.Oathstones,
             10 => inventory.SummoningMarkers,
+            _ when id >= FirstFish && Valid(id) => inventory.Fish[id - FirstFish],
+            _ when id >= FirstPearl && Valid(id) => inventory.Pearls[id - FirstPearl],
             _ => Valid(id) ? inventory.Korshards[id - FirstKorshard] : 0,
         };
 
@@ -114,7 +121,9 @@ namespace Orsuun.Rules
                 case 10: inventory.SummoningMarkers += count; break;
                 default:
                     if (!Valid(id)) throw new ArgumentOutOfRangeException(nameof(id));
-                    inventory.Korshards[id - FirstKorshard] += count;
+                    if (id >= FirstFish) inventory.Fish[id - FirstFish] += count;
+                    else if (id >= FirstPearl) inventory.Pearls[id - FirstPearl] += count;
+                    else inventory.Korshards[id - FirstKorshard] += count;
                     break;
             }
         }

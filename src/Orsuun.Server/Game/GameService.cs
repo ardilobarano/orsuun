@@ -202,7 +202,9 @@ public sealed partial class GameService
     public async Task<StateDto> HeartbeatAsync(Account account, HeartbeatRequest? request, CancellationToken ct)
     {
         DateTime now = DateTime.UtcNow;
+        RollBoardWeek(account);
         bool online = now - account.LastHeartbeatUtc <= OnlineGrace;
+        LandAuto(account, now);
         (int activeBp, int verified) = online ? VerifyLoops(account, request?.Loops, now) : (RandomExtensions.FullBp, 0);
         int bonus = await SornBonusPercentAsync(account.Banner, ct) + await GuildBonusPercentAsync(account, ct)
             + _events.SornBonusPercent(account.LastHeartbeatUtc, now);
@@ -280,6 +282,12 @@ public sealed partial class GameService
 
         long cost = ForgeRules.Cost(state.ItemLevel, state.UpgradeLevel);
         int materials = ForgeRules.MaterialsNeeded(state.UpgradeLevel + 1);
+        // A pearl may pay the materials of the +7, +8 or +9 attempt (Rules.Fishing.PearlFor).
+        Pearl? pearl = request.Pearl ? Fishing.PearlFor(state.UpgradeLevel + 1) : null;
+        int[] pearls = ParseCounts(account.Pearls, 3);
+        if (request.Pearl && pearl == null) throw new GameException("no_pearl", "A pearl pays only the +7, +8 and +9 attempts.");
+        if (pearl is Pearl p && pearls[(int)p] <= 0) throw new GameException("no_pearl", "No " + Fishing.PearlNames[(int)p] + ".");
+        if (pearl != null) materials = 0;
         if (account.Sorn < cost) throw new GameException("no_sorn", "Not enough sorn.");
         if (account.Materials < materials) throw new GameException("no_materials", "Not enough Wolf Sinew.");
         switch (request.Method)
@@ -290,6 +298,11 @@ public sealed partial class GameService
 
         account.Sorn -= cost;
         account.Materials -= materials;
+        if (pearl is Pearl paid)
+        {
+            pearls[(int)paid]--;
+            account.Pearls = string.Join(';', pearls);
+        }
         if (request.Method == ForgeMethod.ScrollOfMercy) account.ScrollsOfMercy--;
         if (request.Method == ForgeMethod.KhansAlloy) account.KhansAlloys--;
         if (request.Method == ForgeMethod.AnvilWard) account.AnvilWards--;
@@ -504,6 +517,7 @@ public sealed partial class GameService
             throw new GameException("stage_locked", "That stage or zone is not unlocked.");
         // Settle the time spent on the old stage before the rate changes.
         DateTime now = DateTime.UtcNow;
+        if (account.AtRiver) LeaveRiver(account, now);
         SettlementDto settlement = Settle(account, now);
         account.LastHeartbeatUtc = now;
         account.ParkedStage = request.Stage;
@@ -539,8 +553,10 @@ public sealed partial class GameService
     public async Task<StateDto> PushAsync(Account account, PushRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        if (account.AtRiver) throw new GameException("at_river", "Leave Old Nergui's river first.");
         int target = Math.Min(Content.TotalStages, account.HighestStageCleared + 1);
         if (account.HighestStageCleared >= Content.TotalStages) throw new GameException("no_more_stages", "Every stage is cleared.");
+        RollBoardWeek(account);
 
         ulong seed = BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8));
         int potionsAtStart = account.Potions;
@@ -743,6 +759,8 @@ public sealed partial class GameService
         ZoneDef? zone = Content.Zone(account.ParkedStage);
         // Fields IV-V and Commander Grounds need presence: nothing settles for them offline.
         if (offline && zone != null && !zone.OfflineAllowed) seconds = 0;
+        // No hunting at Old Nergui's river (owner, 28 Sep 2026: "there is no afk farm there").
+        if (account.AtRiver) seconds = 0;
         if (stage.GearRarityCap > Rarity.Rare && offline) stage.GearRarityCap = Rarity.Rare;
         // Bells reward presence: they apply to live settlement only.
         if (!offline) EveningBells.Apply(stage, _bells.Active);
@@ -756,7 +774,7 @@ public sealed partial class GameService
         // The War of Banners bonus: last season's winning Banner and each fortress a Banner holds add sorn.
         long bonusSorn = s.SornEarned * sornBonusPercent / 100;
         inventory.Sorn += bonusSorn;
-        Apply(account, inventory, hunt: true);
+        Apply(account, inventory, hunt: true, mealShareBp: Fishing.MealShareBp(account.LastHeartbeatUtc, now, account.MealUntilUtc));
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
@@ -784,6 +802,7 @@ public sealed partial class GameService
     {
         try
         {
+            await PayInvitesAsync(ct);
             await _db.SaveChangesAsync(ct);
             await FlushMarksAsync(ct);
             SendPushes();
@@ -856,7 +875,8 @@ public sealed partial class GameService
             account.Id,
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
-                account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles, account.Oathstones, BookCounts(account)),
+                account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles, account.Oathstones, BookCounts(account),
+                ParseCounts(account.Fish, Fishing.Fish.Length), account.Mussels, ParseCounts(account.Pearls, 3)),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed && !i.OutOfBag).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -905,7 +925,8 @@ public sealed partial class GameService
             AchievementsReady: AchievementsReady(account),
             Title: TitleOf(account),
             EmailVerified: _login?.EmailVerified ?? false,
-            GoalCounts: GoalCountsOf(account));
+            GoalCounts: GoalCountsOf(account),
+            River: RiverOf(account));
     }
 
     private static GoalCountsDto GoalCountsOf(Account account)
@@ -968,6 +989,9 @@ public sealed partial class GameService
         Array.Copy(shards, inventory.Korshards, Math.Min(shards.Length, inventory.Korshards.Length));
         Array.Copy(BookCounts(a), inventory.Books, Books.Count);
         inventory.Skins.AddRange(ParseSkins(a.Skins));
+        Array.Copy(ParseCounts(a.Fish, Fishing.Fish.Length), inventory.Fish, Fishing.Fish.Length);
+        Array.Copy(ParseCounts(a.Pearls, 3), inventory.Pearls, 3);
+        inventory.Mussels = a.Mussels;
         return inventory;
     }
 
@@ -975,15 +999,22 @@ public sealed partial class GameService
     /// Writes settled currency back and turns dropped gear into item rows, trimming the loot list. Dropped wardrobe pieces
     /// become held ones. <paramref name="hunt"/>: the gain was hunted, so a worn companion adds its XP or sorn to it.
     /// </summary>
-    private void Apply(Account a, Inventory i, bool hunt = false)
+    private void Apply(Account a, Inventory i, bool hunt = false, int mealShareBp = 0)
     {
         int levelBefore = Content.LevelFor(a.Xp);
         if (hunt)
         {
+            // In basis points of the hunt's gain: a companion's percent, and a fish eaten (Rules.Fishing) for the part of
+            // the interval it lasted.
             List<WardrobeDef> worn = WornPieces(a);
-            int xp = Wardrobe.Bonus(worn, WardrobePerk.Xp), sorn = Wardrobe.Bonus(worn, WardrobePerk.Sorn);
-            if (xp > 0 && i.Xp > a.Xp) i.Xp += (i.Xp - a.Xp) * xp / 100;
-            if (sorn > 0 && i.Sorn > a.Sorn) i.Sorn += (i.Sorn - a.Sorn) * sorn / 100;
+            long xp = Wardrobe.Bonus(worn, WardrobePerk.Xp) * 100L, sorn = Wardrobe.Bonus(worn, WardrobePerk.Sorn) * 100L;
+            if (Fishing.FishById(a.MealFish) is FishDef meal && mealShareBp > 0)
+            {
+                xp += meal.XpPercent * (long)mealShareBp / 100;
+                sorn += meal.SornPercent * (long)mealShareBp / 100;
+            }
+            if (xp > 0 && i.Xp > a.Xp) i.Xp += (i.Xp - a.Xp) * xp / RandomExtensions.FullBp;
+            if (sorn > 0 && i.Sorn > a.Sorn) i.Sorn += (i.Sorn - a.Sorn) * sorn / RandomExtensions.FullBp;
         }
         if (i.WardrobeDrops.Count > 0) HoldDrops(a, i.WardrobeDrops);
 
@@ -991,9 +1022,13 @@ public sealed partial class GameService
         a.KhansAlloys = i.KhansAlloys; a.AnvilWards = i.AnvilWards; a.Turnstones = i.Turnstones;
         a.EtchingNeedles = i.EtchingNeedles; a.SummoningMarkers = i.SummoningMarkers; a.Xp = i.Xp;
         MarkLevels(a, levelBefore, Content.LevelFor(a.Xp));
+        CheckInvite(a);
         a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax; a.MastersNeedles = i.MastersNeedles; a.Oathstones = i.Oathstones;
         for (int b = 0; b < Books.Count; b++) SetBooks(a, b, i.Books[b]);
         a.Korshards = string.Join(';', i.Korshards);
+        a.Fish = string.Join(';', i.Fish);
+        a.Pearls = string.Join(';', i.Pearls);
+        a.Mussels = i.Mussels;
         a.Skins = string.Join(';', i.Skins);
 
         if (i.Loot.Count == 0) return;

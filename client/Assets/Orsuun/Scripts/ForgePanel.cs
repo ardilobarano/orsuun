@@ -213,11 +213,19 @@ namespace Orsuun.Client
             _result.text = "";
         }
 
+        /// <summary>A pearl pays the +7, +8 or +9 attempt's materials when they run short and the hero holds that pearl
+        /// (Rules.Fishing.PearlFor).</summary>
+        private bool UsePearl()
+        {
+            PlayerSession s = _root.Session;
+            return s.ForgePearl is Pearl p && s.Inventory.Materials < s.ForgeMaterials && s.Inventory.Pearls[(int)p] > 0;
+        }
+
         public void StartAttempt(ForgeMethod method)
         {
             if (Busy) return;
 
-            string blocker = _root.Session.ForgeBlocker(method);
+            string blocker = _root.Session.ForgeBlocker(method, UsePearl());
             if (blocker != null)
             {
                 ShowResult(blocker, Palette.Muted);
@@ -235,7 +243,8 @@ namespace Orsuun.Client
             int target = item.UpgradeLevel + 1;
             int chance = s.ForgeChanceBp(method) / 100;
             string cost = $"{s.ForgeCost:N0} sorn";
-            if (s.ForgeMaterials > 0) cost += $"  ·  {s.ForgeMaterials} {s.Lane.Stage.MaterialName}";
+            if (UsePearl() && s.ForgePearl is Pearl pearl) cost += "  ·  1 " + Fishing.PearlNames[(int)pearl];
+            else if (s.ForgeMaterials > 0) cost += $"  ·  {s.ForgeMaterials} {s.Lane.Stage.MaterialName}";
             if (method == ForgeMethod.ScrollOfMercy) cost += "  ·  1 Scroll of Mercy";
             if (method == ForgeMethod.KhansAlloy) cost += "  ·  1 Khan's Alloy";
 
@@ -255,6 +264,7 @@ namespace Orsuun.Client
 
         private IEnumerator AttemptSequence(ForgeMethod method)
         {
+            bool pearl = UsePearl();
             Busy = true;
             int target = _root.Session.OnAnvil.UpgradeLevel + 1;
             EquipSlot anvilSlot = _root.Session.AnvilSlot;
@@ -278,7 +288,7 @@ namespace Orsuun.Client
                     failure = error;
                     if (dto != null)
                         result = new ForgeResult((ForgeOutcome)System.Enum.Parse(typeof(ForgeOutcome), dto.outcome), dto.chanceBp, dto.levelBefore, dto.levelAfter);
-                });
+                }, pearl);
                 if (result == null)
                 {
                     yield return _fx.Cancel();
@@ -289,7 +299,7 @@ namespace Orsuun.Client
             }
             else
             {
-                result = _root.Session.Forge(method);
+                result = _root.Session.Forge(method, pearl);
             }
 
             LastResult = result;
@@ -492,6 +502,8 @@ namespace Orsuun.Client
                 string patience = weapon.PatienceBp > 0 ? $"  (includes +{weapon.PatienceBp / 100}% Forgemaster's Patience)" : "";
                 if (session.ForgeLuckBp > 0) patience += $"  (includes +{session.ForgeLuckBp / 100}% Lucky Forge Hour)";
                 string materials = session.ForgeMaterials > 0 ? $"  ·  {session.ForgeMaterials} {session.Lane.Stage.MaterialName}" : "";
+                if (session.ForgePearl is Pearl pearl && session.Inventory.Pearls[(int)pearl] > 0)
+                    materials += $" or 1 {Fishing.PearlNames[(int)pearl]} ({session.Inventory.Pearls[(int)pearl]})";
                 _attemptInfo.text = $"Attempt +{target}:  {ConfirmDialog.Tint(session.ForgeChanceBp(ForgeMethod.ForgeAlone) / 100 + "%", Palette.Good)} success{patience}  ·  Cost {session.ForgeCost:N0} sorn{materials}";
             }
 

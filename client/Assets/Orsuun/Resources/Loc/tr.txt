@@ -2280,3 +2280,135 @@ Your name was changed	Adın değiştirildi
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Kahramanının adı ({0}) şikâyet edildi ve oyunun kurallarına uymadığı için bir moderatör onu değiştirdi: {1}.
 Your bag is full	Çantan dolu
 New drops are being left behind. Sell or store some pieces to keep them.	Yeni ganimetler geride kalıyor. Onları tutmak için birkaç parça sat ya da depola.
+# Leaderboards and Inspect (28 Sep 2026)
+LEADERBOARDS	SIRALAMALAR
+STAGE	AŞAMA
+ALL TIME	TÜM ZAMANLAR
+INSPECT	İNCELE
+BANNED	YASAKLI
++{0} XP	+{0} TP
++{0} stages	+{0} aşama
+You are not on this board yet.	Henüz bu sıralamada değilsin.
+Your guild is not on this board yet.	Loncan henüz bu sıralamada değil.
+Nobody is on this board yet.	Bu sıralamada henüz kimse yok.
+Offline: the leaderboards need the server.	Çevrimdışı: sıralamalar sunucu ister.
+Inspecting a hero needs the server.	Bir kahramanı incelemek sunucu ister.
+Tap a piece to see its etchings.	Oymalarını görmek için bir parçaya dokun.
+Nothing worn there.	Orada giyili bir şey yok.
+Furthest: {0}	En uzak: {0}
+Pit rating {0} ({1} wins)	Çukur puanı {0} ({1} galibiyet)
+The Pits' season rating.	Çukur'un sezon puanı.
+Gained since this week began (Monday 20:00).	Bu hafta başladığından beri kazanılan (Pazartesi 20:00).
+# Invite a friend (28 Sep 2026)
+INVITE A FRIEND	ARKADAŞ DAVET ET
+YOUR CODE	KODUN
+COPY	KOPYALA
+SHARE	PAYLAŞ
+USE CODE	KODU KULLAN
+HAVE A FRIEND'S CODE?	ARKADAŞININ KODU MU VAR?
+Their code	Onun kodu
+Offline: invites need the server.	Çevrimdışı: davetler sunucu ister.
+When a friend's hero reaches level {0}, you both get:	Bir arkadaşının kahramanı {0}. seviyeye ulaştığında ikiniz de alırsınız:
+{0} Scrolls of Mercy	{0} Merhamet Parşömeni
+Friends brought in: {0}/{1}	Getirilen arkadaşlar: {0}/{1}
+paid: {0}	ödenen: {0}
+You came on {0}'s invitation. Your share was sent by letter.	{0} seni davet etti. Payın mektupla gönderildi.
+You came on {0}'s invitation. Reach level {1} and you are both paid.	{0} seni davet etti. {1}. seviyeye ulaş, ikiniz de ödül alın.
+A friend's code is entered before level {0}.	Arkadaş kodu {0}. seviyeden önce girilir.
+Copied.	Kopyalandı.
+The invitation is copied: paste it to a friend.	Davet kopyalandı: bir arkadaşına yapıştır.
+That code could not be read: it has six letters and numbers.	Bu kod okunamadı: altı harf ve rakamdan oluşur.
+Join me in Orsuun: War of Banners. Enter my code {0} under MENU, INVITE A FRIEND, and we both get sorn and a Scroll of Mercy at level {1}.	Orsuun: War of Banners'ta bana katıl. MENÜ, ARKADAŞ DAVET ET altında kodum {0} gir; {1}. seviyede ikimiz de sorn ve bir Merhamet Parşömeni alırız.
+No hero has that code.	Hiçbir kahramanın böyle bir kodu yok.
+That code is your own account's. Share it with a friend.	Bu kod senin hesabına ait. Onu bir arkadaşınla paylaş.
+That code has brought in all the heroes it can.	Bu kod getirebileceği tüm kahramanları getirdi.
+This hero has already entered a friend's code.	Bu kahraman zaten bir arkadaş kodu girdi.
+Code taken: reach level {0} and you and {1} are both paid.	Kod alındı: {0}. seviyeye ulaş, sen ve {1} ödül alın.
+The Caravan	Kervan
+A friend's welcome	Bir dosttan hoş geldin
+Your friend reached level {0}	Arkadaşın {0}. seviyeye ulaştı
+You reached level {0} on a friend's invitation ({1}). Here is your share.	Bir arkadaşının davetiyle ({1}) {0}. seviyeye ulaştın. İşte payın.
+You reached level {0} on a friend's invitation. Here is your share.	Bir arkadaşının davetiyle {0}. seviyeye ulaştın. İşte payın.
+{0} came on your invitation and has reached level {1}. Here is your share.	{0} davetinle geldi ve {1}. seviyeye ulaştı. İşte payın.
+empty	boş
+PITS	ÇUKUR
+THIS WEEK	BU HAFTA
+YOU	SEN
+# Old Nergui's river (28 Sep 2026)
+OLD NERGUI'S RIVER	YAŞLI NERGUİ'NİN NEHRİ
+Old Nergui's River	Yaşlı Nergui'nin Nehri
+CAST	AT
+REEL	ÇEK
+REEL!	ÇEK!
+CREEL	SEPET
+THE CREEL	BALIK SEPETİ
+TIRELESS ROD	YORULMAZ OLTA
+THE TIRELESS ROD	YORULMAZ OLTA
+Tireless Rod: {0}	Yorulmaz Olta: {0}
+EAT	YE
+OPEN 1	1 AÇ
+OPEN ALL	HEPSİNİ AÇ
+GO FISHING	BALIĞA ÇIK
+CAST, and REEL when the float goes under.	AT, şamandıra batınca ÇEK.
+Wait for it...	Bekle...
+Too slow: it stole the bait and swam off.	Çok yavaş: yemi kaptı ve kaçtı.
+Too soon: nothing had bitten yet.	Çok erken: henüz bir şey vurmamıştı.
+A river mussel! Old Nergui can open it.	Bir nehir midyesi! Yaşlı Nergui onu açabilir.
+You caught a {0}!	Bir {0} yakaladın!
+You ate the {0}: {1}.	{0} yedin: {1}.
+Eat the {0}?	{0} yensin mi?
+It replaces your {0} ({1} left). {2}.	{0} yerine geçer ({1} kaldı). {2}.
+Not enough Amber	Yeterli Kehribar yok
+The rod for {0} day costs {1} Amber; you have {2}.	{0} günlük olta {1} Kehribar; sende {2} var.
+The rod for {0} days costs {1} Amber; you have {2}.	{0} günlük olta {1} Kehribar; sende {2} var.
+{0} day for {1} Amber (you have {2}). Days add to a rod you hold.	{0} gün, {1} Kehribar (sende {2} var). Günler elindeki oltaya eklenir.
+{0} days for {1} Amber (you have {2}). Days add to a rod you hold.	{0} gün, {1} Kehribar (sende {2} var). Günler elindeki oltaya eklenir.
+The Tireless Rod is yours. It fishes while you stay here.	Yorulmaz Olta artık senin. Sen burada kaldıkça balık tutar.
+The Tireless Rod brought in a catch.	Yorulmaz Olta bir av getirdi.
+The Tireless Rod brought in {0} catches.	Yorulmaz Olta {0} av getirdi.
+{0}: {1} left	{0}: {1} kaldı
+No meal: eat a fish for a hunting boost	Öğün yok: av güçlendirmesi için bir balık ye
+No hunting here	Burada av yok
+Held: {0} left	Elinde: {0} kaldı
+Fishes by itself while you stay at the river, even with the game closed: one catch every {0} seconds, up to {1} hours between visits.	Sen nehirde kaldıkça, oyun kapalıyken bile kendi kendine balık tutar: her {0} saniyede bir av, iki ziyaret arasında en fazla {1} saat.
+{0} DAY	{0} GÜN
+{0} DAYS	{0} GÜN
+A pearl pays the materials of a +7 (Moon), +8 (Tide) or +9 (Heart) attempt at the Forge.	Bir inci, Demirhane'de +7 (Ay), +8 (Gelgit) ya da +9 (Yürek) denemesinin malzemesini karşılar.
+River mussels	Nehir midyeleri
++{0}% hunting XP for {1} minutes	{1} dakika boyunca +%{0} av TP
++{0}% hunting sorn for {1} minutes	{1} dakika boyunca +%{0} av sornu
++{0}% hunting XP and sorn for {1} minutes	{1} dakika boyunca +%{0} av TP'si ve sornu
+Steppe Carp	Bozkır Sazanı
+Silver Grayling	Gümüş Kızılgöz
+River Pike	Nehir Turnası
+Spotted Lenok	Benekli Lenok
+Golden Taimen	Altın Taymen
+Moon Pearl	Ay İncisi
+Tide Pearl	Gelgit İncisi
+Heart Pearl	Yürek İncisi
+Moon Pearls	Ay İncisi
+Tide Pearls	Gelgit İncisi
+Heart Pearls	Yürek İncisi
+Fishing needs the server.	Balık tutmak sunucu ister.
+Fishing	Balıkçılık
+fish to eat for boosts, mussels with pearls	güç için yenen balıklar, incili midyeler
+Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.	Yaşlı Nergui BÖLGELER'deki nehirde balık tutar: av güçlendirmesi için yenecek balıklar ve içinde inci olan midyeler yakala.
+From a river mussel. Pays the materials of a {0} attempt at the Forge.	Bir nehir midyesinden. Demirhane'de {0} denemesinin malzemesini karşılar.
+Caught at Old Nergui's river. Eaten there (CREEL): {0}.	Yaşlı Nergui'nin nehrinde tutuldu. Orada yenir (SEPET): {0}.
+Caught at Old Nergui's river; he opens them (CREEL). Some hold a Moon, Tide or Heart Pearl.	Yaşlı Nergui'nin nehrinde tutulur; onları o açar (SEPET). Bazılarında Ay, Gelgit ya da Yürek İncisi vardır.
+{0} or 1 {1} ({2})	{0} ya da 1 {1} ({2})
+No pearl pays this attempt	Bu denemeyi inci karşılamaz
+No {0}	{0} yok
+Go to Old Nergui's river first (ZONES).	Önce Yaşlı Nergui'nin nehrine git (BÖLGELER).
+Cast first.	Önce at.
+You have no {0}.	Hiç {0} yok.
+You have no mussels to open.	Açacak midyen yok.
+Empty. "Most of them are," says Old Nergui.	Boş. "Çoğu öyledir," der Yaşlı Nergui.
+{0} mussels, all empty. "Most of them are," says Old Nergui.	{0} midye, hepsi boş. "Çoğu öyledir," der Yaşlı Nergui.
+{0} opened: {1}!	{0} açıldı: {1}!
+The Caravan does not sell the rod for so long.	Kervan oltayı bu kadar uzun süreliğine satmıyor.
+Leave Old Nergui's river first.	Önce Yaşlı Nergui'nin nehrinden ayrıl.
+A pearl pays only the +7, +8 and +9 attempts.	İnci yalnızca +7, +8 ve +9 denemelerini karşılar.
+No {0}.	{0} yok.
+{0} landed a Golden Taimen at Old Nergui's river!	{0}, Yaşlı Nergui'nin nehrinde bir Altın Taymen yakaladı!
+{0} found a Heart Pearl in a river mussel!	{0} bir nehir midyesinde Yürek İncisi buldu!

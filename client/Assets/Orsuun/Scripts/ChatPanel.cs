@@ -120,7 +120,8 @@ namespace Orsuun.Client
             // A name that breaks the rules (27 Sep 2026): the hero's own, or the guild the hero is in.
             Ui.Button("ReportName", box, 0.06f, 0.21f, 0.48f, 0.34f, "REPORT NAME", 22, Palette.Danger, () => ReportNamePicked("hero"), out _);
             Ui.Button("ReportGuild", box, 0.52f, 0.21f, 0.94f, 0.34f, "REPORT GUILD", 22, Palette.Danger, () => ReportNamePicked("guild"), out _);
-            Ui.Button("Cancel", box, 0.3f, 0.04f, 0.7f, 0.16f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
+            Ui.Button("Inspect", box, 0.06f, 0.04f, 0.48f, 0.16f, "INSPECT", 22, Palette.Alloy, InspectPicked, out _);
+            Ui.Button("Cancel", box, 0.52f, 0.04f, 0.94f, 0.16f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
             _actions.SetActive(false);
 
             _canvas.SetActive(false);
@@ -243,6 +244,13 @@ namespace Orsuun.Client
             if (line == null) return;
             StartCoroutine(_root.Server.ReportLine(line.id, _shown.Name, error =>
                 _message.text = error != null ? ConfirmDialog.Tint(error, Palette.Bad) : "Reported. Thank you: three reports hide a line."));
+        }
+
+        private void InspectPicked()
+        {
+            ChatLineDto line = _picked;
+            _actions.SetActive(false);
+            if (line != null) _root.Inspect.Open(line.accountId);
         }
 
         private void ReportNamePicked(string kind)

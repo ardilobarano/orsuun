@@ -274,3 +274,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Pushes (`PushSender`): every `SendLetter` queues one, sent after the request's save (`SendPushes`, from `SaveAsync`; code
   that saves another way calls `SendPushes` after its commit). The phone's token goes to `/v1/push-token`; iOS registers
   only with the `ORSUUN_PUSH` define (the push entitlement breaks free-team signing). Keys in `deploy/secrets`.
+- Old Nergui's river (`Rules.Fishing`, 28 Sep 2026): a hero at the river (`Account.AtRiver`) hunts nothing (`Settle`
+  counts no seconds, the client's lane stands still while `ServerLink.AtRiver`); going there settles first, leaving
+  reseeds the lane like a park (`LeaveRiver`, also called by `ParkAsync`), and pushes are refused there. The Tireless
+  Rod's catches are counted on each heartbeat (`LandAuto`). A fish eaten adds its XP/sorn to hunting in `Apply(hunt:)`
+  for the share of the interval it lasted, like a companion (never in the lane's combat, so replays are untouched).
+  `RiverPanel` lives off its canvas and shows itself while the server says the hero is at the river.
+- Invites (`Rules.Invites`): an invited hero reaching level 10 is caught by `CheckInvite` in `Apply` and paid by letter
+  in `SaveAsync`; a new place that writes XP directly must call `CheckInvite` too.

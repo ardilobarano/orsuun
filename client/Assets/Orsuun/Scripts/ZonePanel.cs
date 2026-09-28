@@ -34,6 +34,7 @@ namespace Orsuun.Client
         private Row[] _zoneRows;
         private readonly Row[] _dungeonRows = new Row[Dungeons.All.Length];
         private readonly Row[] _bossRows = new Row[BossRows];
+        private Row _riverRow;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -51,6 +52,11 @@ namespace Orsuun.Client
             // Zone cards (zones mockup): the painting, the name, what it is, and HUNT HERE; the list scrolls. The dungeon
             // leads it: ENTER spends one of the day's two keys.
             Ui.Scroll("ZoneList", canvas, 0.03f, 0.462f, 0.97f, 0.895f, out RectTransform content);
+            // Old Nergui's river (Rules.Fishing): no hunting there, fishing instead.
+            RectTransform riverCard = new GameObject("River", typeof(RectTransform)).GetComponent<RectTransform>();
+            riverCard.SetParent(content, false);
+            riverCard.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
+            _riverRow = MakeCard(riverCard, "River", 1.33f, Palette.Alloy, GoFishing);
             for (int d = 0; d < Dungeons.All.Length; d++)
             {
                 RectTransform dungeonCard = new GameObject("Dungeon" + d, typeof(RectTransform)).GetComponent<RectTransform>();
@@ -105,6 +111,25 @@ namespace Orsuun.Client
             row.Button = Ui.Button(name + "Btn", card, 0.715f, 0.16f, 0.985f, 0.84f, "", 24, color, onClick, out row.ButtonLabel);
             row.ButtonImage = row.Button.GetComponent<Image>();
             return row;
+        }
+
+        private void GoFishing()
+        {
+            if (!_root.Unlocked(Feature.Fishing)) { _message.text = Unlocks.Locked(Feature.Fishing); return; }
+            _canvas.SetActive(false);
+            _root.River.Go();
+        }
+
+        private void UpdateRiver()
+        {
+            bool open = _root.Unlocked(Feature.Fishing);
+            Ui.SetPicture(_riverRow.Picture, "Thumbs/River");
+            _riverRow.Name.text = "Old Nergui's River";
+            _riverRow.Label.text = !_root.Server.Online ? "Fishing needs the server."
+                : !open ? $"Opens at level {Unlocks.Level(Feature.Fishing)}"
+                : "Fishing  ·  no hunting here  ·  fish to eat for boosts, mussels with pearls";
+            _riverRow.ButtonLabel.text = open ? "GO FISHING" : "LV " + Unlocks.Level(Feature.Fishing);
+            _riverRow.ButtonImage.color = open && _root.Server.Online ? Palette.Alloy : Palette.ButtonIdle;
         }
 
         private void EnterDungeon(int id)
@@ -169,6 +194,7 @@ namespace Orsuun.Client
             PlayerSession session = _root.Session;
 
             UpdateDungeon(session);
+            UpdateRiver();
 
             // Zones: campaign farm spot first, then every zone in content order.
             var entries = new List<(int Id, string Name, string Text, bool Unlocked)>();

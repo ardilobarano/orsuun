@@ -2318,3 +2318,135 @@ Your name was changed	Numele tău a fost schimbat
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Numele eroului tău, {0}, a fost raportat și nu respecta regulile jocului, așa că un moderator l-a schimbat în: {1}.
 Your bag is full	Traista e plină
 New drops are being left behind. Sell or store some pieces to keep them.	Prada nouă rămâne în urmă. Vinde sau depozitează câteva piese ca s-o păstrezi.
+# Leaderboards and Inspect (28 Sep 2026)
+LEADERBOARDS	CLASAMENTE
+STAGE	ETAPĂ
+ALL TIME	DINTOTDEAUNA
+INSPECT	INSPECTEAZĂ
+BANNED	INTERZIS
++{0} XP	+{0} XP
++{0} stages	+{0} etape
+You are not on this board yet.	Încă nu ești în acest clasament.
+Your guild is not on this board yet.	Ghilda ta încă nu este în acest clasament.
+Nobody is on this board yet.	Încă nu este nimeni în acest clasament.
+Offline: the leaderboards need the server.	Offline: clasamentele au nevoie de server.
+Inspecting a hero needs the server.	Inspectarea unui erou are nevoie de server.
+Tap a piece to see its etchings.	Atinge o piesă ca să-i vezi gravurile.
+Nothing worn there.	Nimic purtat acolo.
+Furthest: {0}	Cel mai departe: {0}
+Pit rating {0} ({1} wins)	Punctaj în Groapă {0} ({1} victorii)
+The Pits' season rating.	Punctajul sezonului din Groapă.
+Gained since this week began (Monday 20:00).	Câștigat de la începutul acestei săptămâni (luni, 20:00).
+# Invite a friend (28 Sep 2026)
+INVITE A FRIEND	INVITĂ UN PRIETEN
+YOUR CODE	CODUL TĂU
+COPY	COPIAZĂ
+SHARE	DISTRIBUIE
+USE CODE	FOLOSEȘTE CODUL
+HAVE A FRIEND'S CODE?	AI CODUL UNUI PRIETEN?
+Their code	Codul lui
+Offline: invites need the server.	Offline: invitațiile au nevoie de server.
+When a friend's hero reaches level {0}, you both get:	Când eroul unui prieten ajunge la nivelul {0}, primiți amândoi:
+{0} Scrolls of Mercy	{0} Pergamente ale Îndurării
+Friends brought in: {0}/{1}	Prieteni aduși: {0}/{1}
+paid: {0}	plătiți: {0}
+You came on {0}'s invitation. Your share was sent by letter.	Ai venit la invitația lui {0}. Partea ta a fost trimisă prin scrisoare.
+You came on {0}'s invitation. Reach level {1} and you are both paid.	Ai venit la invitația lui {0}. Ajungi la nivelul {1} și sunteți plătiți amândoi.
+A friend's code is entered before level {0}.	Codul unui prieten se introduce înainte de nivelul {0}.
+Copied.	Copiat.
+The invitation is copied: paste it to a friend.	Invitația a fost copiată: lipește-o pentru un prieten.
+That code could not be read: it has six letters and numbers.	Codul nu a putut fi citit: are șase litere și cifre.
+Join me in Orsuun: War of Banners. Enter my code {0} under MENU, INVITE A FRIEND, and we both get sorn and a Scroll of Mercy at level {1}.	Joacă alături de mine Orsuun: War of Banners. Introdu codul meu {0} la MENIU, INVITĂ UN PRIETEN, și la nivelul {1} primim amândoi sorn și un Pergament al Îndurării.
+No hero has that code.	Niciun erou nu are acest cod.
+That code is your own account's. Share it with a friend.	Acest cod este al contului tău. Dă-l unui prieten.
+That code has brought in all the heroes it can.	Acest cod a adus deja toți eroii pe care îi putea aduce.
+This hero has already entered a friend's code.	Acest erou a introdus deja codul unui prieten.
+Code taken: reach level {0} and you and {1} are both paid.	Cod acceptat: ajungi la nivelul {0} și tu și {1} sunteți plătiți.
+The Caravan	Caravana
+A friend's welcome	Bun venit de la un prieten
+Your friend reached level {0}	Prietenul tău a ajuns la nivelul {0}
+You reached level {0} on a friend's invitation ({1}). Here is your share.	Ai ajuns la nivelul {0} la invitația unui prieten ({1}). Iată partea ta.
+You reached level {0} on a friend's invitation. Here is your share.	Ai ajuns la nivelul {0} la invitația unui prieten. Iată partea ta.
+{0} came on your invitation and has reached level {1}. Here is your share.	{0} a venit la invitația ta și a ajuns la nivelul {1}. Iată partea ta.
+empty	gol
+PITS	GROAPA
+THIS WEEK	SĂPTĂMÂNA ASTA
+YOU	TU
+# Old Nergui's river (28 Sep 2026)
+OLD NERGUI'S RIVER	RÂUL BĂTRÂNULUI NERGUI
+Old Nergui's River	Râul bătrânului Nergui
+CAST	ARUNCĂ
+REEL	TRAGE
+REEL!	TRAGE!
+CREEL	COȘ
+THE CREEL	COȘUL CU PEȘTE
+TIRELESS ROD	UNDIȚA NEOBOSITĂ
+THE TIRELESS ROD	UNDIȚA NEOBOSITĂ
+Tireless Rod: {0}	Undița neobosită: {0}
+EAT	MĂNÂNCĂ
+OPEN 1	DESCHIDE 1
+OPEN ALL	DESCHIDE TOT
+GO FISHING	MERGI LA PESCUIT
+CAST, and REEL when the float goes under.	ARUNCĂ și TRAGE când pluta se scufundă.
+Wait for it...	Așteaptă...
+Too slow: it stole the bait and swam off.	Prea încet: a furat momeala și a fugit.
+Too soon: nothing had bitten yet.	Prea devreme: încă nu trăsese nimic.
+A river mussel! Old Nergui can open it.	O scoică de râu! Bătrânul Nergui o poate deschide.
+You caught a {0}!	Ai prins un {0}!
+You ate the {0}: {1}.	Ai mâncat {0}: {1}.
+Eat the {0}?	Mănânci {0}?
+It replaces your {0} ({1} left). {2}.	Înlocuiește {0} (mai sunt {1}). {2}.
+Not enough Amber	Chihlimbar insuficient
+The rod for {0} day costs {1} Amber; you have {2}.	Undița pentru {0} zi costă {1} Chihlimbar; ai {2}.
+The rod for {0} days costs {1} Amber; you have {2}.	Undița pentru {0} zile costă {1} Chihlimbar; ai {2}.
+{0} day for {1} Amber (you have {2}). Days add to a rod you hold.	{0} zi pentru {1} Chihlimbar (ai {2}). Zilele se adaugă la undița pe care o ai.
+{0} days for {1} Amber (you have {2}). Days add to a rod you hold.	{0} zile pentru {1} Chihlimbar (ai {2}). Zilele se adaugă la undița pe care o ai.
+The Tireless Rod is yours. It fishes while you stay here.	Undița neobosită e a ta. Pescuiește cât timp rămâi aici.
+The Tireless Rod brought in a catch.	Undița neobosită a adus o captură.
+The Tireless Rod brought in {0} catches.	Undița neobosită a adus {0} capturi.
+{0}: {1} left	{0}: mai sunt {1}
+No meal: eat a fish for a hunting boost	Fără masă: mănâncă un pește pentru un spor la vânătoare
+No hunting here	Aici nu se vânează
+Held: {0} left	A ta: mai sunt {0}
+Fishes by itself while you stay at the river, even with the game closed: one catch every {0} seconds, up to {1} hours between visits.	Pescuiește singură cât rămâi la râu, chiar și cu jocul închis: o captură la fiecare {0} secunde, până la {1} ore între vizite.
+{0} DAY	{0} ZI
+{0} DAYS	{0} ZILE
+A pearl pays the materials of a +7 (Moon), +8 (Tide) or +9 (Heart) attempt at the Forge.	O perlă plătește materialele unei încercări de +7 (Lună), +8 (Maree) sau +9 (Inimă) la Fierărie.
+River mussels	Scoici de râu
++{0}% hunting XP for {1} minutes	+{0}% XP la vânătoare timp de {1} minute
++{0}% hunting sorn for {1} minutes	+{0}% sorn la vânătoare timp de {1} minute
++{0}% hunting XP and sorn for {1} minutes	+{0}% XP și sorn la vânătoare timp de {1} minute
+Steppe Carp	Crap de stepă
+Silver Grayling	Lipan argintiu
+River Pike	Știucă de râu
+Spotted Lenok	Lenok pătat
+Golden Taimen	Taimen auriu
+Moon Pearl	Perla Lunii
+Tide Pearl	Perla Mareei
+Heart Pearl	Perla Inimii
+Moon Pearls	Perle ale Lunii
+Tide Pearls	Perle ale Mareei
+Heart Pearls	Perle ale Inimii
+Fishing needs the server.	Pescuitul are nevoie de server.
+Fishing	Pescuit
+fish to eat for boosts, mussels with pearls	pește de mâncat pentru sporuri, scoici cu perle
+Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.	Bătrânul Nergui pescuiește la râu în ZONE: prinde pește de mâncat pentru sporuri la vânătoare și scoici cu perle înăuntru.
+From a river mussel. Pays the materials of a {0} attempt at the Forge.	Dintr-o scoică de râu. Plătește materialele unei încercări de {0} la Fierărie.
+Caught at Old Nergui's river. Eaten there (CREEL): {0}.	Prins la râul bătrânului Nergui. Se mănâncă acolo (COȘ): {0}.
+Caught at Old Nergui's river; he opens them (CREEL). Some hold a Moon, Tide or Heart Pearl.	Prinse la râul bătrânului Nergui; el le deschide (COȘ). Unele au o Perlă a Lunii, a Mareei sau a Inimii.
+{0} or 1 {1} ({2})	{0} sau 1 {1} ({2})
+No pearl pays this attempt	Nicio perlă nu plătește această încercare
+No {0}	Fără {0}
+Go to Old Nergui's river first (ZONES).	Mergi întâi la râul bătrânului Nergui (ZONE).
+Cast first.	Aruncă întâi.
+You have no {0}.	Nu ai {0}.
+You have no mussels to open.	Nu ai scoici de deschis.
+Empty. "Most of them are," says Old Nergui.	Goală. „Cele mai multe sunt”, spune bătrânul Nergui.
+{0} mussels, all empty. "Most of them are," says Old Nergui.	{0} scoici, toate goale. „Cele mai multe sunt”, spune bătrânul Nergui.
+{0} opened: {1}!	{0} deschise: {1}!
+The Caravan does not sell the rod for so long.	Caravana nu vinde undița pentru atât timp.
+Leave Old Nergui's river first.	Pleacă întâi de la râul bătrânului Nergui.
+A pearl pays only the +7, +8 and +9 attempts.	O perlă plătește doar încercările de +7, +8 și +9.
+No {0}.	Fără {0}.
+{0} landed a Golden Taimen at Old Nergui's river!	{0} a prins un Taimen auriu la râul bătrânului Nergui!
+{0} found a Heart Pearl in a river mussel!	{0} a găsit o Perlă a Inimii într-o scoică de râu!

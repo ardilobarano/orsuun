@@ -164,6 +164,29 @@ public sealed class Account
     /// <summary>What the last settlement left unfinished on the parked stage (Rules.HuntCarry): ticks toward the next
     /// encounter and the encounters done in the current loop. A new parked stage starts both at 0.</summary>
     public long HuntCarryTicks { get; set; }
+    /// <summary>The leaderboards' week (Bounties.WeekKey) and where the hero stood when it began: weekly boards rank the
+    /// gains since (GameService.Leaderboards).</summary>
+    [MaxLength(16)] public string BoardWeek { get; set; } = "";
+    public long BoardWeekXp { get; set; }
+    public int BoardWeekStage { get; set; }
+    /// <summary>Invite a friend (Rules.Invites): this hero's code (made when first asked), the hero whose code it
+    /// entered, and whether that invite has paid out (at level 10).</summary>
+    [MaxLength(8)] public string InviteCode { get; set; } = "";
+    /// <summary>Fishing (Rules.Fishing): fish held by id and pearls (Moon;Tide;Heart), mussels still shut; at Old
+    /// Nergui's river (the hunt stops there); the cast waiting for its bite; the meal eaten and until when; the Tireless
+    /// Rod held until, and where its count of catches stands.</summary>
+    [MaxLength(64)] public string Fish { get; set; } = "";
+    [MaxLength(32)] public string Pearls { get; set; } = "";
+    public int Mussels { get; set; }
+    public bool AtRiver { get; set; }
+    public DateTime? CastUtc { get; set; }
+    public int CastBiteMs { get; set; }
+    public int MealFish { get; set; } = -1;
+    public DateTime? MealUntilUtc { get; set; }
+    public DateTime? AutoRodUntilUtc { get; set; }
+    public DateTime? AutoFromUtc { get; set; }
+    public Guid? InvitedById { get; set; }
+    public bool InviteRewarded { get; set; }
     public int HuntEncounter { get; set; }
 
     /// <summary>Seed of the online farm lane: loop n runs from ActivePlay.LoopSeed(LaneSeed, n). New on every park.</summary>

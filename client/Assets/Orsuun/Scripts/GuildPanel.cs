@@ -405,7 +405,8 @@ namespace Orsuun.Client
             _promote = Ui.Button("Promote", box, 0.06f, 0.56f, 0.94f, 0.74f, "", 26, Palette.ButtonIdle, SetOfficer, out _promoteLabel);
             _lead = Ui.Button("Lead", box, 0.06f, 0.36f, 0.94f, 0.54f, "HAND OVER THE LEAD", 26, Palette.Alloy, AskLead, out _);
             _kick = Ui.Button("Kick", box, 0.06f, 0.16f, 0.94f, 0.34f, "SEND AWAY", 26, Palette.Danger, AskKick, out _);
-            Ui.Button("Cancel", box, 0.3f, 0.02f, 0.7f, 0.14f, "CLOSE", 22, Palette.ButtonIdle, () => _manage.SetActive(false), out _);
+            Ui.Button("Inspect", box, 0.06f, 0.02f, 0.48f, 0.14f, "INSPECT", 22, Palette.Alloy, () => { _manage.SetActive(false); _root.Inspect?.Open(_selected?.accountId); }, out _);
+            Ui.Button("Cancel", box, 0.52f, 0.02f, 0.94f, 0.14f, "CLOSE", 22, Palette.ButtonIdle, () => _manage.SetActive(false), out _);
             _manage.SetActive(false);
         }
 
@@ -519,9 +520,10 @@ namespace Orsuun.Client
             int index = _page * MemberRows + row;
             if (!HasGuild(v) || v.members == null || index >= v.members.Length) return;
             GuildMemberDto member = v.members[index];
-            if (!ParseEnum<GuildRank>(_root.Server.Guild?.rank, out GuildRank mine) || member.me) return;
+            // A member this hero cannot manage (or themselves) opens straight into Inspect.
+            bool manages = ParseEnum<GuildRank>(_root.Server.Guild?.rank, out GuildRank mine) && !member.me;
             ParseEnum<GuildRank>(member.rank, out GuildRank theirs);
-            if (!Guilds.CanKick(mine, theirs)) return;
+            if (!manages || !Guilds.CanKick(mine, theirs)) { _root.Inspect?.Open(member.accountId); return; }
             _selected = member;
             _manageTitle.text = $"{member.name}  ·  {member.rank}";
             bool leader = mine == GuildRank.Leader;

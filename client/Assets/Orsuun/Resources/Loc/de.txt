@@ -2356,3 +2356,135 @@ Your name was changed	Dein Name wurde geändert
 Your hero's name, {0}, was reported and did not fit the game's rules, so a moderator changed it to {1}.	Der Name deines Helden, {0}, wurde gemeldet und passte nicht zu den Regeln des Spiels, deshalb hat ein Moderator ihn geändert: {1}.
 Your bag is full	Deine Tasche ist voll
 New drops are being left behind. Sell or store some pieces to keep them.	Neue Beute bleibt liegen. Verkaufe oder lagere ein paar Teile, um sie zu behalten.
+# Leaderboards and Inspect (28 Sep 2026)
+LEADERBOARDS	BESTENLISTEN
+STAGE	ETAPPE
+ALL TIME	ALLE ZEITEN
+INSPECT	ANSEHEN
+BANNED	GESPERRT
++{0} XP	+{0} EP
++{0} stages	+{0} Etappen
+You are not on this board yet.	Du stehst noch nicht auf dieser Liste.
+Your guild is not on this board yet.	Deine Gilde steht noch nicht auf dieser Liste.
+Nobody is on this board yet.	Auf dieser Liste steht noch niemand.
+Offline: the leaderboards need the server.	Offline: Die Bestenlisten brauchen den Server.
+Inspecting a hero needs the server.	Einen Helden anzusehen braucht den Server.
+Tap a piece to see its etchings.	Tippe auf ein Teil, um seine Gravuren zu sehen.
+Nothing worn there.	Dort wird nichts getragen.
+Furthest: {0}	Am weitesten: {0}
+Pit rating {0} ({1} wins)	Grubenwertung {0} ({1} Siege)
+The Pits' season rating.	Die Saisonwertung der Grube.
+Gained since this week began (Monday 20:00).	Seit Beginn dieser Woche gewonnen (Montag 20:00).
+# Invite a friend (28 Sep 2026)
+INVITE A FRIEND	FREUND EINLADEN
+YOUR CODE	DEIN CODE
+COPY	KOPIEREN
+SHARE	TEILEN
+USE CODE	CODE NUTZEN
+HAVE A FRIEND'S CODE?	HAST DU DEN CODE EINES FREUNDES?
+Their code	Sein Code
+Offline: invites need the server.	Offline: Einladungen brauchen den Server.
+When a friend's hero reaches level {0}, you both get:	Wenn der Held eines Freundes Stufe {0} erreicht, bekommt ihr beide:
+{0} Scrolls of Mercy	{0} Rollen der Gnade
+Friends brought in: {0}/{1}	Geworbene Freunde: {0}/{1}
+paid: {0}	bezahlt: {0}
+You came on {0}'s invitation. Your share was sent by letter.	Du bist auf Einladung von {0} gekommen. Dein Anteil kam per Brief.
+You came on {0}'s invitation. Reach level {1} and you are both paid.	Du bist auf Einladung von {0} gekommen. Erreiche Stufe {1}, und ihr werdet beide bezahlt.
+A friend's code is entered before level {0}.	Der Code eines Freundes wird vor Stufe {0} eingegeben.
+Copied.	Kopiert.
+The invitation is copied: paste it to a friend.	Die Einladung ist kopiert: füge sie bei einem Freund ein.
+That code could not be read: it has six letters and numbers.	Dieser Code ließ sich nicht lesen: Er hat sechs Buchstaben und Ziffern.
+Join me in Orsuun: War of Banners. Enter my code {0} under MENU, INVITE A FRIEND, and we both get sorn and a Scroll of Mercy at level {1}.	Spiel mit mir Orsuun: War of Banners. Gib meinen Code {0} unter MENÜ, FREUND EINLADEN ein, und wir bekommen beide auf Stufe {1} Sorn und eine Rolle der Gnade.
+No hero has that code.	Kein Held hat diesen Code.
+That code is your own account's. Share it with a friend.	Dieser Code gehört deinem eigenen Konto. Teile ihn mit einem Freund.
+That code has brought in all the heroes it can.	Dieser Code hat schon alle Helden geworben, die er kann.
+This hero has already entered a friend's code.	Dieser Held hat schon den Code eines Freundes eingegeben.
+Code taken: reach level {0} and you and {1} are both paid.	Code angenommen: Erreiche Stufe {0}, und du und {1} werdet beide bezahlt.
+The Caravan	Die Karawane
+A friend's welcome	Der Willkommensgruß eines Freundes
+Your friend reached level {0}	Dein Freund hat Stufe {0} erreicht
+You reached level {0} on a friend's invitation ({1}). Here is your share.	Du hast auf Einladung eines Freundes ({1}) Stufe {0} erreicht. Hier ist dein Anteil.
+You reached level {0} on a friend's invitation. Here is your share.	Du hast auf Einladung eines Freundes Stufe {0} erreicht. Hier ist dein Anteil.
+{0} came on your invitation and has reached level {1}. Here is your share.	{0} ist auf deine Einladung gekommen und hat Stufe {1} erreicht. Hier ist dein Anteil.
+empty	leer
+PITS	GRUBE
+THIS WEEK	DIESE WOCHE
+YOU	DU
+# Old Nergui's river (28 Sep 2026)
+OLD NERGUI'S RIVER	DES ALTEN NERGUIS FLUSS
+Old Nergui's River	Des alten Nerguis Fluss
+CAST	AUSWERFEN
+REEL	EINHOLEN
+REEL!	EINHOLEN!
+CREEL	KORB
+THE CREEL	DER FISCHKORB
+TIRELESS ROD	UNERMÜDLICHE RUTE
+THE TIRELESS ROD	DIE UNERMÜDLICHE RUTE
+Tireless Rod: {0}	Unermüdliche Rute: {0}
+EAT	ESSEN
+OPEN 1	1 ÖFFNEN
+OPEN ALL	ALLE ÖFFNEN
+GO FISHING	ANGELN GEHEN
+CAST, and REEL when the float goes under.	WIRF AUS und HOL EIN, wenn der Schwimmer untergeht.
+Wait for it...	Warte...
+Too slow: it stole the bait and swam off.	Zu langsam: Er hat den Köder gestohlen und ist davon.
+Too soon: nothing had bitten yet.	Zu früh: Noch hatte nichts angebissen.
+A river mussel! Old Nergui can open it.	Eine Flussmuschel! Der alte Nergui kann sie öffnen.
+You caught a {0}!	Du hast einen {0} gefangen!
+You ate the {0}: {1}.	Du hast den {0} gegessen: {1}.
+Eat the {0}?	{0} essen?
+It replaces your {0} ({1} left). {2}.	Es ersetzt deinen {0} (noch {1}). {2}.
+Not enough Amber	Nicht genug Bernstein
+The rod for {0} day costs {1} Amber; you have {2}.	Die Rute für {0} Tag kostet {1} Bernstein; du hast {2}.
+The rod for {0} days costs {1} Amber; you have {2}.	Die Rute für {0} Tage kostet {1} Bernstein; du hast {2}.
+{0} day for {1} Amber (you have {2}). Days add to a rod you hold.	{0} Tag für {1} Bernstein (du hast {2}). Die Tage kommen zu einer Rute hinzu, die du hast.
+{0} days for {1} Amber (you have {2}). Days add to a rod you hold.	{0} Tage für {1} Bernstein (du hast {2}). Die Tage kommen zu einer Rute hinzu, die du hast.
+The Tireless Rod is yours. It fishes while you stay here.	Die Unermüdliche Rute gehört dir. Sie angelt, solange du hier bleibst.
+The Tireless Rod brought in a catch.	Die Unermüdliche Rute hat einen Fang gebracht.
+The Tireless Rod brought in {0} catches.	Die Unermüdliche Rute hat {0} Fänge gebracht.
+{0}: {1} left	{0}: noch {1}
+No meal: eat a fish for a hunting boost	Keine Mahlzeit: Iss einen Fisch für einen Jagdbonus
+No hunting here	Hier wird nicht gejagt
+Held: {0} left	Im Besitz: noch {0}
+Fishes by itself while you stay at the river, even with the game closed: one catch every {0} seconds, up to {1} hours between visits.	Angelt von selbst, solange du am Fluss bleibst, auch bei geschlossenem Spiel: ein Fang alle {0} Sekunden, bis zu {1} Stunden zwischen zwei Besuchen.
+{0} DAY	{0} TAG
+{0} DAYS	{0} TAGE
+A pearl pays the materials of a +7 (Moon), +8 (Tide) or +9 (Heart) attempt at the Forge.	Eine Perle bezahlt die Materialien eines Versuchs auf +7 (Mond), +8 (Gezeiten) oder +9 (Herz) in der Schmiede.
+River mussels	Flussmuscheln
++{0}% hunting XP for {1} minutes	+{0}% Jagd-EP für {1} Minuten
++{0}% hunting sorn for {1} minutes	+{0}% Jagd-Sorn für {1} Minuten
++{0}% hunting XP and sorn for {1} minutes	+{0}% Jagd-EP und Sorn für {1} Minuten
+Steppe Carp	Steppenkarpfen
+Silver Grayling	Silberäsche
+River Pike	Flusshecht
+Spotted Lenok	Gefleckter Lenok
+Golden Taimen	Goldener Taimen
+Moon Pearl	Mondperle
+Tide Pearl	Gezeitenperle
+Heart Pearl	Herzperle
+Moon Pearls	Mondperlen
+Tide Pearls	Gezeitenperlen
+Heart Pearls	Herzperlen
+Fishing needs the server.	Angeln braucht den Server.
+Fishing	Angeln
+fish to eat for boosts, mussels with pearls	Fische zum Essen für Boni, Muscheln mit Perlen
+Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.	Der alte Nergui angelt am Fluss (GEBIETE): Fang Fische, die du für Jagdboni isst, und Muscheln mit Perlen darin.
+From a river mussel. Pays the materials of a {0} attempt at the Forge.	Aus einer Flussmuschel. Bezahlt die Materialien eines Versuchs auf {0} in der Schmiede.
+Caught at Old Nergui's river. Eaten there (CREEL): {0}.	Am Fluss des alten Nergui gefangen. Dort gegessen (KORB): {0}.
+Caught at Old Nergui's river; he opens them (CREEL). Some hold a Moon, Tide or Heart Pearl.	Am Fluss des alten Nergui gefangen; er öffnet sie (KORB). Manche enthalten eine Mond-, Gezeiten- oder Herzperle.
+{0} or 1 {1} ({2})	{0} oder 1 {1} ({2})
+No pearl pays this attempt	Keine Perle bezahlt diesen Versuch
+No {0}	Kein {0}
+Go to Old Nergui's river first (ZONES).	Geh zuerst zum Fluss des alten Nergui (GEBIETE).
+Cast first.	Wirf zuerst aus.
+You have no {0}.	Du hast keinen {0}.
+You have no mussels to open.	Du hast keine Muscheln zum Öffnen.
+Empty. "Most of them are," says Old Nergui.	Leer. „Die meisten sind es“, sagt der alte Nergui.
+{0} mussels, all empty. "Most of them are," says Old Nergui.	{0} Muscheln, alle leer. „Die meisten sind es“, sagt der alte Nergui.
+{0} opened: {1}!	{0} geöffnet: {1}!
+The Caravan does not sell the rod for so long.	Die Karawane verkauft die Rute nicht für so lange.
+Leave Old Nergui's river first.	Verlass zuerst den Fluss des alten Nergui.
+A pearl pays only the +7, +8 and +9 attempts.	Eine Perle bezahlt nur die Versuche auf +7, +8 und +9.
+No {0}.	Kein {0}.
+{0} landed a Golden Taimen at Old Nergui's river!	{0} hat am Fluss des alten Nergui einen Goldenen Taimen gefangen!
+{0} found a Heart Pearl in a river mussel!	{0} hat in einer Flussmuschel eine Herzperle gefunden!

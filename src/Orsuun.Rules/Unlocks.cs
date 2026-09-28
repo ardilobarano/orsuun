@@ -14,6 +14,7 @@ namespace Orsuun.Rules
         War,
         Dungeons,
         Pits,
+        Fishing,
     }
 
     /// <summary>
@@ -27,7 +28,7 @@ namespace Orsuun.Rules
     {
         public static readonly Feature[] All =
         {
-            Feature.Bounties, Feature.Shards, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Dungeons, Feature.Pits,
+            Feature.Bounties, Feature.Shards, Feature.Fishing, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Dungeons, Feature.Pits,
         };
 
         public static int Level(Feature feature) => feature switch
@@ -40,6 +41,7 @@ namespace Orsuun.Rules
             Feature.War => 15,
             Feature.Dungeons => 18,
             Feature.Pits => 20,
+            Feature.Fishing => 6,
             _ => 1,
         };
 
@@ -56,6 +58,7 @@ namespace Orsuun.Rules
             Feature.War => "WAR OF BANNERS",
             Feature.Dungeons => "DUNGEONS",
             Feature.Pits => "THE PITS",
+            Feature.Fishing => "OLD NERGUI'S RIVER",
             _ => "",
         };
 
@@ -70,6 +73,7 @@ namespace Orsuun.Rules
             Feature.War => "Your Banner fights for the fortresses. Lay siege in WAR.",
             Feature.Dungeons => "Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.",
             Feature.Pits => "Duel other heroes in the Pits, from WAR, for Laurels and a season title.",
+            Feature.Fishing => "Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.",
             _ => "",
         };
 

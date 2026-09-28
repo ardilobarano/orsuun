@@ -100,6 +100,9 @@ namespace Orsuun.Client
                 float y1 = 0.272f - i * 0.0232f;
                 _board[i] = Ui.Label("Board" + i, canvas, 0.07f, y1 - 0.0232f, 0.93f, y1, "", 18, TextAnchor.MiddleLeft, Palette.Parchment);
                 _board[i].supportRichText = true;
+                int row = i;
+                _board[i].raycastTarget = true;
+                _board[i].gameObject.AddComponent<Button>().onClick.AddListener(() => InspectRow(row));
             }
             Ui.Button("Close", canvas, 0.25f, 0.015f, 0.75f, 0.075f, "BACK TO WAR", 28, Palette.ButtonIdle, () => { Close(); _root.War.Open(); }, out _);
             _canvas.SetActive(false);
@@ -215,6 +218,14 @@ namespace Orsuun.Client
                               + ConfirmDialog.Tint($"{r.league} {r.rating:N0}", LeagueColor(r.league)) + $"   ·   {r.wins}-{r.losses}   ·   {r.weapon}";
                 _board[i].text = r.me ? ConfirmDialog.Tint(line, Palette.Sorn) : line;
             }
+        }
+
+        /// <summary>A name on the season's board opens that hero's gear (Inspect).</summary>
+        private void InspectRow(int row)
+        {
+            Net.ServerLink.PitBoardDto[] board = _root.Server.Pits?.board;
+            if (board == null || row >= board.Length || string.IsNullOrEmpty(board[row].id)) return;
+            _root.Inspect?.Open(board[row].id);
         }
     }
 }

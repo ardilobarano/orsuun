@@ -30,6 +30,15 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("AnvilWards")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("AtRiver")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("AutoFromUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("AutoRodUntilUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("BanReason")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -45,10 +54,27 @@ namespace Orsuun.Server.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("BoardWeek")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<int>("BoardWeekStage")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("BoardWeekXp")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Bounties")
                         .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
+
+                    b.Property<int>("CastBiteMs")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CastUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Class")
                         .HasColumnType("integer");
@@ -95,6 +121,11 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("Figure")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Fish")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<long>("GuildDonated")
                         .HasColumnType("bigint");
 
@@ -129,6 +160,17 @@ namespace Orsuun.Server.Migrations
 
                     b.Property<int>("HuntMarks")
                         .HasColumnType("integer");
+
+                    b.Property<string>("InviteCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<bool>("InviteRewarded")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("InvitedById")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("KhansAlloys")
                         .HasColumnType("integer");
@@ -165,6 +207,15 @@ namespace Orsuun.Server.Migrations
                     b.Property<int>("Materials")
                         .HasColumnType("integer");
 
+                    b.Property<int>("MealFish")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("MealUntilUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Mussels")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("MutedUntilUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -183,6 +234,11 @@ namespace Orsuun.Server.Migrations
 
                     b.Property<int>("ParkedStage")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Pearls")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.Property<int>("PinningWax")
                         .HasColumnType("integer");
@@ -333,6 +389,12 @@ namespace Orsuun.Server.Migrations
                         .IsUnique();
 
                     b.HasIndex("GuildId");
+
+                    b.HasIndex("InviteCode")
+                        .IsUnique()
+                        .HasFilter("\"InviteCode\" <> ''");
+
+                    b.HasIndex("InvitedById");
 
                     b.HasIndex("LoginId");
 

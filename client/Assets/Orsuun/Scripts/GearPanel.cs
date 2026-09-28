@@ -96,6 +96,22 @@ namespace Orsuun.Client
                     "Set in a piece's socket at SHARDS: the higher the rank, the stronger the shard.", r => r.Session.Inventory.Korshards[r0],
                     TradeGoods.FirstKorshard + rank));
             }
+            // Old Nergui's river (Rules.Fishing): the pearls, the fish and the mussels.
+            string[] pearlUse = { "+7", "+8", "+9" };
+            for (int p = 0; p < 3; p++)
+            {
+                int p0 = p;
+                goods.Add(new Good(Fishing.PearlIcons[p], Fishing.PearlNames[p],
+                    $"From a river mussel. Pays the materials of a {pearlUse[p]} attempt at the Forge.", r => r.Session.Inventory.Pearls[p0], TradeGoods.FirstPearl + p));
+            }
+            foreach (FishDef fish in Fishing.Fish)
+            {
+                int f0 = fish.Id;
+                goods.Add(new Good(fish.Icon, fish.Name, $"Caught at Old Nergui's river. Eaten there (CREEL): {fish.BoostText}.",
+                    r => r.Session.Inventory.Fish[f0], TradeGoods.FirstFish + fish.Id));
+            }
+            goods.Add(new Good("Mussel", "River mussels", "Caught at Old Nergui's river; he opens them (CREEL). Some hold a Moon, Tide or Heart Pearl.",
+                r => r.Session.Inventory.Mussels));
             return goods.ToArray();
         }
 
