@@ -63,14 +63,16 @@ namespace Orsuun.Rules
     /// </summary>
     public static class Fishing
     {
-        /// <summary>Stored by id on heroes, listings and letters: append, never renumber.</summary>
+        /// <summary>Stored by id on heroes, listings and letters: append, never renumber. The boosts were halved or so by
+        /// the balance pass (28 Sep 2026): all five running were +55% XP and sorn, and an hour of the Tireless Rod kept
+        /// them all going for six hours of hunting; now all five make +25% of each (Orsuun.Sim, FISH MEALS).</summary>
         public static readonly FishDef[] Fish =
         {
-            new FishDef(0, "Steppe Carp", "FishCarp", 40, 10, 0, 30, fight: 0),
-            new FishDef(1, "Silver Grayling", "FishGrayling", 30, 0, 10, 30, fight: 1),
-            new FishDef(2, "River Pike", "FishPike", 12, 20, 0, 30, fight: 2),
-            new FishDef(3, "Spotted Lenok", "FishLenok", 12, 0, 20, 30, fight: 1),
-            new FishDef(4, "Golden Taimen", "FishTaimen", 6, 25, 25, 60, fight: 3),
+            new FishDef(0, "Steppe Carp", "FishCarp", 40, 5, 0, 30, fight: 0),
+            new FishDef(1, "Silver Grayling", "FishGrayling", 30, 0, 5, 30, fight: 1),
+            new FishDef(2, "River Pike", "FishPike", 12, 8, 0, 30, fight: 2),
+            new FishDef(3, "Spotted Lenok", "FishLenok", 12, 0, 8, 30, fight: 1),
+            new FishDef(4, "Golden Taimen", "FishTaimen", 6, 12, 12, 60, fight: 3),
         };
 
         public static readonly string[] PearlNames = { "Moon Pearl", "Tide Pearl", "Heart Pearl" };

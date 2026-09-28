@@ -63,18 +63,27 @@ public class FishingTests
     {
         var now = new DateTime(2026, 9, 28, 12, 0, 0, DateTimeKind.Utc);
         var until = new DateTime?[Fishing.Fish.Length];
-        until[0] = Fishing.MealUntil(Fishing.Fish[0], now, null);          // Steppe Carp: +10% XP, 30 min
-        until[3] = Fishing.MealUntil(Fishing.Fish[3], now, null);          // Spotted Lenok: +20% sorn, 30 min
-        until[4] = Fishing.MealUntil(Fishing.Fish[4], now, null);          // Golden Taimen: +25% both, 60 min
+        until[0] = Fishing.MealUntil(Fishing.Fish[0], now, null);          // Steppe Carp: +5% XP, 30 min
+        until[3] = Fishing.MealUntil(Fishing.Fish[3], now, null);          // Spotted Lenok: +8% sorn, 30 min
+        until[4] = Fishing.MealUntil(Fishing.Fish[4], now, null);          // Golden Taimen: +12% both, 60 min
         (long xp, long sorn) = Fishing.MealBonusBp(now, now.AddMinutes(10), until);
-        Assert.Equal(3500, xp);
-        Assert.Equal(4500, sorn);
+        Assert.Equal(1700, xp);
+        Assert.Equal(2000, sorn);
         // Past the carp and the lenok, only the taimen is left.
         (xp, sorn) = Fishing.MealBonusBp(now.AddMinutes(40), now.AddMinutes(50), until);
-        Assert.Equal((2500L, 2500L), (xp, sorn));
+        Assert.Equal((1200L, 1200L), (xp, sorn));
         // A second carp adds 30 minutes; the clock stops at three hours ahead.
         Assert.Equal(now.AddMinutes(60), Fishing.MealUntil(Fishing.Fish[0], now, until[0]));
         Assert.Equal(now.AddMinutes(Fishing.MealMaxMinutes), Fishing.MealUntil(Fishing.Fish[4], now, now.AddMinutes(170)));
+    }
+
+    [Fact]
+    public void All_five_fish_together_add_a_quarter_to_xp_and_sorn()
+    {
+        // The balance pass (28 Sep 2026): all five were +55% of each.
+        int xp = 0, sorn = 0;
+        foreach (FishDef f in Fishing.Fish) { xp += f.XpPercent; sorn += f.SornPercent; }
+        Assert.Equal((25, 25), (xp, sorn));
     }
 
     [Fact]

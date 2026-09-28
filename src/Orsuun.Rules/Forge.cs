@@ -195,7 +195,8 @@ namespace Orsuun.Rules
     /// Temper (owner, 28 Sep 2026: picked "Temper after +9"; GDD section 12: "Ten whetstone steps after +9, each +1% base
     /// stats, 60% success, failure drops one Temper step, never the item. A post-+9 ladder with no Oathbreak, so it does
     /// not dilute the Forge's fear"). Each attempt costs sorn and hunt materials; the cost climbs with the step. Assumptions
-    /// (not stated by the owner): the cost (the +6 attempt's sorn times the step, and four materials).
+    /// (not stated by the owner): the cost (the +6 attempt's sorn times half the step, and four materials; halved by the
+    /// balance pass, 28 Sep 2026: ten steps took about forty hours of a stage's hunting, now about twenty).
     /// </summary>
     public static class Tempering
     {
@@ -203,8 +204,8 @@ namespace Orsuun.Rules
         public const int ChanceBp = 6000;
         public const int Materials = 4;
 
-        /// <summary>The attempt from <paramref name="step"/> to the next: the +6 attempt's sorn, times the step to reach.</summary>
-        public static long Cost(int itemLevel, int step) => ForgeRules.Cost(itemLevel, 6) * (step + 1);
+        /// <summary>The attempt from <paramref name="step"/> to the next: the +6 attempt's sorn, times half the step to reach.</summary>
+        public static long Cost(int itemLevel, int step) => ForgeRules.Cost(itemLevel, 6) * (step + 1) / 2;
 
         /// <summary>Why this piece cannot be tempered now, or null.</summary>
         public static string? Blocker(ItemState item, Inventory inventory)

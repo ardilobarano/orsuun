@@ -91,6 +91,106 @@ foreach (int level in new[] { 0, 3, 6, 9 })
     Console.WriteLine($"+{level,-7}{HeroFactory.FromWeapon(session.Weapon).Attack,8}{session.Lane.MobsKilled,8}{session.Lane.KorstonesDestroyed,11}{session.Lane.Deaths,8}{draughtsUsed,15}{session.Inventory.Sorn - sornStart,14:N0}");
 }
 
+// --- New systems (28 Sep 2026): the Bannerkin, fish meals, tempering, the sixth etching, daily pay -----------------------
+Console.WriteLine();
+const int LaneRuns = 10;
+Console.WriteLine("BANNERKIN: a Vanguard at his level's stage (Rare gear of the stage, weapon and armour +7), 10 minutes each");
+Console.WriteLine($"{"Level",-7}{"Kin",-10}{"Score",7}{"Focus",8}{"Heal",6}{"Lane mobs",11}{"Korstones",11}{"Deaths",8}{"Estimate mobs",15}{"Estimate stones",17}");
+// Stages 25, 55, 85: Korstone stages (a map's tenth stage ends with its boss).
+foreach (int level in new[] { 25, 55, 85 })
+{
+    StageConfig stage = Content.Stage(level);
+    var gear = new List<ItemState>();
+    foreach (EquipSlot slot in (EquipSlot[])Enum.GetValues(typeof(EquipSlot)))
+    {
+        var piece = new ItemState(Math.Max(1, stage.GearItemLevel), Rarity.Rare, slot);
+        if (slot == EquipSlot.Weapon || slot == EquipSlot.Armor) piece.UpgradeLevel = 7;
+        gear.Add(piece);
+    }
+    var forgedKin = new List<ItemState>();
+    foreach (EquipSlot slot in Bannerkin.Slots)
+    {
+        ItemState piece = Bannerkin.NewPiece(Math.Max(1, stage.GearItemLevel), Rarity.Legendary, slot);
+        piece.UpgradeLevel = 9;
+        forgedKin.Add(piece);
+    }
+    foreach ((string name, List<ItemState>? kin) in new (string, List<ItemState>?)[] { ("none", null), ("starter", Bannerkin.StarterSet(level)), ("+9 Leg.", forgedKin) })
+    {
+        HeroStats hero = HeroFactory.FromEquipment(gear, level, HeroClass.Vanguard, kin: kin);
+        long mobs = 0, deaths = 0, stones = 0;
+        for (int run = 0; run < LaneRuns; run++)
+        {
+            var lane = new LaneSim(stage, hero, SkillDef.For(HeroClass.Vanguard), new Inventory { Potions = 50 }, new XorShiftRandom(seed + (ulong)(level * 10 + run)));
+            for (int s = 0; s < lane.AutoCast.Length; s++) lane.AutoCast[s] = true;
+            for (int t = 0; t < 10 * 60 * LaneSim.TicksPerSecond; t++) { lane.Tick(); lane.DrainEvents(); }
+            mobs += lane.MobsKilled;
+            deaths += lane.Deaths;
+            stones += lane.KorstonesDestroyed;
+        }
+        HuntSettlement settled = HuntYield.Settle(stage, hero, 600, 600, RandomExtensions.FullBp, new Inventory(), new XorShiftRandom(seed));
+        long packs = settled.Packs;
+        long estimate = packs * (stage.PackSizeMin + stage.PackSizeMax) / 2;
+        KinStats? k = hero.Kin;
+        Console.WriteLine($"{level,-7}{name,-10}{k?.Score ?? 0,7}{(k?.FocusBp ?? 0) / 100,7}%{k?.HealPercent ?? 0,5}%{mobs / LaneRuns,11}{stones / (double)LaneRuns,11:F1}{deaths / (double)LaneRuns,8:F1}{estimate,15}{settled.Korstones,17}");
+    }
+}
+
+Console.WriteLine();
+Console.WriteLine("FISH MEALS: every fish eaten at once, and how long an hour at the river keeps them all running");
+{
+    int xp = 0, sorn = 0;
+    foreach (FishDef f in Fishing.Fish) { xp += f.XpPercent; sorn += f.SornPercent; }
+    Console.WriteLine($"All five running: +{xp}% XP, +{sorn}% sorn (a double sorn weekend is +{WorldEvents.SornBonusPercent}%)");
+    // The Tireless Rod lands a catch every AutoSeconds; each fish's share of catches is its weight among the catch.
+    double catches = 3600.0 / Fishing.AutoSeconds;
+    int totalWeight = 0;
+    foreach (FishDef f in Fishing.Fish) totalWeight += f.Weight;
+    double hours = double.MaxValue;
+    foreach (FishDef f in Fishing.Fish)
+    {
+        double caught = catches * (10000 - Fishing.MusselBp) / 10000.0 * f.Weight / totalWeight;
+        double mealHours = caught * f.Minutes / 60.0;
+        hours = Math.Min(hours, mealHours);
+        Console.WriteLine($"  {f.Name,-16} +{f.XpPercent,2}% XP +{f.SornPercent,2}% sorn  {f.Minutes,3} min  {caught,6:F1} an hour of rod  = {mealHours,5:F1} h of meal");
+    }
+    Console.WriteLine($"An hour of the Tireless Rod keeps all five running for {hours:F1} hours of hunting");
+}
+
+Console.WriteLine();
+Console.WriteLine("TEMPER: attempts and sorn from +9 to Temper 10 (60% a step, a failure drops one step)");
+foreach (int itemLevel in new[] { 60, 100 })
+{
+    var temperRng = new XorShiftRandom(seed + (ulong)itemLevel);
+    long attempts = 0, sornSpent = 0;
+    int temperRuns = Math.Min(runs, 20_000);
+    for (int r = 0; r < temperRuns; r++)
+    {
+        int step = 0;
+        while (step < Tempering.MaxSteps)
+        {
+            attempts++;
+            sornSpent += Tempering.Cost(itemLevel, step);
+            if (temperRng.RollBp(Tempering.ChanceBp)) step++; else step = Math.Max(0, step - 1);
+        }
+    }
+    Console.WriteLine($"Item level {itemLevel,3}: {attempts / (double)temperRuns,6:F1} attempts, {sornSpent / temperRuns,14:N0} sorn for +{Tempering.MaxSteps}% base stats");
+}
+Console.WriteLine($"SIXTH ETCHING: {10000 / EtchingRules.AddChance(5)} Grandmaster's Needles on average ({Array.Find(Pits.Shop, i => i.Id == 10)!.Laurels * 10000 / EtchingRules.AddChance(5):N0} Laurels)");
+
+Console.WriteLine();
+Console.WriteLine("DAILY PAY against the hunt: minutes of live hunting each is worth, by stage");
+Console.WriteLine($"{"Stage",-7}{"Sorn/hour hunting",18}{"4 errands",11}{"Login gift",12}{"Contest #1",12}");
+foreach (int level in new[] { 10, 30, 60, 90 })
+{
+    StageConfig stage = Content.Stage(level);
+    HeroStats hero = HeroFactory.FromEquipment(new[] { new ItemState(Math.Max(1, stage.GearItemLevel), Rarity.Rare, EquipSlot.Weapon) { UpgradeLevel = 7 } }, level);
+    var inv = new Inventory();
+    HuntYield.Settle(stage, hero, 3600, 3600, RandomExtensions.FullBp, inv, new XorShiftRandom(seed));
+    double perMinute = Math.Max(1, inv.Sorn) / 60.0;
+    long errands = Errands.Sorn(level) * Errands.Givers, login = DailyLogin.Reward(1, level).Sorn, contest = Fishing.ContestPrize(1, level).Sorn;
+    Console.WriteLine($"{level,-7}{inv.Sorn,18:N0}{errands / perMinute,9:F1} m{login / perMinute,10:F1} m{contest / perMinute,10:F1} m");
+}
+
 // --------------------------------------------------------------------------------------------------
 
 ClimbStats Climb(ForgeMethod method, bool patience)
