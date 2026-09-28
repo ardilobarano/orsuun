@@ -122,6 +122,8 @@ public sealed class Account
     /// <summary>Lifetime counters for achievements (Rules.FeatCounters), claimed achievements' ids, and the one whose
     /// title the hero wears (0: none).</summary>
     [MaxLength(256)] public string Feats { get; set; } = "";
+    /// <summary>The day's errands (Rules.ErrandProgress): the day, what each counter did in it, the townsfolk who paid.</summary>
+    [MaxLength(256)] public string Errands { get; set; } = "";
     [MaxLength(512)] public string FeatsClaimed { get; set; } = "";
     public int TitleId { get; set; }
     /// <summary>

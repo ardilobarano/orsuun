@@ -2596,3 +2596,25 @@ Linked:	Arătat:
 The Bazaar Call opens at level {0}.	Strigarea Bazarului se deschide la nivelul {0}.
 You can call the bazaar again in {0} seconds.	Poți striga din nou în bazar peste {0} secunde.
 That piece is not yours.	Piesa aceea nu e a ta.
+ERRANDS	SARCINI
+TODAY'S ERRANDS	SARCINILE DE AZI
+paid	plătită
+go and hand it in	du-te și predă-o
+Each pays {0} sorn and {1} materials	Fiecare plătește {0} sorn și {1} materiale
+New errands in {0}	Sarcini noi peste {0}
+Errands need the server.	Sarcinile au nevoie de server.
+Forge any piece once	Rafinează o piesă o dată
+Turn a piece's etchings once	Întoarce o dată gravurile unei piese
+Call the Bazaar once	Strigă o dată în bazar
+Sell a piece to the merchant	Vinde o piesă negustorului
+Eat a fish from the river	Mănâncă un pește din râu
+Claim a bounty	Ia o recompensă
+Win a fight in the Pits	Câștigă o luptă în Groapă
+Hunt for ten minutes	Vânează zece minute
+Good. The anvil remembers a steady hand.	Bine. Nicovala ține minte o mână sigură.
+Coin that moves keeps the steppe alive.	Banul care circulă ține stepa în viață.
+Patience feeds the wise. Take this.	Răbdarea îl hrănește pe înțelept. Ia asta.
+Well fought. Come back tomorrow.	Bine luptat. Revino mâine.
+That errand is done for today: a new one comes with the evening bell.	Sarcina asta e gata pe azi: una nouă vine cu clopotul de seară.
+Not done yet: {0}.	Încă nu e gata: {0}.
+Nobody here gave that errand.	Nimeni de aici n-a dat sarcina asta.

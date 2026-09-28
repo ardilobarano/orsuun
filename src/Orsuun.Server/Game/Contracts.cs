@@ -288,7 +288,13 @@ public sealed record StateDto(
     bool EmailVerified = false,
     GoalCountsDto? GoalCounts = null,
     RiverDto? River = null,
-    KinDto? Kin = null);
+    KinDto? Kin = null,
+    ErrandsDto? Errands = null);
+
+/// <summary>The townsfolk's errands today (Rules.Errands): each townsman's, how far along, whether paid, and the pay.</summary>
+public sealed record ErrandDto(int Giver, int Id, string Text, long Progress, long Target, bool Paid);
+public sealed record ErrandsDto(ErrandDto[] List, long Sorn, int Materials, long SecondsToReset);
+public sealed record ErrandRequest(string RequestId, int Giver);
 
 /// <summary>The Bannerkin (Rules.Bannerkin): joined or not, what it wears and what that makes of its two casts.</summary>
 public sealed record KinDto(bool Joined, ItemDto[] Worn, int Score, int FocusBp, int FocusSeconds, int FocusCooldownSeconds, int HealPercent, int HealCooldownSeconds);

@@ -22,6 +22,13 @@ namespace Orsuun.Client
     {
         private static readonly string[] FolkNames = { "Forgemaster Dorun", "Ilke of the Scales", "Elder Tamir", "Pitmaster Bora" };
         private static readonly string[] FolkRoles = { "The Forge", "The Caravan", "Skills", "The Pits" };
+        /// <summary>What each townsman says as he pays an errand (Rules.Errands), and his screen's button after it.</summary>
+        private static readonly string[] FolkThanks =
+        {
+            "Good. The anvil remembers a steady hand.", "Coin that moves keeps the steppe alive.",
+            "Patience feeds the wise. Take this.", "Well fought. Come back tomorrow.",
+        };
+        private static readonly string[] FolkScreens = { "THE FORGE", "THE CARAVAN", "SKILLS", "THE PITS" };
         private const float WalkSpeed = 4.2f, StopShort = 1.35f, RugsEvery = 60f, VisitEvery = 20f;
 
         private GameRoot _root;
@@ -32,6 +39,12 @@ namespace Orsuun.Client
         private Text _title, _message;
         private readonly RectTransform[] _hits = new RectTransform[4];
         private readonly RectTransform[] _plates = new RectTransform[4];
+        private readonly Text[] _badges = new Text[4];
+        private GameObject _errandsBox;
+        private readonly Text[] _errandRows = new Text[4];
+        private Text _errandsPay;
+        private ConfirmDialog _confirm;
+        private bool _handing;
         private readonly RectTransform[] _tags = new RectTransform[6];
         private readonly Text[] _tagLabels = new Text[6];
         private readonly string[] _tagSellers = new string[6];
@@ -44,6 +57,7 @@ namespace Orsuun.Client
         private Banner _banner = (Banner)(-1);
         private int _shotWalk = -1, _shotVisit = -1;
         private bool _shotPick = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-townpick") >= 0;
+        private bool _shotErrands = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-errands") >= 0;
         // Town life: who stands on each spot, their name tags, and the actions box for the one tapped.
         private readonly TownHeroDto[] _visitors = new TownHeroDto[TownScene.HeroSpots.Length];
         private readonly RectTransform[] _visitorTags = new RectTransform[TownScene.HeroSpots.Length];
@@ -106,6 +120,10 @@ namespace Orsuun.Client
                 _plates[i] = plate.rectTransform;
                 Ui.Title("Name", plate.transform, 0.04f, 0.46f, 0.96f, 0.96f, FolkNames[i], 20, TextAnchor.MiddleCenter, Palette.Parchment);
                 Ui.Label("Role", plate.transform, 0.04f, 0.04f, 0.96f, 0.5f, FolkRoles[i], 17, TextAnchor.MiddleCenter, Palette.Sorn);
+                // His errand's mark: "!" when it is done and waits to be handed in, a tick once paid.
+                _badges[i] = Ui.Title("Badge", plate.transform, 0.84f, 0.1f, 1.08f, 0.95f, "", 30, TextAnchor.MiddleCenter, Palette.Warn);
+                _badges[i].raycastTarget = false;
+                _badges[i].gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.85f);
             }
             for (int i = 0; i < _tags.Length; i++)
             {
@@ -121,9 +139,13 @@ namespace Orsuun.Client
 
             Ui.Framed("MessageBack", canvas, 0.06f, 0.09f, 0.94f, 0.135f, new Color(0.05f, 0.04f, 0.04f, 0.78f)).raycastTarget = false;
             _message = Ui.Label("Message", canvas, 0.08f, 0.092f, 0.92f, 0.133f, "", 21, TextAnchor.MiddleCenter, Palette.Parchment);
-            Ui.Button("Rugs", canvas, 0.04f, 0.015f, 0.36f, 0.075f, "RUG STALLS", 22, Palette.ButtonForge, () => _root.Rugs.Open(), out _);
-            Ui.Button("Leave", canvas, 0.38f, 0.015f, 0.96f, 0.075f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Close, out _);
+            Ui.Button("Rugs", canvas, 0.03f, 0.015f, 0.31f, 0.075f, "RUG STALLS", 20, Palette.ButtonForge, () => _root.Rugs.Open(), out _);
+            Ui.Button("Errands", canvas, 0.33f, 0.015f, 0.6f, 0.075f, "ERRANDS", 22, Palette.Alloy, () => ShowErrands(true), out _);
+            Ui.Button("Leave", canvas, 0.62f, 0.015f, 0.97f, 0.075f, "BACK TO THE HUNT", 22, Palette.ButtonIdle, Close, out _);
             BuildActions(canvas);
+            BuildErrands(canvas);
+            _confirm = new GameObject("TownConfirm").AddComponent<ConfirmDialog>();
+            _confirm.Init();
             _canvas.SetActive(false);
         }
 
@@ -148,6 +170,65 @@ namespace Orsuun.Client
             Ui.Button("Close", box, 0.3f, 0.04f, 0.7f, 0.24f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
             _actions.SetActive(false);
         }
+
+        /// <summary>TODAY'S ERRANDS: each townsman's, how far along, and what one pays; a row walks the hero to him.</summary>
+        private void BuildErrands(Transform canvas)
+        {
+            _errandsBox = Ui.Rect("Errands", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Image dim = Ui.Panel("Dim", _errandsBox.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f));
+            dim.gameObject.AddComponent<Button>().onClick.AddListener(() => ShowErrands(false));
+            Transform box = Ui.Framed("Box", _errandsBox.transform, 0.05f, 0.24f, 0.95f, 0.78f, Palette.PanelDark).transform;
+            Ui.Title("Title", box, 0.05f, 0.89f, 0.95f, 0.98f, "TODAY'S ERRANDS", 32, TextAnchor.MiddleCenter, Palette.Sorn);
+            for (int i = 0; i < 4; i++)
+            {
+                int giver = i;
+                float y1 = 0.87f - i * 0.17f;
+                Image row = Ui.Framed("Row" + i, box, 0.04f, y1 - 0.155f, 0.96f, y1, new Color(0.08f, 0.06f, 0.05f, 0.93f));
+                row.gameObject.AddComponent<Button>().onClick.AddListener(() => { ShowErrands(false); Visit(giver); });
+                _errandRows[i] = Ui.Label("Text", row.transform, 0.04f, 0.05f, 0.96f, 0.95f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
+                _errandRows[i].supportRichText = true;
+            }
+            _errandsPay = Ui.Label("Pay", box, 0.05f, 0.13f, 0.95f, 0.2f, "", 19, TextAnchor.MiddleCenter, Palette.Muted);
+            _errandsPay.supportRichText = true;
+            Ui.Button("Close", box, 0.3f, 0.02f, 0.7f, 0.11f, "CLOSE", 22, Palette.ButtonIdle, () => ShowErrands(false), out _);
+            _errandsBox.SetActive(false);
+        }
+
+        private void ShowErrands(bool on)
+        {
+            _errandsBox.SetActive(on);
+            if (on) FillErrands();
+        }
+
+        private ErrandDto ErrandOf(int giver)
+        {
+            ErrandDto[] list = _root.Server.Errands?.list;
+            if (list == null) return null;
+            foreach (ErrandDto e in list) if (e.giver == giver) return e;
+            return null;
+        }
+
+        private static bool Ready(ErrandDto e) => e != null && !e.paid && e.progress >= e.target;
+
+        /// <summary>An errand's progress as a player reads it (minutes for the hunt's, a count otherwise).</summary>
+        private static string Progress(ErrandDto e) => e.target >= 60 ? Loc.T($"{e.progress / 60}/{e.target / 60} min") : $"{e.progress}/{e.target}";
+
+        private void FillErrands()
+        {
+            ErrandsDto all = _root.Server.Errands;
+            for (int i = 0; i < 4; i++)
+            {
+                ErrandDto e = ErrandOf(i);
+                string state = e == null ? "" : e.paid ? ConfirmDialog.Tint("✓ " + Loc.T("paid"), Palette.Safe)
+                    : Ready(e) ? ConfirmDialog.Tint("! " + Loc.T("go and hand it in"), Palette.Warn) : ConfirmDialog.Tint(Progress(e), Palette.Sorn);
+                _errandRows[i].text = $"<b>{Loc.T(FolkNames[i])}</b>\n{(e == null ? "..." : Loc.T(e.text))}   {state}";
+            }
+            _errandsPay.text = all == null ? (_root.Server.Online ? "..." : "Errands need the server.")
+                : Loc.T($"Each pays {all.sorn:N0} sorn and {all.materials} materials") + "\n"
+                  + ConfirmDialog.Tint(Loc.T($"New errands in {Clock(all.secondsToReset)}"), Palette.Muted);
+        }
+
+        private static string Clock(long seconds) => seconds >= 3600 ? $"{seconds / 3600}h {seconds % 3600 / 60}m" : $"{Mathf.Max(1, (int)(seconds / 60))}m";
 
         private void PickVisitor(int slot)
         {
@@ -206,7 +287,8 @@ namespace Orsuun.Client
         private void Visit(int index)
         {
             if (_walkingTo >= 0) return;
-            if (index == 3 && !_root.Unlocked(Feature.Pits)) { _message.text = Unlocks.Locked(Feature.Pits); return; }
+            // Bora's Pits open by level, but his errand can be handed in before they do.
+            if (index == 3 && !_root.Unlocked(Feature.Pits) && !Ready(ErrandOf(3))) { _message.text = Unlocks.Locked(Feature.Pits); return; }
             Vector3 to = TownScene.Folk[index];
             Vector3 from = _stage.Walk;
             Vector3 way = to - from;
@@ -221,10 +303,32 @@ namespace Orsuun.Client
             _message.text = FolkNames[index];
         }
 
+        /// <summary>At a townsman: his errand, if done, is handed in first (his thanks and the pay, then his screen).</summary>
         private void Arrive(int index)
         {
             StopWalking();
             _message.text = "Tap someone in the square to go and see them.";
+            if (Ready(ErrandOf(index)) && _root.Server.Online && !_handing)
+            {
+                _handing = true;
+                ErrandsDto pay = _root.Server.Errands;
+                StartCoroutine(_root.Server.HandInErrand(index, error =>
+                {
+                    _handing = false;
+                    if (error != null) { _message.text = error; OpenScreen(index); return; }
+                    GameAudio.Instance?.Play("LaneLoot", 0.9f);
+                    string reward = Loc.T($"+{pay.sorn:N0} sorn") + "  ·  " + Loc.T($"+{pay.materials} materials");
+                    _confirm.Show(Loc.T(FolkNames[index]), "“" + Loc.T(FolkThanks[index]) + "”\n\n" + ConfirmDialog.Tint(reward, Palette.Sorn),
+                        FolkScreens[index], Palette.Safe, () => OpenScreen(index));
+                }));
+                return;
+            }
+            OpenScreen(index);
+        }
+
+        private void OpenScreen(int index)
+        {
+            if (index == 3 && !_root.Unlocked(Feature.Pits)) { _message.text = Unlocks.Locked(Feature.Pits); return; }
             switch (index)
             {
                 case 0: _root.Forge.Open(); break;
@@ -264,6 +368,15 @@ namespace Orsuun.Client
             if (_stage.gameObject.activeSelf == covered) _stage.gameObject.SetActive(!covered);
             if (covered) return;
 
+            // Each townsman's errand mark, and the list while it is open.
+            for (int i = 0; i < 4; i++)
+            {
+                ErrandDto e = ErrandOf(i);
+                _badges[i].text = Ready(e) ? "!" : e != null && e.paid ? "✓" : "";
+                _badges[i].color = Ready(e) ? Palette.Warn : Palette.Safe;
+            }
+            if (_errandsBox.activeSelf && Time.frameCount % 30 == 0) FillErrands();
+
             Banner banner = server.Banner;
             if (banner != _banner)
             {
@@ -279,6 +392,8 @@ namespace Orsuun.Client
             _stage.Show(s.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, weapon != null ? ItemLooks.Tier(weapon.ItemLevel) : 0, skin,
                 armor != null ? UpgradeGlow.ForLevel(armor.UpgradeLevel) : 0f, weapon != null ? UpgradeGlow.ForLevel(weapon.UpgradeLevel) : 0f, s.SecondLook);
 
+            // Screenshots (-errands): TODAY'S ERRANDS.
+            if (_shotErrands && Time.time > 6f && server.Errands != null) { _shotErrands = false; ShowErrands(true); }
             // Screenshots (-townpick): the actions of the first hero standing in the square.
             if (_shotPick && Time.time > 6f)
             {

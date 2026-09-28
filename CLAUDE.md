@@ -238,6 +238,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   first (voxel remesh, keeping the source's own UV charts and texture). Every enemy's settings are in
   `art/blender/mobs/builds.json`; `build_mob.py -- <Name>` rebuilds one. A robed biped takes `robe` (its robe eased off
   the arms and legs, a gliding run) and the `cast` attack: a staff standing on the ground bends if its hand swings.
+- The townsfolk's errands (`Rules.Errands`, 28 Sep 2026) count through `Feat`: every lifetime counter it raises also
+  counts on the hero's errand day (`Account.Errands`, rolled by `Bounties.DayKey`). A new errand needs a `FeatMetric`
+  raised where the deed happens on the server.
 - Achievements (`Rules.Achievements`, since 27 Sep 2026) read lifetime counters (`Account.Feats`, `FeatMetric`: its
   first seven follow `BountyMetric`, so every `Count` also counts a feat; append new metrics, never renumber) and the hero
   as he stands; achievement ids are stored in `FeatsClaimed` and `TitleId`, so never renumber them either. A worn title

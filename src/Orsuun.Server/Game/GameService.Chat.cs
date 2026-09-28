@@ -97,6 +97,7 @@ public sealed partial class GameService
             }
         }
         account.LastChatUtc = now;
+        if (trade) Feat(account, FeatMetric.BazaarCalls, 1);
         _db.ChatMessages.Add(new ChatMessage { Channel = stored, AccountId = account.Id, Name = DisplayName(account), Title = TitleOf(account), Banner = account.Banner, Text = text, ItemId = link, Utc = now });
         await SaveAsync(ct);
         // Old lines go now and then; a week of chat is plenty for a playtest.

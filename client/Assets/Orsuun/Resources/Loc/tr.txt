@@ -2558,3 +2558,25 @@ Linked:	Gösterilen:
 The Bazaar Call opens at level {0}.	Pazar Çağrısı {0}. seviyede açılır.
 You can call the bazaar again in {0} seconds.	Pazara {0} saniye sonra yeniden seslenebilirsin.
 That piece is not yours.	O parça senin değil.
+ERRANDS	GÖREVLER
+TODAY'S ERRANDS	BUGÜNÜN GÖREVLERİ
+paid	ödendi
+go and hand it in	git ve teslim et
+Each pays {0} sorn and {1} materials	Her biri {0} sorn ve {1} malzeme öder
+New errands in {0}	Yeni görevler {0} sonra
+Errands need the server.	Görevler için sunucu gerekir.
+Forge any piece once	Herhangi bir parçayı bir kez güçlendir
+Turn a piece's etchings once	Bir parçanın kazımalarını bir kez çevir
+Call the Bazaar once	Pazara bir kez seslen
+Sell a piece to the merchant	Tüccara bir parça sat
+Eat a fish from the river	Nehirden bir balık ye
+Claim a bounty	Bir ödül al
+Win a fight in the Pits	Çukur'da bir dövüş kazan
+Hunt for ten minutes	On dakika avlan
+Good. The anvil remembers a steady hand.	Güzel. Örs sağlam bir eli unutmaz.
+Coin that moves keeps the steppe alive.	Dolaşan para bozkırı yaşatır.
+Patience feeds the wise. Take this.	Sabır bilgeyi doyurur. Al bunu.
+Well fought. Come back tomorrow.	İyi dövüştün. Yarın yine gel.
+That errand is done for today: a new one comes with the evening bell.	O görev bugünlük tamam: yenisi akşam çanıyla gelir.
+Not done yet: {0}.	Henüz bitmedi: {0}.
+Nobody here gave that errand.	Burada kimse o görevi vermedi.

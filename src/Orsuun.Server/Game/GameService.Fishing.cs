@@ -189,6 +189,7 @@ public sealed partial class GameService
         DateTime?[] meals = MealsOf(account);
         meals[def.Id] = Fishing.MealUntil(def, now, meals[def.Id]);
         SetMeals(account, meals);
+        Feat(account, FeatMetric.FishEaten, 1);
         _db.Ledger.Add(Entry(account.Id, null, "eat", def.Name, 0, request.RequestId));
         await SaveAsync(ct);
         return ToState(account, settlement: settlement);

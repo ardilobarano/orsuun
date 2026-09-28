@@ -14,6 +14,10 @@ public sealed partial class GameService
         if (c[metric] == 0) Mark(account, "first-" + metric);   // the funnel's firsts (GameService.Funnel)
         c.Add(metric, amount);
         account.Feats = c.Serialize();
+        // The townsfolk's errands count the same deeds, a day at a time.
+        ErrandProgress errands = ErrandsOf(account);
+        errands.Add(metric, amount);
+        account.Errands = errands.Serialize();
     }
 
     /// <summary>Raises a hero's best (the highest upgrade a Forge gave).</summary>

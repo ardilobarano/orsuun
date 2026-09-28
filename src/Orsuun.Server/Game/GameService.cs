@@ -527,6 +527,7 @@ public sealed partial class GameService
                 $"slot={state.Slot} rarity={state.Rarity} itemLevel={state.ItemLevel} plus={state.UpgradeLevel}", price, rid));
         }
         account.Sorn += total;
+        Feat(account, FeatMetric.ItemsSold, items.Count);
         await SaveAsync(ct);
         return ToState(account);
     }
@@ -947,7 +948,8 @@ public sealed partial class GameService
             EmailVerified: _login?.EmailVerified ?? false,
             GoalCounts: GoalCountsOf(account),
             River: RiverOf(account),
-            Kin: KinOf(account));
+            Kin: KinOf(account),
+            Errands: ErrandsDtoOf(account));
     }
 
     private static GoalCountsDto GoalCountsOf(Account account)

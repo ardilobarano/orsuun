@@ -2602,3 +2602,25 @@ Linked:	Mostrando:
 The Bazaar Call opens at level {0}.	O Pregão do Bazar abre no nível {0}.
 You can call the bazaar again in {0} seconds.	Você pode anunciar no bazar de novo em {0} segundos.
 That piece is not yours.	Essa peça não é sua.
+ERRANDS	TAREFAS
+TODAY'S ERRANDS	TAREFAS DE HOJE
+paid	paga
+go and hand it in	vá entregar
+Each pays {0} sorn and {1} materials	Cada uma paga {0} sorn e {1} materiais
+New errands in {0}	Novas tarefas em {0}
+Errands need the server.	As tarefas precisam do servidor.
+Forge any piece once	Refine qualquer peça uma vez
+Turn a piece's etchings once	Gire as gravuras de uma peça uma vez
+Call the Bazaar once	Anuncie no bazar uma vez
+Sell a piece to the merchant	Venda uma peça ao mercador
+Eat a fish from the river	Coma um peixe do rio
+Claim a bounty	Resgate uma recompensa
+Win a fight in the Pits	Vença uma luta nas Arenas
+Hunt for ten minutes	Cace por dez minutos
+Good. The anvil remembers a steady hand.	Bom. A bigorna lembra de uma mão firme.
+Coin that moves keeps the steppe alive.	Moeda que circula mantém a estepe viva.
+Patience feeds the wise. Take this.	A paciência alimenta o sábio. Tome isto.
+Well fought. Come back tomorrow.	Boa luta. Volte amanhã.
+That errand is done for today: a new one comes with the evening bell.	Essa tarefa já foi feita hoje: uma nova chega com o sino da noite.
+Not done yet: {0}.	Ainda não foi feita: {0}.
+Nobody here gave that errand.	Ninguém aqui deu essa tarefa.

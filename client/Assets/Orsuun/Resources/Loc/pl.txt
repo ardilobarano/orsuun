@@ -2588,3 +2588,25 @@ Linked:	Pokazano:
 The Bazaar Call opens at level {0}.	Wołanie Bazaru otwiera się na poziomie {0}.
 You can call the bazaar again in {0} seconds.	Możesz znów wołać na bazarze za {0} s.
 That piece is not yours.	Ten przedmiot nie jest twój.
+ERRANDS	ZLECENIA
+TODAY'S ERRANDS	DZISIEJSZE ZLECENIA
+paid	opłacone
+go and hand it in	idź i oddaj
+Each pays {0} sorn and {1} materials	Każde płaci {0} sornu i {1} materiałów
+New errands in {0}	Nowe zlecenia za {0}
+Errands need the server.	Zlecenia wymagają serwera.
+Forge any piece once	Ulepsz dowolny przedmiot raz
+Turn a piece's etchings once	Odwróć raz grawerunki przedmiotu
+Call the Bazaar once	Zawołaj raz na bazarze
+Sell a piece to the merchant	Sprzedaj przedmiot kupcowi
+Eat a fish from the river	Zjedz rybę z rzeki
+Claim a bounty	Odbierz nagrodę za zlecenie
+Win a fight in the Pits	Wygraj walkę na Arenie
+Hunt for ten minutes	Poluj przez dziesięć minut
+Good. The anvil remembers a steady hand.	Dobrze. Kowadło pamięta pewną rękę.
+Coin that moves keeps the steppe alive.	Moneta w ruchu trzyma step przy życiu.
+Patience feeds the wise. Take this.	Cierpliwość karmi mądrych. Weź to.
+Well fought. Come back tomorrow.	Dobra walka. Wróć jutro.
+That errand is done for today: a new one comes with the evening bell.	To zlecenie na dziś wykonane: nowe przyjdzie z wieczornym dzwonem.
+Not done yet: {0}.	Jeszcze nie zrobione: {0}.
+Nobody here gave that errand.	Nikt tu nie dał takiego zlecenia.

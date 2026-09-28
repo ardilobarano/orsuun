@@ -27,6 +27,11 @@ namespace Orsuun.Rules
         SornDonated = 11,
         /// <summary>The highest upgrade a Forge (or the Chained Smith) has ever given this hero's pieces.</summary>
         BestUpgrade = 12,
+        // Since 28 Sep 2026 (the townsfolk's errands, Rules.Errands).
+        FishEaten = 13,
+        BazaarCalls = 14,
+        ItemsSold = 15,
+        PitWins = 16,
     }
 
     /// <summary>What an achievement measures: a lifetime counter, or the hero as it stands.</summary>

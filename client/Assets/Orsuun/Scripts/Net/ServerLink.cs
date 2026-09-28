@@ -1368,6 +1368,18 @@ namespace Orsuun.Client.Net
         /// <summary>The Bannerkin (Rules.Bannerkin): what it wears and what that makes of its casts (from the last state).</summary>
         public KinDto Kin { get; private set; }
 
+        /// <summary>The townsfolk's errands today, from the last state (null before the first).</summary>
+        public ErrandsDto Errands { get; private set; }
+
+        /// <summary>Hands in a townsman's errand (Rules.Errands); the state comes back paid. Completes with an error or null.</summary>
+        public IEnumerator HandInErrand(int giver, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/errand", JsonUtility.ToJson(new ErrandRequest { requestId = NewRequestId(), giver = giver }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
         /// <summary>A Temper attempt past +9 on a piece (Rules.Tempering). Completes with (result, error).</summary>
         public IEnumerator Temper(string itemId, Action<TemperDto, string> done)
         {
@@ -1742,6 +1754,8 @@ namespace Orsuun.Client.Net
                 if (dto.equipped) equipped.Add(item); else inventory.Loot.Add(item);
             }
 
+            if (s.errands?.list != null) Errands = s.errands;
+
             // The Bannerkin's pieces (Rules.Bannerkin): its own, out of the bag; they still go on the anvil by their id.
             var kinWorn = new List<ItemState>();
             if (s.kin != null)
@@ -1898,7 +1912,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; }
+        /// <summary>The townsfolk's errands today (Rules.Errands): each townsman's, its progress, whether paid; and the pay.</summary>
+        [Serializable] public class ErrandDto { public int giver; public int id; public string text; public long progress; public long target; public bool paid; }
+        [Serializable] public class ErrandsDto { public ErrandDto[] list; public long sorn; public int materials; public long secondsToReset; }
+        [Serializable] public class ErrandRequest { public string requestId; public int giver; }
         [Serializable] public class RiverDto { public bool atRiver; public long[] mealSeconds; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }
         [Serializable] public class CastBiteDto { public int biteMs; public int windowMs; }
         [Serializable] public class ReelDto { public StateDto state; public string kind; public int fish = -1; public string message; }
