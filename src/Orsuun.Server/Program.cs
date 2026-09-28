@@ -344,6 +344,7 @@ v1.MapGet("/market/history", (HttpContext ctx, string? kind, int? id, EquipSlot?
     game.PriceHistoryAsync(Me(ctx), kind ?? "piece", id ?? -1, slot, band ?? 0, plus ?? 0, rarity, ct));
 v1.MapPost("/market/list", (HttpContext ctx, MarketListRequest req, GameService game, CancellationToken ct) => game.ListItemAsync(Me(ctx), req, ct));
 v1.MapGet("/rugs", (HttpContext ctx, GameService game, CancellationToken ct) => game.RugsAsync(Me(ctx), ct));
+v1.MapGet("/river/contest", (HttpContext ctx, GameService game, CancellationToken ct) => game.ContestAsync(Me(ctx), ct));
 v1.MapPost("/town", (HttpContext ctx, TownVisitRequest req, GameService game, CancellationToken ct) => game.TownAsync(Me(ctx), req, ct));
 v1.MapGet("/rugs/{seller:guid}", (HttpContext ctx, Guid seller, GameService game, CancellationToken ct) => game.RugAsync(Me(ctx), seller, ct));
 v1.MapPost("/market/buy", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.BuyListingAsync(Me(ctx), req, ct));

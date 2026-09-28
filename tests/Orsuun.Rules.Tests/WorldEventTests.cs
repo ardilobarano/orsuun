@@ -9,7 +9,7 @@ namespace Orsuun.Rules.Tests;
 public class WorldEventTests
 {
     [Fact]
-    public void A_week_holds_a_double_sorn_weekend_two_lucky_hours_and_two_rush_nights()
+    public void A_week_holds_a_double_sorn_weekend_two_lucky_hours_two_rush_nights_and_a_fishing_contest()
     {
         // Mon 28 Sep 2026 00:00 server time: the week to Mon 5 Oct.
         var week = WorldEvents.Weekly(new DateTime(2026, 9, 28), 7);
@@ -21,7 +21,10 @@ public class WorldEventTests
         Assert.All(week.Where(e => e.Kind == WorldEventKind.LuckyForge), e => Assert.Equal(TimeSpan.FromHours(1), e.End - e.Start));
         Assert.Equal(new[] { new DateTime(2026, 10, 2, 20, 0, 0), new DateTime(2026, 10, 3, 20, 0, 0) },
             week.Where(e => e.Kind == WorldEventKind.CommanderRush).Select(e => e.Start));
-        Assert.Equal(5, week.Count);
+        var contest = Assert.Single(week, e => e.Kind == WorldEventKind.FishingContest);
+        Assert.Equal(new DateTime(2026, 10, 3, 12, 0, 0), contest.Start);
+        Assert.Equal(new DateTime(2026, 10, 4, 20, 0, 0), contest.End);
+        Assert.Equal(6, week.Count);
     }
 
     [Fact]

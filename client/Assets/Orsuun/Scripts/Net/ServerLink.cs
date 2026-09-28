@@ -1440,6 +1440,16 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>The catch's end: landed (the bar filled) or not. Completes with (result, error).</summary>
+        /// <summary>The fishing contest's board. Completes with (board, error).</summary>
+        public IEnumerator FetchContest(Action<ContestDto, string> done)
+        {
+            ContestDto result = null;
+            string failure = null;
+            yield return Send("GET", "/v1/river/contest", null, true, json => result = JsonUtility.FromJson<ContestDto>(json),
+                error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         public IEnumerator Land(bool landed, Action<ReelDto, string> done)
         {
             ReelDto result = null;
@@ -1919,7 +1929,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class ErrandRequest { public string requestId; public int giver; }
         [Serializable] public class RiverDto { public bool atRiver; public long[] mealSeconds; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }
         [Serializable] public class CastBiteDto { public int biteMs; public int windowMs; }
-        [Serializable] public class ReelDto { public StateDto state; public string kind; public int fish = -1; public string message; }
+        [Serializable] public class ReelDto { public StateDto state; public string kind; public int fish = -1; public string message; public int grams; }
+        /// <summary>The fishing contest's board (the one running, or the last): times, the hero's best and rank, the top ten.</summary>
+        [Serializable] public class ContestDto { public bool running; public bool any; public long endsInSeconds; public long nextInSeconds; public int myGrams; public int myFish = -1; public int myRank; public ContestRowDto[] top; }
+        [Serializable] public class ContestRowDto { public string name; public string banner; public int fish; public int grams; public bool mine; }
         [Serializable] public class LandRequest { public bool landed; }
         [Serializable] public class OpenMusselsRequest { public string requestId; public int count; }
         [Serializable] public class OpenMusselsDto { public StateDto state; public int opened; public int[] pearls; public string message; }

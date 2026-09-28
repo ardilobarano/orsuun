@@ -159,17 +159,30 @@ public sealed partial class GameService
         account.HookedUtc = null;
         bool landed = request.Landed && elapsed >= Fishing.LandMinMs && elapsed <= Fishing.LandMaxMs;
         string message;
+        int grams = 0;
         if (landed)
         {
             int[] fish = ParseCounts(account.Fish, Fishing.Fish.Length);
             fish[def.Id]++;
             account.Fish = string.Join(';', fish);
-            message = $"You caught a {def.Name}!";
-            if (def.Id == Fishing.Fish.Length - 1) SystemLine(Chat.World, $"{DisplayName(account)} landed a Golden Taimen at Old Nergui's river!");
+            grams = Fishing.Weigh(def, _rng);
+            message = $"You caught a {Fishing.Kilos(grams)} {def.Name}!";
+            if (def.Id == Fishing.Fish.Length - 1) SystemLine(Chat.World, $"{DisplayName(account)} landed a {Fishing.Kilos(grams)} Golden Taimen at Old Nergui's river!");
+            // The fishing contest keeps each hero's heaviest.
+            if (_events.Running(WorldEventKind.FishingContest, DateTime.UtcNow) is EventCalendar.Entry contest)
+            {
+                if (account.ContestStartUtc != contest.StartsUtc) { account.ContestStartUtc = contest.StartsUtc; account.ContestGrams = 0; }
+                if (grams > account.ContestGrams)
+                {
+                    account.ContestGrams = grams;
+                    account.ContestFish = def.Id;
+                    message += " Your heaviest in the contest!";
+                }
+            }
         }
         else message = "It slipped the hook and got away.";
         await SaveAsync(ct);
-        return new ReelDto(ToState(account), landed ? "fish" : "escaped", def.Id, message);
+        return new ReelDto(ToState(account), landed ? "fish" : "escaped", def.Id, message, grams);
     }
 
     /// <summary>Eats a fish: its boost runs for its minutes beside any other fish's (one already running gets its time added,

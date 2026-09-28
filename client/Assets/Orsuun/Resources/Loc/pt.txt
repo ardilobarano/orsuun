@@ -2624,3 +2624,24 @@ Well fought. Come back tomorrow.	Boa luta. Volte amanhã.
 That errand is done for today: a new one comes with the evening bell.	Essa tarefa já foi feita hoje: uma nova chega com o sino da noite.
 Not done yet: {0}.	Ainda não foi feita: {0}.
 Nobody here gave that errand.	Ninguém aqui deu essa tarefa.
+CONTEST	CONCURSO
+FISHING CONTEST	CONCURSO DE PESCA
+Fishing Contest	Concurso de Pesca
+The Fishing Contest	O Concurso de Pesca
+the heaviest fish at Old Nergui's river win prizes	os peixes mais pesados do rio do Velho Nergui ganham prêmios
+The next contest begins in {0}	O próximo concurso começa em {0}
+No contest on the calendar	Nenhum concurso no calendário
+Your heaviest: {0}	Seu mais pesado: {0}
+{0} kg {1}	{0} kg {1}
+Land a fish by hand to get on the board.	Pesque um peixe à mão para entrar no placar.
+The last contest	O último concurso
+Nobody has landed a fish yet.	Ninguém pescou um peixe ainda.
+The winner wears {0} for a week.	O vencedor usa {0} por uma semana.
+Angler of the Week	Pescador da Semana
+Your heaviest in the contest!	Seu mais pesado no concurso!
+{0} landed a {1} at Old Nergui's river!	{0} pescou um {1} no rio do Velho Nergui!
+{0} won the Fishing Contest with a {1}!	{0} venceu o Concurso de Pesca com um {1}!
+Your {0} came in #{1} of the contest.	Seu {0} ficou em #{1} no concurso.
+Here is your share of the prizes.	Aqui está sua parte dos prêmios.
+You wear the title {0} for a week.	Você usa o título {0} por uma semana.
+{0}: {1} sorn + {2} {3}	{0}: {1} sorn + {2} {3}

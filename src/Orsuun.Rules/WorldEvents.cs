@@ -14,6 +14,8 @@ namespace Orsuun.Rules
         LuckyForge = 2,
         /// <summary>Commanders come back every 15 minutes instead of 45.</summary>
         CommanderRush = 3,
+        /// <summary>The heaviest fish landed at Old Nergui's river win prizes (Rules.Fishing, since 28 Sep 2026).</summary>
+        FishingContest = 4,
     }
 
     public sealed class WorldEventDef
@@ -42,7 +44,8 @@ namespace Orsuun.Rules
     /// Weekend events (owner, 27 Sep 2026: "Weekend events", offered as timed world events announced in chat and on the
     /// HUD, set on the server's calendar so none needs an app update). Each week the server's calendar gets a double sorn
     /// weekend (Saturday and Sunday), a lucky forge hour on Saturday and Sunday at 20:00, just before the Evening Bells,
-    /// and a Commander rush on Friday and Saturday nights; moderators add more or call one off. Times are server-local.
+    /// a Commander rush on Friday and Saturday nights, and (since 28 Sep 2026) a fishing contest from Saturday noon to
+    /// Sunday's Evening Bells; moderators add more or call one off. Times are server-local.
     /// </summary>
     public static class WorldEvents
     {
@@ -63,6 +66,9 @@ namespace Orsuun.Rules
                 new[] { DayOfWeek.Saturday, DayOfWeek.Sunday }, 20, 1),
             new WorldEventDef(WorldEventKind.CommanderRush, "Commander Rush", "Commanders return every 15 minutes",
                 new[] { DayOfWeek.Friday, DayOfWeek.Saturday }, 20, 4),
+            // Saturday noon to Sunday's Evening Bells.
+            new WorldEventDef(WorldEventKind.FishingContest, "Fishing Contest", "the heaviest fish at Old Nergui's river win prizes",
+                new[] { DayOfWeek.Saturday }, 12, 32),
         };
 
         public static WorldEventDef? Def(WorldEventKind kind)

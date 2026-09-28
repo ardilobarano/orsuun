@@ -2656,3 +2656,24 @@ Well fought. Come back tomorrow.	Gut gekämpft. Komm morgen wieder.
 That errand is done for today: a new one comes with the evening bell.	Dieser Auftrag ist für heute erledigt: ein neuer kommt mit der Abendglocke.
 Not done yet: {0}.	Noch nicht erledigt: {0}.
 Nobody here gave that errand.	Niemand hier hat diesen Auftrag gegeben.
+CONTEST	WETTBEWERB
+FISHING CONTEST	ANGELWETTBEWERB
+Fishing Contest	Angelwettbewerb
+The Fishing Contest	Der Angelwettbewerb
+the heaviest fish at Old Nergui's river win prizes	die schwersten Fische an Alt-Nerguis Fluss gewinnen Preise
+The next contest begins in {0}	Der nächste Wettbewerb beginnt in {0}
+No contest on the calendar	Kein Wettbewerb im Kalender
+Your heaviest: {0}	Dein schwerster: {0}
+{0} kg {1}	{0} kg {1}
+Land a fish by hand to get on the board.	Lande einen Fisch von Hand, um auf die Tafel zu kommen.
+The last contest	Der letzte Wettbewerb
+Nobody has landed a fish yet.	Noch hat niemand einen Fisch gelandet.
+The winner wears {0} for a week.	Der Sieger trägt eine Woche lang {0}.
+Angler of the Week	Angler der Woche
+Your heaviest in the contest!	Dein schwerster im Wettbewerb!
+{0} landed a {1} at Old Nergui's river!	{0} hat an Alt-Nerguis Fluss einen {1} gefangen!
+{0} won the Fishing Contest with a {1}!	{0} hat den Angelwettbewerb mit einem {1} gewonnen!
+Your {0} came in #{1} of the contest.	Dein {0} wurde im Wettbewerb #{1}.
+Here is your share of the prizes.	Hier ist dein Anteil an den Preisen.
+You wear the title {0} for a week.	Du trägst eine Woche lang den Titel {0}.
+{0}: {1} sorn + {2} {3}	{0}: {1} Sorn + {2} {3}

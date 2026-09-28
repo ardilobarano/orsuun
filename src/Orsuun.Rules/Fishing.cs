@@ -199,5 +199,42 @@ namespace Orsuun.Rules
             if (covered <= 0) return 0;
             return (int)Math.Min(RandomExtensions.FullBp, covered * RandomExtensions.FullBp / (to.Ticks - from.Ticks));
         }
+
+        // ---- Fishing contests (owner, 28 Sep 2026: picked "Fishing contests": "A weekend event: the biggest catches on a
+        // leaderboard, prizes by letter, and a river title for the best angler of the week"). A fish landed by hand is
+        // weighed; during the contest (WorldEventKind.FishingContest) each hero's heaviest stands on its board; when it
+        // ends the first ContestPaid are paid by letter and the heaviest wears AnglerTitle for AnglerDays. The Tireless
+        // Rod's catches are not weighed (the contest is the hand's). Assumptions (not stated by the owner): the weights,
+        // the prizes, ten paid, a week's title.
+
+        /// <summary>Each fish's weight in grams, lightest to heaviest (by fish id).</summary>
+        public static readonly (int Min, int Max)[] Grams = { (800, 4500), (300, 1800), (1500, 9000), (1000, 6000), (5000, 30000) };
+
+        public const int ContestPaid = 10, AnglerDays = 7;
+        public const string AnglerTitle = "Angler of the Week";
+
+        /// <summary>A landed fish's weight: big ones are rare (the square of a draw spreads the range).</summary>
+        public static int Weigh(FishDef fish, IRandom rng)
+        {
+            (int min, int max) = Grams[fish.Id];
+            long u = rng.NextInt(10000);
+            return min + (int)((max - min) * u * u / 100_000_000L);
+        }
+
+        /// <summary>A weight as anglers say it: "3.2 kg".</summary>
+        public static string Kilos(int grams) => (grams / 1000.0).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " kg";
+
+        /// <summary>A contest's prize by rank (1..ContestPaid): sorn by the furthest stage cleared, and pearls.</summary>
+        public static (long Sorn, int PearlGood, int Pearls) ContestPrize(int rank, int highestStageCleared)
+        {
+            long mob = Content.Stage(Math.Max(1, Math.Min(Content.TotalStages, highestStageCleared))).SornPerMob;
+            return rank switch
+            {
+                1 => (mob * 300, TradeGoods.FirstPearl + (int)Pearl.Heart, 1),
+                2 => (mob * 200, TradeGoods.FirstPearl + (int)Pearl.Tide, 2),
+                3 => (mob * 150, TradeGoods.FirstPearl + (int)Pearl.Moon, 3),
+                _ => (mob * 60, TradeGoods.FirstPearl + (int)Pearl.Moon, 1),
+            };
+        }
     }
 }

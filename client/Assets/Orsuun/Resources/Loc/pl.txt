@@ -2610,3 +2610,24 @@ Well fought. Come back tomorrow.	Dobra walka. Wróć jutro.
 That errand is done for today: a new one comes with the evening bell.	To zlecenie na dziś wykonane: nowe przyjdzie z wieczornym dzwonem.
 Not done yet: {0}.	Jeszcze nie zrobione: {0}.
 Nobody here gave that errand.	Nikt tu nie dał takiego zlecenia.
+CONTEST	ZAWODY
+FISHING CONTEST	ZAWODY WĘDKARSKIE
+Fishing Contest	Zawody wędkarskie
+The Fishing Contest	Zawody wędkarskie
+the heaviest fish at Old Nergui's river win prizes	najcięższe ryby z rzeki Starego Nergui wygrywają nagrody
+The next contest begins in {0}	Następne zawody za {0}
+No contest on the calendar	Brak zawodów w kalendarzu
+Your heaviest: {0}	Twoja najcięższa: {0}
+{0} kg {1}	{0} kg {1}
+Land a fish by hand to get on the board.	Złów rybę ręcznie, by trafić na tablicę.
+The last contest	Ostatnie zawody
+Nobody has landed a fish yet.	Nikt jeszcze nie złowił ryby.
+The winner wears {0} for a week.	Zwycięzca nosi tytuł {0} przez tydzień.
+Angler of the Week	Wędkarz Tygodnia
+Your heaviest in the contest!	Twoja najcięższa w zawodach!
+{0} landed a {1} at Old Nergui's river!	{0} złowił(a) {1} w rzece Starego Nergui!
+{0} won the Fishing Contest with a {1}!	{0} wygrał(a) zawody wędkarskie z rybą {1}!
+Your {0} came in #{1} of the contest.	Twoja ryba {0} zajęła #{1} w zawodach.
+Here is your share of the prizes.	Oto twoja część nagród.
+You wear the title {0} for a week.	Przez tydzień nosisz tytuł {0}.
+{0}: {1} sorn + {2} {3}	{0}: {1} sornu + {2} {3}

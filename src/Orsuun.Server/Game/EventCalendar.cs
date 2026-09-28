@@ -32,6 +32,13 @@ public sealed class EventCalendar
         return false;
     }
 
+    /// <summary>The event of a kind running now, or null.</summary>
+    public Entry? Running(WorldEventKind kind, DateTime utc) => _events.FirstOrDefault(e => e.Kind == kind && e.StartsUtc <= utc && utc < e.EndsUtc);
+
+    /// <summary>The next event of a kind to begin after now, and the last one that ended (for the fishing contest's board).</summary>
+    public Entry? Next(WorldEventKind kind, DateTime utc) => _events.Where(e => e.Kind == kind && e.StartsUtc > utc).OrderBy(e => e.StartsUtc).FirstOrDefault();
+    public Entry? Last(WorldEventKind kind, DateTime utc) => _events.Where(e => e.Kind == kind && e.EndsUtc <= utc).OrderByDescending(e => e.EndsUtc).FirstOrDefault();
+
     /// <summary>Extra Forge chance now (a lucky forge hour).</summary>
     public int ForgeLuckBp(DateTime utc) => Active(WorldEventKind.LuckyForge, utc) ? WorldEvents.ForgeLuckBp : 0;
 

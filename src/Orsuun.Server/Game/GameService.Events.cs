@@ -37,6 +37,7 @@ public sealed partial class GameService
             await SaveAsync(ct);
         }
         await _events.ReloadAsync(_db, ct);
+        await SettleContestsAsync(ct);
     }
 
     /// <summary>A time in server-local words, "Monday 00:00" (invariant: the phone translates the day's name).</summary>

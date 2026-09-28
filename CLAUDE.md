@@ -290,6 +290,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   Rod's catches are counted on each heartbeat (`LandAuto`). A fish eaten adds its XP/sorn to hunting in `Apply(hunt:)`
   for the share of the interval it lasted, like a companion (never in the lane's combat, so replays are untouched).
   `RiverPanel` lives off its canvas and shows itself while the server says the hero is at the river.
+- Fishing contests are a weekly world event (`WorldEventKind.FishingContest`): a hero's best is kept on the account
+  keyed by the contest's start (`ContestStartUtc`), so the board is one query; `SettleContestsAsync` (from
+  `TickEventsAsync`) claims an ended contest once through `WorldEvent.Settled` and pays by letter.
 - Invites (`Rules.Invites`): an invited hero reaching level 10 is caught by `CheckInvite` in `Apply` and paid by letter
   in `SaveAsync`; a new place that writes XP directly must call `CheckInvite` too.
 - SETTINGS (`GameSettings`, in Performance.cs): text size scales every `LocText` made by `Ui.Label` (its base size is

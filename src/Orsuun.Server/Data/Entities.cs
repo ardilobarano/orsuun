@@ -183,6 +183,12 @@ public sealed class Account
     [MaxLength(32)] public string Pearls { get; set; } = "";
     public int Mussels { get; set; }
     public bool AtRiver { get; set; }
+    /// <summary>The fishing contest (its start) the hero's best catch below belongs to, that catch, and until when the
+    /// hero wears the Angler of the Week title (the last contest's winner).</summary>
+    public DateTime? ContestStartUtc { get; set; }
+    public int ContestGrams { get; set; }
+    public int ContestFish { get; set; } = -1;
+    public DateTime? AnglerUntilUtc { get; set; }
     /// <summary>When the hero last said it was in the town square (/v1/town), or null once it left.</summary>
     public DateTime? InTownUtc { get; set; }
     public DateTime? CastUtc { get; set; }
@@ -799,6 +805,8 @@ public sealed class WorldEvent
     public bool Weekly { get; set; }
     public bool Cancelled { get; set; }
     public bool Announced { get; set; }
+    /// <summary>A fishing contest that has ended and paid its prizes (claimed once by WorldClock).</summary>
+    public bool Settled { get; set; }
     [MaxLength(40)] public string By { get; set; } = "";
 }
 

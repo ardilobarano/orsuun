@@ -2618,3 +2618,24 @@ Well fought. Come back tomorrow.	Bine luptat. Revino mâine.
 That errand is done for today: a new one comes with the evening bell.	Sarcina asta e gata pe azi: una nouă vine cu clopotul de seară.
 Not done yet: {0}.	Încă nu e gata: {0}.
 Nobody here gave that errand.	Nimeni de aici n-a dat sarcina asta.
+CONTEST	CONCURS
+FISHING CONTEST	CONCURS DE PESCUIT
+Fishing Contest	Concurs de pescuit
+The Fishing Contest	Concursul de pescuit
+the heaviest fish at Old Nergui's river win prizes	cei mai grei pești de la râul Bătrânului Nergui câștigă premii
+The next contest begins in {0}	Următorul concurs începe peste {0}
+No contest on the calendar	Niciun concurs în calendar
+Your heaviest: {0}	Cel mai greu al tău: {0}
+{0} kg {1}	{0} kg {1}
+Land a fish by hand to get on the board.	Prinde un pește cu mâna ca să intri pe tablă.
+The last contest	Ultimul concurs
+Nobody has landed a fish yet.	Nimeni n-a prins încă vreun pește.
+The winner wears {0} for a week.	Câștigătorul poartă {0} timp de o săptămână.
+Angler of the Week	Pescarul Săptămânii
+Your heaviest in the contest!	Cel mai greu al tău în concurs!
+{0} landed a {1} at Old Nergui's river!	{0} a prins un {1} la râul Bătrânului Nergui!
+{0} won the Fishing Contest with a {1}!	{0} a câștigat concursul de pescuit cu un {1}!
+Your {0} came in #{1} of the contest.	{0} al tău a ieșit #{1} în concurs.
+Here is your share of the prizes.	Iată partea ta din premii.
+You wear the title {0} for a week.	Porți titlul {0} timp de o săptămână.
+{0}: {1} sorn + {2} {3}	{0}: {1} sorn + {2} {3}

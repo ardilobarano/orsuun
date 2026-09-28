@@ -31,6 +31,12 @@ namespace Orsuun.Client
         private Image _castImage;
         private RawImage _catchIcon;
         private GameObject _creel, _rodBox;
+        // The fishing contest (Rules.Fishing, WorldEventKind.FishingContest): its board, fetched now and then.
+        private GameObject _contestBox;
+        private Text _contestLabel, _contestStatus, _contestMine, _contestTop, _contestPrizes;
+        private ContestDto _contest;
+        private float _contestAt = -100f;
+        private bool _contestFetching;
         private readonly Text[] _fishLines = new Text[Fishing.Fish.Length];
         private readonly Button[] _eat = new Button[Fishing.Fish.Length];
         private Button _open1, _openAll;
@@ -84,13 +90,16 @@ namespace Orsuun.Client
             _message = Ui.Label("Message", canvas, 0.08f, 0.227f, 0.92f, 0.27f, "", 24, TextAnchor.MiddleCenter, Palette.Parchment);
             _cast = Ui.Button("Cast", canvas, 0.22f, 0.14f, 0.78f, 0.215f, "CAST", 40, Palette.Alloy, Tap, out _castLabel);
             _castImage = _cast.GetComponent<Image>();
-            Ui.Button("Creel", canvas, 0.04f, 0.08f, 0.34f, 0.132f, "CREEL", 24, Palette.ButtonIdle, () => ShowCreel(true), out _);
-            Ui.Button("Rod", canvas, 0.36f, 0.08f, 0.64f, 0.132f, "TIRELESS ROD", 20, Palette.ButtonIdle, () => ShowRod(true), out _);
-            Ui.Button("Bag", canvas, 0.66f, 0.08f, 0.96f, 0.132f, "INVENTORY", 22, Palette.ButtonIdle, () => _root.Gear.Open(), out _);
+            Ui.Button("Creel", canvas, 0.03f, 0.08f, 0.26f, 0.132f, "CREEL", 22, Palette.ButtonIdle, () => ShowCreel(true), out _);
+            Ui.Button("Rod", canvas, 0.27f, 0.08f, 0.5f, 0.132f, "TIRELESS ROD", 17, Palette.ButtonIdle, () => ShowRod(true), out _);
+            Ui.Button("Contest", canvas, 0.51f, 0.08f, 0.73f, 0.132f, "CONTEST", 20, Palette.ButtonIdle, () => ShowContest(true), out _contestLabel);
+            _contestLabel.supportRichText = true;
+            Ui.Button("Bag", canvas, 0.74f, 0.08f, 0.97f, 0.132f, "INVENTORY", 18, Palette.ButtonIdle, () => _root.Gear.Open(), out _);
             Ui.Button("Leave", canvas, 0.2f, 0.015f, 0.8f, 0.07f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Leave, out _);
 
             BuildCreel(canvas);
             BuildRod(canvas);
+            BuildContest(canvas);
             BuildFight(canvas);
             _confirm = new GameObject("RiverConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
@@ -156,6 +165,78 @@ namespace Orsuun.Client
             }
             Ui.Button("Close", box, 0.3f, 0.02f, 0.7f, 0.12f, "CLOSE", 24, Palette.ButtonIdle, () => ShowRod(false), out _);
             _rodBox.SetActive(false);
+        }
+
+        private void BuildContest(Transform canvas)
+        {
+            _contestBox = Ui.Rect("ContestBox", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Transform c = _contestBox.transform;
+            Ui.Panel("Dim", c, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.6f)).gameObject.AddComponent<Button>().onClick.AddListener(() => ShowContest(false));
+            Transform box = Ui.Framed("Box", c, 0.05f, 0.16f, 0.95f, 0.84f, Palette.PanelDark).transform;
+            Ui.Title("Title", box, 0.05f, 0.9f, 0.95f, 0.98f, "FISHING CONTEST", 32, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
+            _contestStatus = Ui.Label("Status", box, 0.05f, 0.83f, 0.95f, 0.89f, "", 21, TextAnchor.MiddleCenter, Palette.Parchment);
+            _contestMine = Ui.Label("Mine", box, 0.05f, 0.76f, 0.95f, 0.83f, "", 22, TextAnchor.MiddleCenter, Palette.Sorn);
+            _contestMine.supportRichText = true;
+            _contestTop = Ui.Label("Top", box, 0.07f, 0.3f, 0.93f, 0.75f, "", 25, TextAnchor.UpperLeft, Palette.Parchment);
+            _contestTop.supportRichText = true;
+            Ui.Raw(_contestTop);
+            _contestPrizes = Ui.Label("Prizes", box, 0.06f, 0.12f, 0.94f, 0.3f, "", 20, TextAnchor.MiddleCenter, Palette.Muted);
+            _contestPrizes.supportRichText = true;
+            Ui.Button("Close", box, 0.3f, 0.02f, 0.7f, 0.1f, "CLOSE", 24, Palette.ButtonIdle, () => ShowContest(false), out _);
+            _contestBox.SetActive(false);
+        }
+
+        private void ShowContest(bool on)
+        {
+            _contestBox.SetActive(on);
+            if (on) { _contestAt = -100f; FillContest(); }
+        }
+
+        private void FetchContest()
+        {
+            if (_contestFetching || !_root.Server.Online) return;
+            _contestFetching = true;
+            _contestAt = Time.time;
+            StartCoroutine(_root.Server.FetchContest((board, error) =>
+            {
+                _contestFetching = false;
+                if (board != null) _contest = board;
+                if (_contestBox.activeSelf) FillContest();
+            }));
+        }
+
+        private void FillContest()
+        {
+            ContestDto b = _contest;
+            PlayerSession s = _root.Session;
+            _contestStatus.text = b == null ? "..." : b.running ? $"Ends in {Clock(b.endsInSeconds)}"
+                : b.nextInSeconds > 0 ? $"The next contest begins in {Clock(b.nextInSeconds)}" : "No contest on the calendar";
+            _contestMine.text = b == null || !b.any ? "" : b.myGrams > 0
+                ? $"Your heaviest: {Fishing.Kilos(b.myGrams)} {Fishing.Fish[Mathf.Clamp(b.myFish, 0, Fishing.Fish.Length - 1)].Name}  ·  #{b.myRank}"
+                : b.running ? "Land a fish by hand to get on the board." : "";
+            var sb = new System.Text.StringBuilder();
+            if (b != null && !b.running && b.any) sb.Append(ConfirmDialog.Tint(Loc.T("The last contest"), Palette.Muted)).Append('\n');
+            if (b?.top != null)
+                for (int i = 0; i < b.top.Length; i++)
+                {
+                    ContestRowDto r = b.top[i];
+                    string fish = Loc.T(Fishing.FishById(r.fish)?.Name ?? "");
+                    string line = $"#{i + 1}  {r.name}  ·  {fish}  {Fishing.Kilos(r.grams)}";
+                    sb.Append(r.mine ? ConfirmDialog.Tint(line, Palette.Safe) : line).Append('\n');
+                }
+            if (b != null && (b.top == null || b.top.Length == 0)) sb.Append(ConfirmDialog.Tint(Loc.T("Nobody has landed a fish yet."), Palette.Muted));
+            _contestTop.text = sb.ToString().TrimEnd();
+            // The prizes by rank, priced for this hero (Rules.Fishing.ContestPrize), and the winner's title.
+            var prizes = new System.Text.StringBuilder();
+            foreach (int rank in new[] { 1, 2, 3, 4 })
+            {
+                (long sorn, int good, int count) = Fishing.ContestPrize(rank, s.HighestStageCleared);
+                string who = rank < 4 ? "#" + rank : $"#4-{Fishing.ContestPaid}";
+                prizes.Append($"{who}: {sorn:N0} sorn + {count} {TradeGoods.Name(good)}").Append(rank < 4 ? "  ·  " : "\n");
+                if (rank == 2) prizes.Append('\n');
+            }
+            prizes.Append(ConfirmDialog.Tint($"The winner wears {Fishing.AnglerTitle} for a week.", Palette.Sorn));
+            _contestPrizes.text = prizes.ToString();
         }
 
         private void BuildFight(Transform canvas)
@@ -257,6 +338,7 @@ namespace Orsuun.Client
                 _message.text = result.message;
                 if (result.kind == "fish")
                 {
+                    _contestAt = -100f;   // the board may have moved
                     Ui.SetIcon(_catchIcon, Fishing.Fish[result.fish].Icon);
                     _catchAt = Time.time;
                     GameAudio.Instance?.Play("LaneLoot", 0.9f);
@@ -309,6 +391,7 @@ namespace Orsuun.Client
             _message.text = "CAST, and REEL when the float goes under.";
             ShowCreel(false);
             ShowRod(false);
+            ShowContest(false);
         }
 
         private void ShowCreel(bool on)
@@ -468,6 +551,7 @@ namespace Orsuun.Client
                 }
                 if (_shot == "creel") ShowCreel(true);
                 else if (_shot == "rod") ShowRod(true);
+                else if (_shot == "contest") ShowContest(true);
                 else if (_shot == "bite") { _phase = Phase.Bite; _phaseAt = Time.time; _missAt = Time.time + 60f; }
                 else if (_shot == "fight") { StartFight(4); _progress = 0.76f; _frozen = true; }
                 _shot = null;
@@ -509,6 +593,8 @@ namespace Orsuun.Client
                 : $"Fish boosts: +{xp}% XP  ·  +{sornBoost}% sorn";
             string rod = server.RodSecondsLeft > 0 ? $"Tireless Rod: {Clock(server.RodSecondsLeft)}" : "No hunting here";
             _status.text = $"{meal}\n<size=20><color=#B8A98A>{rod}</color></size>";
+            if (Time.time - _contestAt > 60f) FetchContest();
+            _contestLabel.text = _contest != null && _contest.running ? ConfirmDialog.Tint("CONTEST", Palette.Warn) : "CONTEST";
             _rodLine.text = server.RodSecondsLeft > 0 ? $"Held: {Clock(server.RodSecondsLeft)} left" : "";
 
             // The float: out on the water while the line is out, under when a fish bites, back to the rod on the strike.

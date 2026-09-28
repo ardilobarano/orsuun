@@ -2580,3 +2580,24 @@ Well fought. Come back tomorrow.	İyi dövüştün. Yarın yine gel.
 That errand is done for today: a new one comes with the evening bell.	O görev bugünlük tamam: yenisi akşam çanıyla gelir.
 Not done yet: {0}.	Henüz bitmedi: {0}.
 Nobody here gave that errand.	Burada kimse o görevi vermedi.
+CONTEST	YARIŞMA
+FISHING CONTEST	BALIK YARIŞMASI
+Fishing Contest	Balık Yarışması
+The Fishing Contest	Balık Yarışması
+the heaviest fish at Old Nergui's river win prizes	Yaşlı Nergui'nin nehrindeki en ağır balıklar ödül kazanır
+The next contest begins in {0}	Sonraki yarışma {0} sonra başlar
+No contest on the calendar	Takvimde yarışma yok
+Your heaviest: {0}	En ağır balığın: {0}
+{0} kg {1}	{0} kg {1}
+Land a fish by hand to get on the board.	Tabloya girmek için elle bir balık tut.
+The last contest	Son yarışma
+Nobody has landed a fish yet.	Henüz kimse balık tutmadı.
+The winner wears {0} for a week.	Kazanan bir hafta boyunca {0} unvanını taşır.
+Angler of the Week	Haftanın Balıkçısı
+Your heaviest in the contest!	Yarışmadaki en ağır balığın!
+{0} landed a {1} at Old Nergui's river!	{0}, Yaşlı Nergui'nin nehrinde {1} yakaladı!
+{0} won the Fishing Contest with a {1}!	{0}, {1} ile Balık Yarışması'nı kazandı!
+Your {0} came in #{1} of the contest.	{0} balığın yarışmada #{1} oldu.
+Here is your share of the prizes.	İşte ödüllerden payın.
+You wear the title {0} for a week.	Bir hafta boyunca {0} unvanını taşıyorsun.
+{0}: {1} sorn + {2} {3}	{0}: {1} sorn + {2} {3}

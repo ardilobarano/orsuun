@@ -304,7 +304,12 @@ public sealed record KinWearRequest(string RequestId, Guid ItemId);
 /// left, and what the rod brought in since the last state (a heartbeat's auto catches).</summary>
 public sealed record RiverDto(bool AtRiver, long[] MealSeconds, long RodSecondsLeft, int[]? AutoFish = null, int AutoMussels = 0);
 public sealed record CastBiteDto(int BiteMs, int WindowMs);
-public sealed record ReelDto(StateDto State, string Kind, int Fish, string Message);
+public sealed record ReelDto(StateDto State, string Kind, int Fish, string Message, int Grams = 0);
+/// <summary>The fishing contest's board: the one running (or the last one, when none runs), when it ends or the next
+/// begins, the hero's best and rank in it, and its top ten.</summary>
+public sealed record ContestDto(bool Running, bool Any, long EndsInSeconds, long NextInSeconds, int MyGrams, int MyFish, int MyRank,
+    ContestRowDto[] Top, string[] Prizes);
+public sealed record ContestRowDto(string Name, Banner Banner, int Fish, int Grams, bool Mine);
 public sealed record LandRequest(bool Landed);
 public sealed record OpenMusselsRequest(string RequestId, int Count);
 public sealed record OpenMusselsDto(StateDto State, int Opened, int[] Pearls, string Message);
