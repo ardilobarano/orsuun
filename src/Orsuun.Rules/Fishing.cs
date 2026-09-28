@@ -14,8 +14,9 @@ namespace Orsuun.Rules
     /// <summary>A fish: its share of the fish caught, and what eating it adds to hunting for a while.</summary>
     public sealed class FishDef
     {
-        public FishDef(int id, string name, string icon, int weight, int xpPercent, int sornPercent, int minutes)
+        public FishDef(int id, string name, string icon, int weight, int xpPercent, int sornPercent, int minutes, int fight)
         {
+            Fight = fight;
             Id = id;
             Name = name;
             Icon = icon;
@@ -32,6 +33,8 @@ namespace Orsuun.Rules
         public int XpPercent { get; }
         public int SornPercent { get; }
         public int Minutes { get; }
+        /// <summary>How hard it fights on the line (0 calm .. 3 wild): faster darts and a quicker drain in the catch.</summary>
+        public int Fight { get; }
 
         public string BoostText =>
             (XpPercent > 0 && SornPercent > 0 ? $"+{XpPercent}% hunting XP and sorn"
@@ -50,7 +53,8 @@ namespace Orsuun.Rules
     /// there is no afk farm there. the auto fishing is buyable with real money. make it a very very mini game that is basic.
     /// different fishes, that gives boost to player when it gets eaten. mussel and pearl is good as well"). The hero goes to
     /// Old Nergui's river from ZONES; the hunt stops there. CAST, wait for the float to go under, REEL in time: a fish or a
-    /// river mussel, else it gets away. A fish eaten adds hunting XP or sorn for a while, each fish on its own clock beside
+    /// river mussel, else it gets away; a fish then has to be landed (keep it in the catch box until the bar fills: the
+    /// rarer, the wilder). A fish eaten adds hunting XP or sorn for a while, each fish on its own clock beside
     /// the others ("the different fishes effects can stay on at the same time"). Nergui opens mussels (GDD: a Moon Pearl 6% of the time, a Tide Pearl 2%, a Heart Pearl 0.5%); a pearl
     /// pays the materials of the +7, +8 or +9 attempt (GDD's table). The Tireless Rod (Amber, held for days) fishes by
     /// itself while the hero stays at the river, one catch every 30 seconds (the GDD's pace), online or away. Assumptions
@@ -62,11 +66,11 @@ namespace Orsuun.Rules
         /// <summary>Stored by id on heroes, listings and letters: append, never renumber.</summary>
         public static readonly FishDef[] Fish =
         {
-            new FishDef(0, "Steppe Carp", "FishCarp", 40, 10, 0, 30),
-            new FishDef(1, "Silver Grayling", "FishGrayling", 30, 0, 10, 30),
-            new FishDef(2, "River Pike", "FishPike", 12, 20, 0, 30),
-            new FishDef(3, "Spotted Lenok", "FishLenok", 12, 0, 20, 30),
-            new FishDef(4, "Golden Taimen", "FishTaimen", 6, 25, 25, 60),
+            new FishDef(0, "Steppe Carp", "FishCarp", 40, 10, 0, 30, fight: 0),
+            new FishDef(1, "Silver Grayling", "FishGrayling", 30, 0, 10, 30, fight: 1),
+            new FishDef(2, "River Pike", "FishPike", 12, 20, 0, 30, fight: 2),
+            new FishDef(3, "Spotted Lenok", "FishLenok", 12, 0, 20, 30, fight: 1),
+            new FishDef(4, "Golden Taimen", "FishTaimen", 6, 25, 25, 60, fight: 3),
         };
 
         public static readonly string[] PearlNames = { "Moon Pearl", "Tide Pearl", "Heart Pearl" };
@@ -83,6 +87,14 @@ namespace Orsuun.Rules
 
         /// <summary>Slack for the phone's round trip: a reel counts from a little before the bite to this long after the window.</summary>
         public const int EarlyMs = 300, LateMs = 1500;
+
+        /// <summary>
+        /// The catch (owner, 28 Sep 2026: "the fish goes up or down randomly, you need to keep the fish inside bar for a
+        /// while to catch the fish"): a hooked fish is landed by keeping it in the catch box until the progress bar fills.
+        /// The client plays it; the server takes a landing only this long after the hook at the soonest (a full bar from
+        /// its start cannot fill faster) and at the latest.
+        /// </summary>
+        public const int LandMinMs = 2000, LandMaxMs = 90000;
 
         /// <summary>The Tireless Rod: one catch every 30 seconds (GDD), and at most this long counted between two visits.</summary>
         public const int AutoSeconds = 30;

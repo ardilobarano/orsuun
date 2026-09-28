@@ -18,7 +18,7 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class RiverPanel : MonoBehaviour
     {
-        private enum Phase { Idle, Waiting, Bite, Reeling }
+        private enum Phase { Idle, Waiting, Bite, Reeling, Fight }
 
         private GameRoot _root;
         private GameObject _canvas;
@@ -35,6 +35,17 @@ namespace Orsuun.Client
         private readonly Button[] _eat = new Button[Fishing.Fish.Length];
         private Button _open1, _openAll;
         private ConfirmDialog _confirm;
+
+        // The catch (owner, 28 Sep 2026: "the fish goes up or down randomly, you need to keep the fish inside bar for a
+        // while to catch the fish"): a tall river channel, the fish darting in it, a catch box lifted by holding anywhere.
+        private GameObject _fight;
+        private RectTransform _play, _box, _fishBox, _progressFill;
+        private RawImage _fishIcon;
+        private Text _fightTitle, _progressText;
+        private int _fightFish = -1;
+        private float _boxY, _boxV, _fishY, _fishTarget, _nextTurn, _progress;
+        private bool _fightOver, _frozen;
+        private const float BoxHeight = 0.24f, FishSize = 0.13f;
 
         private Phase _phase;
         private float _phaseAt, _biteAt, _missAt, _catchAt = -10f;
@@ -80,6 +91,7 @@ namespace Orsuun.Client
 
             BuildCreel(canvas);
             BuildRod(canvas);
+            BuildFight(canvas);
             _confirm = new GameObject("RiverConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
             _canvas.SetActive(false);
@@ -146,6 +158,111 @@ namespace Orsuun.Client
             _rodBox.SetActive(false);
         }
 
+        private void BuildFight(Transform canvas)
+        {
+            _fight = Ui.Rect("Fight", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Transform f = _fight.transform;
+            // Holding anywhere lifts the box: the shade takes every touch, so nothing below is pressed by it.
+            Ui.Panel("Shade", f, 0f, 0f, 1f, 1f, new Color(0.01f, 0.01f, 0.03f, 0.86f));
+            Ui.Framed("TitlePlate", f, 0.12f, 0.885f, 0.88f, 0.94f, Palette.PanelDark).raycastTarget = false;
+            _fightTitle = Ui.Title("FishName", f, 0.14f, 0.888f, 0.86f, 0.937f, "", 34, TextAnchor.MiddleCenter, Palette.Sorn);
+            Ui.Framed("Bottom", f, 0.06f, 0.075f, 0.94f, 0.212f, Palette.PanelDark).raycastTarget = false;
+            RawImage water = Ui.Picture("Channel", f, 0.16f, 0.215f, 0.84f, 0.88f, "Scenes/Channel");
+            var channel = (RectTransform)water.transform.parent;
+            // The fish and the box move in the channel's water, its middle third.
+            _play = Ui.Rect("Play", channel, 0.33f, 0.025f, 0.71f, 0.975f);
+            Image box = Ui.Framed("Box", _play, 0f, 0f, 1f, BoxHeight, new Color(1f, 0.84f, 0.42f, 0.3f));
+            _box = (RectTransform)box.transform;
+            _fishBox = Ui.Rect("FishBox", _play, 0.15f, 0f, 0.85f, FishSize);
+            _fishIcon = Ui.Icon("Fish", _fishBox, 0f, 0f, 1f, 1f, "FishCarp");
+            // The icons swim to the right and a little up: turned to swim up the channel.
+            _fishIcon.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 68f);
+            Ui.Label("ProgressHead", f, 0.1f, 0.168f, 0.6f, 0.2f, "Progress", 23, TextAnchor.MiddleLeft, Palette.Parchment);
+            _progressText = Ui.Label("ProgressValue", f, 0.6f, 0.168f, 0.9f, 0.2f, "", 23, TextAnchor.MiddleRight, Palette.Good);
+            _progressFill = Ui.Bar("Progress", f, 0.1f, 0.13f, 0.9f, 0.162f, new Color(0.3f, 0.78f, 0.3f), out _);
+            Ui.Label("Hint", f, 0.1f, 0.085f, 0.9f, 0.125f, "Hold anywhere to lift the box", 24, TextAnchor.MiddleCenter, Palette.Sorn);
+            _fight.SetActive(false);
+        }
+
+        private void StartFight(int fish)
+        {
+            _fightFish = fish;
+            _fightOver = false;
+            _progress = 0.3f;
+            _boxY = 0f;
+            _boxV = 0f;
+            _fishY = 0.35f;
+            _fishTarget = 0.5f;
+            _nextTurn = Time.time + 0.8f;
+            _phase = Phase.Fight;
+            _phaseAt = Time.time;
+            _fightTitle.text = Fishing.Fish[fish].Name;
+            Ui.SetIcon(_fishIcon, Fishing.Fish[fish].Icon);
+            _fight.SetActive(true);
+        }
+
+        /// <summary>A frame of the catch: the box rises while held and falls when let go, the fish darts toward a new depth
+        /// every second or two (the rarer, the faster and oftener), and the bar fills while the fish is in the box.</summary>
+        private void UpdateFight()
+        {
+            float dt = Mathf.Min(Time.deltaTime, 0.05f);
+            bool hold = Input.GetMouseButton(0) || Input.touchCount > 0 || Input.GetKey(KeyCode.Space);
+            if (_frozen)
+            {
+                // Screenshots (-rivershot fight): the fish held in the box, the bar where it was set.
+                _fishTarget = 0.62f;
+                hold = _boxY + BoxHeight * 0.5f < _fishY;
+                _fightOver = true;
+            }
+            _boxV = Mathf.Clamp(_boxV + (hold ? 2.6f : -2.1f) * dt, -1.3f, 1.3f);
+            _boxY += _boxV * dt;
+            if (_boxY < 0f) { _boxY = 0f; _boxV = _boxV < -0.5f ? -_boxV * 0.3f : 0f; }
+            if (_boxY > 1f - BoxHeight) { _boxY = 1f - BoxHeight; _boxV = Mathf.Min(0f, _boxV); }
+
+            int wild = Fishing.Fish[_fightFish].Fight;
+            if (Time.time >= _nextTurn)
+            {
+                _fishTarget = Random.Range(0.06f, 0.94f);
+                _nextTurn = Time.time + Random.Range(1.1f, 2.2f) / (1f + wild * 0.45f);
+            }
+            _fishY = Mathf.MoveTowards(_fishY, _fishTarget, (0.3f + wild * 0.26f) * dt);
+            float shown = Mathf.Clamp(_fishY + Mathf.Sin(Time.time * (5f + wild * 2f)) * 0.012f, FishSize / 2f, 1f - FishSize / 2f);
+            bool inside = shown >= _boxY && shown <= _boxY + BoxHeight;
+            if (!_fightOver) _progress = Mathf.Clamp01(_progress + (inside ? 0.26f : -(0.12f + wild * 0.04f)) * dt);
+
+            _box.anchorMin = new Vector2(0f, _boxY);
+            _box.anchorMax = new Vector2(1f, _boxY + BoxHeight);
+            _box.GetComponent<Image>().color = inside ? new Color(1f, 0.88f, 0.45f, 0.42f) : new Color(1f, 0.84f, 0.42f, 0.22f);
+            _fishBox.anchorMin = new Vector2(0.15f, shown - FishSize / 2f);
+            _fishBox.anchorMax = new Vector2(0.85f, shown + FishSize / 2f);
+            _progressFill.anchorMax = new Vector2(_progress, 1f);
+            _progressText.text = Mathf.RoundToInt(_progress * 100f) + "%";
+
+            if (!_fightOver && (_progress >= 1f || _progress <= 0f)) EndFight(_progress >= 1f);
+        }
+
+        private void EndFight(bool landed)
+        {
+            _fightOver = true;
+            _busy = true;
+            StartCoroutine(_root.Server.Land(landed, (result, error) =>
+            {
+                _busy = false;
+                _fight.SetActive(false);
+                _phase = Phase.Reeling;
+                _phaseAt = Time.time;
+                _stage.PlayOnce("Attack");
+                if (error != null) { _message.text = error; return; }
+                _message.text = result.message;
+                if (result.kind == "fish")
+                {
+                    Ui.SetIcon(_catchIcon, Fishing.Fish[result.fish].Icon);
+                    _catchAt = Time.time;
+                    GameAudio.Instance?.Play("LaneLoot", 0.9f);
+                }
+            }));
+        }
+
         /// <summary>From ZONES: goes to the river (the hunt stops there).</summary>
         public void Go()
         {
@@ -193,7 +310,7 @@ namespace Orsuun.Client
         /// <summary>The one big button: CAST, or REEL once the line is out.</summary>
         private void Tap()
         {
-            if (_busy) return;
+            if (_busy || _phase == Phase.Fight) return;
             if (_phase == Phase.Idle || _phase == Phase.Reeling) Cast();
             else Reel();
         }
@@ -215,24 +332,32 @@ namespace Orsuun.Client
             }));
         }
 
+        /// <summary>REEL: hooks what bit (a fish then has to be landed in the catch; a mussel comes straight up).</summary>
         private void Reel()
         {
             _busy = true;
-            _phase = Phase.Reeling;
-            _phaseAt = Time.time;
+            bool bitten = _phase == Phase.Bite;
             _stage.PlayOnce("Attack");
             StartCoroutine(_root.Server.Reel((reel, error) =>
             {
                 _busy = false;
-                if (error != null) { _message.text = error; return; }
+                if (error != null) { _message.text = error; _phase = Phase.Idle; return; }
                 _message.text = reel.message;
-                if (reel.kind == "fish" || reel.kind == "mussel")
+                if (reel.kind == "fight" && reel.fish >= 0)
                 {
-                    Ui.SetIcon(_catchIcon, reel.kind == "fish" ? Fishing.Fish[reel.fish].Icon : "Mussel");
+                    StartFight(reel.fish);
+                    return;
+                }
+                _phase = Phase.Reeling;
+                _phaseAt = Time.time;
+                if (reel.kind == "mussel")
+                {
+                    Ui.SetIcon(_catchIcon, "Mussel");
                     _catchAt = Time.time;
                     GameAudio.Instance?.Play("LaneLoot", 0.9f);
                 }
             }));
+            if (!bitten) { _phase = Phase.Reeling; _phaseAt = Time.time; }
         }
 
         private void Eat(int fish)
@@ -330,6 +455,7 @@ namespace Orsuun.Client
                 if (_shot == "creel") ShowCreel(true);
                 else if (_shot == "rod") ShowRod(true);
                 else if (_shot == "bite") { _phase = Phase.Bite; _phaseAt = Time.time; _missAt = Time.time + 60f; }
+                else if (_shot == "fight") { StartFight(4); _progress = 0.76f; _frozen = true; }
                 _shot = null;
             }
             Net.ServerLink server = _root.Server;
@@ -380,6 +506,7 @@ namespace Orsuun.Client
                 _phase = Phase.Bite;
                 _place.Ripple(rest, second: true);
             }
+            if (_phase == Phase.Fight && _fight.activeSelf) UpdateFight();
             if (_phase == Phase.Bite && t >= _missAt)
             {
                 _phase = Phase.Idle;
@@ -398,7 +525,9 @@ namespace Orsuun.Client
                     }
                     break;
                 case Phase.Bite:
-                    at = rest + Vector3.up * (-0.05f * h + Mathf.Sin(t * 28f) * 0.012f * h);
+                case Phase.Fight:
+                    at = rest + Vector3.up * (-0.05f * h + Mathf.Sin(t * 28f) * 0.012f * h)
+                         + (_phase == Phase.Fight ? new Vector3(Mathf.Sin(t * 3.1f), 0f, Mathf.Cos(t * 2.3f)) * (0.12f * h) : Vector3.zero);
                     break;
                 case Phase.Reeling:
                     float back = Mathf.Clamp01((t - _phaseAt) / 0.4f);
@@ -410,7 +539,7 @@ namespace Orsuun.Client
             bool bite = _phase == Phase.Bite;
             _mark.gameObject.SetActive(bite);
             if (bite) _mark.rectTransform.position = _stage.ScreenOf(rest) + new Vector3(0f, Screen.height * 0.06f, 0f);
-            _castLabel.text = _phase == Phase.Bite ? "REEL!" : _phase == Phase.Waiting ? "REEL" : "CAST";
+            _castLabel.text = _phase == Phase.Bite || _phase == Phase.Fight ? "REEL!" : _phase == Phase.Waiting ? "REEL" : "CAST";
             _castImage.color = _phase == Phase.Bite ? Palette.ButtonForge : _phase == Phase.Waiting ? Palette.ButtonIdle : Palette.Alloy;
 
             // A catch rises from the water and fades.

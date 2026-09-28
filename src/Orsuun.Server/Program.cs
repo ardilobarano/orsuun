@@ -325,6 +325,7 @@ v1.MapPost("/river/go", (HttpContext ctx, GameService game, CancellationToken ct
 v1.MapPost("/river/leave", (HttpContext ctx, GameService game, CancellationToken ct) => game.LeaveRiverAsync(Me(ctx), ct));
 v1.MapPost("/river/cast", (HttpContext ctx, GameService game, CancellationToken ct) => game.CastAsync(Me(ctx), ct));
 v1.MapPost("/river/reel", (HttpContext ctx, GameService game, CancellationToken ct) => game.ReelAsync(Me(ctx), ct));
+v1.MapPost("/river/land", (HttpContext ctx, LandRequest req, GameService game, CancellationToken ct) => game.LandAsync(Me(ctx), req, ct));
 v1.MapPost("/river/eat", (HttpContext ctx, EatRequest req, GameService game, CancellationToken ct) => game.EatAsync(Me(ctx), req, ct));
 v1.MapPost("/river/open", (HttpContext ctx, OpenMusselsRequest req, GameService game, CancellationToken ct) => game.OpenMusselsAsync(Me(ctx), req, ct));
 v1.MapPost("/caravan/rod", (HttpContext ctx, AutoRodRequest req, GameService game, CancellationToken ct) => game.BuyAutoRodAsync(Me(ctx), req, ct));

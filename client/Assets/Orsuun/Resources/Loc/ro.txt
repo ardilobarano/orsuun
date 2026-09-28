@@ -2468,3 +2468,9 @@ FEWER draws each skill without the extra layers of its grade.	MAI PUȚINE desene
 +{0}% sorn	+{0}% sorn
 Fish boosts: +{0}% XP	Sporuri de la pește: +{0}% XP
 +{0}% XP	+{0}% XP
+# The catch (28 Sep 2026)
+Hold anywhere to lift the box	Ține apăsat oriunde ca să ridici cutia
+Progress	Progres
+A {0} is on the line! Keep it in the box.	Un {0} e în cârlig! Ține-l în cutie.
+It slipped the hook and got away.	A scăpat din cârlig și a fugit.
+Nothing is on the line.	Nu e nimic în cârlig.

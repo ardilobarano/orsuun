@@ -181,6 +181,9 @@ public sealed class Account
     public bool AtRiver { get; set; }
     public DateTime? CastUtc { get; set; }
     public int CastBiteMs { get; set; }
+    /// <summary>A fish on the line (Fishing.Fish id, -1 none) and when it was hooked: landed by /v1/river/land.</summary>
+    public int HookedFish { get; set; } = -1;
+    public DateTime? HookedUtc { get; set; }
     /// <summary>Each fish's boost, until when (Unix seconds by fish id, ';'-joined; 0 none): they run side by side.</summary>
     [MaxLength(96)] public string Meals { get; set; } = "";
     public DateTime? AutoRodUntilUtc { get; set; }

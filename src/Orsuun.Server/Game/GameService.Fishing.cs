@@ -112,12 +112,15 @@ public sealed partial class GameService
         return new CastBiteDto(account.CastBiteMs, Fishing.WindowMs);
     }
 
-    /// <summary>A reel: in time it lands a fish or a mussel; too soon or too late the fish gets away.</summary>
+    /// <summary>A reel: in time it hooks a fish (landed by LandAsync, after the catch) or brings up a mussel; too soon or too
+    /// late the fish gets away.</summary>
     public async Task<ReelDto> ReelAsync(Account account, CancellationToken ct)
     {
         if (account.CastUtc is not DateTime cast) throw new GameException("no_cast", "Cast first.");
         long elapsed = (long)(DateTime.UtcNow - cast).TotalMilliseconds;
         account.CastUtc = null;
+        account.HookedFish = -1;
+        account.HookedUtc = null;
         string kind = "escaped", message;
         int fishId = -1;
         if (elapsed < account.CastBiteMs - Fishing.EarlyMs) message = "Too soon: nothing had bitten yet.";
@@ -133,17 +136,40 @@ public sealed partial class GameService
             }
             else
             {
-                int[] fish = ParseCounts(account.Fish, Fishing.Fish.Length);
-                fish[id]++;
-                account.Fish = string.Join(';', fish);
-                kind = "fish";
+                // On the line: the catch decides it (LandAsync).
+                account.HookedFish = id;
+                account.HookedUtc = DateTime.UtcNow;
+                kind = "fight";
                 fishId = id;
-                message = $"You caught a {Fishing.Fish[id].Name}!";
-                if (id == Fishing.Fish.Length - 1) SystemLine(Chat.World, $"{DisplayName(account)} landed a Golden Taimen at Old Nergui's river!");
+                message = $"A {Fishing.Fish[id].Name} is on the line! Keep it in the box.";
             }
         }
         await SaveAsync(ct);
         return new ReelDto(ToState(account), kind, fishId, message);
+    }
+
+    /// <summary>The catch's end: a fish kept in the box until the bar filled is landed (no sooner than a full bar can fill,
+    /// no later than Fishing.LandMaxMs after the hook); else it gets away.</summary>
+    public async Task<ReelDto> LandAsync(Account account, LandRequest request, CancellationToken ct)
+    {
+        if (account.HookedUtc is not DateTime hooked || Fishing.FishById(account.HookedFish) is not FishDef def)
+            throw new GameException("no_fish_on", "Nothing is on the line.");
+        long elapsed = (long)(DateTime.UtcNow - hooked).TotalMilliseconds;
+        account.HookedFish = -1;
+        account.HookedUtc = null;
+        bool landed = request.Landed && elapsed >= Fishing.LandMinMs && elapsed <= Fishing.LandMaxMs;
+        string message;
+        if (landed)
+        {
+            int[] fish = ParseCounts(account.Fish, Fishing.Fish.Length);
+            fish[def.Id]++;
+            account.Fish = string.Join(';', fish);
+            message = $"You caught a {def.Name}!";
+            if (def.Id == Fishing.Fish.Length - 1) SystemLine(Chat.World, $"{DisplayName(account)} landed a Golden Taimen at Old Nergui's river!");
+        }
+        else message = "It slipped the hook and got away.";
+        await SaveAsync(ct);
+        return new ReelDto(ToState(account), landed ? "fish" : "escaped", def.Id, message);
     }
 
     /// <summary>Eats a fish: its boost runs for its minutes beside any other fish's (one already running gets its time added,

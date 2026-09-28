@@ -2506,3 +2506,9 @@ FEWER draws each skill without the extra layers of its grade.	WENIGER zeichnet j
 +{0}% sorn	+{0}% Sorn
 Fish boosts: +{0}% XP	Fischboni: +{0}% EP
 +{0}% XP	+{0}% EP
+# The catch (28 Sep 2026)
+Hold anywhere to lift the box	Halte irgendwo gedrückt, um den Kasten zu heben
+Progress	Fortschritt
+A {0} is on the line! Keep it in the box.	Ein {0} hängt an der Leine! Halte ihn im Kasten.
+It slipped the hook and got away.	Er hat sich vom Haken gelöst und ist entkommen.
+Nothing is on the line.	Nichts hängt an der Leine.

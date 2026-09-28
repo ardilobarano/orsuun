@@ -2460,3 +2460,9 @@ FEWER draws each skill without the extra layers of its grade.	MNIEJ rysuje każd
 +{0}% sorn	+{0}% sornu
 Fish boosts: +{0}% XP	Premie z ryb: +{0}% PD
 +{0}% XP	+{0}% PD
+# The catch (28 Sep 2026)
+Hold anywhere to lift the box	Przytrzymaj gdziekolwiek, by unieść ramkę
+Progress	Postęp
+A {0} is on the line! Keep it in the box.	Na haczyku: {0}! Trzymaj go w ramce.
+It slipped the hook and got away.	Zerwała się z haczyka i uciekła.
+Nothing is on the line.	Nic nie ma na haczyku.

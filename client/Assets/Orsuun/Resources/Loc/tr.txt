@@ -2430,3 +2430,9 @@ FEWER draws each skill without the extra layers of its grade.	DAHA AZ, her yeten
 +{0}% sorn	+%{0} sorn
 Fish boosts: +{0}% XP	Balık güçlendirmeleri: +%{0} TP
 +{0}% XP	+%{0} TP
+# The catch (28 Sep 2026)
+Hold anywhere to lift the box	Kutuyu kaldırmak için herhangi bir yere basılı tut
+Progress	İlerleme
+A {0} is on the line! Keep it in the box.	Oltada bir {0} var! Onu kutunun içinde tut.
+It slipped the hook and got away.	Kancadan kurtulup kaçtı.
+Nothing is on the line.	Oltada bir şey yok.

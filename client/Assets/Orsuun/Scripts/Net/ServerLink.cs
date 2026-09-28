@@ -1390,6 +1390,19 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        /// <summary>The catch's end: landed (the bar filled) or not. Completes with (result, error).</summary>
+        public IEnumerator Land(bool landed, Action<ReelDto, string> done)
+        {
+            ReelDto result = null;
+            string failure = null;
+            yield return Post("/v1/river/land", JsonUtility.ToJson(new LandRequest { landed = landed }), true, json =>
+            {
+                result = JsonUtility.FromJson<ReelDto>(json);
+                if (result.state != null) Apply(result.state);
+            }, error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         public IEnumerator Eat(int fish, Action<string> done)
         {
             string failure = null;
@@ -1805,6 +1818,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class RiverDto { public bool atRiver; public long[] mealSeconds; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }
         [Serializable] public class CastBiteDto { public int biteMs; public int windowMs; }
         [Serializable] public class ReelDto { public StateDto state; public string kind; public int fish = -1; public string message; }
+        [Serializable] public class LandRequest { public bool landed; }
         [Serializable] public class OpenMusselsRequest { public string requestId; public int count; }
         [Serializable] public class OpenMusselsDto { public StateDto state; public int opened; public int[] pearls; public string message; }
         [Serializable] public class EatRequest { public string requestId; public int fish; }

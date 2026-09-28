@@ -284,6 +284,7 @@ public sealed record StateDto(
 public sealed record RiverDto(bool AtRiver, long[] MealSeconds, long RodSecondsLeft, int[]? AutoFish = null, int AutoMussels = 0);
 public sealed record CastBiteDto(int BiteMs, int WindowMs);
 public sealed record ReelDto(StateDto State, string Kind, int Fish, string Message);
+public sealed record LandRequest(bool Landed);
 public sealed record OpenMusselsRequest(string RequestId, int Count);
 public sealed record OpenMusselsDto(StateDto State, int Opened, int[] Pearls, string Message);
 public sealed record EatRequest(string RequestId, int Fish);
