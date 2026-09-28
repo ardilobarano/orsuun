@@ -15,7 +15,7 @@ namespace Orsuun.Client.EditorTools
     /// </summary>
     public sealed class SceneArtImport : AssetPostprocessor
     {
-        public override uint GetVersion() => 4;
+        public override uint GetVersion() => 5;
 
         /// <summary>The map music (Content/Music, downloaded, 27 Sep 2026): the long themes stream from their bundle (only the
         /// one playing and the one fading are read); the short stings load whole. Vorbis for both.</summary>
@@ -50,6 +50,13 @@ namespace Orsuun.Client.EditorTools
         {
             string path = assetPath.Replace('\\', '/');
             var importer = (TextureImporter)assetImporter;
+            if (path.Contains("/Content/Scenery/Models/"))
+            {
+                // The hunt's 3D props stand small beside the road: 512 is plenty.
+                importer.maxTextureSize = 512;
+                Phones(importer, TextureImporterFormat.ASTC_6x6, 512);
+                return;
+            }
             if (path.Contains("/Content/Models/"))
             {
                 // Enemies stand small on a phone's lane: 512 is plenty; heroes, shown large on their stages, keep 1024.

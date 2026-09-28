@@ -15,7 +15,7 @@ namespace Orsuun.Client
     public sealed class LaneScenery : MonoBehaviour
     {
 #pragma warning disable CS0649   // filled by JsonUtility
-        [Serializable] private sealed class Rect { public float u0, u1, v0, v1, aspect, height; public bool low; }
+        [Serializable] private sealed class Rect { public float u0, u1, v0, v1, aspect, height; public bool low; public string model; }
         [Serializable] private sealed class Sets { public Rect[] steppe, mountain, desert, forest, ruins; }
 #pragma warning restore CS0649
 
@@ -24,9 +24,14 @@ namespace Orsuun.Client
             public Transform T;
             public MeshRenderer R;
             public bool Near;
+            // A prop with a 3D model (Content/Scenery/Models) stands as that instead of its card.
+            public GameObject Model;
+            public string ModelName;
         }
 
         private const int FarProps = 8, NearProps = 3;
+        /// <summary>The models' painted side faces this way (degrees about y): toward the lane's camera.</summary>
+        private const float ModelYaw = 180f;
         private const float LeftEdge = -11f, Span = 24f, Speed = 6f;
         private static readonly int BaseMapSt = Shader.PropertyToID("_BaseMap_ST");
 
@@ -101,10 +106,47 @@ namespace Orsuun.Client
             float z = p.Near ? -2.2f - (float)_rng.NextDouble() * 0.9f : 2.6f + (float)_rng.NextDouble() * 2.2f;
             p.T.localPosition = new Vector3(x, 0f, z);
             p.T.localScale = new Vector3(width * (_rng.Next(2) == 0 ? 1f : -1f), height, 1f);
+            bool model = ShowModel(p, r.model, new Vector3(x, 0f, z), height);
+            p.R.enabled = !model;
+            if (model) return;
             p.R.sharedMaterial = _material;
             p.R.GetPropertyBlock(_block);
             _block.SetVector(BaseMapSt, new Vector4(r.u1 - r.u0, r.v1 - r.v0, r.u0, r.v0));
             p.R.SetPropertyBlock(_block);
+        }
+
+        /// <summary>Stands a prop's 3D model where its card would stand (turned toward the camera, a little each way), or
+        /// hides the prop's model when it has none (or its art is missing).</summary>
+        private bool ShowModel(Prop p, string name, Vector3 at, float height)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                if (p.Model != null) p.Model.SetActive(false);
+                return false;
+            }
+            if (p.ModelName != name)
+            {
+                if (p.Model != null) Destroy(p.Model);
+                p.Model = null;
+                p.ModelName = name;
+                var prefab = Art.Load<GameObject>("Scenery/Models/" + name);
+                if (prefab == null) return false;
+                p.Model = Instantiate(prefab, transform);
+                p.Model.name = name;
+                var material = Art.Load<Material>("Scenery/Models/" + name);
+                foreach (Renderer r in p.Model.GetComponentsInChildren<Renderer>())
+                {
+                    if (material != null) r.sharedMaterial = material;
+                    r.shadowCastingMode = ShadowCastingMode.Off;
+                    r.receiveShadows = false;
+                }
+            }
+            if (p.Model == null) return false;
+            p.Model.SetActive(true);
+            p.Model.transform.localPosition = at;
+            p.Model.transform.localRotation = Quaternion.Euler(0f, ModelYaw + (float)(_rng.NextDouble() - 0.5) * 60f, 0f);
+            p.Model.transform.localScale = Vector3.one * height;
+            return true;
         }
 
         /// <summary>A frame of the lane: while the hero runs the props pass at the floor's speed.</summary>
@@ -116,7 +158,11 @@ namespace Orsuun.Client
                 Vector3 at = p.T.localPosition;
                 at.x -= Speed * dt;
                 if (at.x < LeftEdge) Place(p, at.x + Span + (float)(_rng.NextDouble() - 0.5) * 1.5f);
-                else p.T.localPosition = at;
+                else
+                {
+                    p.T.localPosition = at;
+                    if (p.Model != null && p.Model.activeSelf) p.Model.transform.localPosition = new Vector3(at.x, 0f, at.z);
+                }
             }
         }
 

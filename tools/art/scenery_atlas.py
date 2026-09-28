@@ -18,6 +18,8 @@ HEIGHT = {'steppe': [1.0, 1.4, 3.2, 0.9, 2.2, 1.2], 'mountain': [3.0, 1.6, 1.0, 
           'desert': [1.2, 1.0, 0.9, 2.6, 2.4, 1.1], 'forest': [3.6, 3.4, 0.8, 1.1, 2.4, 1.4],
           'ruins': [3.0, 2.6, 2.0, 0.6, 3.0, 1.5]}
 LOW = {'steppe': [0, 1, 3, 5], 'mountain': [1, 2, 4], 'desert': [0, 1, 2, 5], 'forest': [2, 3, 5], 'ruins': [3]}
+# Props that stand as 3D models (Content/Scenery/Models, art/blender/scenery_props.py) instead of their painted card.
+MODELS = {'steppe': {2: 'SteppeBirch', 3: 'SteppeBoulder', 4: 'SteppeStone', 5: 'SteppeCairn'}}
 S = 4  # the pieces are found on a quarter-size alpha
 
 
@@ -80,7 +82,8 @@ def cut(name):
         x0, y0 = k * 256 + (256 - art.width) // 2, 512 - art.height - 2
         atlas.alpha_composite(art, (x0, y0))
         rects.append({'u0': x0 / 2048, 'u1': (x0 + art.width) / 2048, 'v0': 2 / 512, 'v1': (2 + art.height) / 512,
-                      'aspect': round(art.height / art.width, 3), 'height': HEIGHT[name][k], 'low': k in LOW[name]})
+                      'aspect': round(art.height / art.width, 3), 'height': HEIGHT[name][k], 'low': k in LOW[name],
+                      'model': MODELS.get(name, {}).get(k, '')})
     atlas.save(os.path.join(OUT, name.capitalize() + '.png'))
     return rects
 

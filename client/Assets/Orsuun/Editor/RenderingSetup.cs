@@ -402,6 +402,22 @@ namespace Orsuun.Client.EditorTools
                 mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                 EditorUtility.SetDirty(mat);
             }
+            // The 3D props (art/blender/scenery_props.py): a Lit material on each model's base colour.
+            string models = dir + "Models/";
+            if (!Directory.Exists(models)) return;
+            foreach (string file in Directory.GetFiles(models, "*BaseColor.png"))
+            {
+                string name = Path.GetFileNameWithoutExtension(file).Replace("BaseColor", "");
+                string matPath = models + name + ".mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+                if (mat == null) { mat = new Material(lit); AssetDatabase.CreateAsset(mat, matPath); }
+                mat.shader = lit;
+                mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(models + Path.GetFileName(file)));
+                mat.SetColor("_BaseColor", Color.white);
+                mat.SetFloat("_Smoothness", 0.08f);
+                mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
+                EditorUtility.SetDirty(mat);
+            }
         }
 
         /// <summary>
