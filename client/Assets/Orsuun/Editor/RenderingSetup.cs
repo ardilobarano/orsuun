@@ -281,7 +281,7 @@ namespace Orsuun.Client.EditorTools
                 string path = dir + Path.GetFileName(wav);
                 if (!(AssetImporter.GetAtPath(path) is AudioImporter importer)) continue;
                 bool music = Path.GetFileName(wav).StartsWith("Music");
-                bool loop = System.Array.IndexOf(new[] { "RiverWater.wav", "RiverBirds.wav", "RiverFire.wav" }, Path.GetFileName(wav)) >= 0;
+                bool loop = System.Array.IndexOf(new[] { "RiverWater.wav", "RiverBirds.wav", "RiverFire.wav", "TownMarket.wav" }, Path.GetFileName(wav)) >= 0;
                 AudioImporterSampleSettings want = importer.defaultSampleSettings;
                 want.loadType = music ? AudioClipLoadType.Streaming : loop ? AudioClipLoadType.CompressedInMemory : AudioClipLoadType.DecompressOnLoad;
                 want.compressionFormat = music || loop ? AudioCompressionFormat.Vorbis : AudioCompressionFormat.ADPCM;

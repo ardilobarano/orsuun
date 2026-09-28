@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Orsuun.Rules.Combat;
 
 namespace Orsuun.Client
 {
@@ -17,8 +18,10 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class TownScene : MonoBehaviour
     {
+#pragma warning disable CS0649   // filled by JsonUtility
         [Serializable] private sealed class Rect { public float u0, u1, v0, v1, aspect, height; }
         [Serializable] private sealed class Rects { public Rect[] folk, props; }
+#pragma warning restore CS0649
 
         /// <summary>Where the square's camera stands and looks (from the hero's spot).</summary>
         public static readonly Vector3 CameraFrom = new Vector3(0f, 6.4f, -14.5f), CameraTo = new Vector3(0f, 0.4f, 9f);
@@ -37,6 +40,25 @@ namespace Orsuun.Client
             new Vector3(-2.15f, 0f, 3.3f), new Vector3(2.15f, 0f, 3.3f),
         };
         public const float RugLength = 1.9f, RugWidth = 1.25f;
+
+        /// <summary>Where other heroes in town stand (up to six), each turned toward the middle of the square.</summary>
+        public static readonly Vector3[] HeroSpots =
+        {
+            new Vector3(-0.6f, 0f, 11.6f), new Vector3(2.9f, 0f, 12.2f), new Vector3(-3.3f, 0f, 12.6f),
+            new Vector3(-1.2f, 0f, 3.8f), new Vector3(1.7f, 0f, 3.4f), new Vector3(4.0f, 0f, 10.6f),
+        };
+
+        /// <summary>A hero standing on one of the spots: who, the look it was built for, and its figure.</summary>
+        private sealed class Visitor
+        {
+            public string Key;
+            public Transform Spot, Shade;
+            public HeroFigure Figure;
+            public float Top = 2f;
+        }
+
+        private readonly Visitor[] _visitors = new Visitor[6];
+        private MaterialPropertyBlock _glowBlock;
 
         private static readonly int BaseMapSt = Shader.PropertyToID("_BaseMap_ST");
         private Vector3 _at;
@@ -217,6 +239,55 @@ namespace Orsuun.Client
             go.transform.localPosition = at + Vector3.up * 0.02f;
             go.transform.localScale = new Vector3(size * 1.3f, 1f, size * 0.8f);
             return go.transform;
+        }
+
+        /// <summary>Stands a hero on a spot (rebuilt only when the look changes), or clears the spot (cls null).</summary>
+        public void SetVisitor(int slot, HeroClass? cls, int armorBand = 0, int weaponBand = 0, string skin = null, bool secondLook = false,
+            float armorGlow = 0f, float weaponGlow = 0f)
+        {
+            if (slot < 0 || slot >= _visitors.Length) return;
+            Visitor v = _visitors[slot] ??= NewVisitor(slot);
+            string key = cls == null ? null : cls + "/" + armorBand + "/" + weaponBand + "/" + skin + "/" + secondLook;
+            if (key != v.Key)
+            {
+                v.Key = key;
+                if (v.Figure != null) Destroy(v.Figure.Root);
+                v.Figure = null;
+                if (cls != null)
+                {
+                    v.Figure = HeroFigure.Build(v.Spot, cls.Value, armorBand, weaponBand, string.IsNullOrEmpty(skin) ? null : skin, secondLook, name: "Visitor" + slot);
+                    Bounds b = v.Figure.Stand(v.Spot.position);
+                    // The head, not a glaive's tip standing above it.
+                    v.Top = Mathf.Min(b.max.y - v.Spot.position.y, 2.05f);
+                    v.Figure.Idle(always: false);
+                }
+            }
+            if (v.Shade != null) v.Shade.gameObject.SetActive(cls != null);
+            if (v.Figure != null)
+            {
+                _glowBlock ??= new MaterialPropertyBlock();
+                HeroFigure.Glow(v.Figure.Pieces, _glowBlock, armorGlow, weaponGlow);
+            }
+        }
+
+        /// <summary>A standing hero's feet and the top of its head (world), or null for an empty spot.</summary>
+        public (Vector3 feet, Vector3 head)? VisitorAt(int slot)
+        {
+            Visitor v = slot >= 0 && slot < _visitors.Length ? _visitors[slot] : null;
+            if (v?.Figure == null) return null;
+            return (v.Spot.position, v.Spot.position + Vector3.up * v.Top);
+        }
+
+        private Visitor NewVisitor(int slot)
+        {
+            var spot = new GameObject("Spot" + slot).transform;
+            spot.SetParent(_root, false);
+            Vector3 at = HeroSpots[slot];
+            spot.localPosition = at;
+            // Turned toward the middle of the square, each a little his own way.
+            Vector3 toward = new Vector3(0f, 0f, 6f) - at;
+            spot.localRotation = Quaternion.Euler(0f, Mathf.Atan2(toward.x, toward.z) * Mathf.Rad2Deg + (slot % 2 == 0 ? -18f : 14f), 0f);
+            return new Visitor { Spot = spot, Shade = Shade(at, 0.85f) };
         }
 
         /// <summary>The hero's shade follows him across the square (his place off the spot).</summary>

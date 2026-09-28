@@ -302,6 +302,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   hero walks there by `HeroStage.Walk`/`Facing`. The hunt goes on in town (only the river stops it). Its art is
   `Content/Town` (`tools/art/town_atlas.py`, `RenderingSetup.EnsureTown`); the townsfolk and props are painted cards
   (Unlit, keeping their painted light) placed in `TownScene`, and the hit boxes and plates in `TownPanel` follow them.
+  Heroes in town (`Account.InTownUtc`, `/v1/town`) stand as `HeroFigure`s, the same builder `HeroStage` uses: draw a hero
+  anywhere through it, so looks, skins, second looks and the glow stay alike everywhere.
 - The Bannerkin (`Rules.Bannerkin`): her pieces are items with `Kin`; the ones she wears have `KinWorn` (out of the bag,
   never `Equipped`), so hero queries on `Equipped` stay the hero's. SQL bag counts add `!i.KinWorn`; a broken piece goes
   through `BreakPiece`. Her stats reach combat only as `HeroStats.Kin` from `FromEquipment(..., kin:)` on both sides.

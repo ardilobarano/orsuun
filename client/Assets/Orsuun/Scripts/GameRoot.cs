@@ -537,6 +537,8 @@ namespace Orsuun.Client
             _musicCheck -= Time.unscaledDeltaTime;
             if (_musicCheck > 0f) return;
             _musicCheck = 0.5f;
+            // The town square has its own theme (the map's until it has downloaded); the lane's bosses go unheard there.
+            if (Town.IsOpen) { GameAudio.Instance.Music("MusicTown", MapMusic(Lane.BackdropKeyNow)); return; }
             LaneSim lane = ActiveLane;
             bool boss = lane.IsBossEncounter && lane.Phase == LanePhase.Fighting;
             if (boss && !_bossOnLane) GameAudio.Instance.Play("StingBoss", 0.9f, 0f, 0f);

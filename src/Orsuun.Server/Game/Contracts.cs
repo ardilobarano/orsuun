@@ -449,6 +449,12 @@ public sealed record LeaderboardDto(string Board, string Period, LeaderRowDto[] 
 public sealed record InviteDto(string Code, int Invited, int Rewarded, int MaxInvited, int RewardLevel, long Sorn, int Scrolls, string InvitedBy,
     bool MineRewarded, bool CanEnter, string Message);
 public sealed record InviteRequest(string Code);
+/// <summary>A hero standing in the town square: what the square draws (bands come from the item levels) and names.</summary>
+public sealed record TownHeroDto(Guid Id, string Name, string Title, HeroClass Class, Figure Figure, int Level, Banner Banner, string Skin,
+    int ArmorLevel, int ArmorPlus, int WeaponLevel, int WeaponPlus);
+public sealed record TownDto(TownHeroDto[] Heroes);
+/// <summary>"I am in town" (every so often while the square shows), or Leaving when it closes.</summary>
+public sealed record TownVisitRequest(bool Leaving = false);
 public sealed record InspectDto(Guid Id, string Name, string Title, HeroClass Class, Figure Figure, int Level, Banner Banner, string GuildName, string GuildTag,
     int HighestStage, int PitRating, int PitWins, string Skin, ItemDto[] Worn, bool Banned);
 /// <summary>A phone's push token ("ios": APNs, "android": Firebase), sent after the player allows notifications.</summary>

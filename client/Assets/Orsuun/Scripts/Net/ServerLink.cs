@@ -1490,6 +1490,16 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>Another hero as anyone may see them (INSPECT). Completes with (hero, error).</summary>
+        /// <summary>The town square: says the hero is there (or, leaving, that it has gone) and completes with who else is.</summary>
+        public IEnumerator TownVisit(bool leaving, Action<TownDto, string> done)
+        {
+            TownDto result = null;
+            string failure = null;
+            yield return Post("/v1/town", JsonUtility.ToJson(new TownVisitRequest { leaving = leaving }), true,
+                json => result = JsonUtility.FromJson<TownDto>(json), error => failure = error);
+            done?.Invoke(result, failure);
+        }
+
         public IEnumerator Inspect(string heroId, Action<InspectDto, string> done)
         {
             InspectDto result = null;
@@ -1999,6 +2009,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class PushTokenRequest { public string platform; public string token; }
         [Serializable] public class LeaderRowDto { public int rank; public string id; public string name; public string title; public string @class; public int level; public string banner; public long value; public string tag; }
         [Serializable] public class LeaderboardDto { public string board; public string period; public LeaderRowDto[] rows; public LeaderRowDto mine; public string note; }
+        /// <summary>A hero standing in the town square (the square draws the bands from the item levels).</summary>
+        [Serializable] public class TownHeroDto { public string id; public string name; public string title; public string @class; public string figure; public int level; public string banner; public string skin;
+            public int armorLevel; public int armorPlus; public int weaponLevel; public int weaponPlus; }
+        [Serializable] public class TownDto { public TownHeroDto[] heroes; }
+        [Serializable] public class TownVisitRequest { public bool leaving; }
         [Serializable] public class InspectDto { public string id; public string name; public string title; public string @class; public string figure; public int level; public string banner;
             public string guildName; public string guildTag; public int highestStage; public int pitRating; public int pitWins; public string skin; public ItemDto[] worn; public bool banned; }
         [Serializable] public class AmberPurchaseRequest { public string store; public string productId; public string receipt; }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Orsuun.Rules;
+using Orsuun.Rules.Combat;
 using UnityEngine;
 using UnityEngine.UI;
 using static Orsuun.Client.Net.ServerLink;
@@ -13,12 +14,15 @@ namespace Orsuun.Client
     /// the Forge, Ilke of the Scales the Caravan, Elder Tamir the skills, Pitmaster Bora the Pits (from their level). The
     /// newest rugs lie along the aisle, the hero's own first; a rug's tag opens it on RUG STALLS. The hunt goes on while
     /// the hero is in town (only the river stops it); BACK TO THE HUNT leaves. ZONES has the way in.
+    /// Town life (owner, 28 Sep 2026: picked "Town life"): up to six other heroes who are in town now stand about the
+    /// square in their own looks, a name over each; tap one to INSPECT, WHISPER, TRADE or ADD FRIEND. The square has its
+    /// own theme and a market's murmur.
     /// </summary>
     public sealed class TownPanel : MonoBehaviour
     {
         private static readonly string[] FolkNames = { "Forgemaster Dorun", "Ilke of the Scales", "Elder Tamir", "Pitmaster Bora" };
         private static readonly string[] FolkRoles = { "The Forge", "The Caravan", "Skills", "The Pits" };
-        private const float WalkSpeed = 4.2f, StopShort = 1.35f, RugsEvery = 60f;
+        private const float WalkSpeed = 4.2f, StopShort = 1.35f, RugsEvery = 60f, VisitEvery = 20f;
 
         private GameRoot _root;
         private GameObject _canvas;
@@ -39,6 +43,17 @@ namespace Orsuun.Client
         private float _walkStart, _walkTime;
         private Banner _banner = (Banner)(-1);
         private int _shotWalk = -1, _shotVisit = -1;
+        private bool _shotPick = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-townpick") >= 0;
+        // Town life: who stands on each spot, their name tags, and the actions box for the one tapped.
+        private readonly TownHeroDto[] _visitors = new TownHeroDto[TownScene.HeroSpots.Length];
+        private readonly RectTransform[] _visitorTags = new RectTransform[TownScene.HeroSpots.Length];
+        private readonly RectTransform[] _visitorHits = new RectTransform[TownScene.HeroSpots.Length];
+        private readonly Text[] _visitorNames = new Text[TownScene.HeroSpots.Length];
+        private float _visitAt = -100f;
+        private bool _visiting;
+        private GameObject _actions;
+        private Text _actionsTitle;
+        private TownHeroDto _picked;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -60,6 +75,24 @@ namespace Orsuun.Client
             Ui.Framed("TitleBack", canvas, 0.14f, 0.925f, 0.86f, 0.985f, new Color(0.05f, 0.04f, 0.04f, 0.72f)).raycastTarget = false;
             _title = Ui.Title("Title", canvas, 0.15f, 0.93f, 0.85f, 0.98f, "", 40, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Raw(_title);
+
+            // Visitors' names first, so the townsfolk's plates draw over them where they meet.
+            for (int i = 0; i < _visitorTags.Length; i++)
+            {
+                int index = i;
+                // An invisible button over the hero's figure, under the townsfolk's own.
+                Image hit = Ui.Panel("VisitorHit" + i, canvas, 0f, 0f, 0.1f, 0.1f, new Color(0f, 0f, 0f, 0f));
+                hit.gameObject.AddComponent<Button>().onClick.AddListener(() => PickVisitor(index));
+                _visitorHits[i] = hit.rectTransform;
+                hit.gameObject.SetActive(false);
+                Image tag = Ui.Framed("Visitor" + i, canvas, 0f, 0f, 0.1f, 0.1f, new Color(0.05f, 0.05f, 0.08f, 0.72f));
+                tag.gameObject.AddComponent<Button>().onClick.AddListener(() => PickVisitor(index));
+                _visitorTags[i] = tag.rectTransform;
+                _visitorNames[i] = Ui.Label("Name", tag.transform, 0.04f, 0.04f, 0.96f, 0.96f, "", 15, TextAnchor.MiddleCenter, Palette.Parchment);
+                Ui.Raw(_visitorNames[i]);
+                _visitorNames[i].supportRichText = true;
+                tag.gameObject.SetActive(false);
+            }
 
             for (int i = 0; i < 4; i++)
             {
@@ -90,12 +123,52 @@ namespace Orsuun.Client
             _message = Ui.Label("Message", canvas, 0.08f, 0.092f, 0.92f, 0.133f, "", 21, TextAnchor.MiddleCenter, Palette.Parchment);
             Ui.Button("Rugs", canvas, 0.04f, 0.015f, 0.36f, 0.075f, "RUG STALLS", 22, Palette.ButtonForge, () => _root.Rugs.Open(), out _);
             Ui.Button("Leave", canvas, 0.38f, 0.015f, 0.96f, 0.075f, "BACK TO THE HUNT", 28, Palette.ButtonIdle, Close, out _);
+            BuildActions(canvas);
             _canvas.SetActive(false);
+        }
+
+        private void BuildActions(Transform canvas)
+        {
+            _actions = Ui.Rect("Actions", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Image dim = Ui.Panel("Dim", _actions.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.55f));
+            dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _actions.SetActive(false));
+            Transform box = Ui.Framed("Box", _actions.transform, 0.12f, 0.36f, 0.88f, 0.64f, Palette.PanelDark).transform;
+            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.8f, 0.95f, 0.97f, "", 28, TextAnchor.MiddleCenter, Palette.Sorn);
+            Ui.Raw(_actionsTitle);
+            Ui.Button("Inspect", box, 0.06f, 0.54f, 0.48f, 0.76f, "INSPECT", 22, Palette.Alloy, () => Act(h => _root.Inspect.Open(h.id)), out _);
+            Ui.Button("Whisper", box, 0.52f, 0.54f, 0.94f, 0.76f, "WHISPER", 22, Palette.Safe, () => Act(h => _root.Messages.OpenWith(h.id, h.name)), out _);
+            Ui.Button("Trade", box, 0.06f, 0.29f, 0.48f, 0.51f, "TRADE", 22, Palette.Alloy, () => Act(h =>
+                StartCoroutine(_root.Server.TradeInvite(null, error =>
+                {
+                    if (error != null) _message.text = error;
+                    else _root.Trade.Open();
+                }, h.id))), out _);
+            Ui.Button("Friend", box, 0.52f, 0.29f, 0.94f, 0.51f, "ADD FRIEND", 20, Palette.Safe, () => Act(h =>
+                StartCoroutine(_root.Server.AddFriend(h.id, null, (message, error) => _message.text = error ?? message))), out _);
+            Ui.Button("Close", box, 0.3f, 0.04f, 0.7f, 0.24f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
+            _actions.SetActive(false);
+        }
+
+        private void PickVisitor(int slot)
+        {
+            TownHeroDto hero = _visitors[slot];
+            if (hero == null) return;
+            _picked = hero;
+            _actionsTitle.text = hero.name;
+            _actions.SetActive(true);
+        }
+
+        private void Act(System.Action<TownHeroDto> act)
+        {
+            _actions.SetActive(false);
+            if (_picked != null) act(_picked);
         }
 
         public void Open()
         {
             _canvas.SetActive(true);
+            _actions.SetActive(false);
+            _visitAt = -100f;
             _stage.gameObject.SetActive(true);
             _place.Show();
             StopWalking();
@@ -110,6 +183,9 @@ namespace Orsuun.Client
 
         public void Close()
         {
+            // Out of town: the others stop seeing this hero in their squares.
+            if (_canvas.activeSelf && _root.Server.Online) StartCoroutine(_root.Server.TownVisit(true, null));
+            GameAudio.Instance?.Ambience("TownMarket", 0f);
             _canvas.SetActive(false);
             _stage.Show(null, 0, 0, null);
             _stage.gameObject.SetActive(false);
@@ -171,8 +247,20 @@ namespace Orsuun.Client
             // The river takes the hero out of town (another device may send him there); so does a change of hero.
             if (server.AtRiver || server.WaitingForHero) { Close(); return; }
             // A screen opened from the square covers it: the square's camera rests meanwhile.
+            // Still in town under another screen: say so now and then, and learn who else is here.
+            if (server.Online && !_visiting && Time.time - _visitAt > VisitEvery)
+            {
+                _visiting = true;
+                _visitAt = Time.time;
+                StartCoroutine(server.TownVisit(false, (town, error) =>
+                {
+                    _visiting = false;
+                    if (town != null && _canvas.activeSelf) Receive(town.heroes ?? new TownHeroDto[0]);
+                }));
+            }
             bool covered = _root.Forge.IsOpen || _root.Caravan.IsOpen || _root.Skills.IsOpen || _root.Pits.IsOpen || _root.Rugs.IsOpen
-                           || _root.Gear.IsOpen || _root.Menu.IsOpen;
+                           || _root.Gear.IsOpen || _root.Menu.IsOpen || _root.Inspect.IsOpen || _root.Messages.IsOpen || _root.Trade.IsOpen;
+            GameAudio.Instance?.Ambience("TownMarket", covered ? 0f : 0.35f);
             if (_stage.gameObject.activeSelf == covered) _stage.gameObject.SetActive(!covered);
             if (covered) return;
 
@@ -191,6 +279,12 @@ namespace Orsuun.Client
             _stage.Show(s.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, weapon != null ? ItemLooks.Tier(weapon.ItemLevel) : 0, skin,
                 armor != null ? UpgradeGlow.ForLevel(armor.UpgradeLevel) : 0f, weapon != null ? UpgradeGlow.ForLevel(weapon.UpgradeLevel) : 0f, s.SecondLook);
 
+            // Screenshots (-townpick): the actions of the first hero standing in the square.
+            if (_shotPick && Time.time > 6f)
+            {
+                int first = System.Array.FindIndex(_visitors, v => v != null);
+                if (first >= 0) { _shotPick = false; PickVisitor(first); }
+            }
             // Screenshots (-townvisit n): a whole visit, the walk and then the screen.
             if (_shotVisit >= 0 && Time.time > 4f)
             {
@@ -224,6 +318,32 @@ namespace Orsuun.Client
                 }));
             }
             PlaceLabels();
+        }
+
+        /// <summary>Who is in town now: those already standing keep their spots; newcomers take the free ones.</summary>
+        private void Receive(TownHeroDto[] heroes)
+        {
+            var here = new HashSet<string>();
+            foreach (TownHeroDto h in heroes) here.Add(h.id);
+            for (int i = 0; i < _visitors.Length; i++)
+                if (_visitors[i] != null && !here.Contains(_visitors[i].id)) _visitors[i] = null;
+            foreach (TownHeroDto h in heroes)
+            {
+                int at = System.Array.FindIndex(_visitors, v => v != null && v.id == h.id);
+                if (at < 0) at = System.Array.IndexOf(_visitors, null);
+                if (at < 0) break;
+                _visitors[at] = h;
+            }
+            for (int i = 0; i < _visitors.Length; i++)
+            {
+                TownHeroDto h = _visitors[i];
+                if (h == null || !System.Enum.TryParse(h.@class, out HeroClass cls)) { _place.SetVisitor(i, null); continue; }
+                Figure figure = System.Enum.TryParse(h.figure, out Figure f) ? f : ItemLooks.NativeFigure(cls);
+                _place.SetVisitor(i, cls, ItemLooks.Tier(h.armorLevel), ItemLooks.Tier(h.weaponLevel), h.skin, ItemLooks.SecondLook(cls, figure),
+                    UpgradeGlow.ForLevel(h.armorPlus), UpgradeGlow.ForLevel(h.weaponPlus));
+                string title = string.IsNullOrEmpty(h.title) ? "" : ConfirmDialog.Tint("‹" + Loc.T(h.title) + "›", new Color(1f, 0.84f, 0.42f)) + "\n";
+                _visitorNames[i].text = title + h.name + ConfirmDialog.Tint("  " + Loc.T($"Lv {h.level}"), Palette.Muted);
+            }
         }
 
         /// <summary>The newest rugs on the square's spots, the hero's own first.</summary>
@@ -263,6 +383,19 @@ namespace Orsuun.Client
                 SetScreenRect(_hits[i], bottom.x - halfWidth, bottom.y, bottom.x + halfWidth, top.y);
                 float plateW = Screen.width * 0.2f, plateH = Screen.height * 0.04f;
                 SetScreenRect(_plates[i], top.x - plateW / 2f, top.y + Screen.height * 0.004f, top.x + plateW / 2f, top.y + Screen.height * 0.004f + plateH);
+            }
+            for (int i = 0; i < _visitorTags.Length; i++)
+            {
+                bool has = _place.VisitorAt(i) is (Vector3, Vector3);
+                if (_visitorTags[i].gameObject.activeSelf != has) _visitorTags[i].gameObject.SetActive(has);
+                if (_visitorHits[i].gameObject.activeSelf != has) _visitorHits[i].gameObject.SetActive(has);
+                if (!has) continue;
+                (Vector3 feet, Vector3 head) = _place.VisitorAt(i).Value;
+                Vector3 top = _stage.ScreenOf(head + Vector3.up * 0.12f), bottom = _stage.ScreenOf(feet);
+                float half = Mathf.Max(Mathf.Abs(_stage.ScreenOf(feet + Vector3.right * 0.4f).x - bottom.x), Screen.width * 0.03f);
+                SetScreenRect(_visitorHits[i], bottom.x - half, bottom.y, bottom.x + half, top.y);
+                float w = Screen.width * 0.21f, h = Screen.height * (string.IsNullOrEmpty(_visitors[i]?.title) ? 0.024f : 0.04f);
+                SetScreenRect(_visitorTags[i], top.x - w / 2f, top.y, top.x + w / 2f, top.y + h);
             }
             for (int i = 0; i < _tags.Length; i++)
             {

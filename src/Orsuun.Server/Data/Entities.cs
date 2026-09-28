@@ -181,6 +181,8 @@ public sealed class Account
     [MaxLength(32)] public string Pearls { get; set; } = "";
     public int Mussels { get; set; }
     public bool AtRiver { get; set; }
+    /// <summary>When the hero last said it was in the town square (/v1/town), or null once it left.</summary>
+    public DateTime? InTownUtc { get; set; }
     public DateTime? CastUtc { get; set; }
     public int CastBiteMs { get; set; }
     /// <summary>A fish on the line (Fishing.Fish id, -1 none) and when it was hooked: landed by /v1/river/land.</summary>

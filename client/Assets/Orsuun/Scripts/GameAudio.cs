@@ -38,6 +38,7 @@ namespace Orsuun.Client
             {
                 ["MusicMap02"] = (-1.3f, 0f), ["MusicMap04"] = (2.7f, 0f), ["MusicMap05"] = (1.1f, 0f), ["MusicMap06"] = (-0.8f, 0f),
                 ["MusicMap07"] = (-2.6f, 0f), ["MusicMap08"] = (0.4f, 4f), ["MusicMap10"] = (2.9f, 0f), ["MusicMap11"] = (-2.6f, 0f),
+                ["MusicTown"] = (-2.0f, 0f),
             };
 
         private static float Gain(AudioClip clip) => clip != null && Tracks.TryGetValue(clip.name, out var t) ? Mathf.Pow(10f, t.db / 20f) : 1f;

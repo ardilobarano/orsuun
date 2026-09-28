@@ -14,8 +14,10 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class LaneScenery : MonoBehaviour
     {
+#pragma warning disable CS0649   // filled by JsonUtility
         [Serializable] private sealed class Rect { public float u0, u1, v0, v1, aspect, height; public bool low; }
         [Serializable] private sealed class Sets { public Rect[] steppe, mountain, desert, forest, ruins; }
+#pragma warning restore CS0649
 
         private sealed class Prop
         {

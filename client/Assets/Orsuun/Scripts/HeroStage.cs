@@ -18,7 +18,6 @@ namespace Orsuun.Client
     {
         /// <summary>Where a stage stands, far below the lane; each screen with a stage gives its own spot.</summary>
         public static readonly Vector3 Below = new Vector3(0f, -800f, 0f);
-        private static readonly Vector3 VanguardBuild = new Vector3(1.1f, 1.03f, 1.1f);
         private const float Fov = 24f;
         private const float Aspect = 0.8f;
 
@@ -257,47 +256,11 @@ namespace Orsuun.Client
             _pieces.Clear();
             _armorGlow = _weaponGlow = -1f;
             if (_model != null) Destroy(_model);
-            _model = new GameObject("StageHero");
-            _model.transform.SetParent(_pivot, false);
-            var renderers = new List<Renderer>();
-            Animation anim = null;
-            // A second look wears its own cut of a costume; one not drawn yet shows its armour for the band.
-            string skin = LaneView.SkinModel(cls, skinLook, secondLook);
-
-            if (cls == HeroClass.Vanguard)
-            {
-                _model.transform.localScale = VanguardBuild;
-                string armorUsed = null;
-                GameObject armorPrefab = skin == null && secondLook ? LaneView.LoadLook(LaneView.AltName("Armor_T" + armorBand), out armorUsed) : null;
-                if (armorPrefab == null) armorPrefab = LaneView.LoadLook(skin ?? "Armor_T" + armorBand, out armorUsed);
-                GameObject weaponPrefab = LaneView.LoadLook("Weapon_T" + weaponBand, out string weaponUsed);
-                if (armorPrefab == null) return;
-                GameObject armor = Instantiate(armorPrefab, _model.transform);
-                Dress(armor, "Looks/" + armorUsed, renderers);
-                // A skin's costume is no armour look: it does not glow.
-                if (skin == null) foreach (Renderer r in armor.GetComponentsInChildren<Renderer>()) _pieces.Add((r, false));
-                anim = armor.GetComponent<Animation>();
-                if (weaponPrefab != null && !_rodInHand)
-                {
-                    GameObject weapon = Instantiate(weaponPrefab, _model.transform);
-                    Dress(weapon, "Looks/" + weaponUsed, renderers);
-                    foreach (Renderer r in weapon.GetComponentsInChildren<Renderer>()) _pieces.Add((r, true));
-                    // As the lane lays it: a glaive along this armour's pole, a sword rising from its fist.
-                    LaneView.LayWeapon(weapon, armor.transform, _model.transform, anim != null, LaneView.KindOfLook(weaponUsed));
-                }
-            }
-            else
-            {
-                string name = skin ?? LaneView.ClassLookName(cls, armorBand, secondLook);
-                var prefab = name == null ? null : Art.Load<GameObject>("Models/Classes/" + name);
-                if (prefab == null) return;
-                GameObject body = Instantiate(prefab, _model.transform);
-                Dress(body, "Looks/" + name, renderers);
-                if (skin == null)
-                    foreach (Renderer r in body.GetComponentsInChildren<Renderer>())
-                        if (LaneView.SlotOf(r.name) is int slot && slot >= 0) _pieces.Add((r, slot == (int)EquipSlot.Weapon));
-                anim = body.GetComponent<Animation>();
-            }
+            HeroFigure figure = HeroFigure.Build(_pivot, cls, armorBand, weaponBand, skinLook, secondLook, weapon: !_rodInHand);
+            _model = figure.Root;
+            List<Renderer> renderers = figure.Renderers;
+            _pieces.AddRange(figure.Pieces);
+            Animation anim = figure.Anim;
             _anim = anim;
             if (_rodInHand) TakeRod(renderers);
             if (anim != null && anim.GetClip("Idle") != null)
@@ -307,10 +270,7 @@ namespace Orsuun.Client
             }
 
             // Feet on the stage floor, centred; the camera frames the whole figure.
-            Vector3 spot = _pivot.position;
-            Bounds b = Measure(renderers, spot);
-            _model.transform.position += new Vector3(spot.x - b.center.x, spot.y - b.min.y, spot.z - b.center.z);
-            b = Measure(renderers, spot);
+            Bounds b = figure.Stand(_pivot.position);
             float half = Mathf.Tan(Fov * 0.5f * Mathf.Deg2Rad);
             _centreY = b.extents.y;
             _height = Mathf.Max(0.5f, b.size.y);
@@ -421,25 +381,7 @@ namespace Orsuun.Client
             _armorGlow = armorGlow;
             _weaponGlow = weaponGlow;
             if (_block == null) _block = new MaterialPropertyBlock();
-            foreach ((Renderer r, bool weapon) in _pieces)
-            {
-                if (r == null) continue;
-                float glow = weapon ? weaponGlow : armorGlow;
-                r.GetPropertyBlock(_block);
-                _block.SetFloat(UpgradeGlow.GlowId, glow);
-                r.SetPropertyBlock(_block);
-                if (glow > 0f || r.GetComponentInChildren<GearSparkle>() != null) GearSparkle.On(r, weapon).Set(glow);
-            }
-        }
-
-        private static void Dress(GameObject part, string material, List<Renderer> renderers)
-        {
-            var shared = Art.Load<Material>(material);
-            foreach (Renderer r in part.GetComponentsInChildren<Renderer>())
-            {
-                if (shared != null) r.sharedMaterial = shared;
-                renderers.Add(r);
-            }
+            HeroFigure.Glow(_pieces, _block, armorGlow, weaponGlow);
         }
 
         private static Transform FindDeep(Transform parent, string name)
@@ -451,28 +393,6 @@ namespace Orsuun.Client
                 if (found != null) return found;
             }
             return null;
-        }
-
-        /// <summary>World bounds of the meshes at the bind pose (a skinned renderer's own bounds cover its skeleton).</summary>
-        private static Bounds Measure(List<Renderer> renderers, Vector3 stage)
-        {
-            bool first = true;
-            Bounds b = default;
-            foreach (Renderer r in renderers)
-            {
-                Mesh mesh = r is SkinnedMeshRenderer skinned ? skinned.sharedMesh : r.GetComponent<MeshFilter>()?.sharedMesh;
-                if (mesh == null) continue;
-                Bounds local = mesh.bounds;
-                for (int corner = 0; corner < 8; corner++)
-                {
-                    Vector3 p = local.center + Vector3.Scale(local.extents,
-                        new Vector3((corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f));
-                    Vector3 world = r.transform.TransformPoint(p);
-                    if (first) { b = new Bounds(world, Vector3.zero); first = false; }
-                    else b.Encapsulate(world);
-                }
-            }
-            return first ? new Bounds(stage + Vector3.up, Vector3.one * 2f) : b;
         }
 
         private void OnDestroy()

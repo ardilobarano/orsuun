@@ -1,7 +1,8 @@
-"""The river's sounds (ElevenLabs Sound Effects v2, flow "Orsuun river sounds", 28 Sep 2026): docs/concept/sounds/*.mp3
+"""The river's and the town's sounds (ElevenLabs Sound Effects v2, flow "Orsuun river sounds", 28 Sep 2026): docs/concept/sounds/*.mp3
 decoded with macOS afconvert, the chosen takes trimmed and levelled into client/Assets/Orsuun/Resources/Audio as mono
 16-bit WAVs: RiverWater, RiverBirds, RiverFire (seamless loops, levelled to about -30 dBFS with a soft limit on the
-peaks), RiverReel (a loop while a fish is fought), RiverCast, RiverSplash (the float landing) and RiverPlop (a bite).
+peaks), RiverReel (a loop while a fish is fought), RiverCast, RiverSplash (the float landing), RiverPlop (a bite) and
+TownMarket (the town square's murmur, a loop). The town's theme is music (Content/Music/MusicTown.mp3, copied as made).
 Run with /usr/bin/python3 (numpy)."""
 import os
 import subprocess
@@ -23,6 +24,7 @@ SOUNDS = {
     'RiverCast': ('cast-a', False, 0.1, 0.62, -1),
     'RiverSplash': ('splash-a', False, 0, 0.55, -2),
     'RiverPlop': ('splash-b', False, 0, 0.55, -1),
+    'TownMarket': ('town-market', True, 0, None, -32),
 }
 
 
