@@ -43,6 +43,18 @@ namespace Orsuun.Client
         private static float Gain(AudioClip clip) => clip != null && Tracks.TryGetValue(clip.name, out var t) ? Mathf.Pow(10f, t.db / 20f) : 1f;
         private int _next;
 
+        /// <summary>A looping sound of a place (the river's water, birds and fire; the reel while a fish is fought), easing
+        /// toward the volume last asked for and stopping once silent.</summary>
+        private sealed class Loop
+        {
+            public string Name;
+            public AudioSource Source;
+            public float Target, Rate;
+        }
+
+        private readonly List<Loop> _loops = new List<Loop>();
+        private float _musicShare = 1f, _musicShareTarget = 1f;
+
         public bool Muted { get; private set; }
 
         public static GameAudio Create()
@@ -106,6 +118,34 @@ namespace Orsuun.Client
             voice.PlayOneShot(clip, volume);
         }
 
+        /// <summary>Loops a sound (Resources/Audio) at a volume, easing there over <paramref name="fade"/> seconds; 0 fades it
+        /// out. Call it as often as needed: it only moves the target.</summary>
+        public void Ambience(string name, float volume, float fade = 1.2f)
+        {
+            Loop loop = null;
+            foreach (Loop l in _loops) if (l.Name == name) { loop = l; break; }
+            if (loop == null)
+            {
+                if (volume <= 0f) return;
+                AudioClip clip = Clip(name);
+                if (clip == null) return;
+                AudioSource source = gameObject.AddComponent<AudioSource>();
+                source.clip = clip;
+                source.loop = true;
+                source.playOnAwake = false;
+                source.volume = 0f;
+                loop = new Loop { Name = name, Source = source };
+                _loops.Add(loop);
+                if (MusicLog) Debug.Log("AMBIENCE " + name + " " + clip.length.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " s");
+            }
+            if (volume > 0f && !loop.Source.isPlaying) loop.Source.Play();
+            loop.Target = volume;
+            loop.Rate = 1f / Mathf.Max(0.05f, fade);
+        }
+
+        /// <summary>The music's share of its volume under a place's own sounds (the river), eased over a second and a half.</summary>
+        public void MusicUnder(float share) => _musicShareTarget = Mathf.Clamp01(share);
+
         /// <summary>Crossfades to a music track (Resources/Audio or the downloaded Content/Music) over about a second and a
         /// half; a track not there yet (art still downloading) plays <paramref name="fallback"/>.</summary>
         public void Music(string name, string fallback = null)
@@ -134,11 +174,20 @@ namespace Orsuun.Client
             if (_musicNow != null && _musicNow.clip != null && _musicNow.clip.length > LoopTail * 2f && _fade >= 1f
                 && _musicNow.time >= _musicNow.clip.length - LoopTail)
                 StartMusic(_musicNow.clip, LoopFade, Tracks.TryGetValue(_musicNow.clip.name, out var t) ? t.start : 0f);
-            if (_musicNow == null || _fade >= 1f) return;
-            _fade = Mathf.Min(1f, _fade + Time.unscaledDeltaTime / _fadeSeconds);
+            float dt = Time.unscaledDeltaTime;
+            foreach (Loop loop in _loops)
+            {
+                if (!loop.Source.isPlaying) continue;
+                loop.Source.volume = Mathf.MoveTowards(loop.Source.volume, loop.Target, loop.Rate * dt);
+                if (loop.Target <= 0f && loop.Source.volume <= 0f) loop.Source.Stop();
+            }
+            bool easing = !Mathf.Approximately(_musicShare, _musicShareTarget);
+            _musicShare = Mathf.MoveTowards(_musicShare, _musicShareTarget, dt / 1.5f);
+            if (_musicNow == null || (_fade >= 1f && !easing)) return;
+            _fade = Mathf.Min(1f, _fade + dt / _fadeSeconds);
             AudioSource other = _musicNow == _musicA ? _musicB : _musicA;
-            _musicNow.volume = MusicVolume * Gain(_musicNow.clip) * _fade;
-            other.volume = MusicVolume * Gain(other.clip) * (1f - _fade);
+            _musicNow.volume = MusicVolume * Gain(_musicNow.clip) * _fade * _musicShare;
+            other.volume = MusicVolume * Gain(other.clip) * (1f - _fade) * _musicShare;
             if (_fade >= 1f) other.Stop();
         }
     }

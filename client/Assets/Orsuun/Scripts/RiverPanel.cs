@@ -44,7 +44,7 @@ namespace Orsuun.Client
         private Text _fightTitle, _progressText;
         private int _fightFish = -1;
         private float _boxY, _boxV, _fishY, _fishTarget, _nextTurn, _progress;
-        private bool _fightOver, _frozen;
+        private bool _fightOver, _frozen, _holding;
         private const float BoxHeight = 0.24f, FishSize = 0.13f;
 
         private Phase _phase;
@@ -207,6 +207,7 @@ namespace Orsuun.Client
         {
             float dt = Mathf.Min(Time.deltaTime, 0.05f);
             bool hold = Input.GetMouseButton(0) || Input.touchCount > 0 || Input.GetKey(KeyCode.Space);
+            _holding = hold && !_fightOver;
             if (_frozen)
             {
                 // Screenshots (-rivershot fight): the fish held in the box, the bar where it was set.
@@ -259,6 +260,7 @@ namespace Orsuun.Client
                     Ui.SetIcon(_catchIcon, Fishing.Fish[result.fish].Icon);
                     _catchAt = Time.time;
                     GameAudio.Instance?.Play("LaneLoot", 0.9f);
+                    GameAudio.Instance?.Play("RiverSplash", 0.6f);
                 }
             }));
         }
@@ -292,6 +294,16 @@ namespace Orsuun.Client
             _canvas.SetActive(on);
             _stage.gameObject.SetActive(on);
             if (on) _place.Show(); else _place.Hide();
+            // The river's own sounds (owner, 28 Sep 2026: picked "River and fishing sounds"), the map's theme low under them.
+            GameAudio audio = GameAudio.Instance;
+            if (audio != null)
+            {
+                audio.Ambience("RiverWater", on ? 0.55f : 0f);
+                audio.Ambience("RiverBirds", on ? 0.3f : 0f);
+                audio.Ambience("RiverFire", on ? 0.18f : 0f);
+                if (!on) audio.Ambience("RiverReel", 0f, 0.2f);
+                audio.MusicUnder(on ? 0.35f : 1f);
+            }
             if (!on) { _stage.Show(null, 0, 0, null); return; }
             _phase = Phase.Idle;
             _message.text = "CAST, and REEL when the float goes under.";
@@ -323,6 +335,7 @@ namespace Orsuun.Client
                 _busy = false;
                 if (error != null) { _message.text = error; return; }
                 _stage.PlayOnce("Attack");
+                GameAudio.Instance?.Play("RiverCast", 0.8f);
                 _phase = Phase.Waiting;
                 _phaseAt = Time.time;
                 _landed = false;
@@ -338,6 +351,7 @@ namespace Orsuun.Client
             _busy = true;
             bool bitten = _phase == Phase.Bite;
             _stage.PlayOnce("Attack");
+            GameAudio.Instance?.Play("RiverCast", 0.55f, pitchJitter: 0.1f);
             StartCoroutine(_root.Server.Reel((reel, error) =>
             {
                 _busy = false;
@@ -505,6 +519,7 @@ namespace Orsuun.Client
             {
                 _phase = Phase.Bite;
                 _place.Ripple(rest, second: true);
+                GameAudio.Instance?.Play("RiverPlop", 0.9f);
             }
             if (_phase == Phase.Fight && _fight.activeSelf) UpdateFight();
             if (_phase == Phase.Bite && t >= _missAt)
@@ -522,6 +537,7 @@ namespace Orsuun.Client
                     {
                         _landed = true;
                         _place.Ripple(rest);
+                        GameAudio.Instance?.Play("RiverSplash", 0.3f, pitchJitter: 0.15f);
                     }
                     break;
                 case Phase.Bite:
@@ -536,6 +552,9 @@ namespace Orsuun.Client
                     break;
             }
             _stage.SetFloat(at);
+            // The reel runs while a fish is fought and held, and as the line comes back in.
+            bool reeling = (_phase == Phase.Fight && _fight.activeSelf && _holding) || (_phase == Phase.Reeling && t - _phaseAt < 0.45f);
+            GameAudio.Instance?.Ambience("RiverReel", reeling ? 0.5f : 0f, 0.12f);
             bool bite = _phase == Phase.Bite;
             _mark.gameObject.SetActive(bite);
             if (bite) _mark.rectTransform.position = _stage.ScreenOf(rest) + new Vector3(0f, Screen.height * 0.06f, 0f);

@@ -269,7 +269,8 @@ namespace Orsuun.Client.EditorTools
 
         /// <summary>
         /// Music streams as Vorbis (a minute of stereo PCM would sit in memory on the phone); short effects are
-        /// mono ADPCM, decompressed on load so they fire without delay.
+        /// mono ADPCM, decompressed on load so they fire without delay; the river's long loops (water, birds, fire) stay
+        /// Vorbis in memory, mono.
         /// </summary>
         private static void EnsureAudioImport()
         {
@@ -280,10 +281,11 @@ namespace Orsuun.Client.EditorTools
                 string path = dir + Path.GetFileName(wav);
                 if (!(AssetImporter.GetAtPath(path) is AudioImporter importer)) continue;
                 bool music = Path.GetFileName(wav).StartsWith("Music");
+                bool loop = System.Array.IndexOf(new[] { "RiverWater.wav", "RiverBirds.wav", "RiverFire.wav" }, Path.GetFileName(wav)) >= 0;
                 AudioImporterSampleSettings want = importer.defaultSampleSettings;
-                want.loadType = music ? AudioClipLoadType.Streaming : AudioClipLoadType.DecompressOnLoad;
-                want.compressionFormat = music ? AudioCompressionFormat.Vorbis : AudioCompressionFormat.ADPCM;
-                want.quality = music ? 0.55f : 1f;
+                want.loadType = music ? AudioClipLoadType.Streaming : loop ? AudioClipLoadType.CompressedInMemory : AudioClipLoadType.DecompressOnLoad;
+                want.compressionFormat = music || loop ? AudioCompressionFormat.Vorbis : AudioCompressionFormat.ADPCM;
+                want.quality = music ? 0.55f : loop ? 0.5f : 1f;
                 AudioImporterSampleSettings have = importer.defaultSampleSettings;
                 bool same = have.loadType == want.loadType && have.compressionFormat == want.compressionFormat
                     && Mathf.Approximately(have.quality, want.quality) && importer.forceToMono == !music;
