@@ -337,5 +337,13 @@
   "rig": "quadruped",
   "attack": null,
   "yaw": 0.0
+ },
+ "Nergui": {
+  "src": "art/blender/mobs/Nergui-tripo.glb",
+  "height": 1.55,
+  "rig": null,
+  "attack": null,
+  "yaw": -90.0,
+  "tris": 14000
  }
 }

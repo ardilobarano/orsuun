@@ -774,7 +774,7 @@ public sealed partial class GameService
         // The War of Banners bonus: last season's winning Banner and each fortress a Banner holds add sorn.
         long bonusSorn = s.SornEarned * sornBonusPercent / 100;
         inventory.Sorn += bonusSorn;
-        Apply(account, inventory, hunt: true, mealShareBp: Fishing.MealShareBp(account.LastHeartbeatUtc, now, account.MealUntilUtc));
+        Apply(account, inventory, hunt: true, meal: Fishing.MealBonusBp(account.LastHeartbeatUtc, now, MealsOf(account)));
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
@@ -999,7 +999,7 @@ public sealed partial class GameService
     /// Writes settled currency back and turns dropped gear into item rows, trimming the loot list. Dropped wardrobe pieces
     /// become held ones. <paramref name="hunt"/>: the gain was hunted, so a worn companion adds its XP or sorn to it.
     /// </summary>
-    private void Apply(Account a, Inventory i, bool hunt = false, int mealShareBp = 0)
+    private void Apply(Account a, Inventory i, bool hunt = false, (long xpBp, long sornBp) meal = default)
     {
         int levelBefore = Content.LevelFor(a.Xp);
         if (hunt)
@@ -1008,11 +1008,8 @@ public sealed partial class GameService
             // the interval it lasted.
             List<WardrobeDef> worn = WornPieces(a);
             long xp = Wardrobe.Bonus(worn, WardrobePerk.Xp) * 100L, sorn = Wardrobe.Bonus(worn, WardrobePerk.Sorn) * 100L;
-            if (Fishing.FishById(a.MealFish) is FishDef meal && mealShareBp > 0)
-            {
-                xp += meal.XpPercent * (long)mealShareBp / 100;
-                sorn += meal.SornPercent * (long)mealShareBp / 100;
-            }
+            xp += meal.xpBp;
+            sorn += meal.sornBp;
             if (xp > 0 && i.Xp > a.Xp) i.Xp += (i.Xp - a.Xp) * xp / RandomExtensions.FullBp;
             if (sorn > 0 && i.Sorn > a.Sorn) i.Sorn += (i.Sorn - a.Sorn) * sorn / RandomExtensions.FullBp;
         }

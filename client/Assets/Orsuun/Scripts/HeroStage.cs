@@ -53,6 +53,9 @@ namespace Orsuun.Client
         /// his fist, its line running to a float the river screen moves (SetFloat).
         /// </summary>
         public bool FromBehind { get; private set; }
+
+        /// <summary>Screenshots of the river's corners (-riverview): the camera placed elsewhere (world from, to).</summary>
+        public (Vector3 from, Vector3 to)? ViewOverride { get; set; }
         private Transform _hand, _rod, _float;
         private LineRenderer _line;
         private Animation _anim;
@@ -78,13 +81,20 @@ namespace Orsuun.Client
 
             _camera = new GameObject("HeroStageCamera").AddComponent<Camera>();
             _camera.transform.SetParent(transform, false);
-            _camera.fieldOfView = fromBehind ? 40f : Fov;
+            _camera.fieldOfView = fromBehind ? 44f : Fov;
             _camera.aspect = _aspect;
+            if (fromBehind)
+            {
+                // The river is a place (RiverScene): it reaches to the painted horizon, fills the frame and glints under the bloom.
+                _camera.farClipPlane = 260f;
+                _camera.backgroundColor = new Color(0.62f, 0.36f, 0.3f, 1f);
+                UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(_camera).renderPostProcessing = true;
+            }
             _camera.clearFlags = CameraClearFlags.SolidColor;
-            _camera.backgroundColor = new Color(0f, 0f, 0f, 0f);   // the screen's scene shows through
+            if (!fromBehind) _camera.backgroundColor = new Color(0f, 0f, 0f, 0f);   // the screen's scene shows through
             _camera.targetTexture = _texture;
             _camera.nearClipPlane = 0.1f;
-            _camera.farClipPlane = 60f;
+            if (!fromBehind) _camera.farClipPlane = 60f;
             _camera.enabled = false;
 
             var key = new GameObject("HeroStageLight").AddComponent<Light>();
@@ -92,7 +102,7 @@ namespace Orsuun.Client
             key.transform.position = _at + new Vector3(-2.5f, 3.5f, -4f);
             key.type = LightType.Point;
             key.range = 30f;
-            key.intensity = 3.2f;
+            key.intensity = fromBehind ? 1.4f : 3.2f;
             key.color = new Color(1f, 0.86f, 0.68f);
             var rim = new GameObject("HeroStageRim").AddComponent<Light>();
             rim.transform.SetParent(transform, false);
@@ -101,6 +111,14 @@ namespace Orsuun.Client
             rim.range = 20f;
             rim.intensity = 2f;
             rim.color = new Color(0.6f, 0.7f, 1f);
+            if (fromBehind)
+            {
+                // The evening sun ahead of him rims his shoulders gold.
+                rim.transform.position = _at + new Vector3(-1.2f, 3.2f, 4.5f);
+                rim.intensity = 3.5f;
+                rim.range = 9f;
+                rim.color = new Color(1f, 0.66f, 0.35f);
+            }
 
             _pivot = new GameObject("HeroStagePivot").transform;
             _pivot.SetParent(transform, false);
@@ -128,7 +146,13 @@ namespace Orsuun.Client
             {
                 // His back to us, looking out over the water; the camera above and behind his shoulder.
                 _pivot.rotation = Quaternion.identity;
-                // Framed so he stands on the painted jetty's end (a third of the way up the screen, a third of it tall).
+                // Framed so he stands on the jetty's end (a third of the way up the screen, a third of it tall).
+                if (ViewOverride is (Vector3 from, Vector3 to))
+                {
+                    _camera.transform.position = from;
+                    _camera.transform.LookAt(to);
+                    return;
+                }
                 _camera.transform.position = _at + new Vector3(0f, 0.9f * _height, -4.3f * _height);
                 _camera.transform.LookAt(_at + new Vector3(0f, 0.7f * _height, 0f));
                 return;
@@ -336,7 +360,7 @@ namespace Orsuun.Client
         public Vector3 RodTip { get; private set; }
 
         /// <summary>Where a cast float rests on the water (world): out in front, on the painted river.</summary>
-        public Vector3 FloatRest => _at + new Vector3(1.7f * _height, 0.1f * _height, 10f * _height);
+        public Vector3 FloatRest => _at + new Vector3(1.65f * _height, -RiverScene.WaterDrop + 0.02f, 10f * _height);
 
         /// <summary>The float's place (world), or null: out of the water, hanging at the rod's tip.</summary>
         public void SetFloat(Vector3? at) => _floatAt = at;
@@ -366,7 +390,7 @@ namespace Orsuun.Client
             _float.position = bob;
             // The float grows with its distance, so it reads out on the water as it does at the rod.
             float far = Mathf.Clamp01((bob - grip).magnitude / (8f * _height));
-            _float.localScale = Vector3.one * (Mathf.Lerp(0.06f, 0.16f, far) * _height) / Mathf.Max(0.01f, _model.transform.lossyScale.x);
+            _float.localScale = Vector3.one * (Mathf.Lerp(0.06f, 0.24f, far) * _height) / Mathf.Max(0.01f, _model.transform.lossyScale.x);
             _line.startWidth = 0.005f * _height;
             _line.endWidth = 0.012f * _height;
             _line.SetPosition(0, RodTip);

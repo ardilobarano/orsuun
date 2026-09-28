@@ -48,6 +48,7 @@ namespace Orsuun.Client.EditorTools
             EnsureClassLooks();
             EnsureKorstones();
             EnsureMobs();
+            EnsureRiver();
             EnsureFx();
             EnsureAudioImport();
             EnsureKorstoneImport();
@@ -357,6 +358,79 @@ namespace Orsuun.Client.EditorTools
                 mat.SetColor("_BaseColor", Color.white);
                 EditorUtility.SetDirty(mat);
             }
+        }
+
+        /// <summary>
+        /// Old Nergui's river (RiverScene, 28 Sep 2026): the painted horizon (Unlit, clamped), the water (Orsuun/Water,
+        /// reflecting the horizon), wood, ground and stone (URP Lit over repeating textures) and the reed cards (Lit, alpha
+        /// cut, both sides), all in Content/River beside their textures.
+        /// </summary>
+        private static void EnsureRiver()
+        {
+            const string dir = Con + "River/";
+            if (!Directory.Exists(dir)) return;
+            Texture2D Tex(string file, TextureWrapMode wrap, int max, bool alpha = false)
+            {
+                string path = dir + file;
+                if (AssetImporter.GetAtPath(path) is TextureImporter ti
+                    && (ti.wrapMode != wrap || ti.maxTextureSize != max || ti.anisoLevel != 8 || !ti.mipmapEnabled || ti.alphaIsTransparency != alpha))
+                {
+                    ti.wrapMode = wrap;
+                    ti.maxTextureSize = max;
+                    ti.anisoLevel = 8;
+                    ti.mipmapEnabled = true;
+                    ti.alphaIsTransparency = alpha;
+                    ti.npotScale = TextureImporterNPOTScale.None;
+                    ti.SaveAndReimport();
+                }
+                return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            }
+            Material Mat(string name, Shader shader)
+            {
+                string path = dir + name + ".mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (mat == null) { mat = new Material(shader); AssetDatabase.CreateAsset(mat, path); }
+                mat.shader = shader;
+                return mat;
+            }
+            Shader lit = Shader.Find("Universal Render Pipeline/Lit"), unlit = Shader.Find("Universal Render Pipeline/Unlit");
+            Texture2D horizon = Tex("Horizon.jpg", TextureWrapMode.Clamp, 2048);
+            Material sky = Mat("Horizon", unlit);
+            sky.SetTexture("_BaseMap", horizon);
+            sky.SetColor("_BaseColor", Color.white);
+            EditorUtility.SetDirty(sky);
+
+            Shader waterShader = Shader.Find("Orsuun/Water");
+            if (waterShader != null)
+            {
+                Material water = Mat("Water", waterShader);
+                water.SetTexture("_SkyMap", horizon);
+                EditorUtility.SetDirty(water);
+            }
+            else Debug.LogWarning("Orsuun/Water shader missing");
+
+            foreach ((string name, float smooth) in new[] { ("Wood", 0.12f), ("Ground", 0.05f), ("Stone", 0.18f) })
+            {
+                Material m = Mat(name, lit);
+                m.SetTexture("_BaseMap", Tex(name + ".jpg", TextureWrapMode.Repeat, 1024));
+                m.SetColor("_BaseColor", Color.white);
+                m.SetFloat("_Smoothness", smooth);
+                m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
+                EditorUtility.SetDirty(m);
+            }
+
+            Material reeds = Mat("Reeds", lit);
+            reeds.SetTexture("_BaseMap", Tex("Reeds.png", TextureWrapMode.Clamp, 1024, alpha: true));
+            reeds.SetColor("_BaseColor", Color.white);
+            reeds.SetFloat("_Smoothness", 0.05f);
+            reeds.SetFloat("_AlphaClip", 1f);
+            reeds.SetFloat("_Cutoff", 0.45f);
+            reeds.SetFloat("_Cull", 0f);
+            reeds.EnableKeyword("_ALPHATEST_ON");
+            reeds.renderQueue = (int)RenderQueue.AlphaTest;
+            reeds.doubleSidedGI = true;
+            reeds.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
+            EditorUtility.SetDirty(reeds);
         }
 
         /// <summary>

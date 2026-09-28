@@ -21,12 +21,25 @@ public sealed partial class GameService
         return counts;
     }
 
+    /// <summary>Each fish's boost, until when (null: none), by fish id.</summary>
+    private static DateTime?[] MealsOf(Account a)
+    {
+        var until = new DateTime?[Fishing.Fish.Length];
+        string[] parts = (a.Meals ?? "").Split(';');
+        for (int i = 0; i < until.Length && i < parts.Length; i++)
+            if (long.TryParse(parts[i], out long unix) && unix > 0) until[i] = DateTimeOffset.FromUnixTimeSeconds(unix).UtcDateTime;
+        return until;
+    }
+
+    private static void SetMeals(Account a, DateTime?[] until) =>
+        a.Meals = string.Join(';', until.Select(u => u == null ? 0L : new DateTimeOffset(DateTime.SpecifyKind(u.Value, DateTimeKind.Utc)).ToUnixTimeSeconds()));
+
     private RiverDto RiverOf(Account a)
     {
         DateTime now = DateTime.UtcNow;
-        long meal = a.MealUntilUtc is DateTime m && m > now && a.MealFish >= 0 ? (long)(m - now).TotalSeconds : 0;
+        long[] meals = MealsOf(a).Select(u => u is DateTime m && m > now ? (long)(m - now).TotalSeconds : 0L).ToArray();
         long rod = a.AutoRodUntilUtc is DateTime r && r > now ? (long)(r - now).TotalSeconds : 0;
-        return new RiverDto(a.AtRiver, meal > 0 ? a.MealFish : -1, meal, rod, _autoFish, _autoMussels);
+        return new RiverDto(a.AtRiver, meals, rod, _autoFish, _autoMussels);
     }
 
     /// <summary>The Tireless Rod's catches since it was last counted, while the hero stands at the river and holds it.</summary>
@@ -133,7 +146,8 @@ public sealed partial class GameService
         return new ReelDto(ToState(account), kind, fishId, message);
     }
 
-    /// <summary>Eats a fish: its boost runs from now for its minutes and replaces the meal before it.</summary>
+    /// <summary>Eats a fish: its boost runs for its minutes beside any other fish's (one already running gets its time added,
+    /// up to Fishing.MealMaxMinutes ahead).</summary>
     public async Task<StateDto> EatAsync(Account account, EatRequest request, CancellationToken ct)
     {
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
@@ -146,8 +160,9 @@ public sealed partial class GameService
         account.LastHeartbeatUtc = now;
         fish[def.Id]--;
         account.Fish = string.Join(';', fish);
-        account.MealFish = def.Id;
-        account.MealUntilUtc = now.AddMinutes(def.Minutes);
+        DateTime?[] meals = MealsOf(account);
+        meals[def.Id] = Fishing.MealUntil(def, now, meals[def.Id]);
+        SetMeals(account, meals);
         _db.Ledger.Add(Entry(account.Id, null, "eat", def.Name, 0, request.RequestId));
         await SaveAsync(ct);
         return ToState(account, settlement: settlement);

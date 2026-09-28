@@ -59,6 +59,25 @@ public class FishingTests
     }
 
     [Fact]
+    public void Different_fish_boost_side_by_side_and_one_eaten_again_adds_its_time()
+    {
+        var now = new DateTime(2026, 9, 28, 12, 0, 0, DateTimeKind.Utc);
+        var until = new DateTime?[Fishing.Fish.Length];
+        until[0] = Fishing.MealUntil(Fishing.Fish[0], now, null);          // Steppe Carp: +10% XP, 30 min
+        until[3] = Fishing.MealUntil(Fishing.Fish[3], now, null);          // Spotted Lenok: +20% sorn, 30 min
+        until[4] = Fishing.MealUntil(Fishing.Fish[4], now, null);          // Golden Taimen: +25% both, 60 min
+        (long xp, long sorn) = Fishing.MealBonusBp(now, now.AddMinutes(10), until);
+        Assert.Equal(3500, xp);
+        Assert.Equal(4500, sorn);
+        // Past the carp and the lenok, only the taimen is left.
+        (xp, sorn) = Fishing.MealBonusBp(now.AddMinutes(40), now.AddMinutes(50), until);
+        Assert.Equal((2500L, 2500L), (xp, sorn));
+        // A second carp adds 30 minutes; the clock stops at three hours ahead.
+        Assert.Equal(now.AddMinutes(60), Fishing.MealUntil(Fishing.Fish[0], now, until[0]));
+        Assert.Equal(now.AddMinutes(Fishing.MealMaxMinutes), Fishing.MealUntil(Fishing.Fish[4], now, now.AddMinutes(170)));
+    }
+
+    [Fact]
     public void Catches_are_mostly_fish_and_the_taimen_is_rare()
     {
         var rng = new XorShiftRandom(11);

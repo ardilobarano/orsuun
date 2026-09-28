@@ -285,3 +285,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - SETTINGS (`GameSettings`, in Performance.cs): text size scales every `LocText` made by `Ui.Label` (its base size is
   set there; a size a screen sets later becomes the base) and the inline `<size=n>` tags in its text; FEWER skill
   effects skips `SkillFx.Layers`, the spirit and the runes. Graphics LOW replaced the BATTERY SAVER (`Performance.Saver`).
+- The river is a 3D place (`RiverScene`, at the river stage `HeroStage.Below + (-120,0,0)`, drawn by that stage's camera
+  with bloom and a 260 m far clip): while it shows, the lane and backdrop cameras are off and the Sun and ambient are the
+  evening's (`Show`/`Hide` restore them). Its textures and materials are `Content/River` (`RenderingSetup.EnsureRiver`);
+  the water is `Shaders/Water.shader`, reflecting the horizon quad by its `_SkyRect`/`_SkyZ`: move the quad, move those.
+  Nergui's model faces its -x (`NerguiYaw`, `FireOffset`); `-rivershot nergui` looks at his camp.

@@ -2502,3 +2502,7 @@ LARGE	GROSS
 LARGER	GRÖSSER
 LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	NIEDRIG spart Akku: 30 Bilder pro Sekunde, die Jagdbahn kleiner gezeichnet, kein Leuchtschleier.
 FEWER draws each skill without the extra layers of its grade.	WENIGER zeichnet jede Fähigkeit ohne die zusätzlichen Schichten ihres Grades.
+# Fish boosts side by side (28 Sep 2026)
++{0}% sorn	+{0}% Sorn
+Fish boosts: +{0}% XP	Fischboni: +{0}% EP
++{0}% XP	+{0}% EP

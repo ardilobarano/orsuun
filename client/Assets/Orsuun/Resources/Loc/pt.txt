@@ -2470,3 +2470,7 @@ LARGE	GRANDE
 LARGER	MAIOR
 LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	BAIXO economiza bateria: 30 quadros por segundo, a trilha desenhada menor, sem brilho difuso.
 FEWER draws each skill without the extra layers of its grade.	MENOS desenha cada habilidade sem as camadas extras do seu grau.
+# Fish boosts side by side (28 Sep 2026)
++{0}% sorn	+{0}% de sorn
+Fish boosts: +{0}% XP	Bônus de peixe: +{0}% XP
++{0}% XP	+{0}% XP

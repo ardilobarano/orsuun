@@ -23,6 +23,8 @@ namespace Orsuun.Client
         private GameRoot _root;
         private GameObject _canvas;
         private HeroStage _stage;
+        private RiverScene _place;
+        private bool _landed;
         private Text _status, _message, _castLabel, _mark, _musselLine, _rodLine;
         private readonly Text[] _pearls = new Text[3];
         private Button _cast;
@@ -45,11 +47,14 @@ namespace Orsuun.Client
             _root = root;
             _canvas = Ui.Canvas("RiverCanvas", 5).gameObject;
             Transform canvas = _canvas.transform;
-            Ui.Backdrop(canvas, "River");
+            // The river is a place (RiverScene), drawn by the stage's camera behind the hero; the canvas only lays UI over it.
             RectTransform stageBox = Ui.Rect("Stage", canvas, 0f, 0f, 1f, 1f);
+            Vector3 spot = HeroStage.Below + new Vector3(-120f, 0f, 0f);
             _stage = new GameObject("RiverStage").AddComponent<HeroStage>();
-            _stage.Init(stageBox, HeroStage.Below + new Vector3(-120f, 0f, 0f), fromBehind: true);
+            _stage.Init(stageBox, spot, fromBehind: true);
             _stage.gameObject.SetActive(false);
+            _place = new GameObject("RiverScene").AddComponent<RiverScene>();
+            _place.Init(spot);
 
             Ui.Title("Title", canvas, 0.1f, 0.93f, 0.9f, 0.98f, "OLD NERGUI'S RIVER", 38, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             Ui.Framed("StatusBack", canvas, 0.08f, 0.86f, 0.92f, 0.925f, new Color(0.05f, 0.04f, 0.04f, 0.78f)).raycastTarget = false;
@@ -169,6 +174,7 @@ namespace Orsuun.Client
         {
             _canvas.SetActive(on);
             _stage.gameObject.SetActive(on);
+            if (on) _place.Show(); else _place.Hide();
             if (!on) { _stage.Show(null, 0, 0, null); return; }
             _phase = Phase.Idle;
             _message.text = "CAST, and REEL when the float goes under.";
@@ -202,6 +208,7 @@ namespace Orsuun.Client
                 _stage.PlayOnce("Attack");
                 _phase = Phase.Waiting;
                 _phaseAt = Time.time;
+                _landed = false;
                 _biteAt = Time.time + bite.biteMs / 1000f;
                 _missAt = _biteAt + (bite.windowMs + Fishing.LateMs) / 1000f;
                 _message.text = "Wait for it...";
@@ -232,23 +239,15 @@ namespace Orsuun.Client
         {
             if (_busy) return;
             FishDef def = Fishing.Fish[fish];
-            System.Action eat = () =>
+            // Each fish boosts on its own clock beside the others; one already running gets its time added.
+            _busy = true;
+            StartCoroutine(_root.Server.Eat(fish, error =>
             {
-                _busy = true;
-                StartCoroutine(_root.Server.Eat(fish, error =>
-                {
-                    _busy = false;
-                    _message.text = error ?? $"You ate the {def.Name}: {def.BoostText}.";
-                    if (error == null) GameAudio.Instance?.Play("LanePotion", 0.8f);
-                    FillCreel();
-                }));
-            };
-            // A meal still running is replaced: say so first.
-            int current = _root.Server.River?.mealFish ?? -1;
-            if (current >= 0 && _root.Server.MealSecondsLeft > 0)
-                _confirm.Show("Eat the " + def.Name + "?", $"It replaces your {Fishing.Fish[current].Name} ({Clock(_root.Server.MealSecondsLeft)} left). {def.BoostText}.",
-                    "EAT", Palette.ButtonForge, eat);
-            else eat();
+                _busy = false;
+                _message.text = error ?? $"You ate the {def.Name}: {def.BoostText}.";
+                if (error == null) GameAudio.Instance?.Play("LanePotion", 0.8f);
+                FillCreel();
+            }));
         }
 
         private void Open(int count)
@@ -293,7 +292,9 @@ namespace Orsuun.Client
             for (int i = 0; i < Fishing.Fish.Length; i++)
             {
                 FishDef f = Fishing.Fish[i];
-                _fishLines[i].text = $"<b>{f.Name}</b>  ×{inv.Fish[i]}\n<size=19><color=#B8A98A>{f.BoostText}</color></size>";
+                long left = _root.Server.MealSecondsLeft(i);
+                string running = left > 0 ? $"  <color=#8CF08C>{Clock(left)}</color>" : "";
+                _fishLines[i].text = $"<b>{f.Name}</b>  ×{inv.Fish[i]}{running}\n<size=19><color=#B8A98A>{f.BoostText}</color></size>";
                 _eat[i].interactable = inv.Fish[i] > 0;
             }
             _musselLine.text = $"<b>River mussels</b>  ×{inv.Mussels}";
@@ -321,6 +322,11 @@ namespace Orsuun.Client
             if (_root == null) return;
             if (_shot != null && _canvas.activeSelf && Time.time > 3f)
             {
+                if (_shot == "nergui")
+                {
+                    Vector3 n = _place.NerguiAt;
+                    _stage.ViewOverride = (n + new Vector3(3.2f, 1.6f, -2.6f), n + new Vector3(0f, 0.6f, 0f));
+                }
                 if (_shot == "creel") ShowCreel(true);
                 else if (_shot == "rod") ShowRod(true);
                 else if (_shot == "bite") { _phase = Phase.Bite; _phaseAt = Time.time; _missAt = Time.time + 60f; }
@@ -339,6 +345,7 @@ namespace Orsuun.Client
             _stage.Show(s.Class, armor != null ? ItemLooks.Tier(armor.ItemLevel) : 0, weapon != null ? ItemLooks.Tier(weapon.ItemLevel) : 0, skin,
                 armor != null ? UpgradeGlow.ForLevel(armor.UpgradeLevel) : 0f, 0f, s.SecondLook);
 
+            if (_creel.activeSelf && Time.frameCount % 30 == 0) FillCreel();
             // The Tireless Rod's catches since the last state.
             if (server.AutoCatches > 0)
             {
@@ -347,9 +354,19 @@ namespace Orsuun.Client
                 if (_creel.activeSelf) FillCreel();
             }
 
-            string meal = server.MealSecondsLeft > 0 && server.River.mealFish >= 0
-                ? $"{Fishing.Fish[server.River.mealFish].Name}: {Clock(server.MealSecondsLeft)} left"
-                : "No meal: eat a fish for a hunting boost";
+            // The boosts running now, side by side: +XP and +sorn added up, and the soonest to end.
+            int xp = 0, sornBoost = 0;
+            long soonest = 0;
+            for (int i = 0; i < Fishing.Fish.Length; i++)
+            {
+                long left = server.MealSecondsLeft(i);
+                if (left <= 0) continue;
+                xp += Fishing.Fish[i].XpPercent;
+                sornBoost += Fishing.Fish[i].SornPercent;
+                soonest = soonest == 0 ? left : System.Math.Min(soonest, left);
+            }
+            string meal = xp + sornBoost == 0 ? "No meal: eat a fish for a hunting boost"
+                : $"Fish boosts: +{xp}% XP  ·  +{sornBoost}% sorn";
             string rod = server.RodSecondsLeft > 0 ? $"Tireless Rod: {Clock(server.RodSecondsLeft)}" : "No hunting here";
             _status.text = $"{meal}\n<size=20><color=#B8A98A>{rod}</color></size>";
             _rodLine.text = server.RodSecondsLeft > 0 ? $"Held: {Clock(server.RodSecondsLeft)} left" : "";
@@ -358,7 +375,11 @@ namespace Orsuun.Client
             float t = Time.time, h = _stage.Height;
             Vector3 rest = _stage.FloatRest;
             Vector3? at = null;
-            if (_phase == Phase.Waiting && t >= _biteAt) _phase = Phase.Bite;
+            if (_phase == Phase.Waiting && t >= _biteAt)
+            {
+                _phase = Phase.Bite;
+                _place.Ripple(rest, second: true);
+            }
             if (_phase == Phase.Bite && t >= _missAt)
             {
                 _phase = Phase.Idle;
@@ -370,6 +391,11 @@ namespace Orsuun.Client
                     float fly = Mathf.Clamp01((t - _phaseAt) / 0.55f);
                     at = fly < 1f ? Vector3.Lerp(_stage.RodTip, rest, fly) + Vector3.up * (Mathf.Sin(fly * Mathf.PI) * 0.5f * h)
                         : rest + Vector3.up * (Mathf.Sin(t * 2.4f) * 0.012f * h);
+                    if (fly >= 1f && !_landed)
+                    {
+                        _landed = true;
+                        _place.Ripple(rest);
+                    }
                     break;
                 case Phase.Bite:
                     at = rest + Vector3.up * (-0.05f * h + Mathf.Sin(t * 28f) * 0.012f * h);

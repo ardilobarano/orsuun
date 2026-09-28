@@ -2464,3 +2464,7 @@ LARGE	MARE
 LARGER	MAI MARE
 LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	SCĂZUTĂ economisește bateria: 30 de cadre pe secundă, culoarul desenat mai mic, fără strălucire.
 FEWER draws each skill without the extra layers of its grade.	MAI PUȚINE desenează fiecare abilitate fără straturile în plus ale gradului ei.
+# Fish boosts side by side (28 Sep 2026)
++{0}% sorn	+{0}% sorn
+Fish boosts: +{0}% XP	Sporuri de la pește: +{0}% XP
++{0}% XP	+{0}% XP

@@ -135,6 +135,19 @@ namespace Orsuun.Client
             _goalCount = Ui.Title("Count", _goalPlate.transform, 0.86f, 0.08f, 0.98f, 0.92f, "", 24, TextAnchor.MiddleCenter, Palette.Sorn);
             _goalPlate.gameObject.SetActive(false);
 
+            // Fish eaten at Old Nergui's river (Rules.Fishing): a chip for each boost running, with its time left.
+            for (int i = 0; i < _mealChips.Length; i++)
+            {
+                float x0 = 0.02f + i * 0.158f;
+                Image chip = Ui.Framed("Meal" + i, canvas, x0, 0.787f, x0 + 0.15f, 0.817f, new Color(0.05f, 0.05f, 0.09f, 0.85f));
+                chip.raycastTarget = false;
+                RectTransform fishBox = Ui.Rect("Icon", chip.transform, 0.03f, 0.05f, 0.4f, 0.95f);
+                Ui.Icon("Fish", fishBox, 0f, 0f, 1f, 1f, Fishing.Fish[i].Icon);
+                Text timeLeft = Ui.Label("Left", chip.transform, 0.4f, 0.05f, 0.97f, 0.95f, "", 20, TextAnchor.MiddleCenter, Palette.Good);
+                _mealChips[i] = (chip.gameObject, timeLeft);
+                chip.gameObject.SetActive(false);
+            }
+
             // The hero's HP in a bronze trough, and the newest world chat line above it (tap it for CHAT).
             _hpFill = Ui.Bar("Hp", canvas, 0.03f, 0.452f, 0.97f, 0.486f, new Color(0.82f, 0.17f, 0.14f), out _);
             _hpText = Ui.Title("HpText", canvas, 0.03f, 0.452f, 0.97f, 0.486f, "", 22, TextAnchor.MiddleCenter, Palette.Parchment);
@@ -379,9 +392,38 @@ namespace Orsuun.Client
             _logAge = 0f;
         }
 
+        private readonly (GameObject plate, Text left)[] _mealChips = new (GameObject, Text)[Fishing.Fish.Length];
+
+        /// <summary>The fish boosts running, left to right in the order they will end.</summary>
+        private void UpdateMeals()
+        {
+            int shown = 0;
+            var order = new System.Collections.Generic.List<(int fish, long left)>();
+            for (int i = 0; i < Fishing.Fish.Length; i++)
+            {
+                long left = _root.Server.Online ? _root.Server.MealSecondsLeft(i) : 0;
+                if (left > 0) order.Add((i, left));
+            }
+            order.Sort((a, b) => a.left.CompareTo(b.left));
+            for (int i = 0; i < _mealChips.Length; i++) _mealChips[i].plate.SetActive(false);
+            foreach ((int fish, long left) in order)
+            {
+                // Chips are made one per fish; each moves to its place in the row.
+                (GameObject plate, Text text) = _mealChips[fish];
+                plate.SetActive(true);
+                var rect = (RectTransform)plate.transform;
+                float x0 = 0.02f + shown * 0.158f;
+                rect.anchorMin = new Vector2(x0, rect.anchorMin.y);
+                rect.anchorMax = new Vector2(x0 + 0.15f, rect.anchorMax.y);
+                text.text = left >= 3600 ? $"{left / 3600}h {left % 3600 / 60:00}m" : $"{left / 60}:{left % 60:00}";
+                shown++;
+            }
+        }
+
         private void Update()
         {
             if (_root == null) return;
+            UpdateMeals();
             PlayerSession session = _root.Session;
             LaneSim lane = _root.ActiveLane;
             Inventory inv = session.Inventory;

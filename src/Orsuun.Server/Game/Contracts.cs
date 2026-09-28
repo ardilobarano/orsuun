@@ -279,9 +279,9 @@ public sealed record StateDto(
     GoalCountsDto? GoalCounts = null,
     RiverDto? River = null);
 
-/// <summary>Fishing (Rules.Fishing): at the river or not, the meal eaten and its seconds left, the Tireless Rod's seconds
+/// <summary>Fishing (Rules.Fishing): at the river or not, each fish's boost seconds left (by id), the Tireless Rod's seconds
 /// left, and what the rod brought in since the last state (a heartbeat's auto catches).</summary>
-public sealed record RiverDto(bool AtRiver, int MealFish, long MealSecondsLeft, long RodSecondsLeft, int[]? AutoFish = null, int AutoMussels = 0);
+public sealed record RiverDto(bool AtRiver, long[] MealSeconds, long RodSecondsLeft, int[]? AutoFish = null, int AutoMussels = 0);
 public sealed record CastBiteDto(int BiteMs, int WindowMs);
 public sealed record ReelDto(StateDto State, string Kind, int Fish, string Message);
 public sealed record OpenMusselsRequest(string RequestId, int Count);

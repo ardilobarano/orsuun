@@ -926,7 +926,9 @@ namespace Orsuun.Client.Net
         public float RiverAt { get; private set; }
         public bool AtRiver => Online && River != null && River.atRiver;
         public int AutoCatches { get; set; }
-        public long MealSecondsLeft => River == null ? 0 : Math.Max(0, River.mealSecondsLeft - (long)(Time.realtimeSinceStartup - RiverAt));
+        /// <summary>A fish's boost seconds left (each fish runs on its own clock, beside the others).</summary>
+        public long MealSecondsLeft(int fish) => River?.mealSeconds == null || fish < 0 || fish >= River.mealSeconds.Length ? 0
+            : Math.Max(0, River.mealSeconds[fish] - (long)(Time.realtimeSinceStartup - RiverAt));
         public long RodSecondsLeft => River == null ? 0 : Math.Max(0, River.rodSecondsLeft - (long)(Time.realtimeSinceStartup - RiverAt));
         /// <summary>The mailbox as the server last showed it.</summary>
         public MailDto Mail { get; private set; }
@@ -1800,7 +1802,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
         [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; }
-        [Serializable] public class RiverDto { public bool atRiver; public int mealFish = -1; public long mealSecondsLeft; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }
+        [Serializable] public class RiverDto { public bool atRiver; public long[] mealSeconds; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }
         [Serializable] public class CastBiteDto { public int biteMs; public int windowMs; }
         [Serializable] public class ReelDto { public StateDto state; public string kind; public int fish = -1; public string message; }
         [Serializable] public class OpenMusselsRequest { public string requestId; public int count; }

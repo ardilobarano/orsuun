@@ -50,8 +50,8 @@ namespace Orsuun.Rules
     /// there is no afk farm there. the auto fishing is buyable with real money. make it a very very mini game that is basic.
     /// different fishes, that gives boost to player when it gets eaten. mussel and pearl is good as well"). The hero goes to
     /// Old Nergui's river from ZONES; the hunt stops there. CAST, wait for the float to go under, REEL in time: a fish or a
-    /// river mussel, else it gets away. A fish eaten adds hunting XP or sorn for a while (one meal at a time: a new one
-    /// replaces it). Nergui opens mussels (GDD: a Moon Pearl 6% of the time, a Tide Pearl 2%, a Heart Pearl 0.5%); a pearl
+    /// river mussel, else it gets away. A fish eaten adds hunting XP or sorn for a while, each fish on its own clock beside
+    /// the others ("the different fishes effects can stay on at the same time"). Nergui opens mussels (GDD: a Moon Pearl 6% of the time, a Tide Pearl 2%, a Heart Pearl 0.5%); a pearl
     /// pays the materials of the +7, +8 or +9 attempt (GDD's table). The Tireless Rod (Amber, held for days) fishes by
     /// itself while the hero stays at the river, one catch every 30 seconds (the GDD's pace), online or away. Assumptions
     /// (not stated by the owner): the fish, their boosts and shares, the mussel share, the bite timing, the rod's prices,
@@ -91,6 +91,36 @@ namespace Orsuun.Rules
         /// <summary>The Tireless Rod's days and their Amber (the Caravan).</summary>
         public static readonly int[] RodDays = { 1, 3, 7, 14 };
         public static readonly int[] RodAmber = { 50, 120, 250, 420 };
+
+        /// <summary>A fish's boost runs on its own clock, beside the others (owner, 28 Sep 2026: "the different fishes effects
+        /// can stay on at the same time"); eating one that is running adds its time, up to this long ahead.</summary>
+        public const int MealMaxMinutes = 180;
+
+        /// <summary>When a fish eaten at <paramref name="now"/> runs until, given when its boost ran until before.</summary>
+        public static DateTime MealUntil(FishDef fish, DateTime now, DateTime? before)
+        {
+            DateTime start = before != null && before.Value > now ? before.Value : now;
+            DateTime until = start.AddMinutes(fish.Minutes);
+            DateTime cap = now.AddMinutes(MealMaxMinutes);
+            return until > cap ? cap : until;
+        }
+
+        /// <summary>
+        /// The hunting boost of every fish eaten over an interval, in basis points of the hunt's gain (+10% = 1000): each
+        /// fish's percent for the share of the interval its clock covered. <paramref name="until"/> is per fish id.
+        /// </summary>
+        public static (long xpBp, long sornBp) MealBonusBp(DateTime from, DateTime to, DateTime?[] until)
+        {
+            long xp = 0, sorn = 0;
+            for (int i = 0; i < Fish.Length && i < until.Length; i++)
+            {
+                int share = MealShareBp(from, to, until[i]);
+                if (share <= 0) continue;
+                xp += (long)Fish[i].XpPercent * share / 100;
+                sorn += (long)Fish[i].SornPercent * share / 100;
+            }
+            return (xp, sorn);
+        }
 
         /// <summary>Mussels opened in one go at most (OPEN ALL).</summary>
         public const int OpenMax = 200;

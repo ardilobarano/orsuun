@@ -2426,3 +2426,7 @@ LARGE	BÜYÜK
 LARGER	DAHA BÜYÜK
 LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	DÜŞÜK pil tasarrufu sağlar: saniyede 30 kare, av yolu daha küçük çizilir, parıltı pusu olmaz.
 FEWER draws each skill without the extra layers of its grade.	DAHA AZ, her yeteneği derecesinin ek katmanları olmadan çizer.
+# Fish boosts side by side (28 Sep 2026)
++{0}% sorn	+%{0} sorn
+Fish boosts: +{0}% XP	Balık güçlendirmeleri: +%{0} TP
++{0}% XP	+%{0} TP

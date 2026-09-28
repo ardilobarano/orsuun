@@ -173,7 +173,7 @@ public sealed class Account
     /// entered, and whether that invite has paid out (at level 10).</summary>
     [MaxLength(8)] public string InviteCode { get; set; } = "";
     /// <summary>Fishing (Rules.Fishing): fish held by id and pearls (Moon;Tide;Heart), mussels still shut; at Old
-    /// Nergui's river (the hunt stops there); the cast waiting for its bite; the meal eaten and until when; the Tireless
+    /// Nergui's river (the hunt stops there); the cast waiting for its bite; the fish eaten and until when; the Tireless
     /// Rod held until, and where its count of catches stands.</summary>
     [MaxLength(64)] public string Fish { get; set; } = "";
     [MaxLength(32)] public string Pearls { get; set; } = "";
@@ -181,8 +181,8 @@ public sealed class Account
     public bool AtRiver { get; set; }
     public DateTime? CastUtc { get; set; }
     public int CastBiteMs { get; set; }
-    public int MealFish { get; set; } = -1;
-    public DateTime? MealUntilUtc { get; set; }
+    /// <summary>Each fish's boost, until when (Unix seconds by fish id, ';'-joined; 0 none): they run side by side.</summary>
+    [MaxLength(96)] public string Meals { get; set; } = "";
     public DateTime? AutoRodUntilUtc { get; set; }
     public DateTime? AutoFromUtc { get; set; }
     public Guid? InvitedById { get; set; }
