@@ -2535,3 +2535,30 @@ This piece has all six etchings.	Ten przedmiot ma wszystkie sześć rytów.
 The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	Szósty ryt wymaga Igły Arcymistrza (sklep Areny lub skrzynia samego Dowódcy).
 The Bannerkin's pieces take no etchings.	Części Chorążanki nie przyjmują rytów.
 The sixth takes a Grandmaster's Needle: you have {0}.	Szósty wymaga Igły Arcymistrza: masz {0}.
+# Rug Stalls (28 Sep 2026)
+RUG STALLS	STRAGANY NA DYWANACH
+LAY WARES	ROZŁÓŻ TOWAR
+MY RUG	MÓJ DYWAN
+ON MY RUG	NA MÓJ DYWAN
+The square's rugs, the newest first	Dywany na placu, najnowsze pierwsze
+No rugs are laid out. Be the first: LAY WARES.	Nie rozłożono żadnego dywanu. Bądź pierwszy: ROZŁÓŻ TOWAR.
+Your rug: tap a ware to take it back	Twój dywan: dotknij towaru, by go zabrać
+{0}'s rug	Dywan: {0}
+Your rug is bare: LAY WARES.	Twój dywan jest pusty: ROZŁÓŻ TOWAR.
+Nothing left on this rug.	Na tym dywanie nic nie zostało.
+{0} ware	{0} towar
+{0} wares	towary: {0}
+(you)	(ty)
+Roll it up?	Zwinąć?
+It comes back to you.	Wraca do ciebie.
+On {0}'s rug	Na dywanie: {0}
+Taken back.	Zabrano.
+Bought.	Kupiono.
+Rug Stalls need the server.	Stragany wymagają serwera.
+Pick a piece or a stack and choose ON MY RUG.	Wybierz przedmiot lub stos i wybierz NA MÓJ DYWAN.
+Lay {0} on your rug?	Położyć {0} na swoim dywanie?
+It leaves your bag now and comes back if nobody buys it on your rug within {0} hours.	Opuszcza teraz twoją torbę i wróci, jeśli nikt go nie kupi z dywanu w ciągu {0} godzin.
+It leaves your bag now and comes back if nobody buys it on the Exchange within {0} hours.	Opuszcza teraz twoją torbę i wróci, jeśli nikt go nie kupi na Giełdzie w ciągu {0} godzin.
+{0} +{1} is on your rug for {2} sorn.	{0} +{1} leży na twoim dywanie za {2} sornu.
+{0} × {1} on your rug for {2} sorn.	{0} × {1} na twoim dywanie za {2} sornu.
+Your rug holds {0} wares.	Twój dywan mieści {0} towarów.

@@ -132,8 +132,10 @@ namespace Orsuun.Client
             _message = Ui.Label("Message", canvas, 0.05f, 0.085f, 0.95f, 0.14f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
             // Direct trade (GDD section 8): face to face with another hero, beside the Exchange.
-            Ui.Button("Trade", canvas, 0.03f, 0.015f, 0.47f, 0.075f, "DIRECT TRADE", 26, Palette.Alloy, () => { Close(); _root.Trade.Open(); }, out _);
-            Ui.Button("Close", canvas, 0.5f, 0.015f, 0.97f, 0.075f, "BACK TO THE HUNT", 26, Palette.ButtonIdle, Close, out _);
+            Ui.Button("Trade", canvas, 0.03f, 0.015f, 0.34f, 0.075f, "DIRECT TRADE", 22, Palette.Alloy, () => { Close(); _root.Trade.Open(); }, out _);
+            // Rug Stalls (Rules.Market.RugWares): the rugs laid out in the square, browsed stall by stall.
+            Ui.Button("Rugs", canvas, 0.35f, 0.015f, 0.65f, 0.075f, "RUG STALLS", 22, Palette.Safe, () => { Close(); _root.Rugs.Open(); }, out _);
+            Ui.Button("Close", canvas, 0.66f, 0.015f, 0.97f, 0.075f, "BACK", 24, Palette.ButtonIdle, Close, out _);
 
             _sellBox = Ui.Rect("SellBox", canvas, 0f, 0f, 1f, 1f).gameObject;
             Image dim = Ui.Panel("Dim", _sellBox.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.65f));
@@ -151,8 +153,9 @@ namespace Orsuun.Client
             _price = Ui.Input("Price", box, 0.42f, 0.36f, 0.94f, 0.49f, "e.g. 50000", 30, 10);
             _price.contentType = InputField.ContentType.IntegerNumber;
             _payout = Ui.Label("Payout", box, 0.06f, 0.24f, 0.94f, 0.35f, "", 22, TextAnchor.MiddleLeft, Palette.Muted);
-            Ui.Button("List", box, 0.06f, 0.04f, 0.6f, 0.2f, "LIST IT", 30, Palette.ButtonForge, AskList, out _);
-            Ui.Button("Cancel", box, 0.64f, 0.04f, 0.94f, 0.2f, "CANCEL", 26, Palette.ButtonIdle, () => _sellBox.SetActive(false), out _);
+            Ui.Button("List", box, 0.04f, 0.04f, 0.36f, 0.2f, "LIST IT", 28, Palette.ButtonForge, AskList, out _);
+            Ui.Button("Rug", box, 0.38f, 0.04f, 0.66f, 0.2f, "ON MY RUG", 22, Palette.Alloy, () => AskList(rug: true), out _);
+            Ui.Button("Cancel", box, 0.68f, 0.04f, 0.96f, 0.2f, "CANCEL", 24, Palette.ButtonIdle, () => _sellBox.SetActive(false), out _);
             _sellBox.SetActive(false);
 
             _canvas.SetActive(false);
@@ -183,6 +186,9 @@ namespace Orsuun.Client
         }
 
         /// <summary>Opens SELL with a bag piece's price box (the inventory's SELL).</summary>
+        /// <summary>SELL, from RUG STALLS' LAY WARES.</summary>
+        public void OpenSellTab() => SetTab(Tab.Sell);
+
         public void OpenSell(string itemId)
         {
             Open();
@@ -242,15 +248,15 @@ namespace Orsuun.Client
         }
 
         /// <summary>Name line for a piece: +level, rarity and name, tinted by rarity.</summary>
-        private static string Title(ItemState item) => $"+{item.UpgradeLevel}  {item.DisplayName}";
+        internal static string Title(ItemState item) => $"+{item.UpgradeLevel}  {item.DisplayName}";
 
-        private static string BookTitle(int book, int count) => $"{count} × {Books.Name(book)}";
+        internal static string BookTitle(int book, int count) => $"{count} × {Books.Name(book)}";
 
         private static string BookSummary(int book) => $"A {Books.ClassOf(book)} skill's Technique Scroll";
 
         private static readonly Color BookColor = new Color(0.93f, 0.8f, 0.55f);
 
-        private static string GoodTitle(int good, int count) => $"{count} × {TradeGoods.Name(good)}";
+        internal static string GoodTitle(int good, int count) => $"{count} × {TradeGoods.Name(good)}";
 
         private static string GoodSummary(int good)
         {
@@ -291,7 +297,7 @@ namespace Orsuun.Client
             StartCoroutine(_root.Server.FetchPriceHistory(query, h => { _looking = false; show(HistoryLine(h, stack)); }));
         }
 
-        private static string Summary(ItemState item)
+        internal static string Summary(ItemState item)
         {
             int sockets = 0;
             foreach (Socket s in item.Sockets) if (!s.Dead && s.Type != null) sockets++;
@@ -313,7 +319,7 @@ namespace Orsuun.Client
             return sb.Length == 0 ? ConfirmDialog.Tint("No etchings.", Palette.Muted) : sb.ToString().TrimEnd();
         }
 
-        private static string Left(int minutes) => minutes >= 60 ? $"{minutes / 60}h left" : $"{minutes}m left";
+        internal static string Left(int minutes) => minutes >= 60 ? $"{minutes / 60}h left" : $"{minutes}m left";
 
         /// <summary>The scrolls held, by book id, that can be listed.</summary>
         private List<int> SellableBooks()
@@ -453,19 +459,24 @@ namespace Orsuun.Client
 
         private int CountEntered() => int.TryParse(_count.text, out int n) ? n : 0;
 
-        private void AskList()
+        /// <summary>Rug Stalls (Rules.Market.RugWares): ON MY RUG lays the piece or stack on the hero's own rug instead.</summary>
+        private void AskList() => AskList(rug: false);
+
+        private void AskList(bool rug)
         {
             long price = PriceEntered();
             if (Market.PriceProblem(price) is string problem) { _payout.text = ConfirmDialog.Tint(problem, Palette.Bad); return; }
             string terms = $"Price {price:N0} sorn. When it sells you receive {Market.Payout(price):N0} (the Exchange keeps {Market.TaxPercent}%).\n\n";
+            int hours = rug ? Market.RugHours : Market.ListingHours;
+            string where = rug ? "on your rug" : "on the Exchange";
             if (_sellGood >= 0)
             {
                 int good = _sellGood, count = CountEntered(), held = TradeGoods.Held(_root.Session.Inventory, good);
                 if (count < 1 || count > held) { _payout.text = ConfirmDialog.Tint($"You hold {held:N0} of these.", Palette.Bad); return; }
                 _sellBox.SetActive(false);
                 _confirm.Show("List " + GoodTitle(good, count) + "?",
-                    terms + $"They leave you now and come back if nobody buys them within {Market.ListingHours} hours.",
-                    "LIST THEM", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = System.Guid.Empty.ToString(), goodId = good, goodCount = count, price = price }));
+                    terms + $"They leave you now and come back if nobody buys them within {hours} hours.",
+                    "LIST THEM", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = System.Guid.Empty.ToString(), goodId = good, goodCount = count, price = price, rug = rug }));
                 return;
             }
             if (_sellBook >= 0)
@@ -474,16 +485,16 @@ namespace Orsuun.Client
                 if (count < 1 || count > held) { _payout.text = ConfirmDialog.Tint($"You hold {held} of this scroll.", Palette.Bad); return; }
                 _sellBox.SetActive(false);
                 _confirm.Show("List " + BookTitle(book, count) + "?",
-                    terms + $"They leave you now and come back if nobody buys them within {Market.ListingHours} hours.",
-                    "LIST THEM", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = System.Guid.Empty.ToString(), bookId = book, bookCount = count, price = price }));
+                    terms + $"They leave you now and come back if nobody buys them within {hours} hours.",
+                    "LIST THEM", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = System.Guid.Empty.ToString(), bookId = book, bookCount = count, price = price, rug = rug }));
                 return;
             }
             string id = _sellItemId;
             string title = _sellTitle.text;
             _sellBox.SetActive(false);
-            _confirm.Show("List " + title + "?",
-                terms + $"It leaves your bag now and comes back if nobody buys it within {Market.ListingHours} hours.",
-                "LIST IT", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = id, price = price }));
+            _confirm.Show((rug ? "Lay " : "List ") + title + (rug ? " on your rug?" : "?"),
+                terms + $"It leaves your bag now and comes back if nobody buys it {where} within {hours} hours.",
+                rug ? "ON MY RUG" : "LIST IT", Palette.ButtonForge, () => Call("list", new MarketListRequest { requestId = NewRequestId(), itemId = id, price = price, rug = rug }));
         }
 
         private void Update()

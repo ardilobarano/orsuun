@@ -2581,3 +2581,30 @@ This piece has all six etchings.	Dieses Stück hat alle sechs Gravuren.
 The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	Die sechste Gravur braucht eine Großmeisternadel (Grubenladen oder die eigene Truhe eines Kommandanten).
 The Bannerkin's pieces take no etchings.	Die Stücke der Bannergefährtin nehmen keine Gravuren.
 The sixth takes a Grandmaster's Needle: you have {0}.	Die sechste braucht eine Großmeisternadel: Du hast {0}.
+# Rug Stalls (28 Sep 2026)
+RUG STALLS	TEPPICHSTÄNDE
+LAY WARES	WAREN AUSLEGEN
+MY RUG	MEIN TEPPICH
+ON MY RUG	AUF MEINEN TEPPICH
+The square's rugs, the newest first	Die Teppiche des Platzes, die neuesten zuerst
+No rugs are laid out. Be the first: LAY WARES.	Kein Teppich liegt aus. Sei der Erste: WAREN AUSLEGEN.
+Your rug: tap a ware to take it back	Dein Teppich: Tippe auf eine Ware, um sie zurückzunehmen
+{0}'s rug	Teppich von {0}
+Your rug is bare: LAY WARES.	Dein Teppich ist leer: WAREN AUSLEGEN.
+Nothing left on this rug.	Auf diesem Teppich liegt nichts mehr.
+{0} ware	{0} Ware
+{0} wares	{0} Waren
+(you)	(du)
+Roll it up?	Einrollen?
+It comes back to you.	Es kommt zu dir zurück.
+On {0}'s rug	Auf dem Teppich von {0}
+Taken back.	Zurückgenommen.
+Bought.	Gekauft.
+Rug Stalls need the server.	Teppichstände brauchen den Server.
+Pick a piece or a stack and choose ON MY RUG.	Wähle ein Stück oder einen Stapel und dann AUF MEINEN TEPPICH.
+Lay {0} on your rug?	{0} auf deinen Teppich legen?
+It leaves your bag now and comes back if nobody buys it on your rug within {0} hours.	Es verlässt jetzt deine Tasche und kommt zurück, wenn es niemand binnen {0} Stunden von deinem Teppich kauft.
+It leaves your bag now and comes back if nobody buys it on the Exchange within {0} hours.	Es verlässt jetzt deine Tasche und kommt zurück, wenn es niemand binnen {0} Stunden an der Börse kauft.
+{0} +{1} is on your rug for {2} sorn.	{0} +{1} liegt für {2} Sorn auf deinem Teppich.
+{0} × {1} on your rug for {2} sorn.	{0} × {1} für {2} Sorn auf deinem Teppich.
+Your rug holds {0} wares.	Dein Teppich fasst {0} Waren.

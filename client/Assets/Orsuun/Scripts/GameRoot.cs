@@ -62,6 +62,7 @@ namespace Orsuun.Client
         public InvitePanel Invites { get; private set; }
         public RiverPanel River { get; private set; }
         public BannerkinPanel Kin { get; private set; }
+        public RugPanel Rugs { get; private set; }
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
@@ -113,6 +114,8 @@ namespace Orsuun.Client
             Invites.Init(this);
             Kin = new GameObject("BannerkinPanel").AddComponent<BannerkinPanel>();
             Kin.Init(this);
+            Rugs = new GameObject("RugPanel").AddComponent<RugPanel>();
+            Rugs.Init(this);
             // Stays off its canvas: it shows itself whenever the server says the hero is at the river.
             River = new GameObject("RiverPanel").AddComponent<RiverPanel>();
             River.Init(this);
@@ -292,6 +295,7 @@ namespace Orsuun.Client
             _openInvite = Array.IndexOf(cmd, "-invite") >= 0;
             _goFishing = Array.IndexOf(cmd, "-river") >= 0;
             _openKin = Array.IndexOf(cmd, "-kin") >= 0;
+            _openRugs = Array.IndexOf(cmd, "-rugs") >= 0;
             if (Array.IndexOf(cmd, "-settings") >= 0) Menu.OpenSettingsForShot();
             _raidFight = Array.IndexOf(Environment.GetCommandLineArgs(), "-raidfight") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
@@ -422,7 +426,7 @@ namespace Orsuun.Client
         private int _caravanTab = -1;
         private bool _openAchievements, _openRaid, _raidFight;
         private string _openBoard, _inspectShot;
-        private bool _openInvite, _goFishing, _openKin;
+        private bool _openInvite, _goFishing, _openKin, _openRugs;
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
@@ -588,6 +592,11 @@ namespace Orsuun.Client
             {
                 _goFishing = false;
                 if (!Server.AtRiver) River.Go();
+            }
+            if (Server.Online && _openRugs && !Server.WaitingForHero)
+            {
+                _openRugs = false;
+                Rugs.Open();
             }
             if (Server.Online && _openKin && !Server.WaitingForHero)
             {

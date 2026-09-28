@@ -26,6 +26,15 @@ namespace Orsuun.Rules
         public const long MaxPrice = 1_000_000_000;
         public const int ListingHours = 48;
         public const int MaxListings = 10;
+
+        /// <summary>
+        /// Rug Stalls (owner, 28 Sep 2026: picked "Rug Stalls"; GDD: "the player unrolls a rug in the town square with up to
+        /// 12 items, and it sells while the player is away"): Exchange listings laid on the hero's own rug, browsed stall by
+        /// stall rather than on the Exchange's lists. The same tax; they lie longer. Assumptions (not stated by the owner):
+        /// a week on the rug, the Exchange's tax.
+        /// </summary>
+        public const int RugWares = 12;
+        public const int RugHours = 7 * 24;
         public const int PageSize = 8;
 
         public static long Tax(long price) => price * TaxPercent / 100;

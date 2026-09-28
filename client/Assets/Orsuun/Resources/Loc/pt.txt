@@ -2549,3 +2549,30 @@ This piece has all six etchings.	Esta peça tem todas as seis gravuras.
 The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	A sexta gravura precisa de uma Agulha do Grão-Mestre (a loja da Arena ou o baú do próprio Comandante).
 The Bannerkin's pieces take no etchings.	As peças do Porta-Estandarte não aceitam gravuras.
 The sixth takes a Grandmaster's Needle: you have {0}.	A sexta precisa de uma Agulha do Grão-Mestre: você tem {0}.
+# Rug Stalls (28 Sep 2026)
+RUG STALLS	BANCAS DE TAPETE
+LAY WARES	EXPOR MERCADORIAS
+MY RUG	MEU TAPETE
+ON MY RUG	NO MEU TAPETE
+The square's rugs, the newest first	Os tapetes da praça, os mais novos primeiro
+No rugs are laid out. Be the first: LAY WARES.	Nenhum tapete está estendido. Seja o primeiro: EXPOR MERCADORIAS.
+Your rug: tap a ware to take it back	Seu tapete: toque numa mercadoria para retirá-la
+{0}'s rug	Tapete de {0}
+Your rug is bare: LAY WARES.	Seu tapete está vazio: EXPOR MERCADORIAS.
+Nothing left on this rug.	Nada sobrou neste tapete.
+{0} ware	{0} mercadoria
+{0} wares	{0} mercadorias
+(you)	(você)
+Roll it up?	Recolher?
+It comes back to you.	Ela volta para você.
+On {0}'s rug	No tapete de {0}
+Taken back.	Retirado.
+Bought.	Comprado.
+Rug Stalls need the server.	As bancas de tapete precisam do servidor.
+Pick a piece or a stack and choose ON MY RUG.	Escolha uma peça ou uma pilha e escolha NO MEU TAPETE.
+Lay {0} on your rug?	Colocar {0} no seu tapete?
+It leaves your bag now and comes back if nobody buys it on your rug within {0} hours.	Sai da sua bolsa agora e volta se ninguém a comprar no seu tapete em {0} horas.
+It leaves your bag now and comes back if nobody buys it on the Exchange within {0} hours.	Sai da sua bolsa agora e volta se ninguém a comprar no Mercado em {0} horas.
+{0} +{1} is on your rug for {2} sorn.	{0} +{1} está no seu tapete por {2} sorn.
+{0} × {1} on your rug for {2} sorn.	{0} × {1} no seu tapete por {2} sorn.
+Your rug holds {0} wares.	Seu tapete comporta {0} mercadorias.

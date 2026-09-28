@@ -652,6 +652,8 @@ public sealed class MarketListing
     /// <summary>A stack of goods instead (ItemId empty; owner, 26 Sep 2026): its Rules.TradeGoods id and count, held here until it closes.</summary>
     public int GoodId { get; set; } = -1;
     public int GoodCount { get; set; }
+    /// <summary>On the seller's rug (Rules.Market.RugWares): browsed by stall, not on the Exchange's lists.</summary>
+    public bool Rug { get; set; }
 }
 
 /// <summary>

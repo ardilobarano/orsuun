@@ -171,10 +171,14 @@ public sealed record ChatBlockRequest(Guid AccountId, bool Block, string Channel
 /// goods (Rules.TradeGoods; Item null for both).
 /// </summary>
 public sealed record ListingDto(long Id, ItemDto? Item, long Price, string SellerName, Banner SellerBanner, bool Mine, int MinutesLeft,
-    ListingStatus Status = ListingStatus.Active, int BookId = -1, int BookCount = 0, int GoodId = -1, int GoodCount = 0);
+    ListingStatus Status = ListingStatus.Active, int BookId = -1, int BookCount = 0, int GoodId = -1, int GoodCount = 0, bool Rug = false);
 public sealed record MarketDto(StateDto State, ListingDto[] Listings, int Page, int Pages, int Total, ListingDto[] Mine, int TaxPercent,
     string Message = "");
-public sealed record MarketListRequest(string RequestId, Guid ItemId, long Price, int BookId = -1, int BookCount = 0, int GoodId = -1, int GoodCount = 0);
+public sealed record MarketListRequest(string RequestId, Guid ItemId, long Price, int BookId = -1, int BookCount = 0, int GoodId = -1, int GoodCount = 0, bool Rug = false);
+/// <summary>Rug Stalls: the rugs laid out (newest first), and one rug's wares.</summary>
+public sealed record RugStallDto(Guid SellerId, string Name, Banner Banner, int Wares, bool Mine);
+public sealed record RugsDto(RugStallDto[] Stalls, int MyWares, int MaxWares, string Message = "");
+public sealed record RugDto(Guid SellerId, string Name, Banner Banner, ListingDto[] Wares, bool Mine, int TaxPercent);
 /// <summary>
 /// What a kind of thing sold for over Market.HistoryDays: sales, the average, lowest and highest price for one (a stack's
 /// price over its count), the last sale and how long ago, and up to ten recent prices for one, newest first.

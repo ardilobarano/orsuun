@@ -1539,6 +1539,24 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>A market call (list, buy, cancel); completes with (message, error).</summary>
+        /// <summary>Rug Stalls: the rugs laid out now. Completes with (rugs, error).</summary>
+        public IEnumerator FetchRugs(Action<RugsDto, string> done)
+        {
+            RugsDto result = null;
+            string failure = null;
+            yield return Send("GET", "/v1/rugs", null, true, json => result = JsonUtility.FromJson<RugsDto>(json), error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        /// <summary>One rug's wares. Completes with (rug, error).</summary>
+        public IEnumerator FetchRug(string sellerId, Action<RugDto, string> done)
+        {
+            RugDto result = null;
+            string failure = null;
+            yield return Send("GET", "/v1/rugs/" + sellerId, null, true, json => result = JsonUtility.FromJson<RugDto>(json), error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         public IEnumerator MarketCall(string path, object request, Action<string, string> done)
         {
             string failure = null;
@@ -1956,12 +1974,15 @@ namespace Orsuun.Client.Net
         [Serializable] public class ChatSayRequest { public string channel; public string text; public long after; }
         [Serializable] public class ChatReportRequest { public long messageId; public string channel; }
         [Serializable] public class ChatBlockRequest { public string accountId; public bool block; public string channel; }
-        [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; }
+        [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; public bool rug; }
+        [Serializable] public class RugStallDto { public string sellerId; public string name; public string banner; public int wares; public bool mine; }
+        [Serializable] public class RugsDto { public RugStallDto[] stalls; public int myWares; public int maxWares; public string message; }
+        [Serializable] public class RugDto { public string sellerId; public string name; public string banner; public ListingDto[] wares; public bool mine; public int taxPercent; }
         [Serializable] public class PriceHistoryDto { public string what; public int sales; public long average; public long low; public long high; public long last; public int lastMinutesAgo; public int days; public long[] recent; }
         [Serializable] public class MarketDto { public StateDto state; public ListingDto[] listings; public int page; public int pages; public int total; public ListingDto[] mine; public int taxPercent; public string message; }
         /// <summary>A scroll stack sends the empty Guid as itemId (the server reads it as a Guid).</summary>
         [Serializable] public class BagSellRequest { public string requestId; public string itemId; public string[] itemIds; }
-        [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; }
+        [Serializable] public class MarketListRequest { public string requestId; public string itemId; public long price; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; public bool rug; }
         [Serializable] public class MarketBuyRequest { public string requestId; public long listingId; }
         [Serializable] public class RegisterRequest { public string email; public string password; }
         [Serializable] public class LoginRequest { public string email; public string password; public string deviceToken; }

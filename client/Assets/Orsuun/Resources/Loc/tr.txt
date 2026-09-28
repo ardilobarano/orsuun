@@ -2505,3 +2505,30 @@ This piece has all six etchings.	Bu parçanın altı oyması da var.
 The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	Altıncı oyma bir Büyük Usta İğnesi ister (Çukur dükkânı ya da bir Komutanın kendi sandığı).
 The Bannerkin's pieces take no etchings.	Sancakdaş'ın parçaları oyma almaz.
 The sixth takes a Grandmaster's Needle: you have {0}.	Altıncısı bir Büyük Usta İğnesi ister: sende {0} var.
+# Rug Stalls (28 Sep 2026)
+RUG STALLS	KİLİM TEZGÂHLARI
+LAY WARES	MAL SER
+MY RUG	KİLİMİM
+ON MY RUG	KİLİMİME
+The square's rugs, the newest first	Meydanın kilimleri, en yenisi önce
+No rugs are laid out. Be the first: LAY WARES.	Serili kilim yok. İlk sen ol: MAL SER.
+Your rug: tap a ware to take it back	Kilimin: geri almak için bir mala dokun
+{0}'s rug	{0} adlı kahramanın kilimi
+Your rug is bare: LAY WARES.	Kilimin boş: MAL SER.
+Nothing left on this rug.	Bu kilimde bir şey kalmadı.
+{0} ware	{0} mal
+{0} wares	{0} mal
+(you)	(sen)
+Roll it up?	Toplansın mı?
+It comes back to you.	Sana geri döner.
+On {0}'s rug	{0} adlı kahramanın kiliminde
+Taken back.	Geri alındı.
+Bought.	Satın alındı.
+Rug Stalls need the server.	Kilim tezgâhları sunucu ister.
+Pick a piece or a stack and choose ON MY RUG.	Bir parça ya da yığın seç ve KİLİMİME'yi seç.
+Lay {0} on your rug?	{0} kilimine serilsin mi?
+It leaves your bag now and comes back if nobody buys it on your rug within {0} hours.	Şimdi çantandan çıkar ve {0} saat içinde kiliminde kimse almazsa geri döner.
+It leaves your bag now and comes back if nobody buys it on the Exchange within {0} hours.	Şimdi çantandan çıkar ve {0} saat içinde Borsada kimse almazsa geri döner.
+{0} +{1} is on your rug for {2} sorn.	{0} +{1} {2} sorna kiliminde.
+{0} × {1} on your rug for {2} sorn.	{0} × {1}, {2} sorna kiliminde.
+Your rug holds {0} wares.	Kilimin {0} mal alır.

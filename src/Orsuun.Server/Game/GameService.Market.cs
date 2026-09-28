@@ -90,7 +90,7 @@ public sealed partial class GameService
         await ExpireListingsAsync(account, ct);
         await SaveAsync(ct);
         DateTime now = DateTime.UtcNow;
-        IQueryable<MarketListing> query = _db.MarketListings.AsNoTracking().Where(l => l.Status == ListingStatus.Active && l.ExpiresUtc > now);
+        IQueryable<MarketListing> query = _db.MarketListings.AsNoTracking().Where(l => l.Status == ListingStatus.Active && l.ExpiresUtc > now && !l.Rug);
         if (books) query = query.Where(l => l.BookId >= 0);
         else if (goods) query = query.Where(l => l.GoodId >= 0);
         else if (slot is EquipSlot s) query = query.Where(l => l.Slot == s && l.BookId < 0 && l.GoodId < 0);
@@ -112,11 +112,11 @@ public sealed partial class GameService
         Dictionary<Guid, Item> items = await _db.Items.AsNoTracking().Where(i => itemIds.Contains(i.Id)).ToDictionaryAsync(i => i.Id, ct);
         ListingDto? Dto(MarketListing l) => l.GoodId >= 0
             ? new ListingDto(l.Id, null, l.Price, l.SellerName, l.SellerBanner, l.SellerId == account.Id, MinutesLeft(l, now), l.Status,
-                GoodId: l.GoodId, GoodCount: l.GoodCount)
+                GoodId: l.GoodId, GoodCount: l.GoodCount, Rug: l.Rug)
             : l.BookId >= 0
-            ? new ListingDto(l.Id, null, l.Price, l.SellerName, l.SellerBanner, l.SellerId == account.Id, MinutesLeft(l, now), l.Status, l.BookId, l.BookCount)
+            ? new ListingDto(l.Id, null, l.Price, l.SellerName, l.SellerBanner, l.SellerId == account.Id, MinutesLeft(l, now), l.Status, l.BookId, l.BookCount, Rug: l.Rug)
             : items.TryGetValue(l.ItemId, out Item? item)
-            ? new ListingDto(l.Id, ToDto(item), l.Price, l.SellerName, l.SellerBanner, l.SellerId == account.Id, MinutesLeft(l, now), l.Status)
+            ? new ListingDto(l.Id, ToDto(item), l.Price, l.SellerName, l.SellerBanner, l.SellerId == account.Id, MinutesLeft(l, now), l.Status, Rug: l.Rug)
             : null;
         return new MarketDto(ToState(account), rows.Select(Dto).OfType<ListingDto>().ToArray(), page, pages, total,
             mine.Select(Dto).OfType<ListingDto>().ToArray(), Market.TaxPercent, message);
@@ -131,21 +131,21 @@ public sealed partial class GameService
             ?? throw new GameException("no_item", "You do not own that item.");
         if (item.Equipped) throw new GameException("worn", "Take the piece off before you sell it.");
         if (Market.PriceProblem(request.Price) is string problem) throw new GameException("bad_price", problem);
-        if (await _db.MarketListings.CountAsync(l => l.SellerId == account.Id && l.Status == ListingStatus.Active, ct) >= Market.MaxListings)
-            throw new GameException("listings_full", $"You can have {Market.MaxListings} pieces on the Exchange at once.");
+        if (await RoomProblemAsync(account, request.Rug, ct) is string full)
+            throw new GameException("listings_full", full);
 
         DateTime now = DateTime.UtcNow;
         item.Listed = true;
         _db.MarketListings.Add(new MarketListing
         {
             ItemId = item.Id, SellerId = account.Id, SellerName = DisplayName(account), SellerBanner = account.Banner, Price = request.Price,
-            Status = ListingStatus.Active, CreatedUtc = now, ExpiresUtc = now.AddHours(Market.ListingHours),
+            Status = ListingStatus.Active, CreatedUtc = now, ExpiresUtc = now.AddHours(request.Rug ? Market.RugHours : Market.ListingHours), Rug = request.Rug,
             Slot = item.Slot, Rarity = item.Rarity, ItemLevel = item.ItemLevel, UpgradeLevel = item.UpgradeLevel,
         });
         _db.Ledger.Add(Entry(account.Id, item.Id, "market-list", $"price={request.Price}", 0, request.RequestId));
         await SaveAsync(ct);
         string name = Content.ItemName(item.ToState(), account.Class);
-        return await MarketViewAsync(account, null, null, 0, $"{name} +{item.UpgradeLevel} is on the Exchange for {request.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn.", ct);
+        return await MarketViewAsync(account, null, null, 0, $"{name} +{item.UpgradeLevel} is {(request.Rug ? "on your rug" : "on the Exchange")} for {request.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn.", ct);
     }
 
     /// <summary>A stack of Technique Scrolls on the Exchange: the count leaves the hero's stack into the listing.</summary>
@@ -155,19 +155,19 @@ public sealed partial class GameService
         int held = BookCounts(account)[request.BookId];
         if (request.BookCount < 1 || request.BookCount > held) throw new GameException("no_books", $"You hold {held} of that book.");
         if (Market.PriceProblem(request.Price) is string problem) throw new GameException("bad_price", problem);
-        if (await _db.MarketListings.CountAsync(l => l.SellerId == account.Id && l.Status == ListingStatus.Active, ct) >= Market.MaxListings)
-            throw new GameException("listings_full", $"You can have {Market.MaxListings} listings on the Exchange at once.");
+        if (await RoomProblemAsync(account, request.Rug, ct) is string full)
+            throw new GameException("listings_full", full);
         DateTime now = DateTime.UtcNow;
         SetBooks(account, request.BookId, held - request.BookCount);
         _db.MarketListings.Add(new MarketListing
         {
             ItemId = Guid.Empty, SellerId = account.Id, SellerName = DisplayName(account), SellerBanner = account.Banner, Price = request.Price,
-            Status = ListingStatus.Active, CreatedUtc = now, ExpiresUtc = now.AddHours(Market.ListingHours), BookId = request.BookId, BookCount = request.BookCount,
+            Status = ListingStatus.Active, CreatedUtc = now, ExpiresUtc = now.AddHours(request.Rug ? Market.RugHours : Market.ListingHours), Rug = request.Rug, BookId = request.BookId, BookCount = request.BookCount,
         });
         _db.Ledger.Add(Entry(account.Id, null, "market-list", $"book={request.BookId} count={request.BookCount} price={request.Price}", 0, request.RequestId));
         await SaveAsync(ct);
         return await MarketViewAsync(account, null, null, 0,
-            $"{request.BookCount} × {Books.Name(request.BookId)} on the Exchange for {request.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn.", ct, books: true);
+            $"{request.BookCount} × {Books.Name(request.BookId)} {(request.Rug ? "on your rug" : "on the Exchange")} for {request.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn.", ct, books: true);
     }
 
     /// <summary>A stack of goods on the Exchange: the count leaves the hero's goods into the listing.</summary>
@@ -177,19 +177,19 @@ public sealed partial class GameService
         int held = GoodHeld(account, request.GoodId);
         if (request.GoodCount < 1 || request.GoodCount > held) throw new GameException("no_goods", $"You hold {held} of that.");
         if (Market.PriceProblem(request.Price) is string problem) throw new GameException("bad_price", problem);
-        if (await _db.MarketListings.CountAsync(l => l.SellerId == account.Id && l.Status == ListingStatus.Active, ct) >= Market.MaxListings)
-            throw new GameException("listings_full", $"You can have {Market.MaxListings} listings on the Exchange at once.");
+        if (await RoomProblemAsync(account, request.Rug, ct) is string full)
+            throw new GameException("listings_full", full);
         DateTime now = DateTime.UtcNow;
         AddGood(account, request.GoodId, -request.GoodCount);
         _db.MarketListings.Add(new MarketListing
         {
             ItemId = Guid.Empty, SellerId = account.Id, SellerName = DisplayName(account), SellerBanner = account.Banner, Price = request.Price,
-            Status = ListingStatus.Active, CreatedUtc = now, ExpiresUtc = now.AddHours(Market.ListingHours), GoodId = request.GoodId, GoodCount = request.GoodCount,
+            Status = ListingStatus.Active, CreatedUtc = now, ExpiresUtc = now.AddHours(request.Rug ? Market.RugHours : Market.ListingHours), Rug = request.Rug, GoodId = request.GoodId, GoodCount = request.GoodCount,
         });
         _db.Ledger.Add(Entry(account.Id, null, "market-list", $"good={request.GoodId} count={request.GoodCount} price={request.Price}", 0, request.RequestId));
         await SaveAsync(ct);
         return await MarketViewAsync(account, null, null, 0,
-            $"{request.GoodCount} × {TradeGoods.Name(request.GoodId)} on the Exchange for {request.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn.", ct, goods: true);
+            $"{request.GoodCount} × {TradeGoods.Name(request.GoodId)} {(request.Rug ? "on your rug" : "on the Exchange")} for {request.Price.ToString("N0", CultureInfo.InvariantCulture)} sorn.", ct, goods: true);
     }
 
     private int GoodHeld(Account a, int good) => TradeGoods.Held(Snapshot(a), good);

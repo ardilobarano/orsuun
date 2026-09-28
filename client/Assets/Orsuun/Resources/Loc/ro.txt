@@ -2543,3 +2543,30 @@ This piece has all six etchings.	Piesa are toate cele șase gravuri.
 The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	A șasea gravură cere un Ac de Mare Maestru (prăvălia Gropii sau cufărul propriu al unui Comandant).
 The Bannerkin's pieces take no etchings.	Piesele Stegăresei nu primesc gravuri.
 The sixth takes a Grandmaster's Needle: you have {0}.	A șasea cere un Ac de Mare Maestru: ai {0}.
+# Rug Stalls (28 Sep 2026)
+RUG STALLS	TARABE PE COVOR
+LAY WARES	AȘAZĂ MARFĂ
+MY RUG	COVORUL MEU
+ON MY RUG	PE COVORUL MEU
+The square's rugs, the newest first	Covoarele din piață, cele mai noi întâi
+No rugs are laid out. Be the first: LAY WARES.	Niciun covor nu e întins. Fii primul: AȘAZĂ MARFĂ.
+Your rug: tap a ware to take it back	Covorul tău: atinge o marfă ca s-o iei înapoi
+{0}'s rug	Covorul lui {0}
+Your rug is bare: LAY WARES.	Covorul tău e gol: AȘAZĂ MARFĂ.
+Nothing left on this rug.	Nu a mai rămas nimic pe acest covor.
+{0} ware	{0} marfă
+{0} wares	{0} mărfuri
+(you)	(tu)
+Roll it up?	Strângi?
+It comes back to you.	Se întoarce la tine.
+On {0}'s rug	Pe covorul lui {0}
+Taken back.	Luat înapoi.
+Bought.	Cumpărat.
+Rug Stalls need the server.	Tarabele au nevoie de server.
+Pick a piece or a stack and choose ON MY RUG.	Alege o piesă sau o grămadă și apoi PE COVORUL MEU.
+Lay {0} on your rug?	Pui {0} pe covorul tău?
+It leaves your bag now and comes back if nobody buys it on your rug within {0} hours.	Iese acum din sac și se întoarce dacă nimeni nu o cumpără de pe covorul tău în {0} ore.
+It leaves your bag now and comes back if nobody buys it on the Exchange within {0} hours.	Iese acum din sac și se întoarce dacă nimeni nu o cumpără la Bursă în {0} ore.
+{0} +{1} is on your rug for {2} sorn.	{0} +{1} e pe covorul tău pentru {2} sorn.
+{0} × {1} on your rug for {2} sorn.	{0} × {1} pe covorul tău pentru {2} sorn.
+Your rug holds {0} wares.	Covorul tău ține {0} mărfuri.
