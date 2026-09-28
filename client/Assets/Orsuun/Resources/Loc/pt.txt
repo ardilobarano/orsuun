@@ -2645,3 +2645,11 @@ Your {0} came in #{1} of the contest.	Seu {0} ficou em #{1} no concurso.
 Here is your share of the prizes.	Aqui está sua parte dos prêmios.
 You wear the title {0} for a week.	Você usa o título {0} por uma semana.
 {0}: {1} sorn + {2} {3}	{0}: {1} sorn + {2} {3}
+GOT IT	ENTENDI
+THE TOWN SQUARE	A PRAÇA DA CIDADE
+THE BAZAAR CALL	O PREGÃO DO BAZAR
+THE CATCH	A FISGADA
+Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skills and Bora runs the Pits. Each gives an errand a day. Heroes who are in town stand here too, and the hunt goes on while you visit.	Vá até o povo da cidade: Dorun refina, Ilke cuida da Caravana, Tamir ensina habilidades e Bora comanda as Arenas. Cada um dá uma tarefa por dia. Heróis que estão na cidade ficam aqui também, e a caçada continua enquanto você visita.
+Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.	Heróis de nível 20 anunciam suas mercadorias aqui, uma vez a cada 30 segundos. MOSTRAR junta uma das suas peças às suas palavras. Toque numa peça mostrada para vê-la e depois TROCAR ou SUSSURRAR.
+Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.	Segure em qualquer lugar para erguer a caixa de bronze; solte e ela afunda. Mantenha o peixe dentro dela até a barra encher. Quanto mais raro o peixe, mais selvagem ele nada.
+She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.	Ela anda atrás de você na caçada: a Bênção do Caçador lhe dá críticos e a Canção Curativa cura você. As seis peças dela são dela: refine-as como as suas para deixá-la mais forte. Duelos e as Arenas a deixam de fora.

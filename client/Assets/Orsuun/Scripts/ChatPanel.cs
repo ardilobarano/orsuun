@@ -283,6 +283,7 @@ namespace Orsuun.Client
             _stickToBottom = true;
             // LINK only on the Bazaar Call; the field takes its room elsewhere.
             bool trade = channel == _trade;
+            if (trade) _root.Tips.Offer(TipCard.Tip.Bazaar);
             _linkButton.gameObject.SetActive(trade);
             var field = (RectTransform)_input.transform;
             field.anchorMin = new Vector2(trade ? 0.225f : 0.04f, field.anchorMin.y);

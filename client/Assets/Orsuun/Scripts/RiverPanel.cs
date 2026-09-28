@@ -278,6 +278,8 @@ namespace Orsuun.Client
             _phase = Phase.Fight;
             _phaseAt = Time.time;
             _fightTitle.text = Fishing.Fish[fish].Name;
+            // The first catch explains itself; the fish waits while the card shows (the server allows 90 seconds).
+            _root.Tips.Offer(TipCard.Tip.Catch);
             Ui.SetIcon(_fishIcon, Fishing.Fish[fish].Icon);
             _fight.SetActive(true);
         }
@@ -607,7 +609,7 @@ namespace Orsuun.Client
                 _place.Ripple(rest, second: true);
                 GameAudio.Instance?.Play("RiverPlop", 0.9f);
             }
-            if (_phase == Phase.Fight && _fight.activeSelf) UpdateFight();
+            if (_phase == Phase.Fight && _fight.activeSelf && !_root.Tips.Showing) UpdateFight();
             if (_phase == Phase.Bite && t >= _missAt)
             {
                 _phase = Phase.Idle;

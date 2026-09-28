@@ -2601,3 +2601,11 @@ Your {0} came in #{1} of the contest.	{0} balığın yarışmada #{1} oldu.
 Here is your share of the prizes.	İşte ödüllerden payın.
 You wear the title {0} for a week.	Bir hafta boyunca {0} unvanını taşıyorsun.
 {0}: {1} sorn + {2} {3}	{0}: {1} sorn + {2} {3}
+GOT IT	ANLADIM
+THE TOWN SQUARE	KASABA MEYDANI
+THE BAZAAR CALL	PAZAR ÇAĞRISI
+THE CATCH	AV ANI
+Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skills and Bora runs the Pits. Each gives an errand a day. Heroes who are in town stand here too, and the hunt goes on while you visit.	Kasabalılara yürü: Dorun güçlendirir, İlke Kervan'ı tutar, Tamir beceri öğretir, Bora Çukur'u yönetir. Her biri günde bir görev verir. Kasabadaki kahramanlar da burada durur ve sen gezerken av sürer.
+Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.	20. seviyedeki kahramanlar mallarını burada 30 saniyede bir duyurur. GÖSTER, sözlerinle birlikte parçalarından birini gösterir. Birinin gösterdiği parçaya dokun, sonra TAKAS ya da FISILDA.
+Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.	Bronz kutuyu kaldırmak için herhangi bir yere basılı tut, bırakınca batar. Çubuk dolana kadar balığı içinde tut. Balık ne kadar nadirse o kadar vahşi yüzer.
+She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.	Avda arkandan yürür: Avcı Kutsaması sana kritik vuruş verir, İyileştiren Şarkı seni iyileştirir. Altı parçası kendisinindir: onu güçlendirmek için onları kendi parçaların gibi güçlendir. Düellolar ve Çukur onu dışarıda bırakır.

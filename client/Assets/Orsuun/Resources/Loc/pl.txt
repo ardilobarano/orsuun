@@ -2631,3 +2631,11 @@ Your {0} came in #{1} of the contest.	Twoja ryba {0} zajęła #{1} w zawodach.
 Here is your share of the prizes.	Oto twoja część nagród.
 You wear the title {0} for a week.	Przez tydzień nosisz tytuł {0}.
 {0}: {1} sorn + {2} {3}	{0}: {1} sornu + {2} {3}
+GOT IT	ROZUMIEM
+THE TOWN SQUARE	RYNEK
+THE BAZAAR CALL	WOŁANIE BAZARU
+THE CATCH	POŁÓW
+Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skills and Bora runs the Pits. Each gives an errand a day. Heroes who are in town stand here too, and the hunt goes on while you visit.	Podejdź do mieszkańców: Dorun ulepsza, Ilke prowadzi Karawanę, Tamir uczy umiejętności, a Bora zarządza Areną. Każdy daje jedno zlecenie dziennie. Bohaterowie w mieście też tu stoją, a polowanie trwa, gdy tu jesteś.
+Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.	Bohaterowie od poziomu 20 ogłaszają tu swoje towary raz na 30 sekund. POKAŻ dołącza jeden z twoich przedmiotów do twoich słów. Dotknij pokazanego przedmiotu, a potem HANDEL lub SZEPNIJ.
+Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.	Przytrzymaj gdziekolwiek, by unieść brązową ramkę; puść, a opadnie. Trzymaj w niej rybę, aż pasek się zapełni. Im rzadsza ryba, tym dziksza.
+She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.	Idzie za tobą na polowaniu: Błogosławieństwo Łowcy daje ci trafienia krytyczne, a Kojąca Pieśń cię leczy. Jej sześć przedmiotów należy do niej: ulepszaj je jak swoje, by była silniejsza. Pojedynki i Arena jej nie obejmują.

@@ -64,6 +64,7 @@ namespace Orsuun.Client
         public BannerkinPanel Kin { get; private set; }
         public RugPanel Rugs { get; private set; }
         public TownPanel Town { get; private set; }
+        public TipCard Tips { get; private set; }
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
@@ -109,6 +110,8 @@ namespace Orsuun.Client
             Store.Init(this);
             Story = new GameObject("StoryPanel").AddComponent<StoryPanel>();
             Story.Init(this);
+            Tips = new GameObject("TipCard").AddComponent<TipCard>();
+            Tips.Init(this);
             Leaderboards = new GameObject("LeaderboardPanel").AddComponent<LeaderboardPanel>();
             Leaderboards.Init(this);
             Invites = new GameObject("InvitePanel").AddComponent<InvitePanel>();

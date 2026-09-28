@@ -123,6 +123,7 @@ namespace Orsuun.Client
 
         public void Open()
         {
+            _root.Tips.Offer(TipCard.Tip.Bannerkin);
             _canvas.SetActive(true);
             _message.text = _root.Server.Online ? "" : "The Bannerkin needs the server.";
             _selected = null;

@@ -247,6 +247,7 @@ namespace Orsuun.Client
 
         public void Open()
         {
+            _root.Tips.Offer(TipCard.Tip.Town);
             _canvas.SetActive(true);
             _actions.SetActive(false);
             _visitAt = -100f;

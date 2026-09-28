@@ -2639,3 +2639,11 @@ Your {0} came in #{1} of the contest.	{0} al tău a ieșit #{1} în concurs.
 Here is your share of the prizes.	Iată partea ta din premii.
 You wear the title {0} for a week.	Porți titlul {0} timp de o săptămână.
 {0}: {1} sorn + {2} {3}	{0}: {1} sorn + {2} {3}
+GOT IT	AM ÎNȚELES
+THE TOWN SQUARE	PIAȚA ORAȘULUI
+THE BAZAAR CALL	STRIGAREA BAZARULUI
+THE CATCH	PRINSOAREA
+Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skills and Bora runs the Pits. Each gives an errand a day. Heroes who are in town stand here too, and the hunt goes on while you visit.	Mergi la oamenii orașului: Dorun rafinează, Ilke ține Caravana, Tamir învață abilități, iar Bora conduce Groapa. Fiecare dă o sarcină pe zi. Eroii din oraș stau și ei aici, iar vânătoarea continuă cât ești în vizită.
+Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.	Eroii de nivel 20 își strigă marfa aici, o dată la 30 de secunde. ARATĂ pune una dintre piesele tale lângă vorbele tale. Atinge o piesă arătată ca s-o vezi, apoi SCHIMB sau ȘOPTEȘTE.
+Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.	Ține apăsat oriunde ca să ridici cutia de bronz; dă drumul și coboară. Ține peștele înăuntru până se umple bara. Cu cât peștele e mai rar, cu atât înoată mai sălbatic.
+She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.	Merge în urma ta la vânătoare: Binecuvântarea Vânătorului îți dă lovituri critice, iar Cântecul Vindecător te vindecă. Cele șase piese ale ei sunt ale ei: rafinează-le ca pe ale tale ca s-o faci mai puternică. Duelurile și Groapa o lasă deoparte.
