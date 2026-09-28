@@ -2647,3 +2647,9 @@ Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skill
 Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.	Eroii de nivel 20 își strigă marfa aici, o dată la 30 de secunde. ARATĂ pune una dintre piesele tale lângă vorbele tale. Atinge o piesă arătată ca s-o vezi, apoi SCHIMB sau ȘOPTEȘTE.
 Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.	Ține apăsat oriunde ca să ridici cutia de bronz; dă drumul și coboară. Ține peștele înăuntru până se umple bara. Cu cât peștele e mai rar, cu atât înoată mai sălbatic.
 She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.	Merge în urma ta la vânătoare: Binecuvântarea Vânătorului îți dă lovituri critice, iar Cântecul Vindecător te vindecă. Cele șase piese ale ei sunt ale ei: rafinează-le ca pe ale tale ca s-o faci mai puternică. Duelurile și Groapa o lasă deoparte.
+The moderation queue	Coada de moderare
+A chat line was reported	O linie din chat a fost raportată
+A hero's name was reported	Numele unui erou a fost raportat
+A guild's name was reported	Numele unei bresle a fost raportat
+A private message was reported	Un mesaj privat a fost raportat
+Open /admin to look at it.	Deschide /admin ca să te uiți.

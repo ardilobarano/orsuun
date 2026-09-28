@@ -259,3 +259,30 @@ public sealed partial class GameService
         (await _db.AdminActions.AsNoTracking().OrderByDescending(a => a.Id).Take(150).ToListAsync(ct))
             .Select(a => new AdminActionDto(a.Utc, a.Admin, a.Action, a.Target, a.Detail)).ToArray();
 }
+
+// Moderator alerts (owner, 28 Sep 2026: picked "Moderator alerts": "A push to moderators when a chat line or name is
+// reported (today someone has to open /admin to see reports)"). When a chat line, a name or a private message is
+// reported, each moderator (a login whose email is in Admin:Emails) gets a letter from the moderation queue on the hero
+// it played last, at most one of a kind in ten minutes; like every letter it brings a push once the server has push
+// keys (they wait on the owner's Apple and Firebase accounts), and until then it lights the mailbox in the game.
+public sealed partial class GameService
+{
+    private const int AlertEveryMinutes = 10;
+
+    private async Task AlertModeratorsAsync(string kind, string title, string body, CancellationToken ct)
+    {
+        string[] emails = _push.ModeratorEmails;
+        if (emails.Length == 0) return;
+        List<Guid> logins = await _db.Logins.AsNoTracking().Where(l => l.Email != null && emails.Contains(l.Email)).Select(l => l.Id).ToListAsync(ct);
+        string letterKind = "mod-" + kind;
+        DateTime since = DateTime.UtcNow.AddMinutes(-AlertEveryMinutes);
+        foreach (Guid login in logins)
+        {
+            Guid? hero = await _db.Accounts.AsNoTracking().Where(a => a.LoginId == login)
+                .OrderByDescending(a => a.LastHeartbeatUtc).Select(a => (Guid?)a.Id).FirstOrDefaultAsync(ct);
+            if (hero == null) continue;
+            if (await _db.Letters.AnyAsync(l => l.AccountId == hero && l.Kind == letterKind && l.Utc > since, ct)) continue;
+            SendLetter(hero.Value, letterKind, "The moderation queue", title, body + " Open /admin to look at it.");
+        }
+    }
+}

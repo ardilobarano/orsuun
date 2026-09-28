@@ -39,6 +39,7 @@ public sealed partial class GameService
         if (!await _db.NameReports.AnyAsync(r => r.Kind == kind && r.TargetId == targetId && r.Name == shown && r.ReporterId == account.Id, ct))
         {
             _db.NameReports.Add(new NameReport { Kind = kind, TargetId = targetId, Name = shown, ReporterId = account.Id, Utc = DateTime.UtcNow });
+            await AlertModeratorsAsync("name", kind == "guild" ? "A guild's name was reported" : "A hero's name was reported", shown + ".", ct);
             await SaveAsync(ct);
         }
         return new MessageDto("Reported. A moderator will look at the name.");

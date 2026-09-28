@@ -2685,3 +2685,9 @@ Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skill
 Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.	Helden ab Stufe 20 rufen hier ihre Waren aus, alle 30 Sekunden einmal. ZEIGEN fügt deinen Worten eines deiner Stücke bei. Tippe ein gezeigtes Stück an, dann HANDEL oder FLÜSTERN.
 Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.	Halte irgendwo gedrückt, um die Bronzebox zu heben, lass los und sie sinkt. Halte den Fisch darin, bis sich der Balken füllt. Je seltener der Fisch, desto wilder schwimmt er.
 She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.	Sie geht auf der Jagd hinter dir: Segen des Jägers leiht dir kritische Treffer und Heilendes Lied heilt dich. Ihre sechs Stücke gehören ihr: Schmiede sie wie deine, um sie stärker zu machen. Duelle und die Grube lassen sie außen vor.
+The moderation queue	Die Moderationswarteschlange
+A chat line was reported	Eine Chatzeile wurde gemeldet
+A hero's name was reported	Ein Heldenname wurde gemeldet
+A guild's name was reported	Ein Gildenname wurde gemeldet
+A private message was reported	Eine private Nachricht wurde gemeldet
+Open /admin to look at it.	Öffne /admin, um es dir anzusehen.

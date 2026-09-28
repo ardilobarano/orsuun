@@ -2609,3 +2609,9 @@ Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skill
 Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.	20. seviyedeki kahramanlar mallarını burada 30 saniyede bir duyurur. GÖSTER, sözlerinle birlikte parçalarından birini gösterir. Birinin gösterdiği parçaya dokun, sonra TAKAS ya da FISILDA.
 Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.	Bronz kutuyu kaldırmak için herhangi bir yere basılı tut, bırakınca batar. Çubuk dolana kadar balığı içinde tut. Balık ne kadar nadirse o kadar vahşi yüzer.
 She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.	Avda arkandan yürür: Avcı Kutsaması sana kritik vuruş verir, İyileştiren Şarkı seni iyileştirir. Altı parçası kendisinindir: onu güçlendirmek için onları kendi parçaların gibi güçlendir. Düellolar ve Çukur onu dışarıda bırakır.
+The moderation queue	Denetim sırası
+A chat line was reported	Bir sohbet satırı bildirildi
+A hero's name was reported	Bir kahraman adı bildirildi
+A guild's name was reported	Bir lonca adı bildirildi
+A private message was reported	Bir özel mesaj bildirildi
+Open /admin to look at it.	İncelemek için /admin sayfasını aç.

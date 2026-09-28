@@ -129,6 +129,7 @@ public sealed partial class GameService
             _db.ChatMessages.Add(copy);
             await SaveAsync(ct);
             _db.ChatReports.Add(new ChatReport { MessageId = copy.Id, ReporterId = account.Id, Utc = DateTime.UtcNow });
+            await AlertModeratorsAsync("whisper", "A private message was reported", $"{copy.Name}: \u201c{Clip(line.Text, 80)}\u201d.", ct);
             await SaveAsync(ct);
         }
         return await WhisperThreadAsync(account, line.FromId, 0, 0, "Reported. A moderator will look at it.", ct);

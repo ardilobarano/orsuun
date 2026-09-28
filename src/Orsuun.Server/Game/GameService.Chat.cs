@@ -117,6 +117,7 @@ public sealed partial class GameService
         if (!await _db.ChatReports.AnyAsync(r => r.MessageId == line.Id && r.ReporterId == account.Id, ct))
         {
             _db.ChatReports.Add(new ChatReport { MessageId = line.Id, ReporterId = account.Id, Utc = DateTime.UtcNow });
+            await AlertModeratorsAsync("chat", "A chat line was reported", $"{line.Name}: \u201c{Clip(line.Text, 80)}\u201d.", ct);
             await SaveAsync(ct);
             // A new report puts the line back in the moderators' queue; it hides itself at three reports unless a
             // moderator had already looked at it and kept it.

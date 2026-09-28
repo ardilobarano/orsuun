@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
 using Microsoft.EntityFrameworkCore;
+using Orsuun.Rules;
 using Orsuun.Server.Data;
 
 namespace Orsuun.Server.Game;
@@ -45,6 +46,10 @@ public sealed class PushSender : BackgroundService
         string? file = _config[key + "File"];
         return !string.IsNullOrWhiteSpace(file) && File.Exists(file) ? File.ReadAllText(file) : null;
     }
+
+    /// <summary>The moderators' emails (Admin:Emails, normalised): they get the report alerts (GameService.Admin).</summary>
+    public string[] ModeratorEmails => (_config["Admin:Emails"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(AccountRules.NormaliseEmail).ToArray();
 
     private bool AppleReady => Setting("Push:Apple:TeamId") != null && Setting("Push:Apple:KeyId") != null && Setting("Push:Apple:PrivateKey") != null;
     private bool GoogleReady => Setting("Push:Google:ServiceAccountJson") != null;

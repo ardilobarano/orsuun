@@ -95,7 +95,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   default import rescales others and breaks nine-slice borders). Use `Ui.Button` / `Ui.Framed` / `Ui.Backdrop` /
   `Ui.Bar` rather than flat `Ui.Panel` plates; a new skill needs `Resources/Icons/Skills/<letters of its name>.png`.
 - The moderation page (`src/Orsuun.Server/Admin/`) is embedded in the server assembly; anything players wrote is put
-  on it with `textContent` only (never innerHTML). Moderators come from `Admin:Emails` (env `Admin__Emails`).
+  on it with `textContent` only (never innerHTML). Moderators come from `Admin:Emails` (env `Admin__Emails`). A new kind
+  of report calls `AlertModeratorsAsync` (a letter to each moderator's last hero, which also pushes).
 - The Google OAuth client file lives in `~/.config/orsuun/google-oauth.json` (like the fal key: never in chat or git);
   the server reads `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` from `deploy/.env`.
 - Google / Apple sign-in tickets are bound to the device token that began the flow (`ExternalAuth.Redeem`): keep it
