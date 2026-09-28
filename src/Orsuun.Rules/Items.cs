@@ -44,6 +44,8 @@ namespace Orsuun.Rules
     {
         public const int MaxUpgradeLevel = 9;
         public const int MaxEtchings = 5;
+        /// <summary>With a Grandmaster's Needle an Epic or Legendary piece may hold a sixth (Rules.EtchingActions).</summary>
+        public const int SixthEtching = 6;
 
         public ItemState(int itemLevel, Rarity rarity, EquipSlot slot = EquipSlot.Weapon, bool kin = false)
         {
@@ -81,6 +83,9 @@ namespace Orsuun.Rules
 
         /// <summary>True after an Oathbreak. A destroyed item accepts no further operations.</summary>
         public bool Destroyed { get; set; }
+
+        /// <summary>Temper steps past +9 (Rules.Tempering): each adds 1% to the base stats.</summary>
+        public int Temper { get; set; }
 
         /// <summary>A weapon's average damage roll in percent (WeaponRolls): plain attacks hit this much harder or softer.</summary>
         public int AverageDamagePercent { get; set; }

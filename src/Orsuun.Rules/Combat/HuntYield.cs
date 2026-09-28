@@ -108,6 +108,9 @@ namespace Orsuun.Rules.Combat
         /// A Commander chest by damage rank (GDD section 13): rank 1 the Commander's chest, 2-5 an Officer's,
         /// 6-20 a Trooper's, beyond that nothing. The Commander's wardrobe trophy comes only from the first two.
         /// </summary>
+        /// <summary>A Grandmaster's Needle in a Commander's own chest (rank 1), in basis points.</summary>
+        public const int GrandmasterNeedleBp = 500;
+
         public static string LootCommander(BossDef boss, int rank, Inventory inventory, IRandom rng)
         {
             if (rank > 20) return "No chest: rank " + rank + " on " + boss.Name;
@@ -130,6 +133,12 @@ namespace Orsuun.Rules.Combat
             {
                 inventory.KhansAlloys++;
                 text += ", +1 Khan's Alloy";
+            }
+            // The Commander's own chest may hold a Grandmaster's Needle (the sixth etching).
+            if (rank == 1 && rng.RollBp(GrandmasterNeedleBp))
+            {
+                inventory.GrandmasterNeedles++;
+                text += ", +1 Grandmaster's Needle";
             }
             ItemState? kin = Bannerkin.RollDrop(stage.GearItemLevel, Bannerkin.CommanderDropBp(rank), rank <= 5 ? Rarity.Epic : Rarity.Rare, Rarity.Legendary, inventory, rng);
             if (kin != null) text += ", " + kin.DisplayName;

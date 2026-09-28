@@ -39,7 +39,9 @@ public sealed record SocketDto(bool Dead, string? Type, int Rank, string Text);
 
 public sealed record ItemDto(
     Guid Id, EquipSlot Slot, bool Equipped, string Name, int ItemLevel, Rarity Rarity, int UpgradeLevel, int PatienceBp, int LockedEtchingIndex,
-    EtchingDto[] Etchings, SocketDto[] Sockets, int AverageDamage = 0, int SkillDamage = 0, bool Kin = false, bool KinWorn = false);
+    EtchingDto[] Etchings, SocketDto[] Sockets, int AverageDamage = 0, int SkillDamage = 0, bool Kin = false, bool KinWorn = false, int Temper = 0);
+public sealed record TemperRequest(string RequestId, Guid ItemId);
+public sealed record TemperDto(StateDto State, bool Success, int Before, int After, string Message);
 
 public sealed record SocketInsertRequest(string RequestId, Guid ItemId, int SocketIndex, ShardType Type, int Rank);
 public sealed record SocketClearRequest(string RequestId, Guid ItemId, int SocketIndex);
@@ -69,7 +71,7 @@ public sealed record HeroDto(long Attack, long Defense, long MaxHp, int CritChan
 
 public sealed record InventoryDto(long Sorn, int Potions, int Materials, int ScrollsOfMercy, int KhansAlloys, int AnvilWards, int Turnstones,
     int EtchingNeedles, int SummoningMarkers, long Xp, int Level, int[] Korshards, string[] Skins, int HuntMarks = 0, int PinningWax = 0, int Tallies = 0,
-    int MastersNeedles = 0, int Oathstones = 0, int[]? Books = null, int[]? Fish = null, int Mussels = 0, int[]? Pearls = null);
+    int MastersNeedles = 0, int Oathstones = 0, int[]? Books = null, int[]? Fish = null, int Mussels = 0, int[]? Pearls = null, int GrandmasterNeedles = 0);
 
 /// <summary>One bounty with this account's count toward it (the server counts; the client only shows).</summary>
 public sealed record BountyDto(int Id, string Title, BountyPeriod Period, long Count, int Target, int Marks, bool Claimed);

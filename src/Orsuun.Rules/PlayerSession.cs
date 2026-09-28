@@ -18,6 +18,8 @@ namespace Orsuun.Rules
         public int EtchingNeedles { get; set; }
         /// <summary>Adds the fifth etching (the Carvers' Archive's vault).</summary>
         public int MastersNeedles { get; set; }
+        /// <summary>Adds a sixth etching to an Epic or Legendary piece (Rules.EtchingActions): the Pit shop, a Commander's own chest.</summary>
+        public int GrandmasterNeedles { get; set; }
         /// <summary>A marker fragment that still holds a vow (the Carvers' Archive); pays for a change of Banner and Grand skill grades.</summary>
         public int Oathstones { get; set; }
         /// <summary>Technique Scrolls held, by book id (Rules.Books: class * 3 + skill slot); read to climb Mastered grades.</summary>
@@ -48,7 +50,7 @@ namespace Orsuun.Rules
             Sorn = other.Sorn; Potions = other.Potions; Materials = other.Materials; ScrollsOfMercy = other.ScrollsOfMercy;
             KhansAlloys = other.KhansAlloys; AnvilWards = other.AnvilWards; Turnstones = other.Turnstones;
             EtchingNeedles = other.EtchingNeedles; SummoningMarkers = other.SummoningMarkers; Xp = other.Xp;
-            MastersNeedles = other.MastersNeedles; Oathstones = other.Oathstones;
+            MastersNeedles = other.MastersNeedles; Oathstones = other.Oathstones; GrandmasterNeedles = other.GrandmasterNeedles;
             Array.Copy(other.Books, Books, Books.Length);
             HuntMarks = other.HuntMarks; PinningWax = other.PinningWax;
             Array.Copy(other.Korshards, Korshards, Korshards.Length);
@@ -102,7 +104,7 @@ namespace Orsuun.Rules
                         case ShardType.Warding: warding += v; break;
                     }
                 }
-                long scale = ForgeRules.StatPercent(item.UpgradeLevel) * RarityPercent(item.Rarity);
+                long scale = ForgeRules.StatPercent(item) * RarityPercent(item.Rarity);
                 if (WeaponRolls.Applies(item))
                 {
                     averageDamage += item.AverageDamagePercent;
@@ -453,6 +455,20 @@ namespace Orsuun.Rules
                 _anvilItem = item.Kin ? _kin[(int)item.Slot] : _equipped[(int)item.Slot];
             }
 
+            RefreshHero();
+            return result;
+        }
+
+        /// <summary>Temper past +9 (Rules.Tempering) on the piece on the anvil: why not, or null.</summary>
+        public string? TemperBlocker() => Tempering.Blocker(OnAnvil, Inventory);
+
+        public TemperResult Temper()
+        {
+            string? blocker = TemperBlocker();
+            if (blocker != null) throw new InvalidOperationException(blocker);
+            Inventory.Sorn -= Tempering.Cost(OnAnvil.ItemLevel, OnAnvil.Temper);
+            Inventory.Materials -= Tempering.Materials;
+            TemperResult result = Tempering.Attempt(OnAnvil, _rng);
             RefreshHero();
             return result;
         }

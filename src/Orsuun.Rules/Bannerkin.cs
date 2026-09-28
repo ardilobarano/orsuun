@@ -66,7 +66,7 @@ namespace Orsuun.Rules
             {
                 Rarity.Uncommon => 100, Rarity.Rare => 110, Rarity.Epic => 125, Rarity.Legendary => 145, _ => 90,
             };
-            return piece.ItemLevel * rarity / 100 * ForgeRules.StatPercent(Math.Min(piece.UpgradeLevel, ItemState.MaxUpgradeLevel)) / 100;
+            return piece.ItemLevel * rarity / 100 * ForgeRules.StatPercent(piece) / 100;
         }
 
         /// <summary>The kin's stats from what it wears, or null for no Bannerkin.</summary>

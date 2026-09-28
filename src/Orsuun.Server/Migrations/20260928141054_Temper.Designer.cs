@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Orsuun.Server.Data;
@@ -11,9 +12,11 @@ using Orsuun.Server.Data;
 namespace Orsuun.Server.Migrations
 {
     [DbContext(typeof(GameDb))]
-    partial class GameDbModelSnapshot : ModelSnapshot
+    [Migration("20260928141054_Temper")]
+    partial class Temper
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,9 +128,6 @@ namespace Orsuun.Server.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
-
-                    b.Property<int>("GrandmasterNeedles")
-                        .HasColumnType("integer");
 
                     b.Property<long>("GuildDonated")
                         .HasColumnType("bigint");

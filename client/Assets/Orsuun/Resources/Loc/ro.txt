@@ -2510,3 +2510,36 @@ The Bannerkin joins heroes of level {0}.	Stegăreasa se alătură eroilor de niv
 The Bannerkin has not joined you yet.	Stegăreasa nu ți s-a alăturat încă.
 Only Bannerkin pieces fit the Bannerkin.	Stegăresei i se potrivesc doar piesele ei.
 A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	O Tobășăreasă merge în urma ta, binecuvântând și vindecând: îmbrac-o și forjează-i echipamentul în INVENTAR, STEGĂREASA.
+# Temper (28 Sep 2026)
+TEMPER	CĂLEȘTE
+TEMPER {0}/{1}	CĂLEȘTE {0}/{1}
+fail: -1 step, never the piece	eșec: -1 treaptă, niciodată piesa
+All nine oaths, and fully tempered.	Toate cele nouă jurăminte, și călit pe deplin.
+Temper {0}:	Călire {0}:
+Temper to {0}?	Călești la {0}?
+temper {0}/{1}	călire {0}/{1}
++1% base stats	+1% statistici de bază
+If it fails, nothing is lost but the cost.	Dacă eșuează, se pierde doar costul.
+If it fails, it drops to temper {0}. The piece is never lost.	Dacă eșuează, coboară la călirea {0}. Piesa nu se pierde niciodată.
+The temper holds: step {0} of {1}.	Călirea ține: treapta {0} din {1}.
+The temper did not take.	Călirea nu a prins.
+The temper cracked: back to step {0}.	Călirea a crăpat: înapoi la treapta {0}.
+The whetstone sings.	Cutea cântă.
+Only a +9 piece takes a temper.	Doar o piesă +9 poate fi călită.
+Fully tempered.	Călit pe deplin.
+Not enough hunt materials	Materiale de vânătoare insuficiente
+{0} tempered {1} ten times over!	{0} a călit {1} de zece ori!
+Tempered {0}/{1}	Călit {0}/{1}
++{0}% base stats	+{0}% statistici de bază
+The Bannerkin's	Al Stegăresei
+# The sixth etching (28 Sep 2026)
+Grandmaster's Needle	Ac de Mare Maestru
+{0} Grandmaster's	{0} Ace de Mare
+all six	toate cele șase
+Adds a sixth etching to an Epic or Legendary piece whose five are all T3 or better, one time in ten (250 Laurels in the Pit shop, or a Commander's own chest).	Adaugă o a șasea gravură unei piese Epice sau Legendare ale cărei cinci sunt toate T3 sau mai bune, o dată din zece (250 de Lauri în prăvălia Gropii sau cufărul propriu al unui Comandant).
+Only Epic and Legendary pieces take a sixth etching.	Doar piesele Epice și Legendare primesc o a șasea gravură.
+A sixth etching needs all five at T3 or better.	A șasea gravură cere ca toate cinci să fie T3 sau mai bune.
+This piece has all six etchings.	Piesa are toate cele șase gravuri.
+The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	A șasea gravură cere un Ac de Mare Maestru (prăvălia Gropii sau cufărul propriu al unui Comandant).
+The Bannerkin's pieces take no etchings.	Piesele Stegăresei nu primesc gravuri.
+The sixth takes a Grandmaster's Needle: you have {0}.	A șasea cere un Ac de Mare Maestru: ai {0}.

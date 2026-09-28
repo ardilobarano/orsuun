@@ -84,6 +84,9 @@ namespace Orsuun.Rules
             return total;
         }
 
+        /// <summary>A piece's base stats in percent of +0: its forge level, and a point for each Temper step past +9.</summary>
+        public static int StatPercent(ItemState item) => StatPercent(Math.Min(item.UpgradeLevel, ItemState.MaxUpgradeLevel)) + item.Temper;
+
         /// <summary>Sorn cost of one attempt: 1000 x item level x 1.6^currentLevel, in exact integer math.</summary>
         public static long Cost(int itemLevel, int currentLevel)
         {
@@ -170,6 +173,57 @@ namespace Orsuun.Rules
             int after = Math.Max(0, before - 1);
             item.UpgradeLevel = after;
             return new ForgeResult(ForgeOutcome.LevelLost, chance, before, after);
+        }
+    }
+
+    /// <summary>What one Temper attempt did.</summary>
+    public readonly struct TemperResult
+    {
+        public TemperResult(bool success, int before, int after)
+        {
+            Success = success;
+            Before = before;
+            After = after;
+        }
+
+        public bool Success { get; }
+        public int Before { get; }
+        public int After { get; }
+    }
+
+    /// <summary>
+    /// Temper (owner, 28 Sep 2026: picked "Temper after +9"; GDD section 12: "Ten whetstone steps after +9, each +1% base
+    /// stats, 60% success, failure drops one Temper step, never the item. A post-+9 ladder with no Oathbreak, so it does
+    /// not dilute the Forge's fear"). Each attempt costs sorn and hunt materials; the cost climbs with the step. Assumptions
+    /// (not stated by the owner): the cost (the +6 attempt's sorn times the step, and four materials).
+    /// </summary>
+    public static class Tempering
+    {
+        public const int MaxSteps = 10;
+        public const int ChanceBp = 6000;
+        public const int Materials = 4;
+
+        /// <summary>The attempt from <paramref name="step"/> to the next: the +6 attempt's sorn, times the step to reach.</summary>
+        public static long Cost(int itemLevel, int step) => ForgeRules.Cost(itemLevel, 6) * (step + 1);
+
+        /// <summary>Why this piece cannot be tempered now, or null.</summary>
+        public static string? Blocker(ItemState item, Inventory inventory)
+        {
+            if (item.Destroyed) return "That piece is gone.";
+            if (item.UpgradeLevel < ItemState.MaxUpgradeLevel) return "Only a +9 piece takes a temper.";
+            if (item.Temper >= MaxSteps) return "Fully tempered.";
+            if (inventory.Sorn < Cost(item.ItemLevel, item.Temper)) return "Not enough sorn";
+            if (inventory.Materials < Materials) return "Not enough hunt materials";
+            return null;
+        }
+
+        /// <summary>One attempt: 60% a step up; else a step down (never below none), and never the piece.</summary>
+        public static TemperResult Attempt(ItemState item, IRandom rng)
+        {
+            int before = item.Temper;
+            bool success = rng.RollBp(ChanceBp);
+            item.Temper = success ? Math.Min(MaxSteps, before + 1) : Math.Max(0, before - 1);
+            return new TemperResult(success, before, item.Temper);
         }
     }
 }

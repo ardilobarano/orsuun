@@ -321,6 +321,7 @@ v1.MapPost("/chat", (HttpContext ctx, ChatSayRequest req, GameService game, Canc
 v1.MapGet("/hero/{id:guid}", (HttpContext ctx, Guid id, GameService game, CancellationToken ct) => game.InspectAsync(Me(ctx), id, ct));
 v1.MapGet("/leaderboard", (HttpContext ctx, string? board, string? period, GameService game, CancellationToken ct) => game.LeaderboardAsync(Me(ctx), board, period, ct));
 v1.MapPost("/push-token", (HttpContext ctx, PushTokenRequest req, GameService game, CancellationToken ct) => game.PushTokenAsync(Me(ctx), req, ct));
+v1.MapPost("/temper", (HttpContext ctx, TemperRequest req, GameService game, CancellationToken ct) => game.TemperAsync(Me(ctx), req, ct));
 v1.MapPost("/kin/join", (HttpContext ctx, GameService game, CancellationToken ct) => game.JoinKinAsync(Me(ctx), ct));
 v1.MapPost("/kin/wear", (HttpContext ctx, KinWearRequest req, GameService game, CancellationToken ct) => game.WearKinAsync(Me(ctx), req, ct));
 v1.MapPost("/river/go", (HttpContext ctx, GameService game, CancellationToken ct) => game.GoToRiverAsync(Me(ctx), ct));

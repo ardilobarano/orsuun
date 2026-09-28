@@ -67,6 +67,8 @@ public sealed class Account
     public int MastersNeedles { get; set; }
     /// <summary>Oathstones (the Carvers' Archive): a change of Banner costs Rules.Banners.ChangeOathstones.</summary>
     public int Oathstones { get; set; }
+    /// <summary>Grandmaster's Needles: a sixth etching on an Epic or Legendary piece (Rules.EtchingActions).</summary>
+    public int GrandmasterNeedles { get; set; }
     /// <summary>Oath Renewals (Rules.OathRenewal): each +3% attack and HP, the level back to 1.</summary>
     public int Renewals { get; set; }
     /// <summary>Skill grades by book id (class * 5 + slot), twenty numbers "g;g;.." (Rules.SkillGrades.Parse).</summary>
@@ -225,6 +227,8 @@ public sealed class Item
     public int ItemLevel { get; set; }
     public Rarity Rarity { get; set; }
     public int UpgradeLevel { get; set; }
+    /// <summary>Temper steps past +9 (Rules.Tempering).</summary>
+    public int Temper { get; set; }
     public int PatienceBp { get; set; }
     public int LockedEtchingIndex { get; set; } = -1;
     /// <summary>Etchings as "entryId:tier:value" triples, in slot order.</summary>
@@ -267,6 +271,7 @@ public sealed class Item
         var state = new ItemState(ItemLevel, Rarity, Slot, Kin)
         {
             UpgradeLevel = UpgradeLevel,
+            Temper = Temper,
             PatienceBp = PatienceBp,
             LockedEtchingIndex = LockedEtchingIndex,
             Destroyed = Destroyed,
@@ -301,6 +306,7 @@ public sealed class Item
     public void ApplyState(ItemState state)
     {
         UpgradeLevel = state.UpgradeLevel;
+        Temper = state.Temper;
         PatienceBp = state.PatienceBp;
         LockedEtchingIndex = state.LockedEtchingIndex;
         Destroyed = state.Destroyed;

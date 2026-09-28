@@ -6,7 +6,7 @@ using Orsuun.Rules.Combat;
 namespace Orsuun.Rules
 {
     /// <summary>What a Pit shop line hands over.</summary>
-    public enum PitGood { Korshard = 0, Turnstones = 1, EtchingNeedle = 2, PinningWax = 3, Oathstone = 4, TechniqueScroll = 5, MastersNeedle = 6 }
+    public enum PitGood { Korshard = 0, Turnstones = 1, EtchingNeedle = 2, PinningWax = 3, Oathstone = 4, TechniqueScroll = 5, MastersNeedle = 6, GrandmasterNeedle = 7 }
 
     public sealed class PitShopItem
     {
@@ -41,6 +41,7 @@ namespace Orsuun.Rules
                 case PitGood.PinningWax: inventory.PinningWax += Amount; break;
                 case PitGood.Oathstone: inventory.Oathstones += Amount; break;
                 case PitGood.MastersNeedle: inventory.MastersNeedles += Amount; break;
+                case PitGood.GrandmasterNeedle: inventory.GrandmasterNeedles += Amount; break;
                 case PitGood.TechniqueScroll:
                     for (int i = 0; i < Amount; i++) inventory.Books[Books.Id(cls, (rng ?? new XorShiftRandom(1)).NextInt(SkillGrades.Slots))]++;
                     break;
@@ -122,6 +123,7 @@ namespace Orsuun.Rules
             new PitShopItem(7, "Oathstone", 45, PitGood.Oathstone, 1),
             new PitShopItem(8, "Technique Scroll", 30, PitGood.TechniqueScroll, 1),
             new PitShopItem(9, "Master's Needle", 90, PitGood.MastersNeedle, 1),
+            new PitShopItem(10, "Grandmaster's Needle", 250, PitGood.GrandmasterNeedle, 1),
         };
 
         // ---- Pit seasons (owner, 25 Sep 2026; GDD: the Pit ladder resets weekly and pays titles and season currency) ----

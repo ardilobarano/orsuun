@@ -30,8 +30,8 @@ namespace Orsuun.Client
         private Text _weapon;
         private Text _stats;
         private Text _etchings;
-        private readonly Button[] _etchRows = new Button[ItemState.MaxEtchings];
-        private readonly Text[] _etchRowLabels = new Text[ItemState.MaxEtchings];
+        private readonly Button[] _etchRows = new Button[ItemState.SixthEtching];
+        private readonly Text[] _etchRowLabels = new Text[ItemState.SixthEtching];
         private Button _etchButton;
         private Text _etchLabel;
         private Text _attemptInfo;
@@ -122,8 +122,9 @@ namespace Orsuun.Client
             for (int i = 0; i < _etchRows.Length; i++)
             {
                 int index = i;
-                float y1 = 0.557f - i * 0.0298f;
-                Image row = Ui.Sliced("Etch" + i, canvas, 0.065f, y1 - 0.027f, 0.765f, y1, "CardFill", new Color(0.11f, 0.11f, 0.19f, 0.95f));
+                // Six rows since the sixth etching (Grandmaster's Needle); a piece shows as many as it holds.
+                float y1 = 0.557f - i * 0.0248f;
+                Image row = Ui.Sliced("Etch" + i, canvas, 0.065f, y1 - 0.0226f, 0.765f, y1, "CardFill", new Color(0.11f, 0.11f, 0.19f, 0.95f));
                 _etchRows[i] = row.gameObject.AddComponent<Button>();
                 _etchRows[i].targetGraphic = row;
                 _etchRows[i].onClick.AddListener(() => AskPin(index));
@@ -224,6 +225,11 @@ namespace Orsuun.Client
         public void StartAttempt(ForgeMethod method)
         {
             if (Busy) return;
+            if (_root.Session.OnAnvil.UpgradeLevel >= ItemState.MaxUpgradeLevel)
+            {
+                if (method == ForgeMethod.ForgeAlone) AskTemper();
+                return;
+            }
 
             string blocker = _root.Session.ForgeBlocker(method, UsePearl());
             if (blocker != null)
@@ -233,6 +239,60 @@ namespace Orsuun.Client
             }
 
             AskFirst(method);
+        }
+
+        /// <summary>Temper (Rules.Tempering), asked first like every attempt: the step, the chance, the cost, and that a
+        /// failure only loses a step.</summary>
+        private void AskTemper()
+        {
+            PlayerSession s = _root.Session;
+            ItemState item = s.OnAnvil;
+            string blocker = s.TemperBlocker();
+            if (blocker != null) { ShowResult(blocker, Palette.Muted); return; }
+            string body = ConfirmDialog.Tint($"{item.DisplayName} +9", LevelColor(9)) + $"   temper {item.Temper}/{Tempering.MaxSteps}"
+                + $"\n\nSuccess chance {ConfirmDialog.Tint(Tempering.ChanceBp / 100 + "%", Palette.Good)}  ·  +1% base stats"
+                + $"\nCost {Tempering.Cost(item.ItemLevel, item.Temper):N0} sorn  ·  {Tempering.Materials} {s.Lane.Stage.MaterialName}"
+                + "\n\n" + ConfirmDialog.Tint(item.Temper == 0 ? "If it fails, nothing is lost but the cost." : $"If it fails, it drops to temper {item.Temper - 1}. The piece is never lost.", Palette.Warn);
+            _confirm.Show($"Temper to {item.Temper + 1}?", body, "TEMPER", Palette.ButtonForge, () => { if (!Busy) StartCoroutine(TemperSequence()); });
+        }
+
+        private IEnumerator TemperSequence()
+        {
+            Busy = true;
+            PlayerSession s = _root.Session;
+            EquipSlot anvilSlot = s.AnvilSlot;
+            string anvilId = _root.Server.IdOf(s.OnAnvil);
+            ShowResult("", Palette.Muted);
+            yield return _fx.Beats(anvilSlot, ItemState.MaxUpgradeLevel, ShortSequence, "The whetstone sings.", Ui.ItemIcon(s.OnAnvil));
+            _fx.Hold();
+            bool? success = null;
+            string message = null;
+            if (_root.Server.Online)
+            {
+                string failure = null;
+                yield return _root.Server.Temper(anvilId, (dto, error) =>
+                {
+                    failure = error;
+                    if (dto != null) { success = dto.success; message = dto.message; }
+                });
+                if (success == null)
+                {
+                    yield return _fx.Cancel();
+                    ShowResult(failure ?? "No answer from the server.", Palette.Muted);
+                    Busy = false;
+                    yield break;
+                }
+            }
+            else
+            {
+                TemperResult r = s.Temper();
+                success = r.Success;
+                message = r.Success ? $"The temper holds: step {r.After} of {Tempering.MaxSteps}." : $"The temper cracked: back to step {r.After}.";
+            }
+            yield return _fx.Cancel();
+            ShowResult(message, success == true ? Palette.Good : Palette.Warn);
+            GameAudio.Instance?.Play(success == true ? "ForgeSuccess" : "ForgeClang", 0.9f);
+            Busy = false;
         }
 
         /// <summary>Owner, 24 Sep 2026: every attempt asks first, with the chance, the full cost and what a failure costs.</summary>
@@ -378,7 +438,8 @@ namespace Orsuun.Client
             int chance = EtchingActions.EtchChanceBp(item) / 100;
             _confirm.Show("Add an etching?", $"{item.DisplayName} +{item.UpgradeLevel}\n\nEtching {item.Etchings.Count + 1} takes {ConfirmDialog.Tint(chance + "%", Palette.Good)} of the time.\n"
                 + ConfirmDialog.Tint("If it slips, only the needle is lost.", Palette.Muted)
-                + (item.Etchings.Count == ItemState.MaxEtchings - 1 ? $"\n\nThe fifth takes a Master's Needle: you have {s.Inventory.MastersNeedles}."
+                + (item.Etchings.Count == ItemState.MaxEtchings ? $"\n\nThe sixth takes a Grandmaster's Needle: you have {s.Inventory.GrandmasterNeedles}."
+                    : item.Etchings.Count == ItemState.MaxEtchings - 1 ? $"\n\nThe fifth takes a Master's Needle: you have {s.Inventory.MastersNeedles}."
                     : $"\n\nYou have {s.Inventory.EtchingNeedles} Etching Needles."),
                 "USE NEEDLE", Palette.Alloy, () =>
                 {
@@ -467,8 +528,8 @@ namespace Orsuun.Client
 
             HeroStats hero = session.Hero;
             _stats.text = session.AnvilWorn
-                ? $"Attack {hero.Attack}  ·  Crit {hero.CritChanceBp / 100}%  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%  ·  Blades lost {session.WeaponsBroken}"
-                : $"From your bag, not worn  ·  Item level {weapon.ItemLevel}  ·  Base stats {ForgeRules.StatPercent(weapon.UpgradeLevel)}%";
+                ? $"Attack {hero.Attack}  ·  Crit {hero.CritChanceBp / 100}%  ·  Base stats {ForgeRules.StatPercent(weapon)}%  ·  Blades lost {session.WeaponsBroken}"
+                : $"From your bag, not worn  ·  Item level {weapon.ItemLevel}  ·  Base stats {ForgeRules.StatPercent(weapon)}%";
 
             _etchings.text = weapon.Etchings.Count == 0 ? "No etchings yet: ETCH adds one." : "";
             for (int i = 0; i < _etchRows.Length; i++)
@@ -484,7 +545,10 @@ namespace Orsuun.Client
             }
             int etchChance = EtchingActions.EtchChanceBp(weapon) / 100;
             // The fifth etching takes a Master's Needle (the Carvers' Archive, the Pit shop).
-            _etchLabel.text = weapon.Etchings.Count >= ItemState.MaxEtchings ? "ETCH\n<size=16>all five\netchings</size>"
+            // The sixth takes a Grandmaster's Needle, on an Epic or Legendary piece with five T3+ (the Pit shop, Commanders).
+            bool sixthOpen = weapon.Etchings.Count == ItemState.MaxEtchings && EtchingActions.SixthBlocker(weapon) == null;
+            _etchLabel.text = weapon.Etchings.Count >= ItemState.SixthEtching ? "ETCH\n<size=16>all six\netchings</size>"
+                : weapon.Etchings.Count == ItemState.MaxEtchings ? (sixthOpen ? $"ETCH\n<size=16>{etchChance}% chance\n{inv.GrandmasterNeedles} Grandmaster's\nNeedles</size>" : "ETCH\n<size=16>all five\netchings</size>")
                 : weapon.Etchings.Count == ItemState.MaxEtchings - 1 ? $"ETCH\n<size=16>{etchChance}% chance\n{inv.MastersNeedles} Master's\nNeedles</size>"
                 : $"ETCH\n<size=16>{etchChance}% chance\n{inv.EtchingNeedles} needles\n{inv.PinningWax} wax</size>";
             _etchButton.interactable = !Busy && EtchingActions.EtchBlocker(weapon, inv) == null;
@@ -494,7 +558,9 @@ namespace Orsuun.Client
             bool maxed = weapon.UpgradeLevel >= ItemState.MaxUpgradeLevel;
             if (maxed)
             {
-                _attemptInfo.text = "This piece has sworn all nine oaths.";
+                // Past +9, Temper (Rules.Tempering): ten steps, each a point of base stats; a failure costs a step, never the piece.
+                _attemptInfo.text = weapon.Temper >= Tempering.MaxSteps ? "All nine oaths, and fully tempered."
+                    : $"Temper {weapon.Temper + 1}:  {ConfirmDialog.Tint(Tempering.ChanceBp / 100 + "%", Palette.Good)}  ·  Cost {Tempering.Cost(weapon.ItemLevel, weapon.Temper):N0} sorn  ·  {Tempering.Materials} {session.Lane.Stage.MaterialName}";
             }
             else
             {
@@ -508,10 +574,12 @@ namespace Orsuun.Client
             }
 
             bool breaks = weapon.UpgradeLevel + 1 >= ForgeRules.FirstOathbreakTarget;
-            _methodLabels[0].text = "FORGE ALONE\n<size=17>" + (breaks ? "fail: OATHBREAK" : "fail: -1 level") + "</size>";
+            _methodLabels[0].text = maxed ? $"TEMPER {weapon.Temper}/{Tempering.MaxSteps}\n<size=17>fail: -1 step, never the piece</size>"
+                : "FORGE ALONE\n<size=17>" + (breaks ? "fail: OATHBREAK" : "fail: -1 level") + "</size>";
             _methodLabels[1].text = $"SCROLL OF MERCY ({inv.ScrollsOfMercy})\n<size=17>fail: -1 level</size>";
             _methodLabels[2].text = $"KHAN'S ALLOY ({inv.KhansAlloys})\n<size=17>+10%, fail: -1 level</size>";
-            for (int i = 0; i < _methodButtons.Length; i++) _methodButtons[i].interactable = !Busy && !maxed;
+            for (int i = 0; i < _methodButtons.Length; i++)
+                _methodButtons[i].interactable = !Busy && (i == 0 ? !maxed || weapon.Temper < Tempering.MaxSteps : !maxed);
             _closeButton.interactable = !Busy;
         }
     }

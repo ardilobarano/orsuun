@@ -73,12 +73,12 @@ namespace Orsuun.Client
             }
 
             Ui.Section("ShopHead", canvas, 0.2f, 0.465f, 0.8f, 0.5f, "PIT SHOP", 26);
-            // Three rows of three: the Korshards, then the goods added with the seasons, skill grades and the Master's Needle.
+            // Three rows of four: the Korshards, then the goods added with the seasons, skill grades and the needles.
             for (int i = 0; i < _shop.Length; i++)
             {
                 PitShopItem item = Pits.Shop[i];
-                int row = i / 3, col = i % 3;
-                float x0 = 0.04f + col * 0.31f, y0 = 0.418f - row * 0.046f;
+                int row = i / 4, col = i % 4;
+                float x0 = 0.04f + col * 0.232f, y0 = 0.418f - row * 0.046f;
                 string icon = item.Good switch
                 {
                     PitGood.Turnstones => "Turnstone",
@@ -87,9 +87,10 @@ namespace Orsuun.Client
                     PitGood.Oathstone => "Oathstone",
                     PitGood.TechniqueScroll => "Book" + _root.Session.Class,
                     PitGood.MastersNeedle => "MastersNeedle",
+                    PitGood.GrandmasterNeedle => "GrandmasterNeedle",
                     _ => SocketPanel.RankIcons[item.KorshardRank],
                 };
-                _shop[i] = Ui.IconButton("Shop" + i, canvas, x0, y0, x0 + 0.3f, y0 + 0.042f, $"{item.Name.Replace(" Korshard", "")}\n<size=15>{item.Laurels} Laurels</size>",
+                _shop[i] = Ui.IconButton("Shop" + i, canvas, x0, y0, x0 + 0.225f, y0 + 0.042f, $"{item.Name.Replace(" Korshard", "")}\n<size=15>{item.Laurels} Laurels</size>",
                     18, Palette.Alloy, icon, () => Buy(item.Id), out _);
             }
 

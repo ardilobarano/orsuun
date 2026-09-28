@@ -325,6 +325,28 @@ public sealed partial class GameService
         return ToState(account, forge: new ForgeResultDto(result.Outcome, result.ChanceBp, result.LevelBefore, result.LevelAfter));
     }
 
+    /// <summary>A Temper attempt past +9 (Rules.Tempering): 60% a step up, else a step down; never the piece.</summary>
+    public async Task<TemperDto> TemperAsync(Account account, TemperRequest request, CancellationToken ct)
+    {
+        await EnsureFreshRequestAsync(account, request.RequestId, ct);
+        Item item = AnvilItem(account, request.ItemId, EquipSlot.Weapon);
+        ItemState state = item.ToState();
+        string? blocker = Tempering.Blocker(state, Snapshot(account));
+        if (blocker != null) throw new GameException("no_temper", blocker);
+        long cost = Tempering.Cost(state.ItemLevel, state.Temper);
+        account.Sorn -= cost;
+        account.Materials -= Tempering.Materials;
+        TemperResult result = Tempering.Attempt(state, _rng);
+        item.ApplyState(state);
+        if (result.Success && result.After == Tempering.MaxSteps)
+            SystemLine(Chat.World, $"{DisplayName(account)} tempered {Content.ItemName(state, account.Class)} ten times over!");
+        _db.Ledger.Add(Entry(account.Id, item.Id, "temper", $"{result.Before}->{result.After}", -cost, request.RequestId));
+        await SaveAsync(ct);
+        string message = result.Success ? $"The temper holds: step {result.After} of {Tempering.MaxSteps}." : result.Before == 0
+            ? "The temper did not take." : $"The temper cracked: back to step {result.After}.";
+        return new TemperDto(ToState(account), result.Success, result.Before, result.After, message);
+    }
+
     /// <summary>One turn, or a Bulk Turn with a stop rule. The free cap is 10; 50 needs Hearthfire Blessing (not yet modelled, so 50 is open).</summary>
     public async Task<StateDto> TurnAsync(Account account, TurnRequest request, CancellationToken ct)
     {
@@ -874,7 +896,7 @@ public sealed partial class GameService
             new InventoryDto(account.Sorn, account.Potions, account.Materials, account.ScrollsOfMercy, account.KhansAlloys, account.AnvilWards, account.Turnstones,
                 account.EtchingNeedles, account.SummoningMarkers, account.Xp, Content.LevelFor(account.Xp), ParseShards(account.Korshards), ParseSkins(account.Skins),
                 account.HuntMarks, account.PinningWax, account.Tallies, account.MastersNeedles, account.Oathstones, BookCounts(account),
-                ParseCounts(account.Fish, Fishing.Fish.Length), account.Mussels, ParseCounts(account.Pearls, 3)),
+                ParseCounts(account.Fish, Fishing.Fish.Length), account.Mussels, ParseCounts(account.Pearls, 3), account.GrandmasterNeedles),
             ToDto(weapon),
             account.Items.Where(i => !i.Destroyed && !i.OutOfBag).OrderByDescending(i => i.Equipped).ThenByDescending(i => i.CreatedUtc).Select(ToDto).ToArray(),
             new HeroDto(hero.Attack, hero.Defense, hero.MaxHp, hero.CritChanceBp),
@@ -942,7 +964,7 @@ public sealed partial class GameService
             s.Etchings.Select(e => new EtchingDto(e.EntryId, pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray(),
             s.Sockets.Select(k => new SocketDto(k.Dead, k.Type?.ToString(), k.Rank,
                 k.Dead ? "Dead Shard" : k.Type == null ? "empty" : SocketRules.Name(k.Type.Value) + " " + Content.KorshardRanks[k.Rank] + ": " + SocketRules.Describe(k.Type.Value, k.Rank))).ToArray(),
-            s.AverageDamagePercent, s.SkillDamagePercent, item.Kin, item.KinWorn);
+            s.AverageDamagePercent, s.SkillDamagePercent, item.Kin, item.KinWorn, s.Temper);
     }
 
     /// <summary>The hero's Technique Scrolls by book id.</summary>
@@ -983,6 +1005,7 @@ public sealed partial class GameService
             KhansAlloys = a.KhansAlloys, AnvilWards = a.AnvilWards, Turnstones = a.Turnstones,
             EtchingNeedles = a.EtchingNeedles, SummoningMarkers = a.SummoningMarkers, Xp = a.Xp,
             HuntMarks = a.HuntMarks, PinningWax = a.PinningWax, MastersNeedles = a.MastersNeedles, Oathstones = a.Oathstones,
+            GrandmasterNeedles = a.GrandmasterNeedles,
         };
         int[] shards = ParseShards(a.Korshards);
         Array.Copy(shards, inventory.Korshards, Math.Min(shards.Length, inventory.Korshards.Length));
@@ -1020,6 +1043,7 @@ public sealed partial class GameService
         MarkLevels(a, levelBefore, Content.LevelFor(a.Xp));
         CheckInvite(a);
         a.HuntMarks = i.HuntMarks; a.PinningWax = i.PinningWax; a.MastersNeedles = i.MastersNeedles; a.Oathstones = i.Oathstones;
+        a.GrandmasterNeedles = i.GrandmasterNeedles;
         for (int b = 0; b < Books.Count; b++) SetBooks(a, b, i.Books[b]);
         a.Korshards = string.Join(';', i.Korshards);
         a.Fish = string.Join(';', i.Fish);

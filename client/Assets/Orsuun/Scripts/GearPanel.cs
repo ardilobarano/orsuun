@@ -81,6 +81,8 @@ namespace Orsuun.Client
                 new Good("Turnstone", "Turnstones", "Turn a piece's etchings at the Forge, one turn a stone.", r => r.Session.Inventory.Turnstones, 5),
                 new Good("EtchingNeedle", "Etching Needle", "Adds an etching to a piece, the first to the fourth.", r => r.Session.Inventory.EtchingNeedles, 6),
                 new Good("MastersNeedle", "Master's Needle", "Adds a piece's fifth etching (the Carvers' Archive's vault, or 90 Laurels in the Pit shop).", r => r.Session.Inventory.MastersNeedles, 7),
+                new Good("GrandmasterNeedle", "Grandmaster's Needle", "Adds a sixth etching to an Epic or Legendary piece whose five are all T3 or better, one time in ten (250 Laurels in the Pit shop, or a Commander's own chest).",
+                    r => r.Session.Inventory.GrandmasterNeedles, TradeGoods.GrandmasterNeedle),
                 new Good("PinningWax", "Pinning Wax", "Holds one etching of a piece through its turns.", r => r.Session.Inventory.PinningWax, 8),
                 new Good("Oathstone", "Oathstone", "A marker fragment that still holds a vow: it pays for Grand skill grades (SKILLS) and a change of Banner.",
                     r => r.Session.Inventory.Oathstones, 9),
@@ -831,7 +833,9 @@ namespace Orsuun.Client
 
             EtchingPool pool = EtchingPool.For(item.Slot);
             var sb = new StringBuilder(RollLines(item));
-            if (item.Etchings.Count == 0) sb.Append(ConfirmDialog.Tint("No etchings yet.", Palette.Muted));
+            if (item.Temper > 0) sb.Append(ConfirmDialog.Tint($"Tempered {item.Temper}/{Tempering.MaxSteps}  ·  +{item.Temper}% base stats", Palette.Sorn)).Append('\n');
+            if (item.Kin) sb.Append(ConfirmDialog.Tint($"The Bannerkin's  ·  worth {Bannerkin.PieceScore(item)}", Palette.Safe)).Append('\n');
+            if (item.Etchings.Count == 0 && !item.Kin) sb.Append(ConfirmDialog.Tint("No etchings yet.", Palette.Muted));
             for (int i = 0; i < item.Etchings.Count; i++)
             {
                 Etching e = item.Etchings[i];

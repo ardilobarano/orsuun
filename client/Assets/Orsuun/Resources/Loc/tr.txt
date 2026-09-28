@@ -2472,3 +2472,36 @@ The Bannerkin joins heroes of level {0}.	Sancakdaş {0}. seviyedeki kahramanlara
 The Bannerkin has not joined you yet.	Sancakdaş henüz sana katılmadı.
 Only Bannerkin pieces fit the Bannerkin.	Sancakdaş'a yalnızca Sancakdaş parçaları olur.
 A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Bir Davulcu arkanda yürür, kutsar ve iyileştirir: teçhizatını ENVANTER, SANCAKDAŞ'ta giydir ve güçlendir.
+# Temper (28 Sep 2026)
+TEMPER	SU VER
+TEMPER {0}/{1}	SU VER {0}/{1}
+fail: -1 step, never the piece	başarısız: -1 adım, parça asla
+All nine oaths, and fully tempered.	Dokuz yeminin hepsi, ve tam su verilmiş.
+Temper {0}:	Su verme {0}:
+Temper to {0}?	{0}. su verme yapılsın mı?
+temper {0}/{1}	su verme {0}/{1}
++1% base stats	+%1 temel değerler
+If it fails, nothing is lost but the cost.	Başarısız olursa, bedelden başka bir şey kaybedilmez.
+If it fails, it drops to temper {0}. The piece is never lost.	Başarısız olursa {0}. su vermeye düşer. Parça asla kaybolmaz.
+The temper holds: step {0} of {1}.	Su verme tuttu: {1} adımdan {0}.
+The temper did not take.	Su verme tutmadı.
+The temper cracked: back to step {0}.	Su verme çatladı: {0}. adıma geri.
+The whetstone sings.	Bileği taşı şarkı söylüyor.
+Only a +9 piece takes a temper.	Yalnızca +9 bir parçaya su verilir.
+Fully tempered.	Tam su verilmiş.
+Not enough hunt materials	Yeterli av malzemesi yok
+{0} tempered {1} ten times over!	{0}, {1} parçasına on kez su verdi!
+Tempered {0}/{1}	Su verilmiş {0}/{1}
++{0}% base stats	+%{0} temel değerler
+The Bannerkin's	Sancakdaş'ın
+# The sixth etching (28 Sep 2026)
+Grandmaster's Needle	Büyük Usta İğnesi
+{0} Grandmaster's	{0} Büyük Usta İğnesi
+all six	altısı da
+Adds a sixth etching to an Epic or Legendary piece whose five are all T3 or better, one time in ten (250 Laurels in the Pit shop, or a Commander's own chest).	Beşi de T3 ya da daha iyi olan Destansı veya Efsanevi bir parçaya, on denemede bir, altıncı oymayı ekler (Çukur dükkânında 250 Defne ya da bir Komutanın kendi sandığı).
+Only Epic and Legendary pieces take a sixth etching.	Altıncı oymayı yalnızca Destansı ve Efsanevi parçalar alır.
+A sixth etching needs all five at T3 or better.	Altıncı oyma için beşinin de T3 ya da daha iyi olması gerekir.
+This piece has all six etchings.	Bu parçanın altı oyması da var.
+The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	Altıncı oyma bir Büyük Usta İğnesi ister (Çukur dükkânı ya da bir Komutanın kendi sandığı).
+The Bannerkin's pieces take no etchings.	Sancakdaş'ın parçaları oyma almaz.
+The sixth takes a Grandmaster's Needle: you have {0}.	Altıncısı bir Büyük Usta İğnesi ister: sende {0} var.

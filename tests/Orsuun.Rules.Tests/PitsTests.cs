@@ -49,7 +49,7 @@ public class PitsTests
         PitShopItem rider = Pits.ShopItem(2)!;
         Assert.Equal(1, rider.KorshardRank);
         Assert.True(rider.Laurels > Pits.ShopItem(1)!.Laurels);
-        Assert.Null(Pits.ShopItem(10));
+        Assert.Null(Pits.ShopItem(11));
     }
 
     [Fact]
@@ -71,12 +71,15 @@ public class PitsTests
     }
 
     [Fact]
-    public void The_Pit_shop_sells_a_Masters_Needle_the_dearest_good()
+    public void The_Pit_shop_sells_a_Masters_Needle_and_a_Grandmasters_the_dearest_good()
     {
         PitShopItem needle = Pits.ShopItem(9)!;
         Assert.Equal(PitGood.MastersNeedle, needle.Good);
         Assert.Equal(90, needle.Laurels);
-        foreach (PitShopItem item in Pits.Shop) Assert.True(item.Laurels <= needle.Laurels);
+        PitShopItem grand = Pits.ShopItem(10)!;
+        Assert.Equal(PitGood.GrandmasterNeedle, grand.Good);
+        Assert.Equal(250, grand.Laurels);
+        foreach (PitShopItem item in Pits.Shop) Assert.True(item.Laurels <= grand.Laurels);
     }
 
     [Fact]

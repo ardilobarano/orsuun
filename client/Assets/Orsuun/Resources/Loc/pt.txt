@@ -2516,3 +2516,36 @@ The Bannerkin joins heroes of level {0}.	O Porta-Estandarte se junta a heróis d
 The Bannerkin has not joined you yet.	O Porta-Estandarte ainda não se juntou a você.
 Only Bannerkin pieces fit the Bannerkin.	Só peças do Porta-Estandarte servem nele.
 A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Uma Tamborileira caminha atrás de você, abençoando e curando: vista e forje o equipamento dela em INVENTÁRIO, PORTA-ESTANDARTE.
+# Temper (28 Sep 2026)
+TEMPER	TEMPERAR
+TEMPER {0}/{1}	TEMPERAR {0}/{1}
+fail: -1 step, never the piece	falha: -1 etapa, nunca a peça
+All nine oaths, and fully tempered.	Todos os nove juramentos, e totalmente temperado.
+Temper {0}:	Têmpera {0}:
+Temper to {0}?	Temperar para {0}?
+temper {0}/{1}	têmpera {0}/{1}
++1% base stats	+1% de atributos base
+If it fails, nothing is lost but the cost.	Se falhar, só se perde o custo.
+If it fails, it drops to temper {0}. The piece is never lost.	Se falhar, cai para a têmpera {0}. A peça nunca se perde.
+The temper holds: step {0} of {1}.	A têmpera aguenta: etapa {0} de {1}.
+The temper did not take.	A têmpera não pegou.
+The temper cracked: back to step {0}.	A têmpera rachou: de volta à etapa {0}.
+The whetstone sings.	A pedra de amolar canta.
+Only a +9 piece takes a temper.	Só uma peça +9 aceita têmpera.
+Fully tempered.	Totalmente temperado.
+Not enough hunt materials	Materiais de caça insuficientes
+{0} tempered {1} ten times over!	{0} temperou {1} dez vezes!
+Tempered {0}/{1}	Temperado {0}/{1}
++{0}% base stats	+{0}% de atributos base
+The Bannerkin's	Do Porta-Estandarte
+# The sixth etching (28 Sep 2026)
+Grandmaster's Needle	Agulha do Grão-Mestre
+{0} Grandmaster's	{0} Agulhas do
+all six	todas as seis
+Adds a sixth etching to an Epic or Legendary piece whose five are all T3 or better, one time in ten (250 Laurels in the Pit shop, or a Commander's own chest).	Adiciona uma sexta gravura a uma peça Épica ou Lendária cujas cinco são T3 ou melhores, uma vez em dez (250 Louros na loja da Arena ou o baú do próprio Comandante).
+Only Epic and Legendary pieces take a sixth etching.	Só peças Épicas e Lendárias aceitam uma sexta gravura.
+A sixth etching needs all five at T3 or better.	Uma sexta gravura precisa das cinco em T3 ou melhor.
+This piece has all six etchings.	Esta peça tem todas as seis gravuras.
+The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	A sexta gravura precisa de uma Agulha do Grão-Mestre (a loja da Arena ou o baú do próprio Comandante).
+The Bannerkin's pieces take no etchings.	As peças do Porta-Estandarte não aceitam gravuras.
+The sixth takes a Grandmaster's Needle: you have {0}.	A sexta precisa de uma Agulha do Grão-Mestre: você tem {0}.

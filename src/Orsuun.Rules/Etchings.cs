@@ -148,6 +148,8 @@ namespace Orsuun.Rules
         EtchingNeedle,
         /// <summary>Adds the fifth etching.</summary>
         MastersNeedle,
+        /// <summary>Adds a sixth etching to an Epic or Legendary piece whose five are all T3 or better (10%).</summary>
+        GrandmasterNeedle,
     }
 
     public static class EtchingRules
@@ -158,7 +160,7 @@ namespace Orsuun.Rules
         private static readonly int[] TierCumulativeBp = { 4000, 7000, 8700, 9600, 10000 };
 
         /// <summary>Chance to add the etching in slot index (0-based), in basis points.</summary>
-        private static readonly int[] AddChanceBp = { 10000, 8000, 6000, 4000, 3000 };
+        private static readonly int[] AddChanceBp = { 10000, 8000, 6000, 4000, 3000, 1000 };
 
         public static int AddChance(int slotIndex) => AddChanceBp[slotIndex];
 
@@ -193,14 +195,30 @@ namespace Orsuun.Rules
     /// <summary>
     /// The player's etching tools: an Etching Needle adds the next etching (1st to 4th, at the slot's add chance; a
     /// failure only costs the needle), a Master's Needle the fifth (the Carvers' Archive, 25 Sep 2026), and Pinning Wax holds one etching through turns (GDD: one lock per item,
-    /// turns cost double while it holds). Unpinning is free but the wax is spent.
+    /// turns cost double while it holds). Unpinning is free but the wax is spent. The sixth (owner, 28 Sep 2026: picked
+    /// "Sixth etching"; GDD section 12: "Sixth etching on Epic and Legendary items only, via a Grandmaster's Needle at 10%
+    /// success; the item must already hold five T3+ etchings"): a failure costs only the needle.
     /// </summary>
     public static class EtchingActions
     {
+        public const int SixthMinTier = 3;
+
+        /// <summary>Why this piece cannot take a sixth etching, or null (the needle not counted).</summary>
+        public static string? SixthBlocker(ItemState item)
+        {
+            if (item.Rarity < Rarity.Epic) return "Only Epic and Legendary pieces take a sixth etching.";
+            foreach (Etching e in item.Etchings)
+                if (e.Tier < SixthMinTier) return "A sixth etching needs all five at T3 or better.";
+            return null;
+        }
+
         public static string? EtchBlocker(ItemState item, Inventory inventory)
         {
             if (item.Destroyed) return "That piece is gone.";
-            if (item.Etchings.Count >= ItemState.MaxEtchings) return "This piece has all five etchings.";
+            if (item.Kin) return "The Bannerkin's pieces take no etchings.";
+            if (item.Etchings.Count >= ItemState.SixthEtching) return "This piece has all six etchings.";
+            if (item.Etchings.Count == ItemState.MaxEtchings)
+                return SixthBlocker(item) ?? (inventory.GrandmasterNeedles < 1 ? "The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest)." : null);
             if (item.Etchings.Count == ItemState.MaxEtchings - 1)
                 return inventory.MastersNeedles < 1 ? "The fifth etching needs a Master's Needle (the Carvers' Archive or the Pit shop)." : null;
             if (inventory.EtchingNeedles < 1) return "No Etching Needles.";
@@ -209,17 +227,20 @@ namespace Orsuun.Rules
 
         /// <summary>The chance the next Etching Needle takes on this piece, in basis points.</summary>
         public static int EtchChanceBp(ItemState item) =>
-            item.Etchings.Count < ItemState.MaxEtchings ? EtchingRules.AddChance(item.Etchings.Count) : 0;
+            item.Etchings.Count < ItemState.SixthEtching ? EtchingRules.AddChance(item.Etchings.Count) : 0;
 
         public static bool Etch(ItemState item, Inventory inventory, EtchingService etchings, IRandom rng)
         {
             string? blocker = EtchBlocker(item, inventory);
             if (blocker != null) throw new InvalidOperationException(blocker);
-            // The fifth etching takes a Master's Needle; the first four an Etching Needle.
+            // The sixth takes a Grandmaster's Needle, the fifth a Master's Needle; the first four an Etching Needle.
+            bool sixth = item.Etchings.Count == ItemState.MaxEtchings;
             bool fifth = item.Etchings.Count == ItemState.MaxEtchings - 1;
-            if (fifth) inventory.MastersNeedles--;
+            if (sixth) inventory.GrandmasterNeedles--;
+            else if (fifth) inventory.MastersNeedles--;
             else inventory.EtchingNeedles--;
-            return etchings.TryAdd(item, EtchingPool.For(item.Slot), fifth ? NeedleKind.MastersNeedle : NeedleKind.EtchingNeedle, rng);
+            NeedleKind needle = sixth ? NeedleKind.GrandmasterNeedle : fifth ? NeedleKind.MastersNeedle : NeedleKind.EtchingNeedle;
+            return etchings.TryAdd(item, EtchingPool.For(item.Slot), needle, rng);
         }
 
         public static string? PinBlocker(ItemState item, int index, Inventory inventory)
@@ -251,10 +272,13 @@ namespace Orsuun.Rules
         {
             EnsureUsable(item);
             int slot = item.Etchings.Count;
-            if (slot >= ItemState.MaxEtchings) throw new InvalidOperationException("Item already has 5 etchings.");
+            if (slot >= ItemState.SixthEtching) throw new InvalidOperationException("Item already has 6 etchings.");
 
-            bool fifth = slot == ItemState.MaxEtchings - 1;
-            if (fifth != (needle == NeedleKind.MastersNeedle))
+            bool fifth = slot == ItemState.MaxEtchings - 1, sixth = slot == ItemState.MaxEtchings;
+            if (sixth != (needle == NeedleKind.GrandmasterNeedle))
+                throw new InvalidOperationException(sixth ? "The sixth etching needs a Grandmaster's Needle." : "A Grandmaster's Needle only adds the sixth etching.");
+            if (sixth && EtchingActions.SixthBlocker(item) is string no) throw new InvalidOperationException(no);
+            if (!sixth && fifth != (needle == NeedleKind.MastersNeedle))
                 throw new InvalidOperationException(fifth ? "The fifth etching needs a Master's Needle." : "A Master's Needle only adds the fifth etching.");
 
             if (!rng.RollBp(EtchingRules.AddChance(slot))) return false;

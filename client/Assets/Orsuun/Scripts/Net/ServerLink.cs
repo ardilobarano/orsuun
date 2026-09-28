@@ -1364,6 +1364,19 @@ namespace Orsuun.Client.Net
         /// <summary>The Bannerkin (Rules.Bannerkin): what it wears and what that makes of its casts (from the last state).</summary>
         public KinDto Kin { get; private set; }
 
+        /// <summary>A Temper attempt past +9 on a piece (Rules.Tempering). Completes with (result, error).</summary>
+        public IEnumerator Temper(string itemId, Action<TemperDto, string> done)
+        {
+            TemperDto result = null;
+            string failure = null;
+            yield return Post("/v1/temper", JsonUtility.ToJson(new TemperRequest { requestId = Guid.NewGuid().ToString("N"), itemId = itemId }), true, json =>
+            {
+                result = JsonUtility.FromJson<TemperDto>(json);
+                if (result.state != null) Apply(result.state);
+            }, error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         /// <summary>The Bannerkin joins (level 25).</summary>
         public IEnumerator KinJoin(Action<string> done)
         {
@@ -1644,6 +1657,7 @@ namespace Orsuun.Client.Net
             if (s.inventory.fish != null) Array.Copy(s.inventory.fish, inventory.Fish, Math.Min(inventory.Fish.Length, s.inventory.fish.Length));
             if (s.inventory.pearls != null) Array.Copy(s.inventory.pearls, inventory.Pearls, Math.Min(3, s.inventory.pearls.Length));
             inventory.Mussels = s.inventory.mussels;
+            inventory.GrandmasterNeedles = s.inventory.grandmasterNeedles;
             if (s.river != null)
             {
                 River = s.river;
@@ -1740,7 +1754,7 @@ namespace Orsuun.Client.Net
             var item = new ItemState(dto.itemLevel, (Rarity)Enum.Parse(typeof(Rarity), dto.rarity), (EquipSlot)Enum.Parse(typeof(EquipSlot), dto.slot), dto.kin)
             {
                 UpgradeLevel = dto.upgradeLevel, PatienceBp = dto.patienceBp, LockedEtchingIndex = dto.lockedEtchingIndex,
-                AverageDamagePercent = dto.averageDamage, SkillDamagePercent = dto.skillDamage,
+                AverageDamagePercent = dto.averageDamage, SkillDamagePercent = dto.skillDamage, Temper = dto.temper,
             };
             foreach (EtchingDto e in dto.etchings) item.Etchings.Add(new Etching(e.entryId, e.tier, e.value));
             if (dto.sockets != null)
@@ -1806,13 +1820,15 @@ namespace Orsuun.Client.Net
         [Serializable] public class ClientLogRequest { public string platform; public string version; public string message; public string stack; }
         [Serializable] public class EtchingDto { public int entryId; public string name; public int tier; public int value; }
         [Serializable] public class SocketDto { public bool dead; public string type; public int rank; public string text; }
-        [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; public SocketDto[] sockets; public int averageDamage; public int skillDamage; public bool kin; public bool kinWorn; }
+        [Serializable] public class ItemDto { public string id; public string slot; public bool equipped; public string name; public int itemLevel; public string rarity; public int upgradeLevel; public int patienceBp; public int lockedEtchingIndex; public EtchingDto[] etchings; public SocketDto[] sockets; public int averageDamage; public int skillDamage; public bool kin; public bool kinWorn; public int temper; }
+        [Serializable] public class TemperRequest { public string requestId; public string itemId; }
+        [Serializable] public class TemperDto { public StateDto state; public bool success; public int before; public int after; public string message; }
         [Serializable] public class KinDto { public bool joined; public ItemDto[] worn; public int score; public int focusBp; public int focusSeconds; public int focusCooldownSeconds; public int healPercent; public int healCooldownSeconds; }
         [Serializable] public class KinWearRequest { public string requestId; public string itemId; }
         [Serializable] public class SocketInsertRequest { public string requestId; public string itemId; public int socketIndex; public string type; public int rank; }
         [Serializable] public class SocketClearRequest { public string requestId; public string itemId; public int socketIndex; }
         [Serializable] public class SocketResultDto { public bool success; public int socketIndex; public string text; }
-        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; public int oathstones; public int[] books; public int[] fish; public int mussels; public int[] pearls; }
+        [Serializable] public class InventoryDto { public long sorn; public int potions; public int materials; public int scrollsOfMercy; public int khansAlloys; public int anvilWards; public int turnstones; public int etchingNeedles; public int summoningMarkers; public long xp; public int level; public int[] korshards; public string[] skins; public int huntMarks; public int pinningWax; public int tallies; public int mastersNeedles; public int oathstones; public int[] books; public int[] fish; public int mussels; public int[] pearls; public int grandmasterNeedles; }
         [Serializable] public class BountyDto { public int id; public string title; public string period; public long count; public int target; public int marks; public bool claimed; }
         [Serializable] public class BountyBoardDto { public BountyDto[] items; public int dailyResetSeconds; public int weeklyResetSeconds; }
         [Serializable] public class ClaimBountyRequest { public string requestId; public int bountyId; }

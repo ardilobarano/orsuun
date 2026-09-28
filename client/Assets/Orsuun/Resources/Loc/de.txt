@@ -2548,3 +2548,36 @@ The Bannerkin joins heroes of level {0}.	Die Bannergefährtin schließt sich Hel
 The Bannerkin has not joined you yet.	Die Bannergefährtin hat sich dir noch nicht angeschlossen.
 Only Bannerkin pieces fit the Bannerkin.	Nur Stücke der Bannergefährtin passen ihr.
 A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Eine Trommlerin geht hinter dir, segnet und heilt: Kleide und schmiede ihre Ausrüstung unter INVENTAR, BANNERGEFÄHRTIN.
+# Temper (28 Sep 2026)
+TEMPER	HÄRTEN
+TEMPER {0}/{1}	HÄRTEN {0}/{1}
+fail: -1 step, never the piece	Fehlschlag: -1 Stufe, nie das Stück
+All nine oaths, and fully tempered.	Alle neun Eide, und voll gehärtet.
+Temper {0}:	Härten {0}:
+Temper to {0}?	Auf {0} härten?
+temper {0}/{1}	gehärtet {0}/{1}
++1% base stats	+1% Grundwerte
+If it fails, nothing is lost but the cost.	Scheitert es, geht nur der Preis verloren.
+If it fails, it drops to temper {0}. The piece is never lost.	Scheitert es, fällt es auf Härte {0}. Das Stück geht nie verloren.
+The temper holds: step {0} of {1}.	Die Härtung hält: Stufe {0} von {1}.
+The temper did not take.	Die Härtung hat nicht gegriffen.
+The temper cracked: back to step {0}.	Die Härtung ist gesprungen: zurück auf Stufe {0}.
+The whetstone sings.	Der Wetzstein singt.
+Only a +9 piece takes a temper.	Nur ein Stück auf +9 lässt sich härten.
+Fully tempered.	Voll gehärtet.
+Not enough hunt materials	Nicht genug Jagdmaterial
+{0} tempered {1} ten times over!	{0} hat {1} zehnfach gehärtet!
+Tempered {0}/{1}	Gehärtet {0}/{1}
++{0}% base stats	+{0}% Grundwerte
+The Bannerkin's	Der Bannergefährtin
+# The sixth etching (28 Sep 2026)
+Grandmaster's Needle	Großmeisternadel
+{0} Grandmaster's	{0} Großmeister-
+all six	alle sechs
+Adds a sixth etching to an Epic or Legendary piece whose five are all T3 or better, one time in ten (250 Laurels in the Pit shop, or a Commander's own chest).	Fügt einem epischen oder legendären Stück, dessen fünf alle T3 oder besser sind, einmal von zehn eine sechste Gravur hinzu (250 Lorbeeren im Grubenladen oder die eigene Truhe eines Kommandanten).
+Only Epic and Legendary pieces take a sixth etching.	Nur epische und legendäre Stücke nehmen eine sechste Gravur.
+A sixth etching needs all five at T3 or better.	Eine sechste Gravur braucht alle fünf auf T3 oder besser.
+This piece has all six etchings.	Dieses Stück hat alle sechs Gravuren.
+The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	Die sechste Gravur braucht eine Großmeisternadel (Grubenladen oder die eigene Truhe eines Kommandanten).
+The Bannerkin's pieces take no etchings.	Die Stücke der Bannergefährtin nehmen keine Gravuren.
+The sixth takes a Grandmaster's Needle: you have {0}.	Die sechste braucht eine Großmeisternadel: Du hast {0}.

@@ -2502,3 +2502,36 @@ The Bannerkin joins heroes of level {0}.	Chorążanka dołącza do bohaterów od
 The Bannerkin has not joined you yet.	Chorążanka jeszcze do ciebie nie dołączyła.
 Only Bannerkin pieces fit the Bannerkin.	Na Chorążankę pasują tylko jej części.
 A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Bębniarka idzie za tobą, błogosławi i leczy: ubierz i ulepszaj jej ekwipunek w EKWIPUNEK, CHORĄŻANKA.
+# Temper (28 Sep 2026)
+TEMPER	HARTUJ
+TEMPER {0}/{1}	HARTUJ {0}/{1}
+fail: -1 step, never the piece	porażka: -1 stopień, nigdy przedmiot
+All nine oaths, and fully tempered.	Wszystkie dziewięć przysiąg i w pełni zahartowany.
+Temper {0}:	Hartowanie {0}:
+Temper to {0}?	Hartować do {0}?
+temper {0}/{1}	hartowanie {0}/{1}
++1% base stats	+1% podstawowych statystyk
+If it fails, nothing is lost but the cost.	Jeśli się nie uda, tracisz tylko koszt.
+If it fails, it drops to temper {0}. The piece is never lost.	Jeśli się nie uda, spada do hartowania {0}. Przedmiot nigdy nie przepada.
+The temper holds: step {0} of {1}.	Hartowanie trzyma: stopień {0} z {1}.
+The temper did not take.	Hartowanie się nie udało.
+The temper cracked: back to step {0}.	Hartowanie pękło: z powrotem na stopień {0}.
+The whetstone sings.	Osełka śpiewa.
+Only a +9 piece takes a temper.	Hartować można tylko przedmiot +9.
+Fully tempered.	W pełni zahartowany.
+Not enough hunt materials	Za mało materiałów z polowań
+{0} tempered {1} ten times over!	{0} zahartował {1} dziesięciokrotnie!
+Tempered {0}/{1}	Zahartowany {0}/{1}
++{0}% base stats	+{0}% podstawowych statystyk
+The Bannerkin's	Chorążanki
+# The sixth etching (28 Sep 2026)
+Grandmaster's Needle	Igła Arcymistrza
+{0} Grandmaster's	{0} Igły Arcymistrza
+all six	wszystkie sześć
+Adds a sixth etching to an Epic or Legendary piece whose five are all T3 or better, one time in ten (250 Laurels in the Pit shop, or a Commander's own chest).	Dodaje szósty ryt do Epickiego lub Legendarnego przedmiotu, którego pięć rytów ma T3 lub wyżej, raz na dziesięć (250 Laurów w sklepie Areny lub skrzynia samego Dowódcy).
+Only Epic and Legendary pieces take a sixth etching.	Szósty ryt przyjmują tylko przedmioty Epickie i Legendarne.
+A sixth etching needs all five at T3 or better.	Szósty ryt wymaga wszystkich pięciu na T3 lub wyżej.
+This piece has all six etchings.	Ten przedmiot ma wszystkie sześć rytów.
+The sixth etching needs a Grandmaster's Needle (the Pit shop or a Commander's own chest).	Szósty ryt wymaga Igły Arcymistrza (sklep Areny lub skrzynia samego Dowódcy).
+The Bannerkin's pieces take no etchings.	Części Chorążanki nie przyjmują rytów.
+The sixth takes a Grandmaster's Needle: you have {0}.	Szósty wymaga Igły Arcymistrza: masz {0}.
