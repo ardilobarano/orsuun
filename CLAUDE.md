@@ -146,7 +146,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Higgsfield takes local images through `media_import_url` (stage them briefly in a random folder under the playtest
   server's `/opt/orsuun/downloads`, delete it afterwards) or `media_upload` (presigned PUT).
 - Lane floors are `Content/Floors/<backdrop key>` (owner picked each, 25 Sep 2026): a new backdrop needs its own floor
-  (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes.
+  (tileable, a road across the tile's middle if any) or the lane falls back to the plain stripes. Its scenery set
+  (`LaneScenery.SetFor`, else Steppe) comes from `Content/Scenery` (atlases and `Rects.json` by `tools/art/scenery_atlas.py`).
 - Skill grades and Technique Scrolls (`Rules/SkillGrades.cs`) are kept for all twenty skills by book id (class * 5 +
   slot, since migration `FiveSkills`); the hero fights with its class's five (`SkillGrades.ForClass`) on both sides, so
   a grade that rises settles and reseeds the lane like a class change. Scroll stacks are `BookStacks` rows (`AddBooks` on the tracked hero,

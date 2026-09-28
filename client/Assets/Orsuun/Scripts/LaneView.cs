@@ -266,11 +266,16 @@ namespace Orsuun.Client
             backdrop.position = new Vector3(1.5f, -1.2f, 40f);   // its top at the view's top (the camera sits 0.8 m higher since 26 Sep 2026)
             backdrop.localScale = new Vector3(32.7f, 18.4f, 1f);
             _backdrop = backdrop.GetComponent<Renderer>();
+            // Painted props along the road for the map (LaneScenery).
+            _scenery = new GameObject("Scenery").AddComponent<LaneScenery>();
+            _scenery.transform.SetParent(transform, false);
+            _scenery.Init();
             _backdrop.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _backdrop.receiveShadows = false;
         }
 
         private string _backdropKey;
+        private LaneScenery _scenery;
 
         /// <summary>The lane's backdrop now ("HuntingGround", "SaltFlats", "Whisperwood"...): the music follows it.</summary>
         public string BackdropKeyNow => _backdropKey;
@@ -285,6 +290,7 @@ namespace Orsuun.Client
             if (_backdropKey == key) return;
             _backdropKey = key;
             _zone = zone;
+            _scenery?.SetBackdrop(key);
             var mat = Art.Load<Material>("Backdrops/Backdrop" + key);
             if (mat != null) _backdrop.sharedMaterial = mat;
             _backdrop.enabled = mat != null;
@@ -764,6 +770,7 @@ namespace Orsuun.Client
         {
             if (_sim == null) return;
             float dt = Time.deltaTime;
+            _scenery?.Tick(dt, _sim.Phase == LanePhase.Running);
 
             if (_sim.Phase == LanePhase.Running)
             {

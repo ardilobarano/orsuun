@@ -49,6 +49,7 @@ namespace Orsuun.Client.EditorTools
             EnsureKorstones();
             EnsureMobs();
             EnsureRiver();
+            EnsureScenery();
             EnsureFx();
             EnsureAudioImport();
             EnsureKorstoneImport();
@@ -356,6 +357,46 @@ namespace Orsuun.Client.EditorTools
                 mat.shader = unlit;
                 mat.SetTexture("_BaseMap", tex);
                 mat.SetColor("_BaseColor", Color.white);
+                EditorUtility.SetDirty(mat);
+            }
+        }
+
+        /// <summary>
+        /// The hunt's scenery (LaneScenery, 28 Sep 2026): one atlas of six painted props per set (Content/Scenery), each a
+        /// Lit material cut by its alpha and seen from both sides (a mirrored card shows its back).
+        /// </summary>
+        private static void EnsureScenery()
+        {
+            const string dir = Con + "Scenery/";
+            if (!Directory.Exists(dir)) return;
+            Shader lit = Shader.Find("Universal Render Pipeline/Lit");
+            foreach (string file in Directory.GetFiles(dir, "*.png"))
+            {
+                string name = Path.GetFileNameWithoutExtension(file);
+                string texPath = dir + name + ".png";
+                if (AssetImporter.GetAtPath(texPath) is TextureImporter ti
+                    && (ti.wrapMode != TextureWrapMode.Clamp || !ti.alphaIsTransparency || ti.maxTextureSize != 2048 || !ti.mipmapEnabled))
+                {
+                    ti.wrapMode = TextureWrapMode.Clamp;
+                    ti.alphaIsTransparency = true;
+                    ti.maxTextureSize = 2048;
+                    ti.mipmapEnabled = true;
+                    ti.SaveAndReimport();
+                }
+                string matPath = dir + name + ".mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+                if (mat == null) { mat = new Material(lit); AssetDatabase.CreateAsset(mat, matPath); }
+                mat.shader = lit;
+                mat.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(texPath));
+                mat.SetColor("_BaseColor", Color.white);
+                mat.SetFloat("_Smoothness", 0.05f);
+                mat.SetFloat("_AlphaClip", 1f);
+                mat.SetFloat("_Cutoff", 0.45f);
+                mat.SetFloat("_Cull", 0f);
+                mat.EnableKeyword("_ALPHATEST_ON");
+                mat.renderQueue = (int)RenderQueue.AlphaTest;
+                mat.doubleSidedGI = true;
+                mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                 EditorUtility.SetDirty(mat);
             }
         }
