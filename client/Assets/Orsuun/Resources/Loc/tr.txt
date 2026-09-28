@@ -2532,3 +2532,14 @@ It leaves your bag now and comes back if nobody buys it on the Exchange within {
 {0} +{1} is on your rug for {2} sorn.	{0} +{1} {2} sorna kiliminde.
 {0} × {1} on your rug for {2} sorn.	{0} × {1}, {2} sorna kiliminde.
 Your rug holds {0} wares.	Kilimin {0} mal alır.
+Ilke of the Scales	Terazili İlke
+Elder Tamir	Yaşlı Tamir
+Pitmaster Bora	Çukur Ustası Bora
+Skills	Beceriler
+The Forge	Demirhane
+Tap someone in the square to go and see them.	Yanına gitmek için meydandaki birine dokun.
+The Town Square	Kasaba Meydanı
+The Forge, the Caravan, the elder, the Pits and the rugs	Demirhane, Kervan, yaşlı bilge, Çukur ve kilimler
+the hunt goes on	av sürüyor
+GO TO TOWN	KASABAYA GİT
+Your rug	Kilimin

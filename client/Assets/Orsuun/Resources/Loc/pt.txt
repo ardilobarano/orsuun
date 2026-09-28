@@ -2576,3 +2576,14 @@ It leaves your bag now and comes back if nobody buys it on the Exchange within {
 {0} +{1} is on your rug for {2} sorn.	{0} +{1} está no seu tapete por {2} sorn.
 {0} × {1} on your rug for {2} sorn.	{0} × {1} no seu tapete por {2} sorn.
 Your rug holds {0} wares.	Seu tapete comporta {0} mercadorias.
+Ilke of the Scales	Ilke da Balança
+Elder Tamir	Ancião Tamir
+Pitmaster Bora	Mestre das Arenas Bora
+Skills	Habilidades
+The Forge	A Forja
+Tap someone in the square to go and see them.	Toque em alguém na praça para ir até ele.
+The Town Square	A Praça da Cidade
+The Forge, the Caravan, the elder, the Pits and the rugs	A Forja, a Caravana, o ancião, as Arenas e os tapetes
+the hunt goes on	a caçada continua
+GO TO TOWN	IR À CIDADE
+Your rug	Seu tapete

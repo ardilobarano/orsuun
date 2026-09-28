@@ -30,6 +30,7 @@ namespace Orsuun.Client
         private RugsDto _rugs;
         private RugDto _rug;
         private string _open;   // the seller whose rug is shown, or null for the list
+        private bool _straight; // opened on a rug (from the town square): BACK closes
         private bool _busy;
 
         public bool IsOpen => _canvas.activeSelf;
@@ -73,18 +74,20 @@ namespace Orsuun.Client
             _canvas.SetActive(false);
         }
 
-        public void Open()
+        /// <summary>Opens the list of rugs, or one seller's rug (the town square's rug tags).</summary>
+        public void Open(string seller = null)
         {
             _canvas.SetActive(true);
             _message.text = _root.Server.Online ? "" : "Rug Stalls need the server.";
-            Show(null);
+            _straight = seller != null;
+            Show(seller);
         }
 
         public void Close() => _canvas.SetActive(false);
 
         private void Back()
         {
-            if (_open != null) Show(null);
+            if (_open != null && !_straight) Show(null);
             else Close();
         }
 

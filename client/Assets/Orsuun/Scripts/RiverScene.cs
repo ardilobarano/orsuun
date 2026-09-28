@@ -29,12 +29,7 @@ namespace Orsuun.Client
         private Transform[] _flames;
         private Vector3 _fireAt;
         private bool _shown;
-        private Light _sun;
-        private Quaternion _sunRotation;
-        private Color _sunColor, _ambient;
-        private float _sunIntensity;
-        private SphericalHarmonicsL2 _ambientProbe;
-        private Camera _laneCamera, _backdropCamera;
+        private readonly PlaceMood _mood = new PlaceMood();
 
         public float WaterY => _at.y - WaterDrop;
 
@@ -53,30 +48,14 @@ namespace Orsuun.Client
 
         // ------------------------------------------------------------------ showing
 
-        /// <summary>The river on screen: the lane's cameras rest and the evening sun is lit.</summary>
+        /// <summary>The river on screen: the lane's cameras rest and the evening sun is lit, low ahead of the hero and a
+        /// little to the left, where the painted sun sets.</summary>
         public void Show()
         {
             if (_shown) return;
             _shown = true;
             _root.gameObject.SetActive(true);
-            _laneCamera = GameObject.Find("LaneCamera")?.GetComponent<Camera>();
-            _backdropCamera = GameObject.Find("BackdropCamera")?.GetComponent<Camera>();
-            if (_laneCamera != null) _laneCamera.enabled = false;
-            if (_backdropCamera != null) _backdropCamera.enabled = false;
-            _sun = GameObject.Find("Sun")?.GetComponent<Light>();
-            if (_sun != null)
-            {
-                _sunRotation = _sun.transform.rotation;
-                _sunColor = _sun.color;
-                _sunIntensity = _sun.intensity;
-                // Low ahead of the hero and a little to the left, where the painted sun sets.
-                _sun.transform.rotation = Quaternion.Euler(13f, 170f, 0f);
-                _sun.color = new Color(1f, 0.7f, 0.46f);
-                _sun.intensity = 1.35f;
-            }
-            _ambient = RenderSettings.ambientLight;
-            _ambientProbe = RenderSettings.ambientProbe;
-            SetAmbient(new Color(0.5f, 0.42f, 0.46f));
+            _mood.Enter(Quaternion.Euler(13f, 170f, 0f), new Color(1f, 0.7f, 0.46f), 1.35f, new Color(0.5f, 0.42f, 0.46f));
         }
 
         public void Hide()
@@ -84,24 +63,7 @@ namespace Orsuun.Client
             if (!_shown) return;
             _shown = false;
             _root.gameObject.SetActive(false);
-            if (_laneCamera != null) _laneCamera.enabled = true;
-            if (_backdropCamera != null) _backdropCamera.enabled = true;
-            if (_sun != null)
-            {
-                _sun.transform.rotation = _sunRotation;
-                _sun.color = _sunColor;
-                _sun.intensity = _sunIntensity;
-            }
-            RenderSettings.ambientLight = _ambient;
-            RenderSettings.ambientProbe = _ambientProbe;
-        }
-
-        private static void SetAmbient(Color color)
-        {
-            RenderSettings.ambientLight = color;
-            var probe = new SphericalHarmonicsL2();
-            probe.AddAmbientLight(color);
-            RenderSettings.ambientProbe = probe;
+            _mood.Leave();
         }
 
         /// <summary>A ring spreading on the water from a point (the float landing, a fish biting).</summary>

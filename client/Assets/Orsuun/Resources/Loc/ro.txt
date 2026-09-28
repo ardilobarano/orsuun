@@ -2570,3 +2570,14 @@ It leaves your bag now and comes back if nobody buys it on the Exchange within {
 {0} +{1} is on your rug for {2} sorn.	{0} +{1} e pe covorul tău pentru {2} sorn.
 {0} × {1} on your rug for {2} sorn.	{0} × {1} pe covorul tău pentru {2} sorn.
 Your rug holds {0} wares.	Covorul tău ține {0} mărfuri.
+Ilke of the Scales	Ilke de la Cântar
+Elder Tamir	Bătrânul Tamir
+Pitmaster Bora	Stăpânul Gropii Bora
+Skills	Abilități
+The Forge	Fierăria
+Tap someone in the square to go and see them.	Atinge pe cineva din piață ca să mergi la el.
+The Town Square	Piața Orașului
+The Forge, the Caravan, the elder, the Pits and the rugs	Fierăria, Caravana, bătrânul, Groapa și covoarele
+the hunt goes on	vânătoarea continuă
+GO TO TOWN	MERGI ÎN ORAȘ
+Your rug	Covorul tău

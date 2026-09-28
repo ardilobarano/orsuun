@@ -2608,3 +2608,14 @@ It leaves your bag now and comes back if nobody buys it on the Exchange within {
 {0} +{1} is on your rug for {2} sorn.	{0} +{1} liegt für {2} Sorn auf deinem Teppich.
 {0} × {1} on your rug for {2} sorn.	{0} × {1} für {2} Sorn auf deinem Teppich.
 Your rug holds {0} wares.	Dein Teppich fasst {0} Waren.
+Ilke of the Scales	Ilke von der Waage
+Elder Tamir	Ältester Tamir
+Pitmaster Bora	Grubenmeister Bora
+Skills	Fähigkeiten
+The Forge	Die Schmiede
+Tap someone in the square to go and see them.	Tippe jemanden auf dem Platz an, um zu ihm zu gehen.
+The Town Square	Der Stadtplatz
+The Forge, the Caravan, the elder, the Pits and the rugs	Die Schmiede, die Karawane, der Älteste, die Grube und die Teppiche
+the hunt goes on	die Jagd geht weiter
+GO TO TOWN	IN DIE STADT
+Your rug	Dein Teppich

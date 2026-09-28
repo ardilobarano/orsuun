@@ -50,6 +50,7 @@ namespace Orsuun.Client.EditorTools
             EnsureMobs();
             EnsureRiver();
             EnsureScenery();
+            EnsureTown();
             EnsureFx();
             EnsureAudioImport();
             EnsureKorstoneImport();
@@ -399,6 +400,74 @@ namespace Orsuun.Client.EditorTools
                 mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                 EditorUtility.SetDirty(mat);
             }
+        }
+
+        /// <summary>
+        /// The town square (TownScene, 28 Sep 2026), in Content/Town beside its textures (tools/art/town_atlas.py): the
+        /// painted far side (Unlit, clamped, its own size), the paving (Lit, repeating), the townsfolk and props (Unlit cards
+        /// keep their painted light; alpha cut, both sides), the rugs (Lit, so the lanterns warm them) and the shade under
+        /// figures (Unlit, see-through).
+        /// </summary>
+        private static void EnsureTown()
+        {
+            const string dir = Con + "Town/";
+            if (!Directory.Exists(dir)) return;
+            Texture2D Tex(string file, TextureWrapMode wrap, int max, bool alpha)
+            {
+                string path = dir + file;
+                if (AssetImporter.GetAtPath(path) is TextureImporter ti
+                    && (ti.wrapMode != wrap || ti.maxTextureSize != max || !ti.mipmapEnabled || ti.alphaIsTransparency != alpha
+                        || ti.npotScale != TextureImporterNPOTScale.None || ti.anisoLevel != 8))
+                {
+                    ti.wrapMode = wrap;
+                    ti.maxTextureSize = max;
+                    ti.mipmapEnabled = true;
+                    ti.alphaIsTransparency = alpha;
+                    ti.npotScale = TextureImporterNPOTScale.None;
+                    ti.anisoLevel = 8;
+                    ti.SaveAndReimport();
+                }
+                return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            }
+            Material Mat(string name, Shader shader, Texture2D tex, Color tint)
+            {
+                string path = dir + name + ".mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (mat == null) { mat = new Material(shader); AssetDatabase.CreateAsset(mat, path); }
+                mat.shader = shader;
+                mat.SetTexture("_BaseMap", tex);
+                mat.SetColor("_BaseColor", tint);
+                mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
+                EditorUtility.SetDirty(mat);
+                return mat;
+            }
+            void Cut(Material mat)
+            {
+                mat.SetFloat("_AlphaClip", 1f);
+                mat.SetFloat("_Cutoff", 0.45f);
+                mat.SetFloat("_Cull", 0f);
+                mat.EnableKeyword("_ALPHATEST_ON");
+                mat.renderQueue = (int)RenderQueue.AlphaTest;
+                mat.doubleSidedGI = true;
+            }
+            Shader lit = Shader.Find("Universal Render Pipeline/Lit"), unlit = Shader.Find("Universal Render Pipeline/Unlit");
+            Mat("Square", unlit, Tex("Square.jpg", TextureWrapMode.Clamp, 2048, false), Color.white);
+            Material paving = Mat("Paving", lit, Tex("Paving.jpg", TextureWrapMode.Repeat, 1024, false), Color.white);
+            paving.SetFloat("_Smoothness", 0.08f);
+            // The evening's warmth on the painted folk, a touch under full so the bloom leaves them be.
+            Cut(Mat("Folk", unlit, Tex("Folk.png", TextureWrapMode.Clamp, 2048, true), new Color(0.93f, 0.86f, 0.78f)));
+            Cut(Mat("Props", unlit, Tex("Props.png", TextureWrapMode.Clamp, 2048, true), new Color(0.9f, 0.83f, 0.76f)));
+            Material rugs = Mat("Rugs", lit, Tex("Rugs.png", TextureWrapMode.Clamp, 1024, true), Color.white);
+            rugs.SetFloat("_Smoothness", 0.02f);
+            Cut(rugs);
+            Material shade = Mat("Shade", unlit, Tex("Shade.png", TextureWrapMode.Clamp, 128, true), Color.white);
+            shade.SetFloat("_Surface", 1f);
+            shade.SetFloat("_Blend", 0f);
+            shade.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            shade.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            shade.SetFloat("_ZWrite", 0f);
+            shade.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            shade.renderQueue = (int)RenderQueue.Transparent;
         }
 
         /// <summary>

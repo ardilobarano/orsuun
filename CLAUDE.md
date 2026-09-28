@@ -288,9 +288,14 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   effects skips `SkillFx.Layers`, the spirit and the runes. Graphics LOW replaced the BATTERY SAVER (`Performance.Saver`).
 - The river is a 3D place (`RiverScene`, at the river stage `HeroStage.Below + (-120,0,0)`, drawn by that stage's camera
   with bloom and a 260 m far clip): while it shows, the lane and backdrop cameras are off and the Sun and ambient are the
-  evening's (`Show`/`Hide` restore them). Its textures and materials are `Content/River` (`RenderingSetup.EnsureRiver`);
+  evening's (`PlaceMood`, which every 3D place goes through). Its textures and materials are `Content/River` (`RenderingSetup.EnsureRiver`);
   the water is `Shaders/Water.shader`, reflecting the horizon quad by its `_SkyRect`/`_SkyZ`: move the quad, move those.
   Nergui's model faces its -x (`NerguiYaw`, `FireOffset`); `-rivershot nergui` looks at his camp.
+- The town square (`TownPanel`, `TownScene`, at `HeroStage.Below + (-240,0,0)`) is the same kind of place: its stage is from
+  behind without the rod (`HeroStage.Init(..., fromBehind: true, rod: false)`), viewed from `TownScene.CameraFrom`, and the
+  hero walks there by `HeroStage.Walk`/`Facing`. The hunt goes on in town (only the river stops it). Its art is
+  `Content/Town` (`tools/art/town_atlas.py`, `RenderingSetup.EnsureTown`); the townsfolk and props are painted cards
+  (Unlit, keeping their painted light) placed in `TownScene`, and the hit boxes and plates in `TownPanel` follow them.
 - The Bannerkin (`Rules.Bannerkin`): her pieces are items with `Kin`; the ones she wears have `KinWorn` (out of the bag,
   never `Equipped`), so hero queries on `Equipped` stay the hero's. SQL bag counts add `!i.KinWorn`; a broken piece goes
   through `BreakPiece`. Her stats reach combat only as `HeroStats.Kin` from `FromEquipment(..., kin:)` on both sides.

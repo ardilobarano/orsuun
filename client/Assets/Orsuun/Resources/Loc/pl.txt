@@ -2562,3 +2562,14 @@ It leaves your bag now and comes back if nobody buys it on the Exchange within {
 {0} +{1} is on your rug for {2} sorn.	{0} +{1} leży na twoim dywanie za {2} sornu.
 {0} × {1} on your rug for {2} sorn.	{0} × {1} na twoim dywanie za {2} sornu.
 Your rug holds {0} wares.	Twój dywan mieści {0} towarów.
+Ilke of the Scales	Ilke od Wagi
+Elder Tamir	Starszy Tamir
+Pitmaster Bora	Mistrz Areny Bora
+Skills	Umiejętności
+The Forge	Kuźnia
+Tap someone in the square to go and see them.	Dotknij kogoś na placu, aby do niego podejść.
+The Town Square	Rynek
+The Forge, the Caravan, the elder, the Pits and the rugs	Kuźnia, Karawana, starszy, Arena i dywany
+the hunt goes on	polowanie trwa
+GO TO TOWN	DO MIASTA
+Your rug	Twój dywan

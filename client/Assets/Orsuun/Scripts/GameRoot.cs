@@ -63,6 +63,7 @@ namespace Orsuun.Client
         public RiverPanel River { get; private set; }
         public BannerkinPanel Kin { get; private set; }
         public RugPanel Rugs { get; private set; }
+        public TownPanel Town { get; private set; }
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
@@ -119,6 +120,8 @@ namespace Orsuun.Client
             // Stays off its canvas: it shows itself whenever the server says the hero is at the river.
             River = new GameObject("RiverPanel").AddComponent<RiverPanel>();
             River.Init(this);
+            Town = new GameObject("TownPanel").AddComponent<TownPanel>();
+            Town.Init(this);
             Inspect = new GameObject("InspectPanel").AddComponent<InspectPanel>();
             Inspect.Init(this);
             BuildCameras();
@@ -296,6 +299,7 @@ namespace Orsuun.Client
             _goFishing = Array.IndexOf(cmd, "-river") >= 0;
             _openKin = Array.IndexOf(cmd, "-kin") >= 0;
             _openRugs = Array.IndexOf(cmd, "-rugs") >= 0;
+            _openTown = Array.IndexOf(cmd, "-town") >= 0;
             if (Array.IndexOf(cmd, "-settings") >= 0) Menu.OpenSettingsForShot();
             _raidFight = Array.IndexOf(Environment.GetCommandLineArgs(), "-raidfight") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
@@ -426,7 +430,7 @@ namespace Orsuun.Client
         private int _caravanTab = -1;
         private bool _openAchievements, _openRaid, _raidFight;
         private string _openBoard, _inspectShot;
-        private bool _openInvite, _goFishing, _openKin, _openRugs;
+        private bool _openInvite, _goFishing, _openKin, _openRugs, _openTown;
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
@@ -592,6 +596,12 @@ namespace Orsuun.Client
             {
                 _goFishing = false;
                 if (!Server.AtRiver) River.Go();
+            }
+            // Screenshots: -town opens the town square once online (-townwalk <0-3> walks to a townsman).
+            if (Server.Online && _openTown && !Server.WaitingForHero)
+            {
+                _openTown = false;
+                Town.Open();
             }
             if (Server.Online && _openRugs && !Server.WaitingForHero)
             {

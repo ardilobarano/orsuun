@@ -54,18 +54,27 @@ namespace Orsuun.Client
         /// </summary>
         public bool FromBehind { get; private set; }
 
-        /// <summary>Screenshots of the river's corners (-riverview): the camera placed elsewhere (world from, to).</summary>
+        /// <summary>The camera placed elsewhere (world from, to): the town square's view, the river's corners for screenshots.</summary>
         public (Vector3 from, Vector3 to)? ViewOverride { get; set; }
+
+        /// <summary>From behind: where the hero stands off his spot and which way he faces (degrees about y, 0 away from
+        /// the camera). The town square walks him to the one he goes to see.</summary>
+        public Vector3 Walk { get; set; }
+        public float Facing { get; set; }
+        private bool _rodInHand;
         private Transform _hand, _rod, _float;
         private LineRenderer _line;
         private Animation _anim;
         private float _height = 2f;
         private Vector3? _floatAt;
 
-        public void Init(RectTransform box, Vector3? at = null, bool fromBehind = false)
+        /// <summary>A stage at <paramref name="at"/>; from behind with a rod (the river) or without (the town square, his
+        /// weapon in hand).</summary>
+        public void Init(RectTransform box, Vector3? at = null, bool fromBehind = false, bool rod = true)
         {
             _at = at ?? Below;
             FromBehind = fromBehind;
+            _rodInHand = fromBehind && rod;
             // From behind, the view fills a phone screen; otherwise the hero's portrait frame.
             _aspect = fromBehind ? 9f / 16f : Aspect;
             _texture = fromBehind
@@ -145,7 +154,8 @@ namespace Orsuun.Client
             if (FromBehind)
             {
                 // His back to us, looking out over the water; the camera above and behind his shoulder.
-                _pivot.rotation = Quaternion.identity;
+                _pivot.position = _at + Walk;
+                _pivot.rotation = Quaternion.Euler(0f, Facing, 0f);
                 // Framed so he stands on the jetty's end (a third of the way up the screen, a third of it tall).
                 if (ViewOverride is (Vector3 from, Vector3 to))
                 {
@@ -267,7 +277,7 @@ namespace Orsuun.Client
                 // A skin's costume is no armour look: it does not glow.
                 if (skin == null) foreach (Renderer r in armor.GetComponentsInChildren<Renderer>()) _pieces.Add((r, false));
                 anim = armor.GetComponent<Animation>();
-                if (weaponPrefab != null && !FromBehind)
+                if (weaponPrefab != null && !_rodInHand)
                 {
                     GameObject weapon = Instantiate(weaponPrefab, _model.transform);
                     Dress(weapon, "Looks/" + weaponUsed, renderers);
@@ -289,7 +299,7 @@ namespace Orsuun.Client
                 anim = body.GetComponent<Animation>();
             }
             _anim = anim;
-            if (FromBehind) TakeRod(renderers);
+            if (_rodInHand) TakeRod(renderers);
             if (anim != null && anim.GetClip("Idle") != null)
             {
                 anim.cullingType = AnimationCullingType.AlwaysAnimate;
@@ -297,9 +307,10 @@ namespace Orsuun.Client
             }
 
             // Feet on the stage floor, centred; the camera frames the whole figure.
-            Bounds b = Measure(renderers, _at);
-            _model.transform.position += new Vector3(_at.x - b.center.x, _at.y - b.min.y, _at.z - b.center.z);
-            b = Measure(renderers, _at);
+            Vector3 spot = _pivot.position;
+            Bounds b = Measure(renderers, spot);
+            _model.transform.position += new Vector3(spot.x - b.center.x, spot.y - b.min.y, spot.z - b.center.z);
+            b = Measure(renderers, spot);
             float half = Mathf.Tan(Fov * 0.5f * Mathf.Deg2Rad);
             _centreY = b.extents.y;
             _height = Mathf.Max(0.5f, b.size.y);
@@ -365,6 +376,13 @@ namespace Orsuun.Client
         /// <summary>The float's place (world), or null: out of the water, hanging at the rod's tip.</summary>
         public void SetFloat(Vector3? at) => _floatAt = at;
 
+        /// <summary>Loops a clip if the model has it (the town square's walk: Run, then Idle).</summary>
+        public void Loop(string clip)
+        {
+            if (_anim == null || _anim.GetClip(clip) == null || _anim.IsPlaying(clip)) return;
+            _anim.CrossFade(clip, 0.15f);
+        }
+
         /// <summary>Plays a clip once (the cast and the strike use the attack), then the idle again.</summary>
         public void PlayOnce(string clip)
         {
@@ -376,7 +394,7 @@ namespace Orsuun.Client
 
         private void LateUpdate()
         {
-            if (!FromBehind || _rod == null || _hand == null) return;
+            if (!_rodInHand || _rod == null || _hand == null) return;
             // The rod follows the fist through the idle, pointing out and up over the water.
             float length = 1.35f * _height;
             Vector3 dir = new Vector3(0.18f, 0.55f, 1f).normalized;

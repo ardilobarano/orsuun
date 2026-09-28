@@ -34,7 +34,7 @@ namespace Orsuun.Client
         private Row[] _zoneRows;
         private readonly Row[] _dungeonRows = new Row[Dungeons.All.Length];
         private readonly Row[] _bossRows = new Row[BossRows];
-        private Row _riverRow;
+        private Row _riverRow, _townRow;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -52,6 +52,11 @@ namespace Orsuun.Client
             // Zone cards (zones mockup): the painting, the name, what it is, and HUNT HERE; the list scrolls. The dungeon
             // leads it: ENTER spends one of the day's two keys.
             Ui.Scroll("ZoneList", canvas, 0.03f, 0.462f, 0.97f, 0.895f, out RectTransform content);
+            // The town square (TownPanel): the townsfolk and the rugs; the hunt goes on meanwhile.
+            RectTransform townCard = new GameObject("Town", typeof(RectTransform)).GetComponent<RectTransform>();
+            townCard.SetParent(content, false);
+            townCard.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
+            _townRow = MakeCard(townCard, "Town", 1.33f, Palette.ButtonForge, GoToTown);
             // Old Nergui's river (Rules.Fishing): no hunting there, fishing instead.
             RectTransform riverCard = new GameObject("River", typeof(RectTransform)).GetComponent<RectTransform>();
             riverCard.SetParent(content, false);
@@ -111,6 +116,21 @@ namespace Orsuun.Client
             row.Button = Ui.Button(name + "Btn", card, 0.715f, 0.16f, 0.985f, 0.84f, "", 24, color, onClick, out row.ButtonLabel);
             row.ButtonImage = row.Button.GetComponent<Image>();
             return row;
+        }
+
+        private void GoToTown()
+        {
+            _canvas.SetActive(false);
+            _root.Town.Open();
+        }
+
+        private void UpdateTown()
+        {
+            Ui.SetPicture(_townRow.Picture, "Thumbs/Town");
+            Banner banner = _root.Server.Banner;
+            _townRow.Name.text = banner == Banner.None ? "The Town Square" : Banners.Def(banner).StartingTown;
+            _townRow.Label.text = "The Forge, the Caravan, the elder, the Pits and the rugs  ·  the hunt goes on";
+            _townRow.ButtonLabel.text = "GO TO TOWN";
         }
 
         private void GoFishing()
@@ -194,6 +214,7 @@ namespace Orsuun.Client
             PlayerSession session = _root.Session;
 
             UpdateDungeon(session);
+            UpdateTown();
             UpdateRiver();
 
             // Zones: campaign farm spot first, then every zone in content order.
