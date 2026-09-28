@@ -15,13 +15,26 @@ namespace Orsuun.Client.EditorTools
     /// </summary>
     public sealed class SceneArtImport : AssetPostprocessor
     {
-        public override uint GetVersion() => 3;
+        public override uint GetVersion() => 4;
 
         /// <summary>The map music (Content/Music, downloaded, 27 Sep 2026): the long themes stream from their bundle (only the
         /// one playing and the one fading are read); the short stings load whole. Vorbis for both.</summary>
         private void OnPreprocessAudio()
         {
             string path = assetPath.Replace('\\', '/');
+            if (path.Contains("/Content/Ambience/"))
+            {
+                // The maps' ambience (28 Sep 2026): short mono loops, kept compressed in memory.
+                var loop = (AudioImporter)assetImporter;
+                AudioImporterSampleSettings s = loop.defaultSampleSettings;
+                s.loadType = UnityEngine.AudioClipLoadType.CompressedInMemory;
+                s.compressionFormat = UnityEngine.AudioCompressionFormat.Vorbis;
+                s.quality = 0.5f;
+                loop.defaultSampleSettings = s;
+                loop.forceToMono = true;
+                loop.loadInBackground = true;
+                return;
+            }
             if (!path.Contains("/Content/Music/")) return;
             var importer = (AudioImporter)assetImporter;
             bool sting = System.IO.Path.GetFileName(path).StartsWith("Sting");

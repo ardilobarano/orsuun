@@ -272,6 +272,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - A place's own sounds loop through `GameAudio.Ambience(name, volume, fade)` (call it freely: it only moves the target;
   0 fades it out) and `GameAudio.MusicUnder(share)` lowers the music under them; whoever starts them stops them when the
   place closes (the river: `RiverPanel.Show`). Long loops in `Resources/Audio` go in `EnsureAudioImport`'s Vorbis list.
+  The maps' loops are downloaded art (`Content/Ambience/Amb<Kind>`, `GameRoot.MapAmbience`): a new backdrop needs its
+  entry there, like its music.
 - Music (27 Sep 2026) is downloaded art: `Content/Music/<Name>.mp3` (ElevenLabs Music), played through
   `GameAudio.Music(name, fallback)`; `GameRoot.UpdateMusic` picks it from the lane's backdrop (`MapMusic`). A new map or
   backdrop needs its entry there; a new theme that fades in or is louder than about -17.5 dBFS gets a row in

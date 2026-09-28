@@ -3,7 +3,8 @@ decoded with macOS afconvert, the chosen takes trimmed and levelled into client/
 16-bit WAVs: RiverWater, RiverBirds, RiverFire (seamless loops, levelled to about -30 dBFS with a soft limit on the
 peaks), RiverReel (a loop while a fish is fought), RiverCast, RiverSplash (the float landing), RiverPlop (a bite) and
 TownMarket (the town square's murmur, a loop). The town's theme is music (Content/Music/MusicTown.mp3, copied as made).
-Run with /usr/bin/python3 (numpy)."""
+The maps' ambience loops (Amb*, one per kind of map) go to client/Assets/Orsuun/Content/Ambience (downloaded art) at
+22.05 kHz. Run with /usr/bin/python3 (numpy)."""
 import os
 import subprocess
 import tempfile
@@ -13,7 +14,9 @@ import numpy as np
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
 SRC = os.path.join(ROOT, 'docs', 'concept', 'sounds')
 OUT = os.path.join(ROOT, 'client', 'Assets', 'Orsuun', 'Resources', 'Audio')
+AMBIENCE = os.path.join(ROOT, 'client', 'Assets', 'Orsuun', 'Content', 'Ambience')
 RATE = 32000
+AMBIENCE_RATE = 22050
 
 # name: (take, loop, trim from, trim to (s), level: rms dBFS for loops, peak dBFS for one-shots)
 SOUNDS = {
@@ -27,10 +30,13 @@ SOUNDS = {
     'TownMarket': ('town-market', True, 0, None, -32),
 }
 
+# The maps' ambience (Content/Ambience): all loops, levelled alike.
+AMBIENT = ['Steppe', 'Mountain', 'Salt', 'Cinder', 'Whisper', 'Birch', 'Swamp', 'Graves', 'Bazaar', 'Deep']
 
-def decode(take):
+
+def decode(take, rate=RATE):
     path = os.path.join(tempfile.mkdtemp(), take + '.wav')
-    subprocess.run(['afconvert', '-f', 'WAVE', '-d', 'LEI16@%d' % RATE, '-c', '1', os.path.join(SRC, take + '.mp3'), path], check=True)
+    subprocess.run(['afconvert', '-f', 'WAVE', '-d', 'LEI16@%d' % rate, '-c', '1', os.path.join(SRC, take + '.mp3'), path], check=True)
     w = wave.open(path)
     x = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float64) / 32768
     return x
@@ -45,14 +51,29 @@ def soft_limit(x, ceiling=0.89):
     return y
 
 
+def write(path, x, rate):
+    w = wave.open(path, 'wb')
+    w.setnchannels(1)
+    w.setsampwidth(2)
+    w.setframerate(rate)
+    w.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
+    w.close()
+    name = os.path.splitext(os.path.basename(path))[0]
+    print('%-12s %5.2fs peak %5.1f dBFS rms %5.1f dBFS' % (name, len(x) / rate, 20 * np.log10(np.abs(x).max()), 20 * np.log10(np.sqrt((x ** 2).mean()))))
+
+
+def level_loop(x, level):
+    rms = np.sqrt((x ** 2).mean())
+    return soft_limit(x * 10 ** (level / 20) / max(rms, 1e-9))
+
+
 def main():
     for name, (take, loop, t0, t1, level) in SOUNDS.items():
         x = decode(take)
         a, b = int(t0 * RATE), (int(t1 * RATE) if t1 else len(x))
         x = x[a:b]
         if loop:
-            rms = np.sqrt((x ** 2).mean())
-            x = soft_limit(x * 10 ** (level / 20) / max(rms, 1e-9))
+            x = level_loop(x, level)
         else:
             x = x * 10 ** (level / 20) / max(np.abs(x).max(), 1e-9)
             # A short fade at each end so a trimmed one-shot starts and stops without a click.
@@ -60,13 +81,13 @@ def main():
             x[:n] *= np.linspace(0, 1, n)
             m = int(0.06 * RATE)
             x[-m:] *= np.linspace(1, 0, m)
-        w = wave.open(os.path.join(OUT, name + '.wav'), 'wb')
-        w.setnchannels(1)
-        w.setsampwidth(2)
-        w.setframerate(RATE)
-        w.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
-        w.close()
-        print('%-12s %5.2fs peak %5.1f dBFS rms %5.1f dBFS' % (name, len(x) / RATE, 20 * np.log10(np.abs(x).max()), 20 * np.log10(np.sqrt((x ** 2).mean()))))
+        write(os.path.join(OUT, name + '.wav'), x, RATE)
+    os.makedirs(AMBIENCE, exist_ok=True)
+    for kind in AMBIENT:
+        take = 'amb-' + kind.lower()
+        if not os.path.exists(os.path.join(SRC, take + '.mp3')):
+            continue
+        write(os.path.join(AMBIENCE, 'Amb' + kind + '.wav'), level_loop(decode(take, AMBIENCE_RATE), -32), AMBIENCE_RATE)
 
 
 if __name__ == '__main__':

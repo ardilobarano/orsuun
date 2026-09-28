@@ -98,8 +98,9 @@ namespace Orsuun.Client
         {
             if (!_clips.TryGetValue(name, out AudioClip clip))
             {
-                // Sounds live in Resources/Audio; the map music and stings are downloaded art (Content/Music).
-                clip = Resources.Load<AudioClip>("Audio/" + name) ?? Art.Load<AudioClip>("Music/" + name);
+                // Sounds live in Resources/Audio; the map music, stings and the maps' ambience are downloaded art
+                // (Content/Music, Content/Ambience).
+                clip = Resources.Load<AudioClip>("Audio/" + name) ?? Art.Load<AudioClip>("Music/" + name) ?? Art.Load<AudioClip>("Ambience/" + name);
                 if (clip != null) _clips[name] = clip;   // a miss is asked again (the art may still be downloading)
             }
             return clip;

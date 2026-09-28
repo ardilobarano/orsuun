@@ -537,6 +537,14 @@ namespace Orsuun.Client
             _musicCheck -= Time.unscaledDeltaTime;
             if (_musicCheck > 0f) return;
             _musicCheck = 0.5f;
+            // The map's own quiet loop under its theme (owner, 28 Sep 2026: "Map ambience"); the town and the river have theirs.
+            string ambience = Town.IsOpen || Server.AtRiver ? null : MapAmbience(Lane.BackdropKeyNow);
+            if (ambience != _ambienceNow)
+            {
+                if (_ambienceNow != null) GameAudio.Instance.Ambience(_ambienceNow, 0f, 2f);
+                _ambienceNow = ambience;
+            }
+            if (ambience != null) GameAudio.Instance.Ambience(ambience, AmbienceVolume, 2f);
             // The town square has its own theme (the map's until it has downloaded); the lane's bosses go unheard there.
             if (Town.IsOpen) { GameAudio.Instance.Music("MusicTown", MapMusic(Lane.BackdropKeyNow)); return; }
             LaneSim lane = ActiveLane;
@@ -545,6 +553,18 @@ namespace Orsuun.Client
             _bossOnLane = boss;
             GameAudio.Instance.Music(boss ? "MusicBoss" : MapMusic(Lane.BackdropKeyNow), "MusicHunt");
         }
+
+        private string _ambienceNow;
+        private const float AmbienceVolume = 0.3f;
+
+        /// <summary>The quiet loop under a lane backdrop's theme (Content/Ambience), maps of a kind sharing one.</summary>
+        private static string MapAmbience(string backdrop) => "Amb" + (backdrop switch
+        {
+            "FrostPasture" => "Mountain", "SaltFlats" => "Salt", "CinderMarches" => "Cinder", "Whisperwood" => "Whisper",
+            "Bloodbirch" => "Birch", "DrownedSteppe" => "Swamp", "ColossusGraves" or "ThousandMarkers" => "Graves", "SunkenBazaar" => "Bazaar",
+            "HollowThrone" or "HollowSpire" or "SilkWarren" or "CarversArchive" => "Deep",
+            _ => "Steppe",
+        });
 
         /// <summary>The theme for a lane backdrop: a map's own, dungeons and fields borrowing a fitting one.</summary>
         private static string MapMusic(string backdrop) => "MusicMap" + (backdrop switch
