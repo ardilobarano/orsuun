@@ -2581,3 +2581,18 @@ The Forge, the Caravan, the elder, the Pits and the rugs	Fierăria, Caravana, b�
 the hunt goes on	vânătoarea continuă
 GO TO TOWN	MERGI ÎN ORAȘ
 Your rug	Covorul tău
+BAZAAR	BAZAR
+LINK	ARATĂ
+LINKED	ALEASĂ
+LINK A PIECE	ARATĂ O PIESĂ
+NO LINK	FĂRĂ PIESĂ
+WHISPER	ȘOPTEȘTE
+MORE	MAI MULT
+Your call	Anunțul tău
+Called by	Anunțat de
+sold or gone	vândută sau dispărută
+The bazaar is quiet. Call your wares.	Bazarul e liniștit. Strigă-ți marfa.
+Linked:	Arătat:
+The Bazaar Call opens at level {0}.	Strigarea Bazarului se deschide la nivelul {0}.
+You can call the bazaar again in {0} seconds.	Poți striga din nou în bazar peste {0} secunde.
+That piece is not yours.	Piesa aceea nu e a ta.

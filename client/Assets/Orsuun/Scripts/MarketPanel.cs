@@ -305,7 +305,7 @@ namespace Orsuun.Client
                    + (sockets > 0 ? $"  ·  {sockets} shard{(sockets == 1 ? "" : "s")}" : "");
         }
 
-        private static string Etchings(ItemState item)
+        internal static string Etchings(ItemState item)
         {
             EtchingPool pool = EtchingPool.For(item.Slot);
             var sb = new StringBuilder(GearPanel.RollLines(item));

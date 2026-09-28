@@ -18,6 +18,15 @@ public class SocialTests
     }
 
     [Fact]
+    public void Bazaar_call_is_level_twenty_every_thirty_seconds()
+    {
+        // GDD: "30-second shout cooldown, level 20+".
+        Assert.Equal(20, Chat.TradeLevel);
+        Assert.Equal(30, Chat.TradeCooldownSeconds);
+        Assert.NotEqual(Chat.World, Chat.Trade);
+    }
+
+    [Fact]
     public void Guild_channels_are_per_guild()
     {
         var id = Guid.Parse("3f2a9c1e-5b7d-4e8a-9c21-7d4e5f6a8b90");

@@ -2573,3 +2573,18 @@ The Forge, the Caravan, the elder, the Pits and the rugs	Kuźnia, Karawana, star
 the hunt goes on	polowanie trwa
 GO TO TOWN	DO MIASTA
 Your rug	Twój dywan
+BAZAAR	BAZAR
+LINK	POKAŻ
+LINKED	WYBRANO
+LINK A PIECE	POKAŻ PRZEDMIOT
+NO LINK	BEZ PRZEDMIOTU
+WHISPER	SZEPNIJ
+MORE	WIĘCEJ
+Your call	Twoje ogłoszenie
+Called by	Ogłasza
+sold or gone	sprzedane lub zniknęło
+The bazaar is quiet. Call your wares.	Na bazarze cisza. Ogłoś swoje towary.
+Linked:	Pokazano:
+The Bazaar Call opens at level {0}.	Wołanie Bazaru otwiera się na poziomie {0}.
+You can call the bazaar again in {0} seconds.	Możesz znów wołać na bazarze za {0} s.
+That piece is not yours.	Ten przedmiot nie jest twój.

@@ -18,6 +18,7 @@ public sealed partial class GameService
     private string ChannelFor(Account account, string? channel) => channel switch
     {
         null or "" or Chat.World => Chat.World,
+        Chat.Trade => Chat.Trade,
         "guild" => account.GuildId is Guid g ? Chat.GuildChannel(g) : throw new GameException("no_guild", "You are not in a guild."),
         _ => throw new GameException("bad_channel", "Unknown chat channel."),
     };
@@ -43,18 +44,30 @@ public sealed partial class GameService
         if (after > 0) query = query.Where(m => m.Id > after);
         List<ChatMessage> rows = await query.OrderByDescending(m => m.Id).Take(Chat.PageSize).ToListAsync(ct);
         rows.Reverse();
+        // The Bazaar Call's links, as the pieces are now: a piece its sender no longer has shows as gone.
+        List<Guid> linked = rows.Where(m => m.ItemId != null).Select(m => m.ItemId!.Value).Distinct().ToList();
+        Dictionary<Guid, Item> pieces = linked.Count == 0 ? new Dictionary<Guid, Item>()
+            : await _db.Items.AsNoTracking()
+                .Where(i => linked.Contains(i.Id) && !i.Destroyed).ToDictionaryAsync(i => i.Id, ct);
         ChatLineDto[] lines = rows.Where(m => !blocked.Contains(m.AccountId))
-            .Select(m => new ChatLineDto(m.Id, m.AccountId, m.Name, m.Banner, m.Text, m.Utc, m.AccountId == Guid.Empty, m.AccountId == account.Id, m.Title))
+            .Select(m =>
+            {
+                Item? piece = m.ItemId is Guid id && pieces.TryGetValue(id, out Item? found) && found.OwnerId == m.AccountId ? found : null;
+                return new ChatLineDto(m.Id, m.AccountId, m.Name, m.Banner, m.Text, m.Utc, m.AccountId == Guid.Empty, m.AccountId == account.Id, m.Title,
+                    piece == null ? null : ToDto(piece), m.ItemId != null && piece == null);
+            })
             .ToArray();
         long latest = rows.Count > 0 ? rows[^1].Id : after;
-        return new ChatDto(stored == Chat.World ? Chat.World : "guild", lines, latest, blocked.Count);
+        return new ChatDto(stored == Chat.World ? Chat.World : stored == Chat.Trade ? Chat.Trade : "guild", lines, latest, blocked.Count);
     }
 
     public async Task<ChatDto> SayAsync(Account account, ChatSayRequest request, CancellationToken ct)
     {
         string stored = ChannelFor(account, request.Channel);
         string text = Chat.Clean(request.Text);
-        if (Chat.TextProblem(text) is string problem) throw new GameException("bad_text", problem);
+        bool trade = stored == Chat.Trade;
+        // A Bazaar Call may be a linked piece alone.
+        if (!(trade && request.ItemId != null && text.Length == 0) && Chat.TextProblem(text) is string problem) throw new GameException("bad_text", problem);
         DateTime now = DateTime.UtcNow;
         if (account.MutedUntilUtc is DateTime muted && muted > now)
         {
@@ -63,8 +76,28 @@ public sealed partial class GameService
         }
         if (account.LastChatUtc is DateTime last && (now - last).TotalSeconds < Chat.CooldownSeconds)
             throw new GameException("chat_cooldown", "Slow down a little.");
+        Guid? link = null;
+        if (trade)
+        {
+            if (Content.LevelFor(account.Xp) < Chat.TradeLevel)
+                throw new GameException("trade_level", $"The Bazaar Call opens at level {Chat.TradeLevel}.");
+            DateTime since = now.AddSeconds(-Chat.TradeCooldownSeconds);
+            DateTime? lastCall = await _db.ChatMessages.AsNoTracking()
+                .Where(m => m.Channel == Chat.Trade && m.AccountId == account.Id && m.Utc > since)
+                .OrderByDescending(m => m.Utc).Select(m => (DateTime?)m.Utc).FirstOrDefaultAsync(ct);
+            if (lastCall is DateTime called)
+            {
+                int wait = Math.Max(1, (int)Math.Ceiling(Chat.TradeCooldownSeconds - (now - called).TotalSeconds));
+                throw new GameException("trade_cooldown", $"You can call the bazaar again in {wait} seconds.");
+            }
+            if (request.ItemId is Guid itemId)
+            {
+                if (!account.Items.Any(i => i.Id == itemId && !i.Destroyed)) throw new GameException("no_item", "That piece is not yours.");
+                link = itemId;
+            }
+        }
         account.LastChatUtc = now;
-        _db.ChatMessages.Add(new ChatMessage { Channel = stored, AccountId = account.Id, Name = DisplayName(account), Title = TitleOf(account), Banner = account.Banner, Text = text, Utc = now });
+        _db.ChatMessages.Add(new ChatMessage { Channel = stored, AccountId = account.Id, Name = DisplayName(account), Title = TitleOf(account), Banner = account.Banner, Text = text, ItemId = link, Utc = now });
         await SaveAsync(ct);
         // Old lines go now and then; a week of chat is plenty for a playtest.
         if (Random.Shared.Next(100) == 0)

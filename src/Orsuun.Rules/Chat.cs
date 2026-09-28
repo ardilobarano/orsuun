@@ -13,6 +13,15 @@ namespace Orsuun.Rules
     public static class Chat
     {
         public const string World = "world";
+        /// <summary>
+        /// The Bazaar Call (owner, 28 Sep 2026: picked "Bazaar Call trade chat"; GDD: "a trade channel where players link
+        /// items; tapping a linked item shows its full card and offers TRADE or WHISPER. 30-second shout cooldown, level
+        /// 20+"). Everyone may read it; heroes of TradeLevel call in it, once every TradeCooldownSeconds, a line that may
+        /// link one of their own pieces.
+        /// </summary>
+        public const string Trade = "trade";
+        public const int TradeLevel = 20;
+        public const int TradeCooldownSeconds = 30;
         public const int MaxLength = 200;
         public const int CooldownSeconds = 3;
         /// <summary>Lines a channel read returns at most.</summary>

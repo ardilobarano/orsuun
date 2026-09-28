@@ -2543,3 +2543,18 @@ The Forge, the Caravan, the elder, the Pits and the rugs	Demirhane, Kervan, yaş
 the hunt goes on	av sürüyor
 GO TO TOWN	KASABAYA GİT
 Your rug	Kilimin
+BAZAAR	PAZAR
+LINK	GÖSTER
+LINKED	SEÇİLDİ
+LINK A PIECE	BİR PARÇA GÖSTER
+NO LINK	PARÇASIZ
+WHISPER	FISILDA
+MORE	DAHA FAZLA
+Your call	Senin çağrın
+Called by	Çağıran:
+sold or gone	satıldı ya da yok
+The bazaar is quiet. Call your wares.	Pazar sessiz. Mallarını duyur.
+Linked:	Gösterilen:
+The Bazaar Call opens at level {0}.	Pazar Çağrısı {0}. seviyede açılır.
+You can call the bazaar again in {0} seconds.	Pazara {0} saniye sonra yeniden seslenebilirsin.
+That piece is not yours.	O parça senin değil.

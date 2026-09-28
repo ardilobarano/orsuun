@@ -2587,3 +2587,18 @@ The Forge, the Caravan, the elder, the Pits and the rugs	A Forja, a Caravana, o 
 the hunt goes on	a caçada continua
 GO TO TOWN	IR À CIDADE
 Your rug	Seu tapete
+BAZAAR	BAZAR
+LINK	MOSTRAR
+LINKED	ESCOLHIDA
+LINK A PIECE	MOSTRAR UMA PEÇA
+NO LINK	SEM PEÇA
+WHISPER	SUSSURRAR
+MORE	MAIS
+Your call	Seu anúncio
+Called by	Anunciado por
+sold or gone	vendida ou sumiu
+The bazaar is quiet. Call your wares.	O bazar está quieto. Anuncie suas mercadorias.
+Linked:	Mostrando:
+The Bazaar Call opens at level {0}.	O Pregão do Bazar abre no nível {0}.
+You can call the bazaar again in {0} seconds.	Você pode anunciar no bazar de novo em {0} segundos.
+That piece is not yours.	Essa peça não é sua.

@@ -158,10 +158,14 @@ public sealed record FriendRemoveRequest(Guid AccountId);
 public sealed record GuildAnswerRequest(string RequestId, Guid AccountId, bool Accept);
 
 /// <summary>One chat line; System lines (guild and world events) have no speaker.</summary>
-public sealed record ChatLineDto(long Id, Guid AccountId, string Name, Banner Banner, string Text, DateTime Utc, bool System, bool Mine, string? Title = null);
+/// <summary>A chat line; on the Bazaar Call it may carry the piece it links (Item, as it is now), or LinkGone when the
+/// sender no longer has it.</summary>
+public sealed record ChatLineDto(long Id, Guid AccountId, string Name, Banner Banner, string Text, DateTime Utc, bool System, bool Mine, string? Title = null,
+    ItemDto? Item = null, bool LinkGone = false);
 /// <summary>A channel's lines after the id the client asked from (at most Rules.Chat.PageSize), and the newest id.</summary>
 public sealed record ChatDto(string Channel, ChatLineDto[] Lines, long LatestId, int Blocked);
-public sealed record ChatSayRequest(string Channel, string Text, long After = 0);
+/// <summary>A line to say; on the Bazaar Call ItemId links one of the sender's pieces.</summary>
+public sealed record ChatSayRequest(string Channel, string Text, long After = 0, Guid? ItemId = null);
 public sealed record ChatReportRequest(long MessageId, string Channel = "world");
 public sealed record ChatBlockRequest(Guid AccountId, bool Block, string Channel = "world");
 

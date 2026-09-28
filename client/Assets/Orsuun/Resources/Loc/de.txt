@@ -2619,3 +2619,18 @@ The Forge, the Caravan, the elder, the Pits and the rugs	Die Schmiede, die Karaw
 the hunt goes on	die Jagd geht weiter
 GO TO TOWN	IN DIE STADT
 Your rug	Dein Teppich
+BAZAAR	BASAR
+LINK	ZEIGEN
+LINKED	GEWÄHLT
+LINK A PIECE	EIN STÜCK ZEIGEN
+NO LINK	OHNE STÜCK
+WHISPER	FLÜSTERN
+MORE	MEHR
+Your call	Dein Ruf
+Called by	Ausgerufen von
+sold or gone	verkauft oder fort
+The bazaar is quiet. Call your wares.	Der Basar ist still. Rufe deine Waren aus.
+Linked:	Gezeigt:
+The Bazaar Call opens at level {0}.	Der Basarruf öffnet auf Stufe {0}.
+You can call the bazaar again in {0} seconds.	Du kannst den Basar in {0} Sekunden wieder ausrufen.
+That piece is not yours.	Dieses Stück gehört dir nicht.

@@ -1342,11 +1342,15 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
-        public IEnumerator Say(string channel, string text, long after, Action<ChatDto, string> done)
+        /// <summary>Says a line in a channel ("world", "guild", "trade"); on the Bazaar Call <paramref name="itemId"/> links a piece.</summary>
+        public IEnumerator Say(string channel, string text, long after, Action<ChatDto, string> done, string itemId = null)
         {
             ChatDto result = null;
             string failure = null;
-            yield return Post("/v1/chat", JsonUtility.ToJson(new ChatSayRequest { channel = channel, text = text, after = after }), true,
+            string body = string.IsNullOrEmpty(itemId)
+                ? JsonUtility.ToJson(new ChatSayRequest { channel = channel, text = text, after = after })
+                : JsonUtility.ToJson(new ChatLinkRequest { channel = channel, text = text, after = after, itemId = itemId });
+            yield return Post("/v1/chat", body, true,
                 json => result = JsonUtility.FromJson<ChatDto>(json), error => failure = error);
             done(result, failure);
         }
@@ -1969,9 +1973,12 @@ namespace Orsuun.Client.Net
         /// <summary>mine is never null after JsonUtility: an empty id means no guild.</summary>
         [Serializable] public class GuildViewDto { public StateDto state; public GuildDto mine; public GuildMemberDto[] members; public GuildListItemDto[] browse; public long donatedToday; public long donationCap; public string message; public GuildMemberDto[] requests; public string[] log; public GuildListItemDto[] invites; public GuildMemberDto[] invited; }
         [Serializable] public class GuildAnswerRequest { public string requestId; public string accountId; public bool accept; }
-        [Serializable] public class ChatLineDto { public long id; public string accountId; public string name; public string banner; public string text; public string utc; public bool system; public bool mine; public string title; }
+        /// <summary>A chat line; a Bazaar Call line may link a piece (item, empty id when none) or one gone (linkGone).</summary>
+        [Serializable] public class ChatLineDto { public long id; public string accountId; public string name; public string banner; public string text; public string utc; public bool system; public bool mine; public string title; public ItemDto item; public bool linkGone; }
         [Serializable] public class ChatDto { public string channel; public ChatLineDto[] lines; public long latestId; public int blocked; }
         [Serializable] public class ChatSayRequest { public string channel; public string text; public long after; }
+        /// <summary>A Bazaar Call with a linked piece (JsonUtility cannot leave a field out, and "" is no Guid).</summary>
+        [Serializable] public class ChatLinkRequest { public string channel; public string text; public long after; public string itemId; }
         [Serializable] public class ChatReportRequest { public long messageId; public string channel; }
         [Serializable] public class ChatBlockRequest { public string accountId; public bool block; public string channel; }
         [Serializable] public class ListingDto { public long id; public ItemDto item; public long price; public string sellerName; public string sellerBanner; public bool mine; public int minutesLeft; public string status; public int bookId = -1; public int bookCount; public int goodId = -1; public int goodCount; public bool rug; }

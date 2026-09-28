@@ -505,6 +505,8 @@ public sealed class ChatMessage
     [MaxLength(40)] public string? Title { get; set; }
     public Banner Banner { get; set; }
     [MaxLength(200)] public string Text { get; set; } = "";
+    /// <summary>The piece a Bazaar Call line links (the sender's own when said), or null.</summary>
+    public Guid? ItemId { get; set; }
     public DateTime Utc { get; set; }
     public int Reports { get; set; }
     public bool Hidden { get; set; }
