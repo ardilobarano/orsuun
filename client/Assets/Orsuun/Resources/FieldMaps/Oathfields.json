@@ -1,0 +1,324 @@
+{
+ "Name": "The Oathfields",
+ "Map": 1,
+ "Size": 300,
+ "ScenerySet": "Steppe",
+ "GrassCards": 900,
+ "Stones": 90,
+ "ScatterReach": 34,
+ "RiverWidth": 7,
+ "Trail": [
+  {
+   "x": -76,
+   "y": -16
+  },
+  {
+   "x": -70,
+   "y": 22
+  },
+  {
+   "x": -44,
+   "y": 58
+  },
+  {
+   "x": -8,
+   "y": 74
+  },
+  {
+   "x": 34,
+   "y": 70
+  },
+  {
+   "x": 62,
+   "y": 44
+  },
+  {
+   "x": 84,
+   "y": 8
+  },
+  {
+   "x": 80,
+   "y": -40
+  },
+  {
+   "x": 28,
+   "y": -62
+  },
+  {
+   "x": -20,
+   "y": -66
+  },
+  {
+   "x": -62,
+   "y": -48
+  }
+ ],
+ "River": [
+  {
+   "x": 64,
+   "y": -160
+  },
+  {
+   "x": 58,
+   "y": -80
+  },
+  {
+   "x": 66,
+   "y": -20
+  },
+  {
+   "x": 62,
+   "y": 30
+  },
+  {
+   "x": 72,
+   "y": 90
+  },
+  {
+   "x": 66,
+   "y": 160
+  }
+ ],
+ "Landmarks": [
+  {
+   "Name": "Yurt",
+   "X": -76,
+   "Z": -54,
+   "Yaw": 30,
+   "Height": 4.2
+  },
+  {
+   "Name": "Yurt",
+   "X": -70,
+   "Z": -64,
+   "Yaw": 70,
+   "Height": 3.8
+  },
+  {
+   "Name": "Yurt",
+   "X": -86,
+   "Z": -46,
+   "Yaw": 10,
+   "Height": 4
+  },
+  {
+   "Name": "Yurt",
+   "X": -84,
+   "Z": -60,
+   "Yaw": 50,
+   "Height": 3.6
+  },
+  {
+   "Name": "Yurt",
+   "X": -94,
+   "Z": -34,
+   "Yaw": 100,
+   "Height": 4.4
+  },
+  {
+   "Name": "Watchtower",
+   "X": -22,
+   "Z": 90,
+   "Yaw": 160,
+   "Height": 11
+  },
+  {
+   "Name": "Tent",
+   "X": 40,
+   "Z": 88,
+   "Yaw": 200,
+   "Height": 3.4
+  },
+  {
+   "Name": "Tent",
+   "X": 52,
+   "Z": 82,
+   "Yaw": 230,
+   "Height": 3.2
+  },
+  {
+   "Name": "Tent",
+   "X": 28,
+   "Z": 94,
+   "Yaw": 170,
+   "Height": 3.6
+  },
+  {
+   "Name": "WolfDen",
+   "X": 100,
+   "Z": 22,
+   "Yaw": 250,
+   "Height": 4.2
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -2,
+   "Z": -76,
+   "Yaw": 0,
+   "Height": 3.4
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 4,
+   "Z": -79,
+   "Yaw": 50,
+   "Height": 3
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 4,
+   "Z": -86,
+   "Yaw": 100,
+   "Height": 3.3
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -2,
+   "Z": -89,
+   "Yaw": 150,
+   "Height": 3.1
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -8,
+   "Z": -86,
+   "Yaw": 200,
+   "Height": 3.4
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -8,
+   "Z": -79,
+   "Yaw": 250,
+   "Height": 3
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 30,
+   "Z": -80,
+   "Yaw": 0,
+   "Height": 1.8
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 36,
+   "Z": -83,
+   "Yaw": 90,
+   "Height": 2.2
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 24,
+   "Z": -84,
+   "Yaw": 200,
+   "Height": 1.6
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Boar Gully",
+   "X": 29,
+   "Z": -70
+  },
+  {
+   "Name": "River Bend",
+   "X": 94,
+   "Z": -24
+  },
+  {
+   "Name": "Wolf Den",
+   "X": 86,
+   "Z": 25
+  },
+  {
+   "Name": "Bandit Camp",
+   "X": 40,
+   "Z": 75
+  },
+  {
+   "Name": "Watchtower Hill",
+   "X": -18,
+   "Z": 80
+  },
+  {
+   "Name": "West Grass",
+   "X": -83,
+   "Z": 6
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Yurt Village",
+   "X": -80,
+   "Z": -52
+  },
+  {
+   "Name": "Korstone Circle",
+   "X": -4,
+   "Z": -95
+  },
+  {
+   "Name": "Birch Wood",
+   "X": -74,
+   "Z": 50
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBirch",
+   "X": -74,
+   "Z": 50,
+   "Radius": 9,
+   "Count": 7,
+   "Height": 5
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 10,
+   "Z": 92,
+   "Radius": 7,
+   "Count": 5,
+   "Height": 5.5
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 88,
+   "Z": 50,
+   "Radius": 8,
+   "Count": 6,
+   "Height": 5.5
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 48,
+   "Z": -80,
+   "Radius": 7,
+   "Count": 5,
+   "Height": 5
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -42,
+   "Z": -82,
+   "Radius": 8,
+   "Count": 6,
+   "Height": 5
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -98,
+   "Z": -14,
+   "Radius": 7,
+   "Count": 5,
+   "Height": 5
+  },
+  {
+   "Name": "SteppeCairn",
+   "X": -58,
+   "Z": 74,
+   "Radius": 10,
+   "Count": 4,
+   "Height": 1.6
+  }
+ ]
+}

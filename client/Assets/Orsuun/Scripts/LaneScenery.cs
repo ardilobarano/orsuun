@@ -15,8 +15,20 @@ namespace Orsuun.Client
     public sealed class LaneScenery : MonoBehaviour
     {
 #pragma warning disable CS0649   // filled by JsonUtility
-        [Serializable] private sealed class Rect { public float u0, u1, v0, v1, aspect, height; public bool low; public string model; }
-        [Serializable] private sealed class Sets { public Rect[] steppe, mountain, desert, forest, ruins; }
+        [Serializable] internal sealed class Rect { public float u0, u1, v0, v1, aspect, height; public bool low; public string model; }
+        [Serializable] internal sealed class Sets { public Rect[] steppe, mountain, desert, forest, ruins; }
+
+        /// <summary>A scenery set's material and props (the big maps scatter them too: FieldMap), or nulls without its art.</summary>
+        internal static (Material material, Rect[] props) SetOf(string name)
+        {
+            var json = Art.Load<TextAsset>("Scenery/Rects");
+            Sets sets = json == null ? null : JsonUtility.FromJson<Sets>(json.text);
+            Rect[] props = sets == null ? null : name switch
+            {
+                "Mountain" => sets.mountain, "Desert" => sets.desert, "Forest" => sets.forest, "Ruins" => sets.ruins, _ => sets.steppe,
+            };
+            return (Art.Load<Material>("Scenery/" + name), props);
+        }
 #pragma warning restore CS0649
 
         private sealed class Prop
@@ -29,10 +41,23 @@ namespace Orsuun.Client
             public string ModelName;
         }
 
-        private const int FarProps = 8, NearProps = 3;
-        /// <summary>The models' painted side faces this way (degrees about y): toward the lane's camera.</summary>
+        // The field (28 Sep 2026): props on both sides of the road, the far side's anything, the camera's side low ones
+        // and only up the road, clear of the line from the camera to the hero.
+        private const int FarProps = 28, NearProps = 10;
+        /// <summary>Seen from the field's camera, 25 m off, props stand a third again as tall as by the old side lane.</summary>
+        private const float FieldScale = 1.35f;
+        /// <summary>The models' painted side is their +z (a card shows its -z): half a turn more than a card facing the camera.</summary>
         private const float ModelYaw = 180f;
-        private const float LeftEdge = -11f, Span = 24f, Speed = 6f;
+
+        /// <summary>A card's turn about y so its face (-z) looks at the lane's camera (LaneView.CameraFrom).</summary>
+        private static Quaternion FacingCamera(Vector3 at)
+        {
+            Vector3 away = at - LaneView.CameraFrom;
+            away.y = 0f;
+            return away.sqrMagnitude < 0.01f ? Quaternion.identity : Quaternion.LookRotation(away.normalized, Vector3.up);
+        }
+        private const float LeftEdge = -16f, Span = 44f, Speed = 6f;
+        private const float FarZMin = 2.8f, FarZMax = 16f, NearZMin = -3f, NearZMax = -10f, NearXMin = 3f;
         private static readonly int BaseMapSt = Shader.PropertyToID("_BaseMap_ST");
 
         private readonly List<Prop> _props = new List<Prop>();
@@ -53,6 +78,9 @@ namespace Orsuun.Client
             "ColossusGraves" or "HollowThrone" or "HollowSpire" or "ThousandMarkers" => "Ruins",
             _ => "Steppe",
         };
+
+        /// <summary>Whether the current set's art is there (LaneView hides the scenery on a big map either way).</summary>
+        public bool HasArt { get; private set; }
 
         public void Init()
         {
@@ -84,6 +112,7 @@ namespace Orsuun.Client
                 "Mountain" => _sets.mountain, "Desert" => _sets.desert, "Forest" => _sets.forest, "Ruins" => _sets.ruins, _ => _sets.steppe,
             };
             bool ready = _material != null && _set != null && _set.Length > 0;
+            HasArt = ready;
             gameObject.SetActive(ready);
             if (!ready) return;
             // Spread along the lane from the left edge, each row evenly with a little jitter.
@@ -101,10 +130,13 @@ namespace Orsuun.Client
             Rect r;
             int guard = 0;
             do r = _set[_rng.Next(_set.Length)]; while (p.Near && !r.low && ++guard < 20);
-            float height = r.height * (0.85f + (float)_rng.NextDouble() * 0.3f) * (p.Near ? 0.65f : 1f);
+            float height = r.height * (0.85f + (float)_rng.NextDouble() * 0.3f) * (p.Near ? 0.8f : 1f) * FieldScale;
             float width = height / Mathf.Max(0.2f, r.aspect);
-            float z = p.Near ? -2.2f - (float)_rng.NextDouble() * 0.9f : 2.6f + (float)_rng.NextDouble() * 2.2f;
+            float z = p.Near ? NearZMin + (float)_rng.NextDouble() * (NearZMax - NearZMin) : FarZMin + (float)_rng.NextDouble() * (FarZMax - FarZMin);
+            // The camera's side keeps clear of the line from the camera to the hero.
+            if (p.Near && x < NearXMin) x = NearXMin + (float)_rng.NextDouble() * 6f;
             p.T.localPosition = new Vector3(x, 0f, z);
+            p.T.localRotation = FacingCamera(p.T.localPosition);
             p.T.localScale = new Vector3(width * (_rng.Next(2) == 0 ? 1f : -1f), height, 1f);
             bool model = ShowModel(p, r.model, new Vector3(x, 0f, z), height);
             p.R.enabled = !model;
@@ -144,7 +176,7 @@ namespace Orsuun.Client
             if (p.Model == null) return false;
             p.Model.SetActive(true);
             p.Model.transform.localPosition = at;
-            p.Model.transform.localRotation = Quaternion.Euler(0f, ModelYaw + (float)(_rng.NextDouble() - 0.5) * 60f, 0f);
+            p.Model.transform.localRotation = Quaternion.Euler(0f, FacingCamera(at).eulerAngles.y + ModelYaw + (float)(_rng.NextDouble() - 0.5) * 60f, 0f);
             p.Model.transform.localScale = Vector3.one * height;
             return true;
         }
@@ -161,13 +193,14 @@ namespace Orsuun.Client
                 else
                 {
                     p.T.localPosition = at;
+                    p.T.localRotation = FacingCamera(at);
                     if (p.Model != null && p.Model.activeSelf) p.Model.transform.localPosition = new Vector3(at.x, 0f, at.z);
                 }
             }
         }
 
         /// <summary>A card one unit wide and tall, standing on its bottom edge, facing the lane's camera (-z).</summary>
-        private static Mesh Quad
+        internal static Mesh Quad
         {
             get
             {

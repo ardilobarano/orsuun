@@ -65,6 +65,8 @@ namespace Orsuun.Client
         public RugPanel Rugs { get; private set; }
         public TownPanel Town { get; private set; }
         public TipCard Tips { get; private set; }
+        public FieldFolk Field { get; private set; }
+        public FieldMapPanel MapScreen { get; private set; }
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
@@ -131,6 +133,11 @@ namespace Orsuun.Client
             gameObject.AddComponent<Performance>().Init(GameObject.Find("LaneCamera")?.GetComponent<Camera>());
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
             Lane.Init(Session.Lane);
+            // The lane camera leans in on big moments and eases out on the walk (ActionCamera).
+            GameObject.Find("LaneCamera")?.AddComponent<ActionCamera>().Init(Lane);
+            // Other players hunting the same map, beside the field's road (FieldFolk).
+            Field = new GameObject("FieldFolk").AddComponent<FieldFolk>();
+            Field.Init(this, Lane);
 
             Server = new GameObject("ServerLink").AddComponent<Net.ServerLink>();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-local") < 0) Server.Init(Session);
@@ -192,6 +199,9 @@ namespace Orsuun.Client
             Chat.Init(this);
             Hud = new GameObject("Hud").AddComponent<Hud>();
             Hud.Init(this);
+            // A big map's minimap (on the HUD) and its full map.
+            MapScreen = new GameObject("FieldMapPanel").AddComponent<FieldMapPanel>();
+            MapScreen.Init(this);
             Oath = new GameObject("BannerOath").AddComponent<BannerOath>();
             Oath.Init(this);
             Account = new GameObject("AccountPanel").AddComponent<AccountPanel>();
@@ -1210,14 +1220,12 @@ namespace Orsuun.Client
             cam.gameObject.AddComponent<AudioListener>();
             cam.tag = "MainCamera";
             cam.rect = new Rect(0f, LaneViewportBottom, 1f, 1f - LaneViewportBottom);
-            cam.fieldOfView = 25f;
+            cam.fieldOfView = LaneView.CameraFov;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.16f, 0.19f, 0.24f);
-            // Frames x from about -3 to 6: hero on the left, a full pack and the Korstone on the right. Raised 0.8 m
-            // (owner, 26 Sep 2026: "put the char and the mobs a bit lower") so heads, bosses and skill effects clear
-            // the HUD's goal plate and banners.
-            cam.transform.position = new Vector3(1.5f, 5.4f, -19.5f);
-            cam.transform.LookAt(new Vector3(1.5f, 1.9f, 0f));
+            // The field (LaneView.CameraFrom, 28 Sep 2026): behind the hero, up and to his left, looking up the road.
+            cam.transform.position = LaneView.CameraFrom;
+            cam.transform.LookAt(LaneView.CameraTo);
 
             var sun = new GameObject("Sun").AddComponent<Light>();
             sun.type = LightType.Directional;

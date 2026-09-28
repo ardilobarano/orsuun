@@ -1,6 +1,6 @@
 # Orsuun: War of Banners
 
-Mobile side-scrolling idle auto-battler with Metin2-style risky upgrades, original IP. Owner decides design; ask before
+Mobile idle auto-battler (a Metin2-style three-quarter field) with Metin2-style risky upgrades, original IP. Owner decides design; ask before
 changing anything the owner decided. Current state, decisions and next steps: **HANDOFF.md** (read it first). Design:
 the GDD Claude doc linked from HANDOFF.md (edit with the docs tools, never web-fetch it).
 
@@ -169,8 +169,8 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   after the model is instantiated (the bones' pose then is the rest pose). A Blender pose rotation (x, y, z) lands on the
   imported bone as (x, -y, -z), a hips offset as (-x, y, z). Skill effects (`SkillFx`) are additive sprites tinted from
   `Resources/Fx` (white on alpha) at `SkillFx.Brightness`: layers stack under the bloom, so keep new ones dim.
-- The lane camera is at (1.5, 5.4, -19.5) looking at (1.5, 1.9, 0) in `GameRoot.BuildCameras` and three editor
-  previews in `RenderingSetup`, with the backdrop at y -1.2: change them together.
+- The lane camera's pose is `LaneView.CameraFrom` / `CameraTo` / `CameraFov` (28 Sep 2026, the field view): GameRoot,
+  the editor previews in `RenderingSetup` and `ActionCamera` (which leans from it and always settles back) all read them.
 - The Bazaar Call is chat's "trade" channel (`Rules.Chat.Trade`): its lines may link a piece (`ChatMessage.ItemId`), read back
   live (`ChatAsync` shows it only while its caller still owns it, else `LinkGone`). The client sends `ChatLinkRequest` only
   when linking (JsonUtility cannot leave `itemId` out, and "" is no Guid); the 30 s call limit is read from the channel.
@@ -317,3 +317,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - The Bannerkin (`Rules.Bannerkin`): her pieces are items with `Kin`; the ones she wears have `KinWorn` (out of the bag,
   never `Equipped`), so hero queries on `Equipped` stay the hero's. SQL bag counts add `!i.KinWorn`; a broken piece goes
   through `BreakPiece`. Her stats reach combat only as `HeroStats.Kin` from `FromEquipment(..., kin:)` on both sides.
+- Big maps (`FieldMap`, 28 Sep 2026; the Oathfields first): a layout per map in `Resources/FieldMaps/<Name>.json` (its
+  `Map` id; trail clockwise, so the camera, which looks across the hero's left, sees the loop's outside: landmarks and
+  camps go there, 7-25 m off the trail). The map moves and turns under the fixed hero (camera, fights and ring unchanged);
+  presentation only. Its full map is `Content/FieldMaps/<Name>.jpg`: `tools/art/field_map.py <Name>` draws the sketch,
+  GPT Image 2.5 paints over it, `--finish` writes the game's copy and a check overlay. Camp and place names need Loc lines.
+  `-mapat <m>` holds the hero on the trail, `-mapview` looks down on the whole map, `-mapshow` opens the full map.

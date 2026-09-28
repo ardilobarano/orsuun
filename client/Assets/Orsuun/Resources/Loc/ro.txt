@@ -2653,3 +2653,16 @@ A hero's name was reported	Numele unui erou a fost raportat
 A guild's name was reported	Numele unei bresle a fost raportat
 A private message was reported	Un mesaj privat a fost raportat
 Open /admin to look at it.	Deschide /admin ca să te uiți.
+# The big map (FieldMap, FieldMapPanel): camps, places and the full map's legend.
+Boar Gully	Râpa Mistreților
+River Bend	Cotul Râului
+Wolf Den	Vizuina Lupilor
+Bandit Camp	Tabăra Bandiților
+Watchtower Hill	Dealul Turnului de Veghe
+West Grass	Iarba de Apus
+Yurt Village	Satul de Iurte
+Korstone Circle	Cercul Pietrelor Kor
+Birch Wood	Pădurea de Mesteceni
+You	Tu
+Monster camp	Tabără de monștri
+Heroes hunting	Eroi la vânătoare

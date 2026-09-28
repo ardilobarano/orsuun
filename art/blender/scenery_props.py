@@ -16,6 +16,11 @@ PROPS = {
     "SteppeStone": ("steppe-stone-tripo.glb", 2500, -90),
     "SteppeCairn": ("steppe-cairn-tripo.glb", 3000, -90),
     "SteppeBirch": ("steppe-birch-tripo.glb", 4000, -90),
+    # The Oathfields' landmarks (FieldMap), from docs/concept/scenery/landmarks.
+    "Yurt": ("yurt-tripo.glb", 4000, -90),
+    "Watchtower": ("watchtower-tripo.glb", 5000, -90),
+    "Tent": ("tent-tripo.glb", 3500, -90),
+    "WolfDen": ("wolfden-tripo.glb", 5000, -90),
 }
 names = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv and sys.argv.index("--") + 1 < len(sys.argv) else list(PROPS)
 for name in names:

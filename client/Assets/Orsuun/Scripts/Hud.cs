@@ -85,6 +85,8 @@ namespace Orsuun.Client
         private float _goalMetAt = -10f;
 
         private Transform _canvas;
+        /// <summary>The HUD's canvas (the minimap, FieldMapPanel, stands on it under everything else).</summary>
+        public Transform Canvas => _canvas;
 
         public void Init(GameRoot root)
         {

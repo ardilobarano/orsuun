@@ -2645,3 +2645,16 @@ A hero's name was reported	Zgłoszono imię bohatera
 A guild's name was reported	Zgłoszono nazwę gildii
 A private message was reported	Zgłoszono prywatną wiadomość
 Open /admin to look at it.	Otwórz /admin, aby to sprawdzić.
+# The big map (FieldMap, FieldMapPanel): camps, places and the full map's legend.
+Boar Gully	Wąwóz Dzików
+River Bend	Zakole Rzeki
+Wolf Den	Wilcze Legowisko
+Bandit Camp	Obóz Bandytów
+Watchtower Hill	Wzgórze Strażnicy
+West Grass	Zachodnie Trawy
+Yurt Village	Wioska Jurt
+Korstone Circle	Krąg Korkamieni
+Birch Wood	Brzozowy Gaj
+You	Ty
+Monster camp	Obóz potworów
+Heroes hunting	Polujący bohaterowie

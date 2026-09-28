@@ -2659,3 +2659,16 @@ A hero's name was reported	O nome de um herói foi denunciado
 A guild's name was reported	O nome de uma guilda foi denunciado
 A private message was reported	Uma mensagem privada foi denunciada
 Open /admin to look at it.	Abra o /admin para ver.
+# The big map (FieldMap, FieldMapPanel): camps, places and the full map's legend.
+Boar Gully	Ravina dos Javalis
+River Bend	Curva do Rio
+Wolf Den	Covil dos Lobos
+Bandit Camp	Acampamento dos Bandidos
+Watchtower Hill	Colina da Torre de Vigia
+West Grass	Relva do Oeste
+Yurt Village	Aldeia das Iurtas
+Korstone Circle	Círculo de Pedras Kor
+Birch Wood	Bosque das Bétulas
+You	Você
+Monster camp	Acampamento de monstros
+Heroes hunting	Heróis caçando

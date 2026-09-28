@@ -2691,3 +2691,16 @@ A hero's name was reported	Ein Heldenname wurde gemeldet
 A guild's name was reported	Ein Gildenname wurde gemeldet
 A private message was reported	Eine private Nachricht wurde gemeldet
 Open /admin to look at it.	Öffne /admin, um es dir anzusehen.
+# The big map (FieldMap, FieldMapPanel): camps, places and the full map's legend.
+Boar Gully	Keilerschlucht
+River Bend	Flussbiegung
+Wolf Den	Wolfsbau
+Bandit Camp	Banditenlager
+Watchtower Hill	Wachturmhügel
+West Grass	Westgras
+Yurt Village	Jurtendorf
+Korstone Circle	Korsteinkreis
+Birch Wood	Birkenwald
+You	Du
+Monster camp	Monsterlager
+Heroes hunting	Jagende Helden

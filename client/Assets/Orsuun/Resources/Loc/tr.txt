@@ -2615,3 +2615,16 @@ A hero's name was reported	Bir kahraman adı bildirildi
 A guild's name was reported	Bir lonca adı bildirildi
 A private message was reported	Bir özel mesaj bildirildi
 Open /admin to look at it.	İncelemek için /admin sayfasını aç.
+# The big map (FieldMap, FieldMapPanel): camps, places and the full map's legend.
+Boar Gully	Yaban Domuzu Vadisi
+River Bend	Nehir Dönemeci
+Wolf Den	Kurt İni
+Bandit Camp	Haydut Kampı
+Watchtower Hill	Gözcü Kulesi Tepesi
+West Grass	Batı Çayırı
+Yurt Village	Yurt Köyü
+Korstone Circle	Kortaşı Çemberi
+Birch Wood	Kayın Korusu
+You	Sen
+Monster camp	Canavar kampı
+Heroes hunting	Avlanan kahramanlar

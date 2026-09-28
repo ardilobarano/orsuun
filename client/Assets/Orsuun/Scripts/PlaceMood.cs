@@ -15,6 +15,7 @@ namespace Orsuun.Client
         private Color _sunColor, _ambient;
         private float _sunIntensity;
         private SphericalHarmonicsL2 _ambientProbe;
+        private bool _fog;
         private Camera _laneCamera, _backdropCamera;
 
         public void Enter(Quaternion sun, Color sunColor, float intensity, Color ambient)
@@ -37,6 +38,9 @@ namespace Orsuun.Client
             }
             _ambient = RenderSettings.ambientLight;
             _ambientProbe = RenderSettings.ambientProbe;
+            // The lane's haze (LaneView.ApplyFog) is not the place's.
+            _fog = RenderSettings.fog;
+            RenderSettings.fog = false;
             RenderSettings.ambientLight = ambient;
             var probe = new SphericalHarmonicsL2();
             probe.AddAmbientLight(ambient);
@@ -57,6 +61,7 @@ namespace Orsuun.Client
             }
             RenderSettings.ambientLight = _ambient;
             RenderSettings.ambientProbe = _ambientProbe;
+            RenderSettings.fog = _fog;
         }
     }
 }

@@ -13,6 +13,23 @@ namespace Orsuun.Client
     public sealed class LaneView : MonoBehaviour
     {
         private const float HeroX = -1.6f;
+
+        /// <summary>
+        /// The hunt as a field (owner, 28 Sep 2026: "a metin2 like thing also at the same time idle ish"; then, shown
+        /// mockups, "C + Other players" and "Replace"): the camera stands behind the hero, up and to the left, looking up the
+        /// road at a shallow angle, so the road runs diagonally into a wide field and the painted distance shows at the
+        /// top; packs come down the road and gather round the hero in a half ring. Presentation only: the lane's rules
+        /// (LaneSim) and the server's replay are the same. GameRoot's lane camera and the editor previews use these.
+        /// </summary>
+        public static readonly Vector3 CameraFrom = new Vector3(HeroX - 10f, 10f, -13f);
+        public static readonly Vector3 CameraTo = new Vector3(HeroX + 5f, 0f, 4.5f);
+        /// <summary>Where the action camera leans toward (ActionCamera).</summary>
+        public static readonly Vector3 HeroChest = new Vector3(HeroX + 0.8f, 1.1f, 0f);
+        public const float CameraFov = 40f;
+        /// <summary>The field's far side fades into the map's haze (RenderSettings fog while the lane shows).</summary>
+        public const float FogStart = 24f, FogEnd = 70f;
+        /// <summary>The hero looks up the road, his back half to the camera; enemies look back down it at him.</summary>
+        private const float HeroYaw = 70f;
         private const float SpawnX = 9f;
         private const float MobSpacing = 0.75f;
         private const int MobsPerRow = 8;
@@ -22,6 +39,8 @@ namespace Orsuun.Client
         {
             public Transform Root;
             public Transform HpFill;
+            /// <summary>The bar's holder, turned to the camera each frame.</summary>
+            public Transform Bar;
             public float Punch;
             public Vector3 Scale;
             public bool IsModel;
@@ -42,6 +61,13 @@ namespace Orsuun.Client
             public KorstoneFx Fx;
             /// <summary>The mob's own clips (Idle, Run, Attack, Hit, Death; art/blender/mobrig.py), or null for a still model.</summary>
             public Animation Anim;
+            /// <summary>Hit feel: a white flash and a step back from the hero, each dying away (1 at the blow).</summary>
+            public float Flash, Knock;
+            public Vector3 KnockDir;
+            public bool Flashing;
+            /// <summary>Its body's renderers (not the HP bar's) and their own colours, found at its first flash.</summary>
+            public Renderer[] Body;
+            public Color[] BodyColors;
         }
 
         /// <summary>A 3D enemy: model and material under Resources (art/blender/looks.py mob_model), and its lane scale.</summary>
@@ -151,13 +177,14 @@ namespace Orsuun.Client
             return (zone == ZoneType.Campaign ? ZoneType.HuntingGround : zone).ToString();
         }
         /// <summary>Models face +Z; this turns them toward the hero, three-quarter to the camera (the hero uses 125).</summary>
-        private const float EnemyYaw = -125f;
+        private const float EnemyYaw = -110f;
         private const float MobScale = 0.85f;
 
         private sealed class FloatingText
         {
-            public TextMesh Mesh;
+            public TextMesh Mesh, Shade;
             public float Age;
+            public Vector3 Drift;
         }
 
         private readonly Dictionary<int, EnemyView> _views = new Dictionary<int, EnemyView>();
@@ -243,12 +270,19 @@ namespace Orsuun.Client
         {
             Transform ground = Primitive(PrimitiveType.Cube, "Ground", new Color(0.30f, 0.34f, 0.26f));
             ground.SetParent(transform, false);
-            // Runs from z=-12 (below the bottom of the view) to z=5, so the lane band has no empty strip under it.
-            ground.position = new Vector3(3f, -0.25f, -3.5f);
-            ground.localScale = new Vector3(40f, 0.5f, 17f);
+            // The road strip: one floor tile deep, its road along x at z = 0, from behind the camera to the far field.
+            ground.position = new Vector3(HeroX + 20f, -0.25f, 0f);
+            ground.localScale = new Vector3(90f, 0.5f, FloorTileDepth);
             _ground = ground.GetComponent<Renderer>();
             _groundMaterial = _ground.material;
             MeasureFloorMapping(ground);
+            // The field all round it (Floors/<key>Field: the tile's grass without its road), a touch lower.
+            Transform field = Primitive(PrimitiveType.Cube, "Field", new Color(0.30f, 0.34f, 0.26f));
+            field.SetParent(transform, false);
+            field.position = new Vector3(HeroX + 20f, -0.27f, 20f);
+            field.localScale = new Vector3(110f, 0.5f, 110f);
+            _field = field.GetComponent<Renderer>();
+            _fieldMaterial = _field.material;
 
             for (int i = 0; i < 10; i++)
             {
@@ -263,19 +297,48 @@ namespace Orsuun.Client
             // upper three quarters (grass band, hills, sky) show above it.
             Transform backdrop = Primitive(PrimitiveType.Quad, "Backdrop", Color.white);
             backdrop.SetParent(transform, false);
-            backdrop.position = new Vector3(1.5f, -1.2f, 40f);   // its top at the view's top (the camera sits 0.8 m higher since 26 Sep 2026)
-            backdrop.localScale = new Vector3(32.7f, 18.4f, 1f);
+            // Far up the view, square to it, its lower edge on the field's far side: the painted hills and sky above.
+            Vector3 look = CameraTo - CameraFrom;
+            look.y = 0f;
+            look.Normalize();
+            backdrop.rotation = Quaternion.LookRotation(look, Vector3.up);
+            backdrop.localScale = new Vector3(BackdropWidth, BackdropWidth / 1.78f, 1f);
+            backdrop.position = new Vector3(CameraFrom.x, 0f, CameraFrom.z) + look * BackdropDistance + Vector3.up * (BackdropWidth / 1.78f / 2f - BackdropSink);
             _backdrop = backdrop.GetComponent<Renderer>();
             // Painted props along the road for the map (LaneScenery).
             _scenery = new GameObject("Scenery").AddComponent<LaneScenery>();
             _scenery.transform.SetParent(transform, false);
             _scenery.Init();
+            // A big open map where one is built (FieldMap: the Oathfields first); the road field elsewhere.
+            _map = new GameObject("FieldMap").AddComponent<FieldMap>();
+            _map.transform.SetParent(transform, false);
             _backdrop.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _backdrop.receiveShadows = false;
         }
 
         private string _backdropKey;
         private LaneScenery _scenery;
+        private FieldMap _map;
+        /// <summary>The big map the lane shows now (or an inactive one on the road field).</summary>
+        public FieldMap Map => _map;
+
+        /// <summary>The lane's haze colour now; the town and the river turn the fog off while they show (PlaceMood).</summary>
+        public static Color FogColor = new Color(0.7f, 0.68f, 0.55f);
+
+        public static void ApplyFog()
+        {
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogStartDistance = FogStart;
+            RenderSettings.fogEndDistance = FogEnd;
+            RenderSettings.fogColor = FogColor;
+            Camera lane = Camera.main;
+            if (lane != null) lane.backgroundColor = FogColor;
+        }
+        private Renderer _field;
+        private float _fieldScroll;
+        private Material _fieldMaterial;
+        private const float BackdropDistance = 62f, BackdropWidth = 64f, BackdropSink = 3f, FieldTile = 6f;
 
         /// <summary>The lane's backdrop now ("HuntingGround", "SaltFlats", "Whisperwood"...): the music follows it.</summary>
         public string BackdropKeyNow => _backdropKey;
@@ -287,7 +350,8 @@ namespace Orsuun.Client
         public void SetZone(ZoneType zone, int stageNumber = 0)
         {
             string key = BackdropKey(zone, stageNumber);
-            if (_backdropKey == key) return;
+            FieldMap.Layout layout = FieldMap.For(stageNumber);
+            if (_backdropKey == key && (_map == null || layout == _map.Current)) return;
             _backdropKey = key;
             _zone = zone;
             _scenery?.SetBackdrop(key);
@@ -315,8 +379,26 @@ namespace Orsuun.Client
                 _ => (new Color(0.52f, 0.48f, 0.22f), new Color(0.58f, 0.54f, 0.27f)),
             };
             _ground.material.color = ground;
+            if (_fieldMaterial != null) _fieldMaterial.color = ground;
+            ShowMap(layout, key);
+            // The haze the field's far side fades into: the ground's colour, lightened toward the sky.
+            FogColor = Color.Lerp(ground, new Color(0.86f, 0.88f, 0.9f), 0.55f);
+            ApplyFog();
             foreach (Transform s in _stripes) s.GetComponent<Renderer>().material.color = stripe;
             RefreshFloor();
+        }
+
+        /// <summary>The big map (layout) or the road field (null): one shows, the other's pieces hide.</summary>
+        private void ShowMap(FieldMap.Layout layout, string key)
+        {
+            if (_map == null) return;
+            bool map = layout != null;
+            if (map) _map.Show(layout, key, new Vector3(HeroX, 0f, 0f));
+            else _map.Hide();
+            _ground.enabled = !map;
+            if (_field != null) _field.enabled = !map;
+            _backdrop.gameObject.SetActive(!map);
+            _scenery.gameObject.SetActive(!map && _scenery.HasArt);
         }
 
         /// <summary>
@@ -363,7 +445,18 @@ namespace Orsuun.Client
                 _groundMaterial.SetTextureOffset("_BaseMap", new Vector2(_floorScroll, _floorRoadOffset));
                 _groundMaterial.color = new Color(0.92f, 0.92f, 0.92f);   // the light does the rest
             }
-            foreach (Transform s in _stripes) s.gameObject.SetActive(!_hasFloor);
+            foreach (Transform s in _stripes) s.gameObject.SetActive(!_hasFloor && (_map == null || !_map.Active));
+            if (_fieldMaterial != null)
+            {
+                var grass = _backdropKey == null ? null : Art.Load<Texture2D>("Floors/" + _backdropKey + "Field");
+                _fieldMaterial.SetTexture("_BaseMap", grass);
+                if (grass != null)
+                {
+                    Vector3 size = _field.transform.localScale;
+                    _fieldMaterial.SetTextureScale("_BaseMap", new Vector2(size.x / FieldTile, size.z / FieldTile));
+                    _fieldMaterial.color = new Color(0.9f, 0.9f, 0.9f);
+                }
+            }
         }
 
         /// <summary>A piece of the hero and what drives its glow: an EquipSlot index (weapon or armour) or NoSlot.</summary>
@@ -398,7 +491,7 @@ namespace Orsuun.Client
             _hero.SetParent(transform, false);
             _rig = new GameObject("Rig").transform;
             _rig.SetParent(_hero, false);
-            _rig.localRotation = Quaternion.Euler(0f, 125f, 0f); // models face +Z: this faces the enemies, three-quarter to the camera
+            _rig.localRotation = Quaternion.Euler(0f, HeroYaw, 0f); // models face +Z: this faces up the road at the enemies
             _rig.localScale = VanguardBuild;
             _heroY = 0f;
             _heroTint = Color.white;
@@ -636,7 +729,21 @@ namespace Orsuun.Client
                     if (_views.TryGetValue(e.EnemyId, out EnemyView hit))
                     {
                         hit.Punch = 1f;
-                        Float(e.Amount.ToString(), hit.Root.position + Vector3.up * 1.2f, e.Crit ? Palette.Warn : Color.white, e.Crit ? 1.5f : 1f);
+                        Float(e.Crit ? e.Amount + "!" : e.Amount.ToString(), hit.Root.position + Vector3.up * 1.2f, e.Crit ? Palette.Warn : Color.white, e.Crit ? 1.7f : 1f);
+                        // Hit feel: the struck enemy flashes and gives a step (a boss less, the Korstone not at all).
+                        if (!hit.IsKorstone)
+                        {
+                            hit.Flash = e.Crit ? 1f : 0.7f;
+                            Vector3 away = hit.Base - new Vector3(HeroX, hit.Base.y, 0f);
+                            away.y = 0f;
+                            hit.KnockDir = away.sqrMagnitude > 0.001f ? away.normalized : Vector3.right;
+                            hit.Knock = Mathf.Max(hit.Knock, (e.Crit ? 1f : 0.6f) * (hit.IsBoss ? 0.35f : 1f));
+                        }
+                        if (e.Crit)
+                        {
+                            ActionCamera.Lean(0.22f, 0.25f);
+                            ActionCamera.Shake(hit.IsBoss ? 0.09f : 0.05f);
+                        }
                         Vector3 at = hit.Root.position + Vector3.up * hit.HitHeight + new Vector3(-0.2f, 0f, -0.3f);
                         Color korstoneGlow = hit.IsKorstone && hit.Fx != null ? KorstoneLook.Tiers[_korstoneTier].Glow : new Color(1f, 0.45f, 0.12f);
                         if (e.Crit) Sparks(at, 18, new Color(1f, 0.95f, 0.7f), 1.4f);
@@ -657,6 +764,8 @@ namespace Orsuun.Client
                         {
                             Sparks(at + Vector3.up * 0.4f, 90, new Color(1f, 0.5f, 0.12f), 2.2f);
                             GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.3f);
+                            ActionCamera.Shake(0.16f);
+                            ActionCamera.Lean(0.4f, 0.6f);
                         }
                         else
                         {
@@ -711,7 +820,12 @@ namespace Orsuun.Client
                         {
                             Vector3 chest = _hero.position + new Vector3(0.25f, 1.25f, -0.25f);
                             Sparks(chest, attacker.IsBoss ? 16 : 8, new Color(0.9f, 0.08f, 0.06f), attacker.IsBoss ? 1.4f : 0.9f);
-                            if (attacker.IsBoss) Sparks(chest, 8, new Color(1f, 0.85f, 0.6f), 1.6f);
+                            if (attacker.IsBoss)
+                            {
+                                Sparks(chest, 8, new Color(1f, 0.85f, 0.6f), 1.6f);
+                                ActionCamera.Lean(0.45f, 0.5f);
+                                ActionCamera.Shake(0.12f);
+                            }
                         }
                         GameAudio.Instance?.Play(AttackSound(attacker), attacker.IsBoss ? 0.9f : 0.45f, attacker.IsBoss ? 0.25f : 0.1f);
                     }
@@ -737,6 +851,7 @@ namespace Orsuun.Client
                         _hero.position = new Vector3(HeroX, _heroY < 0.5f ? 0.3f : 0.5f, 0f);
                     }
                     Float("DEFEATED", _hero.position + Vector3.up * 2f, Palette.Bad, 2f);
+                    ActionCamera.Lean(0.7f, 1.6f);
                     break;
 
                 case LaneEventKind.HeroRespawned:
@@ -761,6 +876,7 @@ namespace Orsuun.Client
                         int[] bonus = _sim.Hero.SkillGradeBonusPercent;
                         _skillFx?.Cast(slot, _sim.Skills[slot], _sim.Hero.Class, slot < bonus.Length ? bonus[slot] : 0);
                         PlayCast(slot);
+                        ActionCamera.Lean(0.55f, 0.8f);
                     }
                     break;
             }
@@ -770,15 +886,22 @@ namespace Orsuun.Client
         {
             if (_sim == null) return;
             float dt = Time.deltaTime;
-            _scenery?.Tick(dt, _sim.Phase == LanePhase.Running);
+            bool onMap = _map != null && _map.Active;
+            if (onMap) _map.Tick(dt, _sim.Phase == LanePhase.Running);
+            else _scenery?.Tick(dt, _sim.Phase == LanePhase.Running);
 
-            if (_sim.Phase == LanePhase.Running)
+            if (_sim.Phase == LanePhase.Running && !onMap)
             {
                 if (_hasFloor)
                 {
                     // The floor runs past at the stripes' speed.
                     _floorScroll = Mathf.Repeat(_floorScroll + _floorScrollSign * 6f * dt / FloorTile, 1f);
                     _groundMaterial.SetTextureOffset("_BaseMap", new Vector2(_floorScroll, _floorRoadOffset));
+                    if (_fieldMaterial != null)
+                    {
+                        _fieldScroll = Mathf.Repeat(_fieldScroll + _floorScrollSign * 6f * dt / FieldTile, 1f);
+                        _fieldMaterial.SetTextureOffset("_BaseMap", new Vector2(_fieldScroll, 0f));
+                    }
                 }
                 foreach (Transform stripe in _stripes)
                 {
@@ -821,7 +944,7 @@ namespace Orsuun.Client
                     if (blink != _blinking && _rig != null)
                     {
                         _blinking = blink;
-                        _rig.localRotation = Quaternion.Euler(0f, blink ? -125f : 125f, 0f);
+                        _rig.localRotation = Quaternion.Euler(0f, blink ? -HeroYaw : HeroYaw, 0f);
                     }
                     _hero.position = new Vector3(blink ? _blinkX : HeroX + RideShift + _heroPunch * 0.12f, _heroY + RideY, 0f);
                 }
@@ -842,11 +965,17 @@ namespace Orsuun.Client
             {
                 FloatingText text = _texts[i];
                 text.Age += dt;
-                text.Mesh.transform.position += Vector3.up * (1.6f * dt);
+                // Pops in large, settles, rises fast then slow while drifting aside, and fades at the end.
+                Transform t = text.Mesh.transform;
+                t.position += (Vector3.up * Mathf.Lerp(2.6f, 0.4f, Mathf.Clamp01(text.Age / 0.8f)) + text.Drift) * dt;
+                t.localScale = Vector3.one * (text.Age < 0.12f ? Mathf.Lerp(1.7f, 1f, text.Age / 0.12f) : 1f);
+                if (Camera.main != null) t.rotation = Camera.main.transform.rotation;
+                float alpha = Mathf.Clamp01((1.05f - text.Age) / 0.4f);
                 Color c = text.Mesh.color;
-                c.a = Mathf.Clamp01(1.4f - text.Age * 1.6f);
+                c.a = alpha;
                 text.Mesh.color = c;
-                if (text.Age > 0.9f)
+                if (text.Shade != null) text.Shade.color = new Color(0f, 0f, 0f, 0.75f * alpha);
+                if (text.Age > 1.05f)
                 {
                     Destroy(text.Mesh.gameObject);
                     _texts.RemoveAt(i);
@@ -875,9 +1004,9 @@ namespace Orsuun.Client
                 }
                 else
                 {
-                    // Every other mob a step back, so long bodies (wolves, boars) do not sit inside each other.
-                    int row = mobIndex / MobsPerRow;
-                    target = new Vector3(-0.4f + (_mount != null ? MountMobPush : 0f) + (mobIndex % MobsPerRow) * MobSpacing, view.Y, row * 1.1f + (mobIndex % 2) * 0.5f);
+                    // A half ring in front of the hero, up the road: the first straight ahead, the others fanning out to
+                    // either side, a second ring behind the first.
+                    target = RingSpot(mobIndex) + new Vector3(_mount != null ? MountMobPush : 0f, view.Y, 0f);
                     mobIndex++;
                 }
 
@@ -900,14 +1029,67 @@ namespace Orsuun.Client
                     else lunge = new Vector3(-Mathf.Sin(t * Mathf.PI) * (view.IsBoss ? 0.9f : 0.55f), Mathf.Sin(t * Mathf.PI) * 0.12f, 0f)
                                  * (view.Anim != null ? 0.45f : 1f);   // an Attack clip carries its own lunge
                 }
-                view.Root.position = view.Base + lunge;
+                // A struck enemy is knocked a step back from the hero and comes back (hit feel).
+                view.Knock = Mathf.MoveTowards(view.Knock, 0f, dt * 4.5f);
+                view.Root.position = view.Base + lunge + view.KnockDir * (view.Knock * view.Knock * 0.45f);
+                if (view.Flash > 0f || view.Flashing) FlashStep(view, dt);
                 view.Punch = Mathf.MoveTowards(view.Punch, 0f, dt * 6f);
                 view.Root.localScale = view.Scale * (1f + view.Punch * 0.18f);
 
                 float ratio = Mathf.Clamp01(enemy.Hp / (float)enemy.MaxHp);
                 view.HpFill.localScale = new Vector3(ratio, 1f, 1f);
                 view.HpFill.localPosition = new Vector3(-(1f - ratio) * 0.5f, 0f, -0.01f);
+                // The bar turns to the camera (the field's camera sees the lane at an angle).
+                if (view.Bar != null && Camera.main != null) view.Bar.rotation = Camera.main.transform.rotation;
             }
+        }
+
+        private readonly MaterialPropertyBlock _flashBlock = new MaterialPropertyBlock();
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+
+        /// <summary>A struck enemy's white flash: its body's colours pushed bright (the bloom takes them), then its own again.</summary>
+        private void FlashStep(EnemyView view, float dt)
+        {
+            view.Flash = Mathf.MoveTowards(view.Flash, 0f, dt * 7f);
+            if (view.Body == null)
+            {
+                var body = new List<Renderer>();
+                foreach (Renderer r in view.Root.GetComponentsInChildren<Renderer>())
+                    if ((r is MeshRenderer || r is SkinnedMeshRenderer) && (view.Bar == null || !r.transform.IsChildOf(view.Bar)))
+                        body.Add(r);
+                view.Body = body.ToArray();
+                view.BodyColors = new Color[view.Body.Length];
+                for (int i = 0; i < view.Body.Length; i++)
+                {
+                    Material m = view.Body[i].sharedMaterial;
+                    view.BodyColors[i] = m != null && m.HasProperty(BaseColorId) ? m.GetColor(BaseColorId) : Color.white;
+                }
+            }
+            float k = 1f + 2.2f * view.Flash;
+            for (int i = 0; i < view.Body.Length; i++)
+            {
+                Renderer r = view.Body[i];
+                if (r == null) continue;
+                if (view.Flash <= 0f) { r.SetPropertyBlock(null); continue; }
+                Color c = view.BodyColors[i];
+                r.GetPropertyBlock(_flashBlock);
+                _flashBlock.SetColor(BaseColorId, new Color(c.r * k, c.g * k, c.b * k, c.a));
+                r.SetPropertyBlock(_flashBlock);
+            }
+            view.Flashing = view.Flash > 0f;
+        }
+
+        private const int RingSize = 5;
+
+        /// <summary>Where the i-th mob of a pack stands: a half ring round the hero's front, five to a ring.</summary>
+        private static Vector3 RingSpot(int index)
+        {
+            int ring = index / RingSize, k = index % RingSize;
+            float radius = 1.55f + ring * 0.95f;
+            // 0, -1, +1, -2, +2 steps of 28 degrees about the direction up the road; the second ring sits half a step over.
+            int step = (k + 1) / 2 * (k % 2 == 0 ? 1 : -1);
+            float angle = (HeroYaw + step * 28f + ring * 14f) * Mathf.Deg2Rad;
+            return new Vector3(HeroX + Mathf.Sin(angle) * radius, 0f, Mathf.Cos(angle) * radius);
         }
 
         /// <summary>
@@ -1166,7 +1348,7 @@ namespace Orsuun.Client
                 height = Mathf.Max(height, r.bounds.max.y);
             }
             root.localScale = Vector3.one * scale;
-            root.rotation = Quaternion.Euler(0f, -EnemyYaw, 0f);   // faces the enemies like the hero
+            root.rotation = Quaternion.Euler(0f, HeroYaw, 0f);   // faces the enemies like the hero
             height *= scale;
             anim = root.GetComponent<Animation>();
             if (anim != null && anim.GetClip("Idle") == null) anim = null;
@@ -1212,7 +1394,7 @@ namespace Orsuun.Client
             root.SetParent(transform, false);
             body.transform.SetParent(root, true);
             body.transform.position -= new Vector3(b.center.x, b.min.y, b.center.z);
-            root.rotation = Quaternion.Euler(0f, -EnemyYaw, 0f);   // facing the enemies like the hero
+            root.rotation = Quaternion.Euler(0f, HeroYaw, 0f);   // facing the enemies like the hero
             _kin = root;
             _kinAnim = body.GetComponent<Animation>();
             if (_kinAnim != null && _kinAnim.GetClip("Idle") == null) _kinAnim = null;
@@ -1739,7 +1921,7 @@ namespace Orsuun.Client
             }
             _views[enemyId] = new EnemyView
             {
-                Root = root, HpFill = fill, Scale = s, IsModel = standing, Y = y, IsMob = art != null, IsKorstone = korstone,
+                Root = root, HpFill = fill, Bar = holder, Scale = s, IsModel = standing, Y = y, IsMob = art != null, IsKorstone = korstone,
                 HitHeight = hitHeight, ArtName = artName, Base = root.position, IsBoss = boss, Fx = korstoneFx, Anim = anim,
             };
             if (korstoneFx != null)
@@ -2001,6 +2183,42 @@ namespace Orsuun.Client
             return art;
         }
 
+        /// <summary>The lane's stage now (0 before a lane is bound), and whether the hero is on the run between packs.</summary>
+        internal int StageNow => _sim?.Stage.StageNumber ?? 0;
+        internal bool RunningNow => _sim != null && _sim.Phase == LanePhase.Running;
+
+        /// <summary>
+        /// A monster of the map the lane is on, for the other hunters' fights in the field (FieldFolk): one of the map's
+        /// mob set (tinted like the lane's), at the lane's mob size, idling; null without its art.
+        /// </summary>
+        internal Transform CosmeticMob(int pick, out Animation anim)
+        {
+            anim = null;
+            if (_sim == null) return null;
+            string[] set = MobSetFor(_sim.Stage.StageNumber);
+            string entry = set[Mathf.Abs(pick) % set.Length];
+            string name = ModelOf(entry);
+            MobArt art = LoadMob(name);
+            if (art == null) return null;
+            Color? tint = entry.Length > name.Length && ColorUtility.TryParseHtmlString(entry.Substring(name.Length), out Color shade) ? shade : (Color?)null;
+            Transform root = Instantiate(art.Model).transform;
+            foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
+            {
+                r.sharedMaterial = art.Material;
+                if (tint.HasValue) r.material.color = tint.Value;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            root.localScale = Vector3.one * MobScale;
+            anim = root.GetComponent<Animation>();
+            if (anim != null && anim.GetClip("Idle") == null) anim = null;
+            if (anim != null)
+            {
+                anim.cullingType = AnimationCullingType.BasedOnRenderers;
+                anim.Play("Idle");
+            }
+            return root;
+        }
+
         private static MobArt LoadMob(string name)
         {
             if (MobArts.TryGetValue(name, out MobArt art)) return art;
@@ -2021,16 +2239,29 @@ namespace Orsuun.Client
             go.transform.position = position + new Vector3(Random.Range(-0.2f, 0.2f), 0f, -0.6f);
             go.transform.rotation = Camera.main != null ? Camera.main.transform.rotation : Quaternion.identity;
 
+            string shown = Loc.T(content);
+            TextMesh mesh = FloatMesh(go, shown, scale, color);
+            // A dark copy just behind it, a little down and aside: an edge that reads on bright grass and sky.
+            var back = new GameObject("Shade");
+            back.transform.SetParent(go.transform, false);
+            back.transform.localPosition = new Vector3(0.04f * scale, -0.04f * scale, 0.03f);
+            TextMesh shade = FloatMesh(back, shown, scale, new Color(0f, 0f, 0f, 0.75f));
+
+            _texts.Add(new FloatingText { Mesh = mesh, Shade = shade, Drift = new Vector3(Random.Range(-0.35f, 0.35f), 0f, 0f) });
+        }
+
+        private static TextMesh FloatMesh(GameObject go, string text, float scale, Color color)
+        {
             var mesh = go.AddComponent<TextMesh>();
-            mesh.font = Ui.Font;
-            go.GetComponent<MeshRenderer>().sharedMaterial = Ui.Font.material;
-            mesh.text = Loc.T(content);
+            mesh.font = Ui.TitleFont;
+            go.GetComponent<MeshRenderer>().sharedMaterial = Ui.TitleFont.material;
+            mesh.text = text;
             mesh.fontSize = 64;
+            mesh.fontStyle = FontStyle.Bold;
             mesh.characterSize = 0.05f * scale;
             mesh.anchor = TextAnchor.MiddleCenter;
             mesh.color = color;
-
-            _texts.Add(new FloatingText { Mesh = mesh });
+            return mesh;
         }
 
         private static GameObject KorstoneModel()

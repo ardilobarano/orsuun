@@ -1512,6 +1512,16 @@ namespace Orsuun.Client.Net
         }
 
         /// <summary>Another hero as anyone may see them (INSPECT). Completes with (hero, error).</summary>
+        /// <summary>The field's other hunters: heroes hunting the same map now (the town's shape). Completes with (list, error).</summary>
+        public IEnumerator FetchField(Action<TownDto, string> done)
+        {
+            TownDto result = null;
+            string failure = null;
+            yield return Send("GET", "/v1/field", null, true, json => result = JsonUtility.FromJson<TownDto>(json),
+                error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         /// <summary>The town square: says the hero is there (or, leaving, that it has gone) and completes with who else is.</summary>
         public IEnumerator TownVisit(bool leaving, Action<TownDto, string> done)
         {
