@@ -2474,3 +2474,39 @@ Progress	Progres
 A {0} is on the line! Keep it in the box.	Un {0} e în cârlig! Ține-l în cutie.
 It slipped the hook and got away.	A scăpat din cârlig și a fugit.
 Nothing is on the line.	Nu e nimic în cârlig.
+# The Bannerkin (28 Sep 2026)
+THE BANNERKIN	STEGĂREASA
+BANNERKIN	STEGĂREASA
+Bannerkin	Stegăreasa
+Bannerkin Drum	Tobă Stegăresei
+DRUM	TOBĂ
+Bannerkin Robe	Robă Stegăresei
+ROBE	ROBĂ
+Bannerkin Hat	Pălărie Stegăresei
+HAT	PĂLĂRIE
+Bannerkin Charm	Talisman Stegăresei
+CHARM	TALISMAN
+Bannerkin Bracer	Brăţară Stegăresei
+Bannerkin Boots	Cizme Stegăresei
+CALL THE BANNERKIN	CHEAMĂ STEGĂREASA
+GIVE	DĂ
+GIVE TO	DĂ-I
+BANNERKIN PIECES IN THE BAG	PIESELE STEGĂRESEI DIN SAC
+A Drumcaller of the steppe will walk behind you: every 18 seconds its Hunter's Blessing sharpens your strikes, every 12 its Mending Song closes your wounds. It wears six pieces of its own, drum to boots, that forge like yours. Bosses and Commander chests drop them; the Salt Exchange trades them.	O Tobășăreasă a stepei va merge în urma ta: la fiecare 18 secunde Binecuvântarea Vânătorului îți ascute loviturile, la fiecare 12 Cântecul Vindecător îți închide rănile. Poartă șase piese proprii, de la tobă la cizme, care se forjează ca ale tale. Șefii și cuferele Comandanților le lasă; Bursa de Sare le vinde.
+No Bannerkin pieces in the bag. Bosses and Commander chests drop them; the Salt Exchange sells them.	Nicio piesă a Stegăresei în sac. Șefii și cuferele Comandanților le lasă; Bursa de Sare le vinde.
+The Bannerkin needs the server.	Stegăreasa are nevoie de server.
+The Bannerkin takes up its drum and falls in behind you.	Stegăreasa își ia toba și se așază în urma ta.
+The Bannerkin takes the {0}.	Stegăreasa ia: {0}.
+The Bannerkin takes it.	Stegăreasa o ia.
+Worth {0}	Valoare {0}
+worth {0}	valoare {0}
++{0}% crit for {1} s, every {2} s	+{0}% critic timp de {1} s, la fiecare {2} s
+Mending Song	Cântecul Vindecător
+{0}% of your HP back, every {1} s	{0}% din viața ta înapoi, la fiecare {1} s
+Tap a piece for its card; FORGE takes it to the anvil.	Atinge o piesă pentru fișa ei; RAFINEAZĂ o duce la nicovală.
+Only the Bannerkin wears that: give it to the Bannerkin.	Doar Stegăreasa poartă asta: dă-i-o ei.
+Only the Bannerkin wears that.	Doar Stegăreasa poartă asta.
+The Bannerkin joins heroes of level {0}.	Stegăreasa se alătură eroilor de nivel {0}.
+The Bannerkin has not joined you yet.	Stegăreasa nu ți s-a alăturat încă.
+Only Bannerkin pieces fit the Bannerkin.	Stegăresei i se potrivesc doar piesele ei.
+A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	O Tobășăreasă merge în urma ta, binecuvântând și vindecând: îmbrac-o și forjează-i echipamentul în INVENTAR, STEGĂREASA.

@@ -39,7 +39,7 @@ public sealed record SocketDto(bool Dead, string? Type, int Rank, string Text);
 
 public sealed record ItemDto(
     Guid Id, EquipSlot Slot, bool Equipped, string Name, int ItemLevel, Rarity Rarity, int UpgradeLevel, int PatienceBp, int LockedEtchingIndex,
-    EtchingDto[] Etchings, SocketDto[] Sockets, int AverageDamage = 0, int SkillDamage = 0);
+    EtchingDto[] Etchings, SocketDto[] Sockets, int AverageDamage = 0, int SkillDamage = 0, bool Kin = false, bool KinWorn = false);
 
 public sealed record SocketInsertRequest(string RequestId, Guid ItemId, int SocketIndex, ShardType Type, int Rank);
 public sealed record SocketClearRequest(string RequestId, Guid ItemId, int SocketIndex);
@@ -277,7 +277,12 @@ public sealed record StateDto(
     string? Title = null,
     bool EmailVerified = false,
     GoalCountsDto? GoalCounts = null,
-    RiverDto? River = null);
+    RiverDto? River = null,
+    KinDto? Kin = null);
+
+/// <summary>The Bannerkin (Rules.Bannerkin): joined or not, what it wears and what that makes of its two casts.</summary>
+public sealed record KinDto(bool Joined, ItemDto[] Worn, int Score, int FocusBp, int FocusSeconds, int FocusCooldownSeconds, int HealPercent, int HealCooldownSeconds);
+public sealed record KinWearRequest(string RequestId, Guid ItemId);
 
 /// <summary>Fishing (Rules.Fishing): at the river or not, each fish's boost seconds left (by id), the Tireless Rod's seconds
 /// left, and what the rod brought in since the last state (a heartbeat's auto catches).</summary>

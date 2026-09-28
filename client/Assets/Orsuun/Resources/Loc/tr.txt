@@ -2436,3 +2436,39 @@ Progress	İlerleme
 A {0} is on the line! Keep it in the box.	Oltada bir {0} var! Onu kutunun içinde tut.
 It slipped the hook and got away.	Kancadan kurtulup kaçtı.
 Nothing is on the line.	Oltada bir şey yok.
+# The Bannerkin (28 Sep 2026)
+THE BANNERKIN	SANCAKDAŞ
+BANNERKIN	SANCAKDAŞ
+Bannerkin	Sancakdaş
+Bannerkin Drum	Sancakdaş Davulu
+DRUM	DAVUL
+Bannerkin Robe	Sancakdaş Cübbesi
+ROBE	CÜBBE
+Bannerkin Hat	Sancakdaş Başlığı
+HAT	BAŞLIK
+Bannerkin Charm	Sancakdaş Muskası
+CHARM	MUSKA
+Bannerkin Bracer	Sancakdaş Bilekliği
+Bannerkin Boots	Sancakdaş Çizmeleri
+CALL THE BANNERKIN	SANCAKDAŞI ÇAĞIR
+GIVE	VER
+GIVE TO	VER:
+BANNERKIN PIECES IN THE BAG	ÇANTADAKİ SANCAKDAŞ PARÇALARI
+A Drumcaller of the steppe will walk behind you: every 18 seconds its Hunter's Blessing sharpens your strikes, every 12 its Mending Song closes your wounds. It wears six pieces of its own, drum to boots, that forge like yours. Bosses and Commander chests drop them; the Salt Exchange trades them.	Bozkırın bir Davulcusu arkanda yürüyecek: her 18 saniyede Avcı Kutsaması darbelerini keskinleştirir, her 12 saniyede İyileştiren Şarkı yaralarını kapatır. Davuldan çizmeye kendine ait altı parça giyer ve bunlar seninkiler gibi güçlendirilir. Boss'lar ve Komutan sandıkları bunları düşürür; Tuz Borsası bunların ticaretini yapar.
+No Bannerkin pieces in the bag. Bosses and Commander chests drop them; the Salt Exchange sells them.	Çantada Sancakdaş parçası yok. Boss'lar ve Komutan sandıkları bunları düşürür; Tuz Borsası satar.
+The Bannerkin needs the server.	Sancakdaş sunucu ister.
+The Bannerkin takes up its drum and falls in behind you.	Sancakdaş davulunu alıp arkanda yerini alıyor.
+The Bannerkin takes the {0}.	Sancakdaş şunu alıyor: {0}.
+The Bannerkin takes it.	Sancakdaş onu alıyor.
+Worth {0}	Değer {0}
+worth {0}	değer {0}
++{0}% crit for {1} s, every {2} s	{2} sn'de bir, {1} sn boyunca +%{0} kritik
+Mending Song	İyileştiren Şarkı
+{0}% of your HP back, every {1} s	{1} sn'de bir canının %{0}'ı geri
+Tap a piece for its card; FORGE takes it to the anvil.	Kartı için bir parçaya dokun; GÜÇLENDİR onu örse götürür.
+Only the Bannerkin wears that: give it to the Bannerkin.	Bunu yalnızca Sancakdaş giyer: onu Sancakdaş'a ver.
+Only the Bannerkin wears that.	Bunu yalnızca Sancakdaş giyer.
+The Bannerkin joins heroes of level {0}.	Sancakdaş {0}. seviyedeki kahramanlara katılır.
+The Bannerkin has not joined you yet.	Sancakdaş henüz sana katılmadı.
+Only Bannerkin pieces fit the Bannerkin.	Sancakdaş'a yalnızca Sancakdaş parçaları olur.
+A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Bir Davulcu arkanda yürür, kutsar ve iyileştirir: teçhizatını ENVANTER, SANCAKDAŞ'ta giydir ve güçlendir.

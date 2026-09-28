@@ -45,13 +45,17 @@ namespace Orsuun.Rules
         public const int MaxUpgradeLevel = 9;
         public const int MaxEtchings = 5;
 
-        public ItemState(int itemLevel, Rarity rarity, EquipSlot slot = EquipSlot.Weapon)
+        public ItemState(int itemLevel, Rarity rarity, EquipSlot slot = EquipSlot.Weapon, bool kin = false)
         {
             ItemLevel = itemLevel;
             Rarity = rarity;
             Slot = slot;
-            Sockets = new Socket[SocketRules.SocketCount(rarity)];
+            Kin = kin;
+            Sockets = kin ? new Socket[0] : new Socket[SocketRules.SocketCount(rarity)];
         }
+
+        /// <summary>A Bannerkin piece (Rules.Bannerkin): only the Bannerkin wears it; no etchings, sockets or rolls.</summary>
+        public bool Kin { get; }
 
         /// <summary>Korshard sockets, count fixed by rarity.</summary>
         public Socket[] Sockets { get; }

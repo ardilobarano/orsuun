@@ -2512,3 +2512,39 @@ Progress	Fortschritt
 A {0} is on the line! Keep it in the box.	Ein {0} hängt an der Leine! Halte ihn im Kasten.
 It slipped the hook and got away.	Er hat sich vom Haken gelöst und ist entkommen.
 Nothing is on the line.	Nichts hängt an der Leine.
+# The Bannerkin (28 Sep 2026)
+THE BANNERKIN	BANNERGEFÄHRTIN
+BANNERKIN	BANNERGEFÄHRTIN
+Bannerkin	Bannergefährtin
+Bannerkin Drum	Trommel der Bannergefährtin
+DRUM	TROMMEL
+Bannerkin Robe	Robe der Bannergefährtin
+ROBE	ROBE
+Bannerkin Hat	Hut der Bannergefährtin
+HAT	HUT
+Bannerkin Charm	Amulett der Bannergefährtin
+CHARM	AMULETT
+Bannerkin Bracer	Armschiene der Bannergefährtin
+Bannerkin Boots	Stiefel der Bannergefährtin
+CALL THE BANNERKIN	BANNERGEFÄHRTIN RUFEN
+GIVE	GEBEN
+GIVE TO	GEBEN AN
+BANNERKIN PIECES IN THE BAG	STÜCKE DER BANNERGEFÄHRTIN IN DER TASCHE
+A Drumcaller of the steppe will walk behind you: every 18 seconds its Hunter's Blessing sharpens your strikes, every 12 its Mending Song closes your wounds. It wears six pieces of its own, drum to boots, that forge like yours. Bosses and Commander chests drop them; the Salt Exchange trades them.	Eine Trommlerin der Steppe geht hinter dir: Alle 18 Sekunden schärft ihr Segen des Jägers deine Hiebe, alle 12 schließt ihr Heilendes Lied deine Wunden. Sie trägt sechs eigene Stücke, von der Trommel bis zu den Stiefeln, die sich schmieden lassen wie deine. Bosse und Kommandantentruhen lassen sie fallen; die Salzbörse handelt mit ihnen.
+No Bannerkin pieces in the bag. Bosses and Commander chests drop them; the Salt Exchange sells them.	Keine Stücke der Bannergefährtin in der Tasche. Bosse und Kommandantentruhen lassen sie fallen; die Salzbörse verkauft sie.
+The Bannerkin needs the server.	Die Bannergefährtin braucht den Server.
+The Bannerkin takes up its drum and falls in behind you.	Die Bannergefährtin nimmt ihre Trommel und reiht sich hinter dir ein.
+The Bannerkin takes the {0}.	Die Bannergefährtin nimmt: {0}.
+The Bannerkin takes it.	Die Bannergefährtin nimmt es.
+Worth {0}	Wert {0}
+worth {0}	Wert {0}
++{0}% crit for {1} s, every {2} s	+{0}% Krit für {1} s, alle {2} s
+Mending Song	Heilendes Lied
+{0}% of your HP back, every {1} s	{0}% deiner LP zurück, alle {1} s
+Tap a piece for its card; FORGE takes it to the anvil.	Tippe auf ein Stück für seine Karte; SCHMIEDEN bringt es zum Amboss.
+Only the Bannerkin wears that: give it to the Bannerkin.	Das trägt nur die Bannergefährtin: gib es ihr.
+Only the Bannerkin wears that.	Das trägt nur die Bannergefährtin.
+The Bannerkin joins heroes of level {0}.	Die Bannergefährtin schließt sich Helden ab Stufe {0} an.
+The Bannerkin has not joined you yet.	Die Bannergefährtin hat sich dir noch nicht angeschlossen.
+Only Bannerkin pieces fit the Bannerkin.	Nur Stücke der Bannergefährtin passen ihr.
+A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Eine Trommlerin geht hinter dir, segnet und heilt: Kleide und schmiede ihre Ausrüstung unter INVENTAR, BANNERGEFÄHRTIN.

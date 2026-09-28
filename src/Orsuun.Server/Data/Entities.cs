@@ -188,6 +188,8 @@ public sealed class Account
     [MaxLength(96)] public string Meals { get; set; } = "";
     public DateTime? AutoRodUntilUtc { get; set; }
     public DateTime? AutoFromUtc { get; set; }
+    /// <summary>The Bannerkin has joined (Rules.Bannerkin); its pieces are the items with KinWorn.</summary>
+    public bool KinJoined { get; set; }
     public Guid? InvitedById { get; set; }
     public bool InviteRewarded { get; set; }
     public int HuntEncounter { get; set; }
@@ -251,12 +253,18 @@ public sealed class Item
     /// <summary>Held by a letter in its owner's mailbox (Rules.Mail) until taken: out of the bag like a listed piece.</summary>
     public bool InMail { get; set; }
 
-    /// <summary>Out of the bag: on the Salt Exchange, in the depot, on a trade table or in a letter (not worn, forged, turned or counted in the bag).</summary>
-    public bool OutOfBag => Listed || DepotLoginId != null || TradeId != null || InMail;
+    /// <summary>A Bannerkin piece (Rules.Bannerkin): only the Bannerkin wears it. KinWorn: the Bannerkin wears it now (out of
+    /// the bag like a listed piece, but it can still be forged).</summary>
+    public bool Kin { get; set; }
+    public bool KinWorn { get; set; }
+
+    /// <summary>Out of the bag: on the Salt Exchange, in the depot, on a trade table, in a letter or worn by the Bannerkin (not
+    /// worn by the hero, turned or counted in the bag).</summary>
+    public bool OutOfBag => Listed || DepotLoginId != null || TradeId != null || InMail || KinWorn;
 
     public ItemState ToState()
     {
-        var state = new ItemState(ItemLevel, Rarity, Slot)
+        var state = new ItemState(ItemLevel, Rarity, Slot, Kin)
         {
             UpgradeLevel = UpgradeLevel,
             PatienceBp = PatienceBp,
@@ -285,7 +293,7 @@ public sealed class Item
 
     public static Item From(ItemState state, Guid ownerId, bool equipped)
     {
-        var item = new Item { Id = Guid.NewGuid(), OwnerId = ownerId, Slot = state.Slot, Equipped = equipped, ItemLevel = state.ItemLevel, Rarity = state.Rarity, CreatedUtc = DateTime.UtcNow };
+        var item = new Item { Id = Guid.NewGuid(), OwnerId = ownerId, Slot = state.Slot, Equipped = equipped && !state.Kin, ItemLevel = state.ItemLevel, Rarity = state.Rarity, CreatedUtc = DateTime.UtcNow, Kin = state.Kin };
         item.ApplyState(state);
         return item;
     }

@@ -2466,3 +2466,39 @@ Progress	Postęp
 A {0} is on the line! Keep it in the box.	Na haczyku: {0}! Trzymaj go w ramce.
 It slipped the hook and got away.	Zerwała się z haczyka i uciekła.
 Nothing is on the line.	Nic nie ma na haczyku.
+# The Bannerkin (28 Sep 2026)
+THE BANNERKIN	CHORĄŻANKA
+BANNERKIN	CHORĄŻANKA
+Bannerkin	Chorążanka
+Bannerkin Drum	Bęben Chorążanki
+DRUM	BĘBEN
+Bannerkin Robe	Szata Chorążanki
+ROBE	SZATA
+Bannerkin Hat	Kapelusz Chorążanki
+HAT	KAPELUSZ
+Bannerkin Charm	Amulet Chorążanki
+CHARM	AMULET
+Bannerkin Bracer	Karwasz Chorążanki
+Bannerkin Boots	Buty Chorążanki
+CALL THE BANNERKIN	WEZWIJ CHORĄŻANKĘ
+GIVE	DAJ
+GIVE TO	DAJ
+BANNERKIN PIECES IN THE BAG	CZĘŚCI CHORĄŻANKI W TORBIE
+A Drumcaller of the steppe will walk behind you: every 18 seconds its Hunter's Blessing sharpens your strikes, every 12 its Mending Song closes your wounds. It wears six pieces of its own, drum to boots, that forge like yours. Bosses and Commander chests drop them; the Salt Exchange trades them.	Bębniarka stepu będzie szła za tobą: co 18 sekund jej Błogosławieństwo Łowcy wyostrza twoje ciosy, co 12 jej Kojąca Pieśń zamyka twoje rany. Nosi sześć własnych części, od bębna po buty, które ulepsza się jak twoje. Bossowie i skrzynie Dowódców je upuszczają; Solna Giełda nimi handluje.
+No Bannerkin pieces in the bag. Bosses and Commander chests drop them; the Salt Exchange sells them.	Brak części Chorążanki w torbie. Bossowie i skrzynie Dowódców je upuszczają; Solna Giełda je sprzedaje.
+The Bannerkin needs the server.	Chorążanka wymaga serwera.
+The Bannerkin takes up its drum and falls in behind you.	Chorążanka bierze bęben i staje za tobą.
+The Bannerkin takes the {0}.	Chorążanka bierze: {0}.
+The Bannerkin takes it.	Chorążanka to bierze.
+Worth {0}	Wartość {0}
+worth {0}	wartość {0}
++{0}% crit for {1} s, every {2} s	+{0}% traf. kryt. przez {1} s, co {2} s
+Mending Song	Kojąca Pieśń
+{0}% of your HP back, every {1} s	{0}% PŻ z powrotem, co {1} s
+Tap a piece for its card; FORGE takes it to the anvil.	Dotknij części, by zobaczyć kartę; ULEPSZ zabiera ją na kowadło.
+Only the Bannerkin wears that: give it to the Bannerkin.	To nosi tylko Chorążanka: daj jej to.
+Only the Bannerkin wears that.	To nosi tylko Chorążanka.
+The Bannerkin joins heroes of level {0}.	Chorążanka dołącza do bohaterów od poziomu {0}.
+The Bannerkin has not joined you yet.	Chorążanka jeszcze do ciebie nie dołączyła.
+Only Bannerkin pieces fit the Bannerkin.	Na Chorążankę pasują tylko jej części.
+A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Bębniarka idzie za tobą, błogosławi i leczy: ubierz i ulepszaj jej ekwipunek w EKWIPUNEK, CHORĄŻANKA.

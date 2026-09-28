@@ -46,6 +46,8 @@ namespace Orsuun.Rules.Combat
         public int AverageDamagePercent { get; set; }
         /// <summary>The weapon's skill damage roll: every skill's damage, its poison included, this much more (or less).</summary>
         public int SkillDamagePercent { get; set; }
+        /// <summary>The Bannerkin walking behind (Rules.Bannerkin), or null.</summary>
+        public KinStats? Kin { get; set; }
     }
 
     public enum SkillKind
@@ -287,6 +289,8 @@ namespace Orsuun.Rules.Combat
         Shielded,
         /// <summary>A boss mechanic fired: images, enrage, pack call.</summary>
         BossMechanic,
+        /// <summary>The Bannerkin cast (Text: Hunter's Blessing or Mending Song; Amount: HP healed).</summary>
+        KinCast,
     }
 
     public readonly struct LaneEvent
@@ -355,6 +359,7 @@ namespace Orsuun.Rules.Combat
         private int _wardUntilTick, _wardPercent;
         private readonly List<(Enemy Striker, long Amount)> _reflected = new List<(Enemy, long)>();
         private int _potionReadyAtTick;
+        private int _kinFocusReadyAtTick, _kinHealReadyAtTick;
         private int _nextEnemyId = 1;
         private int _nextPackCallTick;
         private int _imagesSpawned;
@@ -552,6 +557,30 @@ namespace Orsuun.Rules.Combat
             }
         }
 
+        /// <summary>
+        /// The Bannerkin's casts (Rules.Bannerkin), each on its own clock and with no roll: Hunter's Blessing lends its
+        /// crit (a stronger blessing already running keeps its strength), Mending Song gives HP back when the hero is hurt.
+        /// </summary>
+        private void KinTick(KinStats kin)
+        {
+            if (_tick >= _kinFocusReadyAtTick && kin.FocusTicks > 0)
+            {
+                _kinFocusReadyAtTick = _tick + kin.FocusCooldownTicks;
+                bool running = _tick < _focusUntilTick;
+                _focusBp = running ? Math.Max(_focusBp, kin.FocusBp) : kin.FocusBp;
+                _focusUntilTick = Math.Max(_focusUntilTick, _tick + kin.FocusTicks);
+                _events.Add(new LaneEvent(LaneEventKind.KinCast, text: "Hunter's Blessing"));
+            }
+            if (_tick >= _kinHealReadyAtTick && kin.HealPercent > 0 && HeroHp < _hero.MaxHp)
+            {
+                _kinHealReadyAtTick = _tick + kin.HealCooldownTicks;
+                long heal = Math.Min(_hero.MaxHp - HeroHp, _hero.MaxHp * kin.HealPercent / 100);
+                HeroHp += heal;
+                _events.Add(new LaneEvent(LaneEventKind.KinCast, amount: heal, text: "Mending Song"));
+                _events.Add(new LaneEvent(LaneEventKind.HeroHealed, amount: heal));
+            }
+        }
+
         /// <summary>Returns everything that happened since the last drain. Call once per tick or per frame.</summary>
         public List<LaneEvent> DrainEvents()
         {
@@ -564,6 +593,7 @@ namespace Orsuun.Rules.Combat
         {
             for (int i = 0; i < Skills.Length; i++)
                 if (AutoCast[i]) Cast(i, aimed: false);
+            if (_hero.Kin != null) KinTick(_hero.Kin);
 
             if (PoisonActive && _tick >= _poisonNextTick)
             {

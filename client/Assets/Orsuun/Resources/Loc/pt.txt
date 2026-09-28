@@ -2480,3 +2480,39 @@ Progress	Progresso
 A {0} is on the line! Keep it in the box.	Um {0} está na linha! Mantenha-o dentro da caixa.
 It slipped the hook and got away.	Soltou-se do anzol e fugiu.
 Nothing is on the line.	Não há nada na linha.
+# The Bannerkin (28 Sep 2026)
+THE BANNERKIN	PORTA-ESTANDARTE
+BANNERKIN	PORTA-ESTANDARTE
+Bannerkin	Porta-Estandarte
+Bannerkin Drum	Tambor do Porta-Estandarte
+DRUM	TAMBOR
+Bannerkin Robe	Manto do Porta-Estandarte
+ROBE	MANTO
+Bannerkin Hat	Chapéu do Porta-Estandarte
+HAT	CHAPÉU
+Bannerkin Charm	Amuleto do Porta-Estandarte
+CHARM	AMULETO
+Bannerkin Bracer	Bracelete do Porta-Estandarte
+Bannerkin Boots	Botas do Porta-Estandarte
+CALL THE BANNERKIN	CHAMAR O PORTA-ESTANDARTE
+GIVE	DAR
+GIVE TO	DAR AO
+BANNERKIN PIECES IN THE BAG	PEÇAS DO PORTA-ESTANDARTE NA BOLSA
+A Drumcaller of the steppe will walk behind you: every 18 seconds its Hunter's Blessing sharpens your strikes, every 12 its Mending Song closes your wounds. It wears six pieces of its own, drum to boots, that forge like yours. Bosses and Commander chests drop them; the Salt Exchange trades them.	Uma Tamborileira da estepe vai caminhar atrás de você: a cada 18 segundos sua Bênção do Caçador afia seus golpes, a cada 12 sua Canção Curativa fecha suas feridas. Ela usa seis peças próprias, do tambor às botas, que se forjam como as suas. Chefes e baús de Comandante as deixam cair; o Mercado do Sal as negocia.
+No Bannerkin pieces in the bag. Bosses and Commander chests drop them; the Salt Exchange sells them.	Nenhuma peça do Porta-Estandarte na bolsa. Chefes e baús de Comandante as deixam cair; o Mercado do Sal as vende.
+The Bannerkin needs the server.	O Porta-Estandarte precisa do servidor.
+The Bannerkin takes up its drum and falls in behind you.	O Porta-Estandarte pega o tambor e entra em fila atrás de você.
+The Bannerkin takes the {0}.	O Porta-Estandarte pega: {0}.
+The Bannerkin takes it.	O Porta-Estandarte pega.
+Worth {0}	Valor {0}
+worth {0}	valor {0}
++{0}% crit for {1} s, every {2} s	+{0}% de crítico por {1} s, a cada {2} s
+Mending Song	Canção Curativa
+{0}% of your HP back, every {1} s	{0}% do seu PV de volta, a cada {1} s
+Tap a piece for its card; FORGE takes it to the anvil.	Toque numa peça para ver o cartão; REFINAR a leva à bigorna.
+Only the Bannerkin wears that: give it to the Bannerkin.	Só o Porta-Estandarte usa isso: dê a ele.
+Only the Bannerkin wears that.	Só o Porta-Estandarte usa isso.
+The Bannerkin joins heroes of level {0}.	O Porta-Estandarte se junta a heróis de nível {0}.
+The Bannerkin has not joined you yet.	O Porta-Estandarte ainda não se juntou a você.
+Only Bannerkin pieces fit the Bannerkin.	Só peças do Porta-Estandarte servem nele.
+A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.	Uma Tamborileira caminha atrás de você, abençoando e curando: vista e forje o equipamento dela em INVENTÁRIO, PORTA-ESTANDARTE.

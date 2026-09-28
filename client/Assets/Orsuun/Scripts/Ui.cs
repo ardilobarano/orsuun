@@ -205,7 +205,8 @@ namespace Orsuun.Client
         /// Icons/Items/&lt;Slot&gt;_T&lt;band&gt;, the weapon and armour as the playing class wears them
         /// (Items/KestrelWeapon_T3), or the slot's own icon where a band has none.
         /// </summary>
-        public static string ItemIcon(ItemState item) => ItemIcon(item.Slot, item.ItemLevel);
+        /// <summary>A Bannerkin piece shows as a Drumcaller's (its drum and robe), the others as their slot.</summary>
+        public static string ItemIcon(ItemState item) => item.Kin ? ItemIcon(item.Slot, item.ItemLevel, HeroClass.Drumcaller) : ItemIcon(item.Slot, item.ItemLevel);
 
         public static string ItemIcon(EquipSlot slot, int itemLevel) => ItemIcon(slot, itemLevel, IconClass);
 

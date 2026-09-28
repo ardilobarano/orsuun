@@ -740,6 +740,10 @@ namespace Orsuun.Client
                     _hero.position = new Vector3(HeroX, _heroY, 0f);
                     break;
 
+                case LaneEventKind.KinCast:
+                    KinCast(e.Text == "Mending Song");
+                    break;
+
                 case LaneEventKind.SkillCast:
                     Float(e.Text, _hero.position + Vector3.up * 1.9f, new Color(0.6f, 0.85f, 1f), 1.3f);
                     if (e.Amount >= 0 && e.Amount < _sim.Skills.Length)
@@ -818,6 +822,7 @@ namespace Orsuun.Client
             else if (_sim.Phase != LanePhase.Dead)
                 _hero.position = new Vector3(HeroX + _heroPunch * 0.35f, _heroY + (_sim.Phase == LanePhase.Running ? Mathf.Abs(Mathf.Sin(Time.time * 9f)) * 0.12f : 0f), 0f);
             UpdateWardrobe(dt);
+            UpdateKin();
             Color heroBase = _sim.HasteActive ? new Color(1f, 0.55f, 0.2f) : _anim != null ? _skinTint : _heroTint;
             // Textured looks only flush a little when struck; the grey-box capsule flashes hard.
             Color tint = Color.Lerp(heroBase, Color.red, _heroHurt * (_anim != null ? 0.3f : 0.7f));
@@ -1164,6 +1169,77 @@ namespace Orsuun.Client
                 anim.Play("Idle");
             }
             return root;
+        }
+
+        // The Bannerkin (Rules.Bannerkin): a woman Drumcaller walking a few steps behind the hero, a little deeper into the
+        // lane, in her robe's look; she runs and stands with him and plays her casts when she blesses and sings.
+        private Transform _kin;
+        private Animation _kinAnim;
+        private string _kinName;
+        private float _kinCastUntil;
+        private const float KinBehind = 0.75f, KinDepth = 1.7f;
+
+        /// <summary>Shows the Bannerkin (present) in the look for her robe's band, or takes her away.</summary>
+        public void SetKin(bool present, int band)
+        {
+            string name = present ? ClassLookName(HeroClass.Drumcaller, band, BannerkinPanel.KinSecondLook) : null;
+            if (name == _kinName) return;
+            _kinName = name;
+            if (_kin != null) Kill(_kin.gameObject);
+            _kin = null;
+            _kinAnim = null;
+            if (name == null) return;
+            var prefab = Art.Load<GameObject>("Models/Classes/" + name);
+            if (prefab == null) return;
+            GameObject body = Instantiate(prefab, transform);
+            body.name = "Bannerkin";
+            var material = Art.Load<Material>("Looks/" + name);
+            Bounds b = default;
+            bool first = true;
+            foreach (Renderer r in body.GetComponentsInChildren<Renderer>())
+            {
+                if (material != null) r.sharedMaterial = material;
+                if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
+            }
+            var root = new GameObject("KinRoot").transform;
+            root.SetParent(transform, false);
+            body.transform.SetParent(root, true);
+            body.transform.position -= new Vector3(b.center.x, b.min.y, b.center.z);
+            root.rotation = Quaternion.Euler(0f, -EnemyYaw, 0f);   // facing the enemies like the hero
+            _kin = root;
+            _kinAnim = body.GetComponent<Animation>();
+            if (_kinAnim != null && _kinAnim.GetClip("Idle") == null) _kinAnim = null;
+            if (_kinAnim != null)
+            {
+                _kinAnim.cullingType = AnimationCullingType.AlwaysAnimate;
+                CastClips.Ensure(_kinAnim, HeroClass.Drumcaller);
+                _kinAnim.Play("Idle");
+            }
+        }
+
+        /// <summary>Her cast: Hunter's Blessing is the Drumcaller's fourth skill, Mending Song plays as her War Rhythm.</summary>
+        private void KinCast(bool song)
+        {
+            if (_kin == null) return;
+            Float(song ? "Mending Song" : "Hunter's Blessing", _kin.position + Vector3.up * 2.1f, song ? new Color(0.55f, 1f, 0.55f) : new Color(1f, 0.84f, 0.42f), 1.2f);
+            int slot = song ? 2 : 3;
+            if (!song) _skillFx?.Cast(3, SkillDef.For(HeroClass.Drumcaller)[3], HeroClass.Drumcaller, 0);
+            GameAudio.Instance?.Play("LaneSkillHaste", 0.6f, 0.2f);
+            if (_kinAnim == null) return;
+            string clip = CastClips.ClipName(slot);
+            if (_kinAnim.GetClip(clip) == null) return;
+            _kinAnim.CrossFade(clip, 0.06f);
+            _kinAnim[clip].time = 0f;
+            _kinCastUntil = Time.time + CastClips.LengthSeconds(HeroClass.Drumcaller, slot);
+        }
+
+        private void UpdateKin()
+        {
+            if (_kin == null) return;
+            _kin.position = new Vector3(HeroX + RideShift - KinBehind, 0f, KinDepth);
+            if (_kinAnim == null) return;
+            string loop = _sim.Phase == LanePhase.Running ? "Run" : "Idle";
+            if (Time.time >= _kinCastUntil && !_kinAnim.IsPlaying(loop)) _kinAnim.CrossFade(loop, 0.2f);
         }
 
         private void UpdateWardrobe(float dt)

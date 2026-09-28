@@ -145,8 +145,9 @@ public class ZoneAndBossTests
         var inventory = new Inventory();
         string chest = HuntYield.LootCommander(boss, 1, inventory, new XorShiftRandom(1));
         Assert.StartsWith("Commander's chest", chest);
-        Assert.Single(inventory.Loot);
-        Assert.True(inventory.Loot[0].Rarity >= Rarity.Epic);
+        // One piece of gear, and maybe one for the Bannerkin (Rules.Bannerkin): both Epic or better from the Commander's own.
+        Assert.Single(inventory.Loot, i => !i.Kin);
+        Assert.All(inventory.Loot, i => Assert.True(i.Rarity >= Rarity.Epic));
         Assert.StartsWith("No chest", HuntYield.LootCommander(boss, 21, inventory, new XorShiftRandom(1)));
     }
 }

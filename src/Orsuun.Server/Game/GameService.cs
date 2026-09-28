@@ -312,10 +312,7 @@ public sealed partial class GameService
         if (result.Outcome == ForgeOutcome.Oathbreak)
         {
             // A worn piece is replaced by a starter so the slot is never bare; a piece from the bag is simply gone.
-            bool worn = item.Equipped;
-            item.Equipped = false;
-            if (item.Slot == EquipSlot.Weapon) account.WeaponsBroken++;
-            if (worn) account.Items.Add(Item.From(NewStarter(item.Slot), account.Id, equipped: true));
+            BreakPiece(account, item);
         }
 
         Count(account, BountyMetric.ForgeAttempts, 1);
@@ -410,7 +407,7 @@ public sealed partial class GameService
     private static Item AnvilItem(Account account, Guid? itemId, EquipSlot slot)
     {
         if (itemId is Guid id)
-            return account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed && !i.OutOfBag)
+            return account.Items.SingleOrDefault(i => i.Id == id && !i.Destroyed && (!i.OutOfBag || i.KinWorn))
                 ?? throw new GameException("no_item", "You do not own that item.");
         return account.EquippedIn(slot) ?? throw new GameException("no_item", "Nothing is equipped in that slot.");
     }
@@ -466,6 +463,7 @@ public sealed partial class GameService
         Item item = account.Items.SingleOrDefault(i => i.Id == request.ItemId && !i.Destroyed && !i.OutOfBag)
             ?? throw new GameException("no_item", "You do not own that item.");
         if (item.Equipped) throw new GameException("already_equipped", "That piece is already equipped.");
+        if (item.Kin) throw new GameException("kin_piece", "Only the Bannerkin wears that: give it to the Bannerkin.");
 
         foreach (Item worn in account.Items.Where(i => i.Equipped && i.Slot == item.Slot)) worn.Equipped = false;
         item.Equipped = true;
@@ -829,7 +827,7 @@ public sealed partial class GameService
 
     private static HeroStats Hero(Account a) =>
         HeroFactory.FromEquipment(a.Items.Where(i => i.Equipped && !i.Destroyed).Select(i => i.ToState()), Content.LevelFor(a.Xp), a.Class, WornPieces(a), a.Renewals,
-            Rules.SkillGrades.ForClass(Rules.SkillGrades.Parse(a.SkillGrades), a.Class));
+            Rules.SkillGrades.ForClass(Rules.SkillGrades.Parse(a.SkillGrades), a.Class), KinPieces(a));
 
     private static int[] ParseShards(string s) => s.Split(';').Select(int.Parse).ToArray();
     private static string[] ParseSkins(string s) => s.Split(';', StringSplitOptions.RemoveEmptyEntries);
@@ -926,7 +924,8 @@ public sealed partial class GameService
             Title: TitleOf(account),
             EmailVerified: _login?.EmailVerified ?? false,
             GoalCounts: GoalCountsOf(account),
-            River: RiverOf(account));
+            River: RiverOf(account),
+            Kin: KinOf(account));
     }
 
     private static GoalCountsDto GoalCountsOf(Account account)
@@ -943,7 +942,7 @@ public sealed partial class GameService
             s.Etchings.Select(e => new EtchingDto(e.EntryId, pool.Entries[e.EntryId].Name, e.Tier, e.Value)).ToArray(),
             s.Sockets.Select(k => new SocketDto(k.Dead, k.Type?.ToString(), k.Rank,
                 k.Dead ? "Dead Shard" : k.Type == null ? "empty" : SocketRules.Name(k.Type.Value) + " " + Content.KorshardRanks[k.Rank] + ": " + SocketRules.Describe(k.Type.Value, k.Rank))).ToArray(),
-            s.AverageDamagePercent, s.SkillDamagePercent);
+            s.AverageDamagePercent, s.SkillDamagePercent, item.Kin, item.KinWorn);
     }
 
     /// <summary>The hero's Technique Scrolls by book id.</summary>

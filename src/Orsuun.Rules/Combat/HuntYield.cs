@@ -92,6 +92,9 @@ namespace Orsuun.Rules.Combat
                 inventory.KhansAlloys++;
                 text += ", +1 Khan's Alloy";
             }
+            // A piece for the Bannerkin (Rules.Bannerkin), a quarter of the time.
+            ItemState? kin = Bannerkin.RollDrop(stage.GearItemLevel, Bannerkin.BossDropBp, Rarity.Rare, Rarity.Legendary, inventory, rng);
+            if (kin != null) text += ", " + kin.DisplayName;
             // Bosses from Gorak Pass's level on can drop a short wardrobe piece.
             if (stage.GearItemLevel >= Wardrobe.MinDropLevel)
             {
@@ -128,6 +131,8 @@ namespace Orsuun.Rules.Combat
                 inventory.KhansAlloys++;
                 text += ", +1 Khan's Alloy";
             }
+            ItemState? kin = Bannerkin.RollDrop(stage.GearItemLevel, Bannerkin.CommanderDropBp(rank), rank <= 5 ? Rarity.Epic : Rarity.Rare, Rarity.Legendary, inventory, rng);
+            if (kin != null) text += ", " + kin.DisplayName;
             // The Commander's own trophy, a short wardrobe skin (the old permanent trophy names stay in Inventory.Skins).
             string? trophy = Wardrobe.RollDrop(inventory, Wardrobe.CommanderDropBp(rank), rng, Wardrobe.FindByName(boss.SkinName));
             if (trophy != null) text += ", " + trophy;
@@ -176,7 +181,8 @@ namespace Orsuun.Rules.Combat
             // casts nothing (owner, 26 Sep 2026), so he hunts at his plain attacks' pace.
             // The weapon's rolls (WeaponRolls) scale each share: average damage the plain attacks, skill damage the rest.
             int skillsPercent = (100 + hero.AverageDamagePercent)
-                                + (hero.Mounted ? 0 : (AutoCastMultiplierPercent - 100) * (100 + hero.SkillDamagePercent) / 100);
+                                + (hero.Mounted ? 0 : (AutoCastMultiplierPercent - 100) * (100 + hero.SkillDamagePercent) / 100)
+                                + (hero.Kin?.HuntPercent ?? 0);   // the Bannerkin's blessing lends crits (Rules.Bannerkin)
             long ticksPerPack = hero.Attack <= 0
                 ? long.MaxValue
                 : packHp * hero.AttackIntervalTicks * 100 / (hero.Attack * Math.Max(1, skillsPercent)) + stage.RunTicks;

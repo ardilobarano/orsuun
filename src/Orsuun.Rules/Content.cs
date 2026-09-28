@@ -319,10 +319,12 @@ namespace Orsuun.Rules
             return config;
         }
 
-        public static string ItemName(ItemState item) => item.Rarity + " " + ItemLooks.BaseName(item.Slot, item.ItemLevel);
+        public static string ItemName(ItemState item) =>
+            item.Kin ? item.Rarity + " Bannerkin " + Bannerkin.SlotName(item.Slot) : item.Rarity + " " + ItemLooks.BaseName(item.Slot, item.ItemLevel);
 
         /// <summary>The name as a hero of <paramref name="cls"/> knows the piece (the server names pieces this way).</summary>
-        public static string ItemName(ItemState item, HeroClass cls) => item.Rarity + " " + ItemLooks.BaseName(item.Slot, item.ItemLevel, cls);
+        public static string ItemName(ItemState item, HeroClass cls) =>
+            item.Kin ? ItemName(item) : item.Rarity + " " + ItemLooks.BaseName(item.Slot, item.ItemLevel, cls);
 
         /// <summary>Gear rarity weights from GDD section 5, in basis points: Common..Legendary.</summary>
         public static readonly int[] RarityWeightsBp = { 6200, 2500, 1000, 270, 30 };

@@ -75,7 +75,7 @@ namespace Orsuun.Rules
         /// <param name="renewals">Oath Renewals: each adds OathRenewal.PercentPerRenewal to attack and HP.</param>
         /// <param name="skillGrades">Skill grades by slot (Rules.SkillGrades); null for none.</param>
         public static HeroStats FromEquipment(IEnumerable<ItemState> equipped, int level, HeroClass cls = HeroClass.Vanguard, IEnumerable<WardrobeDef>? worn = null,
-            int renewals = 0, int[]? skillGrades = null)
+            int renewals = 0, int[]? skillGrades = null, IEnumerable<ItemState>? kin = null)
         {
             long attack = 20 + 2L * (level - 1), defense = 0, maxHp = 2000 + 40L * (level - 1);
             int critBp = 500, critMult = 200, beast = 0, evasionBp = 0, haste = 0, warding = 0;
@@ -83,6 +83,7 @@ namespace Orsuun.Rules
 
             foreach (ItemState item in equipped)
             {
+                if (item.Kin) continue;   // the Bannerkin's pieces are its own (Bannerkin.Stats)
                 if (item.Destroyed) continue;
 
                 foreach (Socket socket in item.Sockets)
@@ -169,6 +170,7 @@ namespace Orsuun.Rules
                 Mounted = worn != null && worn.Any(w => w.Kind == WardrobeKind.Mount),
                 AverageDamagePercent = averageDamage,
                 SkillDamagePercent = skillDamage,
+                Kin = Bannerkin.Stats(kin),
             };
         }
 
@@ -314,10 +316,25 @@ namespace Orsuun.Rules
         }
 
         /// <summary>The piece is worn or in the bag, and not destroyed.</summary>
-        public bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || Inventory.Loot.Contains(item));
+        public bool Owns(ItemState item) => !item.Destroyed && (_equipped[(int)item.Slot] == item || _kin[(int)item.Slot] == item || Inventory.Loot.Contains(item));
         public ItemState? Equipped(EquipSlot slot) => _equipped[(int)slot];
         public IEnumerable<ItemState> Equipment { get { foreach (ItemState? i in _equipped) if (i != null) yield return i; } }
-        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class, _worn, Renewals, SkillGrades.ForClass(_skillGrades, Class));
+        public HeroStats Hero => HeroFactory.FromEquipment(Equipment, Level, Class, _worn, Renewals, SkillGrades.ForClass(_skillGrades, Class), KinWorn);
+
+        /// <summary>What the Bannerkin wears, by slot (Rules.Bannerkin; online from the server's state), and whether it has joined.</summary>
+        private readonly ItemState?[] _kin = new ItemState?[8];
+        public bool KinJoined { get; private set; }
+        public ItemState? KinPiece(EquipSlot slot) => _kin[(int)slot];
+        public IEnumerable<ItemState> KinWorn { get { foreach (ItemState? i in _kin) if (i != null) yield return i; } }
+
+        /// <summary>The Bannerkin's pieces; a change of them rebuilds the hero like a change of gear.</summary>
+        public void SetKin(bool joined, IEnumerable<ItemState> pieces)
+        {
+            KinJoined = joined;
+            Array.Clear(_kin, 0, _kin.Length);
+            if (joined) foreach (ItemState p in pieces) if (p.Kin && Bannerkin.Wears(p.Slot)) _kin[(int)p.Slot] = p;
+            RefreshHero();
+        }
 
         private int[] _skillGrades = new int[Books.Count];
         /// <summary>Skill grades by book id, all twelve (online: from the server's state); the class played fights with its three.</summary>
@@ -429,10 +446,11 @@ namespace Orsuun.Rules
             if (result.Outcome == ForgeOutcome.Oathbreak)
             {
                 ItemsBroken++;
-                if (item.Slot == EquipSlot.Weapon) WeaponsBroken++;
+                if (item.Slot == EquipSlot.Weapon && !item.Kin) WeaponsBroken++;
                 if (_equipped[(int)item.Slot] == item) _equipped[(int)item.Slot] = NewStarter(item.Slot);
+                else if (_kin[(int)item.Slot] == item) _kin[(int)item.Slot] = Bannerkin.NewPiece(StarterItemLevel, Rarity.Rare, item.Slot);
                 else Inventory.Loot.Remove(item);
-                _anvilItem = _equipped[(int)item.Slot];
+                _anvilItem = item.Kin ? _kin[(int)item.Slot] : _equipped[(int)item.Slot];
             }
 
             RefreshHero();
@@ -549,6 +567,7 @@ namespace Orsuun.Rules
         /// <summary>Equips a piece from the loot list; the previous piece in that slot goes back to loot.</summary>
         public void Equip(ItemState item)
         {
+            if (item.Kin) throw new InvalidOperationException("Only the Bannerkin wears that.");
             if (!Inventory.Loot.Remove(item)) throw new InvalidOperationException("Item is not in the loot list.");
             ItemState? previous = _equipped[(int)item.Slot];
             _equipped[(int)item.Slot] = item;
@@ -698,7 +717,8 @@ namespace Orsuun.Rules
 
         private static string Fingerprint(HeroStats h) =>
             h.Class + "/" + h.WeakPointPercent + "/" + h.MaxHp + "/" + h.Attack + "/" + h.Defense + "/" + h.AttackIntervalTicks + "/" + h.CritChanceBp + "/" + h.CritMultiplierPercent
-            + "/" + h.BeastDamagePercent + "/" + h.EvasionBp + "/" + h.CommanderDamageTakenPercent;
+            + "/" + h.BeastDamagePercent + "/" + h.EvasionBp + "/" + h.CommanderDamageTakenPercent
+            + "/" + (h.Kin == null ? "-" : h.Kin.FocusBp + ":" + h.Kin.HealPercent);
 
         /// <summary>Local Commander fight: damage, rank among simulated rivals and the chest. The server does the same.</summary>
         public BossRunResult FightBoss(BossDef boss, out ulong seed, out int rank, out string chest)

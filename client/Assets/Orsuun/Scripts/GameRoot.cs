@@ -61,6 +61,7 @@ namespace Orsuun.Client
         public LeaderboardPanel Leaderboards { get; private set; }
         public InvitePanel Invites { get; private set; }
         public RiverPanel River { get; private set; }
+        public BannerkinPanel Kin { get; private set; }
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
@@ -110,6 +111,8 @@ namespace Orsuun.Client
             Leaderboards.Init(this);
             Invites = new GameObject("InvitePanel").AddComponent<InvitePanel>();
             Invites.Init(this);
+            Kin = new GameObject("BannerkinPanel").AddComponent<BannerkinPanel>();
+            Kin.Init(this);
             // Stays off its canvas: it shows itself whenever the server says the hero is at the river.
             River = new GameObject("RiverPanel").AddComponent<RiverPanel>();
             River.Init(this);
@@ -288,6 +291,7 @@ namespace Orsuun.Client
             _inspectShot = Arg("-inspect");
             _openInvite = Array.IndexOf(cmd, "-invite") >= 0;
             _goFishing = Array.IndexOf(cmd, "-river") >= 0;
+            _openKin = Array.IndexOf(cmd, "-kin") >= 0;
             if (Array.IndexOf(cmd, "-settings") >= 0) Menu.OpenSettingsForShot();
             _raidFight = Array.IndexOf(Environment.GetCommandLineArgs(), "-raidfight") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
@@ -418,7 +422,7 @@ namespace Orsuun.Client
         private int _caravanTab = -1;
         private bool _openAchievements, _openRaid, _raidFight;
         private string _openBoard, _inspectShot;
-        private bool _openInvite, _goFishing;
+        private bool _openInvite, _goFishing, _openKin;
         private bool _openWardrobe;
         private bool _openDepot;
         private bool _openTrail;
@@ -585,6 +589,11 @@ namespace Orsuun.Client
                 _goFishing = false;
                 if (!Server.AtRiver) River.Go();
             }
+            if (Server.Online && _openKin && !Server.WaitingForHero)
+            {
+                _openKin = false;
+                Kin.OpenForShot();
+            }
             if (Server.Online && _openInvite)
             {
                 _openInvite = false;
@@ -682,6 +691,8 @@ namespace Orsuun.Client
             ItemLooks.ShownClass = Session.Class;   // pieces carry the playing class's names (knives for a Kestrel)
             Lane.SetLooks(skinModel != null && Session.Class == HeroClass.Vanguard ? skinModel : tinted ? "Armor_T" + band : armor?.LookId, Session.Weapon.LookId);
             Lane.SetWardrobe(mount?.Look, companion?.Look, skinLook.Tint);
+            ItemState kinRobe = Session.KinPiece(EquipSlot.Armor);
+            Lane.SetKin(Session.KinJoined, kinRobe != null ? ItemLooks.Tier(kinRobe.ItemLevel) : 0);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);

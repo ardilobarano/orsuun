@@ -290,3 +290,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   evening's (`Show`/`Hide` restore them). Its textures and materials are `Content/River` (`RenderingSetup.EnsureRiver`);
   the water is `Shaders/Water.shader`, reflecting the horizon quad by its `_SkyRect`/`_SkyZ`: move the quad, move those.
   Nergui's model faces its -x (`NerguiYaw`, `FireOffset`); `-rivershot nergui` looks at his camp.
+- The Bannerkin (`Rules.Bannerkin`): her pieces are items with `Kin`; the ones she wears have `KinWorn` (out of the bag,
+  never `Equipped`), so hero queries on `Equipped` stay the hero's. SQL bag counts add `!i.KinWorn`; a broken piece goes
+  through `BreakPiece`. Her stats reach combat only as `HeroStats.Kin` from `FromEquipment(..., kin:)` on both sides.

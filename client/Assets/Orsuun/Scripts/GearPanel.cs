@@ -207,7 +207,9 @@ namespace Orsuun.Client
             _stage.Init(stageBox, HeroStage.Below + new Vector3(60f, 0f, 0f));
             _stage.Zoom = 1.18f;
             _stage.gameObject.SetActive(false);
-            Ui.Button("Class", canvas, 0.21f, 0.568f, 0.585f, 0.612f, "", 22, Palette.Alloy, SwitchClass, out _classLabel);
+            Ui.Button("Class", canvas, 0.21f, 0.568f, 0.395f, 0.612f, "", 22, Palette.Alloy, SwitchClass, out _classLabel);
+            // The Bannerkin (Rules.Bannerkin): its own screen, from level 25.
+            Ui.Button("Bannerkin", canvas, 0.4f, 0.568f, 0.585f, 0.612f, "BANNERKIN", 20, Palette.Safe, OpenKin, out _);
 
             Ui.Framed("StatsBack", canvas, 0.595f, 0.625f, 0.79f, 0.925f, new Color(0.03f, 0.03f, 0.07f, 0.8f)).raycastTarget = false;
             // The level opens Oath Renewal (GDD section 12): at level 105, back to level 1 for a lasting bonus.
@@ -532,6 +534,24 @@ namespace Orsuun.Client
             return null;
         }
 
+        private void OpenKin()
+        {
+            if (!_root.Unlocked(Feature.Bannerkin)) { _message.text = Unlocks.Locked(Feature.Bannerkin); return; }
+            StopPicking();
+            CloseCard();
+            _canvas.SetActive(false);
+            _root.Kin.Open();
+        }
+
+        /// <summary>A Bannerkin piece from the bag to the Bannerkin (what it wore in that slot comes back).</summary>
+        private void GiveToKin(ItemState item)
+        {
+            string id = _root.Server.IdOf(item);
+            if (id == null) return;
+            CloseCard();
+            StartCoroutine(_root.Server.KinWear(id, error => _message.text = error ?? "The Bannerkin takes it."));
+        }
+
         private void Equip(ItemState item)
         {
             if (_root.Session.Equipped(item.Slot) == item) return;
@@ -826,7 +846,9 @@ namespace Orsuun.Client
                 sockets.Add(s.Dead ? "Dead Shard" : s.Type == null ? "empty" : SocketRules.Name(s.Type.Value) + " " + Content.KorshardRanks[s.Rank]);
             _sockets.text = sockets.Count == 0 ? "No sockets" : "Sockets: " + string.Join("  ·  ", sockets);
 
-            SetAction(0, worn ? "WORN" : "EQUIP", Palette.Safe, !worn, () => Equip(item));
+            if (item.Kin)
+                SetAction(0, "GIVE TO\nBANNERKIN", Palette.Safe, _root.Session.KinJoined && _root.Server.Online, () => GiveToKin(item));
+            else SetAction(0, worn ? "WORN" : "EQUIP", Palette.Safe, !worn, () => Equip(item));
             SetAction(1, "FORGE\nTURN", Palette.ButtonForge, !_root.Forge.Busy, () => SendToForge(item));
             string id = _root.Server.IdOf(item);
             SetAction(2, "LIST ON\nEXCHANGE", Palette.Alloy, !worn && id != null && _root.Server.Online, () => { CloseCard(); _canvas.SetActive(false); _root.Market.OpenSell(id); });

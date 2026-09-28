@@ -15,6 +15,7 @@ namespace Orsuun.Rules
         Dungeons,
         Pits,
         Fishing,
+        Bannerkin,
     }
 
     /// <summary>
@@ -28,7 +29,7 @@ namespace Orsuun.Rules
     {
         public static readonly Feature[] All =
         {
-            Feature.Bounties, Feature.Shards, Feature.Fishing, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Dungeons, Feature.Pits,
+            Feature.Bounties, Feature.Shards, Feature.Fishing, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Dungeons, Feature.Pits, Feature.Bannerkin,
         };
 
         public static int Level(Feature feature) => feature switch
@@ -42,6 +43,7 @@ namespace Orsuun.Rules
             Feature.Dungeons => 18,
             Feature.Pits => 20,
             Feature.Fishing => 6,
+            Feature.Bannerkin => Rules.Bannerkin.JoinLevel,
             _ => 1,
         };
 
@@ -59,6 +61,7 @@ namespace Orsuun.Rules
             Feature.Dungeons => "DUNGEONS",
             Feature.Pits => "THE PITS",
             Feature.Fishing => "OLD NERGUI'S RIVER",
+            Feature.Bannerkin => "THE BANNERKIN",
             _ => "",
         };
 
@@ -74,6 +77,7 @@ namespace Orsuun.Rules
             Feature.Dungeons => "Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.",
             Feature.Pits => "Duel other heroes in the Pits, from WAR, for Laurels and a season title.",
             Feature.Fishing => "Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.",
+            Feature.Bannerkin => "A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.",
             _ => "",
         };
 

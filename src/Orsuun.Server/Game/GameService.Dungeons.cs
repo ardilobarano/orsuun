@@ -183,10 +183,7 @@ public sealed partial class GameService
             if (result.Outcome == ForgeOutcome.Oathbreak)
             {
                 // As at the Forge: a worn piece leaves a starter in its slot, a piece from the bag is simply gone.
-                bool worn = item.Equipped;
-                item.Equipped = false;
-                if (item.Slot == EquipSlot.Weapon) account.WeaponsBroken++;
-                if (worn) account.Items.Add(Item.From(NewStarter(item.Slot), account.Id, equipped: true));
+                BreakPiece(account, item);
             }
             Count(account, BountyMetric.ForgeAttempts, 1);
             FeatBest(account, FeatMetric.BestUpgrade, result.LevelAfter);
