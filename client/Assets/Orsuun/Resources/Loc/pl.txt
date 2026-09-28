@@ -2442,3 +2442,17 @@ A pearl pays only the +7, +8 and +9 attempts.	Perła pokrywa tylko próby na +7,
 No {0}.	Brak: {0}.
 {0} landed a Golden Taimen at Old Nergui's river!	{0} złowił złotego tajmienia w rzece starego Nerguiego!
 {0} found a Heart Pearl in a river mussel!	{0} znalazł Perłę Serca w małżu rzecznym!
+# Settings (28 Sep 2026)
+SETTINGS	USTAWIENIA
+GRAPHICS	GRAFIKA
+LOW	NISKA
+MEDIUM	ŚREDNIA
+HIGH	WYSOKA
+SKILL EFFECTS	EFEKTY UMIEJĘTNOŚCI
+FEWER	MNIEJ
+TEXT SIZE	ROZMIAR TEKSTU
+NORMAL	NORMALNY
+LARGE	DUŻY
+LARGER	WIĘKSZY
+LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	NISKA oszczędza baterię: 30 klatek na sekundę, mniejsza rozdzielczość ścieżki, bez poświaty.
+FEWER draws each skill without the extra layers of its grade.	MNIEJ rysuje każdą umiejętność bez dodatkowych warstw jej stopnia.

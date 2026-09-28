@@ -94,6 +94,7 @@ namespace Orsuun.Client
         {
             Application.targetFrameRate = 60;
             Loc.Init();   // before any text is made
+            GameSettings.Load();
 
             // Grey-box only: the shipped game rolls on the server. A time seed is fine for a local playtest.
             Session = new PlayerSession(new XorShiftRandom((ulong)DateTime.UtcNow.Ticks));
@@ -287,6 +288,7 @@ namespace Orsuun.Client
             _inspectShot = Arg("-inspect");
             _openInvite = Array.IndexOf(cmd, "-invite") >= 0;
             _goFishing = Array.IndexOf(cmd, "-river") >= 0;
+            if (Array.IndexOf(cmd, "-settings") >= 0) Menu.OpenSettingsForShot();
             _raidFight = Array.IndexOf(Environment.GetCommandLineArgs(), "-raidfight") >= 0;
             _openTrade = Array.IndexOf(Environment.GetCommandLineArgs(), "-trade") >= 0;
             // -friends opens FRIENDS once online (screenshots); -oathchange the change of Banner.

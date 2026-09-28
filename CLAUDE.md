@@ -282,3 +282,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   `RiverPanel` lives off its canvas and shows itself while the server says the hero is at the river.
 - Invites (`Rules.Invites`): an invited hero reaching level 10 is caught by `CheckInvite` in `Apply` and paid by letter
   in `SaveAsync`; a new place that writes XP directly must call `CheckInvite` too.
+- SETTINGS (`GameSettings`, in Performance.cs): text size scales every `LocText` made by `Ui.Label` (its base size is
+  set there; a size a screen sets later becomes the base) and the inline `<size=n>` tags in its text; FEWER skill
+  effects skips `SkillFx.Layers`, the spirit and the runes. Graphics LOW replaced the BATTERY SAVER (`Performance.Saver`).

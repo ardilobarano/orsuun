@@ -2488,3 +2488,17 @@ A pearl pays only the +7, +8 and +9 attempts.	Eine Perle bezahlt nur die Versuch
 No {0}.	Kein {0}.
 {0} landed a Golden Taimen at Old Nergui's river!	{0} hat am Fluss des alten Nergui einen Goldenen Taimen gefangen!
 {0} found a Heart Pearl in a river mussel!	{0} hat in einer Flussmuschel eine Herzperle gefunden!
+# Settings (28 Sep 2026)
+SETTINGS	EINSTELLUNGEN
+GRAPHICS	GRAFIK
+LOW	NIEDRIG
+MEDIUM	MITTEL
+HIGH	HOCH
+SKILL EFFECTS	FÄHIGKEITSEFFEKTE
+FEWER	WENIGER
+TEXT SIZE	TEXTGRÖSSE
+NORMAL	NORMAL
+LARGE	GROSS
+LARGER	GRÖSSER
+LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	NIEDRIG spart Akku: 30 Bilder pro Sekunde, die Jagdbahn kleiner gezeichnet, kein Leuchtschleier.
+FEWER draws each skill without the extra layers of its grade.	WENIGER zeichnet jede Fähigkeit ohne die zusätzlichen Schichten ihres Grades.

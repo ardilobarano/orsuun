@@ -2450,3 +2450,17 @@ A pearl pays only the +7, +8 and +9 attempts.	O perlă plătește doar încercă
 No {0}.	Fără {0}.
 {0} landed a Golden Taimen at Old Nergui's river!	{0} a prins un Taimen auriu la râul bătrânului Nergui!
 {0} found a Heart Pearl in a river mussel!	{0} a găsit o Perlă a Inimii într-o scoică de râu!
+# Settings (28 Sep 2026)
+SETTINGS	SETĂRI
+GRAPHICS	GRAFICĂ
+LOW	SCĂZUTĂ
+MEDIUM	MEDIE
+HIGH	RIDICATĂ
+SKILL EFFECTS	EFECTE ALE ABILITĂȚILOR
+FEWER	MAI PUȚINE
+TEXT SIZE	MĂRIMEA TEXTULUI
+NORMAL	NORMAL
+LARGE	MARE
+LARGER	MAI MARE
+LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	SCĂZUTĂ economisește bateria: 30 de cadre pe secundă, culoarul desenat mai mic, fără strălucire.
+FEWER draws each skill without the extra layers of its grade.	MAI PUȚINE desenează fiecare abilitate fără straturile în plus ale gradului ei.

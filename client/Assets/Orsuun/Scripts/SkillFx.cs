@@ -145,8 +145,10 @@ namespace Orsuun.Client
                 Look main = look;
                 main.Main = true;
                 core(main);
-                Layers(tier, look, core, cls, slot);
+                // FEWER skill effects (SETTINGS): the skill's own effect, without its grade's layers.
+                if (!GameSettings.FewerEffects) Layers(tier, look, core, cls, slot);
             });
+            if (GameSettings.FewerEffects) return;
             if (tier == Tier.Peerless) Spirit(cls, slot, look.Color);
             if (tier >= Tier.Grand) Later(Mathf.Max(0f, impact - 0.15f), () => Runes(look, Ground(_lane.HeroGround), 2.6f * look.Scale));
         }

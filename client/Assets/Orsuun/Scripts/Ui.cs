@@ -177,6 +177,7 @@ namespace Orsuun.Client
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 12;
             text.resizeTextMaxSize = size;
+            text.SetBaseSize(size, size);
             return text;
         }
 

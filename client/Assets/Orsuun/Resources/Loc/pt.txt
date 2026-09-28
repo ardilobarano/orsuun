@@ -2456,3 +2456,17 @@ A pearl pays only the +7, +8 and +9 attempts.	Uma pérola paga só as tentativas
 No {0}.	Sem {0}.
 {0} landed a Golden Taimen at Old Nergui's river!	{0} pescou um Taimen-dourado no rio do velho Nergui!
 {0} found a Heart Pearl in a river mussel!	{0} encontrou uma Pérola do Coração em um mexilhão de rio!
+# Settings (28 Sep 2026)
+SETTINGS	CONFIGURAÇÕES
+GRAPHICS	GRÁFICOS
+LOW	BAIXO
+MEDIUM	MÉDIO
+HIGH	ALTO
+SKILL EFFECTS	EFEITOS DE HABILIDADE
+FEWER	MENOS
+TEXT SIZE	TAMANHO DO TEXTO
+NORMAL	NORMAL
+LARGE	GRANDE
+LARGER	MAIOR
+LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	BAIXO economiza bateria: 30 quadros por segundo, a trilha desenhada menor, sem brilho difuso.
+FEWER draws each skill without the extra layers of its grade.	MENOS desenha cada habilidade sem as camadas extras do seu grau.

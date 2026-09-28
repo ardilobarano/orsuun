@@ -2412,3 +2412,17 @@ A pearl pays only the +7, +8 and +9 attempts.	İnci yalnızca +7, +8 ve +9 denem
 No {0}.	{0} yok.
 {0} landed a Golden Taimen at Old Nergui's river!	{0}, Yaşlı Nergui'nin nehrinde bir Altın Taymen yakaladı!
 {0} found a Heart Pearl in a river mussel!	{0} bir nehir midyesinde Yürek İncisi buldu!
+# Settings (28 Sep 2026)
+SETTINGS	AYARLAR
+GRAPHICS	GRAFİK
+LOW	DÜŞÜK
+MEDIUM	ORTA
+HIGH	YÜKSEK
+SKILL EFFECTS	YETENEK EFEKTLERİ
+FEWER	DAHA AZ
+TEXT SIZE	YAZI BOYUTU
+NORMAL	NORMAL
+LARGE	BÜYÜK
+LARGER	DAHA BÜYÜK
+LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.	DÜŞÜK pil tasarrufu sağlar: saniyede 30 kare, av yolu daha küçük çizilir, parıltı pusu olmaz.
+FEWER draws each skill without the extra layers of its grade.	DAHA AZ, her yeteneği derecesinin ek katmanları olmadan çizer.

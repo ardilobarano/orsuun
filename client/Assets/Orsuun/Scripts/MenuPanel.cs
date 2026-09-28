@@ -23,7 +23,6 @@ namespace Orsuun.Client
         private Text _languageLabel;
         private Text _achievementsLabel;
         private GameObject _languages;
-        private Text _saverLabel;
         private ConfirmDialog _confirm;
         private bool _deleting;
 
@@ -80,7 +79,7 @@ namespace Orsuun.Client
             }, out _achievementsLabel);
             Ui.Button("Privacy", canvas, 0.51f, 0.455f, 0.85f, 0.515f, "PRIVACY POLICY", 24, Palette.ButtonIdle,
                 () => Application.OpenURL(_root.Server.BaseUrl + "/privacy"), out _);
-            Ui.Button("Saver", canvas, 0.15f, 0.38f, 0.49f, 0.44f, "", 22, Palette.ButtonIdle, () => _root.GetComponent<Performance>()?.SetSaver(!Performance.Saver), out _saverLabel);
+            Ui.Button("Settings", canvas, 0.15f, 0.38f, 0.49f, 0.44f, "SETTINGS", 26, Palette.ButtonIdle, () => { _settings.SetActive(true); FillSettings(); }, out _);
             Ui.Button("Delete", canvas, 0.51f, 0.38f, 0.85f, 0.44f, "DELETE ACCOUNT", 24, Palette.Danger, AskDelete, out _);
             if (ShowDevGrant)
             {
@@ -121,10 +120,69 @@ namespace Orsuun.Client
             }
             Ui.Button("LangClose", _languages.transform, 0.3f, 0.32f, 0.7f, 0.38f, "CLOSE", 24, Palette.ButtonIdle, () => _languages.SetActive(false), out _);
             _languages.SetActive(false);
+            BuildSettings(canvas);
 
             _canvas.SetActive(false);
             _confirm = new GameObject("MenuConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
+        }
+
+        private GameObject _settings;
+        private readonly Image[] _graphicsButtons = new Image[3], _effectButtons = new Image[2], _textButtons = new Image[3];
+
+        /// <summary>SETTINGS (owner, 28 Sep 2026: "Graphics & text settings"; GameSettings): graphics, skill effects, text size.</summary>
+        private void BuildSettings(Transform canvas)
+        {
+            _settings = Ui.Rect("Settings", canvas, 0f, 0f, 1f, 1f).gameObject;
+            Transform s = _settings.transform;
+            Ui.Panel("Shade", s, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0f, 0.7f)).gameObject.AddComponent<Button>().onClick.AddListener(() => _settings.SetActive(false));
+            Ui.Framed("Box", s, 0.06f, 0.2f, 0.94f, 0.8f, new Color(0.07f, 0.06f, 0.05f, 0.97f));
+            Ui.Title("Title", s, 0.1f, 0.72f, 0.9f, 0.785f, "SETTINGS", 38, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
+            string[] quality = { "LOW", "MEDIUM", "HIGH" }, effects = { "ALL", "FEWER" }, text = { "NORMAL", "LARGE", "LARGER" };
+            Ui.Section("GraphicsHead", s, 0.15f, 0.655f, 0.85f, 0.7f, "GRAPHICS", 26);
+            for (int i = 0; i < 3; i++)
+            {
+                var q = (GameSettings.Quality)i;
+                float x0 = 0.1f + i * 0.27f;
+                _graphicsButtons[i] = Ui.Button("Graphics" + i, s, x0, 0.585f, x0 + 0.26f, 0.645f, quality[i], 24, Palette.ButtonIdle, () => { GameSettings.SetGraphics(q); FillSettings(); }, out _)
+                    .GetComponent<Image>();
+            }
+            Ui.Label("GraphicsNote", s, 0.1f, 0.545f, 0.9f, 0.58f, "LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.", 20,
+                TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Section("EffectsHead", s, 0.15f, 0.485f, 0.85f, 0.53f, "SKILL EFFECTS", 26);
+            for (int i = 0; i < 2; i++)
+            {
+                bool fewer = i == 1;
+                float x0 = 0.1f + i * 0.41f;
+                _effectButtons[i] = Ui.Button("Effects" + i, s, x0, 0.415f, x0 + 0.39f, 0.475f, effects[i], 24, Palette.ButtonIdle, () => { GameSettings.SetFewerEffects(fewer); FillSettings(); }, out _)
+                    .GetComponent<Image>();
+            }
+            Ui.Label("EffectsNote", s, 0.1f, 0.375f, 0.9f, 0.41f, "FEWER draws each skill without the extra layers of its grade.", 20, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Section("TextHead", s, 0.15f, 0.315f, 0.85f, 0.36f, "TEXT SIZE", 26);
+            for (int i = 0; i < 3; i++)
+            {
+                int size = i;
+                float x0 = 0.1f + i * 0.27f;
+                _textButtons[i] = Ui.Button("Text" + i, s, x0, 0.245f, x0 + 0.26f, 0.305f, text[i], 24, Palette.ButtonIdle, () => { GameSettings.SetTextSize(size); FillSettings(); }, out _)
+                    .GetComponent<Image>();
+            }
+            Ui.Button("Close", s, 0.3f, 0.12f, 0.7f, 0.18f, "CLOSE", 26, Palette.ButtonIdle, () => _settings.SetActive(false), out _);
+            _settings.SetActive(false);
+        }
+
+        private void FillSettings()
+        {
+            for (int i = 0; i < 3; i++) _graphicsButtons[i].color = (int)GameSettings.Graphics == i ? Palette.ButtonForge : Palette.ButtonIdle;
+            for (int i = 0; i < 2; i++) _effectButtons[i].color = GameSettings.FewerEffects == (i == 1) ? Palette.ButtonForge : Palette.ButtonIdle;
+            for (int i = 0; i < 3; i++) _textButtons[i].color = GameSettings.TextSize == i ? Palette.ButtonForge : Palette.ButtonIdle;
+        }
+
+        /// <summary>Screenshots: -settings opens the SETTINGS card over MENU.</summary>
+        public void OpenSettingsForShot()
+        {
+            Open();
+            _settings.SetActive(true);
+            FillSettings();
         }
 
         public void Open()
@@ -193,7 +251,7 @@ namespace Orsuun.Client
             _soundLabel.text = GameAudio.Instance != null && GameAudio.Instance.Muted ? "SOUND: OFF" : "SOUND: ON";
             _speedLabel.text = $"HUNT SPEED: x{_root.SpeedMultiplier}";
             _languageLabel.text = Loc.Name;
-            _saverLabel.text = Performance.Saver ? "BATTERY SAVER: ON" : "BATTERY SAVER: OFF";
+
             _accountLabel.text = _root.Server.Registered ? "ACCOUNT\n<size=16>" + _root.Server.Email + "</size>" : "SIGN UP / SIGN IN";
             int unread = _root.Server.Online ? _root.Server.MailUnread : 0;
             _mailLabel.text = unread > 0 ? $"MAILBOX ({unread})" : "MAILBOX";
