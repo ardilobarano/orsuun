@@ -2852,3 +2852,5 @@ You are off the party board.	Grup panosundan çıktın.
 You are in a party already: invite from the board instead.	Zaten bir gruptasın: bunun yerine panodan çağır.
 There is no party board in a dungeon.	Zindanda grup panosu yok.
 Only friends, guildmates and heroes on this map's party board can join your party.	Grubuna yalnızca dostlar, lonca arkadaşları ve bu haritanın grup panosundaki kahramanlar katılabilir.
+# Commander pushes (29 Sep 2026).
+COMMANDER ALERTS	KOMUTAN UYARILARI

@@ -239,6 +239,7 @@ v1.MapGet("/party", (HttpContext ctx, GameService game, CancellationToken ct) =>
 v1.MapPost("/party/invite", (HttpContext ctx, PartyInviteRequest req, GameService game, CancellationToken ct) => game.PartyInviteAsync(Me(ctx), req, ct));
 v1.MapPost("/party/answer", (HttpContext ctx, PartyAnswerRequest req, GameService game, CancellationToken ct) => game.PartyAnswerAsync(Me(ctx), req, ct));
 v1.MapPost("/party/leave", (HttpContext ctx, GameService game, CancellationToken ct) => game.PartyLeaveAsync(Me(ctx), ct));
+v1.MapPost("/settings/commander-pushes", (HttpContext ctx, CommanderPushRequest req, GameService game, CancellationToken ct) => game.CommanderPushesAsync(Me(ctx), req, ct));
 v1.MapGet("/party/board", (HttpContext ctx, GameService game, CancellationToken ct) => game.PartyBoardAsync(Me(ctx), ct));
 v1.MapPost("/party/look", (HttpContext ctx, PartyLookRequest req, GameService game, CancellationToken ct) => game.PartyLookAsync(Me(ctx), req, ct));
 v1.MapPost("/party/kick", (HttpContext ctx, PartyKickRequest req, GameService game, CancellationToken ct) => game.PartyKickAsync(Me(ctx), req, ct));

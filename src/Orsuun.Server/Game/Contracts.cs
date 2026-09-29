@@ -295,7 +295,9 @@ public sealed record StateDto(
     string? PartyInvite = null,
     int EliteCamp = -1,
     long EliteLeft = 0,
-    long PartyLookLeft = 0);
+    long PartyLookLeft = 0,
+    bool CommanderPushes = true);
+public sealed record CommanderPushRequest(bool On);
 
 /// <summary>A hunting party (Rules.Parties): its members, the hunt's bonus now (percent), an invite waiting.</summary>
 public sealed record PartyMemberDto(Guid Id, string Name, HeroClass Class, int Level, bool Online, bool Together, bool Leader, string Hunting);

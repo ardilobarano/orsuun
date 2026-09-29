@@ -33,6 +33,9 @@ public sealed class Login
     /// <summary>The War season (Rules.Banners.SeasonKey) of the last change of Banner: one a season.</summary>
     [MaxLength(16)] public string? BannerChangedSeason { get; set; }
     /// <summary>The login calendar (Rules.DailyLogin): the last day claimed, 1..7 (0 before the first), and the bounty day it was claimed on.</summary>
+    /// <summary>Commander pushes (owner, 29 Sep 2026: "Commander pushes"): off by SETTINGS, and when the last one went.</summary>
+    public bool NoCommanderPushes { get; set; }
+    public DateTime? CommanderPushUtc { get; set; }
     public int DailyDay { get; set; }
     [MaxLength(10)] public string DailyClaimedOn { get; set; } = "";
 }
@@ -355,6 +358,8 @@ public sealed class BossClock
     public DateTime? SlainUtc { get; set; }
     public Banner SlainBanner { get; set; }
     [MaxLength(48)] public string? SlainBy { get; set; }
+    /// <summary>The spawn whose rising was pushed to the heroes of its maps (WorldClock; Commander pushes).</summary>
+    public DateTime? AnnouncedUtc { get; set; }
 }
 
 /// <summary>One player's fight against one Commander spawn: the shared pool's damage ranking reads these.</summary>

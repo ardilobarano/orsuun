@@ -67,3 +67,21 @@ public class MapCommanderTests
         Assert.All(inventory.Loot.Where(i => !i.Kin), i => Assert.Equal(82, i.ItemLevel));
     }
 }
+
+/// <summary>Commander pushes (owner, 29 Sep 2026): where each Commander stands, for the heroes to call.</summary>
+public class CommanderPlaceTests
+{
+    [Fact]
+    public void Each_commander_stands_on_its_maps()
+    {
+        Assert.Equal(new[] { 1001, Content.EmberSteppe }, Content.CommanderPlaces(Content.Boss(3)!));
+        Assert.Equal(new[] { 1002, Content.GorakWarCamp }, Content.CommanderPlaces(Content.Boss(1)!));
+        Assert.Equal(new[] { 1003, Content.SaltFlats }, Content.CommanderPlaces(Content.Boss(2)!));
+        for (int id = 4; id <= 12; id++) Assert.Equal(new[] { 1000 + id }, Content.CommanderPlaces(Content.Boss(id)!));
+        // A place's stages: a map's ten, a zone alone.
+        Assert.Equal((31, 40), Parties.Stages(1004));
+        Assert.Equal((Content.SaltFlats, Content.SaltFlats), Parties.Stages(Content.SaltFlats));
+        Assert.True(Parties.Looking(System.DateTime.UtcNow.AddMinutes(-29), System.DateTime.UtcNow));
+        Assert.False(Parties.Looking(System.DateTime.UtcNow.AddMinutes(-31), System.DateTime.UtcNow));
+    }
+}

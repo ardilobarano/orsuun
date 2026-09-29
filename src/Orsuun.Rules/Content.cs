@@ -174,6 +174,16 @@ namespace Orsuun.Rules
                 top.BossAttack * CommanderAttackPercent / 100, mechanic, 45 * 60, trophy);
         }
 
+        /// <summary>The hunting places (Parties.Place) where a Commander stands while up (the client's MapCommander.Sightings):
+        /// the war camp's three on the first three maps and their zones, each map Commander on its own map.</summary>
+        public static int[] CommanderPlaces(BossDef boss) => boss.Id switch
+        {
+            1 => new[] { 1002, GorakWarCamp },
+            2 => new[] { 1003, SaltFlats },
+            3 => new[] { 1001, EmberSteppe },
+            _ => OnMap(boss) ? new[] { 1000 + MapOfStage(boss.ZoneId).Id } : Array.Empty<int>(),
+        };
+
         /// <summary>A Commander of a big map (not of a Commander Ground).</summary>
         public static bool OnMap(BossDef boss) => !IsZone(boss.ZoneId);
 

@@ -1596,6 +1596,17 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        /// <summary>Commander pushes (SETTINGS): the login's switch, as the server last said.</summary>
+        public bool CommanderPushes { get; private set; } = true;
+
+        public IEnumerator SetCommanderPushes(bool on, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/settings/commander-pushes", JsonUtility.ToJson(new CommanderPushRequest { on = on }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done?.Invoke(failure);
+        }
+
         /// <summary>The hero is listed on the party board now.</summary>
         public bool PartyLooking => Online && !InParty && _lookLeft > 0 && Time.realtimeSinceStartup - _lookAt < _lookLeft;
         private long _lookLeft;
@@ -1880,6 +1891,7 @@ namespace Orsuun.Client.Net
             PartyInviteName = s.partyInvite ?? "";
             _lookLeft = s.partyLookLeft;
             _lookAt = Time.realtimeSinceStartup;
+            CommanderPushes = s.commanderPushes;
             if (IsNoGuid(PartyLeader)) Party = null;
 
             // The Bannerkin's pieces (Rules.Bannerkin): its own, out of the bag; they still go on the anvil by their id.
@@ -2038,7 +2050,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; public long partyLookLeft; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; public long partyLookLeft; public bool commanderPushes = true; }
+        [Serializable] public class CommanderPushRequest { public bool on; }
         /// <summary>The party board (Party finder): heroes of the place looking for a party.</summary>
         [Serializable] public class PartyBoardEntryDto { public string id; public string name; public string @class; public int level; public string title; public int minutesListed; }
         [Serializable] public class PartyBoardDto { public string place; public PartyBoardEntryDto[] heroes; public long lookingLeft; public string message; }

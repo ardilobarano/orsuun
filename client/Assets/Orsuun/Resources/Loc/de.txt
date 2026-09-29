@@ -2928,3 +2928,5 @@ You are off the party board.	Du stehst nicht mehr auf dem Gruppenbrett.
 You are in a party already: invite from the board instead.	Du bist schon in einer Gruppe: lade stattdessen vom Brett ein.
 There is no party board in a dungeon.	In einem Verlies gibt es kein Gruppenbrett.
 Only friends, guildmates and heroes on this map's party board can join your party.	Nur Freunde, Gildengefährten und Helden vom Gruppenbrett dieser Karte können deiner Gruppe beitreten.
+# Commander pushes (29 Sep 2026).
+COMMANDER ALERTS	KOMMANDANTEN-HINWEISE

@@ -2896,3 +2896,5 @@ You are off the party board.	Saíste do quadro de grupos.
 You are in a party already: invite from the board instead.	Já estás num grupo: convida a partir do quadro.
 There is no party board in a dungeon.	Não há quadro de grupos numa masmorra.
 Only friends, guildmates and heroes on this map's party board can join your party.	Só amigos, companheiros de guilda e heróis do quadro de grupos deste mapa podem entrar no teu grupo.
+# Commander pushes (29 Sep 2026).
+COMMANDER ALERTS	ALERTAS DE COMANDANTES

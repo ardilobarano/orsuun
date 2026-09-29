@@ -744,6 +744,7 @@ public sealed partial class GameService
         {
             BossClock clock = await ClockAsync(boss, now, ct);
             clock.SpawnUtc = now;
+            clock.AnnouncedUtc = now;   // a tester's spawn pushes nobody (Commander pushes)
         }
         await SaveAsync(ct);
         return ToState(account);
@@ -1008,6 +1009,7 @@ public sealed partial class GameService
             EliteCamp: EliteCamps.Up(Parties.Place(account.ParkedStage), DateTime.UtcNow, out int eliteCamp, out long eliteLeft) ? eliteCamp : -1,
             EliteLeft: eliteLeft,
             PartyLookLeft: LookLeft(account, DateTime.UtcNow),
+            CommanderPushes: !(_login?.NoCommanderPushes ?? false),
             PartyLeader: account.PartyLeaderId ?? Guid.Empty,
             PartyInvite: account.PartyInviteFrom != null && account.PartyInviteUtc > DateTime.UtcNow.AddMinutes(-Parties.InviteMinutes) ? account.PartyInviteName : null);
     }

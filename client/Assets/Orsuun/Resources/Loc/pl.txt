@@ -2882,3 +2882,5 @@ You are off the party board.	Nie ma cię już na tablicy drużyn.
 You are in a party already: invite from the board instead.	Jesteś już w drużynie: zamiast tego zapraszaj z tablicy.
 There is no party board in a dungeon.	W lochu nie ma tablicy drużyn.
 Only friends, guildmates and heroes on this map's party board can join your party.	Do twojej drużyny mogą dołączyć tylko przyjaciele, członkowie gildii i bohaterowie z tablicy drużyn tej mapy.
+# Commander pushes (29 Sep 2026).
+COMMANDER ALERTS	POWIADOMIENIA O DOWÓDCACH

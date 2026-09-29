@@ -2890,3 +2890,5 @@ You are off the party board.	Nu mai ești pe panoul grupurilor.
 You are in a party already: invite from the board instead.	Ești deja într-un grup: invită de pe panou.
 There is no party board in a dungeon.	Într-o temniță nu există panou de grupuri.
 Only friends, guildmates and heroes on this map's party board can join your party.	Doar prietenii, colegii de breaslă și eroii de pe panoul grupurilor acestei hărți pot intra în grupul tău.
+# Commander pushes (29 Sep 2026).
+COMMANDER ALERTS	ALERTE PENTRU COMANDANȚI
