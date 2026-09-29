@@ -2837,3 +2837,14 @@ Egg Nests	Eiernester
 Cocoon Hall	Kokonhalle
 Webbed Pit	Netzgrube
 Mother's Lair	Hort der Mutter
+# Trail caches and the hero card (29 Sep 2026).
+OPEN	ÖFFNEN
+Trail cache	Wegtruhe
+Open 2 trail caches	Öffne 2 Wegtruhen
+{0} marks	{0} Marken
+{0} draughts	{0} Tränke
+{0} hunt materials	{0} Jagdmaterialien
+The next cache is not on the trail yet.	Die nächste Truhe liegt noch nicht am Weg.
+Today's caches are all opened: more come with the evening bell.	Die Truhen von heute sind alle geöffnet: mit der Abendglocke kommen neue.
+No caches lie by the river.	Am Fluss liegen keine Truhen.
+Meeting other heroes needs the server.	Andere Helden zu treffen braucht den Server.

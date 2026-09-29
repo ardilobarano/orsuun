@@ -1372,6 +1372,25 @@ namespace Orsuun.Client.Net
         public ErrandsDto Errands { get; private set; }
 
         /// <summary>Hands in a townsman's errand (Rules.Errands); the state comes back paid. Completes with an error or null.</summary>
+        private long _cacheIn = -1;
+        private float _cacheAt;
+
+        /// <summary>A trail cache lies on the trail now (Rules.TrailCaches; the server's count, run down since it came).</summary>
+        public bool CacheReady => Online && _cacheIn >= 0 && Time.realtimeSinceStartup - _cacheAt >= _cacheIn;
+
+        /// <summary>Opens the trail cache; completes with (what it held, error).</summary>
+        public IEnumerator OpenCache(Action<string, string> done)
+        {
+            string found = null, failure = null;
+            yield return Post("/v1/cache/open", JsonUtility.ToJson(new CacheOpenRequest { requestId = NewRequestId() }), true, json =>
+            {
+                var result = JsonUtility.FromJson<CacheOpenDto>(json);
+                if (result.state != null) Apply(result.state);
+                found = result.found;
+            }, error => failure = error ?? "No answer from the server.");
+            done(found, failure);
+        }
+
         public IEnumerator HandInErrand(int giver, Action<string> done)
         {
             string failure = null;
@@ -1775,6 +1794,8 @@ namespace Orsuun.Client.Net
             }
 
             if (s.errands?.list != null) Errands = s.errands;
+            _cacheIn = s.cacheIn;
+            _cacheAt = Time.realtimeSinceStartup;
 
             // The Bannerkin's pieces (Rules.Bannerkin): its own, out of the bag; they still go on the anvil by their id.
             var kinWorn = new List<ItemState>();
@@ -1932,11 +1953,13 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; }
         /// <summary>The townsfolk's errands today (Rules.Errands): each townsman's, its progress, whether paid; and the pay.</summary>
         [Serializable] public class ErrandDto { public int giver; public int id; public string text; public long progress; public long target; public bool paid; }
         [Serializable] public class ErrandsDto { public ErrandDto[] list; public long sorn; public int materials; public long secondsToReset; }
         [Serializable] public class ErrandRequest { public string requestId; public int giver; }
+        [Serializable] public class CacheOpenRequest { public string requestId; }
+        [Serializable] public class CacheOpenDto { public StateDto state; public string found; }
         [Serializable] public class RiverDto { public bool atRiver; public long[] mealSeconds; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }
         [Serializable] public class CastBiteDto { public int biteMs; public int windowMs; }
         [Serializable] public class ReelDto { public StateDto state; public string kind; public int fish = -1; public string message; public int grams; }

@@ -117,7 +117,11 @@ namespace Orsuun.Rules
             return false;
         }
 
-        public static int BountyXp(BountyDef bounty) => bounty.Period == BountyPeriod.Daily ? DailyBountyXp : WeeklyBountyXp;
+        /// <summary>Trail XP a claimed bounty pays. The trail-cache bounty (29 Sep 2026) pays Hunt Marks only: the season is
+        /// paced for the five dailies and one weekly a week (TrailTests), and a sixth daily would let the dailies alone finish it.</summary>
+        public static int BountyXp(BountyDef bounty) => !PaysTrail(bounty) ? 0 : bounty.Period == BountyPeriod.Daily ? DailyBountyXp : WeeklyBountyXp;
+
+        public static bool PaysTrail(BountyDef bounty) => bounty.Metric != BountyMetric.CachesOpened;
 
         /// <summary>Free track: a Khan's Alloy every 10 tiers, 5 Turnstones on odd tiers, a Scroll of Mercy on the rest.</summary>
         public static TrailReward Free(int tier)

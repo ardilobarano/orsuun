@@ -22,7 +22,7 @@ public sealed partial class GameService
         BountyProgress p = Progress(account);
         p.Add(metric, amount);
         account.Bounties = p.Serialize();
-        Feat(account, (FeatMetric)(int)metric, amount);   // the first FeatMetrics follow BountyMetric
+        Feat(account, Bounties.FeatOf(metric), amount);   // the first FeatMetrics follow BountyMetric, later ones are mapped
     }
 
     private BountyBoardDto Board(Account account)

@@ -10,7 +10,8 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class BountyPanel : MonoBehaviour
     {
-        private const int Rows = 9;
+        /// <summary>Six daily rows (the trail-cache bounty since 29 Sep 2026) and four weekly.</summary>
+        private const int Rows = 10, DailyRows = 6;
 
         private sealed class Row
         {
@@ -58,13 +59,13 @@ namespace Orsuun.Client
             _marks = Ui.Title("Marks", canvas, 0.05f, 0.895f, 0.95f, 0.935f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
 
             _dailyTitle = Ui.Title("DailyTitle", canvas, 0.04f, 0.855f, 0.96f, 0.89f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
-            _weeklyTitle = Ui.Title("WeeklyTitle", canvas, 0.04f, 0.56f, 0.96f, 0.592f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            _weeklyTitle = Ui.Title("WeeklyTitle", canvas, 0.04f, 0.535f, 0.96f, 0.567f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
             for (int i = 0; i < Rows; i++)
             {
                 int index = i;
-                // Five daily rows under the first title, four weekly rows under the second.
-                float y1 = i < 5 ? 0.85f - i * 0.052f : 0.555f - (i - 5) * 0.052f;
-                float y0 = y1 - 0.047f;
+                // Six daily rows under the first title, four weekly rows under the second.
+                float y1 = i < DailyRows ? 0.85f - i * 0.047f : 0.53f - (i - DailyRows) * 0.047f;
+                float y0 = y1 - 0.043f;
                 var r = new Row();
                 r.Back = Ui.Framed("Back" + i, canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
                 Ui.Panel("Bar" + i, canvas, 0.045f, y0 + 0.004f, 0.735f, y0 + 0.012f, new Color(0f, 0f, 0f, 0.4f)).raycastTarget = false;
@@ -149,8 +150,8 @@ namespace Orsuun.Client
             if (board?.items == null) return;
             foreach (var b in board.items)
             {
-                int slot = b.period == "Daily" ? daily++ : 5 + weekly++;
-                if (slot >= Rows || (b.period == "Daily" && slot >= 5)) continue;
+                int slot = b.period == "Daily" ? daily++ : DailyRows + weekly++;
+                if (slot >= Rows || (b.period == "Daily" && slot >= DailyRows)) continue;
                 Row r = _rows[slot];
                 r.Id = b.id;
                 r.Back.gameObject.SetActive(true);
@@ -158,8 +159,9 @@ namespace Orsuun.Client
                 r.Claim.gameObject.SetActive(true);
                 bool hunt = b.title.StartsWith("Hunt for");
                 string count = hunt ? $"{b.count / 60}/{b.target / 60} min" : $"{b.count}/{b.target}";
-                int trailXp = b.period == "Daily" ? CampaignTrail.DailyBountyXp : CampaignTrail.WeeklyBountyXp;
-                r.Label.text = $"{b.title}   ·   {count}   ·   {b.marks} marks, {trailXp} Trail XP";
+                BountyDef def = Bounties.Find(b.id);
+                int trailXp = def != null ? CampaignTrail.BountyXp(def) : b.period == "Daily" ? CampaignTrail.DailyBountyXp : CampaignTrail.WeeklyBountyXp;
+                r.Label.text = trailXp > 0 ? $"{b.title}   ·   {count}   ·   {b.marks} marks, {trailXp} Trail XP" : $"{b.title}   ·   {count}   ·   {b.marks} marks";
                 r.Label.color = b.claimed ? Palette.Muted : Palette.Parchment;
                 float done = b.target > 0 ? Mathf.Clamp01(b.count / (float)b.target) : 0f;
                 r.Fill.anchorMax = new Vector2(0.045f + 0.69f * done, r.Fill.anchorMax.y);

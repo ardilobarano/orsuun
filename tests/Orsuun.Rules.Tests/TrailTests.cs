@@ -84,8 +84,9 @@ public class TrailTests
     [Fact]
     public void A_player_who_takes_every_daily_and_one_weekly_bounty_finishes_the_season()
     {
-        int dailies = Bounties.All.Count(b => b.Period == BountyPeriod.Daily);
-        int weeklies = Bounties.All.Count(b => b.Period == BountyPeriod.Weekly);
+        int dailies = Bounties.All.Count(b => b.Period == BountyPeriod.Daily && CampaignTrail.PaysTrail(b));
+        int weeklies = Bounties.All.Count(b => b.Period == BountyPeriod.Weekly && CampaignTrail.PaysTrail(b));
+        Assert.Equal(0, CampaignTrail.BountyXp(Bounties.All.First(b => b.Metric == BountyMetric.CachesOpened)));
         Assert.Equal(CampaignTrail.DailyBountyXp, CampaignTrail.BountyXp(Bounties.All.First(b => b.Period == BountyPeriod.Daily)));
         long all = CampaignTrail.SeasonDays * dailies * (long)CampaignTrail.DailyBountyXp + CampaignTrail.SeasonDays / 7 * weeklies * (long)CampaignTrail.WeeklyBountyXp;
         long steady = CampaignTrail.SeasonDays * dailies * (long)CampaignTrail.DailyBountyXp + CampaignTrail.SeasonDays / 7 * (long)CampaignTrail.WeeklyBountyXp;

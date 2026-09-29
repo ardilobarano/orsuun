@@ -289,7 +289,12 @@ public sealed record StateDto(
     GoalCountsDto? GoalCounts = null,
     RiverDto? River = null,
     KinDto? Kin = null,
-    ErrandsDto? Errands = null);
+    ErrandsDto? Errands = null,
+    long CacheIn = -1);
+
+/// <summary>A trail cache opened (Rules.TrailCaches): the hero after, and what it held.</summary>
+public sealed record CacheOpenRequest(string RequestId);
+public sealed record CacheOpenDto(StateDto State, string Found);
 
 /// <summary>The townsfolk's errands today (Rules.Errands): each townsman's, how far along, whether paid, and the pay.</summary>
 public sealed record ErrandDto(int Giver, int Id, string Text, long Progress, long Target, bool Paid);

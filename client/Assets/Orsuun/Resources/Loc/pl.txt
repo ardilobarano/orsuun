@@ -2791,3 +2791,14 @@ Egg Nests	Gniazda Jaj
 Cocoon Hall	Sala Kokonów
 Webbed Pit	Pajęczy Dół
 Mother's Lair	Legowisko Matki
+# Trail caches and the hero card (29 Sep 2026).
+OPEN	OTWÓRZ
+Trail cache	Skrzynka przy szlaku
+Open 2 trail caches	Otwórz 2 skrzynki przy szlaku
+{0} marks	Znaki: {0}
+{0} draughts	Mikstury ×{0}
+{0} hunt materials	Materiały łowieckie ×{0}
+The next cache is not on the trail yet.	Następnej skrzynki jeszcze nie ma przy szlaku.
+Today's caches are all opened: more come with the evening bell.	Dzisiejsze skrzynki są już otwarte: nowe przyjdą z wieczornym dzwonem.
+No caches lie by the river.	Nad rzeką nie ma skrzynek.
+Meeting other heroes needs the server.	Spotkanie innych bohaterów wymaga serwera.

@@ -2805,3 +2805,14 @@ Egg Nests	Ninhos de Ovos
 Cocoon Hall	Salão dos Casulos
 Webbed Pit	Fosso das Teias
 Mother's Lair	Covil da Mãe
+# Trail caches and the hero card (29 Sep 2026).
+OPEN	ABRIR
+Trail cache	Baú da trilha
+Open 2 trail caches	Abra 2 baús da trilha
+{0} marks	{0} marcas
+{0} draughts	{0} poções
+{0} hunt materials	{0} materiais de caça
+The next cache is not on the trail yet.	O próximo baú ainda não está na trilha.
+Today's caches are all opened: more come with the evening bell.	Os baús de hoje já foram abertos: mais virão com o sino da tarde.
+No caches lie by the river.	Não há baús junto ao rio.
+Meeting other heroes needs the server.	Encontrar outros heróis requer o servidor.

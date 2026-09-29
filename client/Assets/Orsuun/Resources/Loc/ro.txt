@@ -2799,3 +2799,14 @@ Egg Nests	Cuiburile de Ouă
 Cocoon Hall	Sala Coconilor
 Webbed Pit	Groapa cu Pânze
 Mother's Lair	Bârlogul Mamei
+# Trail caches and the hero card (29 Sep 2026).
+OPEN	DESCHIDE
+Trail cache	Cufăr de drum
+Open 2 trail caches	Deschide 2 cufere de drum
+{0} marks	{0} semne
+{0} draughts	{0} poțiuni
+{0} hunt materials	{0} materiale de vânătoare
+The next cache is not on the trail yet.	Următorul cufăr nu e încă pe drum.
+Today's caches are all opened: more come with the evening bell.	Cuferele de azi sunt toate deschise: altele vin cu clopotul de seară.
+No caches lie by the river.	Lângă râu nu sunt cufere.
+Meeting other heroes needs the server.	Întâlnirea altor eroi are nevoie de server.

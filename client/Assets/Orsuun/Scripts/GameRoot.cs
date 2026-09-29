@@ -67,6 +67,8 @@ namespace Orsuun.Client
         public TipCard Tips { get; private set; }
         public FieldFolk Field { get; private set; }
         public FieldMapPanel MapScreen { get; private set; }
+        /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND for a hero met in the world.</summary>
+        public HeroActions HeroCard { get; private set; }
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
@@ -129,6 +131,8 @@ namespace Orsuun.Client
             Town.Init(this);
             Inspect = new GameObject("InspectPanel").AddComponent<InspectPanel>();
             Inspect.Init(this);
+            HeroCard = new GameObject("HeroActions").AddComponent<HeroActions>();
+            HeroCard.Init(this);
             BuildCameras();
             gameObject.AddComponent<Performance>().Init(GameObject.Find("LaneCamera")?.GetComponent<Camera>());
             Lane = new GameObject("LaneView").AddComponent<LaneView>();
@@ -138,6 +142,8 @@ namespace Orsuun.Client
             // Other players hunting the same map, beside the field's road (FieldFolk).
             Field = new GameObject("FieldFolk").AddComponent<FieldFolk>();
             Field.Init(this, Lane);
+            // A trail cache beside a big map's trail when one is due (TrailCache).
+            new GameObject("TrailCache").AddComponent<TrailCache>().Init(this, Lane);
 
             Server = new GameObject("ServerLink").AddComponent<Net.ServerLink>();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-local") < 0) Server.Init(Session);

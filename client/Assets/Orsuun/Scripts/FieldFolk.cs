@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Orsuun.Rules;
 using Orsuun.Rules.Combat;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using static Orsuun.Client.Net.ServerLink;
 
 namespace Orsuun.Client
@@ -13,7 +14,7 @@ namespace Orsuun.Client
     /// picture of their hunt (their real fights are their own lanes). On the road field they pass by with the road while
     /// the hero runs and come round again further up; on a big map (FieldMap) each hunts at one of its camps, and the hero
     /// meets them as his trail passes. A name over each. The big map's other camps have their monsters waiting, idling in
-    /// threes (offline too).
+    /// threes (offline too). Tapping a hunter (29 Sep 2026: "Tap heroes on the map") opens the hero card (HeroActions).
     /// </summary>
     public sealed class FieldFolk : MonoBehaviour
     {
@@ -50,6 +51,7 @@ namespace Orsuun.Client
         private float _polledAt = -100f;
         private bool _fetching;
         private int _stage;
+        private bool _pickForShot = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-heropick") >= 0;
         private Transform[] _camps = new Transform[0];
         private FieldMap.Layout _campsOf;
 
@@ -87,6 +89,13 @@ namespace Orsuun.Client
             }
             if (!server.Online) { for (int i = 0; i < _hunters.Length; i++) Clear(i); return; }
 
+            if (Input.GetMouseButtonDown(0)) TapAt(Input.mousePosition);
+            // Screenshots: -heropick opens the card of the first hunter to arrive.
+            if (_pickForShot && System.Array.Find(_hunters, h => h?.Root != null) is Hunter first)
+            {
+                _pickForShot = false;
+                _root.HeroCard.Show(first.Id, first.Player);
+            }
             float dt = Time.deltaTime;
             bool running = _lane.RunningNow;
             Quaternion facing = Camera.main != null ? Camera.main.transform.rotation : Quaternion.identity;
@@ -107,14 +116,39 @@ namespace Orsuun.Client
             }
         }
 
-        /// <summary>The other players hunting at the big map's camps now, by name and camp (the full map shows them).</summary>
-        public IEnumerable<(string name, int camp)> AtCamps
+        /// <summary>The other players hunting at the big map's camps now, by id, name and camp (the full map shows them).</summary>
+        public IEnumerable<(string id, string name, int camp)> AtCamps
         {
             get
             {
                 foreach (Hunter h in _hunters)
-                    if (h?.Root != null && h.OnMap && h.Camp >= 0) yield return (h.Player, h.Camp);
+                    if (h?.Root != null && h.OnMap && h.Camp >= 0) yield return (h.Id, h.Player, h.Camp);
             }
+        }
+
+        /// <summary>A tap on the lane: the nearest hunter under it (feet to name, a finger's width either side) gets the hero
+        /// card. Taps on the HUD or a screen are theirs.</summary>
+        private void TapAt(Vector3 screen)
+        {
+            if (EventSystem.current != null && (Input.touchCount > 0 ? EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId)
+                    : EventSystem.current.IsPointerOverGameObject())) return;
+            Camera cam = Camera.main;
+            if (cam == null || !cam.enabled) return;
+            float reach = Mathf.Max(40f, Screen.height * 0.035f);
+            Hunter best = null;
+            float bestDistance = float.MaxValue;
+            foreach (Hunter h in _hunters)
+            {
+                if (h?.Root == null || !h.Root.gameObject.activeInHierarchy) continue;
+                Vector3 feet = cam.WorldToScreenPoint(h.Root.position), head = cam.WorldToScreenPoint(h.Root.position + Vector3.up * 2.6f);
+                if (feet.z <= 0f) continue;
+                if (screen.y < feet.y - reach * 0.5f || screen.y > head.y + reach * 0.5f) continue;
+                float distance = Mathf.Abs(screen.x - (feet.x + head.x) / 2f);
+                if (distance > reach || distance >= bestDistance) continue;
+                best = h;
+                bestDistance = distance;
+            }
+            if (best != null) _root.HeroCard.Show(best.Id, best.Player);
         }
 
         /// <summary>A hunter's camp on a big map (a slot each): every other camp round the loop, then the ones between

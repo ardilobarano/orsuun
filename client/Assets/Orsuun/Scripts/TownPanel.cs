@@ -65,9 +65,6 @@ namespace Orsuun.Client
         private readonly Text[] _visitorNames = new Text[TownScene.HeroSpots.Length];
         private float _visitAt = -100f;
         private bool _visiting;
-        private GameObject _actions;
-        private Text _actionsTitle;
-        private TownHeroDto _picked;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -142,33 +139,10 @@ namespace Orsuun.Client
             Ui.Button("Rugs", canvas, 0.03f, 0.015f, 0.31f, 0.075f, "RUG STALLS", 20, Palette.ButtonForge, () => _root.Rugs.Open(), out _);
             Ui.Button("Errands", canvas, 0.33f, 0.015f, 0.6f, 0.075f, "ERRANDS", 22, Palette.Alloy, () => ShowErrands(true), out _);
             Ui.Button("Leave", canvas, 0.62f, 0.015f, 0.97f, 0.075f, "BACK TO THE HUNT", 22, Palette.ButtonIdle, Close, out _);
-            BuildActions(canvas);
             BuildErrands(canvas);
             _confirm = new GameObject("TownConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
             _canvas.SetActive(false);
-        }
-
-        private void BuildActions(Transform canvas)
-        {
-            _actions = Ui.Rect("Actions", canvas, 0f, 0f, 1f, 1f).gameObject;
-            Image dim = Ui.Panel("Dim", _actions.transform, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0.02f, 0.55f));
-            dim.gameObject.AddComponent<Button>().onClick.AddListener(() => _actions.SetActive(false));
-            Transform box = Ui.Framed("Box", _actions.transform, 0.12f, 0.36f, 0.88f, 0.64f, Palette.PanelDark).transform;
-            _actionsTitle = Ui.Title("Title", box, 0.05f, 0.8f, 0.95f, 0.97f, "", 28, TextAnchor.MiddleCenter, Palette.Sorn);
-            Ui.Raw(_actionsTitle);
-            Ui.Button("Inspect", box, 0.06f, 0.54f, 0.48f, 0.76f, "INSPECT", 22, Palette.Alloy, () => Act(h => _root.Inspect.Open(h.id)), out _);
-            Ui.Button("Whisper", box, 0.52f, 0.54f, 0.94f, 0.76f, "WHISPER", 22, Palette.Safe, () => Act(h => _root.Messages.OpenWith(h.id, h.name)), out _);
-            Ui.Button("Trade", box, 0.06f, 0.29f, 0.48f, 0.51f, "TRADE", 22, Palette.Alloy, () => Act(h =>
-                StartCoroutine(_root.Server.TradeInvite(null, error =>
-                {
-                    if (error != null) _message.text = error;
-                    else _root.Trade.Open();
-                }, h.id))), out _);
-            Ui.Button("Friend", box, 0.52f, 0.29f, 0.94f, 0.51f, "ADD FRIEND", 20, Palette.Safe, () => Act(h =>
-                StartCoroutine(_root.Server.AddFriend(h.id, null, (message, error) => _message.text = error ?? message))), out _);
-            Ui.Button("Close", box, 0.3f, 0.04f, 0.7f, 0.24f, "CLOSE", 22, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
-            _actions.SetActive(false);
         }
 
         /// <summary>TODAY'S ERRANDS: each townsman's, how far along, and what one pays; a row walks the hero to him.</summary>
@@ -230,26 +204,19 @@ namespace Orsuun.Client
 
         private static string Clock(long seconds) => seconds >= 3600 ? $"{seconds / 3600}h {seconds % 3600 / 60}m" : $"{Mathf.Max(1, (int)(seconds / 60))}m";
 
+        /// <summary>A visitor tapped: INSPECT, WHISPER, TRADE, ADD FRIEND (HeroActions), answers in the square's message.</summary>
         private void PickVisitor(int slot)
         {
             TownHeroDto hero = _visitors[slot];
             if (hero == null) return;
-            _picked = hero;
-            _actionsTitle.text = hero.name;
-            _actions.SetActive(true);
-        }
-
-        private void Act(System.Action<TownHeroDto> act)
-        {
-            _actions.SetActive(false);
-            if (_picked != null) act(_picked);
+            _root.HeroCard.Show(hero.id, hero.name, message => _message.text = message);
         }
 
         public void Open()
         {
             _root.Tips.Offer(TipCard.Tip.Town);
             _canvas.SetActive(true);
-            _actions.SetActive(false);
+            _root.HeroCard.Close();
             _visitAt = -100f;
             _stage.gameObject.SetActive(true);
             _place.Show();

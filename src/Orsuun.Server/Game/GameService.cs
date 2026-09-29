@@ -949,7 +949,8 @@ public sealed partial class GameService
             GoalCounts: GoalCountsOf(account),
             River: RiverOf(account),
             Kin: KinOf(account),
-            Errands: ErrandsDtoOf(account));
+            Errands: ErrandsDtoOf(account),
+            CacheIn: CacheIn(account));
     }
 
     private static GoalCountsDto GoalCountsOf(Account account)

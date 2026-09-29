@@ -191,6 +191,10 @@ public sealed class Account
     public DateTime? AnglerUntilUtc { get; set; }
     /// <summary>When the hero last said it was in the town square (/v1/town), or null once it left.</summary>
     public DateTime? InTownUtc { get; set; }
+    /// <summary>Trail caches (Rules.TrailCaches): the bounty day of the last one opened, how many that day, and when.</summary>
+    public string? CacheDay { get; set; }
+    public int CachesToday { get; set; }
+    public DateTime? CacheOpenedUtc { get; set; }
     public DateTime? CastUtc { get; set; }
     public int CastBiteMs { get; set; }
     /// <summary>A fish on the line (Fishing.Fish id, -1 none) and when it was hooked: landed by /v1/river/land.</summary>

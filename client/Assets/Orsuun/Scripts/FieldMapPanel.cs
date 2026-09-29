@@ -25,6 +25,7 @@ namespace Orsuun.Client
         private readonly List<RawImage> _miniCamps = new List<RawImage>();
         private readonly List<RawImage> _fullCamps = new List<RawImage>();
         private readonly List<Text> _fullHunters = new List<Text>();
+        private readonly (string id, string name)[] _hunterIds = new (string, string)[4];
         private readonly List<GameObject> _fullLabels = new List<GameObject>();
         private FieldMap.Layout _built;
         private bool _showOnce;
@@ -91,7 +92,7 @@ namespace Orsuun.Client
             FieldMap.Layout layout = map.Current;
             Vector2 hero = map.HeroOnMap;
             var hunted = new HashSet<int>();
-            foreach ((string _, int camp) in _root.Field.AtCamps) hunted.Add(camp);
+            foreach ((string _, string _, int camp) in _root.Field.AtCamps) hunted.Add(camp);
 
             // The minimap: the painted map round the hero, north up.
             float span = MiniSpan / layout.Size;
@@ -114,9 +115,10 @@ namespace Orsuun.Client
             for (int i = 0; i < _fullCamps.Count; i++) _fullCamps[i].color = hunted.Contains(i) ? HeroBlue : CampRed;
             // Each other hero's name over his camp's (blue) dot.
             int shown = 0;
-            foreach ((string name, int camp) in _root.Field.AtCamps)
+            foreach ((string id, string name, int camp) in _root.Field.AtCamps)
             {
                 if (shown >= _fullHunters.Count) break;
+                _hunterIds[shown] = (id, name);
                 Text label = _fullHunters[shown++];
                 label.gameObject.SetActive(true);
                 Place(label.rectTransform, Uv(layout, layout.Camps[camp].At));
@@ -169,10 +171,17 @@ namespace Orsuun.Client
             // Other heroes: a name each (as written, never translated), set every frame while the map is open.
             for (int i = 0; i < 4; i++)
             {
+                int slot = i;
                 Text name = Ui.Raw(Ui.Label("Hero" + i, _fullSquare, 0f, 0f, 0f, 0f, "", 24, TextAnchor.MiddleCenter, HeroBlue));
-                name.rectTransform.sizeDelta = new Vector2(320f, 36f);
+                name.rectTransform.sizeDelta = new Vector2(320f, 44f);
                 name.fontStyle = FontStyle.Bold;
-                name.raycastTarget = false;
+                // A name on the map opens the hero card (29 Sep 2026: "Tap heroes on the map").
+                name.raycastTarget = true;
+                name.gameObject.AddComponent<Button>().onClick.AddListener(() =>
+                {
+                    (string id, string who) = _hunterIds[slot];
+                    if (id != null) _root.HeroCard.Show(id, who);
+                });
                 name.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.9f);
                 name.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.5f);
                 name.gameObject.SetActive(false);

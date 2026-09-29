@@ -32,6 +32,8 @@ namespace Orsuun.Rules
         BazaarCalls = 14,
         ItemsSold = 15,
         PitWins = 16,
+        /// <summary>Trail caches opened (29 Sep 2026; BountyMetric.CachesOpened counts it through Bounties.FeatOf).</summary>
+        CachesOpened = 17,
     }
 
     /// <summary>What an achievement measures: a lifetime counter, or the hero as it stands.</summary>

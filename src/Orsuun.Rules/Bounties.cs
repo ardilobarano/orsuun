@@ -17,6 +17,8 @@ namespace Orsuun.Rules
         CommanderFights,
         Pushes,
         SiegeFights,
+        /// <summary>Trail caches opened (29 Sep 2026): its lifetime counter is FeatMetric.CachesOpened (see Bounties.FeatOf).</summary>
+        CachesOpened,
     }
 
     public enum BountyPeriod
@@ -61,10 +63,19 @@ namespace Orsuun.Rules
             new BountyDef(3, BountyPeriod.Daily, BountyMetric.ForgeAttempts, 5, 2, "Forge 5 times"),
             new BountyDef(4, BountyPeriod.Daily, BountyMetric.Turns, 25, 2, "Turn etchings 25 times"),
             new BountyDef(5, BountyPeriod.Daily, BountyMetric.CommanderFights, 1, 3, "Fight a Commander"),
+            new BountyDef(6, BountyPeriod.Daily, BountyMetric.CachesOpened, 2, 2, "Open 2 trail caches"),
             new BountyDef(11, BountyPeriod.Weekly, BountyMetric.Korstones, 200, 12, "Break 200 Korstones"),
             new BountyDef(12, BountyPeriod.Weekly, BountyMetric.CommanderFights, 5, 10, "Fight 5 Commanders"),
             new BountyDef(13, BountyPeriod.Weekly, BountyMetric.Pushes, 10, 8, "Push 10 times"),
             new BountyDef(14, BountyPeriod.Weekly, BountyMetric.SiegeFights, 3, 10, "Join 3 fortress sieges"),
+        };
+
+        /// <summary>The lifetime counter a bounty metric also raises: the first seven share their numbers with FeatMetric;
+        /// later ones are appended to both and mapped here.</summary>
+        public static FeatMetric FeatOf(BountyMetric metric) => metric switch
+        {
+            BountyMetric.CachesOpened => FeatMetric.CachesOpened,
+            _ => (FeatMetric)(int)metric,
         };
 
         public static BountyDef? Find(int id)
@@ -245,6 +256,8 @@ namespace Orsuun.Rules
         public int Potions { get; set; }
         public int Turnstones { get; set; }
         public int ScrollsOfMercy { get; set; }
+        /// <summary>Hunt materials (a trail cache's).</summary>
+        public int Materials { get; set; }
         /// <summary>A Korshard of this rank (Content.KorshardRanks), or -1 for none.</summary>
         public int KorshardRank { get; set; } = -1;
 
@@ -257,6 +270,7 @@ namespace Orsuun.Rules
                 if (Potions > 0) parts.Add(Potions + " draughts");
                 if (Turnstones > 0) parts.Add(Turnstones + " Turnstones");
                 if (ScrollsOfMercy > 0) parts.Add(ScrollsOfMercy == 1 ? "a Scroll of Mercy" : ScrollsOfMercy + " Scrolls of Mercy");
+                if (Materials > 0) parts.Add(Materials + " hunt materials");
                 if (KorshardRank >= 0) parts.Add("a " + Content.KorshardRanks[KorshardRank] + " Korshard");
                 return string.Join(", ", parts);
             }
@@ -268,6 +282,7 @@ namespace Orsuun.Rules
             inventory.Potions += Potions;
             inventory.Turnstones += Turnstones;
             inventory.ScrollsOfMercy += ScrollsOfMercy;
+            inventory.Materials += Materials;
             if (KorshardRank >= 0) inventory.Korshards[KorshardRank]++;
         }
     }

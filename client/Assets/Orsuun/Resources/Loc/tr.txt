@@ -2761,3 +2761,14 @@ Egg Nests	Yumurta Yuvaları
 Cocoon Hall	Koza Salonu
 Webbed Pit	Ağlı Çukur
 Mother's Lair	Ana'nın İni
+# Trail caches and the hero card (29 Sep 2026).
+OPEN	AÇ
+Trail cache	Yol sandığı
+Open 2 trail caches	2 yol sandığı aç
+{0} marks	{0} nişan
+{0} draughts	{0} iksir
+{0} hunt materials	{0} av malzemesi
+The next cache is not on the trail yet.	Sıradaki sandık henüz yolda değil.
+Today's caches are all opened: more come with the evening bell.	Bugünün sandıklarının hepsi açıldı: akşam çanıyla yenileri gelir.
+No caches lie by the river.	Nehir kıyısında sandık yok.
+Meeting other heroes needs the server.	Diğer kahramanlarla tanışmak için sunucu gerekir.
