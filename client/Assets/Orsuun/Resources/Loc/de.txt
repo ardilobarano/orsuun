@@ -2913,3 +2913,18 @@ The party is quiet. Say hello.	Die Gruppe ist still. Sag hallo.
 a dungeon	einem Verlies
 # Commanders on every map (29 Sep 2026).
 Reach {0} to fight {1}.	Erreiche {0}, um gegen {1} zu kämpfen.
+# Party finder (29 Sep 2026).
+PARTY BOARD	GRUPPENBRETT
+BOARD	BRETT
+LIST ME	TRAG MICH EIN
+TAKE ME OFF	TRAG MICH AUS
+ASK TO JOIN	EINLADEN
+LOOKING FOR A PARTY	SUCHT EINE GRUPPE
+You are on this map's party board: heroes hunting here can ask you to join.	Du stehst auf dem Gruppenbrett dieser Karte: Helden, die hier jagen, können dich einladen.
+Hunt with up to {0#} others: ask a friend or guildmate, or find heroes on this map's PARTY BOARD.	Jage mit bis zu {0#} anderen: lade einen Freund oder Gildengefährten ein oder finde Helden auf dem GRUPPENBRETT dieser Karte.
+Nobody at {0} looks for a party now. LIST ME to be found.	In {0} sucht gerade niemand eine Gruppe. TRAG MICH EIN, um gefunden zu werden.
+You are on the party board for {0#} minutes.	Du stehst {0#} Minuten auf dem Gruppenbrett.
+You are off the party board.	Du stehst nicht mehr auf dem Gruppenbrett.
+You are in a party already: invite from the board instead.	Du bist schon in einer Gruppe: lade stattdessen vom Brett ein.
+There is no party board in a dungeon.	In einem Verlies gibt es kein Gruppenbrett.
+Only friends, guildmates and heroes on this map's party board can join your party.	Nur Freunde, Gildengefährten und Helden vom Gruppenbrett dieser Karte können deiner Gruppe beitreten.

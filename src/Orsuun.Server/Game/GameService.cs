@@ -1007,6 +1007,7 @@ public sealed partial class GameService
             CacheIn: CacheIn(account),
             EliteCamp: EliteCamps.Up(Parties.Place(account.ParkedStage), DateTime.UtcNow, out int eliteCamp, out long eliteLeft) ? eliteCamp : -1,
             EliteLeft: eliteLeft,
+            PartyLookLeft: LookLeft(account, DateTime.UtcNow),
             PartyLeader: account.PartyLeaderId ?? Guid.Empty,
             PartyInvite: account.PartyInviteFrom != null && account.PartyInviteUtc > DateTime.UtcNow.AddMinutes(-Parties.InviteMinutes) ? account.PartyInviteName : null);
     }

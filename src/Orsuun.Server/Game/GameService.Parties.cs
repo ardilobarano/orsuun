@@ -54,7 +54,14 @@ public sealed partial class GameService
         if (Blocks(account.Blocked ?? "", other.Id) || Blocks(other.Blocked, account.Id)) throw new GameException("blocked", "You cannot invite them.");
         bool guildmate = account.GuildId != null && other.GuildId == account.GuildId;
         bool friend = await _db.Friendships.AnyAsync(f => f.Accepted && ((f.FromId == account.Id && f.ToId == other.Id) || (f.FromId == other.Id && f.ToId == account.Id)), ct);
-        if (!guildmate && !friend) throw new GameException("not_friend", "Only friends and guildmates can join your party.");
+        // The party board (Party finder): a hero listed there may be asked by anyone hunting the same place, and a listed hero
+        // may ask anyone there.
+        var them = await _db.Accounts.AsNoTracking().Where(a => a.Id == other.Id).Select(a => new { a.PartyLookUtc, a.ParkedStage }).SingleAsync(ct);
+        DateTime asked = DateTime.UtcNow;
+        bool board = Parties.Together(account.ParkedStage, them.ParkedStage)
+                     && (Parties.Looking(them.PartyLookUtc, asked) || Parties.Looking(account.PartyLookUtc, asked));
+        if (!guildmate && !friend && !board)
+            throw new GameException("not_friend", "Only friends, guildmates and heroes on this map's party board can join your party.");
         Guid? theirs = await _db.Accounts.Where(a => a.Id == other.Id).Select(a => a.PartyLeaderId).SingleAsync(ct);
         if (theirs != null) throw new GameException("in_party", other.Name + " is in a party already.");
         if (account.PartyLeaderId is Guid leader && await _db.Accounts.CountAsync(a => a.PartyLeaderId == leader, ct) >= Parties.MaxMembers)
@@ -101,7 +108,11 @@ public sealed partial class GameService
         if (count >= Parties.MaxMembers) throw new GameException("party_full", $"That party holds {Parties.MaxMembers} heroes already.");
         account.PartyLeaderId = leader;
         account.PartyJoinedUtc = now;
+        account.PartyLookUtc = null;
         SystemLine(PartyChannel(leader), $"{NameOf(account)} joined the party.");
+        // Off the board: whoever now leads a party, and everyone in one that is full.
+        await _db.Accounts.Where(a => a.Id == leader || (count + 1 >= Parties.MaxMembers && a.PartyLeaderId == leader))
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.PartyLookUtc, (DateTime?)null), ct);
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
         return await PartyAsync(account, ct) with { Message = "You joined the party." };
@@ -165,6 +176,45 @@ public sealed partial class GameService
             SystemLine(PartyChannel(heir), $"{NameOf(account)} left the party; {ShownName(heir, rest[0].Name)} leads it now.");
         }
         else SystemLine(PartyChannel(leader), $"{NameOf(account)} left the party.");
+    }
+
+    /// <summary>Seconds the hero's listing on the party board has left (0: not listed).</summary>
+    private static long LookLeft(Account account, DateTime now) => Parties.Looking(account.PartyLookUtc, now)
+        ? Math.Max(0, (long)(account.PartyLookUtc!.Value.AddMinutes(Parties.LookMinutes) - now).TotalSeconds) : 0;
+
+    /// <summary>The party board of the hero's place (Party finder): heroes hunting there, online, in no party, listed as
+    /// looking for one, newest first (not blocked either way).</summary>
+    public async Task<PartyBoardDto> PartyBoardAsync(Account account, CancellationToken ct, string? message = null)
+    {
+        DateTime now = DateTime.UtcNow;
+        int place = Parties.Place(account.ParkedStage);
+        string placeName = place < 0 ? "a dungeon" : Content.IsZone(account.ParkedStage) ? Content.StageName(account.ParkedStage) : Content.MapOfStage(account.ParkedStage).Name;
+        if (place < 0) return new PartyBoardDto(placeName, Array.Empty<PartyBoardEntryDto>(), LookLeft(account, now), message);
+        (int first, int last) = Parties.Stages(place);
+        DateTime listed = now.AddMinutes(-Parties.LookMinutes), present = now.AddSeconds(-Parties.PresentSeconds);
+        List<Guid> blocked = BlockedList(account);
+        var rows = await _db.Accounts.AsNoTracking()
+            .Where(a => a.Id != account.Id && a.PartyLookUtc > listed && a.LastHeartbeatUtc > present && a.PartyLeaderId == null
+                        && a.BannedUtc == null && !a.AtRiver && a.ParkedStage >= first && a.ParkedStage <= last)
+            .OrderByDescending(a => a.PartyLookUtc).Take(Parties.BoardSize + blocked.Count)
+            .Select(a => new { a.Id, a.Name, a.Class, a.Xp, a.TitleId, a.Blocked, a.PartyLookUtc }).ToListAsync(ct);
+        PartyBoardEntryDto[] heroes = rows
+            .Where(r => !blocked.Contains(r.Id) && !Blocks(r.Blocked ?? "", account.Id))
+            .Take(Parties.BoardSize)
+            .Select(r => new PartyBoardEntryDto(r.Id, ShownName(r.Id, r.Name), r.Class, Content.LevelFor(r.Xp), Achievements.TitleOf(r.TitleId),
+                (int)Math.Max(0, (now - r.PartyLookUtc!.Value).TotalMinutes)))
+            .ToArray();
+        return new PartyBoardDto(placeName, heroes, LookLeft(account, now), message);
+    }
+
+    /// <summary>Lists the hero on the party board (or takes it off); a hero in a party is not listed.</summary>
+    public async Task<PartyBoardDto> PartyLookAsync(Account account, PartyLookRequest request, CancellationToken ct)
+    {
+        if (request.Look && account.PartyLeaderId != null) throw new GameException("in_party", "You are in a party already: invite from the board instead.");
+        if (request.Look && Parties.Place(account.ParkedStage) < 0) throw new GameException("no_board", "There is no party board in a dungeon.");
+        account.PartyLookUtc = request.Look ? DateTime.UtcNow : null;
+        await SaveAsync(ct);
+        return await PartyBoardAsync(account, ct, request.Look ? $"You are on the party board for {Parties.LookMinutes} minutes." : "You are off the party board.");
     }
 
     /// <summary>A party's chat channel: its leader's id (Rules.Parties). Lines there are read from when each member joined.</summary>

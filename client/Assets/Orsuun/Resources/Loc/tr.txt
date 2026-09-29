@@ -2837,3 +2837,18 @@ The party is quiet. Say hello.	Grup sessiz. Bir merhaba de.
 a dungeon	bir zindan
 # Commanders on every map (29 Sep 2026).
 Reach {0} to fight {1}.	{1} ile dövüşmek için {0} bölgesine ulaş.
+# Party finder (29 Sep 2026).
+PARTY BOARD	GRUP PANOSU
+BOARD	PANO
+LIST ME	BENİ YAZ
+TAKE ME OFF	BENİ ÇIKAR
+ASK TO JOIN	KATILMAYA ÇAĞIR
+LOOKING FOR A PARTY	GRUP ARIYOR
+You are on this map's party board: heroes hunting here can ask you to join.	Bu haritanın grup panosundasın: burada avlanan kahramanlar seni gruba çağırabilir.
+Hunt with up to {0#} others: ask a friend or guildmate, or find heroes on this map's PARTY BOARD.	En fazla {0#} kişiyle avlan: bir dostu ya da lonca arkadaşını çağır, ya da bu haritanın GRUP PANOSU'nda kahraman bul.
+Nobody at {0} looks for a party now. LIST ME to be found.	{0} yakınında şu an grup arayan kimse yok. Bulunmak için BENİ YAZ'a dokun.
+You are on the party board for {0#} minutes.	{0#} dakika boyunca grup panosundasın.
+You are off the party board.	Grup panosundan çıktın.
+You are in a party already: invite from the board instead.	Zaten bir gruptasın: bunun yerine panodan çağır.
+There is no party board in a dungeon.	Zindanda grup panosu yok.
+Only friends, guildmates and heroes on this map's party board can join your party.	Grubuna yalnızca dostlar, lonca arkadaşları ve bu haritanın grup panosundaki kahramanlar katılabilir.

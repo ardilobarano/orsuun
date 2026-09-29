@@ -202,6 +202,8 @@ public sealed class Account
     public Guid? PartyInviteFrom { get; set; }
     public string? PartyInviteName { get; set; }
     public DateTime? PartyInviteUtc { get; set; }
+    /// <summary>Listed on the party board since (Rules.Parties.LookMinutes; cleared on joining a party).</summary>
+    public DateTime? PartyLookUtc { get; set; }
     public DateTime? CastUtc { get; set; }
     public int CastBiteMs { get; set; }
     /// <summary>A fish on the line (Fishing.Fish id, -1 none) and when it was hooked: landed by /v1/river/land.</summary>

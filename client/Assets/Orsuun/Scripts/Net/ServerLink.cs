@@ -1580,6 +1580,27 @@ namespace Orsuun.Client.Net
 
         public IEnumerator PartyLeave(Action<PartyDto, string> done) => PartyCall("POST", "/v1/party/leave", "{}", done);
 
+        /// <summary>The party board of the hero's place (Party finder): heroes looking for a party. Completes with (board, error).</summary>
+        public IEnumerator FetchPartyBoard(Action<PartyBoardDto, string> done) => BoardCall("GET", "/v1/party/board", null, done);
+
+        /// <summary>Lists the hero on the party board, or takes it off.</summary>
+        public IEnumerator PartyLook(bool look, Action<PartyBoardDto, string> done) =>
+            BoardCall("POST", "/v1/party/look", JsonUtility.ToJson(new PartyLookRequest { look = look }), done);
+
+        private IEnumerator BoardCall(string method, string path, string body, Action<PartyBoardDto, string> done)
+        {
+            PartyBoardDto result = null;
+            string failure = null;
+            yield return Send(method, path, body, true, json => result = JsonUtility.FromJson<PartyBoardDto>(json), error => failure = error ?? "No answer from the server.");
+            if (result != null) { _lookLeft = result.lookingLeft; _lookAt = Time.realtimeSinceStartup; }
+            done(result, failure);
+        }
+
+        /// <summary>The hero is listed on the party board now.</summary>
+        public bool PartyLooking => Online && !InParty && _lookLeft > 0 && Time.realtimeSinceStartup - _lookAt < _lookLeft;
+        private long _lookLeft;
+        private float _lookAt;
+
         public IEnumerator PartyKick(string accountId, Action<PartyDto, string> done) =>
             PartyCall("POST", "/v1/party/kick", JsonUtility.ToJson(new PartyKickRequest { accountId = accountId }), done);
 
@@ -1857,6 +1878,8 @@ namespace Orsuun.Client.Net
             _eliteAt = Time.realtimeSinceStartup;
             PartyLeader = s.partyLeader ?? "";
             PartyInviteName = s.partyInvite ?? "";
+            _lookLeft = s.partyLookLeft;
+            _lookAt = Time.realtimeSinceStartup;
             if (IsNoGuid(PartyLeader)) Party = null;
 
             // The Bannerkin's pieces (Rules.Bannerkin): its own, out of the bag; they still go on the anvil by their id.
@@ -2015,7 +2038,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; public long partyLookLeft; }
+        /// <summary>The party board (Party finder): heroes of the place looking for a party.</summary>
+        [Serializable] public class PartyBoardEntryDto { public string id; public string name; public string @class; public int level; public string title; public int minutesListed; }
+        [Serializable] public class PartyBoardDto { public string place; public PartyBoardEntryDto[] heroes; public long lookingLeft; public string message; }
+        [Serializable] public class PartyLookRequest { public bool look; }
         /// <summary>A hunting party (Rules.Parties): members, the hunt's bonus now (percent) and an invite waiting.</summary>
         [Serializable] public class PartyMemberDto { public string id; public string name; public string @class; public int level; public bool online; public bool together; public bool leader; public string hunting; }
         [Serializable] public class PartyDto { public string leaderId; public PartyMemberDto[] members; public int bonusPercent; public string inviteFrom; public string inviteName; public int maxMembers; public string message; }

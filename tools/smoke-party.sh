@@ -44,5 +44,15 @@ echo "B reads the new leader's channel: $(g "$B" '/v1/chat?channel=party&after=0
 echo "B's party (B leads): $(g "$B" /v1/party | jq -c "$P")  B is $(echo "$IB" | cut -c1-8)"
 echo "B sends C away: $(p "$B" /v1/party/kick "$(j --arg i "$IC" '{accountId:$i}')" | jq -c "$P")"
 echo "C's party: $(g "$C" /v1/party | jq -c "$P")"
-for S in "$E" "$D" "$C" "$B" "$A"; do curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $S" > /dev/null; done
-echo "deleted five"
+# The party board (Party finder): strangers on the same map. G lists itself; F sees G and asks it; H, not listed, cannot be asked.
+F=$(new); G=$(new); H=$(new)
+IG=$(id "$G"); IH=$(id "$H")
+for S in "$F" "$G" "$H"; do curl -s -X POST "$BASE/v1/heartbeat" -H 'Content-Type: application/json' -H "X-Session: $S" -d '{}' > /dev/null; done
+echo "G lists itself: $(p "$G" /v1/party/look '{"look":true}' | jq -c '{place, lookingLeft, message}')"
+echo "F's board: $(g "$F" /v1/party/board | jq -c --arg g "$IG" '{place, g: ([.heroes[] | select(.id == $g)] | length)}')"
+echo "F asks H (not listed): $(p "$F" /v1/party/invite "$(j --arg i "$IH" '{accountId:$i}')" | jq -c .code)"
+echo "F asks G from the board: $(p "$F" /v1/party/invite "$(j --arg i "$IG" '{accountId:$i}')" | jq -c .message)"
+echo "G joins: $(p "$G" /v1/party/answer '{"accept":true}' | jq -c "$P")"
+echo "G off the board: $(g "$F" /v1/party/board | jq -c --arg g "$IG" '[.heroes[] | select(.id == $g)] | length')  G lists again: $(p "$G" /v1/party/look '{"look":true}' | jq -c .code)"
+for S in "$H" "$G" "$F" "$E" "$D" "$C" "$B" "$A"; do curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $S" > /dev/null; done
+echo "deleted eight"

@@ -294,13 +294,18 @@ public sealed record StateDto(
     Guid PartyLeader = default,
     string? PartyInvite = null,
     int EliteCamp = -1,
-    long EliteLeft = 0);
+    long EliteLeft = 0,
+    long PartyLookLeft = 0);
 
 /// <summary>A hunting party (Rules.Parties): its members, the hunt's bonus now (percent), an invite waiting.</summary>
 public sealed record PartyMemberDto(Guid Id, string Name, HeroClass Class, int Level, bool Online, bool Together, bool Leader, string Hunting);
 public sealed record PartyDto(Guid LeaderId, PartyMemberDto[] Members, int BonusPercent, Guid InviteFrom, string InviteName, int MaxMembers,
     string? Message = null);
 public sealed record PartyInviteRequest(Guid AccountId, string? Name = null);
+/// <summary>The party board of the hero's place: heroes looking for a party, and how long the hero's own listing lasts.</summary>
+public sealed record PartyBoardEntryDto(Guid Id, string Name, HeroClass Class, int Level, string? Title, int MinutesListed);
+public sealed record PartyBoardDto(string Place, PartyBoardEntryDto[] Heroes, long LookingLeft, string? Message = null);
+public sealed record PartyLookRequest(bool Look);
 public sealed record PartyAnswerRequest(bool Accept);
 public sealed record PartyKickRequest(Guid AccountId);
 

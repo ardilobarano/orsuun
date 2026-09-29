@@ -13,6 +13,15 @@ namespace Orsuun.Rules
     public static class Parties
     {
         public const int MaxMembers = 4, InviteMinutes = 10, BonusBpPerMate = 500, PresentSeconds = 180;
+    /// <summary>The party board (owner, 29 Sep 2026: "Party finder"): a hero listed as looking for a party stays listed this
+    /// long (or until it joins one), and the board shows this many heroes of the place.</summary>
+    public const int LookMinutes = 30, BoardSize = 12;
+
+    public static bool Looking(DateTime? listedUtc, DateTime now) => listedUtc is DateTime at && at > now.AddMinutes(-LookMinutes) && at <= now.AddMinutes(1);
+
+    /// <summary>The park ids of a place (Place): a campaign map's ten stages, or a zone alone; none for a dungeon.</summary>
+    public static (int First, int Last) Stages(int place) =>
+        place < 0 ? (1, 0) : place >= 1000 ? ((place - 1001) * MapDef.StagesPerMap + 1, (place - 1000) * MapDef.StagesPerMap) : (place, place);
 
         /// <summary>The bonus (basis points of the hunt's XP and sorn) for this many partymates hunting alongside.</summary>
         public static int BonusBp(int matesTogether) => Math.Min(MaxMembers - 1, Math.Max(0, matesTogether)) * BonusBpPerMate;

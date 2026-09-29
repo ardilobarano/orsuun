@@ -2867,3 +2867,18 @@ The party is quiet. Say hello.	W drużynie cisza. Przywitaj się.
 a dungeon	loch
 # Commanders on every map (29 Sep 2026).
 Reach {0} to fight {1}.	Dotrzyj do: {0}, by walczyć z {1}.
+# Party finder (29 Sep 2026).
+PARTY BOARD	TABLICA DRUŻYN
+BOARD	TABLICA
+LIST ME	WPISZ MNIE
+TAKE ME OFF	WYPISZ MNIE
+ASK TO JOIN	ZAPROŚ
+LOOKING FOR A PARTY	SZUKA DRUŻYNY
+You are on this map's party board: heroes hunting here can ask you to join.	Jesteś na tablicy drużyn tej mapy: polujący tu bohaterowie mogą cię zaprosić.
+Hunt with up to {0#} others: ask a friend or guildmate, or find heroes on this map's PARTY BOARD.	Poluj z maksymalnie {0#} innymi: zaproś przyjaciela lub członka gildii albo znajdź bohaterów na TABLICY DRUŻYN tej mapy.
+Nobody at {0} looks for a party now. LIST ME to be found.	Nikt w: {0} nie szuka teraz drużyny. WPISZ MNIE, by cię znaleziono.
+You are on the party board for {0#} minutes.	Jesteś na tablicy drużyn przez {0#} minut.
+You are off the party board.	Nie ma cię już na tablicy drużyn.
+You are in a party already: invite from the board instead.	Jesteś już w drużynie: zamiast tego zapraszaj z tablicy.
+There is no party board in a dungeon.	W lochu nie ma tablicy drużyn.
+Only friends, guildmates and heroes on this map's party board can join your party.	Do twojej drużyny mogą dołączyć tylko przyjaciele, członkowie gildii i bohaterowie z tablicy drużyn tej mapy.

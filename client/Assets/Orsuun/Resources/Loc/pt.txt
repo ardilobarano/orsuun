@@ -2881,3 +2881,18 @@ The party is quiet. Say hello.	O grupo está calado. Diz olá.
 a dungeon	uma masmorra
 # Commanders on every map (29 Sep 2026).
 Reach {0} to fight {1}.	Chega a {0} para lutar contra {1}.
+# Party finder (29 Sep 2026).
+PARTY BOARD	QUADRO DE GRUPOS
+BOARD	QUADRO
+LIST ME	INSCREVE-ME
+TAKE ME OFF	RETIRA-ME
+ASK TO JOIN	CONVIDAR
+LOOKING FOR A PARTY	À PROCURA DE GRUPO
+You are on this map's party board: heroes hunting here can ask you to join.	Estás no quadro de grupos deste mapa: os heróis que caçam aqui podem convidar-te.
+Hunt with up to {0#} others: ask a friend or guildmate, or find heroes on this map's PARTY BOARD.	Caça com até {0#} outros: convida um amigo ou companheiro de guilda, ou encontra heróis no QUADRO DE GRUPOS deste mapa.
+Nobody at {0} looks for a party now. LIST ME to be found.	Ninguém em {0} procura grupo agora. INSCREVE-ME para seres encontrado.
+You are on the party board for {0#} minutes.	Ficas no quadro de grupos durante {0#} minutos.
+You are off the party board.	Saíste do quadro de grupos.
+You are in a party already: invite from the board instead.	Já estás num grupo: convida a partir do quadro.
+There is no party board in a dungeon.	Não há quadro de grupos numa masmorra.
+Only friends, guildmates and heroes on this map's party board can join your party.	Só amigos, companheiros de guilda e heróis do quadro de grupos deste mapa podem entrar no teu grupo.

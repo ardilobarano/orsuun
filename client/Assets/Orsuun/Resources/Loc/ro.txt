@@ -2875,3 +2875,18 @@ The party is quiet. Say hello.	Grupul tace. Salută-i.
 a dungeon	o temniță
 # Commanders on every map (29 Sep 2026).
 Reach {0} to fight {1}.	Ajungi în {0} ca să lupți cu {1}.
+# Party finder (29 Sep 2026).
+PARTY BOARD	PANOUL GRUPURILOR
+BOARD	PANOU
+LIST ME	ÎNSCRIE-MĂ
+TAKE ME OFF	SCOATE-MĂ
+ASK TO JOIN	INVITĂ
+LOOKING FOR A PARTY	CAUTĂ UN GRUP
+You are on this map's party board: heroes hunting here can ask you to join.	Ești pe panoul grupurilor acestei hărți: eroii care vânează aici te pot invita.
+Hunt with up to {0#} others: ask a friend or guildmate, or find heroes on this map's PARTY BOARD.	Vânează cu până la {0#} alții: invită un prieten sau un coleg de breaslă ori găsește eroi pe PANOUL GRUPURILOR acestei hărți.
+Nobody at {0} looks for a party now. LIST ME to be found.	Nimeni din {0} nu caută acum un grup. ÎNSCRIE-MĂ ca să fii găsit.
+You are on the party board for {0#} minutes.	Ești pe panoul grupurilor timp de {0#} minute.
+You are off the party board.	Nu mai ești pe panoul grupurilor.
+You are in a party already: invite from the board instead.	Ești deja într-un grup: invită de pe panou.
+There is no party board in a dungeon.	Într-o temniță nu există panou de grupuri.
+Only friends, guildmates and heroes on this map's party board can join your party.	Doar prietenii, colegii de breaslă și eroii de pe panoul grupurilor acestei hărți pot intra în grupul tău.
