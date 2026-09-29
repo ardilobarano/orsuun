@@ -145,7 +145,40 @@ namespace Orsuun.Rules
             new BossDef(1, GorakWarCamp, "Warlord Tul-Gorak", 1, 60_000, 90, BossMechanic.CaptainShield, 45 * 60, "Tul-Gorak's Warmask"),
             new BossDef(2, GorakWarCamp, "The Mirage Queen", 1, 50_000, 70, BossMechanic.MirrorImages, 45 * 60, "Mirage Veil"),
             new BossDef(3, GorakWarCamp, "Old Greyjaw", 1, 45_000, 60, BossMechanic.PackCaller, 45 * 60, "Greyjaw Pelt Cloak"),
+            // The map bosses of maps 4-12 as world Commanders (owner, 29 Sep 2026: "Commanders on every map"): each stands at
+            // its map's landmark while up (the client's MapCommander) and is fought like the war camp's three, with a clock,
+            // a shared pool and chests of its own. Their trophies are Caravan pieces (the war camp's three have their own).
+            MapCommander(4, 4, 2, BossMechanic.PackCaller, "Whitefang Yak"),
+            MapCommander(5, 5, 2, BossMechanic.None, "Ember Warhorse"),
+            MapCommander(6, 6, 2, BossMechanic.PackCaller, "Barrow Raven"),
+            MapCommander(7, 7, 3, BossMechanic.PackCaller, "Sky Stag"),
+            MapCommander(8, 8, 3, BossMechanic.None, "Steppe Lynx Kit"),
+            MapCommander(9, 9, 3, BossMechanic.PackCaller, "Grave Warden Shroud"),
+            MapCommander(10, 10, 4, BossMechanic.None, "Salt Road Camel"),
+            MapCommander(11, 11, 4, BossMechanic.CaptainShield, "Hollow Steed"),
+            MapCommander(12, 12, 4, BossMechanic.PackCaller, "Khagan's Eagle"),
         };
+
+        /// <summary>
+        /// A map Commander's health and attack, as percents of its map boss's (the map's last stage): the war camp's three
+        /// stand at about these shares of Gorak Pass's boss (Tul-Gorak's 60 000 health is 165% of its 36 450; a Commander's
+        /// attack is kept low, since a fight runs three minutes). The health is a share of the shared pool per fighter.
+        /// </summary>
+        public const int CommanderHpPercent = 130, CommanderAttackPercent = 25;
+
+        /// <summary>A map's boss as a world Commander, fought by heroes who can hunt the map (its first stage is its place).</summary>
+        private static BossDef MapCommander(int id, int map, int tier, BossMechanic mechanic, string trophy)
+        {
+            StageConfig top = CampaignStage(map * MapDef.StagesPerMap);
+            return new BossDef(id, (map - 1) * MapDef.StagesPerMap + 1, Maps[map - 1].BossName, tier, top.BossHp * CommanderHpPercent / 100,
+                top.BossAttack * CommanderAttackPercent / 100, mechanic, 45 * 60, trophy);
+        }
+
+        /// <summary>A Commander of a big map (not of a Commander Ground).</summary>
+        public static bool OnMap(BossDef boss) => !IsZone(boss.ZoneId);
+
+        /// <summary>The item level of a Commander's gear: the war camp's lowest, or a map's highest (its boss's).</summary>
+        public static int CommanderGearLevel(BossDef boss) => IsZone(boss.ZoneId) ? Zone(boss.ZoneId)!.LevelMin : MapOfStage(boss.ZoneId).LevelMax;
 
         /// <summary>Base names of the stat-only slots; weapon and armour names come from ItemLooks by level band.</summary>
         public static readonly string[] SlotBaseNames =
@@ -307,8 +340,8 @@ namespace Orsuun.Rules
         /// <summary>Lane configuration for a Commander fight: the boss alone, no packs before it.</summary>
         public static StageConfig BossStage(BossDef boss)
         {
-            ZoneDef zone = Zone(boss.ZoneId)!;
-            StageConfig config = ZoneStage(zone.Id);
+            // A map Commander fights on its map boss's stage (its mobs answer a pack call, its gear level drops).
+            StageConfig config = IsZone(boss.ZoneId) ? ZoneStage(boss.ZoneId) : CampaignStage(MapOfStage(boss.ZoneId).Id * MapDef.StagesPerMap);
             config.FinalEncounter = FinalEncounter.Boss;
             config.PacksBeforeKorstone = 0;
             config.BossHp = boss.Hp;

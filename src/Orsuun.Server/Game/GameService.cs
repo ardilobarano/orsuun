@@ -635,7 +635,8 @@ public sealed partial class GameService
         await EnsureFreshRequestAsync(account, request.RequestId, ct);
         BossDef boss = Content.Boss(request.BossId) ?? throw new GameException("no_boss", "Unknown Commander.");
         if (!Content.IsUnlocked(boss.ZoneId, account.HighestStageCleared))
-            throw new GameException("stage_locked", "That Commander Ground is not unlocked.");
+            throw new GameException("stage_locked", Content.OnMap(boss) ? $"Reach {Content.MapOfStage(boss.ZoneId).Name} to fight {boss.Name}."
+                : "That Commander Ground is not unlocked.");
 
         DateTime now = DateTime.UtcNow;
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
@@ -750,12 +751,26 @@ public sealed partial class GameService
         BossClock? clock = await _db.BossClocks.FindAsync(new object[] { boss.Id }, ct);
         if (clock == null)
         {
-            // A fresh server: the first spawn is on the next respawn boundary from a fixed epoch.
-            clock = new BossClock { BossId = boss.Id, SpawnUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+            clock = FreshClock(boss);
             _db.BossClocks.Add(clock);
         }
         RollClock(boss, clock, now);
         return clock;
+    }
+
+    /// <summary>A Commander's first clock: its first spawn on the next respawn boundary from a fixed epoch, a quarter hour
+    /// later for each Commander in a three (so the maps' Commanders do not all rise at once).</summary>
+    private static BossClock FreshClock(BossDef boss) =>
+        new() { BossId = boss.Id, SpawnUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMinutes(boss.Id % 3 * 15) };
+
+    /// <summary>At startup: a clock for every Commander that has none (the maps' Commanders arrived on 29 Sep 2026), so
+    /// requests never race to make one.</summary>
+    public static async Task SeedBossClocksAsync(GameDb db, CancellationToken ct)
+    {
+        List<int> have = await db.BossClocks.Select(c => c.BossId).ToListAsync(ct);
+        foreach (BossDef boss in Content.Bosses)
+            if (!have.Contains(boss.Id)) db.BossClocks.Add(FreshClock(boss));
+        await db.SaveChangesAsync(ct);
     }
 
     /// <summary>Moves a Commander's clock to its current spawn; spawns come faster during a Commander rush.</summary>
@@ -892,16 +907,24 @@ public sealed partial class GameService
         await ExpireListingsAsync(account, ct);
         DateTime now = DateTime.UtcNow;
         var list = new List<BossStatusDto>();
-        long freshPool = -1;
+        // Twelve Commanders since 29 Sep 2026 ("Commanders on every map"): their clocks, this hero's fights and the spawns'
+        // hits are read in one query each, not per Commander.
+        List<int> ids = Content.Bosses.Select(b => b.Id).ToList();
+        await _db.BossClocks.Where(c => ids.Contains(c.BossId)).LoadAsync(ct);
+        var clocks = new Dictionary<int, BossClock>();
+        foreach (BossDef boss in Content.Bosses) clocks[boss.Id] = await ClockAsync(boss, now, ct);
+        List<string> keys = Content.Bosses.Select(b => "boss:" + b.Id + ":" + clocks[b.Id].SpawnUtc.Ticks).ToList();
+        HashSet<string> fought = (await _db.Ledger.Where(l => l.AccountId == account.Id && keys.Contains(l.Kind)).Select(l => l.Kind).ToListAsync(ct)).ToHashSet();
+        DateTime oldest = clocks.Values.Min(c => c.SpawnUtc);
+        var hits = await _db.BossHits.AsNoTracking().Where(h => ids.Contains(h.BossId) && h.SpawnUtc >= oldest)
+            .Select(h => new { h.BossId, h.SpawnUtc, h.Name, h.Banner, h.Damage }).ToListAsync(ct);
+        long freshPool = await PoolFightersAsync(now, ct);
         foreach (BossDef boss in Content.Bosses)
         {
-            BossClock clock = await ClockAsync(boss, now, ct);
-            string spawnKey = "boss:" + boss.Id + ":" + clock.SpawnUtc.Ticks;
-            bool fought = await _db.Ledger.AnyAsync(l => l.AccountId == account.Id && l.Kind == spawnKey, ct);
-            BossHitDto[] top = await _db.BossHits.Where(h => h.BossId == boss.Id && h.SpawnUtc == clock.SpawnUtc)
-                .OrderByDescending(h => h.Damage).Take(3).Select(h => new BossHitDto(h.Name, h.Banner, h.Damage)).ToArrayAsync(ct);
-            if (freshPool < 0) freshPool = await PoolFightersAsync(now, ct);
-            list.Add(BossStatus(boss, clock, fought, boss.Hp * freshPool, top, now));
+            BossClock clock = clocks[boss.Id];
+            BossHitDto[] top = hits.Where(h => h.BossId == boss.Id && h.SpawnUtc == clock.SpawnUtc).OrderByDescending(h => h.Damage).Take(3)
+                .Select(h => new BossHitDto(h.Name, h.Banner, h.Damage)).ToArray();
+            list.Add(BossStatus(boss, clock, fought.Contains("boss:" + boss.Id + ":" + clock.SpawnUtc.Ticks), boss.Hp * freshPool, top, now));
         }
         await _db.SaveChangesAsync(ct);
         var (friendAsks, guildInvites, whispers) = await SocialCountsAsync(account, ct);

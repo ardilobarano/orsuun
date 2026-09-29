@@ -353,4 +353,6 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   (it passes with the lead), read from each member's `PartyJoinedUtc`.
 - Elite camps (`Rules.EliteCamps`) are rolled from the server's clock per place (`Parties.Place`) and paid in `Settle` (live
   hunting only); the client only dresses packs near the camp (`LaneView.EliteCamp`): never put them in LaneSim (replays).
-  Map world bosses are `MapCommander.Sightings` (Commander id, layout, camp): a new Commander needs a row and a model.
+  Map world bosses are `MapCommander.Sightings` (Commander id, layout, camp): a new Commander needs a row and a model
+  (`MapCommander.Models`). Commanders 4-12 are the map bosses (`Content.MapCommander`: `ZoneId` is the map's first stage,
+  so code must not assume a Commander's `ZoneId` is a zone; use `Content.OnMap` / `CommanderGearLevel` / `BossStage`).

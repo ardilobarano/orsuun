@@ -1999,10 +1999,17 @@ namespace Orsuun.Client
                     return LoadMob(name);
                 }
                 case EnemyKind.Captain:
+                {
+                    // Tul-Gorak's captains are deserters in war-red; a map Commander's (Varkesh's) are its map's own third
+                    // kind, the risen captains.
                     scale = 1f;
+                    int map = CampaignMap(_sim.Stage.StageNumber);
+                    MobArt own = map >= 3 ? LoadMob(name = ModelOf(MobSetFor(_sim.Stage.StageNumber)[2])) : null;
+                    if (own != null) { scale = MobScale * 1.15f; return own; }
                     tint = new Color(1f, 0.72f, 0.55f);
                     name = "Deserter";
                     return LoadMob(name);
+                }
                 case EnemyKind.Boss:
                 {
                     // Commanders have their own models (24 Sep 2026); older builds fall back to scaled mobs.
@@ -2270,14 +2277,18 @@ namespace Orsuun.Client
 
         /// <summary>A Commander's own model (Greyjaw, Gorak, Queen) at the lane's mob size, idling, for its appearance on a
         /// big map (MapCommander); null without its art.</summary>
-        internal Transform CommanderModel(string name, out Animation anim)
+        internal Transform CommanderModel(string name, Color? tint, out Animation anim)
         {
             anim = null;
             MobArt art = LoadMob(name);
             if (art == null) return null;
             Transform root = Instantiate(art.Model).transform;
             root.name = "Commander" + name;
-            foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) r.sharedMaterial = art.Material;
+            foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
+            {
+                r.sharedMaterial = art.Material;
+                if (tint.HasValue) r.material.color = tint.Value;
+            }
             root.localScale = Vector3.one * MobScale;
             anim = root.GetComponent<Animation>();
             if (anim != null && anim.GetClip("Idle") == null) anim = null;

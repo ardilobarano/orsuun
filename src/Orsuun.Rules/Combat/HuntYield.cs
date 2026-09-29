@@ -126,7 +126,7 @@ namespace Orsuun.Rules.Combat
             int legendaryBp = rank == 1 ? 1000 : rank <= 5 ? 300 : 0;
             int alloyBp = rank == 1 ? 5000 : rank <= 5 ? 2500 : 1000;
 
-            var stage = new StageConfig { GearItemLevel = Content.Zone(boss.ZoneId)!.LevelMin };
+            var stage = new StageConfig { GearItemLevel = Content.CommanderGearLevel(boss) };
             ItemState gear = DropGear(stage, inventory, rng, rng.RollBp(legendaryBp) ? Rarity.Legendary : Rarity.Epic, minimum: rank <= 5 ? Rarity.Epic : Rarity.Rare);
             text += ", " + gear.DisplayName;
             if (rng.RollBp(alloyBp))

@@ -2873,3 +2873,5 @@ The party is quiet. Say hello.	Grupul tace. Salută-i.
 {0} now hunts {1}.	{0} vânează acum în {1}.
 {0} hunts beside you.	{0} vânează alături de tine.
 a dungeon	o temniță
+# Commanders on every map (29 Sep 2026).
+Reach {0} to fight {1}.	Ajungi în {0} ca să lupți cu {1}.

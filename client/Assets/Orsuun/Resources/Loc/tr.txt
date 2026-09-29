@@ -2835,3 +2835,5 @@ The party is quiet. Say hello.	Grup sessiz. Bir merhaba de.
 {0} now hunts {1}.	{0} artık {1} bölgesinde avlanıyor.
 {0} hunts beside you.	{0} yanında avlanıyor.
 a dungeon	bir zindan
+# Commanders on every map (29 Sep 2026).
+Reach {0} to fight {1}.	{1} ile dövüşmek için {0} bölgesine ulaş.

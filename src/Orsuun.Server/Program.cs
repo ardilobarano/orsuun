@@ -59,6 +59,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
     await GameService.BackfillNamesAsync(db, CancellationToken.None);   // characters made before names (25 Sep 2026)
     await GameService.SeedFortressesAsync(db, CancellationToken.None);
+    await GameService.SeedBossClocksAsync(db, CancellationToken.None);
     await app.Services.GetRequiredService<EventCalendar>().ReloadAsync(db, CancellationToken.None);
 }
 

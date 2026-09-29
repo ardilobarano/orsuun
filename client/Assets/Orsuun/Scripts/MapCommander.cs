@@ -9,7 +9,8 @@ namespace Orsuun.Client
     /// Map world bosses (owner, 29 Sep 2026: "Map world bosses"). While a Commander is up (its spawn window on the server's
     /// clock, BossDef.WindowSeconds every RespawnSeconds), it stands at its landmark's camp on the big maps it belongs to:
     /// Old Greyjaw at the Oathfields' Wolf Den and the Ember Steppe's Wolf Hill, Warlord Tul-Gorak at Gorak Pass's Drum
-    /// Ground and the war camp's War Drums, the Mirage Queen at the Salt Sea's Oasis Shrine and the Salt Flats' Mirage Flats.
+    /// Ground and the war camp's War Drums, the Mirage Queen at the Salt Sea's Oasis Shrine and the Salt Flats' Mirage Flats,
+    /// and since "Commanders on every map" each map boss of maps 4-12 (Rules: Content.OnMap) at its own map's landmark.
     /// Every hero on such a map is called: a card and a horn when it rises, then a call on the HUD with its time left, and a
     /// gold crown on the minimap and the full map. The call (or the crown's name on the full map) fights it through the
     /// Commanders' own fight (GameRoot.FightBoss: one fight a spawn, the shared pool). Presentation only: the clock, the
@@ -23,10 +24,23 @@ namespace Orsuun.Client
             (3, "Oathfields", "Wolf Den"), (3, "EmberSteppe", "Wolf Hill"),
             (1, "GorakPass", "The Drum Ground"), (1, "GorakWarCamp", "War Drums"),
             (2, "SaltSea", "Oasis Shrine"), (2, "SaltFlats", "Mirage Flats"),
+            // Commanders on every map (29 Sep 2026): each map boss of maps 4-12 at its landmark's camp.
+            (4, "Whitefang", "Shrine Pass"), (5, "CinderMarches", "Lava Ford"), (6, "Whisperwood", "Widow's Pond"),
+            (7, "Bloodbirch", "Root Hollow"), (8, "DrownedSteppe", "Serpent Pools"), (9, "ColossusGraves", "The Broken Colossus"),
+            (10, "SunkenBazaar", "Drowned Market"), (11, "ThousandMarkers", "Captain's Mound"), (12, "HollowThrone", "Throne Steps"),
         };
 
-        /// <summary>A Commander towers over the monsters round it (three times the lane's mob size).</summary>
-        private const float Size = 3f;
+        /// <summary>Each Commander's model (Models/Mobs) and tint; Nine-Winters is an ice wight grown tall and pale, as in his
+        /// map-boss fight.</summary>
+        private static readonly System.Collections.Generic.Dictionary<int, (string Model, Color? Tint)> Models = new System.Collections.Generic.Dictionary<int, (string, Color?)>
+        {
+            [1] = ("Gorak", null), [2] = ("Queen", null), [3] = ("Greyjaw", null), [4] = ("IceWight", new Color(0.78f, 0.9f, 1f)),
+            [5] = ("Azhdar", null), [6] = ("LanternWidow", null), [7] = ("Rootfather", null), [8] = ("CoilMother", null), [9] = ("Hurm", null),
+            [10] = ("MerchantPrince", null), [11] = ("Varkesh", null), [12] = ("KhanShadow", null),
+        };
+
+        /// <summary>A Commander towers over the monsters round it: every one stands this tall (metres), whatever its model.</summary>
+        private const float Height = 5.5f;
         public static readonly Color Gold = new Color(1f, 0.78f, 0.25f);
 
         private GameRoot _root;
@@ -130,18 +144,20 @@ namespace Orsuun.Client
         private void Stand(FieldMap map, int bossId, int camp)
         {
             BossDef boss = Content.Boss(bossId);
-            string model = boss == null ? null : boss.Name.Contains("Greyjaw") ? "Greyjaw" : boss.Name.Contains("Gorak") ? "Gorak" : "Queen";
-            _model = model == null ? null : _lane.CommanderModel(model, out _anim);
+            if (boss == null || !Models.TryGetValue(bossId, out var look)) return;
+            _model = _lane.CommanderModel(look.Model, look.Tint, out _anim);
             if (_model == null) return;
             _modelBoss = bossId;
             _modelOn = map.Current;
             FieldMap.Spot c = map.Current.Camps[camp];
             _model.SetParent(map.Root, false);
             _model.localPosition = new Vector3(c.X, 0f, c.Z);
-            _model.localScale *= Size / Mathf.Max(0.01f, map.Root.lossyScale.x);
             _body = _model.GetComponentsInChildren<Renderer>();
-            // Measured at the bind pose (a skinned mesh's own bounds are not updated until it is drawn).
-            float top = Mathf.Max(2f, HeroFigure.Measure(new System.Collections.Generic.List<Renderer>(_body), _model.position).max.y - _model.position.y);
+            // Measured at the bind pose (a skinned mesh's own bounds are not updated until it is drawn), then grown to Height.
+            var parts = new System.Collections.Generic.List<Renderer>(_body);
+            float tall = HeroFigure.Measure(parts, _model.position).max.y - _model.position.y;
+            if (tall > 0.05f) _model.localScale *= Height / tall;
+            float top = Mathf.Max(2f, HeroFigure.Measure(parts, _model.position).max.y - _model.position.y);
             var go = new GameObject("CommanderName");
             go.transform.SetParent(_model, false);
             go.transform.position = _model.position + Vector3.up * (top + 0.5f);
