@@ -1,0 +1,552 @@
+{
+ "Name": "The Hollow Spire",
+ "Map": 0,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -42.8,
+   "y": 62.1
+  },
+  {
+   "x": 7.9,
+   "y": 64.6
+  },
+  {
+   "x": 49.6,
+   "y": 54.3
+  },
+  {
+   "x": 82.4,
+   "y": 30.0
+  },
+  {
+   "x": 86.4,
+   "y": -8.3
+  },
+  {
+   "x": 58.5,
+   "y": -40.7
+  },
+  {
+   "x": 20.7,
+   "y": -69.7
+  },
+  {
+   "x": -32.8,
+   "y": -78.1
+  },
+  {
+   "x": -66.7,
+   "y": -43.4
+  },
+  {
+   "x": -74.1,
+   "y": -5.8
+  },
+  {
+   "x": -70.2,
+   "y": 33.3
+  }
+ ],
+ "ScenerySet": "Ruins",
+ "KorstoneRing": "SaltPillar",
+ "GrassCards": 260,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "SaltPillar",
+   "X": -35.5,
+   "Z": 72.3,
+   "Yaw": 0,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -19.0,
+   "Z": 74.6,
+   "Yaw": 37,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -4.5,
+   "Z": 73.5,
+   "Yaw": 74,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 10.9,
+   "Z": 73.2,
+   "Yaw": 111,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 26.0,
+   "Z": 70.2,
+   "Yaw": 148,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 41.7,
+   "Z": 66.9,
+   "Yaw": 185,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 55.9,
+   "Z": 60.2,
+   "Yaw": 222,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 70.0,
+   "Z": 53.3,
+   "Yaw": 259,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 83.1,
+   "Z": 42.1,
+   "Yaw": 296,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 93.1,
+   "Z": 28.0,
+   "Yaw": 333,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 96.2,
+   "Z": 11.5,
+   "Yaw": 370,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 96.0,
+   "Z": -6.6,
+   "Yaw": 407,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 87.6,
+   "Z": -22.7,
+   "Yaw": 444,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 77.9,
+   "Z": -34.7,
+   "Yaw": 481,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 66.2,
+   "Z": -44.4,
+   "Yaw": 518,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 56.2,
+   "Z": -55.1,
+   "Yaw": 555,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 44.7,
+   "Z": -64.2,
+   "Yaw": 592,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 31.3,
+   "Z": -74.3,
+   "Yaw": 629,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 16.2,
+   "Z": -80.0,
+   "Yaw": 666,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 1.5,
+   "Z": -85.2,
+   "Yaw": 703,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -14.4,
+   "Z": -87.2,
+   "Yaw": 740,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -31.2,
+   "Z": -87.5,
+   "Yaw": 777,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -47.9,
+   "Z": -79.0,
+   "Yaw": 814,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -60.4,
+   "Z": -68.0,
+   "Yaw": 851,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -69.1,
+   "Z": -54.9,
+   "Yaw": 888,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -77.6,
+   "Z": -41.0,
+   "Yaw": 925,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -80.9,
+   "Z": -24.4,
+   "Yaw": 962,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -82.8,
+   "Z": -9.1,
+   "Yaw": 999,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -82.5,
+   "Z": 5.0,
+   "Yaw": 1036,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -82.5,
+   "Z": 21.6,
+   "Yaw": 1073,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -77.0,
+   "Z": 37.6,
+   "Yaw": 1110,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -69.0,
+   "Z": 52.3,
+   "Yaw": 1147,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -56.5,
+   "Z": 63.5,
+   "Yaw": 1184,
+   "Height": 8,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -27.5,
+   "Z": 82.4,
+   "Yaw": 0,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 4.5,
+   "Z": 81.9,
+   "Yaw": 53,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 36.7,
+   "Z": 76.9,
+   "Yaw": 106,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 67.0,
+   "Z": 64.6,
+   "Yaw": 159,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 95.7,
+   "Z": 40.8,
+   "Yaw": 212,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 105.4,
+   "Z": 2.7,
+   "Yaw": 265,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 89.3,
+   "Z": -34.7,
+   "Yaw": 318,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 67.5,
+   "Z": -55.6,
+   "Yaw": 371,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 42.7,
+   "Z": -76.9,
+   "Yaw": 424,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 11.5,
+   "Z": -90.9,
+   "Yaw": 477,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -22.4,
+   "Z": -96.5,
+   "Yaw": 530,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -60.6,
+   "Z": -80.0,
+   "Yaw": 583,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -80.5,
+   "Z": -53.5,
+   "Yaw": 636,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -90.6,
+   "Z": -17.6,
+   "Yaw": 689,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -91.4,
+   "Z": 14.2,
+   "Yaw": 742,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -80.5,
+   "Z": 50.0,
+   "Yaw": 795,
+   "Height": 9,
+   "Tint": "#5E586E"
+  },
+  {
+   "Name": "IceShrine",
+   "X": 6.0,
+   "Z": 76.3,
+   "Yaw": 273.0,
+   "Height": 3.8,
+   "Tint": "#7A7488"
+  },
+  {
+   "Name": "IceShrine",
+   "X": 99.7,
+   "Z": -0.9,
+   "Yaw": 5.7,
+   "Height": 3.8,
+   "Tint": "#7A7488"
+  },
+  {
+   "Name": "IceShrine",
+   "X": 7.8,
+   "Z": -86.3,
+   "Yaw": 74.1,
+   "Height": 3.8,
+   "Tint": "#7A7488"
+  },
+  {
+   "Name": "IceShrine",
+   "X": -85.2,
+   "Z": -14.2,
+   "Yaw": 180.0,
+   "Height": 3.8,
+   "Tint": "#7A7488"
+  }
+ ],
+ "Weather": "wisps",
+ "Birds": false,
+ "Camps": [
+  {
+   "Name": "Lower Hall",
+   "X": -19.0,
+   "Z": 73.3
+  },
+  {
+   "Name": "Bone Stair",
+   "X": 61.0,
+   "Z": 58.2
+  },
+  {
+   "Name": "Hollow Gallery",
+   "X": 87.2,
+   "Z": -22.4
+  },
+  {
+   "Name": "Warden's Walk",
+   "X": 21.2,
+   "Z": -78.7
+  },
+  {
+   "Name": "Violet Crypt",
+   "X": -62.3,
+   "Z": -63.6
+  },
+  {
+   "Name": "Spire Heart",
+   "X": -82.7,
+   "Z": 16.0
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Hollow Spire",
+   "X": 57.2,
+   "Z": -79.8
+  }
+ ],
+ "Groves": [],
+ "Patches": [
+  {
+   "Name": "ash",
+   "X": 46.2,
+   "Z": 40.4,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 30
+  },
+  {
+   "Name": "ash",
+   "X": 29.6,
+   "Z": -45.5,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 70
+  },
+  {
+   "Name": "ash",
+   "X": -59.1,
+   "Z": -21.7,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 10
+  }
+ ],
+ "KorstoneRingTint": "#5E586E",
+ "Dungeon": 1,
+ "Backdrop": "HollowSpire"
+}

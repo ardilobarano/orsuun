@@ -331,7 +331,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Big maps (`FieldMap`, 28-29 Sep 2026; every campaign map): a layout per map in `Resources/FieldMaps/<Name>.json` (its
   `Map` id; trail clockwise, so the camera, which looks across the hero's left, sees the loop's outside: landmarks and
   camps go there, 7-25 m off the trail). Maps 2-12 are written by `tools/art/field_layouts.py` (edit it, not the JSON);
-  models take a `Tint`, the ground `Patches`, the river its colours, each map its `KorstoneRing` model. The map moves and turns under the fixed hero (camera, fights and ring unchanged);
+  models take a `Tint`, the ground `Patches`, the river its colours, each map its `KorstoneRing` model (and tint). A
+  layout serves a campaign `Map`, `Zones` (park ids) or a `Dungeon`'s floors; its `Backdrop` (python only) names the
+  lane backdrop whose field floor colours the sketch. The map moves and turns under the fixed hero (camera, fights and ring unchanged);
   presentation only. Its full map is `Content/FieldMaps/<Name>.jpg`: `tools/art/field_map.py <Name>` draws the sketch,
   GPT Image 2.5 paints over it, `--finish` writes the game's copy and a check overlay. Camp and place names need Loc lines.
   `-mapat <m>` holds the hero on the trail, `-mapview` looks down on the whole map, `-mapshow` opens the full map.

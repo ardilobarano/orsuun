@@ -1,0 +1,246 @@
+{
+ "Name": "Frost Pasture",
+ "Map": 0,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -3.7,
+   "y": 68.1
+  },
+  {
+   "x": 40.7,
+   "y": 59.1
+  },
+  {
+   "x": 76.3,
+   "y": 28.1
+  },
+  {
+   "x": 74.4,
+   "y": -13.1
+  },
+  {
+   "x": 59.5,
+   "y": -46.4
+  },
+  {
+   "x": 31.4,
+   "y": -76.3
+  },
+  {
+   "x": -18.7,
+   "y": -80.3
+  },
+  {
+   "x": -56.5,
+   "y": -47.9
+  },
+  {
+   "x": -72.8,
+   "y": -5.7
+  },
+  {
+   "x": -73.7,
+   "y": 37.8
+  },
+  {
+   "x": -40.7,
+   "y": 66.3
+  }
+ ],
+ "ScenerySet": "Mountain",
+ "KorstoneRing": "IceCrag",
+ "GrassCards": 600,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "Yurt",
+   "X": 91.1,
+   "Z": 28.2,
+   "Yaw": 30,
+   "Height": 4,
+   "Tint": "#E6ECF4"
+  },
+  {
+   "Name": "Yurt",
+   "X": 98.9,
+   "Z": 14.7,
+   "Yaw": 90,
+   "Height": 3.6,
+   "Tint": "#E6ECF4"
+  },
+  {
+   "Name": "Yurt",
+   "X": 92.1,
+   "Z": 3.6,
+   "Yaw": 150,
+   "Height": 4.2,
+   "Tint": "#E6ECF4"
+  },
+  {
+   "Name": "MountainHut",
+   "X": -7.2,
+   "Z": -96.4,
+   "Yaw": 95.7,
+   "Height": 5
+  },
+  {
+   "Name": "IceShrine",
+   "X": -77.1,
+   "Z": -28.8,
+   "Yaw": 162.5,
+   "Height": 3.6
+  },
+  {
+   "Name": "IceCrag",
+   "X": 74.6,
+   "Z": -59.8,
+   "Yaw": 34.5,
+   "Height": 8
+  },
+  {
+   "Name": "IceCrag",
+   "X": -72.3,
+   "Z": 72.7,
+   "Yaw": 232.6,
+   "Height": 7
+  }
+ ],
+ "Weather": "snow",
+ "Birds": false,
+ "Camps": [
+  {
+   "Name": "Frost Gate",
+   "X": 20.9,
+   "Z": 72.9
+  },
+  {
+   "Name": "Herders' Yurts",
+   "X": 83.1,
+   "Z": 33.5
+  },
+  {
+   "Name": "Bear Rocks",
+   "X": 64.2,
+   "Z": -52.9
+  },
+  {
+   "Name": "Lone Hut",
+   "X": -6.9,
+   "Z": -91.0
+  },
+  {
+   "Name": "Wolf Stone",
+   "X": -74.7,
+   "Z": -28.0
+  },
+  {
+   "Name": "White Fold",
+   "X": -71.9,
+   "Z": 54.8
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Frost Pasture",
+   "X": 4.8,
+   "Z": -114.4
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "FrostPine",
+   "X": -1.8,
+   "Z": 90.0,
+   "Radius": 10,
+   "Count": 6,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": 63.1,
+   "Z": 71.6,
+   "Radius": 10,
+   "Count": 6,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": 94.3,
+   "Z": -30.7,
+   "Radius": 10,
+   "Count": 6,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": 40.0,
+   "Z": -96.6,
+   "Radius": 10,
+   "Count": 6,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": -64.3,
+   "Z": -73.3,
+   "Radius": 10,
+   "Count": 6,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": -99.8,
+   "Z": 10.1,
+   "Radius": 10,
+   "Count": 6,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": -37.5,
+   "Z": 90.2,
+   "Radius": 10,
+   "Count": 6,
+   "Height": 8
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "ice",
+   "X": -57.9,
+   "Z": -82.8,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 30
+  },
+  {
+   "Name": "snow",
+   "X": 39.8,
+   "Z": 76.8,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 10
+  },
+  {
+   "Name": "snow",
+   "X": 32.9,
+   "Z": -52.8,
+   "Radius": 14,
+   "Height": 9.1,
+   "Yaw": 60
+  },
+  {
+   "Name": "snow",
+   "X": -90.5,
+   "Z": 22.1,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 30
+  }
+ ],
+ "Zones": [
+  203
+ ],
+ "Backdrop": "FrostPasture"
+}

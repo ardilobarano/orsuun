@@ -1,0 +1,548 @@
+{
+ "Name": "The Carvers' Archive",
+ "Map": 0,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": 63.5,
+   "y": -17.5
+  },
+  {
+   "x": 36.2,
+   "y": -55.6
+  },
+  {
+   "x": -3.5,
+   "y": -83.6
+  },
+  {
+   "x": -41.7,
+   "y": -72.2
+  },
+  {
+   "x": -63.4,
+   "y": -43.6
+  },
+  {
+   "x": -77.3,
+   "y": -7.0
+  },
+  {
+   "x": -66.5,
+   "y": 43.9
+  },
+  {
+   "x": -22.6,
+   "y": 73.0
+  },
+  {
+   "x": 21.6,
+   "y": 70.9
+  },
+  {
+   "x": 60.2,
+   "y": 59.1
+  },
+  {
+   "x": 77.8,
+   "y": 20.3
+  }
+ ],
+ "ScenerySet": "Mountain",
+ "KorstoneRing": "SaltPillar",
+ "GrassCards": 260,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "SaltPillar",
+   "X": 65.6,
+   "Z": -29.9,
+   "Yaw": 0,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 58.3,
+   "Z": -42.6,
+   "Yaw": 37,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 47.7,
+   "Z": -55.0,
+   "Yaw": 74,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 38.0,
+   "Z": -66.1,
+   "Yaw": 111,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 25.9,
+   "Z": -75.9,
+   "Yaw": 148,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 13.4,
+   "Z": -85.8,
+   "Yaw": 185,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -3.3,
+   "Z": -91.7,
+   "Yaw": 222,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -22.1,
+   "Z": -91.2,
+   "Yaw": 259,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -36.1,
+   "Z": -84.8,
+   "Yaw": 296,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -50.6,
+   "Z": -76.5,
+   "Yaw": 333,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -61.3,
+   "Z": -63.1,
+   "Yaw": 370,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -70.1,
+   "Z": -49.6,
+   "Yaw": 407,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -76.5,
+   "Z": -36.5,
+   "Yaw": 444,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -83.6,
+   "Z": -21.8,
+   "Yaw": 481,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -85.3,
+   "Z": -5.4,
+   "Yaw": 518,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -85.6,
+   "Z": 9.9,
+   "Yaw": 555,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -82.4,
+   "Z": 25.4,
+   "Yaw": 592,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -77.7,
+   "Z": 42.0,
+   "Yaw": 629,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -67.4,
+   "Z": 55.4,
+   "Yaw": 666,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -55.7,
+   "Z": 66.3,
+   "Yaw": 703,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -41.4,
+   "Z": 73.9,
+   "Yaw": 740,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -27.0,
+   "Z": 80.8,
+   "Yaw": 777,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -9.8,
+   "Z": 83.0,
+   "Yaw": 814,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 6.7,
+   "Z": 82.5,
+   "Yaw": 851,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 21.1,
+   "Z": 79.1,
+   "Yaw": 888,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 35.4,
+   "Z": 77.7,
+   "Yaw": 925,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 50.4,
+   "Z": 73.4,
+   "Yaw": 962,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 67.0,
+   "Z": 64.8,
+   "Yaw": 999,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 76.7,
+   "Z": 50.4,
+   "Yaw": 1036,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 83.6,
+   "Z": 36.4,
+   "Yaw": 1073,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 85.8,
+   "Z": 19.3,
+   "Yaw": 1110,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 83.0,
+   "Z": 1.3,
+   "Yaw": 1147,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 75.6,
+   "Z": -12.1,
+   "Yaw": 1184,
+   "Height": 8,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 69.4,
+   "Z": -40.9,
+   "Yaw": 0,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 48.9,
+   "Z": -66.9,
+   "Yaw": 53,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 24.8,
+   "Z": -88.1,
+   "Yaw": 106,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -12.9,
+   "Z": -101.1,
+   "Yaw": 159,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -48.5,
+   "Z": -88.1,
+   "Yaw": 212,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -73.1,
+   "Z": -61.1,
+   "Yaw": 265,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -87.9,
+   "Z": -33.5,
+   "Yaw": 318,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -94.3,
+   "Z": 2.7,
+   "Yaw": 371,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -88.8,
+   "Z": 36.0,
+   "Yaw": 424,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -67.3,
+   "Z": 67.7,
+   "Yaw": 477,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -38.0,
+   "Z": 85.4,
+   "Yaw": 530,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -1.2,
+   "Z": 91.7,
+   "Yaw": 583,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 29.3,
+   "Z": 86.9,
+   "Yaw": 636,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 63.3,
+   "Z": 77.6,
+   "Yaw": 689,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 88.7,
+   "Z": 46.3,
+   "Yaw": 742,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 93.6,
+   "Z": 8.2,
+   "Yaw": 795,
+   "Height": 9,
+   "Tint": "#9AA4B4"
+  },
+  {
+   "Name": "IceShrine",
+   "X": 43.6,
+   "Z": -64.5,
+   "Yaw": 45.0,
+   "Height": 3.8
+  },
+  {
+   "Name": "IceShrine",
+   "X": -70.0,
+   "Z": -55.5,
+   "Yaw": 150.9,
+   "Height": 3.8
+  },
+  {
+   "Name": "IceShrine",
+   "X": -61.0,
+   "Z": 65.7,
+   "Yaw": 232.6,
+   "Height": 3.8
+  },
+  {
+   "Name": "IceShrine",
+   "X": 63.9,
+   "Z": 70.8,
+   "Yaw": 306.3,
+   "Height": 3.8
+  }
+ ],
+ "Weather": "motes",
+ "Birds": false,
+ "Camps": [
+  {
+   "Name": "Entry Vault",
+   "X": 57.3,
+   "Z": -41.9
+  },
+  {
+   "Name": "Rune Hall",
+   "X": -9.6,
+   "Z": -92.7
+  },
+  {
+   "Name": "Carved Gallery",
+   "X": -76.0,
+   "Z": -36.3
+  },
+  {
+   "Name": "Sealed Stacks",
+   "X": -71.5,
+   "Z": 51.5
+  },
+  {
+   "Name": "Cold Chamber",
+   "X": 10.5,
+   "Z": 80.5
+  },
+  {
+   "Name": "Last Carver's Rest",
+   "X": 81.7,
+   "Z": 40.9
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Carvers' Archive",
+   "X": -101.9,
+   "Z": 29.9
+  }
+ ],
+ "Groves": [],
+ "Patches": [
+  {
+   "Name": "ash",
+   "X": -6.6,
+   "Z": -69.9,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 30
+  },
+  {
+   "Name": "ash",
+   "X": -59.0,
+   "Z": 20.0,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 70
+  },
+  {
+   "Name": "ash",
+   "X": 43.4,
+   "Z": 52.6,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 10
+  }
+ ],
+ "KorstoneRingTint": "#9AA4B4",
+ "Dungeon": 3,
+ "Backdrop": "CarversArchive"
+}

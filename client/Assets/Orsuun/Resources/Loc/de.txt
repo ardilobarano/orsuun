@@ -2788,3 +2788,52 @@ Mist Hollow	Nebelmulde
 FRAME RATE	BILDRATE
 HIDE	AUSBLENDEN
 SHOW	ANZEIGEN
+# Big maps of the zones and dungeon halls (camps and places, 29 Sep 2026).
+Entry Vault	Eingangsgewölbe
+Rune Hall	Runenhalle
+Carved Gallery	Geschnitzte Galerie
+Sealed Stacks	Versiegelte Regale
+Cold Chamber	Kalte Kammer
+Last Carver's Rest	Ruhestatt des Letzten Schnitzers
+Ember Hollow	Glutmulde
+Yurt Ring	Jurtenring
+Standing Stones	Stehende Steine
+Wolf Hill	Wolfshügel
+Herders' Camp	Hirtenlager
+Old Watch	Alte Wacht
+Frost Gate	Frosttor
+Herders' Yurts	Hirtenjurten
+Bear Rocks	Bärenfelsen
+Lone Hut	Einsame Hütte
+Wolf Stone	Wolfsstein
+White Fold	Weißer Pferch
+Camp Gate	Lagertor
+Drum Circle	Trommelkreis
+Tent Rows	Zeltreihen
+Stockade	Palisadenhof
+War Drums	Kriegstrommeln
+Warlord's Tents	Zelte des Kriegsherrn
+Lower Hall	Untere Halle
+Bone Stair	Knochentreppe
+Hollow Gallery	Hohle Galerie
+Warden's Walk	Gang des Wächters
+Violet Crypt	Violette Gruft
+Spire Heart	Herz des Turms
+First Circle	Erster Kreis
+Black Spires	Schwarze Spitzen
+Second Circle	Zweiter Kreis
+Cracked Ground	Rissiger Boden
+Third Circle	Dritter Kreis
+Shard Scatter	Splitterfeld
+Korstone Fields	Korsteinfelder
+Mirage Flats	Trugbildebene
+White Pillars	Weiße Säulen
+Wagon Graves	Wagengräber
+Glass Pans	Glaspfannen
+Shrine Well	Schreinbrunnen
+Bone Drift	Knochenwehe
+Silk Tunnels	Seidentunnel
+Egg Nests	Eiernester
+Cocoon Hall	Kokonhalle
+Webbed Pit	Netzgrube
+Mother's Lair	Hort der Mutter

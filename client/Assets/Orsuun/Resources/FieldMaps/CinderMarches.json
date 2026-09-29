@@ -300,5 +300,6 @@
  ],
  "RiverWidth": 5,
  "WaterColor": "#FF6A1A",
- "BankColor": "#2E2826"
+ "BankColor": "#2E2826",
+ "KorstoneRingTint": "#5C3A34"
 }

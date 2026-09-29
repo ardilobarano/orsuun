@@ -2712,3 +2712,52 @@ Mist Hollow	Sis Çukuru
 FRAME RATE	KARE HIZI
 HIDE	GİZLE
 SHOW	GÖSTER
+# Big maps of the zones and dungeon halls (camps and places, 29 Sep 2026).
+Entry Vault	Giriş Mahzeni
+Rune Hall	Rün Salonu
+Carved Gallery	Oymalı Galeri
+Sealed Stacks	Mühürlü Raflar
+Cold Chamber	Soğuk Oda
+Last Carver's Rest	Son Oymacının Uykusu
+Ember Hollow	Kor Çukuru
+Yurt Ring	Yurt Halkası
+Standing Stones	Dikili Taşlar
+Wolf Hill	Kurt Tepesi
+Herders' Camp	Çobanlar Kampı
+Old Watch	Eski Gözcü
+Frost Gate	Ayaz Kapısı
+Herders' Yurts	Çoban Yurtları
+Bear Rocks	Ayı Kayaları
+Lone Hut	Yalnız Kulübe
+Wolf Stone	Kurt Taşı
+White Fold	Beyaz Ağıl
+Camp Gate	Kamp Kapısı
+Drum Circle	Davul Halkası
+Tent Rows	Çadır Sıraları
+Stockade	Kazıklı Ağıl
+War Drums	Savaş Davulları
+Warlord's Tents	Savaş Beyinin Çadırları
+Lower Hall	Alt Salon
+Bone Stair	Kemik Merdiven
+Hollow Gallery	Oyuk Galeri
+Warden's Walk	Muhafızın Yolu
+Violet Crypt	Menekşe Mahzen
+Spire Heart	Kulenin Kalbi
+First Circle	Birinci Çember
+Black Spires	Kara Sivri Kayalar
+Second Circle	İkinci Çember
+Cracked Ground	Çatlak Toprak
+Third Circle	Üçüncü Çember
+Shard Scatter	Kırık Saçıntısı
+Korstone Fields	Kortaşı Tarlaları
+Mirage Flats	Serap Düzlüğü
+White Pillars	Beyaz Sütunlar
+Wagon Graves	Araba Mezarları
+Glass Pans	Cam Tavalar
+Shrine Well	Tapınak Kuyusu
+Bone Drift	Kemik Yığıntısı
+Silk Tunnels	İpek Tüneller
+Egg Nests	Yumurta Yuvaları
+Cocoon Hall	Koza Salonu
+Webbed Pit	Ağlı Çukur
+Mother's Lair	Ana'nın İni

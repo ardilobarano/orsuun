@@ -14,7 +14,8 @@ BAND = 0.28   # the top share of a tile that holds no road
 def main():
     for path in sorted(glob.glob(os.path.join(FLOORS, '*.jpg'))):
         name = os.path.splitext(os.path.basename(path))[0]
-        if name.endswith('Field'):
+        # Skip this tool's own outputs (<key>Field.jpg beside <key>.jpg), not a floor whose key ends in Field (KorstoneField).
+        if name.endswith('Field') and os.path.exists(os.path.join(FLOORS, name[:-len('Field')] + '.jpg')):
             continue
         tile = Image.open(path).convert('RGB')
         w, h = tile.size

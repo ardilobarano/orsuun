@@ -2756,3 +2756,52 @@ Mist Hollow	Vale da Névoa
 FRAME RATE	TAXA DE QUADROS
 HIDE	OCULTAR
 SHOW	MOSTRAR
+# Big maps of the zones and dungeon halls (camps and places, 29 Sep 2026).
+Entry Vault	Cripta de Entrada
+Rune Hall	Salão das Runas
+Carved Gallery	Galeria Entalhada
+Sealed Stacks	Estantes Seladas
+Cold Chamber	Câmara Fria
+Last Carver's Rest	Repouso do Último Entalhador
+Ember Hollow	Vale das Brasas
+Yurt Ring	Anel de Iurtas
+Standing Stones	Pedras Erguidas
+Wolf Hill	Colina do Lobo
+Herders' Camp	Acampamento dos Pastores
+Old Watch	Velha Vigia
+Frost Gate	Portão da Geada
+Herders' Yurts	Iurtas dos Pastores
+Bear Rocks	Rochas do Urso
+Lone Hut	Cabana Solitária
+Wolf Stone	Pedra do Lobo
+White Fold	Curral Branco
+Camp Gate	Portão do Acampamento
+Drum Circle	Círculo dos Tambores
+Tent Rows	Fileiras de Tendas
+Stockade	Paliçada
+War Drums	Tambores de Guerra
+Warlord's Tents	Tendas do Senhor da Guerra
+Lower Hall	Salão Inferior
+Bone Stair	Escada de Ossos
+Hollow Gallery	Galeria Vazia
+Warden's Walk	Passeio do Guardião
+Violet Crypt	Cripta Violeta
+Spire Heart	Coração do Pináculo
+First Circle	Primeiro Círculo
+Black Spires	Agulhas Negras
+Second Circle	Segundo Círculo
+Cracked Ground	Chão Rachado
+Third Circle	Terceiro Círculo
+Shard Scatter	Campo de Estilhaços
+Korstone Fields	Campos de Pedras Kor
+Mirage Flats	Planície da Miragem
+White Pillars	Pilares Brancos
+Wagon Graves	Túmulos das Carroças
+Glass Pans	Salinas de Vidro
+Shrine Well	Poço do Santuário
+Bone Drift	Monte de Ossos
+Silk Tunnels	Túneis de Seda
+Egg Nests	Ninhos de Ovos
+Cocoon Hall	Salão dos Casulos
+Webbed Pit	Fosso das Teias
+Mother's Lair	Covil da Mãe

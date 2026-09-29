@@ -2742,3 +2742,52 @@ Mist Hollow	Mglista Kotlina
 FRAME RATE	LICZBA KLATEK
 HIDE	UKRYJ
 SHOW	POKAŻ
+# Big maps of the zones and dungeon halls (camps and places, 29 Sep 2026).
+Entry Vault	Sklepienie Wejściowe
+Rune Hall	Sala Run
+Carved Gallery	Rzeźbiona Galeria
+Sealed Stacks	Zapieczętowane Regały
+Cold Chamber	Zimna Komnata
+Last Carver's Rest	Spoczynek Ostatniego Rzeźbiarza
+Ember Hollow	Żarowa Kotlina
+Yurt Ring	Krąg Jurt
+Standing Stones	Stojące Kamienie
+Wolf Hill	Wilcze Wzgórze
+Herders' Camp	Obóz Pasterzy
+Old Watch	Stara Strażnica
+Frost Gate	Mroźna Brama
+Herders' Yurts	Jurty Pasterzy
+Bear Rocks	Niedźwiedzie Skały
+Lone Hut	Samotna Chata
+Wolf Stone	Wilczy Kamień
+White Fold	Biała Zagroda
+Camp Gate	Brama Obozu
+Drum Circle	Krąg Bębnów
+Tent Rows	Rzędy Namiotów
+Stockade	Ostrokół
+War Drums	Bębny Wojenne
+Warlord's Tents	Namioty Watażki
+Lower Hall	Dolna Sala
+Bone Stair	Kościane Schody
+Hollow Gallery	Wydrążona Galeria
+Warden's Walk	Ścieżka Strażnika
+Violet Crypt	Fioletowa Krypta
+Spire Heart	Serce Iglicy
+First Circle	Pierwszy Krąg
+Black Spires	Czarne Iglice
+Second Circle	Drugi Krąg
+Cracked Ground	Popękana Ziemia
+Third Circle	Trzeci Krąg
+Shard Scatter	Rozrzut Odłamków
+Korstone Fields	Pola Korkamieni
+Mirage Flats	Równina Miraży
+White Pillars	Białe Filary
+Wagon Graves	Groby Wozów
+Glass Pans	Szklane Niecki
+Shrine Well	Studnia Kapliczki
+Bone Drift	Kościana Zaspa
+Silk Tunnels	Jedwabne Tunele
+Egg Nests	Gniazda Jaj
+Cocoon Hall	Sala Kokonów
+Webbed Pit	Pajęczy Dół
+Mother's Lair	Legowisko Matki

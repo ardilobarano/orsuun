@@ -122,7 +122,7 @@ namespace Orsuun.Client
                 float a = angle * Mathf.Deg2Rad;
                 float height = 2.8f + Mathf.Abs(Mathf.Sin(k * 7.1f)) * 0.9f;
                 Vector3 at = centre + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * RingRadius;
-                Transform stone = FieldMap.PlaceModel(_map.Root, model, _map.Root.InverseTransformPoint(at), angle * 1.7f, height);
+                Transform stone = FieldMap.PlaceModel(_map.Root, model, _map.Root.InverseTransformPoint(at), angle * 1.7f, height, _map.Current.KorstoneRingTint);
                 if (stone == null) return;
                 _ring.Add(new RingStone { Root = stone, Base = stone.localPosition, Height = height });
                 stone.localPosition += Vector3.down * height;

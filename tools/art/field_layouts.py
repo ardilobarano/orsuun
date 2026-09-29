@@ -173,7 +173,8 @@ def shape(turn, stretch=1.0, wobble=0):
 
 
 def budget(title, map_id, points, scenery, ring, marks, camps, places, groves=(), patches=(), river=None, river_width=5,
-           water='#3D667A', bank='#5C4D33', grass=700, stones=0, weather='', birds=False):
+           water='#3D667A', bank='#5C4D33', grass=700, stones=0, weather='', birds=False, zones=None, dungeon=0, backdrop=None,
+           extra=(), ring_tint=None):
     """A budget map: landmarks (model, share, left, height, tint[, yaw]) reuse the models in the map's colours."""
     t = Trail(points)
     landmarks = []
@@ -184,6 +185,7 @@ def budget(title, map_id, points, scenery, ring, marks, camps, places, groves=()
         if tint:
             d['Tint'] = tint
         landmarks.append(d)
+    landmarks += list(extra)
     d = layout(title, map_id, t, ScenerySet=scenery, KorstoneRing=ring, GrassCards=grass, Stones=stones, Landmarks=landmarks,
                Weather=weather, Birds=birds,
                Camps=[spot(n, t.at(sh, 7.5 + (k % 2))) for k, (n, sh) in enumerate(camps)],
@@ -192,6 +194,14 @@ def budget(title, map_id, points, scenery, ring, marks, camps, places, groves=()
                Patches=[spot(k, t.at(sh, l), Radius=r, Height=r * 0.65, Yaw=a) for k, sh, l, r, a in patches])
     if river:
         d.update(River=[{'x': x, 'y': z} for x, z in river], RiverWidth=river_width, WaterColor=water, BankColor=bank)
+    if ring_tint:
+        d['KorstoneRingTint'] = ring_tint
+    if zones:
+        d['Zones'] = list(zones)
+    if dungeon:
+        d['Dungeon'] = dungeon
+    if backdrop:
+        d['Backdrop'] = backdrop  # the lane backdrop it hunts under: tools/art/field_map.py takes the sketch's ground from it
     check(d, t)
     return d
 
@@ -208,7 +218,7 @@ def cinder():
         groves=[('SteppeBoulder', s, 20, 8, 5, 2.6, dark) for s in (0.06, 0.40, 0.74, 0.95)],
         patches=[('ash', s, l, r, a) for s, l, r, a in ((0.08, 16, 12, 20), (0.34, -18, 14, 60), (0.58, 14, 10, 100), (0.84, -16, 12, 30))]
                 + [('lava', 0.27, 22, 6, 40), ('lava', 0.76, 26, 7, 80)],
-        river=[(120, 160), (60, 80), (20, 0), (-40, -80), (-100, -160)], river_width=5, water='#FF6A1A', bank='#2E2826', weather='embers+ash', birds=False)
+        river=[(120, 160), (60, 80), (20, 0), (-40, -80), (-100, -160)], river_width=5, water='#FF6A1A', bank='#2E2826', ring_tint=obsidian, weather='embers+ash', birds=False)
 
 
 def whisper():
@@ -263,7 +273,7 @@ def graves():
         [('Field of Ribs', 0.24, 30), ('The Broken Colossus', 0.51, 32)],
         groves=[('SteppeBoulder', s, 20, 9, 5, 3, stone) for s in (0.10, 0.36, 0.62, 0.95)],
         patches=[('ash', s, l, r, a) for s, l, r, a in ((0.14, 16, 12, 20), (0.44, -16, 12, 70), (0.78, 14, 10, 30))]
-                + [('mud', 0.6, -18, 11, 50)], weather='dust', birds=True)
+                + [('mud', 0.6, -18, 11, 50)], ring_tint=bone, weather='dust', birds=True)
 
 
 def bazaar():
@@ -276,7 +286,7 @@ def bazaar():
         [('The Old Bazaar', 0.32, 28), ('Palm Court', 0.02, 24)],
         groves=[('DatePalm', s, l, 9, 5, 7, None) for s, l in ((0.02, 20), (0.22, 22), (0.56, 22), (0.92, 20))],
         patches=[('water', s, l, r, a) for s, l, r, a in ((0.16, 20, 9, 20), (0.84, 22, 11, 60), (0.40, -18, 8, 30))]
-                + [('salt', s, l, r, a) for s, l, r, a in ((0.26, -18, 12, 10), (0.66, -20, 12, 80))], weather='dust+gold', birds=False)
+                + [('salt', s, l, r, a) for s, l, r, a in ((0.26, -18, 12, 10), (0.66, -20, 12, 80))], ring_tint='#D8B070', weather='dust+gold', birds=False)
 
 
 def markers():
@@ -308,7 +318,114 @@ def throne():
         patches=[('ash', s, l, r, a) for s, l, r, a in ((0.14, 14, 12, 20), (0.60, -16, 12, 60), (0.86, 14, 10, 10))], weather='gold+ash', birds=False)
 
 
-MAPS = {'GorakPass': gorak, 'SaltSea': saltsea, 'Whitefang': whitefang, 'CinderMarches': cinder, 'Whisperwood': whisper,
+def ember_steppe():
+    return 'EmberSteppe', budget('Ember Steppe', 0, shape(160, 1.0, 9), 'Steppe', 'SteppeStone',
+        [('Yurt', s, l, h, None, y) for s, l, h, y in ((0.10, 14, 4, 20), (0.12, 20, 3.6, 70), (0.14, 14, 4.2, 120), (0.60, 15, 3.8, 200), (0.62, 21, 3.4, 250))]
+        + [('Tent', 0.61, 12, 3.2, None), ('WolfDen', 0.38, 18, 4.4, None), ('Watchtower', 0.84, 16, 10, None)]
+        + [('SteppeStone', 0.25 + k * 0.01, 12 + (k % 2) * 3, 3.2, '#9A8878', 0) for k in range(6)],
+        [('Ember Hollow', 0.05), ('Yurt Ring', 0.18), ('Standing Stones', 0.28), ('Wolf Hill', 0.40), ('Herders\' Camp', 0.66), ('Old Watch', 0.86)],
+        [('Ember Steppe', 0.50, 30)],
+        groves=[('SteppeBirch', s, l, 9, 6, 5, None) for s, l in ((0.02, 20), (0.46, 22), (0.74, 20), (0.94, 22))],
+        patches=[('ash', s, l, r, a) for s, l, r, a in ((0.30, -16, 10, 20), (0.70, -18, 12, 60))],
+        stones=90, weather='motes', birds=True, zones=[201], backdrop='HuntingGround')
+
+
+def salt_flats():
+    return 'SaltFlats', budget('Salt Flats', 0, shape(-150, 1.1, 10), 'Desert', 'SaltPillar',
+        [('SaltPillar', s, l, h, None, y) for s, l, h, y in ((0.10, 16, 9, 10), (0.12, 22, 7, 80), (0.40, 15, 10, 30), (0.43, 20, 6.5, 140), (0.75, 17, 8.5, 60))]
+        + [('CaravanWreck', 0.28, 13, 3, None), ('CaravanWreck', 0.88, 14, 2.8, None), ('DesertShrine', 0.58, 13, 4.6, None)],
+        [('Mirage Flats', 0.04), ('White Pillars', 0.14), ('Wagon Graves', 0.29), ('Glass Pans', 0.46), ('Shrine Well', 0.58), ('Bone Drift', 0.80)],
+        [('Salt Flats', 0.50, 30)],
+        groves=[('DatePalm', 0.56, 20, 7, 4, 6.5, None)],
+        patches=[('water', 0.56, 18, 5, 20)] + [('salt', s, l, r, a) for s, l, r, a in
+                                                ((0.02, 18, 16, 10), (0.20, -22, 18, 40), (0.34, 20, 14, 70), (0.66, -22, 16, 20), (0.82, 20, 14, 110))],
+        grass=480, weather='dust', birds=True, zones=[202], backdrop='SaltFlats')
+
+
+def frost_pasture():
+    frost = '#E6ECF4'
+    lake = None
+    return 'FrostPasture', budget('Frost Pasture', 0, shape(100, 0.95, 11), 'Mountain', 'IceCrag',
+        [('Yurt', s, l, h, frost, y) for s, l, h, y in ((0.20, 14, 4, 30), (0.22, 20, 3.6, 90), (0.24, 14, 4.2, 150))]
+        + [('MountainHut', 0.52, 14, 5, None), ('IceShrine', 0.70, 10, 3.6, None), ('IceCrag', 0.36, 20, 8, None), ('IceCrag', 0.88, 22, 7, None)],
+        [('Frost Gate', 0.05), ('Herders\' Yurts', 0.19), ('Bear Rocks', 0.36), ('Lone Hut', 0.52), ('Wolf Stone', 0.70), ('White Fold', 0.86)],
+        [('Frost Pasture', 0.50, 32)],
+        groves=[('FrostPine', s, l, 10, 6, 8, None) for s, l in ((0.00, 22), (0.12, 22), (0.30, 24), (0.44, 22), (0.62, 22), (0.78, 24), (0.94, 22))],
+        patches=[('ice', 0.60, 24, 12, 30)] + [('snow', s, l, r, a) for s, l, r, a in ((0.08, 16, 12, 10), (0.40, -18, 14, 60), (0.80, 14, 10, 30))],
+        grass=600, weather='snow', zones=[203], backdrop='FrostPasture')
+
+
+def stone_ring(trail, share, left, radius, count, height, tint):
+    """A ring of standing stones round a point beside the trail."""
+    cx, cz = trail.at(share, left)
+    return [dict(spot('SteppeStone', (round(cx + math.cos(k * 2 * math.pi / count) * radius, 1), round(cz + math.sin(k * 2 * math.pi / count) * radius, 1)),
+                      Yaw=k * 360 // count, Height=height + (k % 3) * 0.3), Tint=tint) for k in range(count)]
+
+
+def korstone_fields():
+    dark, obsidian = '#6A6068', '#3E3438'
+    points = shape(-60, 1.0, 12)
+    t = Trail(points)
+    rings = []
+    for share in (0.12, 0.45, 0.78):
+        rings += stone_ring(t, share, 17, 5.5, 7, 3.2, dark)
+    return 'KorstoneFields', budget('Korstone Fields', 0, points, 'Steppe', 'SteppeStone', [('SaltPillar', s, l, h, obsidian) for s, l, h in ((0.28, 18, 8), (0.30, 24, 6), (0.62, 20, 9), (0.95, 18, 7))]
+        + [('IceCrag', 0.36, 22, 7, '#5A5058'), ('IceCrag', 0.70, 22, 8, '#5A5058')],
+        [('First Circle', 0.08), ('Black Spires', 0.28), ('Second Circle', 0.44), ('Cracked Ground', 0.60), ('Third Circle', 0.76), ('Shard Scatter', 0.92)],
+        [('Korstone Fields', 0.50, 30)],
+        groves=[('SteppeBoulder', s, 20, 8, 5, 2.6, '#6A6068') for s in (0.02, 0.20, 0.54, 0.86)],
+        patches=[('ash', s, l, r, a) for s, l, r, a in ((0.10, -16, 12, 20), (0.34, 14, 10, 60), (0.58, -18, 12, 10), (0.82, 14, 10, 80))],
+        stones=60, weather='embers', zones=[211, 212, 213, 214, 215], backdrop='KorstoneField', extra=rings, ring_tint=dark)
+
+
+def war_camp():
+    return 'GorakWarCamp', budget('Gorak War Camp', 0, shape(40, 1.0, 13), 'Steppe', 'SteppeStone',
+        [('GorakTent', s, l, h, None, y) for s, l, h, y in ((0.08, 16, 6, 30), (0.11, 22, 5.4, 70), (0.30, 16, 6.2, 110), (0.33, 23, 5.6, 150),
+                                                             (0.56, 16, 6, 190), (0.59, 22, 5.2, 230), (0.80, 17, 6.4, 270))]
+        + [('WarDrum', 0.20, 13, 6.5, None), ('WarDrum', 0.68, 13, 6, None)]
+        + [('Palisade', 0.40 + k * 0.009, 26, 4.2, None) for k in range(8)]
+        + [('WarBanner', s, 8.5, 7, None) for s in (0.05, 0.18, 0.26, 0.44, 0.52, 0.66, 0.74, 0.92)],
+        [('Camp Gate', 0.03), ('Drum Circle', 0.20), ('Tent Rows', 0.32), ('Stockade', 0.46), ('War Drums', 0.68), ('Warlord\'s Tents', 0.84)],
+        [("Tul-Gorak's War Camp", 0.50, 32)],
+        groves=[('SteppeBoulder', s, 22, 8, 4, 2.6, '#8A8078') for s in (0.14, 0.50, 0.88)],
+        patches=[('mud', s, l, r, a) for s, l, r, a in ((0.10, 8, 10, 20), (0.36, -14, 12, 70), (0.62, 10, 11, 40), (0.90, -14, 10, 10))]
+                + [('ash', s, l, r, a) for s, l, r, a in ((0.24, 18, 9, 30), (0.72, 20, 10, 60))],
+        grass=520, stones=70, weather='embers', birds=True, zones=[221], backdrop='CommanderGround')
+
+
+def hall(title, key, dungeon, backdrop, scenery, pillar, statue, weather, camps, place, crag=None):
+    """A dungeon's floors: a pillared hall round the trail (a colonnade on the camera's far side, a second row behind)."""
+    marks = [('SaltPillar', 0.02 + k * 0.03, 8 if k % 2 == 0 else 8.8, 8, pillar, k * 37) for k in range(33)]
+    marks += [('SaltPillar', 0.035 + k * 0.06, 17, 9, pillar, k * 53) for k in range(16)]
+    marks += [('IceShrine', s, 11.5, 3.8, statue) for s in (0.10, 0.34, 0.58, 0.82)]
+    if crag:
+        marks += [('IceCrag', s, 24, 9, crag) for s in (0.2, 0.45, 0.7, 0.95)]
+    return key, budget(title, 0, shape(dungeon * 70, 0.9, 20 + dungeon), scenery, 'SaltPillar', marks, camps, [(place, 0.5, 28)],
+                       patches=[('ash', s, l, r, a) for s, l, r, a in ((0.2, -14, 12, 30), (0.5, -16, 12, 70), (0.8, -14, 10, 10))],
+                       grass=260, weather=weather, dungeon=dungeon, backdrop=backdrop, ring_tint=pillar)
+
+
+def spire():
+    return hall('The Hollow Spire', 'HollowSpire', 1, 'HollowSpire', 'Ruins', '#5E586E', '#7A7488', 'wisps',
+                [('Lower Hall', 0.05), ('Bone Stair', 0.21), ('Hollow Gallery', 0.38), ('Warden\'s Walk', 0.55), ('Violet Crypt', 0.72), ('Spire Heart', 0.88)],
+                'The Hollow Spire')
+
+
+def warren():
+    return hall("Silkmother's Warren", 'SilkWarren', 2, 'SilkWarren', 'Desert', '#E6E0D4', '#B8AC98', 'dust',
+                [('Silk Tunnels', 0.05), ('Egg Nests', 0.21), ('Cocoon Hall', 0.38), ('Brood Deep', 0.55), ('Webbed Pit', 0.72), ('Mother\'s Lair', 0.88)],
+                "Silkmother's Warren", crag='#9A8A78')
+
+
+def archive():
+    return hall("The Carvers' Archive", 'CarversArchive', 3, 'CarversArchive', 'Mountain', '#9AA4B4', None, 'motes',
+                [('Entry Vault', 0.05), ('Rune Hall', 0.21), ('Carved Gallery', 0.38), ('Sealed Stacks', 0.55), ('Cold Chamber', 0.72), ('Last Carver\'s Rest', 0.88)],
+                "The Carvers' Archive")
+
+
+MAPS = {'EmberSteppe': ember_steppe, 'SaltFlats': salt_flats, 'FrostPasture': frost_pasture, 'KorstoneFields': korstone_fields,
+        'GorakWarCamp': war_camp, 'HollowSpire': spire, 'SilkWarren': warren, 'CarversArchive': archive,
+        'GorakPass': gorak, 'SaltSea': saltsea, 'Whitefang': whitefang, 'CinderMarches': cinder, 'Whisperwood': whisper,
         'Bloodbirch': bloodbirch, 'DrownedSteppe': drowned, 'ColossusGraves': graves, 'SunkenBazaar': bazaar,
         'ThousandMarkers': markers, 'HollowThrone': throne}
 

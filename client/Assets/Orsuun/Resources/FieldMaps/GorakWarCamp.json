@@ -1,0 +1,356 @@
+{
+ "Name": "Gorak War Camp",
+ "Map": 0,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -70.8,
+   "y": 37.8
+  },
+  {
+   "x": -36.4,
+   "y": 69.6
+  },
+  {
+   "x": 8.7,
+   "y": 69.5
+  },
+  {
+   "x": 45.0,
+   "y": 53.6
+  },
+  {
+   "x": 79.2,
+   "y": 28.1
+  },
+  {
+   "x": 82.3,
+   "y": -14.9
+  },
+  {
+   "x": 55.7,
+   "y": -51.6
+  },
+  {
+   "x": 17.8,
+   "y": -76.5
+  },
+  {
+   "x": -32.0,
+   "y": -71.8
+  },
+  {
+   "x": -63.3,
+   "y": -38.1
+  },
+  {
+   "x": -70.7,
+   "y": 1.7
+  }
+ ],
+ "ScenerySet": "Steppe",
+ "KorstoneRing": "SteppeStone",
+ "GrassCards": 520,
+ "Stones": 70,
+ "Landmarks": [
+  {
+   "Name": "GorakTent",
+   "X": -52.6,
+   "Z": 79.2,
+   "Yaw": 30,
+   "Height": 6
+  },
+  {
+   "Name": "GorakTent",
+   "X": -35.7,
+   "Z": 92.8,
+   "Yaw": 70,
+   "Height": 5.4
+  },
+  {
+   "Name": "GorakTent",
+   "X": 63.4,
+   "Z": 61.6,
+   "Yaw": 110,
+   "Height": 6.2
+  },
+  {
+   "Name": "GorakTent",
+   "X": 81.7,
+   "Z": 58.4,
+   "Yaw": 150,
+   "Height": 5.6
+  },
+  {
+   "Name": "GorakTent",
+   "X": 62.2,
+   "Z": -67.4,
+   "Yaw": 190,
+   "Height": 6
+  },
+  {
+   "Name": "GorakTent",
+   "X": 52.9,
+   "Z": -83.1,
+   "Yaw": 230,
+   "Height": 5.2
+  },
+  {
+   "Name": "GorakTent",
+   "X": -65.6,
+   "Z": -65.4,
+   "Yaw": 270,
+   "Height": 6.4
+  },
+  {
+   "Name": "WarDrum",
+   "X": 16.0,
+   "Z": 81.2,
+   "Yaw": 286.7,
+   "Height": 6.5
+  },
+  {
+   "Name": "WarDrum",
+   "X": -1.0,
+   "Z": -91.2,
+   "Yaw": 92.7,
+   "Height": 6
+  },
+  {
+   "Name": "Palisade",
+   "X": 110.0,
+   "Z": 14.5,
+   "Yaw": 354.3,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": 110.6,
+   "Z": 7.3,
+   "Yaw": 357.3,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": 110.7,
+   "Z": 1.6,
+   "Yaw": 2.7,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": 110.4,
+   "Z": -4.1,
+   "Yaw": 5.4,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": 109.9,
+   "Z": -9.8,
+   "Yaw": 8.5,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": 108.6,
+   "Z": -16.9,
+   "Yaw": 14.7,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": 107.1,
+   "Z": -22.6,
+   "Yaw": 19.1,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": 104.6,
+   "Z": -29.5,
+   "Yaw": 25.2,
+   "Height": 4.2
+  },
+  {
+   "Name": "WarBanner",
+   "X": -61.8,
+   "Z": 62.6,
+   "Yaw": 226.8,
+   "Height": 7
+  },
+  {
+   "Name": "WarBanner",
+   "X": 3.6,
+   "Z": 79.1,
+   "Yaw": 279.8,
+   "Height": 7
+  },
+  {
+   "Name": "WarBanner",
+   "X": 43.1,
+   "Z": 64.5,
+   "Yaw": 300.5,
+   "Height": 7
+  },
+  {
+   "Name": "WarBanner",
+   "X": 92.2,
+   "Z": -9.7,
+   "Yaw": 8.5,
+   "Height": 7
+  },
+  {
+   "Name": "WarBanner",
+   "X": 71.1,
+   "Z": -48.0,
+   "Yaw": 43.0,
+   "Height": 7
+  },
+  {
+   "Name": "WarBanner",
+   "X": 10.2,
+   "Z": -86.3,
+   "Yaw": 84.3,
+   "Height": 7
+  },
+  {
+   "Name": "WarBanner",
+   "X": -32.8,
+   "Z": -80.7,
+   "Yaw": 112.4,
+   "Height": 7
+  },
+  {
+   "Name": "WarBanner",
+   "X": -78.9,
+   "Z": -1.8,
+   "Yaw": 174.0,
+   "Height": 7
+  }
+ ],
+ "Weather": "embers",
+ "Birds": true,
+ "Camps": [
+  {
+   "Name": "Camp Gate",
+   "X": -68.4,
+   "Z": 54.3
+  },
+  {
+   "Name": "Drum Circle",
+   "X": 14.9,
+   "Z": 76.8
+  },
+  {
+   "Name": "Tent Rows",
+   "X": 68.8,
+   "Z": 48.5
+  },
+  {
+   "Name": "Stockade",
+   "X": 89.0,
+   "Z": -21.6
+  },
+  {
+   "Name": "War Drums",
+   "X": -0.9,
+   "Z": -85.7
+  },
+  {
+   "Name": "Warlord's Tents",
+   "X": -70.4,
+   "Z": -42.9
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Tul-Gorak's War Camp",
+   "X": 96.8,
+   "Z": -54.1
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBoulder",
+   "X": -16.7,
+   "Z": 94.6,
+   "Radius": 8,
+   "Count": 4,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 88.9,
+   "Z": -47.9,
+   "Radius": 8,
+   "Count": 4,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -90.4,
+   "Z": -24.1,
+   "Radius": 8,
+   "Count": 4,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "mud",
+   "X": -38.2,
+   "Z": 77.5,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 20
+  },
+  {
+   "Name": "mud",
+   "X": 66.4,
+   "Z": 22.3,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 70
+  },
+  {
+   "Name": "mud",
+   "X": 32.2,
+   "Z": -81.9,
+   "Radius": 11,
+   "Height": 7.15,
+   "Yaw": 40
+  },
+  {
+   "Name": "mud",
+   "X": -55.8,
+   "Z": -9.7,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 10
+  },
+  {
+   "Name": "ash",
+   "X": 38.3,
+   "Z": 77.9,
+   "Radius": 9,
+   "Height": 5.8500000000000005,
+   "Yaw": 30
+  },
+  {
+   "Name": "ash",
+   "X": -25.1,
+   "Z": -95.2,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 60
+  }
+ ],
+ "Zones": [
+  221
+ ],
+ "Backdrop": "CommanderGround"
+}

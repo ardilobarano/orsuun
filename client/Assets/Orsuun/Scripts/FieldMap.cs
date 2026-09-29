@@ -40,8 +40,11 @@ namespace Orsuun.Client
             public string Name;
             /// <summary>Its file's name (Oathfields): the full map's painting is Content/FieldMaps/&lt;Key&gt;.</summary>
             [System.NonSerialized] public string Key;
-            /// <summary>The campaign map it is drawn for (<see cref="Orsuun.Rules.MapDef.Id"/>).</summary>
+            /// <summary>What it is drawn for: a campaign map (<see cref="Orsuun.Rules.MapDef.Id"/>), or zones (their park
+            /// ids: the five Korstone Fields share one), or a dungeon's floors (its id).</summary>
             public int Map;
+            public int[] Zones;
+            public int Dungeon;
             /// <summary>The trail's control points, a closed loop (smoothed through them), and the river's course (open).</summary>
             public Vector2[] Trail, River;
             public float RiverWidth = 7f;
@@ -59,7 +62,7 @@ namespace Orsuun.Client
             public string Weather = "";
             public bool Birds;
             /// <summary>The scenery model that rises in a ring round each Korstone on this map.</summary>
-            public string KorstoneRing = "SteppeStone";
+            public string KorstoneRing = "SteppeStone", KorstoneRingTint;
             /// <summary>Grass cards and stone models, scattered within <see cref="ScatterReach"/> metres of the trail (the
             /// camera never sees further).</summary>
             public int GrassCards = 900, Stones = 90;
@@ -68,24 +71,29 @@ namespace Orsuun.Client
             public float Size = 300f;
         }
 
-        private static Dictionary<int, Layout> _layouts;
+        /// <summary>Layouts by what they are for: "m" + map id, "z" + zone id, "d" + dungeon id.</summary>
+        private static Dictionary<string, Layout> _layouts;
 
         /// <summary>The big map of a stage, or null (the lane keeps the road field there).</summary>
         public static Layout For(int stageNumber)
         {
-            if (Orsuun.Rules.Content.IsZone(stageNumber) || Orsuun.Rules.Dungeons.IsFloor(stageNumber)) return null;
             if (_layouts == null)
             {
-                _layouts = new Dictionary<int, Layout>();
+                _layouts = new Dictionary<string, Layout>();
                 foreach (TextAsset file in Resources.LoadAll<TextAsset>("FieldMaps"))
                 {
                     var layout = JsonUtility.FromJson<Layout>(file.text);
                     if (layout?.Trail == null || layout.Trail.Length < 4) continue;
                     layout.Key = file.name;
-                    _layouts[layout.Map] = layout;
+                    if (layout.Map > 0) _layouts["m" + layout.Map] = layout;
+                    if (layout.Dungeon > 0) _layouts["d" + layout.Dungeon] = layout;
+                    foreach (int zone in layout.Zones ?? new int[0]) _layouts["z" + zone] = layout;
                 }
             }
-            return _layouts.TryGetValue(Orsuun.Rules.Content.MapOfStage(stageNumber).Id, out Layout found) ? found : null;
+            string key = Orsuun.Rules.Dungeons.IsFloor(stageNumber) ? "d" + (stageNumber - Orsuun.Rules.Dungeons.FloorStageBase) / 10
+                : Orsuun.Rules.Content.IsZone(stageNumber) ? "z" + stageNumber
+                : "m" + Orsuun.Rules.Content.MapOfStage(stageNumber).Id;
+            return _layouts.TryGetValue(key, out Layout found) ? found : null;
         }
 
         /// <summary>How fast the hero tours the trail while the lane runs (m/s) and how far a bend is looked ahead to turn.</summary>

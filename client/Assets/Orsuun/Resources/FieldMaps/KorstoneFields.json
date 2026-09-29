@@ -1,0 +1,395 @@
+{
+ "Name": "Korstone Fields",
+ "Map": 0,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -23.1,
+   "y": -70.6
+  },
+  {
+   "x": -62.5,
+   "y": -48.1
+  },
+  {
+   "x": -75.5,
+   "y": -3.7
+  },
+  {
+   "x": -59.0,
+   "y": 34.1
+  },
+  {
+   "x": -38.7,
+   "y": 68.4
+  },
+  {
+   "x": 0.4,
+   "y": 87.1
+  },
+  {
+   "x": 43.7,
+   "y": 67.9
+  },
+  {
+   "x": 68.0,
+   "y": 29.1
+  },
+  {
+   "x": 73.2,
+   "y": -18.3
+  },
+  {
+   "x": 51.8,
+   "y": -59.5
+  },
+  {
+   "x": 11.0,
+   "y": -71.9
+  }
+ ],
+ "ScenerySet": "Steppe",
+ "KorstoneRing": "SteppeStone",
+ "GrassCards": 700,
+ "Stones": 60,
+ "Landmarks": [
+  {
+   "Name": "SaltPillar",
+   "X": -74.7,
+   "Z": 43.0,
+   "Yaw": 206.6,
+   "Height": 8,
+   "Tint": "#3E3438"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -76.0,
+   "Z": 54.2,
+   "Yaw": 202.8,
+   "Height": 6,
+   "Tint": "#3E3438"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 81.7,
+   "Z": 48.7,
+   "Yaw": 336.0,
+   "Height": 9,
+   "Tint": "#3E3438"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 2.4,
+   "Z": -91.1,
+   "Yaw": 84.0,
+   "Height": 7,
+   "Tint": "#3E3438"
+  },
+  {
+   "Name": "IceCrag",
+   "X": -53.3,
+   "Z": 84.9,
+   "Yaw": 229.4,
+   "Height": 7,
+   "Tint": "#5A5058"
+  },
+  {
+   "Name": "IceCrag",
+   "X": 95.6,
+   "Z": 5.7,
+   "Yaw": 354.6,
+   "Height": 8,
+   "Tint": "#5A5058"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -78.4,
+   "Z": -45.1,
+   "Yaw": 0,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -80.5,
+   "Z": -40.8,
+   "Yaw": 51,
+   "Height": 3.5,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -85.1,
+   "Z": -39.7,
+   "Yaw": 102,
+   "Height": 3.8000000000000003,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -88.9,
+   "Z": -42.7,
+   "Yaw": 154,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -88.9,
+   "Z": -47.5,
+   "Yaw": 205,
+   "Height": 3.5,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -85.1,
+   "Z": -50.5,
+   "Yaw": 257,
+   "Height": 3.8000000000000003,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -80.5,
+   "Z": -49.4,
+   "Yaw": 308,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 4.8,
+   "Z": 104.1,
+   "Yaw": 0,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 2.7,
+   "Z": 108.4,
+   "Yaw": 51,
+   "Height": 3.5,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -1.9,
+   "Z": 109.5,
+   "Yaw": 102,
+   "Height": 3.8000000000000003,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -5.7,
+   "Z": 106.5,
+   "Yaw": 154,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -5.7,
+   "Z": 101.7,
+   "Yaw": 205,
+   "Height": 3.5,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -1.9,
+   "Z": 98.7,
+   "Yaw": 257,
+   "Height": 3.8000000000000003,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 2.7,
+   "Z": 99.8,
+   "Yaw": 308,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 89.4,
+   "Z": -41.4,
+   "Yaw": 0,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 87.3,
+   "Z": -37.1,
+   "Yaw": 51,
+   "Height": 3.5,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 82.7,
+   "Z": -36.0,
+   "Yaw": 102,
+   "Height": 3.8000000000000003,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 78.9,
+   "Z": -39.0,
+   "Yaw": 154,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 78.9,
+   "Z": -43.8,
+   "Yaw": 205,
+   "Height": 3.5,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 82.7,
+   "Z": -46.8,
+   "Yaw": 257,
+   "Height": 3.8000000000000003,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 87.3,
+   "Z": -45.7,
+   "Yaw": 308,
+   "Height": 3.2,
+   "Tint": "#6A6068"
+  }
+ ],
+ "Weather": "embers",
+ "Birds": false,
+ "Camps": [
+  {
+   "Name": "First Circle",
+   "X": -62.1,
+   "Z": -59.2
+  },
+  {
+   "Name": "Black Spires",
+   "X": -66.2,
+   "Z": 38.8
+  },
+  {
+   "Name": "Second Circle",
+   "X": -6.5,
+   "Z": 94.0
+  },
+  {
+   "Name": "Cracked Ground",
+   "X": 66.1,
+   "Z": 53.7
+  },
+  {
+   "Name": "Third Circle",
+   "X": 78.5,
+   "Z": -28.2
+  },
+  {
+   "Name": "Shard Scatter",
+   "X": 16.7,
+   "Z": -79.7
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Korstone Fields",
+   "X": 35.8,
+   "Z": 108.2
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBoulder",
+   "X": -39.1,
+   "Z": -86.2,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -94.8,
+   "Z": 3.7,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 52.1,
+   "Z": 86.8,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A6068"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 52.8,
+   "Z": -82.4,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A6068"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "ash",
+   "X": -50.4,
+   "Z": -37.5,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 20
+  },
+  {
+   "Name": "ash",
+   "X": -56.6,
+   "Z": 69.2,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 60
+  },
+  {
+   "Name": "ash",
+   "X": 39.2,
+   "Z": 46.4,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 10
+  },
+  {
+   "Name": "ash",
+   "X": 69.8,
+   "Z": -60.4,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 80
+  }
+ ],
+ "KorstoneRingTint": "#6A6068",
+ "Zones": [
+  211,
+  212,
+  213,
+  214,
+  215
+ ],
+ "Backdrop": "KorstoneField"
+}

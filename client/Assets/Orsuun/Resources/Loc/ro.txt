@@ -2750,3 +2750,52 @@ Mist Hollow	Scobitura Ceții
 FRAME RATE	CADENȚĂ
 HIDE	ASCUNDE
 SHOW	ARATĂ
+# Big maps of the zones and dungeon halls (camps and places, 29 Sep 2026).
+Entry Vault	Bolta de Intrare
+Rune Hall	Sala Runelor
+Carved Gallery	Galeria Sculptată
+Sealed Stacks	Rafturile Sigilate
+Cold Chamber	Camera Rece
+Last Carver's Rest	Odihna Ultimului Sculptor
+Ember Hollow	Scobitura Jăraticului
+Yurt Ring	Cercul Iurtelor
+Standing Stones	Pietrele Ridicate
+Wolf Hill	Dealul Lupului
+Herders' Camp	Tabăra Păstorilor
+Old Watch	Straja Veche
+Frost Gate	Poarta Gerului
+Herders' Yurts	Iurtele Păstorilor
+Bear Rocks	Stâncile Ursului
+Lone Hut	Coliba Singuratică
+Wolf Stone	Piatra Lupului
+White Fold	Stâna Albă
+Camp Gate	Poarta Taberei
+Drum Circle	Cercul Tobelor
+Tent Rows	Rândurile de Corturi
+Stockade	Palisada Mare
+War Drums	Tobele de Război
+Warlord's Tents	Corturile Hatmanului
+Lower Hall	Sala de Jos
+Bone Stair	Scara de Oase
+Hollow Gallery	Galeria Pustie
+Warden's Walk	Aleea Străjerului
+Violet Crypt	Cripta Violetă
+Spire Heart	Inima Turlei
+First Circle	Primul Cerc
+Black Spires	Turlele Negre
+Second Circle	Al Doilea Cerc
+Cracked Ground	Pământul Crăpat
+Third Circle	Al Treilea Cerc
+Shard Scatter	Risipa de Cioburi
+Korstone Fields	Câmpurile de Pietre Kor
+Mirage Flats	Câmpia Mirajelor
+White Pillars	Stâlpii Albi
+Wagon Graves	Mormintele Căruțelor
+Glass Pans	Salinele de Sticlă
+Shrine Well	Fântâna Altarului
+Bone Drift	Troienul de Oase
+Silk Tunnels	Tunelurile de Mătase
+Egg Nests	Cuiburile de Ouă
+Cocoon Hall	Sala Coconilor
+Webbed Pit	Groapa cu Pânze
+Mother's Lair	Bârlogul Mamei

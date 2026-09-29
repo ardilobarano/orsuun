@@ -74,7 +74,8 @@ def tinted(rgb, tint):
 
 
 def ground(layout):
-    floor = os.path.join(ROOT, 'client', 'Assets', 'Orsuun', 'Content', 'Floors', BACKDROP.get(layout.get('Map', 1), 'HuntingGround') + 'Field.jpg')
+    key = layout.get('Backdrop') or BACKDROP.get(layout.get('Map', 1), 'HuntingGround')
+    floor = os.path.join(ROOT, 'client', 'Assets', 'Orsuun', 'Content', 'Floors', key + 'Field.jpg')
     if not os.path.exists(floor):
         return (196, 160, 82)
     return Image.open(floor).convert('RGB').resize((1, 1), Image.BOX).getpixel((0, 0))
