@@ -233,6 +233,9 @@ public sealed partial class GameService
         HeroStats hero = Hero(account);
         SkillDef[] skills = SkillDef.For(hero.Class);
         ulong seed = unchecked((ulong)account.LaneSeed);
+        // Elite packs (Rules.EliteCamps) are replayed as a loop names them only while a golden banner flew at the hero's place
+        // in this interval (a minute and a half of grace for a loop that began before the last heartbeat).
+        bool bannerFlew = EliteCamps.SecondsUp(Parties.Place(account.ParkedStage), account.LastHeartbeatUtc.AddSeconds(-90), now) > 0;
 
         long reported = 0, coveredTicks = 0, weighted = 0;
         int verified = 0;
@@ -247,7 +250,8 @@ public sealed partial class GameService
             var casts = (loop.Casts ?? Array.Empty<CastDto>()).Select(c => new CastInput(c.Tick, c.Skill)).ToList();
             bool[] auto = loop.AutoCast ?? new bool[skills.Length];
             int potions = Math.Max(0, Math.Min(loop.Potions, account.Potions));
-            LoopVerdict verdict = ActivePlay.Verify(stage, hero, skills, seed, loop.Loop, auto, casts, potions, loop.Ticks);
+            int[]? elite = bannerFlew ? EliteCamps.ValidPacks(loop.Elite, stage) : null;
+            LoopVerdict verdict = ActivePlay.Verify(stage, hero, skills, seed, loop.Loop, auto, casts, potions, loop.Ticks, elite);
             if (!verdict.Accepted) continue;
             verified++;
             coveredTicks += verdict.Ticks;

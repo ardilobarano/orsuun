@@ -12,7 +12,7 @@ public sealed record GuestLoginResponse(Guid AccountId, string SessionToken, boo
 /// <summary>A tapped skill in a loop report: the lane tick (from the loop start) and the skill index.</summary>
 public sealed record CastDto(int Tick, int Skill);
 /// <summary>One finished lane loop, for the server to replay (Rules.Combat.ActivePlay).</summary>
-public sealed record LoopReportDto(int Loop, int Ticks, int Potions, bool[]? AutoCast, CastDto[]? Casts);
+public sealed record LoopReportDto(int Loop, int Ticks, int Potions, bool[]? AutoCast, CastDto[]? Casts, int[]? Elite = null);
 /// <summary>Heartbeat body: the loops finished since the last one. Empty or missing = plain auto-cast pace.</summary>
 public sealed record HeartbeatRequest(LoopReportDto[]? Loops = null);
 /// <summary>The lane seed (decimal string, it is a ulong) and the next loop number the server expects.</summary>

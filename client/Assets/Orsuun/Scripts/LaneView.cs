@@ -1853,10 +1853,10 @@ namespace Orsuun.Client
 
         private void SpawnView(int enemyId)
         {
-            bool korstone = false, boss = false;
+            bool korstone = false, boss = false, elite = false;
             EnemyKind kind = EnemyKind.Mob;
             foreach (Enemy enemy in _sim.Enemies)
-                if (enemy.Id == enemyId) { korstone = enemy.IsKorstone; boss = enemy.IsBoss; kind = enemy.Kind; }
+                if (enemy.Id == enemyId) { korstone = enemy.IsKorstone; boss = enemy.IsBoss; kind = enemy.Kind; elite = enemy.IsElite; }
 
             Color color = korstone ? KorstoneColor : boss ? BossColor
                 : kind == EnemyKind.Captain ? new Color(0.85f, 0.55f, 0.15f)
@@ -1920,26 +1920,24 @@ namespace Orsuun.Client
             // in a ring of standing stones (LaneView.Field).
             if (Application.isPlaying && _map != null && _map.Active)
             {
-                if (kind == EnemyKind.Mob && !_sim.IsKorstoneEncounter && !_sim.IsBossEncounter && TakeWaiting(out Vector3 waited, out bool elite))
-                {
+                if (kind == EnemyKind.Mob && !_sim.IsKorstoneEncounter && !_sim.IsBossEncounter && TakeWaiting(out Vector3 waited))
                     root.position = new Vector3(waited.x, y, waited.z);
-                    // An elite pack (Rules.EliteCamps) comes on in its gold, a head taller.
-                    if (elite)
-                    {
-                        s *= EliteSize;
-                        DressElite(root, grow: false);
-                        if (!_eliteFloated)
-                        {
-                            _eliteFloated = true;
-                            Float("ELITE PACK", new Vector3(3.4f, 3.2f, 0f), Palette.Sorn, 1.6f);
-                        }
-                    }
-                }
                 if (korstone)
                 {
                     // It comes up out of the ground in its place.
                     root.position = new Vector3(3.4f, y - 4f, 2.2f);
                     RaiseRing(new Vector3(3.4f, 0f, 2.2f));
+                }
+            }
+            // An elite pack's monster (LaneSim: Enemy.IsElite, Rules.EliteCamps) comes on in its gold, a head taller.
+            if (elite)
+            {
+                s *= EliteSize;
+                DressElite(root, grow: false);
+                if (!_eliteFloated)
+                {
+                    _eliteFloated = true;
+                    Float("ELITE PACK", new Vector3(3.4f, 3.2f, 0f), Palette.Sorn, 1.6f);
                 }
             }
             root.localScale = s;

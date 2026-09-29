@@ -521,7 +521,7 @@ namespace Orsuun.Client.Net
                 LoopReport r = reports[i];
                 var casts = new CastDto[r.Casts.Count];
                 for (int c = 0; c < casts.Length; c++) casts[c] = new CastDto { tick = r.Casts[c].Tick, skill = r.Casts[c].Skill };
-                body.loops[i] = new LoopReportDto { loop = r.Loop, ticks = r.Ticks, potions = r.Potions, autoCast = r.AutoCast, casts = casts };
+                body.loops[i] = new LoopReportDto { loop = r.Loop, ticks = r.Ticks, potions = r.Potions, autoCast = r.AutoCast, casts = casts, elite = r.Elite };
             }
             return JsonUtility.ToJson(body);
         }
@@ -2011,7 +2011,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class SettlementDto { public long countedSeconds; public long packs; public long korstones; public long sornEarned; public bool offline; public int activeBp; public int loopsVerified; public int leftBehind; public long elitePacks; public string elite; }
         [Serializable] public class LaneDto { public string seed; public int loop; }
         [Serializable] public class CastDto { public int tick; public int skill; }
-        [Serializable] public class LoopReportDto { public int loop; public int ticks; public int potions; public bool[] autoCast; public CastDto[] casts; }
+        [Serializable] public class LoopReportDto { public int loop; public int ticks; public int potions; public bool[] autoCast; public CastDto[] casts; public int[] elite; }
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }

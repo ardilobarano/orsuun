@@ -10,12 +10,28 @@ namespace Orsuun.Rules
     /// (Parties.Place) has one elite camp for UpMinutes of every WindowMinutes; which camp and when is a hash of the place
     /// and the window, so every hero there sees the same one. While it flies, one pack in Camps of a hero's online hunt
     /// there is elite: its monsters' loot is paid ExtraLootTimes more (sorn, XP, draughts, materials, drops), and it leaves a
-    /// piece of gear GearBp of the time. Offline hunting meets none. The lane's fights are untouched (replays stay the same):
-    /// the pay is settled with the hunt (GameService.Settle).
+    /// piece of gear GearBp of the time. Offline hunting meets none. The pay is settled with the hunt (GameService.Settle);
+    /// in the lane the packs met near the banner fight tougher (HpPercent, AttackPercent; LaneSim.ElitePacks).
     /// </summary>
     public static class EliteCamps
     {
         public const int WindowMinutes = 30, UpMinutes = 10, Camps = 6, ExtraLootTimes = 2, GearBp = 3300;
+        /// <summary>An elite pack's monsters in the lane (owner, 29 Sep 2026: "Truly tougher elite packs"): health and attack
+        /// as percents of the stage's (LaneSim.ElitePacks). The server replays a loop with the elite packs its report names,
+        /// only while a banner flew at the hero's place: they can only slow a loop, so naming them earns nothing.</summary>
+        public const int HpPercent = 250, AttackPercent = 160;
+
+        /// <summary>The encounter indices a loop report may name as elite packs: its packs (not the Korstone or boss), each once.</summary>
+        public static int[] ValidPacks(int[]? named, StageConfig stage)
+        {
+            if (named == null || named.Length == 0) return Array.Empty<int>();
+            int packs = stage.PacksBeforeKorstone;
+            var valid = new System.Collections.Generic.SortedSet<int>();
+            foreach (int i in named) if (i >= 0 && i < packs) valid.Add(i);
+            int[] result = new int[valid.Count];
+            valid.CopyTo(result);
+            return result;
+        }
         private static readonly DateTime Epoch = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>The window's elite camp (0..Camps-1) and when its banner flies, for the window holding <paramref name="utc"/>.</summary>

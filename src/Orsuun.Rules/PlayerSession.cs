@@ -238,13 +238,14 @@ namespace Orsuun.Rules
     /// <summary>One finished online farm loop, as the heartbeat reports it (ActivePlay.Verify replays it).</summary>
     public sealed class LoopReport
     {
-        public LoopReport(int loop, int ticks, int potions, bool[] autoCast, List<CastInput> casts)
+        public LoopReport(int loop, int ticks, int potions, bool[] autoCast, List<CastInput> casts, int[]? elite = null)
         {
             Loop = loop;
             Ticks = ticks;
             Potions = potions;
             AutoCast = autoCast;
             Casts = casts;
+            Elite = elite ?? Array.Empty<int>();
         }
 
         public int Loop { get; }
@@ -252,6 +253,8 @@ namespace Orsuun.Rules
         public int Potions { get; }
         public bool[] AutoCast { get; }
         public List<CastInput> Casts { get; }
+        /// <summary>The loop's elite packs by encounter index (LaneSim.ElitePacks; Rules.EliteCamps).</summary>
+        public int[] Elite { get; }
     }
 
     /// <summary>
@@ -702,7 +705,7 @@ namespace Orsuun.Rules
             if (!_laneSeed.HasValue || Lane.Cycles == 0) return false;
             if (!_loopDirty && Lane.CurrentTick <= ActivePlay.MaxLoopTicks)
             {
-                _reports.Add(new LoopReport(LaneLoop, Lane.CurrentTick, _loopPotions, _loopAuto, _loopCasts));
+                _reports.Add(new LoopReport(LaneLoop, Lane.CurrentTick, _loopPotions, _loopAuto, _loopCasts, Lane.ElitePacks.OrderBy(i => i).ToArray()));
                 if (_reports.Count > MaxQueuedReports) _reports.RemoveAt(0);
             }
             StartLoop(Lane.Stage, LaneLoop + 1);

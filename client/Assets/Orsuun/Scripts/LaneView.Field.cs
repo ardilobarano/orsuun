@@ -20,10 +20,13 @@ namespace Orsuun.Client
 
         /// <summary>
         /// The big map's elite camp now (Rules.EliteCamps; FieldFolk sets it from the server, -1 none): a pack that waits
-        /// within EliteReach of it is an elite pack, a head taller and burning gold, as are the monsters it spawns. Its pay is
-        /// the server's (settled with the hunt); the lane's fight is the same.
+        /// within EliteReach of it is an elite pack, marked so in the lane (tougher, harder-hitting), a head taller and
+        /// burning gold, as are the monsters it spawns. Its pay is the server's (settled with the hunt).
         /// </summary>
         internal int EliteCamp = -1;
+        /// <summary>The lane bound is the online farm lane (GameRoot): only its packs may be marked elite, since its loops are
+        /// reported and replayed with them; a push or boss replay never is.</summary>
+        internal bool MayMarkElite;
         private const float EliteReach = 28f, EliteSize = 1.3f;
         internal static readonly Color EliteGold = new Color(1.4f, 1.12f, 0.5f);
         private bool _waitingElite, _eliteFloated;
@@ -81,7 +84,10 @@ namespace Orsuun.Client
                 float walk = FieldMap.Speed * _sim.Stage.RunTicks / LaneSim.TicksPerSecond;
                 _waitAnchor = _map.OnTrail(walk + WaitBeyond);
                 _waitAlong = _map.AlongTrail(walk + WaitBeyond);
-                _waitingElite = NearElite(_waitAnchor);
+                // A pack that waits near the golden banner is elite in the lane itself (LaneSim.ElitePacks: tougher,
+                // harder-hitting); the loop's report names it so the server's replay fights it too.
+                if (MayMarkElite && NearElite(_waitAnchor)) _sim.MarkNextPackElite();
+                _waitingElite = _sim.NextPackElite;
                 _eliteFloated = false;
             }
             while (_waiting.Count > want)
@@ -111,10 +117,9 @@ namespace Orsuun.Client
         private Vector3 _waitAnchor, _waitAlong = Vector3.right;
 
         /// <summary>Where the next monster of a pack starts on a big map: a waiting one's place, which it takes over.</summary>
-        private bool TakeWaiting(out Vector3 at, out bool elite)
+        private bool TakeWaiting(out Vector3 at)
         {
             at = Vector3.zero;
-            elite = _waitingElite;
             while (_waiting.Count > 0)
             {
                 Transform first = _waiting[0];

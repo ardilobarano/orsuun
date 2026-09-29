@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 
@@ -74,9 +75,11 @@ namespace Orsuun.Rules.Combat
         /// A cast at tick t is applied before the lane advances from t, which is when the client applies a tap.
         /// </summary>
         public static int RunLoop(StageConfig stage, HeroStats hero, SkillDef[] skills, ulong laneSeed, int loop,
-            IReadOnlyList<bool> autoCast, IReadOnlyList<CastInput> casts, int potions, int maxTicks)
+            IReadOnlyList<bool> autoCast, IReadOnlyList<CastInput> casts, int potions, int maxTicks, IReadOnlyCollection<int>? elitePacks = null)
         {
             LaneSim lane = NewLoop(stage, hero, skills, new Inventory { Potions = potions }, laneSeed, loop);
+            // The loop's elite packs (Rules.EliteCamps), marked before any of them spawns, as the client marked them.
+            if (elitePacks != null) foreach (int pack in elitePacks) lane.ElitePacks.Add(pack);
             for (int i = 0; i < lane.AutoCast.Length && i < autoCast.Count; i++) lane.AutoCast[i] = autoCast[i];
 
             int next = 0;
@@ -95,19 +98,20 @@ namespace Orsuun.Rules.Combat
         }
 
         public static LoopVerdict Verify(StageConfig stage, HeroStats hero, SkillDef[] skills, ulong laneSeed, int loop,
-            IReadOnlyList<bool> autoCast, IReadOnlyList<CastInput> casts, int potions, int reportedTicks)
+            IReadOnlyList<bool> autoCast, IReadOnlyList<CastInput> casts, int potions, int reportedTicks, IReadOnlyCollection<int>? elitePacks = null)
         {
             if (reportedTicks <= 0 || reportedTicks > MaxLoopTicks) return LoopVerdict.Reject("loop length out of range");
             if (casts.Count > MaxCastsPerLoop) return LoopVerdict.Reject("too many casts");
             for (int i = 1; i < casts.Count; i++)
                 if (casts[i].Tick < casts[i - 1].Tick) return LoopVerdict.Reject("casts out of order");
 
-            int played = RunLoop(stage, hero, skills, laneSeed, loop, autoCast, casts, potions, reportedTicks);
+            int played = RunLoop(stage, hero, skills, laneSeed, loop, autoCast, casts, potions, reportedTicks, elitePacks);
             if (played != reportedTicks) return LoopVerdict.Reject("replay did not match", played);
 
             var allAuto = new bool[skills.Length];
             for (int i = 0; i < allAuto.Length; i++) allAuto[i] = true;
-            int baseline = RunLoop(stage, hero, skills, laneSeed, loop, allAuto, Array.Empty<CastInput>(), potions, MaxLoopTicks);
+            // The baseline meets the same elite packs, so the pace compares like with like.
+            int baseline = RunLoop(stage, hero, skills, laneSeed, loop, allAuto, Array.Empty<CastInput>(), potions, MaxLoopTicks, elitePacks);
             if (baseline < 0) baseline = MaxLoopTicks;
 
             long bp = (long)baseline * RandomExtensions.FullBp / played;

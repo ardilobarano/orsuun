@@ -768,6 +768,8 @@ namespace Orsuun.Client
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 
             Lane.Pace = SpeedMultiplier;
+            // Only the online farm lane's packs may be marked elite (its loops are reported and replayed); never a replay.
+            Lane.MayMarkElite = Server.Online && !Replaying && Session.LaneSeeded && lane == Session.Lane;
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);
             while (_accumulator >= 1f)
             {

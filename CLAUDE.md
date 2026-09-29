@@ -352,7 +352,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   heartbeat's meal bp); partymates are presentation (`FieldFolk`, `TownHeroDto.Party`). Party chat is channel `p:<leader id>`
   (it passes with the lead), read from each member's `PartyJoinedUtc`.
 - Elite camps (`Rules.EliteCamps`) are rolled from the server's clock per place (`Parties.Place`) and paid in `Settle` (live
-  hunting only); the client only dresses packs near the camp (`LaneView.EliteCamp`): never put them in LaneSim (replays).
+  hunting only). An elite pack is tougher in the lane (`LaneSim.ElitePacks`, marked before it spawns and drawing nothing):
+  the phone marks packs near the banner camp (`LaneView.MayMarkElite`: the online farm lane only, never a replay) and each
+  loop report names them (`LoopReport.Elite`); the server replays with them only while a banner flew (`VerifyLoops`).
   Map world bosses are `MapCommander.Sightings` (Commander id, layout, camp): a new Commander needs a row and a model
   (`MapCommander.Models`). Commanders 4-12 are the map bosses (`Content.MapCommander`: `ZoneId` is the map's first stage,
   so code must not assume a Commander's `ZoneId` is a zone; use `Content.OnMap` / `CommanderGearLevel` / `BossStage`).

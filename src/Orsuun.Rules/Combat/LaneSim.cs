@@ -260,6 +260,8 @@ namespace Orsuun.Rules.Combat
         public long MaxHp { get; }
         public long Hp { get; internal set; }
         public long Attack { get; internal set; }
+        /// <summary>A monster of an elite pack (Rules.EliteCamps): tougher and harder-hitting (LaneSim.ElitePacks).</summary>
+        public bool IsElite { get; internal set; }
         internal int NextAttackTick { get; set; }
         internal int WavesSpawned { get; set; }
         internal bool Enraged { get; set; }
@@ -739,12 +741,49 @@ namespace Orsuun.Rules.Combat
             }
 
             int size = _stage.PackSizeMin + _rng.NextInt(_stage.PackSizeMax - _stage.PackSizeMin + 1);
-            for (int i = 0; i < size; i++) SpawnMob();
+            bool elite = ElitePacks.Contains(EncounterIndex);
+            for (int i = 0; i < size; i++) SpawnMob(elite);
         }
 
-        private void SpawnMob()
+        /// <summary>
+        /// This loop's elite packs, by encounter index (Rules.EliteCamps; owner, 29 Sep 2026: "Truly tougher elite packs"):
+        /// their monsters have EliteCamps.HpPercent of the health and AttackPercent of the attack. The client marks a pack
+        /// as it waits near a golden-banner camp, before it spawns (MarkNextPackElite); the server's replay marks the ones
+        /// the loop's report names. Nothing is drawn for it, so a lane without elite packs runs exactly as before.
+        /// </summary>
+        public readonly HashSet<int> ElitePacks = new HashSet<int>();
+
+        /// <summary>The encounter index of the next pack of this loop (the one walked to, or the one after the fight), or -1
+        /// when the next encounter is the Korstone, the boss, or the next loop's.</summary>
+        private int NextPackIndex
         {
-            var mob = new Enemy(_nextEnemyId++, EnemyKind.Mob, _stage.MobHp, _stage.MobAttack);
+            get
+            {
+                int loop = _stage.FinalEncounter == FinalEncounter.None ? _stage.PacksBeforeKorstone : _stage.PacksBeforeKorstone + 1;
+                int next = Phase == LanePhase.Running ? EncounterIndex : EncounterIndex + 1;
+                if (next >= Math.Max(1, loop) || IsBossStage) return -1;
+                if (_stage.FinalEncounter != FinalEncounter.None && next == _stage.PacksBeforeKorstone) return -1;
+                return next;
+            }
+        }
+
+        private bool IsBossStage => _stage.FinalEncounter == FinalEncounter.Boss && _stage.PacksBeforeKorstone == 0;
+
+        /// <summary>Marks the next pack elite (before it spawns); its encounter index, or -1 when there is none to mark.</summary>
+        public int MarkNextPackElite()
+        {
+            int next = NextPackIndex;
+            if (next >= 0) ElitePacks.Add(next);
+            return next;
+        }
+
+        /// <summary>Whether the next pack of this loop is elite.</summary>
+        public bool NextPackElite => NextPackIndex is int next && next >= 0 && ElitePacks.Contains(next);
+
+        private void SpawnMob(bool elite = false)
+        {
+            var mob = new Enemy(_nextEnemyId++, EnemyKind.Mob, elite ? _stage.MobHp * EliteCamps.HpPercent / 100 : _stage.MobHp,
+                elite ? _stage.MobAttack * EliteCamps.AttackPercent / 100 : _stage.MobAttack) { IsElite = elite };
             // Stagger first hits so a pack does not land all its damage on one tick.
             mob.NextAttackTick = _tick + 10 + _rng.NextInt(_stage.MobAttackIntervalTicks);
             Spawn(mob);
