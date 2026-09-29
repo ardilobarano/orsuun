@@ -137,10 +137,10 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   push and boss replays from server seeds; seeded farm loops reported for active play; LOCAL MODE fallback.
 - `tools/Orsuun.Sim`: Monte Carlo balance report. `tools/ClientCheck`: compiles Unity scripts with dotnet.
 
-## Picking up on another machine (29 Sep 2026)
+## Picking up on another machine
 
-The owner moved from the Mac to their main PC after build 26092822 (the field and the Oathfields big map; everything
-committed and pushed, the playtest server deployed). Working notes the Mac's Claude memory held, so a new machine has them:
+Written 29 Sep 2026 when a move to the owner's main PC was planned (it was called off; work stayed on the Mac). The
+working notes the Mac's Claude memory holds, so another machine has them too:
 
 - When offered a menu of next steps, the owner usually picks all of them: order options by recommendation, build the
   whole list in order, commit and report each as it lands. A free-text answer ("also add ...") is an extra item to
