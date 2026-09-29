@@ -47,6 +47,8 @@ namespace Orsuun.Client
             /// full map; groves of 3D props.</summary>
             public Spot[] Landmarks, Camps, Places, Groves;
             public string ScenerySet = "Steppe";
+            /// <summary>The scenery model that rises in a ring round each Korstone on this map.</summary>
+            public string KorstoneRing = "SteppeStone";
             /// <summary>Grass cards and stone models, scattered within <see cref="ScatterReach"/> metres of the trail (the
             /// camera never sees further).</summary>
             public int GrassCards = 900, Stones = 90;
@@ -76,7 +78,8 @@ namespace Orsuun.Client
         }
 
         /// <summary>How fast the hero tours the trail while the lane runs (m/s) and how far a bend is looked ahead to turn.</summary>
-        private const float Speed = 7f, TurnAhead = 6f, TrailWidth = 3.4f, Spacing = 1f;
+        internal const float Speed = 7f;
+        private const float TurnAhead = 6f, TrailWidth = 3.4f, Spacing = 1f;
 
         private Layout _layout;
         private Transform _root;
@@ -148,10 +151,15 @@ namespace Orsuun.Client
         }
 
         /// <summary>A frame: on the run the hero walks on; the map slides and turns under him; the cards face the camera.</summary>
-        public void Tick(float dt, bool running)
+        /// <summary>A point on the trail <paramref name="ahead"/> metres on from the hero, and the way it runs there (map space).</summary>
+        internal Vector3 OnTrail(float ahead) => At(_s + ahead);
+        internal Vector3 AlongTrail(float ahead) => Heading(_s + ahead - TurnAhead);
+
+        /// <summary><paramref name="pace"/> is the hunt's speed (MENU's HUNT SPEED), so a walk between packs is as long at any speed.</summary>
+        public void Tick(float dt, bool running, float pace = 1f)
         {
             if (!Active) return;
-            if (running && !Held) _s = Mathf.Repeat(_s + Speed * dt, _length);
+            if (running && !Held) _s = Mathf.Repeat(_s + Speed * pace * dt, _length);
             // The heading eases round bends (looked at a little ahead), so the camera swings rather than snaps.
             Vector3 want = Heading(_s);
             _heading = Vector3.Slerp(_heading, want, 1f - Mathf.Exp(-2.2f * dt)).normalized;
@@ -440,11 +448,15 @@ namespace Orsuun.Client
         }
 
         /// <summary>A model standing on the map (a metre tall at scale 1, like the scenery's), or nothing without its art.</summary>
-        private void Model(string name, Vector3 at, float yaw, float height)
+        private void Model(string name, Vector3 at, float yaw, float height) => PlaceModel(_root, name, at, yaw, height);
+
+        /// <summary>A scenery model (Content/Scenery/Models, a metre tall at scale 1) under <paramref name="parent"/>, or null
+        /// without its art.</summary>
+        internal static Transform PlaceModel(Transform parent, string name, Vector3 at, float yaw, float height)
         {
             var prefab = Art.Load<GameObject>("Scenery/Models/" + name);
-            if (prefab == null) return;
-            GameObject go = Instantiate(prefab, _root);
+            if (prefab == null) return null;
+            GameObject go = Instantiate(prefab, parent);
             go.name = name;
             go.transform.localPosition = at;
             go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
@@ -456,6 +468,7 @@ namespace Orsuun.Client
                 r.shadowCastingMode = ShadowCastingMode.Off;
                 r.receiveShadows = false;
             }
+            return go.transform;
         }
 
         /// <summary>Grass and shrub cards over the whole map, and the set's stones and cairns, clear of the trail.</summary>

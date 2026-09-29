@@ -749,6 +749,7 @@ namespace Orsuun.Client
             Lane.SetKin(Session.KinJoined, kinRobe != null ? ItemLooks.Tier(kinRobe.ItemLevel) : 0);
             Lane.SetGear(UpgradeGlow.PerSlot(Session, _glowBySlot));
 
+            Lane.Pace = SpeedMultiplier;
             _accumulator = Mathf.Min(_accumulator + Time.deltaTime * LaneSim.TicksPerSecond * SpeedMultiplier, 200f);
             while (_accumulator >= 1f)
             {

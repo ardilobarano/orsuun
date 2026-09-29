@@ -23,6 +23,9 @@ namespace Orsuun.Rules
             _state = seed == 0 ? 0x9E3779B97F4A7C15UL : seed;
         }
 
+        /// <summary>A generator in the same state: it draws what this one would draw next, without moving this one.</summary>
+        public XorShiftRandom Copy() => new XorShiftRandom(1UL) { _state = _state };
+
         private ulong NextULong()
         {
             _state ^= _state >> 12;

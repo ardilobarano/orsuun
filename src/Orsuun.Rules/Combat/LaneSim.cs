@@ -679,6 +679,28 @@ namespace Orsuun.Rules.Combat
             }
         }
 
+        /// <summary>
+        /// The size of the pack the lane spawns next, read from a copy of its generator (nothing is drawn, so the lane runs
+        /// exactly as it would have), or -1 when it cannot tell: the lane is not walking between encounters, the next one
+        /// is the Korstone or boss, or the generator cannot be copied. The field shows the pack waiting up the trail by it.
+        /// </summary>
+        public int PeekPackSize()
+        {
+            if (Phase != LanePhase.Running || IsKorstoneEncounter || !(_rng is XorShiftRandom generator)) return -1;
+            return _stage.PackSizeMin + generator.Copy().NextInt(_stage.PackSizeMax - _stage.PackSizeMin + 1);
+        }
+
+        /// <summary>Whether the encounter after the one being fought is a pack (not the Korstone or boss).</summary>
+        public bool NextIsPack
+        {
+            get
+            {
+                if (_stage.FinalEncounter == FinalEncounter.None) return true;
+                int loop = _stage.PacksBeforeKorstone + 1;
+                return (EncounterIndex + 1) % loop != _stage.PacksBeforeKorstone;
+            }
+        }
+
         private void StartRunning()
         {
             Phase = LanePhase.Running;

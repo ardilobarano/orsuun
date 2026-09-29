@@ -10,7 +10,7 @@ namespace Orsuun.Client
     /// Oathfields' Hollowed Wolf, Hollowed Boar and Deserter; Old Greyjaw is a great wolf) and the Korstone model with
     /// lit cracks. Anything without a model falls back to a grey box.
     /// </summary>
-    public sealed class LaneView : MonoBehaviour
+    public sealed partial class LaneView : MonoBehaviour
     {
         private const float HeroX = -1.6f;
 
@@ -25,6 +25,8 @@ namespace Orsuun.Client
         public static readonly Vector3 CameraTo = new Vector3(HeroX + 5f, 0f, 4.5f);
         /// <summary>Where the action camera leans toward (ActionCamera).</summary>
         public static readonly Vector3 HeroChest = new Vector3(HeroX + 0.8f, 1.1f, 0f);
+        /// <summary>The hunt's speed (MENU's HUNT SPEED, set by GameRoot): a big map's walk keeps pace with it.</summary>
+        public float Pace = 1f;
         public const float CameraFov = 40f;
         /// <summary>The field's far side fades into the map's haze (RenderSettings fog while the lane shows).</summary>
         public const float FogStart = 24f, FogEnd = 70f;
@@ -247,6 +249,10 @@ namespace Orsuun.Client
             foreach (EnemyView view in _views.Values) Kill(view.Root.gameObject);   // the editor preview rebinds too
             _views.Clear();
             _sim = sim;
+            // A new loop numbers its enemies from 1 again: the waiting pack is made for it afresh.
+            ClearWaiting();
+            _lastEnemyId = 0;
+            foreach (Enemy enemy in sim.Enemies) _lastEnemyId = Mathf.Max(_lastEnemyId, enemy.Id);
             SetZone(sim.Stage.Zone, sim.Stage.StageNumber);
             _hero.rotation = Quaternion.identity;
             _hero.position = new Vector3(HeroX, _heroY, 0f);
@@ -721,6 +727,7 @@ namespace Orsuun.Client
             {
                 case LaneEventKind.EnemySpawned:
                     SpawnView(e.EnemyId);
+                    _lastEnemyId = Mathf.Max(_lastEnemyId, e.EnemyId);
                     break;
 
                 case LaneEventKind.EnemyDamaged:
@@ -762,6 +769,7 @@ namespace Orsuun.Client
                         Vector3 at = dead.Root.position + Vector3.up * dead.HitHeight;
                         if (dead.IsKorstone)
                         {
+                            SinkRing();
                             Sparks(at + Vector3.up * 0.4f, 90, new Color(1f, 0.5f, 0.12f), 2.2f);
                             GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.3f);
                             ActionCamera.Shake(0.16f);
@@ -887,8 +895,10 @@ namespace Orsuun.Client
             if (_sim == null) return;
             float dt = Time.deltaTime;
             bool onMap = _map != null && _map.Active;
-            if (onMap) _map.Tick(dt, _sim.Phase == LanePhase.Running);
+            if (onMap) _map.Tick(dt, _sim.Phase == LanePhase.Running, Pace);
             else _scenery?.Tick(dt, _sim.Phase == LanePhase.Running);
+            UpdateWaiting(onMap);
+            UpdateRing(dt);
 
             if (_sim.Phase == LanePhase.Running && !onMap)
             {
@@ -1896,6 +1906,19 @@ namespace Orsuun.Client
             float y = standing ? 0f : korstone ? 1.3f : boss ? 1.2f : 0.35f;
             root.SetParent(transform, false);
             root.position = new Vector3(SpawnX, y, korstone ? 2.2f : 0f);
+            // On a big map a pack's monster starts where one of the waiting pack stood, up the trail, and a Korstone rises
+            // in a ring of standing stones (LaneView.Field).
+            if (Application.isPlaying && _map != null && _map.Active)
+            {
+                if (kind == EnemyKind.Mob && !_sim.IsKorstoneEncounter && !_sim.IsBossEncounter && TakeWaiting(out Vector3 waited))
+                    root.position = new Vector3(waited.x, y, waited.z);
+                if (korstone)
+                {
+                    // It comes up out of the ground in its place.
+                    root.position = new Vector3(3.4f, y - 4f, 2.2f);
+                    RaiseRing(new Vector3(3.4f, 0f, 2.2f));
+                }
+            }
             root.localScale = s;
 
             // Bars are parented to a holder that cancels the body's scale, so they keep a fixed size.
