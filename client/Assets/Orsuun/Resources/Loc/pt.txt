@@ -2868,3 +2868,14 @@ An elite pack: +{0#} sorn, +{1#} piece of gear	Uma matilha de elite: +{0#} sorn,
 {0#} elite packs: +{1#} sorn	{0#} matilhas de elite: +{1#} sorn
 {0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} matilhas de elite: +{1#} sorn, +{2#} peça de equipamento
 {0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} matilhas de elite: +{1#} sorn, +{2#} peças de equipamento
+# Party chat (29 Sep 2026).
+PARTY CHAT	CHAT DO GRUPO
+Join a party to talk with it.	Entra num grupo para falar com ele.
+The party is quiet. Say hello.	O grupo está calado. Diz olá.
+{0} joined the party.	{0} entrou no grupo.
+{0} left the party.	{0} saiu do grupo.
+{0} was sent away.	{0} foi mandado embora.
+{0} left the party; {1} leads it now.	{0} saiu do grupo; agora lidera-o {1}.
+{0} now hunts {1}.	{0} caça agora em {1}.
+{0} hunts beside you.	{0} caça ao teu lado.
+a dungeon	uma masmorra

@@ -2854,3 +2854,14 @@ An elite pack: +{0#} sorn, +{1#} piece of gear	Elitarne stado: +{0#} sornu, +{1#
 {0#} elite packs: +{1#} sorn	{0#} elitarne stada: +{1#} sornu
 {0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} elitarne stada: +{1#} sornu, +{2#} część ekwipunku
 {0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} elitarne stada: +{1#} sornu, +{2#} części ekwipunku
+# Party chat (29 Sep 2026).
+PARTY CHAT	CZAT DRUŻYNY
+Join a party to talk with it.	Dołącz do drużyny, by z nią rozmawiać.
+The party is quiet. Say hello.	W drużynie cisza. Przywitaj się.
+{0} joined the party.	{0} dołącza do drużyny.
+{0} left the party.	{0} opuszcza drużynę.
+{0} was sent away.	{0} zostaje odprawiony.
+{0} left the party; {1} leads it now.	{0} opuszcza drużynę; teraz prowadzi ją {1}.
+{0} now hunts {1}.	{0} poluje teraz: {1}.
+{0} hunts beside you.	{0} poluje u twego boku.
+a dungeon	loch

@@ -20,6 +20,8 @@ public sealed partial class GameService
         null or "" or Chat.World => Chat.World,
         Chat.Trade => Chat.Trade,
         "guild" => account.GuildId is Guid g ? Chat.GuildChannel(g) : throw new GameException("no_guild", "You are not in a guild."),
+        // The hunting party's own channel (Rules.Parties), keyed by its leader.
+        "party" => account.PartyLeaderId is Guid p ? PartyChannel(p) : throw new GameException("no_party", "You are not in a party."),
         _ => throw new GameException("bad_channel", "Unknown chat channel."),
     };
 
@@ -42,6 +44,12 @@ public sealed partial class GameService
         List<Guid> blocked = BlockedList(account);
         IQueryable<ChatMessage> query = _db.ChatMessages.AsNoTracking().Where(m => m.Channel == stored && !m.Hidden);
         if (after > 0) query = query.Where(m => m.Id > after);
+        // A partymate reads the party's lines from when they joined (a party formed again by the same leader starts clean).
+        if (IsPartyChannel(stored))
+        {
+            DateTime joined = account.PartyJoinedUtc ?? DateTime.UtcNow;
+            query = query.Where(m => m.Utc >= joined);
+        }
         List<ChatMessage> rows = await query.OrderByDescending(m => m.Id).Take(Chat.PageSize).ToListAsync(ct);
         rows.Reverse();
         // The Bazaar Call's links, as the pieces are now: a piece its sender no longer has shows as gone.
@@ -58,7 +66,7 @@ public sealed partial class GameService
             })
             .ToArray();
         long latest = rows.Count > 0 ? rows[^1].Id : after;
-        return new ChatDto(stored == Chat.World ? Chat.World : stored == Chat.Trade ? Chat.Trade : "guild", lines, latest, blocked.Count);
+        return new ChatDto(stored == Chat.World ? Chat.World : stored == Chat.Trade ? Chat.Trade : IsPartyChannel(stored) ? "party" : "guild", lines, latest, blocked.Count);
     }
 
     public async Task<ChatDto> SayAsync(Account account, ChatSayRequest request, CancellationToken ct)

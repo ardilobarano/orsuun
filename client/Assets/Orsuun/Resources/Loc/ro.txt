@@ -2862,3 +2862,14 @@ An elite pack: +{0#} sorn, +{1#} piece of gear	O haită de elită: +{0#} sorn, +
 {0#} elite packs: +{1#} sorn	{0#} haite de elită: +{1#} sorn
 {0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} haite de elită: +{1#} sorn, +{2#} piesă de echipament
 {0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} haite de elită: +{1#} sorn, +{2#} piese de echipament
+# Party chat (29 Sep 2026).
+PARTY CHAT	CHATUL GRUPULUI
+Join a party to talk with it.	Intră într-un grup ca să vorbești cu el.
+The party is quiet. Say hello.	Grupul tace. Salută-i.
+{0} joined the party.	{0} s-a alăturat grupului.
+{0} left the party.	{0} a părăsit grupul.
+{0} was sent away.	{0} a fost trimis de acolo.
+{0} left the party; {1} leads it now.	{0} a părăsit grupul; acum îl conduce {1}.
+{0} now hunts {1}.	{0} vânează acum în {1}.
+{0} hunts beside you.	{0} vânează alături de tine.
+a dungeon	o temniță

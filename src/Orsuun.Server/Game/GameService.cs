@@ -550,7 +550,9 @@ public sealed partial class GameService
         if (account.AtRiver) LeaveRiver(account, now);
         SettlementDto settlement = Settle(account, now);
         account.LastHeartbeatUtc = now;
+        int fromStage = account.ParkedStage;
         account.ParkedStage = request.Stage;
+        PartyMoved(account, fromStage);
         account.HuntCarryTicks = 0;
         account.HuntEncounter = 0;
         NewLane(account);
@@ -605,7 +607,9 @@ public sealed partial class GameService
                 DateTime now = DateTime.UtcNow;
                 moved = Settle(account, now);
                 account.LastHeartbeatUtc = now;
+                int fromStage = account.ParkedStage;
                 account.ParkedStage = target;
+                PartyMoved(account, fromStage);
                 account.HuntCarryTicks = 0;
                 account.HuntEncounter = 0;
                 NewLane(account);

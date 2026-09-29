@@ -101,6 +101,7 @@ public sealed partial class GameService
         if (count >= Parties.MaxMembers) throw new GameException("party_full", $"That party holds {Parties.MaxMembers} heroes already.");
         account.PartyLeaderId = leader;
         account.PartyJoinedUtc = now;
+        SystemLine(PartyChannel(leader), $"{NameOf(account)} joined the party.");
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
         return await PartyAsync(account, ct) with { Message = "You joined the party." };
@@ -123,9 +124,11 @@ public sealed partial class GameService
         if (request.AccountId == account.Id) throw new GameException("self", "Leave the party instead.");
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
         await LockAccountRowAsync(account.Id, ct);
-        int moved = await _db.Accounts.Where(a => a.Id == request.AccountId && a.PartyLeaderId == account.Id)
+        var sent = await _db.Accounts.AsNoTracking().Where(a => a.Id == request.AccountId && a.PartyLeaderId == account.Id)
+            .Select(a => new { a.Id, a.Name }).SingleOrDefaultAsync(ct) ?? throw new GameException("not_member", "They are not in your party.");
+        await _db.Accounts.Where(a => a.Id == sent.Id)
             .ExecuteUpdateAsync(s => s.SetProperty(a => a.PartyLeaderId, (Guid?)null).SetProperty(a => a.PartyJoinedUtc, (DateTime?)null), ct);
-        if (moved == 0) throw new GameException("not_member", "They are not in your party.");
+        SystemLine(PartyChannel(account.Id), $"{ShownName(sent.Id, sent.Name)} was sent away.");
         // A party of one is no party.
         if (await _db.Accounts.CountAsync(a => a.PartyLeaderId == account.Id, ct) <= 1)
         {
@@ -146,8 +149,8 @@ public sealed partial class GameService
         account.PartyLeaderId = null;
         account.PartyJoinedUtc = null;
         await SaveAsync(ct);
-        List<Guid> rest = await _db.Accounts.Where(a => a.PartyLeaderId == leader && a.Id != account.Id)
-            .OrderBy(a => a.PartyJoinedUtc).Select(a => a.Id).ToListAsync(ct);
+        var rest = await _db.Accounts.Where(a => a.PartyLeaderId == leader && a.Id != account.Id)
+            .OrderBy(a => a.PartyJoinedUtc).Select(a => new { a.Id, a.Name }).ToListAsync(ct);
         if (rest.Count <= 1)
         {
             await _db.Accounts.Where(a => a.PartyLeaderId == leader)
@@ -156,9 +159,25 @@ public sealed partial class GameService
         }
         if (leader == account.Id)
         {
-            Guid heir = rest[0];
+            // The lead passes, and the party's chat with it (a channel is its leader's).
+            Guid heir = rest[0].Id;
             await _db.Accounts.Where(a => a.PartyLeaderId == leader).ExecuteUpdateAsync(s => s.SetProperty(a => a.PartyLeaderId, (Guid?)heir), ct);
+            SystemLine(PartyChannel(heir), $"{NameOf(account)} left the party; {ShownName(heir, rest[0].Name)} leads it now.");
         }
+        else SystemLine(PartyChannel(leader), $"{NameOf(account)} left the party.");
+    }
+
+    /// <summary>A party's chat channel: its leader's id (Rules.Parties). Lines there are read from when each member joined.</summary>
+    private static string PartyChannel(Guid leader) => "p:" + leader.ToString("N");
+    private static bool IsPartyChannel(string channel) => channel.StartsWith("p:", StringComparison.Ordinal);
+
+    /// <summary>A partymate hunting somewhere else now says so in the party's chat.</summary>
+    private void PartyMoved(Account account, int fromStage)
+    {
+        if (account.PartyLeaderId is not Guid leader || Parties.Place(fromStage) == Parties.Place(account.ParkedStage)) return;
+        string where = Dungeons.IsFloor(account.ParkedStage) ? "a dungeon" : Content.IsZone(account.ParkedStage) ? Content.StageName(account.ParkedStage)
+            : Content.MapOfStage(account.ParkedStage).Name;
+        SystemLine(PartyChannel(leader), $"{NameOf(account)} now hunts {where}.");
     }
 
     /// <summary>Locks one hero's row for the transaction (a party's leader: membership changes queue behind it).</summary>

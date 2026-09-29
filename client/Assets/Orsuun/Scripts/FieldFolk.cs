@@ -83,6 +83,7 @@ namespace Orsuun.Client
             {
                 _stage = _lane.StageNow;
                 for (int i = 0; i < _hunters.Length; i++) Clear(i);
+                _matesHere.Clear();
                 _polledAt = -100f;
                 _campsOf = null;   // the new stage's own monsters
             }
@@ -260,6 +261,7 @@ namespace Orsuun.Client
         {
             var here = new HashSet<string>();
             foreach (TownHeroDto dto in heroes) here.Add(dto.id);
+            _matesHere.RemoveWhere(id => !here.Contains(id));
             for (int i = 0; i < _hunters.Length; i++)
                 if (_hunters[i] != null && !here.Contains(_hunters[i].Id)) Clear(i);
             foreach (TownHeroDto dto in heroes)
@@ -303,6 +305,8 @@ namespace Orsuun.Client
                 // Facing up the road with the hero, at his fight.
                 h.Root.localRotation = Quaternion.Euler(0f, LaneView.HeroLaneYaw, 0f);
                 h.Name.color = MateGreen;
+                // Said once each time a partymate comes to hunt here (party chat: "starts hunting beside you").
+                if (_matesHere.Add(dto.id)) _root.Hud.Log($"{dto.name} hunts beside you.");
                 return;
             }
             // Facing the monsters in front of him, a little toward the camera.
@@ -419,6 +423,9 @@ namespace Orsuun.Client
             mesh.color = new Color(0.95f, 0.9f, 0.75f);
             return mesh;
         }
+
+        /// <summary>Partymates already hunting beside the hero on this map (a new one is told in the lane's log).</summary>
+        private readonly HashSet<string> _matesHere = new HashSet<string>();
 
         private void Clear(int slot)
         {

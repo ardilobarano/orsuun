@@ -2824,3 +2824,14 @@ An elite pack: +{0#} sorn, +{1#} piece of gear	Seçkin bir sürü: +{0#} sorn, +
 {0#} elite packs: +{1#} sorn	{0#} seçkin sürü: +{1#} sorn
 {0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} seçkin sürü: +{1#} sorn, +{2#} teçhizat
 {0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} seçkin sürü: +{1#} sorn, +{2#} teçhizat
+# Party chat (29 Sep 2026).
+PARTY CHAT	GRUP SOHBETİ
+Join a party to talk with it.	Onunla konuşmak için bir gruba katıl.
+The party is quiet. Say hello.	Grup sessiz. Bir merhaba de.
+{0} joined the party.	{0} gruba katıldı.
+{0} left the party.	{0} gruptan ayrıldı.
+{0} was sent away.	{0} gruptan çıkarıldı.
+{0} left the party; {1} leads it now.	{0} gruptan ayrıldı; artık {1} önderlik ediyor.
+{0} now hunts {1}.	{0} artık {1} bölgesinde avlanıyor.
+{0} hunts beside you.	{0} yanında avlanıyor.
+a dungeon	bir zindan

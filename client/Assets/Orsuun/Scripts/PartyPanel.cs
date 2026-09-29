@@ -23,7 +23,7 @@ namespace Orsuun.Client
         private GameObject _invite, _party;
         private readonly Text[] _rows = new Text[Rows];
         private readonly Button[] _rowButtons = new Button[Rows];
-        private Text _bonus;
+        private Text _bonus, _chatLabel;
         private Button _chip;
         private Text _chipLabel;
         private ConfirmDialog _confirm;
@@ -61,8 +61,11 @@ namespace Orsuun.Client
                 _rows[i].supportRichText = true;
                 _rows[i] = Ui.Raw(_rows[i]);
             }
-            _bonus = Ui.Label("Bonus", _party.transform, 0.05f, 0.34f, 0.95f, 0.44f, "", 22, TextAnchor.MiddleCenter, Palette.Good);
-            Ui.Button("Leave", _party.transform, 0.06f, 0.2f, 0.94f, 0.32f, "LEAVE THE PARTY", 24, Palette.Danger, AskLeave, out _);
+            _bonus = Ui.Label("Bonus", _party.transform, 0.05f, 0.36f, 0.95f, 0.44f, "", 22, TextAnchor.MiddleCenter, Palette.Good);
+            // The party's own chat (CHAT's PARTY tab), with the lines not read yet.
+            Ui.Button("Chat", _party.transform, 0.06f, 0.22f, 0.48f, 0.34f, "PARTY CHAT", 22, Palette.Safe, () => { Close(); _root.Chat.Open(party: true); }, out _chatLabel);
+            _chatLabel = Ui.Raw(_chatLabel);
+            Ui.Button("Leave", _party.transform, 0.52f, 0.22f, 0.94f, 0.34f, "LEAVE", 22, Palette.Danger, AskLeave, out _);
 
             _message = Ui.Label("Message", box, 0.05f, 0.15f, 0.95f, 0.21f, "", 20, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
@@ -71,6 +74,7 @@ namespace Orsuun.Client
 
             // The chip under the minimap: the party's size and bonus, or an invite waiting.
             _chip = Ui.Button("PartyChip", root.Hud.Canvas, 0.02f, 0.628f, 0.22f, 0.66f, "", 18, Palette.Safe, Open, out _chipLabel);
+            _chipLabel = Ui.Raw(_chipLabel);
             _chipLabel.supportRichText = true;
             _chip.gameObject.SetActive(false);
             _confirm = new GameObject("PartyConfirm").AddComponent<ConfirmDialog>();
@@ -173,8 +177,8 @@ namespace Orsuun.Client
             bool chip = (inParty || inviting) && !_root.Server.WaitingForHero && !_root.Server.AtRiver && !_root.Town.IsOpen;
             if (_chip.gameObject.activeSelf != chip) _chip.gameObject.SetActive(chip);
             if (chip)
-                _chipLabel.text = inviting && !inParty ? "PARTY INVITE"
-                    : party == null ? "PARTY" : $"PARTY {party.members?.Length ?? 1}  +{party.bonusPercent}%";
+                _chipLabel.text = Loc.T(inviting && !inParty ? "PARTY INVITE" : party == null ? "PARTY" : $"PARTY {party.members?.Length ?? 1}  +{party.bonusPercent}%")
+                                  + (inParty && _root.Chat.PartyUnread > 0 ? "  " + ConfirmDialog.Tint("(" + _root.Chat.PartyUnread + ")", Palette.Sorn) : "");
             if (!_canvas.activeSelf) return;
 
             _invite.SetActive(inviting && !inParty);
@@ -192,6 +196,8 @@ namespace Orsuun.Client
                 return;
             }
             _body.text = "";
+            int unread = _root.Chat.PartyUnread;
+            _chatLabel.text = Loc.T("PARTY CHAT") + (unread > 0 ? "  " + ConfirmDialog.Tint("(" + unread + ")", Palette.Sorn) : "");
             if (party == null || party == _shown) return;
             _shown = party;
             PartyMemberDto[] members = party.members ?? new PartyMemberDto[0];
