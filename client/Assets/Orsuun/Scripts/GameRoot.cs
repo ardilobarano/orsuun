@@ -67,7 +67,11 @@ namespace Orsuun.Client
         public TipCard Tips { get; private set; }
         public FieldFolk Field { get; private set; }
         public FieldMapPanel MapScreen { get; private set; }
-        /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND for a hero met in the world.</summary>
+        /// <summary>The Commander up on the big map now, standing at its landmark (map world bosses).</summary>
+        public MapCommander Commander { get; private set; }
+        /// <summary>The hunting party: an invite waiting, the members, LEAVE (Rules.Parties).</summary>
+        public PartyPanel Party { get; private set; }
+        /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND and INVITE TO PARTY for a hero met in the world.</summary>
         public HeroActions HeroCard { get; private set; }
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
@@ -210,6 +214,12 @@ namespace Orsuun.Client
             // A big map's minimap (on the HUD) and its full map.
             MapScreen = new GameObject("FieldMapPanel").AddComponent<FieldMapPanel>();
             MapScreen.Init(this);
+            // The hunting party's card and its chip under the minimap (Rules.Parties).
+            Party = new GameObject("PartyPanel").AddComponent<PartyPanel>();
+            Party.Init(this);
+            // A Commander up on a big map stands at its landmark and calls every hero there (MapCommander).
+            Commander = new GameObject("MapCommander").AddComponent<MapCommander>();
+            Commander.Init(this, Lane);
             Oath = new GameObject("BannerOath").AddComponent<BannerOath>();
             Oath.Init(this);
             Account = new GameObject("AccountPanel").AddComponent<AccountPanel>();

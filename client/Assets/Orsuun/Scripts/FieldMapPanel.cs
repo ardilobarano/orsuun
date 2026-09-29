@@ -16,6 +16,9 @@ namespace Orsuun.Client
     {
         private const float MiniSpan = 90f;
         private static readonly Color CampRed = new Color(0.86f, 0.22f, 0.16f), HeroBlue = new Color(0.35f, 0.62f, 1f);
+        /// <summary>A Commander up at a camp (MapCommander): a larger gold mark, and its name to tap on the full map.</summary>
+        private RawImage _fullBoss;
+        private Text _fullBossName;
 
         private GameRoot _root;
         private GameObject _mini, _canvas;
@@ -99,6 +102,8 @@ namespace Orsuun.Client
             Vector2 hero = map.HeroOnMap;
             var hunted = new HashSet<int>();
             foreach ((string _, string _, int camp) in _root.Field.AtCamps) hunted.Add(camp);
+            var commander = _root.Commander != null ? _root.Commander.Here : null;
+            int bossCamp = commander?.Camp ?? -1;
 
             // The minimap: the painted map round the hero, north up.
             float span = MiniSpan / layout.Size;
@@ -112,13 +117,30 @@ namespace Orsuun.Client
                 _miniCamps[i].gameObject.SetActive(inside);
                 if (!inside) continue;
                 Place(_miniCamps[i].rectTransform, c);
-                _miniCamps[i].color = hunted.Contains(i) ? HeroBlue : CampRed;
+                bool boss = bossCamp == i;
+                _miniCamps[i].color = boss || i == _root.Lane.EliteCamp ? MapCommander.Gold : hunted.Contains(i) ? HeroBlue : CampRed;
+                _miniCamps[i].rectTransform.sizeDelta = boss ? new Vector2(30f, 30f) * (1f + 0.15f * Mathf.Sin(Time.unscaledTime * 5f)) : new Vector2(18f, 18f);
             }
 
             if (!IsOpen) return;
             Place(_fullArrow, at);
             _fullArrow.localRotation = Quaternion.Euler(0f, 0f, -map.HeadingDegrees);
-            for (int i = 0; i < _fullCamps.Count; i++) _fullCamps[i].color = hunted.Contains(i) ? HeroBlue : CampRed;
+            // A camp flying the golden banner (Rules.EliteCamps) shows gold.
+            for (int i = 0; i < _fullCamps.Count; i++) _fullCamps[i].color = i == _root.Lane.EliteCamp ? MapCommander.Gold : hunted.Contains(i) ? HeroBlue : CampRed;
+            // The Commander's gold mark and name (tap it to fight), with its time left.
+            bool up = commander != null && _fullBoss != null && bossCamp < layout.Camps.Length;
+            _fullBoss.gameObject.SetActive(up);
+            _fullBossName.gameObject.SetActive(up);
+            if (up)
+            {
+                Vector2 spot = Uv(layout, layout.Camps[bossCamp].At);
+                Place(_fullBoss.rectTransform, spot);
+                _fullBoss.rectTransform.sizeDelta = new Vector2(52f, 52f) * (1f + 0.12f * Mathf.Sin(Time.unscaledTime * 5f));
+                Place(_fullBossName.rectTransform, spot);
+                _fullBossName.rectTransform.anchoredPosition = new Vector2(0f, 64f);   // over a hunter's name at the camp
+                long left = commander.Value.Left;
+                _fullBossName.text = $"{Loc.ToUpper(Loc.T(commander.Value.Name))}  {left / 60}:{left % 60:00}";
+            }
             // Each other hero's name over his camp's (blue) dot.
             int shown = 0;
             foreach ((string id, string name, int camp) in _root.Field.AtCamps)
@@ -133,6 +155,8 @@ namespace Orsuun.Client
             }
             for (int i = shown; i < _fullHunters.Count; i++) _fullHunters[i].gameObject.SetActive(false);
         }
+
+        public void Close() => _canvas.SetActive(false);
 
         public void Open()
         {
@@ -194,6 +218,18 @@ namespace Orsuun.Client
                 _fullHunters.Add(name);
                 _fullLabels.Add(name.gameObject);
             }
+            // A Commander's mark and name (shown while one is up here); its name fights it.
+            _fullBoss = Raw("Commander", _fullSquare, 0f, 0f, 0f, 0f, Dot());
+            _fullBoss.color = MapCommander.Gold;
+            _fullLabels.Add(_fullBoss.gameObject);
+            _fullBossName = Ui.Raw(Ui.Label("CommanderName", _fullSquare, 0f, 0f, 0f, 0f, "", 26, TextAnchor.MiddleCenter, MapCommander.Gold));
+            _fullBossName.rectTransform.sizeDelta = new Vector2(420f, 46f);
+            _fullBossName.fontStyle = FontStyle.Bold;
+            _fullBossName.raycastTarget = true;
+            _fullBossName.gameObject.AddComponent<Button>().onClick.AddListener(() => _root.Commander.Fight());
+            _fullBossName.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.9f);
+            _fullBossName.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.6f);
+            _fullLabels.Add(_fullBossName.gameObject);
             // The hero's arrow over everything on the map.
             if (_fullArrow != null) Destroy(_fullArrow.gameObject);
             _fullArrow = Raw("You", _fullSquare, 0f, 0f, 0f, 0f, Arrow()).rectTransform;

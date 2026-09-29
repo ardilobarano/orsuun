@@ -298,6 +298,11 @@ namespace Orsuun.Client
         /// <summary>Screenshots (-unlockshow Guild): the card a level-up that opens the feature shows.</summary>
         public void ShowUnlockForShot(Feature feature) => ShowCard("NEW: " + Unlocks.Name(feature), Unlocks.Tip(feature));
 
+        /// <summary>A card over the lane for a few seconds (a Commander rising on the map).</summary>
+        public void Announce(string title, string text) => ShowCard(title, text);
+
+        private Net.ServerLink.SettlementDto _shownElite;
+
         private void ShowCard(string title, string text)
         {
             _cardTitle.text = title;
@@ -475,6 +480,12 @@ namespace Orsuun.Client
                 // Active play paid: the server replayed this interval's loops and credited their pace.
                 _shownSettlement = settled;
                 Log($"Hunting pace {settled.activeBp / 100}%  ·  {settled.loopsVerified} loop{(settled.loopsVerified == 1 ? "" : "s")} verified");
+            }
+            // Elite packs met while a golden banner flew (Rules.EliteCamps): what they paid, over the pace line.
+            if (settled != null && settled != _shownElite && !string.IsNullOrEmpty(settled.elite))
+            {
+                _shownElite = settled;
+                Log(settled.elite);
             }
 
             float hp = Mathf.Clamp01(lane.HeroHp / (float)lane.HeroMaxHp);

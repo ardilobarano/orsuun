@@ -15,12 +15,18 @@ namespace Orsuun.Client
     /// the hero runs and come round again further up; on a big map (FieldMap) each hunts at one of its camps, and the hero
     /// meets them as his trail passes. A name over each. The big map's other camps have their monsters waiting, idling in
     /// threes (offline too). Tapping a hunter (29 Sep 2026: "Tap heroes on the map") opens the hero card (HeroActions).
+    /// Partymates (29 Sep 2026: "Hunting parties"; the server lists them first) are no picture at a camp: they walk beside
+    /// the hero, run when he runs and swing at his fight, with their names in the party's green.
     /// </summary>
     public sealed class FieldFolk : MonoBehaviour
     {
         private const float PollSeconds = 30f, RunSpeed = 6f, BehindX = -16f, AheadSpan = 44f;
         /// <summary>Where the hunters stand up the road (x) and to which side (z); the camera's side only well ahead.</summary>
         private static readonly Vector2[] Spots = { new Vector2(3.5f, 5.5f), new Vector2(8.5f, -5.5f), new Vector2(13f, 7f), new Vector2(19f, -6f) };
+        /// <summary>Where partymates walk, from the hero (x along the road, z away from the camera): on the far side of him
+        /// and a step behind, clear of the Bannerkin and out of the camera's line to the fight.</summary>
+        private static readonly Vector2[] MateSpots = { new Vector2(0.9f, 3.3f), new Vector2(-1.9f, 1.3f), new Vector2(2.8f, 4.4f) };
+        public static readonly Color MateGreen = new Color(0.55f, 0.95f, 0.55f);
 
         private sealed class Mob
         {
@@ -42,6 +48,9 @@ namespace Orsuun.Client
             public bool OnMap;
             public int Camp = -1;
             public int Picks;
+            /// <summary>A partymate walking beside the hero (never at a camp).</summary>
+            public bool Mate;
+            public string Loop;
         }
 
         private GameRoot _root;
@@ -54,6 +63,9 @@ namespace Orsuun.Client
         private bool _pickForShot = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-heropick") >= 0;
         private Transform[] _camps = new Transform[0];
         private FieldMap.Layout _campsOf;
+        /// <summary>The camp flying the golden banner (Rules.EliteCamps) as shown, and its banner.</summary>
+        private int _eliteShown = -2;
+        private Transform _eliteBanner;
 
         public void Init(GameRoot root, LaneView lane)
         {
@@ -103,7 +115,7 @@ namespace Orsuun.Client
             {
                 Hunter h = _hunters[i];
                 if (h?.Root == null) continue;
-                if (running && !h.OnMap)
+                if (running && !h.OnMap && !h.Mate)
                 {
                     Vector3 p = h.Root.localPosition;
                     p.x -= RunSpeed * dt;
@@ -112,7 +124,8 @@ namespace Orsuun.Client
                     h.Root.localPosition = p;
                 }
                 if (h.Name != null) h.Name.transform.rotation = facing;
-                Fight(h);
+                if (h.Mate) Beside(h);
+                else Fight(h);
             }
         }
 
@@ -184,18 +197,45 @@ namespace Orsuun.Client
                 if (layout?.Camps != null)
                 {
                     _camps = new Transform[layout.Camps.Length];
-                    for (int c = 0; c < _camps.Length; c++) _camps[c] = CampGroup(map, c);
+                    for (int c = 0; c < _camps.Length; c++) _camps[c] = CampGroup(map, c, false);
+                }
+                _eliteShown = -2;
+            }
+            // The server's elite camp (its slot, one of six, onto this map's camps): its monsters in gold under a golden
+            // banner, and the lane's packs met near it elite too (LaneView.EliteCamp).
+            int eliteSlot = _root.Server.EliteCampNow;
+            int elite = layout?.Camps != null && layout.Camps.Length > 0 && eliteSlot >= 0 ? eliteSlot % layout.Camps.Length : -1;
+            _lane.EliteCamp = elite;
+            if (elite != _eliteShown && map != null)
+            {
+                int was = _eliteShown;
+                _eliteShown = elite;
+                foreach (int c in new[] { was, elite })
+                    if (c >= 0 && c < _camps.Length)
+                    {
+                        if (_camps[c] != null) Destroy(_camps[c].gameObject);
+                        _camps[c] = CampGroup(map, c, c == elite);
+                    }
+                if (_eliteBanner != null) Destroy(_eliteBanner.gameObject);
+                _eliteBanner = null;
+                if (elite >= 0)
+                {
+                    FieldMap.Spot spot = layout.Camps[elite];
+                    _eliteBanner = FieldMap.PlaceModel(map.Root, "WarBanner", new Vector3(spot.X + 2.6f, 0f, spot.Z + 1.4f), 25f, 5.5f, "#FFC23A");
+                    _root.Hud.Log($"A golden banner flies over {spot.Name}: an elite pack waits there.");
                 }
             }
             for (int c = 0; c < _camps.Length; c++)
             {
                 if (_camps[c] == null) continue;
-                bool hunted = System.Array.Exists(_hunters, h => h != null && h.OnMap && h.Camp == c);
+                // A Commander standing at a camp (MapCommander) has sent its monsters off.
+                bool hunted = System.Array.Exists(_hunters, h => h != null && h.OnMap && h.Camp == c)
+                              || (_root.Commander != null && _root.Commander.Here is { } boss && boss.Camp == c);
                 if (_camps[c].gameObject.activeSelf == hunted) _camps[c].gameObject.SetActive(!hunted);
             }
         }
 
-        private Transform CampGroup(FieldMap map, int camp)
+        private Transform CampGroup(FieldMap map, int camp, bool elite)
         {
             var group = new GameObject("Camp" + camp).transform;
             group.SetParent(map.Root, false);
@@ -210,6 +250,7 @@ namespace Orsuun.Client
                 mob.localPosition = new Vector3(Mathf.Cos(a) * 1.8f, 0f, Mathf.Sin(a) * 1.8f);
                 mob.localRotation = Quaternion.Euler(0f, camp * 53f + m * 110f, 0f);
                 mob.localScale /= Mathf.Max(0.01f, group.lossyScale.x);
+                if (elite) LaneView.DressElite(mob);
             }
             return group;
         }
@@ -235,16 +276,18 @@ namespace Orsuun.Client
             if (!System.Enum.TryParse(dto.@class, out HeroClass cls)) return;
             Figure figure = System.Enum.TryParse(dto.figure, out Figure f) ? f : ItemLooks.NativeFigure(cls);
             int armorBand = ItemLooks.Tier(dto.armorLevel), weaponBand = ItemLooks.Tier(dto.weaponLevel);
-            string key = cls + "/" + armorBand + "/" + weaponBand + "/" + dto.skin + "/" + figure;
+            string key = cls + "/" + armorBand + "/" + weaponBand + "/" + dto.skin + "/" + figure + "/" + dto.party;
             Hunter h = _hunters[slot];
             if (h != null && h.Key == key) return;
-            FieldMap map = _lane.Map != null && _lane.Map.Active ? _lane.Map : null;
+            FieldMap map = _lane.Map != null && _lane.Map.Active && !dto.party ? _lane.Map : null;
             int camp = map != null ? CampOf(map, slot) : -1;
-            Vector3 at = h?.Root != null ? h.Root.localPosition
+            bool rebuilt = h?.Root != null && h.Mate == dto.party;
+            Vector3 at = dto.party ? MateSpot(slot)
+                : rebuilt ? h.Root.localPosition
                 : map != null ? CampSpot(map, camp) : new Vector3(Spots[slot].x, 0f, Spots[slot].y);
             Clear(slot);
-            h = _hunters[slot] = new Hunter { Id = dto.id, Key = key, Player = dto.name, OnMap = map != null, Camp = camp };
-            h.Root = new GameObject("Hunter" + slot).transform;
+            h = _hunters[slot] = new Hunter { Id = dto.id, Key = key, Player = dto.name, OnMap = map != null, Camp = camp, Mate = dto.party };
+            h.Root = new GameObject((dto.party ? "Partymate" : "Hunter") + slot).transform;
             h.Root.SetParent(map != null ? map.Root : _lane.transform, false);
             h.Root.localPosition = at;
             h.Figure = HeroFigure.Build(h.Root, cls, armorBand, weaponBand, string.IsNullOrEmpty(dto.skin) ? null : dto.skin,
@@ -253,11 +296,49 @@ namespace Orsuun.Client
             foreach (Renderer r in h.Figure.Renderers) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             h.Figure.Idle(always: false);
             HeroFigure.Glow(h.Figure.Pieces, _block, UpgradeGlow.ForLevel(dto.armorPlus), UpgradeGlow.ForLevel(dto.weaponPlus));
-            // Facing the monsters in front of him, a little toward the camera.
-            h.Root.localRotation = Quaternion.Euler(0f, slot % 2 == 0 ? 60f : 110f, 0f);
             h.Name = NameTag(h.Root, dto.name);
             h.NextBlow = Time.time + Random.Range(0.3f, 1.2f);
+            if (h.Mate)
+            {
+                // Facing up the road with the hero, at his fight.
+                h.Root.localRotation = Quaternion.Euler(0f, LaneView.HeroLaneYaw, 0f);
+                h.Name.color = MateGreen;
+                return;
+            }
+            // Facing the monsters in front of him, a little toward the camera.
+            h.Root.localRotation = Quaternion.Euler(0f, slot % 2 == 0 ? 60f : 110f, 0f);
             for (int m = 0; m < 3; m++) AddMob(h, m);
+        }
+
+        /// <summary>A partymate's place beside the hero: the slots' mates in the order they stand.</summary>
+        private Vector3 MateSpot(int slot)
+        {
+            int k = 0;
+            for (int i = 0; i < slot; i++) if (_hunters[i] != null && _hunters[i].Mate) k++;
+            Vector2 spot = MateSpots[Mathf.Min(k, MateSpots.Length - 1)];
+            return new Vector3(LaneView.HeroLaneX + spot.x, 0f, spot.y);
+        }
+
+        /// <summary>A partymate's step with the hero: running while he runs, a blow every second or so at his fight,
+        /// standing otherwise.</summary>
+        private void Beside(Hunter h)
+        {
+            Animation anim = h.Figure?.Anim;
+            if (anim == null) return;
+            bool fighting = _lane.FightingNow;
+            string loop = _lane.RunningNow && anim.GetClip("Run") != null ? "Run" : "Idle";
+            if (fighting && Time.time >= h.NextBlow && anim.GetClip("Attack") != null)
+            {
+                h.NextBlow = Time.time + Random.Range(0.9f, 1.5f);
+                anim.CrossFade("Attack", 0.08f);
+                anim["Attack"].time = 0f;
+                anim.CrossFadeQueued(loop, 0.2f);
+                h.Loop = null;
+                return;
+            }
+            if (anim.IsPlaying("Attack") || (h.Loop == loop && anim.IsPlaying(loop))) return;
+            h.Loop = loop;
+            if (anim.GetClip(loop) != null) anim.CrossFade(loop, 0.2f);
         }
 
         /// <summary>A monster of the map before a hunter, on a small arc in front of him.</summary>

@@ -208,7 +208,8 @@ public sealed partial class GameService
         (int activeBp, int verified) = online ? VerifyLoops(account, request?.Loops, now) : (RandomExtensions.FullBp, 0);
         int bonus = await SornBonusPercentAsync(account.Banner, ct) + await GuildBonusPercentAsync(account, ct)
             + _events.SornBonusPercent(account.LastHeartbeatUtc, now);
-        SettlementDto settlement = Settle(account, now, activeBp, verified, bonus) with { ActiveBp = activeBp, LoopsVerified = verified };
+        int partyBp = online ? await PartyBonusBpAsync(account, now, ct) : 0;
+        SettlementDto settlement = Settle(account, now, activeBp, verified, bonus, partyBp) with { ActiveBp = activeBp, LoopsVerified = verified };
         account.LastHeartbeatUtc = now;
         MarkVisit(account, settlement.CountedSeconds, now);
         Count(account, BountyMetric.Korstones, settlement.Korstones);
@@ -385,6 +386,14 @@ public sealed partial class GameService
     /// </summary>
     private async Task DeleteCharacterCoreAsync(Account account, CancellationToken ct)
     {
+        if (account.PartyLeaderId != null)
+        {
+            await using var partyTx = await _db.Database.BeginTransactionAsync(ct);
+            await LeavePartyCoreAsync(account, ct);
+            await partyTx.CommitAsync(ct);
+        }
+        await _db.Accounts.Where(a => a.PartyInviteFrom == account.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.PartyInviteFrom, (Guid?)null).SetProperty(a => a.PartyInviteName, (string?)null), ct);
         if (account.GuildId != null)
         {
             await using var tx = await _db.Database.BeginTransactionAsync(ct);
@@ -767,7 +776,8 @@ public sealed partial class GameService
     /// <summary>New drops this request could not fit in a full bag (Apply counts them).</summary>
     private int LeftBehind { get; set; }
 
-    private SettlementDto Settle(Account account, DateTime now, int onlineEfficiencyBp = RandomExtensions.FullBp, int loopsVerified = 0, int sornBonusPercent = 0)
+    private SettlementDto Settle(Account account, DateTime now, int onlineEfficiencyBp = RandomExtensions.FullBp, int loopsVerified = 0, int sornBonusPercent = 0,
+        int partyBp = 0)
     {
         int leftBefore = LeftBehind;
         TimeSpan gap = now - account.LastHeartbeatUtc;
@@ -795,13 +805,26 @@ public sealed partial class GameService
         // The War of Banners bonus: last season's winning Banner and each fortress a Banner holds add sorn.
         long bonusSorn = s.SornEarned * sornBonusPercent / 100;
         inventory.Sorn += bonusSorn;
-        Apply(account, inventory, hunt: true, meal: Fishing.MealBonusBp(account.LastHeartbeatUtc, now, MealsOf(account)));
+        // Elite camps (Rules.EliteCamps): while a golden banner flies at the hero's place, one pack in six of the live hunt
+        // there was elite and pays its loot again.
+        long elitePacks = 0;
+        string eliteLoot = "";
+        if (!offline && s.CountedSeconds > 0)
+        {
+            long bannerUp = EliteCamps.SecondsUp(Parties.Place(account.ParkedStage), now.AddSeconds(-s.CountedSeconds), now);
+            elitePacks = EliteCamps.ElitePacks(s.Packs, s.CountedSeconds, bannerUp, _rng);
+            eliteLoot = EliteCamps.Loot(stage, inventory, _rng, elitePacks);
+        }
+        // A fish eaten (Rules.Fishing) and partymates hunting alongside (Rules.Parties) add to the hunt's XP and sorn.
+        (long xpBp, long sornBp) meal = Fishing.MealBonusBp(account.LastHeartbeatUtc, now, MealsOf(account));
+        Apply(account, inventory, hunt: true, meal: (meal.xpBp + partyBp, meal.sornBp + partyBp));
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
-                $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones} efficiencyBp={efficiency} loopsVerified={loopsVerified} bannerBonus={sornBonusPercent}%", s.SornEarned + bonusSorn, Guid.NewGuid().ToString("N")));
+                $"stage={account.ParkedStage} seconds={s.CountedSeconds} packs={s.Packs} korstones={s.Korstones} efficiencyBp={efficiency} loopsVerified={loopsVerified} bannerBonus={sornBonusPercent}% elitePacks={elitePacks} partyBp={partyBp}", s.SornEarned + bonusSorn, Guid.NewGuid().ToString("N")));
 
-        return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned + bonusSorn, offline, LeftBehind: LeftBehind - leftBefore);
+        return new SettlementDto(s.CountedSeconds, s.Packs, s.Korstones, s.SornEarned + bonusSorn, offline, LeftBehind: LeftBehind - leftBefore,
+            ElitePacks: elitePacks, Elite: eliteLoot.Length > 0 ? eliteLoot : null);
     }
 
     private async Task EnsureFreshRequestAsync(Account account, string requestId, CancellationToken ct)
@@ -950,7 +973,11 @@ public sealed partial class GameService
             River: RiverOf(account),
             Kin: KinOf(account),
             Errands: ErrandsDtoOf(account),
-            CacheIn: CacheIn(account));
+            CacheIn: CacheIn(account),
+            EliteCamp: EliteCamps.Up(Parties.Place(account.ParkedStage), DateTime.UtcNow, out int eliteCamp, out long eliteLeft) ? eliteCamp : -1,
+            EliteLeft: eliteLeft,
+            PartyLeader: account.PartyLeaderId ?? Guid.Empty,
+            PartyInvite: account.PartyInviteFrom != null && account.PartyInviteUtc > DateTime.UtcNow.AddMinutes(-Parties.InviteMinutes) ? account.PartyInviteName : null);
     }
 
     private static GoalCountsDto GoalCountsOf(Account account)

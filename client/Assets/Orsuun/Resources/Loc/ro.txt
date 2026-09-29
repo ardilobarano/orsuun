@@ -2813,3 +2813,52 @@ Meeting other heroes needs the server.	Întâlnirea altor eroi are nevoie de ser
 # What's new: the open map (29 Sep 2026).
 THE OPEN MAP	HARTA DESCHISĂ
 Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Vânătoarea ta străbate acum o regiune întreagă. Minimapa arată taberele, cu albastru unde vânează alți eroi: atinge-o pentru harta întreagă. Atinge un erou de pe câmp ca să-l inspectezi, să-i șoptești sau să faci schimb. Un cufăr strălucitor lângă drum e un cufăr de drum: atinge-l ca să-l deschizi.
+# Hunting parties (29 Sep 2026).
+HUNTING PARTY	GRUP DE VÂNĂTOARE
+DECLINE	REFUZĂ
+LEAVE THE PARTY	PĂRĂSEȘTE GRUPUL
+PARTY	GRUP
+PARTY INVITE	INVITAȚIE ÎN GRUP
+PARTY {0#}  +{1#}%	GRUP {0#}  +{1#}%
+INVITE TO PARTY	INVITĂ ÎN GRUP
+{0} asks you to hunt together.	{0} te cheamă să vânați împreună.
+Partymates hunting the same map walk beside you, and each adds {0#}% XP and sorn.	Tovarășii care vânează pe aceeași hartă merg alături de tine, iar fiecare adaugă {0#}% XP și sorn.
+Hunt with up to {0#} friends or guildmates: tap a hero on the map, or a friend in FRIENDS, and INVITE TO PARTY.	Vânează cu până la {0#} prieteni sau colegi de breaslă: atinge un erou pe hartă sau un prieten în PRIETENI și alege INVITĂ ÎN GRUP.
+Each partymate hunting the same map adds {0#}% XP and sorn.	Fiecare tovarăș de pe aceeași hartă adaugă {0#}% XP și sorn.
+you	tu
+hunting with you	vânează cu tine
+at {0}	la {0}
+away	absent
+Hunting together: +{0#}% XP and sorn	Vânați împreună: +{0#}% XP și sorn
+No partymate hunts your map now: no bonus.	Niciun tovarăș nu vânează acum pe harta ta: fără bonus.
+{0} asks you to hunt together: tap PARTY INVITE.	{0} te cheamă la vânătoare: atinge INVITAȚIE ÎN GRUP.
+Leave the party?	Părăsești grupul?
+You hunt alone again, without the party's bonus.	Vânezi din nou singur, fără bonusul grupului.
+They leave the party at once.	Părăsește grupul pe loc.
+Parties need the server.	Grupurile au nevoie de server.
+{0} is asked to join your party.	{0} a fost invitat în grupul tău.
+You joined the party.	Te-ai alăturat grupului.
+You left the party.	Ai părăsit grupul.
+They left the party.	A părăsit grupul.
+You cannot invite them.	Nu îl poți invita.
+Only friends and guildmates can join your party.	Doar prietenii și colegii de breaslă pot intra în grupul tău.
+{0} is in a party already.	{0} este deja într-un grup.
+A party holds {0#} heroes.	Un grup are cel mult {0#} eroi.
+Leave your party first.	Mai întâi părăsește-ți grupul.
+That party holds {0#} heroes already.	Grupul acela are deja {0#} eroi.
+You are not in a party.	Nu ești într-un grup.
+Only the party's leader can do that.	Doar conducătorul grupului poate face asta.
+Leave the party instead.	Mai bine părăsește grupul.
+They are not in your party.	Nu este în grupul tău.
+# Map world bosses and elite camps (29 Sep 2026).
+{0} HAS RISEN	{0} S-A RIDICAT
+At {0}: every hero on {1} is called. Tap the call to fight.	La {0}: fiecare erou din {1} este chemat. Atinge chemarea ca să lupți.
+FOUGHT	ÎNFRUNTAT
+Clear campaign stage 5 to fight the Commanders.	Termină etapa 5 a campaniei ca să lupți cu Comandanții.
+A golden banner flies over {0}: an elite pack waits there.	Un steag auriu flutură deasupra {0}: acolo așteaptă o haită de elită.
+ELITE PACK	HAITĂ DE ELITĂ
+An elite pack: +{0#} sorn	O haită de elită: +{0#} sorn
+An elite pack: +{0#} sorn, +{1#} piece of gear	O haită de elită: +{0#} sorn, +{1#} piesă de echipament
+{0#} elite packs: +{1#} sorn	{0#} haite de elită: +{1#} sorn
+{0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} haite de elită: +{1#} sorn, +{2#} piesă de echipament
+{0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} haite de elită: +{1#} sorn, +{2#} piese de echipament

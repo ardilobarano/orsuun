@@ -2851,3 +2851,52 @@ Meeting other heroes needs the server.	Andere Helden zu treffen braucht den Serv
 # What's new: the open map (29 Sep 2026).
 THE OPEN MAP	DIE OFFENE KARTE
 Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Deine Jagd durchstreift jetzt eine ganze Gegend. Die Minikarte zeigt ihre Lager, blau, wo andere Helden jagen: tippe sie an für die ganze Karte. Tippe einen Helden im Feld an, um ihn anzusehen, ihm zuzuflüstern oder zu handeln. Eine leuchtende Truhe am Weg ist eine Wegtruhe: tippe sie an, um sie zu öffnen.
+# Hunting parties (29 Sep 2026).
+HUNTING PARTY	JAGDGRUPPE
+DECLINE	ABLEHNEN
+LEAVE THE PARTY	GRUPPE VERLASSEN
+PARTY	GRUPPE
+PARTY INVITE	GRUPPENEINLADUNG
+PARTY {0#}  +{1#}%	GRUPPE {0#}  +{1#} %
+INVITE TO PARTY	IN DIE GRUPPE EINLADEN
+{0} asks you to hunt together.	{0} möchte mit dir gemeinsam jagen.
+Partymates hunting the same map walk beside you, and each adds {0#}% XP and sorn.	Gruppenmitglieder, die auf derselben Karte jagen, gehen neben dir, und jedes bringt {0#} % EP und Sorn.
+Hunt with up to {0#} friends or guildmates: tap a hero on the map, or a friend in FRIENDS, and INVITE TO PARTY.	Jage mit bis zu {0#} Freunden oder Gildengefährten: Tippe einen Helden auf der Karte oder einen Freund unter FREUNDE an und dann IN DIE GRUPPE EINLADEN.
+Each partymate hunting the same map adds {0#}% XP and sorn.	Jedes Gruppenmitglied auf derselben Karte bringt {0#} % EP und Sorn.
+you	du
+hunting with you	jagt mit dir
+at {0}	in {0}
+away	abwesend
+Hunting together: +{0#}% XP and sorn	Gemeinsame Jagd: +{0#} % EP und Sorn
+No partymate hunts your map now: no bonus.	Gerade jagt kein Gruppenmitglied auf deiner Karte: kein Bonus.
+{0} asks you to hunt together: tap PARTY INVITE.	{0} möchte mit dir jagen: tippe auf GRUPPENEINLADUNG.
+Leave the party?	Die Gruppe verlassen?
+You hunt alone again, without the party's bonus.	Du jagst wieder allein, ohne den Bonus der Gruppe.
+They leave the party at once.	Sie verlassen die Gruppe sofort.
+Parties need the server.	Gruppen brauchen den Server.
+{0} is asked to join your party.	{0} wurde in deine Gruppe eingeladen.
+You joined the party.	Du bist der Gruppe beigetreten.
+You left the party.	Du hast die Gruppe verlassen.
+They left the party.	Sie haben die Gruppe verlassen.
+You cannot invite them.	Du kannst sie nicht einladen.
+Only friends and guildmates can join your party.	Nur Freunde und Gildengefährten können deiner Gruppe beitreten.
+{0} is in a party already.	{0} ist schon in einer Gruppe.
+A party holds {0#} heroes.	Eine Gruppe fasst {0#} Helden.
+Leave your party first.	Verlasse zuerst deine Gruppe.
+That party holds {0#} heroes already.	Diese Gruppe hat schon {0#} Helden.
+You are not in a party.	Du bist in keiner Gruppe.
+Only the party's leader can do that.	Das kann nur der Anführer der Gruppe.
+Leave the party instead.	Verlasse stattdessen die Gruppe.
+They are not in your party.	Sie sind nicht in deiner Gruppe.
+# Map world bosses and elite camps (29 Sep 2026).
+{0} HAS RISEN	{0} IST ERWACHT
+At {0}: every hero on {1} is called. Tap the call to fight.	Bei {0}: Jeder Held in {1} wird gerufen. Tippe auf den Ruf, um zu kämpfen.
+FOUGHT	GEKÄMPFT
+Clear campaign stage 5 to fight the Commanders.	Schließe Feldzugsstufe 5 ab, um gegen die Kommandanten zu kämpfen.
+A golden banner flies over {0}: an elite pack waits there.	Über {0} weht ein goldenes Banner: Dort wartet ein Elite-Rudel.
+ELITE PACK	ELITE-RUDEL
+An elite pack: +{0#} sorn	Ein Elite-Rudel: +{0#} Sorn
+An elite pack: +{0#} sorn, +{1#} piece of gear	Ein Elite-Rudel: +{0#} Sorn, +{1#} Ausrüstungsstück
+{0#} elite packs: +{1#} sorn	{0#} Elite-Rudel: +{1#} Sorn
+{0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} Elite-Rudel: +{1#} Sorn, +{2#} Ausrüstungsstück
+{0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} Elite-Rudel: +{1#} Sorn, +{2#} Ausrüstungsstücke

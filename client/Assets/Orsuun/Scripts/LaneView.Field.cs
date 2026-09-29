@@ -18,6 +18,30 @@ namespace Orsuun.Client
         private const float WaitBeyond = 3.2f;
         private const float RingRadius = 4.4f, RingRiseSeconds = 0.9f, RingSinkSeconds = 1.3f;
 
+        /// <summary>
+        /// The big map's elite camp now (Rules.EliteCamps; FieldFolk sets it from the server, -1 none): a pack that waits
+        /// within EliteReach of it is an elite pack, a head taller and burning gold, as are the monsters it spawns. Its pay is
+        /// the server's (settled with the hunt); the lane's fight is the same.
+        /// </summary>
+        internal int EliteCamp = -1;
+        private const float EliteReach = 28f, EliteSize = 1.3f;
+        internal static readonly Color EliteGold = new Color(1.4f, 1.12f, 0.5f);
+        private bool _waitingElite, _eliteFloated;
+
+        private bool NearElite(Vector3 mapPoint)
+        {
+            FieldMap.Spot[] camps = _map?.Current?.Camps;
+            return camps != null && EliteCamp >= 0 && EliteCamp < camps.Length
+                   && Vector2.Distance(new Vector2(mapPoint.x, mapPoint.z), camps[EliteCamp].At) < EliteReach;
+        }
+
+        /// <summary>A monster of an elite pack: a head taller, its colours burning gold (bright enough for the bloom).</summary>
+        internal static void DressElite(Transform mob, bool grow = true)
+        {
+            if (grow) mob.localScale *= EliteSize;
+            foreach (Renderer r in mob.GetComponentsInChildren<Renderer>()) r.material.color *= EliteGold;
+        }
+
         private readonly List<Transform> _waiting = new List<Transform>();
         private int _waitingFirstId, _lastEnemyId;
         private bool _waitingExact;
@@ -57,6 +81,8 @@ namespace Orsuun.Client
                 float walk = FieldMap.Speed * _sim.Stage.RunTicks / LaneSim.TicksPerSecond;
                 _waitAnchor = _map.OnTrail(walk + WaitBeyond);
                 _waitAlong = _map.AlongTrail(walk + WaitBeyond);
+                _waitingElite = NearElite(_waitAnchor);
+                _eliteFloated = false;
             }
             while (_waiting.Count > want)
             {
@@ -76,6 +102,7 @@ namespace Orsuun.Client
                 mob.localPosition = _waitAnchor + side * ((col - 1.5f) * 1.25f + jitter) + _waitAlong * (row * 1.3f + jitter * 0.6f);
                 // Facing back down the trail toward the hero, each a little its own way.
                 mob.localRotation = Quaternion.LookRotation(-_waitAlong, Vector3.up) * Quaternion.Euler(0f, jitter * 40f, 0f);
+                if (_waitingElite) DressElite(mob);
                 _waiting.Add(mob);
             }
             _waitingExact = exact;
@@ -84,9 +111,10 @@ namespace Orsuun.Client
         private Vector3 _waitAnchor, _waitAlong = Vector3.right;
 
         /// <summary>Where the next monster of a pack starts on a big map: a waiting one's place, which it takes over.</summary>
-        private bool TakeWaiting(out Vector3 at)
+        private bool TakeWaiting(out Vector3 at, out bool elite)
         {
             at = Vector3.zero;
+            elite = _waitingElite;
             while (_waiting.Count > 0)
             {
                 Transform first = _waiting[0];

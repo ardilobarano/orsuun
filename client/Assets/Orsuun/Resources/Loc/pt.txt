@@ -2819,3 +2819,52 @@ Meeting other heroes needs the server.	Encontrar outros heróis requer o servido
 # What's new: the open map (29 Sep 2026).
 THE OPEN MAP	O MAPA ABERTO
 Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Sua caçada agora percorre uma região inteira. O minimapa mostra os acampamentos, em azul onde outros heróis caçam: toque nele para ver o mapa completo. Toque num herói no campo para inspecionar, sussurrar ou negociar. Um baú brilhando junto à trilha é um baú da trilha: toque nele para abri-lo.
+# Hunting parties (29 Sep 2026).
+HUNTING PARTY	GRUPO DE CAÇA
+DECLINE	RECUSAR
+LEAVE THE PARTY	SAIR DO GRUPO
+PARTY	GRUPO
+PARTY INVITE	CONVITE DE GRUPO
+PARTY {0#}  +{1#}%	GRUPO {0#}  +{1#}%
+INVITE TO PARTY	CONVIDAR PARA O GRUPO
+{0} asks you to hunt together.	{0} quer caçar contigo.
+Partymates hunting the same map walk beside you, and each adds {0#}% XP and sorn.	Os companheiros que caçam no mesmo mapa andam ao teu lado, e cada um junta {0#}% de XP e sorn.
+Hunt with up to {0#} friends or guildmates: tap a hero on the map, or a friend in FRIENDS, and INVITE TO PARTY.	Caça com até {0#} amigos ou companheiros de guilda: toca num herói no mapa, ou num amigo em AMIGOS, e em CONVIDAR PARA O GRUPO.
+Each partymate hunting the same map adds {0#}% XP and sorn.	Cada companheiro no mesmo mapa junta {0#}% de XP e sorn.
+you	tu
+hunting with you	a caçar contigo
+at {0}	em {0}
+away	ausente
+Hunting together: +{0#}% XP and sorn	A caçar juntos: +{0#}% de XP e sorn
+No partymate hunts your map now: no bonus.	Nenhum companheiro caça no teu mapa agora: sem bónus.
+{0} asks you to hunt together: tap PARTY INVITE.	{0} quer caçar contigo: toca em CONVITE DE GRUPO.
+Leave the party?	Sair do grupo?
+You hunt alone again, without the party's bonus.	Voltas a caçar sozinho, sem o bónus do grupo.
+They leave the party at once.	Sai do grupo de imediato.
+Parties need the server.	Os grupos precisam do servidor.
+{0} is asked to join your party.	{0} foi convidado para o teu grupo.
+You joined the party.	Entraste no grupo.
+You left the party.	Saíste do grupo.
+They left the party.	Saiu do grupo.
+You cannot invite them.	Não podes convidá-lo.
+Only friends and guildmates can join your party.	Só amigos e companheiros de guilda podem entrar no teu grupo.
+{0} is in a party already.	{0} já está num grupo.
+A party holds {0#} heroes.	Um grupo leva {0#} heróis.
+Leave your party first.	Sai primeiro do teu grupo.
+That party holds {0#} heroes already.	Esse grupo já tem {0#} heróis.
+You are not in a party.	Não estás num grupo.
+Only the party's leader can do that.	Só o líder do grupo pode fazer isso.
+Leave the party instead.	Em vez disso, sai do grupo.
+They are not in your party.	Não está no teu grupo.
+# Map world bosses and elite camps (29 Sep 2026).
+{0} HAS RISEN	{0} ERGUEU-SE
+At {0}: every hero on {1} is called. Tap the call to fight.	Em {0}: todos os heróis em {1} são chamados. Toca no chamado para lutar.
+FOUGHT	COMBATIDO
+Clear campaign stage 5 to fight the Commanders.	Conclui a etapa 5 da campanha para lutar contra os Comandantes.
+A golden banner flies over {0}: an elite pack waits there.	Um estandarte dourado ondula sobre {0}: ali espera uma matilha de elite.
+ELITE PACK	MATILHA DE ELITE
+An elite pack: +{0#} sorn	Uma matilha de elite: +{0#} sorn
+An elite pack: +{0#} sorn, +{1#} piece of gear	Uma matilha de elite: +{0#} sorn, +{1#} peça de equipamento
+{0#} elite packs: +{1#} sorn	{0#} matilhas de elite: +{1#} sorn
+{0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} matilhas de elite: +{1#} sorn, +{2#} peça de equipamento
+{0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} matilhas de elite: +{1#} sorn, +{2#} peças de equipamento

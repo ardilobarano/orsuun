@@ -346,3 +346,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   a copy of FxSpark set to alpha blending, since FxSpark itself is additive).
   On a big map the next pack waits up the trail (`LaneView.Field`, sized by `LaneSim.PeekPackSize`, which copies the
   lane's generator and draws nothing: keep it that way, or replays drift) and Korstones rise in a ring of stones.
+- Hunting parties (`Rules.Parties`, 29 Sep 2026): a party is its leader's id on each member's row (`Account.PartyLeaderId`);
+  membership changes run in a transaction that locks the leader's row (`LockAccountRowAsync`), other heroes change through
+  single UPDATEs, and code that deletes a hero calls `LeavePartyCoreAsync`. The bonus reaches only the live hunt (the
+  heartbeat's meal bp); partymates are presentation (`FieldFolk`, `TownHeroDto.Party`).
+- Elite camps (`Rules.EliteCamps`) are rolled from the server's clock per place (`Parties.Place`) and paid in `Settle` (live
+  hunting only); the client only dresses packs near the camp (`LaneView.EliteCamp`): never put them in LaneSim (replays).
+  Map world bosses are `MapCommander.Sightings` (Commander id, layout, camp): a new Commander needs a row and a model.

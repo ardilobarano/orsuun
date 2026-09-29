@@ -405,7 +405,11 @@ namespace Orsuun.Client
             _promote = Ui.Button("Promote", box, 0.06f, 0.56f, 0.94f, 0.74f, "", 26, Palette.ButtonIdle, SetOfficer, out _promoteLabel);
             _lead = Ui.Button("Lead", box, 0.06f, 0.36f, 0.94f, 0.54f, "HAND OVER THE LEAD", 26, Palette.Alloy, AskLead, out _);
             _kick = Ui.Button("Kick", box, 0.06f, 0.16f, 0.94f, 0.34f, "SEND AWAY", 26, Palette.Danger, AskKick, out _);
-            Ui.Button("Inspect", box, 0.06f, 0.02f, 0.48f, 0.14f, "INSPECT", 22, Palette.Alloy, () => { _manage.SetActive(false); _root.Inspect?.Open(_selected?.accountId); }, out _);
+            Ui.Button("Inspect", box, 0.06f, 0.02f, 0.48f, 0.14f, "MORE", 22, Palette.Alloy, () =>
+            {
+                _manage.SetActive(false);
+                if (_selected != null) _root.HeroCard.Show(_selected.accountId, _selected.name);
+            }, out _);
             Ui.Button("Cancel", box, 0.52f, 0.02f, 0.94f, 0.14f, "CLOSE", 22, Palette.ButtonIdle, () => _manage.SetActive(false), out _);
             _manage.SetActive(false);
         }
@@ -523,7 +527,13 @@ namespace Orsuun.Client
             // A member this hero cannot manage (or themselves) opens straight into Inspect.
             bool manages = ParseEnum<GuildRank>(_root.Server.Guild?.rank, out GuildRank mine) && !member.me;
             ParseEnum<GuildRank>(member.rank, out GuildRank theirs);
-            if (!manages || !Guilds.CanKick(mine, theirs)) { _root.Inspect?.Open(member.accountId); return; }
+            // Anyone else opens the hero card (INSPECT, WHISPER, TRADE, INVITE TO PARTY); the hero themselves opens INSPECT.
+            if (!manages || !Guilds.CanKick(mine, theirs))
+            {
+                if (member.me) _root.Inspect?.Open(member.accountId);
+                else _root.HeroCard.Show(member.accountId, member.name);
+                return;
+            }
             _selected = member;
             _manageTitle.text = $"{member.name}  ·  {member.rank}";
             bool leader = mine == GuildRank.Leader;

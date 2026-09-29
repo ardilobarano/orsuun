@@ -233,7 +233,7 @@ public sealed record ForgePreviewDto(long Cost, int Materials, int ChanceAloneBp
 
 /// <summary>A settled stretch of hunting; LeftBehind counts the drops a full bag could not take.</summary>
 public sealed record SettlementDto(long CountedSeconds, long Packs, long Korstones, long SornEarned, bool Offline, int ActiveBp = 10000, int LoopsVerified = 0,
-    int LeftBehind = 0);
+    int LeftBehind = 0, long ElitePacks = 0, string? Elite = null);
 
 /// <summary>Everything the client needs to draw the HUD and the Forge. Returned by every mutating call.</summary>
 public sealed record StateDto(
@@ -290,7 +290,19 @@ public sealed record StateDto(
     RiverDto? River = null,
     KinDto? Kin = null,
     ErrandsDto? Errands = null,
-    long CacheIn = -1);
+    long CacheIn = -1,
+    Guid PartyLeader = default,
+    string? PartyInvite = null,
+    int EliteCamp = -1,
+    long EliteLeft = 0);
+
+/// <summary>A hunting party (Rules.Parties): its members, the hunt's bonus now (percent), an invite waiting.</summary>
+public sealed record PartyMemberDto(Guid Id, string Name, HeroClass Class, int Level, bool Online, bool Together, bool Leader, string Hunting);
+public sealed record PartyDto(Guid LeaderId, PartyMemberDto[] Members, int BonusPercent, Guid InviteFrom, string InviteName, int MaxMembers,
+    string? Message = null);
+public sealed record PartyInviteRequest(Guid AccountId, string? Name = null);
+public sealed record PartyAnswerRequest(bool Accept);
+public sealed record PartyKickRequest(Guid AccountId);
 
 /// <summary>A trail cache opened (Rules.TrailCaches): the hero after, and what it held.</summary>
 public sealed record CacheOpenRequest(string RequestId);
@@ -467,7 +479,7 @@ public sealed record InviteDto(string Code, int Invited, int Rewarded, int MaxIn
 public sealed record InviteRequest(string Code);
 /// <summary>A hero standing in the town square: what the square draws (bands come from the item levels) and names.</summary>
 public sealed record TownHeroDto(Guid Id, string Name, string Title, HeroClass Class, Figure Figure, int Level, Banner Banner, string Skin,
-    int ArmorLevel, int ArmorPlus, int WeaponLevel, int WeaponPlus);
+    int ArmorLevel, int ArmorPlus, int WeaponLevel, int WeaponPlus, bool Party = false);
 public sealed record TownDto(TownHeroDto[] Heroes);
 /// <summary>"I am in town" (every so often while the square shows), or Leaving when it closes.</summary>
 public sealed record TownVisitRequest(bool Leaving = false);

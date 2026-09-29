@@ -1920,8 +1920,21 @@ namespace Orsuun.Client
             // in a ring of standing stones (LaneView.Field).
             if (Application.isPlaying && _map != null && _map.Active)
             {
-                if (kind == EnemyKind.Mob && !_sim.IsKorstoneEncounter && !_sim.IsBossEncounter && TakeWaiting(out Vector3 waited))
+                if (kind == EnemyKind.Mob && !_sim.IsKorstoneEncounter && !_sim.IsBossEncounter && TakeWaiting(out Vector3 waited, out bool elite))
+                {
                     root.position = new Vector3(waited.x, y, waited.z);
+                    // An elite pack (Rules.EliteCamps) comes on in its gold, a head taller.
+                    if (elite)
+                    {
+                        s *= EliteSize;
+                        DressElite(root, grow: false);
+                        if (!_eliteFloated)
+                        {
+                            _eliteFloated = true;
+                            Float("ELITE PACK", new Vector3(3.4f, 3.2f, 0f), Palette.Sorn, 1.6f);
+                        }
+                    }
+                }
                 if (korstone)
                 {
                     // It comes up out of the ground in its place.
@@ -2219,6 +2232,9 @@ namespace Orsuun.Client
         /// <summary>The lane's stage now (0 before a lane is bound), and whether the hero is on the run between packs.</summary>
         internal int StageNow => _sim?.Stage.StageNumber ?? 0;
         internal bool RunningNow => _sim != null && _sim.Phase == LanePhase.Running;
+        internal bool FightingNow => _sim != null && _sim.Phase == LanePhase.Fighting;
+        /// <summary>Where the hero stands on the lane (partymates walk beside him: FieldFolk).</summary>
+        internal const float HeroLaneX = HeroX, HeroLaneYaw = HeroYaw;
 
         /// <summary>
         /// A monster of the map the lane is on, for the other hunters' fights in the field (FieldFolk): one of the map's
@@ -2241,6 +2257,27 @@ namespace Orsuun.Client
                 if (tint.HasValue) r.material.color = tint.Value;
                 r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
+            root.localScale = Vector3.one * MobScale;
+            anim = root.GetComponent<Animation>();
+            if (anim != null && anim.GetClip("Idle") == null) anim = null;
+            if (anim != null)
+            {
+                anim.cullingType = AnimationCullingType.BasedOnRenderers;
+                anim.Play("Idle");
+            }
+            return root;
+        }
+
+        /// <summary>A Commander's own model (Greyjaw, Gorak, Queen) at the lane's mob size, idling, for its appearance on a
+        /// big map (MapCommander); null without its art.</summary>
+        internal Transform CommanderModel(string name, out Animation anim)
+        {
+            anim = null;
+            MobArt art = LoadMob(name);
+            if (art == null) return null;
+            Transform root = Instantiate(art.Model).transform;
+            root.name = "Commander" + name;
+            foreach (Renderer r in root.GetComponentsInChildren<Renderer>()) r.sharedMaterial = art.Material;
             root.localScale = Vector3.one * MobScale;
             anim = root.GetComponent<Animation>();
             if (anim != null && anim.GetClip("Idle") == null) anim = null;

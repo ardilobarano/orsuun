@@ -9,7 +9,7 @@ namespace Orsuun.Client
     /// <summary>
     /// FRIENDS (owner, 25 Sep 2026: "adding friends and friend list"): this hero's friends, online first, with the heroes
     /// asking and the ones asked (Rules.Friends). Add a hero by name here, or tap a name in CHAT. Tap a friend to ask them to
-    /// trade, invite them to your guild (leader or officer) or take them off; tap one asking to take or turn down the request.
+    /// trade, invite them to your guild (leader or officer) or your hunting party, or take them off; tap one asking to take or turn down the request.
     /// </summary>
     public sealed class FriendsPanel : MonoBehaviour
     {
@@ -85,7 +85,8 @@ namespace Orsuun.Client
             Ui.Button("Trade", _friendActions.transform, 0.52f, 0.55f, 0.94f, 0.74f, "TRADE", 26, Palette.Alloy, TradePicked, out _);
             _invite = Ui.Button("Invite", _friendActions.transform, 0.06f, 0.31f, 0.48f, 0.5f, "GUILD INVITE", 24, Palette.ButtonForge, InvitePicked, out _);
             Ui.Button("Remove", _friendActions.transform, 0.52f, 0.31f, 0.94f, 0.5f, "TAKE OFF", 24, Palette.Danger, AskRemovePicked, out _);
-            Ui.Button("Cancel", _friendActions.transform, 0.3f, 0.06f, 0.7f, 0.25f, "CLOSE", 24, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
+            Ui.Button("Party", _friendActions.transform, 0.06f, 0.07f, 0.48f, 0.26f, "PARTY INVITE", 24, Palette.ButtonForge, PartyPicked, out _);
+            Ui.Button("Cancel", _friendActions.transform, 0.52f, 0.07f, 0.94f, 0.26f, "CLOSE", 24, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
 
             _askingActions = Ui.Rect("Asking", box, 0f, 0f, 1f, 1f).gameObject;
             Ui.Button("Take", _askingActions.transform, 0.06f, 0.46f, 0.48f, 0.7f, "BE FRIENDS", 24, Palette.Safe, () => AnswerPicked(true), out _);
@@ -186,6 +187,15 @@ namespace Orsuun.Client
             _actions.SetActive(false);
             if (hero == null) return;
             Run(_root.Server.InviteToGuild(hero.accountId, null, Answered()));
+        }
+
+        /// <summary>Asks the friend picked to join the hero's hunting party (PartyPanel).</summary>
+        private void PartyPicked()
+        {
+            FriendDto hero = _picked?.Hero;
+            _actions.SetActive(false);
+            if (hero == null) return;
+            _root.Party.Invite(hero.accountId, message => Say(message, null));
         }
 
         private void AnswerPicked(bool accept)

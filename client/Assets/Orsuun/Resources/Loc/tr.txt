@@ -2775,3 +2775,52 @@ Meeting other heroes needs the server.	Diğer kahramanlarla tanışmak için sun
 # What's new: the open map (29 Sep 2026).
 THE OPEN MAP	AÇIK HARİTA
 Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Avın artık bütün bir bölgeyi dolaşıyor. Küçük harita kampları gösterir, başka kahramanların avlandığı yerler mavidir: tam harita için ona dokun. Sahadaki bir kahramana dokunup onu incele, fısılda ya da takas et. Yol kenarında parlayan sandık bir yol sandığıdır: açmak için ona dokun.
+# Hunting parties (29 Sep 2026).
+HUNTING PARTY	AV GRUBU
+DECLINE	REDDET
+LEAVE THE PARTY	GRUPTAN AYRIL
+PARTY	GRUP
+PARTY INVITE	GRUP DAVETİ
+PARTY {0#}  +{1#}%	GRUP {0#}  +%{1#}
+INVITE TO PARTY	GRUBA DAVET ET
+{0} asks you to hunt together.	{0} seninle birlikte avlanmak istiyor.
+Partymates hunting the same map walk beside you, and each adds {0#}% XP and sorn.	Aynı haritada avlanan grup arkadaşları yanında yürür ve her biri %{0#} TP ile sorn ekler.
+Hunt with up to {0#} friends or guildmates: tap a hero on the map, or a friend in FRIENDS, and INVITE TO PARTY.	En fazla {0#} dost ya da lonca arkadaşıyla avlan: haritada bir kahramana ya da DOSTLAR'da bir dosta dokun ve GRUBA DAVET ET.
+Each partymate hunting the same map adds {0#}% XP and sorn.	Aynı haritada avlanan her grup arkadaşı %{0#} TP ile sorn ekler.
+you	sen
+hunting with you	seninle avlanıyor
+at {0}	{0} yerinde
+away	uzakta
+Hunting together: +{0#}% XP and sorn	Birlikte avlanıyorsunuz: +%{0#} TP ve sorn
+No partymate hunts your map now: no bonus.	Şu an haritanda avlanan grup arkadaşı yok: ek kazanç yok.
+{0} asks you to hunt together: tap PARTY INVITE.	{0} seninle birlikte avlanmak istiyor: GRUP DAVETİ'ne dokun.
+Leave the party?	Gruptan ayrılsın mı?
+You hunt alone again, without the party's bonus.	Yeniden yalnız, grubun ek kazancı olmadan avlanırsın.
+They leave the party at once.	Hemen gruptan ayrılır.
+Parties need the server.	Gruplar için sunucu gerekir.
+{0} is asked to join your party.	{0} grubuna davet edildi.
+You joined the party.	Gruba katıldın.
+You left the party.	Gruptan ayrıldın.
+They left the party.	Gruptan ayrıldı.
+You cannot invite them.	Onu davet edemezsin.
+Only friends and guildmates can join your party.	Grubuna yalnızca dostların ve lonca arkadaşların katılabilir.
+{0} is in a party already.	{0} zaten bir grupta.
+A party holds {0#} heroes.	Bir grup {0#} kahraman alır.
+Leave your party first.	Önce grubundan ayrıl.
+That party holds {0#} heroes already.	O grupta zaten {0#} kahraman var.
+You are not in a party.	Bir grupta değilsin.
+Only the party's leader can do that.	Bunu yalnızca grubun lideri yapabilir.
+Leave the party instead.	Onun yerine gruptan ayrıl.
+They are not in your party.	O senin grubunda değil.
+# Map world bosses and elite camps (29 Sep 2026).
+{0} HAS RISEN	{0} UYANDI
+At {0}: every hero on {1} is called. Tap the call to fight.	{0} yakınında: {1} üzerindeki her kahraman çağrılıyor. Dövüşmek için çağrıya dokun.
+FOUGHT	DÖVÜŞÜLDÜ
+Clear campaign stage 5 to fight the Commanders.	Komutanlarla dövüşmek için sefer aşaması 5'i geç.
+A golden banner flies over {0}: an elite pack waits there.	{0} üzerinde altın bir sancak dalgalanıyor: orada seçkin bir sürü bekliyor.
+ELITE PACK	SEÇKİN SÜRÜ
+An elite pack: +{0#} sorn	Seçkin bir sürü: +{0#} sorn
+An elite pack: +{0#} sorn, +{1#} piece of gear	Seçkin bir sürü: +{0#} sorn, +{1#} teçhizat
+{0#} elite packs: +{1#} sorn	{0#} seçkin sürü: +{1#} sorn
+{0#} elite packs: +{1#} sorn, +{2#} piece of gear	{0#} seçkin sürü: +{1#} sorn, +{2#} teçhizat
+{0#} elite packs: +{1#} sorn, +{2#} pieces of gear	{0#} seçkin sürü: +{1#} sorn, +{2#} teçhizat

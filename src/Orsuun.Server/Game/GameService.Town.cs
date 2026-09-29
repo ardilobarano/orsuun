@@ -47,12 +47,16 @@ public sealed partial class GameService
         }
         DateTime since = DateTime.UtcNow.AddSeconds(-FieldPresentSeconds);
         List<Guid> blocked = BlockedList(account);
+        // Partymates hunting here come first (they walk beside the hero, Rules.Parties), then whoever else is here.
+        Guid? party = account.PartyLeaderId;
         List<Account> heroes = (await _db.Accounts.AsNoTracking()
                 .Where(a => a.LastHeartbeatUtc > since && a.Id != account.Id && a.BannedUtc == null && !a.AtRiver
                             && a.ParkedStage >= first && a.ParkedStage <= last)
-                .OrderByDescending(a => a.LastHeartbeatUtc).Take(FieldShown + blocked.Count).ToListAsync(ct))
+                .OrderByDescending(a => party != null && a.PartyLeaderId == party).ThenByDescending(a => a.LastHeartbeatUtc)
+                .Take(FieldShown + blocked.Count).ToListAsync(ct))
             .Where(a => !blocked.Contains(a.Id)).Take(FieldShown).ToList();
-        return new TownDto(await DrawnAsync(heroes, ct));
+        TownHeroDto[] drawn = await DrawnAsync(heroes, ct);
+        return new TownDto(drawn.Select((h, i) => party != null && heroes[i].PartyLeaderId == party ? h with { Party = true } : h).ToArray());
     }
 
     /// <summary>Heroes as a square or a field draws them: class, figure, the armour and weapon bands with their shine, a skin.</summary>

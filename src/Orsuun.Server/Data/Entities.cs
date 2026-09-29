@@ -195,6 +195,13 @@ public sealed class Account
     public string? CacheDay { get; set; }
     public int CachesToday { get; set; }
     public DateTime? CacheOpenedUtc { get; set; }
+    /// <summary>Hunting parties (Rules.Parties): the leader of this hero's party (the leader's own id for the leader), when
+    /// it joined, and the last invite waiting (who asked, their name, when).</summary>
+    public Guid? PartyLeaderId { get; set; }
+    public DateTime? PartyJoinedUtc { get; set; }
+    public Guid? PartyInviteFrom { get; set; }
+    public string? PartyInviteName { get; set; }
+    public DateTime? PartyInviteUtc { get; set; }
     public DateTime? CastUtc { get; set; }
     public int CastBiteMs { get; set; }
     /// <summary>A fish on the line (Fishing.Fish id, -1 none) and when it was hooked: landed by /v1/river/land.</summary>
