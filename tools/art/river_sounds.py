@@ -33,6 +33,16 @@ SOUNDS = {
 # The maps' ambience (Content/Ambience): all loops, levelled alike.
 AMBIENT = ['Steppe', 'Mountain', 'Salt', 'Cinder', 'Whisper', 'Birch', 'Swamp', 'Graves', 'Bazaar', 'Deep']
 
+# The big maps' own sounds (29 Sep 2026, MapSounds; Content/Ambience, downloaded): a flock's calls as birds cross (one-shots),
+# wind gusts while it snows, a dungeon hall's hum and a war camp's drums (loops). Same fields as SOUNDS.
+MAP_SOUNDS = {
+    'BirdsCaw': ('birds-caw', False, 0, None, -4),
+    'BirdsSong': ('birds-song', False, 0, None, -5),
+    'Gusts': ('wind-gusts', True, 0, None, -31),
+    'HallHum': ('hall-hum', True, 0, None, -31),
+    'WarDrums': ('war-drums', True, 0, None, -30),
+}
+
 
 def decode(take, rate=RATE):
     path = os.path.join(tempfile.mkdtemp(), take + '.wav')
@@ -67,27 +77,33 @@ def level_loop(x, level):
     return soft_limit(x * 10 ** (level / 20) / max(rms, 1e-9))
 
 
+def prepare(take, loop, t0, t1, level, rate):
+    x = decode(take, rate)
+    a, b = int(t0 * rate), (int(t1 * rate) if t1 else len(x))
+    x = x[a:b]
+    if loop:
+        return level_loop(x, level)
+    x = x * 10 ** (level / 20) / max(np.abs(x).max(), 1e-9)
+    # A short fade at each end so a trimmed one-shot starts and stops without a click.
+    n = int(0.004 * rate)
+    x[:n] *= np.linspace(0, 1, n)
+    m = int(0.06 * rate)
+    x[-m:] *= np.linspace(1, 0, m)
+    return x
+
+
 def main():
     for name, (take, loop, t0, t1, level) in SOUNDS.items():
-        x = decode(take)
-        a, b = int(t0 * RATE), (int(t1 * RATE) if t1 else len(x))
-        x = x[a:b]
-        if loop:
-            x = level_loop(x, level)
-        else:
-            x = x * 10 ** (level / 20) / max(np.abs(x).max(), 1e-9)
-            # A short fade at each end so a trimmed one-shot starts and stops without a click.
-            n = int(0.004 * RATE)
-            x[:n] *= np.linspace(0, 1, n)
-            m = int(0.06 * RATE)
-            x[-m:] *= np.linspace(1, 0, m)
-        write(os.path.join(OUT, name + '.wav'), x, RATE)
+        write(os.path.join(OUT, name + '.wav'), prepare(take, loop, t0, t1, level, RATE), RATE)
     os.makedirs(AMBIENCE, exist_ok=True)
     for kind in AMBIENT:
         take = 'amb-' + kind.lower()
         if not os.path.exists(os.path.join(SRC, take + '.mp3')):
             continue
         write(os.path.join(AMBIENCE, 'Amb' + kind + '.wav'), level_loop(decode(take, AMBIENCE_RATE), -32), AMBIENCE_RATE)
+    for name, (take, loop, t0, t1, level) in MAP_SOUNDS.items():
+        if os.path.exists(os.path.join(SRC, take + '.mp3')):
+            write(os.path.join(AMBIENCE, name + '.wav'), prepare(take, loop, t0, t1, level, AMBIENCE_RATE), AMBIENCE_RATE)
 
 
 if __name__ == '__main__':

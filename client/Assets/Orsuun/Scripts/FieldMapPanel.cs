@@ -28,7 +28,7 @@ namespace Orsuun.Client
         private readonly (string id, string name)[] _hunterIds = new (string, string)[4];
         private readonly List<GameObject> _fullLabels = new List<GameObject>();
         private FieldMap.Layout _built;
-        private bool _showOnce;
+        private bool _showOnce, _tipOffered;
         private static Texture2D _arrow, _dot;
 
         public bool IsOpen => _canvas.activeSelf;
@@ -87,6 +87,12 @@ namespace Orsuun.Client
             }
             if (_built != map.Current) Build(map.Current);
             if (!_mini.activeSelf) _mini.SetActive(true);
+            // The first big map a hero meets explains itself (TipCard), once the guide and any story card are done.
+            if (!_tipOffered && !_root.Tutorial.Running && !_root.Story.Showing && !_root.Town.IsOpen)
+            {
+                _tipOffered = true;
+                _root.Tips.Offer(TipCard.Tip.Map);
+            }
             if (_showOnce) { _showOnce = false; Open(); }
 
             FieldMap.Layout layout = map.Current;

@@ -67,6 +67,7 @@ namespace Orsuun.Client
         private ParticleSystem _birds;
         private string _shown;
         private float _nextFlock;
+        private bool _caws;
         private static Texture2D _leaf, _bird;
 
         /// <summary>The air and birds of a map (null or "" for none); rebuilt only when they change.</summary>
@@ -84,6 +85,7 @@ namespace Orsuun.Client
                 Air air = Preset(kind.Trim());
                 if (air != null) _air.Add(MakeAir(air, map.Root));
             }
+            _caws = layout.ScenerySet != "Steppe" || (layout.Weather ?? "").Contains("embers");
             if (layout.Birds)
             {
                 _birds = MakeBirds();
@@ -231,6 +233,8 @@ namespace Orsuun.Client
         {
             if (_birds == null || Time.time < _nextFlock) return;
             _nextFlock = Time.time + Random.Range(18f, 34f);
+            // Their calls (MapSounds' flock one-shots): crows and carrion birds over harder ground, songbirds over the steppe.
+            GameAudio.Instance?.Play(_caws ? "BirdsCaw" : "BirdsSong", 0.55f, 5f, 0.08f);
             if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-perflog") >= 0) Debug.Log("PERF flock");
             // A loose V from one side of the view to the other, high over the far ground.
             bool fromLeft = Random.value < 0.5f;

@@ -5,23 +5,25 @@ namespace Orsuun.Client
 {
     /// <summary>
     /// What's new tips (owner, 28 Sep 2026: picked "What's new tips": "A short tip card the first time a hero meets the
-    /// town, the Bazaar Call, the fishing catch and the Bannerkin"). Each tip shows once for each hero on this device
+    /// town, the Bazaar Call, the fishing catch and the Bannerkin"; 29 Sep 2026: "What's new tip for maps", the first big map).
+    /// Each tip shows once for each hero on this device
     /// (PlayerPrefs, keyed like the goal line), on its own canvas above the screens; GOT IT closes it. -tip Town|Bazaar|
-    /// Catch|Bannerkin shows one for screenshots whether it was seen or not.
+    /// Catch|Bannerkin|Map shows one for screenshots whether it was seen or not.
     /// </summary>
     public sealed class TipCard : MonoBehaviour
     {
-        public enum Tip { Town, Bazaar, Catch, Bannerkin }
+        public enum Tip { Town, Bazaar, Catch, Bannerkin, Map }
 
-        private static readonly string[] Titles = { "THE TOWN SQUARE", "THE BAZAAR CALL", "THE CATCH", "THE BANNERKIN" };
+        private static readonly string[] Titles = { "THE TOWN SQUARE", "THE BAZAAR CALL", "THE CATCH", "THE BANNERKIN", "THE OPEN MAP" };
         private static readonly string[] Bodies =
         {
             "Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skills and Bora runs the Pits. Each gives an errand a day. Heroes who are in town stand here too, and the hunt goes on while you visit.",
             "Heroes of level 20 call their wares here, once every 30 seconds. LINK shows one of your pieces with your words. Tap a piece someone linked to see it, then TRADE or WHISPER.",
             "Hold anywhere to lift the bronze box, let go and it sinks. Keep the fish inside it until the bar fills. The rarer the fish, the wilder it swims.",
             "She walks behind you on the hunt: Hunter's Blessing lends you crits and Mending Song heals you. Her six pieces are her own: forge them like yours to make her stronger. Duels and the Pits leave her out.",
+            "Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.",
         };
-        private static readonly string[] Icons = { "Caravan", "NavTrade", "FishTaimen", "BookDrumcaller" };
+        private static readonly string[] Icons = { "Caravan", "NavTrade", "FishTaimen", "BookDrumcaller", "NavZones" };
 
         private GameRoot _root;
         private GameObject _canvas;

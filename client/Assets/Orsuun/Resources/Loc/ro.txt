@@ -2810,3 +2810,6 @@ The next cache is not on the trail yet.	Următorul cufăr nu e încă pe drum.
 Today's caches are all opened: more come with the evening bell.	Cuferele de azi sunt toate deschise: altele vin cu clopotul de seară.
 No caches lie by the river.	Lângă râu nu sunt cufere.
 Meeting other heroes needs the server.	Întâlnirea altor eroi are nevoie de server.
+# What's new: the open map (29 Sep 2026).
+THE OPEN MAP	HARTA DESCHISĂ
+Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Vânătoarea ta străbate acum o regiune întreagă. Minimapa arată taberele, cu albastru unde vânează alți eroi: atinge-o pentru harta întreagă. Atinge un erou de pe câmp ca să-l inspectezi, să-i șoptești sau să faci schimb. Un cufăr strălucitor lângă drum e un cufăr de drum: atinge-l ca să-l deschizi.

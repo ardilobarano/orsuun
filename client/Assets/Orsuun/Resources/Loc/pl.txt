@@ -2802,3 +2802,6 @@ The next cache is not on the trail yet.	Następnej skrzynki jeszcze nie ma przy 
 Today's caches are all opened: more come with the evening bell.	Dzisiejsze skrzynki są już otwarte: nowe przyjdą z wieczornym dzwonem.
 No caches lie by the river.	Nad rzeką nie ma skrzynek.
 Meeting other heroes needs the server.	Spotkanie innych bohaterów wymaga serwera.
+# What's new: the open map (29 Sep 2026).
+THE OPEN MAP	OTWARTA MAPA
+Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Twoje łowy przemierzają teraz cały region. Minimapa pokazuje obozy, na niebiesko te, gdzie polują inni bohaterowie: dotknij jej, by zobaczyć całą mapę. Dotknij bohatera w polu, by go obejrzeć, szepnąć albo handlować. Świecąca skrzynka przy szlaku to skrytka: dotknij jej, by ją otworzyć.

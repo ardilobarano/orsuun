@@ -2816,3 +2816,6 @@ The next cache is not on the trail yet.	O próximo baú ainda não está na tril
 Today's caches are all opened: more come with the evening bell.	Os baús de hoje já foram abertos: mais virão com o sino da tarde.
 No caches lie by the river.	Não há baús junto ao rio.
 Meeting other heroes needs the server.	Encontrar outros heróis requer o servidor.
+# What's new: the open map (29 Sep 2026).
+THE OPEN MAP	O MAPA ABERTO
+Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Sua caçada agora percorre uma região inteira. O minimapa mostra os acampamentos, em azul onde outros heróis caçam: toque nele para ver o mapa completo. Toque num herói no campo para inspecionar, sussurrar ou negociar. Um baú brilhando junto à trilha é um baú da trilha: toque nele para abri-lo.

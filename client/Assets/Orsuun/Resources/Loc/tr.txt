@@ -2772,3 +2772,6 @@ The next cache is not on the trail yet.	Sıradaki sandık henüz yolda değil.
 Today's caches are all opened: more come with the evening bell.	Bugünün sandıklarının hepsi açıldı: akşam çanıyla yenileri gelir.
 No caches lie by the river.	Nehir kıyısında sandık yok.
 Meeting other heroes needs the server.	Diğer kahramanlarla tanışmak için sunucu gerekir.
+# What's new: the open map (29 Sep 2026).
+THE OPEN MAP	AÇIK HARİTA
+Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Avın artık bütün bir bölgeyi dolaşıyor. Küçük harita kampları gösterir, başka kahramanların avlandığı yerler mavidir: tam harita için ona dokun. Sahadaki bir kahramana dokunup onu incele, fısılda ya da takas et. Yol kenarında parlayan sandık bir yol sandığıdır: açmak için ona dokun.

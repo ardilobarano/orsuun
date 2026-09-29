@@ -2848,3 +2848,6 @@ The next cache is not on the trail yet.	Die nächste Truhe liegt noch nicht am W
 Today's caches are all opened: more come with the evening bell.	Die Truhen von heute sind alle geöffnet: mit der Abendglocke kommen neue.
 No caches lie by the river.	Am Fluss liegen keine Truhen.
 Meeting other heroes needs the server.	Andere Helden zu treffen braucht den Server.
+# What's new: the open map (29 Sep 2026).
+THE OPEN MAP	DIE OFFENE KARTE
+Your hunt walks a whole region now. The minimap shows its camps, blue where other heroes hunt: tap it for the full map. Tap a hero in the field to inspect, whisper or trade. A glowing chest by the trail is a cache: tap it to open it.	Deine Jagd durchstreift jetzt eine ganze Gegend. Die Minikarte zeigt ihre Lager, blau, wo andere Helden jagen: tippe sie an für die ganze Karte. Tippe einen Helden im Feld an, um ihn anzusehen, ihm zuzuflüstern oder zu handeln. Eine leuchtende Truhe am Weg ist eine Wegtruhe: tippe sie an, um sie zu öffnen.

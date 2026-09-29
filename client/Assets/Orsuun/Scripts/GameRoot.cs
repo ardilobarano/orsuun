@@ -144,6 +144,8 @@ namespace Orsuun.Client
             Field.Init(this, Lane);
             // A trail cache beside a big map's trail when one is due (TrailCache).
             new GameObject("TrailCache").AddComponent<TrailCache>().Init(this, Lane);
+            // A big map's own sounds by where the hero is (MapSounds).
+            new GameObject("MapSounds").AddComponent<MapSounds>().Init(this, Lane);
 
             Server = new GameObject("ServerLink").AddComponent<Net.ServerLink>();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-local") < 0) Server.Init(Session);
