@@ -4,6 +4,17 @@ Mobile idle auto-battler (a Metin2-style three-quarter field) with Metin2-style 
 changing anything the owner decided. Current state, decisions and next steps: **HANDOFF.md** (read it first). Design:
 the GDD Claude doc linked from HANDOFF.md (edit with the docs tools, never web-fetch it).
 
+## Working with the owner
+
+- Offered a menu of next steps, the owner usually picks all of them: order options by recommendation, build the whole
+  list in order, commit and report each as it lands. A free-text answer ("also add ...") is an extra item to build; an
+  unpicked option is declined for now. Decisions and assumptions go in HANDOFF.md's decision table.
+- Don't lead "what to do" lists with nightly backups (declined twice; the owner will buy storage later).
+- Keep Higgsfield spending small ("dont use too much higgsfield credits"); never buy or top up credits.
+- On a new machine read HANDOFF.md "Picking up on another machine" first: the secrets, the server's SSH key and iOS
+  signing stay on the Mac. The commands below are the Mac's; on Windows use Git Bash for the `.sh` scripts, and iOS
+  builds need the Mac.
+
 ## Layout
 
 - `src/Orsuun.Rules` engine-free rules (netstandard2.1), shared with Unity as a local package. `tests/` xUnit.
