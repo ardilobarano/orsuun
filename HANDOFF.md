@@ -137,6 +137,23 @@ tools, do not web-fetch it). Code is in this repo, private on GitHub: https://gi
   push and boss replays from server seeds; seeded farm loops reported for active play; LOCAL MODE fallback.
 - `tools/Orsuun.Sim`: Monte Carlo balance report. `tools/ClientCheck`: compiles Unity scripts with dotnet.
 
+## Picking up on another machine (29 Sep 2026)
+
+The owner moved from the Mac to their main PC after build 26092822 (the field and the Oathfields big map; everything
+committed and pushed, the playtest server deployed). Working notes the Mac's Claude memory held, so a new machine has them:
+
+- When offered a menu of next steps, the owner usually picks all of them: order options by recommendation, build the
+  whole list in order, commit and report each as it lands. A free-text answer ("also add ...") is an extra item to
+  build; an unpicked option is declined for now.
+- Don't lead "what to do" lists with nightly backups: the owner passed on it twice and will buy a Hetzner Storage Box
+  later; mention it at most once when real players arrive.
+- The last open step: big maps for the other eleven maps the same way as the Oathfields (Next steps, 4). The owner has
+  not asked for it yet; the latest pick was built in full.
+- Only on the Mac (never in chat or git; copy by hand if needed): `~/.config/fal/key`, `~/.config/orsuun/google-oauth.json`,
+  the SSH key that reaches the playtest server (`root@65.108.221.210`), the free-team iOS signing (iOS builds and the
+  iPhone install need the Mac and Xcode; a Windows PC builds Android only), and the database copies in `~/orsuun-backups`.
+  The server's `deploy/.env` lives on the server only.
+
 ## Where we left off (25 Sep 2026, desktop app session)
 
 The owner moved to the Claude desktop app (Code tab, `~/orsuun`). On 24 Sep they picked four next steps, all built,
