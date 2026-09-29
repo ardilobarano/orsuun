@@ -127,21 +127,23 @@ namespace Orsuun.Client
             _banner = Ui.Title("Banner", canvas, 0.05f, 0.80f, 0.95f, 0.87f, "", 56, TextAnchor.MiddleCenter, Palette.Warn);
 
             // The next goal (Rules.Goals) at the top of the lane; tap it to go where it is done.
-            _goalPlate = Ui.Framed("Goal", canvas, 0.02f, 0.822f, 0.80f, 0.868f, new Color(0.06f, 0.06f, 0.11f, 0.9f));
+            // One slim line under the stage line (29 Sep 2026: "Clearer field view"): the goal, or a call while one waits (a
+            // trade, the Commander on this map, friends and letters), so the far field shows below it.
+            _goalPlate = Ui.Panel("Goal", canvas, CallLine.xMin, CallLine.yMin, CallLine.xMax, CallLine.yMax, GoalShade);
             _goalPlate.gameObject.AddComponent<Button>().onClick.AddListener(OnGoalTap);
             _goalPlate.gameObject.AddComponent<Press>();
-            RectTransform goalIconBox = Ui.Rect("IconBox", _goalPlate.transform, 0.015f, 0.12f, 0.1f, 0.88f);
+            RectTransform goalIconBox = Ui.Rect("IconBox", _goalPlate.transform, 0.008f, 0.1f, 0.058f, 0.9f);
             _goalIcon = Ui.Icon("Icon", goalIconBox, 0f, 0f, 1f, 1f, "NavForge");
-            _goalText = Ui.Label("Text", _goalPlate.transform, 0.11f, 0.08f, 0.86f, 0.92f, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
+            _goalText = Ui.Label("Text", _goalPlate.transform, 0.07f, 0.04f, 0.87f, 0.96f, "", 20, TextAnchor.MiddleLeft, Palette.Parchment);
             _goalText.supportRichText = true;
-            _goalCount = Ui.Title("Count", _goalPlate.transform, 0.86f, 0.08f, 0.98f, 0.92f, "", 24, TextAnchor.MiddleCenter, Palette.Sorn);
+            _goalCount = Ui.Title("Count", _goalPlate.transform, 0.87f, 0.04f, 0.99f, 0.96f, "", 20, TextAnchor.MiddleCenter, Palette.Sorn);
             _goalPlate.gameObject.SetActive(false);
 
             // Fish eaten at Old Nergui's river (Rules.Fishing): a chip for each boost running, with its time left.
             for (int i = 0; i < _mealChips.Length; i++)
             {
-                float x0 = 0.02f + i * 0.158f;
-                Image chip = Ui.Framed("Meal" + i, canvas, x0, 0.787f, x0 + 0.15f, 0.817f, new Color(0.05f, 0.05f, 0.09f, 0.85f));
+                float x0 = 0.02f + i * 0.135f;
+                Image chip = Ui.Framed("Meal" + i, canvas, x0, 0.808f, x0 + 0.128f, 0.833f, new Color(0.05f, 0.05f, 0.09f, 0.85f));
                 chip.raycastTarget = false;
                 RectTransform fishBox = Ui.Rect("Icon", chip.transform, 0.03f, 0.05f, 0.4f, 0.95f);
                 Ui.Icon("Fish", fishBox, 0f, 0f, 1f, 1f, Fishing.Fish[i].Icon);
@@ -276,11 +278,11 @@ namespace Orsuun.Client
             Ui.RoundButton("Caravan", canvas, 0.9f, 0.655f, 0.99f, 0.73f, "Caravan", new Color(0.55f, 0.3f, 0.08f), () => root.Caravan.Open(), out _, out _);
             _amber = Ui.Title("Amber", canvas, 0.86f, 0.632f, 1f, 0.656f, "", 20, TextAnchor.MiddleCenter, CaravanPanel.AmberColor);
             // A trade waiting (someone asks, or a window is open): a call under the next goal; tap it for the window.
-            _tradeCall = Ui.Button("TradeCall", canvas, 0.02f, 0.778f, 0.8f, 0.818f, "", 20, Palette.Alloy, () => root.Trade.Open(), out _tradeCallLabel);
+            _tradeCall = Ui.Button("TradeCall", canvas, CallLine.xMin, CallLine.yMin, CallLine.xMax, CallLine.yMax, "", 18, Palette.Alloy, () => root.Trade.Open(), out _tradeCallLabel);
             _tradeCallLabel.supportRichText = true;
             _tradeCall.gameObject.SetActive(false);
             // Friend requests or a guild invite waiting (and not seen yet): a call in the same place, when no trade calls.
-            _socialCall = Ui.Button("SocialCall", canvas, 0.02f, 0.778f, 0.8f, 0.818f, "", 20, Palette.Safe, OpenSocial, out _socialCallLabel);
+            _socialCall = Ui.Button("SocialCall", canvas, CallLine.xMin, CallLine.yMin, CallLine.xMax, CallLine.yMax, "", 18, Palette.Safe, OpenSocial, out _socialCallLabel);
             _socialCallLabel.supportRichText = true;
             _socialCall.gameObject.SetActive(false);
             // The Campaign Trail under it: a round waystone button with the tier beneath (CLAIM when a reward waits).
@@ -300,6 +302,12 @@ namespace Orsuun.Client
 
         /// <summary>A card over the lane for a few seconds (a Commander rising on the map).</summary>
         public void Announce(string title, string text) => ShowCard(title, text);
+
+        /// <summary>The slim line under the stage line that the goal and every call share (anchors on the HUD's canvas).</summary>
+        public static readonly Rect CallLine = Rect.MinMaxRect(0.02f, 0.836f, 0.89f, 0.868f);
+        private static readonly Color GoalShade = new Color(0.03f, 0.03f, 0.07f, 0.62f);
+        /// <summary>A trade waits: it has the call line (MapCommander's call gives way).</summary>
+        public bool TradeCalling => _tradeCall.gameObject.activeSelf;
 
         private Net.ServerLink.SettlementDto _shownElite;
 
@@ -419,9 +427,9 @@ namespace Orsuun.Client
                 (GameObject plate, Text text) = _mealChips[fish];
                 plate.SetActive(true);
                 var rect = (RectTransform)plate.transform;
-                float x0 = 0.02f + shown * 0.158f;
+                float x0 = 0.02f + shown * 0.135f;
                 rect.anchorMin = new Vector2(x0, rect.anchorMin.y);
-                rect.anchorMax = new Vector2(x0 + 0.15f, rect.anchorMax.y);
+                rect.anchorMax = new Vector2(x0 + 0.128f, rect.anchorMax.y);
                 text.text = left >= 3600 ? $"{left / 3600}h {left % 3600 / 60:00}m" : $"{left / 60}:{left % 60:00}";
                 shown++;
             }
@@ -598,7 +606,8 @@ namespace Orsuun.Client
             bool newInvites = invites > _seenGuildInvites && !_root.Guild.IsOpen;
             int whispers = _root.Server.Online && !_root.Messages.IsOpen ? _root.Server.WhisperUnread : 0;
             int letters = _root.Server.Online && !_root.Mail.IsOpen ? _root.Server.MailUnread : 0;
-            bool social = !calling && (newAsks || newInvites || whispers > 0 || letters > 0);
+            // The Commander's call (MapCommander) goes before friends and letters; a trade before both.
+            bool social = !calling && !(_root.Commander != null && _root.Commander.Calling) && (newAsks || newInvites || whispers > 0 || letters > 0);
             if (_socialCall.gameObject.activeSelf != social) _socialCall.gameObject.SetActive(social);
             if (social) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
                 : newAsks ? (asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER")
@@ -687,27 +696,29 @@ namespace Orsuun.Client
 
             bool celebrating = now - _goalMetAt < 2.4f;
             bool tutorialGoal = _root.Tutorial != null && _root.Tutorial.ShowsGoal;
+            // A call waiting takes the line (the guide's goal step keeps it).
+            bool call = _tradeCall.gameObject.activeSelf || _socialCall.gameObject.activeSelf || (_root.Commander != null && _root.Commander.Calling);
             bool show = _goalKey != null && !_root.Replaying && !_root.PushBusy
-                        && (tutorialGoal || (!(_root.Tutorial != null && _root.Tutorial.Running) && (_goal != null || celebrating)));
+                        && (tutorialGoal || (!(_root.Tutorial != null && _root.Tutorial.Running) && !call && (_goal != null || celebrating)));
             if (_goalPlate.gameObject.activeSelf != show) _goalPlate.gameObject.SetActive(show);
             if (!show) return;
 
             if (celebrating)
             {
-                _goalText.text = ConfirmDialog.Tint("GOAL MET", Palette.Good) + "\n" + _goalMetText;
+                _goalText.text = ConfirmDialog.Tint("GOAL MET", Palette.Good) + "  " + _goalMetText;
                 _goalCount.text = "";
                 float flash = Mathf.Clamp01(1f - (now - _goalMetAt) / 1.2f);
-                _goalPlate.color = Color.Lerp(new Color(0.06f, 0.06f, 0.11f, 0.9f), new Color(0.55f, 0.42f, 0.12f, 0.95f), flash);
+                _goalPlate.color = Color.Lerp(GoalShade, new Color(0.55f, 0.42f, 0.12f, 0.95f), flash);
                 return;
             }
-            _goalPlate.color = new Color(0.06f, 0.06f, 0.11f, 0.9f);
+            _goalPlate.color = GoalShade;
             if (_goal == null)
             {
-                _goalText.text = "<size=17>" + ConfirmDialog.Tint("NEXT GOAL", Palette.Sorn) + "</size>\nEvery goal met. The steppe is yours.";
+                _goalText.text = "Every goal met. The steppe is yours.";
                 _goalCount.text = "";
                 return;
             }
-            _goalText.text = "<size=17>" + ConfirmDialog.Tint("NEXT GOAL", Palette.Sorn) + "</size>\n" + _goal.Text;
+            _goalText.text = _goal.Text;
             _goalCount.text = _goal.Target > 1 ? $"{Mathf.Min(_goal.Current, _goal.Target)}/{_goal.Target}" : "";
             string icon = GoalIcon(_goal.Screen);
             if (_goalIcon.texture == null || _goalIcon.texture.name != icon)

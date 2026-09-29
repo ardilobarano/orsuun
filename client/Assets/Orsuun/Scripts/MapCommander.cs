@@ -42,6 +42,9 @@ namespace Orsuun.Client
         private string _announced = "";
         private float _nextRoar;
 
+        /// <summary>Its call is on the HUD's call line now.</summary>
+        public bool Calling => _call != null && _call.gameObject.activeSelf;
+
         /// <summary>The Commander up on this big map now: its id, name, camp and seconds left (null: none).</summary>
         public (int Boss, string Name, int Camp, long Left, bool Fought)? Here { get; private set; }
 
@@ -49,7 +52,9 @@ namespace Orsuun.Client
         {
             _root = root;
             _lane = lane;
-            _call = Ui.Button("CommanderCall", root.Hud.Canvas, 0.24f, 0.742f, 0.89f, 0.776f, "", 18, Palette.Danger, Fight, out _callLabel);
+            // On the HUD's call line (Hud.CallLine): before friends and letters, after a trade.
+            Rect line = Hud.CallLine;
+            _call = Ui.Button("CommanderCall", root.Hud.Canvas, line.xMin, line.yMin, line.xMax, line.yMax, "", 18, Palette.Danger, Fight, out _callLabel);
             _callLabel = Ui.Raw(_callLabel);
             _callLabel.supportRichText = true;
             _call.gameObject.SetActive(false);
@@ -79,7 +84,8 @@ namespace Orsuun.Client
             if (show && _model == null) Stand(map, Here.Value.Boss, Here.Value.Camp);
             if (_model != null) Animate();
 
-            if (_call.gameObject.activeSelf != show) _call.gameObject.SetActive(show);
+            bool call = show && !_root.Hud.TradeCalling;
+            if (_call.gameObject.activeSelf != call) _call.gameObject.SetActive(call);
             if (!show) return;
             (int id, string name, int camp, long left, bool fought) = Here.Value;
             string where = map.Current.Camps[camp].Name;
