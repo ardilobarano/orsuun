@@ -60,6 +60,8 @@ namespace Orsuun.Client
             /// <summary>Seconds into its attack lunge, or below zero when not attacking.</summary>
             public float LungeT = -1f;
             public bool IsBoss;
+            /// <summary>A monster of an elite pack (Rules.EliteCamps): its hits land with a heavier sound.</summary>
+            public bool IsElite;
             public KorstoneFx Fx;
             /// <summary>The mob's own clips (Idle, Run, Attack, Hit, Death; art/blender/mobrig.py), or null for a still model.</summary>
             public Animation Anim;
@@ -770,6 +772,8 @@ namespace Orsuun.Client
                         SpellFx(at);
                     }
                     GameAudio.Instance?.Play(e.Crit ? "LaneHitCrit" : "LaneHitSlash", e.Crit ? 0.9f : 0.55f, e.Crit ? 0.08f : 0.07f);
+                    // An elite monster's hide takes the blow with a heavier thud (Horn and elite sounds).
+                    if (_views.TryGetValue(e.EnemyId, out EnemyView struck) && struck.IsElite) GameAudio.Instance?.Play("EliteHit", 0.6f, 0.12f, 0.08f);
                     break;
 
                 case LaneEventKind.EnemyDied:
@@ -1938,6 +1942,7 @@ namespace Orsuun.Client
                 {
                     _eliteFloated = true;
                     Float("ELITE PACK", new Vector3(3.4f, 3.2f, 0f), Palette.Sorn, 1.6f);
+                    GameAudio.Instance?.Play("EliteChime", 0.8f, 1f, 0f);
                 }
             }
             root.localScale = s;
@@ -1966,7 +1971,7 @@ namespace Orsuun.Client
             _views[enemyId] = new EnemyView
             {
                 Root = root, HpFill = fill, Bar = holder, Scale = s, IsModel = standing, Y = y, IsMob = art != null, IsKorstone = korstone,
-                HitHeight = hitHeight, ArtName = artName, Base = root.position, IsBoss = boss, Fx = korstoneFx, Anim = anim,
+                HitHeight = hitHeight, ArtName = artName, Base = root.position, IsBoss = boss, Fx = korstoneFx, Anim = anim, IsElite = elite,
             };
             if (korstoneFx != null)
             {

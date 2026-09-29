@@ -113,8 +113,9 @@ namespace Orsuun.Client
             _announced = key;
             if (fought) return;
             _root.Hud.Announce($"{name.ToUpperInvariant()} HAS RISEN", $"At {where}: every hero on {map.Current.Name} is called. Tap the call to fight.");
-            GameAudio.Instance?.Play("KorstoneAwaken", 1f, 1f, 0f);
-            GameAudio.Instance?.Play("BossSlam", 0.7f, 0.2f, 0f);
+            // A war horn over the steppe (Horn and elite sounds), a slam under it.
+            GameAudio.Instance?.Play("CommanderHorn", 0.95f, 5f, 0f);
+            GameAudio.Instance?.Play("BossSlam", 0.4f, 0.2f, 0f);
         }
 
         /// <summary>The Commander up on this layout now, from the server's last word on the Commanders.</summary>
@@ -189,6 +190,10 @@ namespace Orsuun.Client
                     _anim.CrossFade("Attack", 0.1f);
                     _anim.CrossFadeQueued("Idle", 0.3f);
                 }
+                // Its roar, louder the nearer the hero's camera stands.
+                float near = Camera.main != null ? Vector3.Distance(Camera.main.transform.position, _model.position) : 60f;
+                float loud = Mathf.Clamp01(1f - near / 70f);
+                if (loud > 0.05f) GameAudio.Instance?.Play("CommanderRoar", 0.25f + 0.6f * loud, 3f, 0.08f);
             }
             float glow = 1f + 0.25f * (0.5f + 0.5f * Mathf.Sin(Time.time * 2.4f));
             foreach (Renderer r in _body)

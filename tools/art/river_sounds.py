@@ -1,8 +1,8 @@
 """The river's and the town's sounds (ElevenLabs Sound Effects v2, flow "Orsuun river sounds", 28 Sep 2026): docs/concept/sounds/*.mp3
 decoded with macOS afconvert, the chosen takes trimmed and levelled into client/Assets/Orsuun/Resources/Audio as mono
 16-bit WAVs: RiverWater, RiverBirds, RiverFire (seamless loops, levelled to about -30 dBFS with a soft limit on the
-peaks), RiverReel (a loop while a fish is fought), RiverCast, RiverSplash (the float landing), RiverPlop (a bite) and
-TownMarket (the town square's murmur, a loop). The town's theme is music (Content/Music/MusicTown.mp3, copied as made).
+peaks), RiverReel (a loop while a fish is fought), RiverCast, RiverSplash (the float landing), RiverPlop (a bite),
+TownMarket (the town square's murmur, a loop), and the map Commanders' horn and roar and the elite packs' chime and hit. The town's theme is music (Content/Music/MusicTown.mp3, copied as made).
 The maps' ambience loops (Amb*, one per kind of map) go to client/Assets/Orsuun/Content/Ambience (downloaded art) at
 22.05 kHz. Run with /usr/bin/python3 (numpy)."""
 import os
@@ -28,6 +28,11 @@ SOUNDS = {
     'RiverSplash': ('splash-a', False, 0, 0.55, -2),
     'RiverPlop': ('splash-b', False, 0, 0.55, -1),
     'TownMarket': ('town-market', True, 0, None, -32),
+    # Horn and elite sounds (29 Sep 2026): a Commander rising on the map, its roar, an elite pack's chime and its heavier hits.
+    'CommanderHorn': ('horn-a', False, 0, 3.6, -2),
+    'CommanderRoar': ('roar-b', False, 0, 2.2, -2),
+    'EliteChime': ('chime-b', False, 0, 1.3, -3),
+    'EliteHit': ('elitehit-b', False, 0, 0.55, -3),
 }
 
 # The maps' ambience (Content/Ambience): all loops, levelled alike.
