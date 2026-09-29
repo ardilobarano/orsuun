@@ -1,0 +1,327 @@
+{
+ "Name": "Whisperwood",
+ "Map": 6,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -70.1,
+   "y": -37.5
+  },
+  {
+   "x": -67.1,
+   "y": 11.3
+  },
+  {
+   "x": -50.3,
+   "y": 49.9
+  },
+  {
+   "x": -21.3,
+   "y": 79.6
+  },
+  {
+   "x": 19.0,
+   "y": 82.7
+  },
+  {
+   "x": 49.6,
+   "y": 53.8
+  },
+  {
+   "x": 74.1,
+   "y": 15.6
+  },
+  {
+   "x": 77.4,
+   "y": -35.6
+  },
+  {
+   "x": 37.7,
+   "y": -66.8
+  },
+  {
+   "x": -2.7,
+   "y": -70.9
+  },
+  {
+   "x": -42.5,
+   "y": -64.3
+  }
+ ],
+ "ScenerySet": "Forest",
+ "KorstoneRing": "SteppeStone",
+ "GrassCards": 700,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "IceShrine",
+   "X": -62.2,
+   "Z": 51.7,
+   "Yaw": 212.0,
+   "Height": 3.6,
+   "Tint": "#7C8878"
+  },
+  {
+   "Name": "IceShrine",
+   "X": -58.9,
+   "Z": 62.1,
+   "Yaw": 215.2,
+   "Height": 3.2,
+   "Tint": "#7C8878"
+  },
+  {
+   "Name": "IceShrine",
+   "X": -49.8,
+   "Z": 69.2,
+   "Yaw": 219.1,
+   "Height": 3.4,
+   "Tint": "#7C8878"
+  },
+  {
+   "Name": "DesertShrine",
+   "X": 88.9,
+   "Z": 14.8,
+   "Yaw": 342.5,
+   "Height": 4.8,
+   "Tint": "#8C9090"
+  },
+  {
+   "Name": "WarBanner",
+   "X": 41.1,
+   "Z": 77.1,
+   "Yaw": 317.0,
+   "Height": 5.5,
+   "Tint": "#707870"
+  },
+  {
+   "Name": "WarBanner",
+   "X": 26.2,
+   "Z": -78.9,
+   "Yaw": 84.3,
+   "Height": 5.5,
+   "Tint": "#707870"
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Crooked Path",
+   "X": -79.2,
+   "Z": -18.2
+  },
+  {
+   "Name": "Old Graves",
+   "X": -56.8,
+   "Z": 55.5
+  },
+  {
+   "Name": "Hanging Tree",
+   "X": 4.6,
+   "Z": 92.5
+  },
+  {
+   "Name": "The Forgotten Shrine",
+   "X": 77.9,
+   "Z": 28.7
+  },
+  {
+   "Name": "Widow's Pond",
+   "X": 73.2,
+   "Z": -53.3
+  },
+  {
+   "Name": "Mist Hollow",
+   "X": -5.0,
+   "Z": -79.3
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Old Graves",
+   "X": -65.5,
+   "Z": 66.7
+  },
+  {
+   "Name": "Widow's Pond",
+   "X": 72.4,
+   "Z": -72.5
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "FrostPine",
+   "X": -91.6,
+   "Z": -30.2,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": -88.8,
+   "Z": 15.2,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": -26.0,
+   "Z": 99.4,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": 27.6,
+   "Z": 105.1,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": 69.3,
+   "Z": 61.3,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": 101.9,
+   "Z": -10.8,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": 15.4,
+   "Z": -91.3,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": -52.4,
+   "Z": -84.0,
+   "Radius": 10,
+   "Count": 8,
+   "Height": 8.5,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": -45.2,
+   "Z": 26.4,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 8,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": 51.8,
+   "Z": 24.9,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 8,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "FrostPine",
+   "X": -8.0,
+   "Z": -54.7,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 8,
+   "Tint": "#6E7E70"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -40.7,
+   "Z": 83.2,
+   "Radius": 6,
+   "Count": 4,
+   "Height": 6,
+   "Tint": "#A8B0A0"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 92.0,
+   "Z": -36.5,
+   "Radius": 6,
+   "Count": 4,
+   "Height": 6,
+   "Tint": "#A8B0A0"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "water",
+   "X": 71.3,
+   "Z": -70.9,
+   "Radius": 8,
+   "Height": 5.2,
+   "Yaw": 20
+  },
+  {
+   "Name": "moss",
+   "X": -78.4,
+   "Z": 23.4,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 30
+  },
+  {
+   "Name": "moss",
+   "X": 28.8,
+   "Z": 54.0,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 70
+  },
+  {
+   "Name": "moss",
+   "X": -25.9,
+   "Z": -83.3,
+   "Radius": 9,
+   "Height": 5.8500000000000005,
+   "Yaw": 10
+  }
+ ],
+ "River": [
+  {
+   "x": 120,
+   "y": 160
+  },
+  {
+   "x": 60,
+   "y": 80
+  },
+  {
+   "x": 20,
+   "y": 0
+  },
+  {
+   "x": -40,
+   "y": -80
+  },
+  {
+   "x": -100,
+   "y": -160
+  }
+ ],
+ "RiverWidth": 5,
+ "WaterColor": "#2E4442",
+ "BankColor": "#3A3A2C"
+}

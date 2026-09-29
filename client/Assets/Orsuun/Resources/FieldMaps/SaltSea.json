@@ -1,0 +1,270 @@
+{
+ "Name": "The Salt Sea",
+ "Map": 3,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -78,
+   "y": -8
+  },
+  {
+   "x": -56,
+   "y": 44
+  },
+  {
+   "x": -10,
+   "y": 72
+  },
+  {
+   "x": 40,
+   "y": 70
+  },
+  {
+   "x": 80,
+   "y": 36
+  },
+  {
+   "x": 82,
+   "y": -22
+  },
+  {
+   "x": 46,
+   "y": -62
+  },
+  {
+   "x": -8,
+   "y": -74
+  },
+  {
+   "x": -58,
+   "y": -52
+  }
+ ],
+ "ScenerySet": "Desert",
+ "KorstoneRing": "SaltPillar",
+ "GrassCards": 520,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "CaravanWreck",
+   "X": -64.3,
+   "Z": 52.7,
+   "Yaw": 40,
+   "Height": 3.0
+  },
+  {
+   "Name": "CaravanWreck",
+   "X": 84.0,
+   "Z": -47.1,
+   "Yaw": 200,
+   "Height": 2.8
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -19.4,
+   "Z": 85.9,
+   "Yaw": 0,
+   "Height": 8.5
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -8.3,
+   "Z": 95.0,
+   "Yaw": 60,
+   "Height": 6.2
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 3.5,
+   "Z": 89.5,
+   "Yaw": 140,
+   "Height": 7.4
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 39.9,
+   "Z": -84.6,
+   "Yaw": 20,
+   "Height": 9
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 22.7,
+   "Z": -84.6,
+   "Yaw": 100,
+   "Height": 6
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 84.9,
+   "Z": 69.2,
+   "Yaw": 30,
+   "Height": 11,
+   "Tint": "#C07A58"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 104.9,
+   "Z": 48.8,
+   "Yaw": 150,
+   "Height": 9,
+   "Tint": "#C07A58"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -74.6,
+   "Z": -69.3,
+   "Yaw": 80,
+   "Height": 12,
+   "Tint": "#C07A58"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -100.9,
+   "Z": 12.7,
+   "Yaw": 10,
+   "Height": 10,
+   "Tint": "#C07A58"
+  },
+  {
+   "Name": "DesertShrine",
+   "X": 97.7,
+   "Z": 8.3,
+   "Yaw": 357.3,
+   "Height": 5
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Bone Ridge",
+   "X": -80.0,
+   "Z": 18.5
+  },
+  {
+   "Name": "Wreck of the Last Caravan",
+   "X": -48.8,
+   "Z": 61.0
+  },
+  {
+   "Name": "Pillar Field",
+   "X": 26.2,
+   "Z": 81.9
+  },
+  {
+   "Name": "Oasis Shrine",
+   "X": 91.5,
+   "Z": 23.9
+  },
+  {
+   "Name": "Glass Dunes",
+   "X": 59.9,
+   "Z": -62.4
+  },
+  {
+   "Name": "Scorpion Flats",
+   "X": -26.1,
+   "Z": -78.4
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Oasis",
+   "X": 107.7,
+   "Z": 8.6
+  },
+  {
+   "Name": "The Last Caravan",
+   "X": -70.3,
+   "Z": 58.0
+  },
+  {
+   "Name": "Pillars of Salt",
+   "X": -9.8,
+   "Z": 102.8
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "DatePalm",
+   "X": 107.7,
+   "Z": 8.6,
+   "Radius": 11,
+   "Count": 6,
+   "Height": 7
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "water",
+   "X": 107.7,
+   "Z": 8.6,
+   "Radius": 7,
+   "Height": 5,
+   "Yaw": 30
+  },
+  {
+   "Name": "salt",
+   "X": -94.6,
+   "Z": 4.6,
+   "Radius": 16,
+   "Height": 11.2,
+   "Yaw": 10
+  },
+  {
+   "Name": "salt",
+   "X": -20.5,
+   "Z": 41.9,
+   "Radius": 20,
+   "Height": 14.0,
+   "Yaw": 40
+  },
+  {
+   "Name": "salt",
+   "X": 51.8,
+   "Z": 86.7,
+   "Radius": 14,
+   "Height": 9.799999999999999,
+   "Yaw": 70
+  },
+  {
+   "Name": "salt",
+   "X": 59.2,
+   "Z": -19.3,
+   "Radius": 18,
+   "Height": 12.6,
+   "Yaw": 20
+  },
+  {
+   "Name": "salt",
+   "X": -5.2,
+   "Z": -94.2,
+   "Radius": 16,
+   "Height": 11.2,
+   "Yaw": 110
+  },
+  {
+   "Name": "salt",
+   "X": -52.5,
+   "Z": -27.0,
+   "Radius": 14,
+   "Height": 9.799999999999999,
+   "Yaw": 60
+  },
+  {
+   "Name": "salt",
+   "X": 68.7,
+   "Z": -83.2,
+   "Radius": 12,
+   "Height": 8.399999999999999,
+   "Yaw": 0
+  },
+  {
+   "Name": "salt",
+   "X": -58.5,
+   "Z": -92.9,
+   "Radius": 12,
+   "Height": 8.399999999999999,
+   "Yaw": 90
+  }
+ ]
+}

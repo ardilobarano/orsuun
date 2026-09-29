@@ -1,0 +1,386 @@
+{
+ "Name": "Gorak Pass",
+ "Map": 2,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -80,
+   "y": -20
+  },
+  {
+   "x": -62,
+   "y": 38
+  },
+  {
+   "x": -22,
+   "y": 70
+  },
+  {
+   "x": 30,
+   "y": 66
+  },
+  {
+   "x": 74,
+   "y": 34
+  },
+  {
+   "x": 84,
+   "y": -18
+  },
+  {
+   "x": 52,
+   "y": -60
+  },
+  {
+   "x": 0,
+   "y": -72
+  },
+  {
+   "x": -52,
+   "y": -58
+  }
+ ],
+ "ScenerySet": "Steppe",
+ "KorstoneRing": "SteppeStone",
+ "GrassCards": 700,
+ "Stones": 110,
+ "River": [
+  {
+   "x": -44,
+   "y": 160
+  },
+  {
+   "x": -48,
+   "y": 90
+  },
+  {
+   "x": -30,
+   "y": 30
+  },
+  {
+   "x": -44,
+   "y": -30
+  },
+  {
+   "x": -34,
+   "y": -90
+  },
+  {
+   "x": -40,
+   "y": -160
+  }
+ ],
+ "RiverWidth": 5,
+ "WaterColor": "#3E6B78",
+ "BankColor": "#4A3B2C",
+ "Landmarks": [
+  {
+   "Name": "GorakTent",
+   "X": 12.2,
+   "Z": 89.1,
+   "Yaw": 200,
+   "Height": 6.2
+  },
+  {
+   "Name": "GorakTent",
+   "X": 36.2,
+   "Z": 89.3,
+   "Yaw": 230,
+   "Height": 5.6
+  },
+  {
+   "Name": "GorakTent",
+   "X": 54.7,
+   "Z": 73.0,
+   "Yaw": 250,
+   "Height": 6.4
+  },
+  {
+   "Name": "GorakTent",
+   "X": -11.7,
+   "Z": 98.1,
+   "Yaw": 180,
+   "Height": 5.2
+  },
+  {
+   "Name": "WarDrum",
+   "X": 26.9,
+   "Z": 79.7,
+   "Yaw": 286.7,
+   "Height": 6.5
+  },
+  {
+   "Name": "Palisade",
+   "X": -41.3,
+   "Z": 94.7,
+   "Yaw": 157.1,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": -34.8,
+   "Z": 97.8,
+   "Yaw": 160.6,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": -28.9,
+   "Z": 98.6,
+   "Yaw": 167.5,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": -21.9,
+   "Z": 101.2,
+   "Yaw": 171.0,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": -16.2,
+   "Z": 101.8,
+   "Yaw": 174.0,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": -9.1,
+   "Z": 101.7,
+   "Yaw": 177.1,
+   "Height": 4.2
+  },
+  {
+   "Name": "Palisade",
+   "X": -3.6,
+   "Z": 102.9,
+   "Yaw": 182.9,
+   "Height": 4.2
+  },
+  {
+   "Name": "WarBanner",
+   "X": -15.9,
+   "Z": 80.0,
+   "Yaw": 171.0,
+   "Height": 7.5
+  },
+  {
+   "Name": "WarBanner",
+   "X": 16.2,
+   "Z": 78.7,
+   "Yaw": 191.3,
+   "Height": 7.5
+  },
+  {
+   "Name": "WarBanner",
+   "X": 45.6,
+   "Z": 68.3,
+   "Yaw": 209.1,
+   "Height": 7.5
+  },
+  {
+   "Name": "WarBanner",
+   "X": 71.3,
+   "Z": 50.3,
+   "Yaw": 225.0,
+   "Height": 7.5
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 84.0,
+   "Z": -48.7,
+   "Yaw": 20,
+   "Height": 3.2,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 80.3,
+   "Z": -62.3,
+   "Yaw": 140,
+   "Height": 4.4,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 67.4,
+   "Z": -64.8,
+   "Yaw": 260,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "WarBanner",
+   "X": 46.1,
+   "Z": -73.1,
+   "Yaw": -21.3,
+   "Height": 6.5
+  },
+  {
+   "Name": "WarBanner",
+   "X": -56.9,
+   "Z": -65.5,
+   "Yaw": 32.9,
+   "Height": 6.5
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Hound Pens",
+   "X": -83.4,
+   "Z": 10.2
+  },
+  {
+   "Name": "Raider Camp",
+   "X": -61.2,
+   "Z": 52.4
+  },
+  {
+   "Name": "The Drum Ground",
+   "X": 35.5,
+   "Z": 71.9
+  },
+  {
+   "Name": "Marauder Ridge",
+   "X": 92.3,
+   "Z": 6.1
+  },
+  {
+   "Name": "Skull Rocks",
+   "X": 55.1,
+   "Z": -66.9
+  },
+  {
+   "Name": "Burnt Ford",
+   "X": -20.8,
+   "Z": -77.8
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Tul-Gorak's War Camp",
+   "X": 27.0,
+   "Z": 98.3
+  },
+  {
+   "Name": "The Palisade",
+   "X": -27.9,
+   "Z": 107.7
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBoulder",
+   "X": -99.7,
+   "Z": -8.0,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -81.1,
+   "Z": 45.1,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 97.5,
+   "Z": 31.9,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 101.0,
+   "Z": -30.5,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 5.2,
+   "Z": -92.0,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -85.2,
+   "Z": -55.2,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A8078"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "mud",
+   "X": -85.4,
+   "Z": 22.3,
+   "Radius": 9,
+   "Height": 5.3999999999999995,
+   "Yaw": 20
+  },
+  {
+   "Name": "mud",
+   "X": 10.3,
+   "Z": 77.2,
+   "Radius": 12,
+   "Height": 7.199999999999999,
+   "Yaw": 70
+  },
+  {
+   "Name": "mud",
+   "X": 101.1,
+   "Z": -10.5,
+   "Radius": 8,
+   "Height": 4.8,
+   "Yaw": 120
+  },
+  {
+   "Name": "mud",
+   "X": -5.8,
+   "Z": -83.8,
+   "Radius": 10,
+   "Height": 6.0,
+   "Yaw": 40
+  },
+  {
+   "Name": "ash",
+   "X": 45.6,
+   "Z": 81.1,
+   "Radius": 10,
+   "Height": 7.0,
+   "Yaw": 10
+  },
+  {
+   "Name": "ash",
+   "X": -50.4,
+   "Z": -79.2,
+   "Radius": 9,
+   "Height": 6.3,
+   "Yaw": 80
+  },
+  {
+   "Name": "ash",
+   "X": -40.1,
+   "Z": 34.0,
+   "Radius": 12,
+   "Height": 8.399999999999999,
+   "Yaw": 30
+  }
+ ]
+}

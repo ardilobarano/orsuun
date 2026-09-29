@@ -1,0 +1,325 @@
+{
+ "Name": "Whitefang Range",
+ "Map": 4,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -74,
+   "y": -24
+  },
+  {
+   "x": -66,
+   "y": 34
+  },
+  {
+   "x": -30,
+   "y": 70
+  },
+  {
+   "x": 20,
+   "y": 74
+  },
+  {
+   "x": 66,
+   "y": 46
+  },
+  {
+   "x": 84,
+   "y": -4
+  },
+  {
+   "x": 60,
+   "y": -54
+  },
+  {
+   "x": 8,
+   "y": -70
+  },
+  {
+   "x": -44,
+   "y": -60
+  }
+ ],
+ "ScenerySet": "Mountain",
+ "KorstoneRing": "IceCrag",
+ "GrassCards": 620,
+ "Stones": 0,
+ "River": [
+  {
+   "x": 40,
+   "y": 160
+  },
+  {
+   "x": 46,
+   "y": 90
+  },
+  {
+   "x": 36,
+   "y": 20
+  },
+  {
+   "x": 48,
+   "y": -40
+  },
+  {
+   "x": 40,
+   "y": -160
+  }
+ ],
+ "RiverWidth": 6,
+ "WaterColor": "#A8CCE0",
+ "BankColor": "#E4ECF4",
+ "Landmarks": [
+  {
+   "Name": "MountainHut",
+   "X": -86.1,
+   "Z": 17.2,
+   "Yaw": 173.4,
+   "Height": 5
+  },
+  {
+   "Name": "MountainHut",
+   "X": -90.1,
+   "Z": 29.5,
+   "Yaw": 180.2,
+   "Height": 5
+  },
+  {
+   "Name": "MountainHut",
+   "X": -77.8,
+   "Z": 43.8,
+   "Yaw": 189.1,
+   "Height": 5
+  },
+  {
+   "Name": "IceShrine",
+   "X": 54.1,
+   "Z": 69.5,
+   "Yaw": 302.9,
+   "Height": 3.8
+  },
+  {
+   "Name": "IceCrag",
+   "X": -42.9,
+   "Z": 83.6,
+   "Yaw": 0,
+   "Height": 7
+  },
+  {
+   "Name": "IceCrag",
+   "X": -27.4,
+   "Z": 96.4,
+   "Yaw": 80,
+   "Height": 9
+  },
+  {
+   "Name": "IceCrag",
+   "X": 100.0,
+   "Z": 1.2,
+   "Yaw": 200,
+   "Height": 6
+  },
+  {
+   "Name": "IceCrag",
+   "X": 104.0,
+   "Z": -18.4,
+   "Yaw": 40,
+   "Height": 8.5
+  },
+  {
+   "Name": "IceCrag",
+   "X": -18.8,
+   "Z": -88.6,
+   "Yaw": 120,
+   "Height": 7.5
+  },
+  {
+   "Name": "IceCrag",
+   "X": -88.4,
+   "Z": -50.7,
+   "Yaw": 300,
+   "Height": 6.5
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Pine Hollow",
+   "X": -83.3,
+   "Z": -10.2
+  },
+  {
+   "Name": "Whitefang Hamlet",
+   "X": -62.4,
+   "Z": 53.6
+  },
+  {
+   "Name": "Bear Caves",
+   "X": -2.3,
+   "Z": 84.2
+  },
+  {
+   "Name": "Shrine Pass",
+   "X": 69.0,
+   "Z": 53.9
+  },
+  {
+   "Name": "Frozen Lake",
+   "X": 72.0,
+   "Z": -53.0
+  },
+  {
+   "Name": "Hag's Hollow",
+   "X": -37.4,
+   "Z": -71.7
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Whitefang Hamlet",
+   "X": -94.9,
+   "Z": 31.0
+  },
+  {
+   "Name": "The Wolf Shrine",
+   "X": 58.5,
+   "Z": 76.1
+  },
+  {
+   "Name": "Frozen Lake",
+   "X": 61.2,
+   "Z": -81.7
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "FrostPine",
+   "X": -95.5,
+   "Z": -28.8,
+   "Radius": 10,
+   "Count": 7,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": -64.1,
+   "Z": 70.2,
+   "Radius": 10,
+   "Count": 7,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": 27.8,
+   "Z": 94.7,
+   "Radius": 10,
+   "Count": 7,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": 100.9,
+   "Z": 33.1,
+   "Radius": 10,
+   "Count": 7,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": 90.2,
+   "Z": -39.2,
+   "Radius": 10,
+   "Count": 7,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": 15.8,
+   "Z": -91.5,
+   "Radius": 10,
+   "Count": 7,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": -62.4,
+   "Z": -69.5,
+   "Radius": 10,
+   "Count": 7,
+   "Height": 8
+  },
+  {
+   "Name": "FrostPine",
+   "X": -52.9,
+   "Z": 17.9,
+   "Radius": 8,
+   "Count": 4,
+   "Height": 7
+  },
+  {
+   "Name": "FrostPine",
+   "X": 52.4,
+   "Z": 34.1,
+   "Radius": 8,
+   "Count": 4,
+   "Height": 7
+  },
+  {
+   "Name": "FrostPine",
+   "X": 3.8,
+   "Z": -52.2,
+   "Radius": 8,
+   "Count": 4,
+   "Height": 7
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "ice",
+   "X": 61.2,
+   "Z": -81.7,
+   "Radius": 13,
+   "Height": 8,
+   "Yaw": 20
+  },
+  {
+   "Name": "snow",
+   "X": -90.8,
+   "Z": 0.7,
+   "Radius": 12,
+   "Height": 7.199999999999999,
+   "Yaw": 10
+  },
+  {
+   "Name": "snow",
+   "X": 2.5,
+   "Z": 58.2,
+   "Radius": 14,
+   "Height": 8.4,
+   "Yaw": 50
+  },
+  {
+   "Name": "snow",
+   "X": 86.5,
+   "Z": 40.3,
+   "Radius": 10,
+   "Height": 6.0,
+   "Yaw": 80
+  },
+  {
+   "Name": "snow",
+   "X": 25.1,
+   "Z": -51.8,
+   "Radius": 12,
+   "Height": 7.199999999999999,
+   "Yaw": 30
+  },
+  {
+   "Name": "snow",
+   "X": -62.6,
+   "Z": -61.7,
+   "Radius": 10,
+   "Height": 6.0,
+   "Yaw": 60
+  }
+ ]
+}

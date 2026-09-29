@@ -2704,3 +2704,83 @@ Birch Wood	Birkenwald
 You	Du
 Monster camp	Monsterlager
 Heroes hunting	Jagende Helden
+# Big maps: Gorak Pass, the Salt Sea and Whitefang Range (camps and places).
+Hound Pens	Hundezwinger
+Raider Camp	Räuberlager
+The Drum Ground	Trommelplatz
+Marauder Ridge	Plündererkamm
+Skull Rocks	Schädelfelsen
+Burnt Ford	Verbrannte Furt
+Tul-Gorak's War Camp	Tul-Goraks Kriegslager
+The Palisade	Der Palisadenwall
+Bone Ridge	Knochenkamm
+Wreck of the Last Caravan	Wrack der Letzten Karawane
+Pillar Field	Säulenfeld
+Oasis Shrine	Oasenschrein
+Glass Dunes	Glasdünen
+Scorpion Flats	Skorpionebene
+The Oasis	Die Oase
+The Last Caravan	Die Letzte Karawane
+Pillars of Salt	Salzsäulen
+Pine Hollow	Kiefernmulde
+Whitefang Hamlet	Weißzahn-Weiler
+Bear Caves	Bärenhöhlen
+Shrine Pass	Schreinpass
+Frozen Lake	Gefrorener See
+Hag's Hollow	Vettelmulde
+The Wolf Shrine	Der Wolfsschrein
+# Big maps 5-12 (camps and places).
+Red Grove	Roter Hain
+Stalker Trail	Pirscherpfad
+Root Hollow	Wurzelmulde
+Birch Circle	Birkenkreis
+Sap Pools	Saftteiche
+Bleeding Ford	Blutende Furt
+The Rootfather's Grove	Hain des Wurzelvaters
+Ash Fields	Aschefelder
+Hound Craters	Hundekrater
+Obsidian Spires	Obsidianspitzen
+The Burnt Watch	Die Verbrannte Wacht
+Cultist Pyres	Kultistenfeuer
+Lava Ford	Lavafurt
+The Burnt Watchtower	Der Verbrannte Wachturm
+Grave Steps	Grabstufen
+Field of Ribs	Rippenfeld
+Bone Pickers' Nest	Nest der Knochenklauber
+The Broken Colossus	Der Zerbrochene Koloss
+Siege Yard	Belagerungshof
+Giant's Rest	Riesenruh
+Reed Beds	Schilfbeete
+Serpent Pools	Schlangenteiche
+The Sunken Yurts	Die Versunkenen Jurten
+Leech Marsh	Egelsumpf
+Bog Rider Camp	Moorreiterlager
+Drowned Ford	Ertrunkene Furt
+Coil Mother's Pool	Teich der Ringelmutter
+Golden Road	Goldene Straße
+Guard Barracks	Wachkaserne
+Hound Kennels	Hundezwinger des Khans
+Throne Steps	Thronstufen
+Oath Stones	Eidsteine
+Chanters' Ring	Ring der Eidsänger
+The Khan's Standards	Die Standarten des Khans
+Palm Court	Palmenhof
+Drowned Market	Ertrunkener Markt
+Gilded Stalls	Vergoldete Stände
+Debtors' Row	Schuldnerreihe
+Cultist Steps	Kultistenstufen
+Flooded Plaza	Überflutete Plaza
+The Old Bazaar	Der Alte Basar
+Trooper Lines	Soldatenreihen
+Marker Rows	Mahnmalreihen
+Broken Standard	Gebrochene Standarte
+Rider Barrows	Reiterhügelgräber
+Captain's Mound	Hügel des Hauptmanns
+Violet Field	Violettes Feld
+Varkesh's Mound	Varkeshs Hügel
+Crooked Path	Krummer Pfad
+Old Graves	Alte Gräber
+Hanging Tree	Galgenbaum
+The Forgotten Shrine	Der Vergessene Schrein
+Widow's Pond	Witwenteich
+Mist Hollow	Nebelmulde

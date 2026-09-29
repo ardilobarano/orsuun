@@ -2628,3 +2628,83 @@ Birch Wood	Kayın Korusu
 You	Sen
 Monster camp	Canavar kampı
 Heroes hunting	Avlanan kahramanlar
+# Big maps: Gorak Pass, the Salt Sea and Whitefang Range (camps and places).
+Hound Pens	Tazı Ağılları
+Raider Camp	Akıncı Kampı
+The Drum Ground	Davul Meydanı
+Marauder Ridge	Yağmacı Sırtı
+Skull Rocks	Kafatası Kayaları
+Burnt Ford	Yanık Geçit
+Tul-Gorak's War Camp	Tul-Gorak'ın Savaş Kampı
+The Palisade	Kazıklı Çit
+Bone Ridge	Kemik Sırtı
+Wreck of the Last Caravan	Son Kervanın Enkazı
+Pillar Field	Sütunlar Ovası
+Oasis Shrine	Vaha Tapınağı
+Glass Dunes	Cam Kumulları
+Scorpion Flats	Akrep Düzlüğü
+The Oasis	Vaha
+The Last Caravan	Son Kervan
+Pillars of Salt	Tuz Sütunları
+Pine Hollow	Çam Çukuru
+Whitefang Hamlet	Akdiş Köyü
+Bear Caves	Ayı Mağaraları
+Shrine Pass	Tapınak Geçidi
+Frozen Lake	Donmuş Göl
+Hag's Hollow	Cadı Çukuru
+The Wolf Shrine	Kurt Tapınağı
+# Big maps 5-12 (camps and places).
+Red Grove	Kızıl Koru
+Stalker Trail	Sinsi Patikası
+Root Hollow	Kök Çukuru
+Birch Circle	Kayın Çemberi
+Sap Pools	Özsu Gölleri
+Bleeding Ford	Kanayan Geçit
+The Rootfather's Grove	Kökbaba'nın Korusu
+Ash Fields	Kül Tarlaları
+Hound Craters	Tazı Kraterleri
+Obsidian Spires	Obsidyen Sivri Kayalar
+The Burnt Watch	Yanık Gözcü
+Cultist Pyres	Tarikatçı Odun Yığınları
+Lava Ford	Lav Geçidi
+The Burnt Watchtower	Yanık Gözcü Kulesi
+Grave Steps	Mezar Basamakları
+Field of Ribs	Kaburga Tarlası
+Bone Pickers' Nest	Kemik Toplayıcı Yuvası
+The Broken Colossus	Kırık Dev
+Siege Yard	Kuşatma Avlusu
+Giant's Rest	Devin Uykusu
+Reed Beds	Sazlık
+Serpent Pools	Yılan Gölleri
+The Sunken Yurts	Batık Yurtlar
+Leech Marsh	Sülük Bataklığı
+Bog Rider Camp	Bataklık Süvarisi Kampı
+Drowned Ford	Boğulmuş Geçit
+Coil Mother's Pool	Halka Ana'nın Gölü
+Golden Road	Altın Yol
+Guard Barracks	Muhafız Kışlası
+Hound Kennels	Tazı Kulübeleri
+Throne Steps	Taht Basamakları
+Oath Stones	Ant Taşları
+Chanters' Ring	Okuyucular Halkası
+The Khan's Standards	Han'ın Sancakları
+Palm Court	Palmiye Avlusu
+Drowned Market	Boğulmuş Pazar
+Gilded Stalls	Yaldızlı Tezgâhlar
+Debtors' Row	Borçlular Sırası
+Cultist Steps	Tarikatçı Basamakları
+Flooded Plaza	Su Basmış Meydan
+The Old Bazaar	Eski Çarşı
+Trooper Lines	Er Safları
+Marker Rows	Nişan Taşı Sıraları
+Broken Standard	Kırık Sancak
+Rider Barrows	Süvari Höyükleri
+Captain's Mound	Yüzbaşı Höyüğü
+Violet Field	Menekşe Ovası
+Varkesh's Mound	Varkesh'in Höyüğü
+Crooked Path	Eğri Patika
+Old Graves	Eski Mezarlar
+Hanging Tree	Asılı Ağaç
+The Forgotten Shrine	Unutulmuş Tapınak
+Widow's Pond	Dul Kadının Gölü
+Mist Hollow	Sis Çukuru

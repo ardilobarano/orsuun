@@ -15,6 +15,20 @@ LAYOUTS = os.path.join(ROOT, 'client', 'Assets', 'Orsuun', 'Resources', 'FieldMa
 OUT = os.path.join(ROOT, 'docs', 'concept', 'fieldmaps')
 CONTENT = os.path.join(ROOT, 'client', 'Assets', 'Orsuun', 'Content', 'FieldMaps')
 PX = 1024
+# The lane backdrop each campaign map hunts under (LaneView.BackdropKey): its field floor gives the sketch's ground colour.
+BACKDROP = {1: 'HuntingGround', 2: 'CommanderGround', 3: 'SaltFlats', 4: 'FrostPasture', 5: 'CinderMarches', 6: 'Whisperwood',
+            7: 'Bloodbirch', 8: 'DrownedSteppe', 9: 'ColossusGraves', 10: 'SunkenBazaar', 11: 'ThousandMarkers', 12: 'HollowThrone'}
+# FieldMap.PatchLook's colours.
+PATCH = {'salt': (237, 235, 224), 'snow': (235, 242, 255), 'ice': (168, 209, 237), 'water': (56, 97, 117), 'mud': (77, 61, 46),
+         'ash': (51, 48, 48), 'lava': (255, 107, 20), 'moss': (87, 107, 51)}
+# Pictograms of the landmark models: (shape, colour, size in pixels).
+PICTO = {'Yurt': ('disc', (236, 226, 204), 11), 'Tent': ('tri', (150, 60, 40), 11), 'Watchtower': ('square', (110, 100, 90), 9),
+         'WolfDen': ('oval', (96, 84, 70), 16), 'SteppeStone': ('square', (90, 86, 84), 4), 'SteppeBoulder': ('oval', (120, 116, 108), 6),
+         'GorakTent': ('disc', (40, 36, 34), 12), 'WarDrum': ('square', (140, 100, 60), 10), 'Palisade': ('square', (100, 72, 44), 5),
+         'WarBanner': ('tri', (170, 30, 30), 7), 'DatePalm': ('disc', (70, 120, 50), 8), 'CaravanWreck': ('square', (130, 95, 60), 9),
+         'SaltPillar': ('tri', (245, 225, 225), 9), 'DesertShrine': ('disc', (80, 170, 160), 10), 'MountainHut': ('square', (90, 60, 40), 10),
+         'IceShrine': ('square', (150, 160, 170), 7), 'FrostPine': ('tri', (40, 80, 55), 8), 'IceCrag': ('tri', (120, 135, 150), 12),
+         'SteppeBirch': ('disc', (74, 110, 52), 7), 'SteppeCairn': ('disc', (128, 124, 116), 4)}
 
 
 def catmull(a, b, c, d, t):
@@ -45,42 +59,69 @@ def to_px(layout, x, z):
     return ((x / size + 0.5) * PX, (0.5 - z / size) * PX)
 
 
+def hex_rgb(h, fallback):
+    try:
+        return tuple(int(h.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+    except (ValueError, AttributeError):
+        return fallback
+
+
+def tinted(rgb, tint):
+    if not tint:
+        return rgb
+    t = hex_rgb(tint, (255, 255, 255))
+    return tuple(int(a * b / 255) for a, b in zip(rgb, t))
+
+
+def ground(layout):
+    floor = os.path.join(ROOT, 'client', 'Assets', 'Orsuun', 'Content', 'Floors', BACKDROP.get(layout.get('Map', 1), 'HuntingGround') + 'Field.jpg')
+    if not os.path.exists(floor):
+        return (196, 160, 82)
+    return Image.open(floor).convert('RGB').resize((1, 1), Image.BOX).getpixel((0, 0))
+
+
 def sketch(layout):
-    img = Image.new('RGB', (PX, PX), (196, 160, 82))
+    img = Image.new('RGB', (PX, PX), ground(layout))
     d = ImageDraw.Draw(img)
     s = PX / layout['Size']
     pts = lambda seq: [to_px(layout, p[0], p[1]) for p in seq]
+    for p in layout.get('Patches') or []:
+        kind = p['Name']
+        rx, rz = p.get('Radius', 5) * s, (p.get('Height') or p.get('Radius', 5)) * s
+        x, y = to_px(layout, p['X'], p['Z'])
+        if kind in ('water', 'ice', 'lava'):
+            rim = PATCH['snow' if kind == 'ice' else 'ash' if kind == 'lava' else 'mud']
+            d.ellipse((x - rx * 1.15, y - rz * 1.15, x + rx * 1.15, y + rz * 1.15), fill=rim)
+        d.ellipse((x - rx, y - rz, x + rx, y + rz), fill=PATCH.get(kind, (128, 115, 90)))
     if layout.get('River'):
         river = pts(curve([(p['x'], p['y']) for p in layout['River']], False))
-        d.line(river, fill=(120, 96, 60), width=int((layout['RiverWidth'] + 2.4) * s))
-        d.line(river, fill=(62, 104, 128), width=int(layout['RiverWidth'] * s))
+        d.line(river, fill=hex_rgb(layout.get('BankColor'), (120, 96, 60)), width=int((layout['RiverWidth'] + 2.4) * s))
+        d.line(river, fill=hex_rgb(layout.get('WaterColor'), (62, 104, 128)), width=int(layout['RiverWidth'] * s))
     trail = pts(curve([(p['x'], p['y']) for p in layout['Trail']], True))
     d.line(trail, fill=(222, 206, 170), width=int(3.4 * s))
+    def picto(name, x, y, tint=None, scale=1.0):
+        shape, colour, size = PICTO.get(name, ('disc', (110, 100, 90), 6))
+        colour = tinted(colour, tint)
+        r = size * scale
+        dark = tuple(int(c * 0.5) for c in colour)
+        if shape == 'tri':
+            d.polygon([(x, y - r * 1.1), (x - r, y + r * 0.7), (x + r, y + r * 0.7)], fill=colour, outline=dark)
+        elif shape == 'square':
+            d.rectangle((x - r, y - r, x + r, y + r), fill=colour, outline=dark, width=2)
+        elif shape == 'oval':
+            d.ellipse((x - r * 1.3, y - r, x + r * 1.3, y + r), fill=colour, outline=dark, width=2)
+        else:
+            d.ellipse((x - r, y - r, x + r, y + r), fill=colour, outline=dark, width=2)
+
     for g in layout.get('Groves', []):
         x, y = to_px(layout, g['X'], g['Z'])
         r = g['Radius'] * s
         for k in range(g['Count']):
             a = k * 2.4
-            px, py = x + math.cos(a) * r * 0.7, y + math.sin(a) * r * 0.7
-            if g['Name'] == 'SteppeCairn':
-                d.ellipse((px - 4, py - 4, px + 4, py + 4), fill=(128, 124, 116))
-            else:
-                d.ellipse((px - 7, py - 7, px + 7, py + 7), fill=(74, 110, 52))
+            picto(g['Name'], x + math.cos(a) * r * 0.7, y + math.sin(a) * r * 0.7, g.get('Tint'))
     for m in layout.get('Landmarks', []):
         x, y = to_px(layout, m['X'], m['Z'])
-        name = m['Name']
-        if name == 'Yurt':
-            d.ellipse((x - 11, y - 11, x + 11, y + 11), fill=(236, 226, 204), outline=(120, 70, 40), width=3)
-        elif name == 'Tent':
-            d.polygon([(x, y - 12), (x - 11, y + 8), (x + 11, y + 8)], fill=(150, 60, 40), outline=(70, 40, 20))
-        elif name == 'Watchtower':
-            d.rectangle((x - 9, y - 9, x + 9, y + 9), fill=(110, 100, 90), outline=(60, 50, 40), width=3)
-        elif name == 'WolfDen':
-            d.ellipse((x - 16, y - 12, x + 16, y + 12), fill=(96, 84, 70), outline=(50, 40, 30), width=3)
-        elif name == 'SteppeStone':
-            d.rectangle((x - 4, y - 4, x + 4, y + 4), fill=(90, 86, 84))
-        else:
-            d.ellipse((x - 6, y - 5, x + 6, y + 5), fill=(120, 116, 108))
+        picto(m['Name'], x, y, m.get('Tint'))
     return img
 
 

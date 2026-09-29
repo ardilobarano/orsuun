@@ -1,0 +1,318 @@
+{
+ "Name": "The Bloodbirch",
+ "Map": 7,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -70.2,
+   "y": 49.4
+  },
+  {
+   "x": -32.1,
+   "y": 65.2
+  },
+  {
+   "x": 8.8,
+   "y": 71.6
+  },
+  {
+   "x": 51.3,
+   "y": 51.3
+  },
+  {
+   "x": 72.6,
+   "y": 12.2
+  },
+  {
+   "x": 74.5,
+   "y": -26.7
+  },
+  {
+   "x": 64.1,
+   "y": -69.5
+  },
+  {
+   "x": 20.0,
+   "y": -85.3
+  },
+  {
+   "x": -27.6,
+   "y": -56.8
+  },
+  {
+   "x": -61.0,
+   "y": -25.2
+  },
+  {
+   "x": -83.2,
+   "y": 17.0
+  }
+ ],
+ "ScenerySet": "Forest",
+ "KorstoneRing": "SteppeStone",
+ "GrassCards": 700,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "DesertShrine",
+   "X": 89.6,
+   "Z": -8.4,
+   "Yaw": 360.0,
+   "Height": 5,
+   "Tint": "#9A6A60"
+  },
+  {
+   "Name": "IceCrag",
+   "X": -1.9,
+   "Z": 92.1,
+   "Yaw": 267.1,
+   "Height": 7,
+   "Tint": "#7A5048"
+  },
+  {
+   "Name": "IceCrag",
+   "X": -26.4,
+   "Z": -85.3,
+   "Yaw": 123.7,
+   "Height": 8,
+   "Tint": "#7A5048"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 55.2,
+   "Z": -88.0,
+   "Yaw": 64.7,
+   "Height": 3.2,
+   "Tint": "#B07060"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 45.8,
+   "Z": -95.1,
+   "Yaw": 74.1,
+   "Height": 3.4,
+   "Tint": "#B07060"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 33.8,
+   "Z": -95.0,
+   "Yaw": 84.6,
+   "Height": 3,
+   "Tint": "#B07060"
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Red Grove",
+   "X": -51.3,
+   "Z": 67.4
+  },
+  {
+   "Name": "Stalker Trail",
+   "X": 26.6,
+   "Z": 75.5
+  },
+  {
+   "Name": "Root Hollow",
+   "X": 81.4,
+   "Z": 7.7
+  },
+  {
+   "Name": "Birch Circle",
+   "X": 59.7,
+   "Z": -83.8
+  },
+  {
+   "Name": "Sap Pools",
+   "X": -25.3,
+   "Z": -68.0
+  },
+  {
+   "Name": "Bleeding Ford",
+   "X": -81.9,
+   "Z": -9.3
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Rootfather's Grove",
+   "X": 101.6,
+   "Z": -8.3
+  },
+  {
+   "Name": "Sap Pools",
+   "X": -41.7,
+   "Z": -73.8
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBirch",
+   "X": -82.3,
+   "Z": 62.7,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -40.9,
+   "Z": 85.6,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 52.0,
+   "Z": 75.7,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 82.5,
+   "Z": 50.0,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 93.4,
+   "Z": -40.3,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 5.1,
+   "Z": -101.9,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -75.0,
+   "Z": -43.0,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -103.3,
+   "Z": 25.1,
+   "Radius": 11,
+   "Count": 9,
+   "Height": 6.5,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -12.1,
+   "Z": 54.2,
+   "Radius": 9,
+   "Count": 6,
+   "Height": 6,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 59.3,
+   "Z": -17.3,
+   "Radius": 9,
+   "Count": 6,
+   "Height": 6,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": 11.5,
+   "Z": -65.1,
+   "Radius": 9,
+   "Count": 6,
+   "Height": 6,
+   "Tint": "#D05A48"
+  },
+  {
+   "Name": "SteppeBirch",
+   "X": -64.6,
+   "Z": 10.6,
+   "Radius": 9,
+   "Count": 6,
+   "Height": 6,
+   "Tint": "#D05A48"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "water",
+   "X": -39.3,
+   "Z": -70.6,
+   "Radius": 6,
+   "Height": 3.9000000000000004,
+   "Yaw": 30
+  },
+  {
+   "Name": "water",
+   "X": -53.2,
+   "Z": -69.9,
+   "Radius": 5,
+   "Height": 3.25,
+   "Yaw": 70
+  },
+  {
+   "Name": "mud",
+   "X": -29.4,
+   "Z": 80.6,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 20
+  },
+  {
+   "Name": "mud",
+   "X": 55.0,
+   "Z": -53.2,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 60
+  }
+ ],
+ "River": [
+  {
+   "x": -160,
+   "y": 20
+  },
+  {
+   "x": -80,
+   "y": 30
+  },
+  {
+   "x": 0,
+   "y": 10
+  },
+  {
+   "x": 80,
+   "y": 30
+  },
+  {
+   "x": 160,
+   "y": 20
+  }
+ ],
+ "RiverWidth": 5,
+ "WaterColor": "#6A2420",
+ "BankColor": "#3E2A22"
+}

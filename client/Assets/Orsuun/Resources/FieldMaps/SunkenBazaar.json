@@ -1,0 +1,245 @@
+{
+ "Name": "The Sunken Bazaar",
+ "Map": 10,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -10.7,
+   "y": -75.2
+  },
+  {
+   "x": -53.5,
+   "y": -58.6
+  },
+  {
+   "x": -72.1,
+   "y": -16.4
+  },
+  {
+   "x": -64.0,
+   "y": 23.3
+  },
+  {
+   "x": -51.1,
+   "y": 62.0
+  },
+  {
+   "x": -14.7,
+   "y": 85.4
+  },
+  {
+   "x": 30.6,
+   "y": 72.8
+  },
+  {
+   "x": 62.6,
+   "y": 40.9
+  },
+  {
+   "x": 76.6,
+   "y": -5.4
+  },
+  {
+   "x": 60.5,
+   "y": -48.9
+  },
+  {
+   "x": 22.9,
+   "y": -67.9
+  }
+ ],
+ "ScenerySet": "Desert",
+ "KorstoneRing": "SaltPillar",
+ "GrassCards": 700,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "DesertShrine",
+   "X": -65.1,
+   "Z": -66.8,
+   "Yaw": 139.4,
+   "Height": 5.5
+  },
+  {
+   "Name": "DesertShrine",
+   "X": 59.3,
+   "Z": 68.0,
+   "Yaw": 317.1,
+   "Height": 5
+  },
+  {
+   "Name": "Tent",
+   "X": -73.2,
+   "Z": 36.7,
+   "Yaw": 191.3,
+   "Height": 3.4,
+   "Tint": "#D8B060"
+  },
+  {
+   "Name": "Tent",
+   "X": -74.9,
+   "Z": 47.2,
+   "Yaw": 194.7,
+   "Height": 3.2,
+   "Tint": "#D8B060"
+  },
+  {
+   "Name": "Tent",
+   "X": -67.4,
+   "Z": 57.4,
+   "Yaw": 204.0,
+   "Height": 3.6,
+   "Tint": "#D8B060"
+  },
+  {
+   "Name": "CaravanWreck",
+   "X": -11.4,
+   "Z": 98.7,
+   "Yaw": 270.0,
+   "Height": 3
+  },
+  {
+   "Name": "CaravanWreck",
+   "X": 83.8,
+   "Z": -36.7,
+   "Yaw": 22.8,
+   "Height": 2.8
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 92.6,
+   "Z": 21.5,
+   "Yaw": 346.0,
+   "Height": 7,
+   "Tint": "#D8B070"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 100.1,
+   "Z": 11.4,
+   "Yaw": 351.5,
+   "Height": 5.5,
+   "Tint": "#D8B070"
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Palm Court",
+   "X": -31.1,
+   "Z": -78.5
+  },
+  {
+   "Name": "Drowned Market",
+   "X": -79.3,
+   "Z": -24.5
+  },
+  {
+   "Name": "Gilded Stalls",
+   "X": -65.2,
+   "Z": 50.4
+  },
+  {
+   "Name": "Debtors' Row",
+   "X": -0.3,
+   "Z": 93.3
+  },
+  {
+   "Name": "Cultist Steps",
+   "X": 65.0,
+   "Z": 51.0
+  },
+  {
+   "Name": "Flooded Plaza",
+   "X": 67.6,
+   "Z": -53.7
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Old Bazaar",
+   "X": -86.5,
+   "Z": 50.2
+  },
+  {
+   "Name": "Palm Court",
+   "X": -24.9,
+   "Z": -97.1
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "DatePalm",
+   "X": -24.1,
+   "Z": -93.2,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 7
+  },
+  {
+   "Name": "DatePalm",
+   "X": -93.3,
+   "Z": 0.3,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 7
+  },
+  {
+   "Name": "DatePalm",
+   "X": 47.0,
+   "Z": 88.5,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 7
+  },
+  {
+   "Name": "DatePalm",
+   "X": 33.8,
+   "Z": -85.3,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 7
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "water",
+   "X": -87.4,
+   "Z": -38.7,
+   "Radius": 9,
+   "Height": 5.8500000000000005,
+   "Yaw": 20
+  },
+  {
+   "Name": "water",
+   "X": 77.9,
+   "Z": -62.4,
+   "Radius": 11,
+   "Height": 7.15,
+   "Yaw": 60
+  },
+  {
+   "Name": "water",
+   "X": -26.8,
+   "Z": 60.6,
+   "Radius": 8,
+   "Height": 5.2,
+   "Yaw": 30
+  },
+  {
+   "Name": "salt",
+   "X": -49.1,
+   "Z": 10.2,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 10
+  },
+  {
+   "Name": "salt",
+   "X": 48.3,
+   "Z": 25.3,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 80
+  }
+ ]
+}

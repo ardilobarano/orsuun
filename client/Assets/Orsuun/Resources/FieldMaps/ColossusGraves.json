@@ -1,0 +1,261 @@
+{
+ "Name": "Colossus Graves",
+ "Map": 9,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -38.4,
+   "y": 64.4
+  },
+  {
+   "x": 0.7,
+   "y": 78.7
+  },
+  {
+   "x": 43.9,
+   "y": 63.7
+  },
+  {
+   "x": 62.9,
+   "y": 22.9
+  },
+  {
+   "x": 71.0,
+   "y": -16.4
+  },
+  {
+   "x": 64.9,
+   "y": -59.6
+  },
+  {
+   "x": 26.9,
+   "y": -85.4
+  },
+  {
+   "x": -18.5,
+   "y": -72.9
+  },
+  {
+   "x": -54.4,
+   "y": -41.7
+  },
+  {
+   "x": -76.9,
+   "y": 0.9
+  },
+  {
+   "x": -64.5,
+   "y": 43.5
+  }
+ ],
+ "ScenerySet": "Ruins",
+ "KorstoneRing": "SaltPillar",
+ "GrassCards": 700,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "SaltPillar",
+   "X": 61.0,
+   "Z": 65.0,
+   "Yaw": 30,
+   "Height": 9,
+   "Tint": "#E0D6C4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 70.5,
+   "Z": 55.8,
+   "Yaw": 60,
+   "Height": 11,
+   "Tint": "#E0D6C4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 71.0,
+   "Z": 43.5,
+   "Yaw": 90,
+   "Height": 10,
+   "Tint": "#E0D6C4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 77.7,
+   "Z": 35.6,
+   "Yaw": 120,
+   "Height": 12,
+   "Tint": "#E0D6C4"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 76.8,
+   "Z": 25.3,
+   "Yaw": 150,
+   "Height": 9,
+   "Tint": "#E0D6C4"
+  },
+  {
+   "Name": "IceCrag",
+   "X": 57.3,
+   "Z": -94.1,
+   "Yaw": 59.9,
+   "Height": 10,
+   "Tint": "#9A9080"
+  },
+  {
+   "Name": "IceCrag",
+   "X": 41.6,
+   "Z": -108.4,
+   "Yaw": 72.5,
+   "Height": 8,
+   "Tint": "#9A9080"
+  },
+  {
+   "Name": "Watchtower",
+   "X": -51.9,
+   "Z": -68.1,
+   "Yaw": 135.0,
+   "Height": 9,
+   "Tint": "#A09888"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -86.7,
+   "Z": 12.1,
+   "Yaw": 188.5,
+   "Height": 3,
+   "Tint": "#B0A898"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -87.0,
+   "Z": 21.0,
+   "Yaw": 196.7,
+   "Height": 3.2,
+   "Tint": "#B0A898"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -82.6,
+   "Z": 28.4,
+   "Yaw": 200.2,
+   "Height": 2.8,
+   "Tint": "#B0A898"
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Grave Steps",
+   "X": -19.7,
+   "Z": 82.0
+  },
+  {
+   "Name": "Field of Ribs",
+   "X": 61.8,
+   "Z": 52.0
+  },
+  {
+   "Name": "Bone Pickers' Nest",
+   "X": 78.7,
+   "Z": -27.3
+  },
+  {
+   "Name": "The Broken Colossus",
+   "X": 41.6,
+   "Z": -89.6
+  },
+  {
+   "Name": "Siege Yard",
+   "X": -46.0,
+   "Z": -61.9
+  },
+  {
+   "Name": "Giant's Rest",
+   "X": -84.1,
+   "Z": 17.8
+  }
+ ],
+ "Places": [
+  {
+   "Name": "Field of Ribs",
+   "X": 86.1,
+   "Z": 48.6
+  },
+  {
+   "Name": "The Broken Colossus",
+   "X": 58.4,
+   "Z": -107.4
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBoulder",
+   "X": 9.7,
+   "Z": 98.1,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 3,
+   "Tint": "#9A9080"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 91.0,
+   "Z": -16.8,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 3,
+   "Tint": "#9A9080"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -16.9,
+   "Z": -96.0,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 3,
+   "Tint": "#9A9080"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -73.1,
+   "Z": 64.9,
+   "Radius": 9,
+   "Count": 5,
+   "Height": 3,
+   "Tint": "#9A9080"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "ash",
+   "X": 31.1,
+   "Z": 89.0,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 20
+  },
+  {
+   "Name": "ash",
+   "X": 52.3,
+   "Z": -49.3,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 70
+  },
+  {
+   "Name": "ash",
+   "X": -77.5,
+   "Z": -33.5,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 30
+  },
+  {
+   "Name": "mud",
+   "X": 6.3,
+   "Z": -64.5,
+   "Radius": 11,
+   "Height": 7.15,
+   "Yaw": 50
+  }
+ ]
+}

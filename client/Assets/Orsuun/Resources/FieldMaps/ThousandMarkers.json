@@ -1,0 +1,388 @@
+{
+ "Name": "The Thousand Markers",
+ "Map": 11,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": 13.7,
+   "y": 84.4
+  },
+  {
+   "x": 52.1,
+   "y": 61.0
+  },
+  {
+   "x": 65.2,
+   "y": 18.0
+  },
+  {
+   "x": 63.8,
+   "y": -23.2
+  },
+  {
+   "x": 50.0,
+   "y": -66.3
+  },
+  {
+   "x": 10.8,
+   "y": -83.5
+  },
+  {
+   "x": -30.4,
+   "y": -73.3
+  },
+  {
+   "x": -66.2,
+   "y": -47.7
+  },
+  {
+   "x": -75.3,
+   "y": 3.3
+  },
+  {
+   "x": -52.7,
+   "y": 45.4
+  },
+  {
+   "x": -19.9,
+   "y": 69.4
+  }
+ ],
+ "ScenerySet": "Ruins",
+ "KorstoneRing": "SteppeStone",
+ "GrassCards": 700,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "SteppeStone",
+   "X": 76.5,
+   "Z": 23.5,
+   "Yaw": 0,
+   "Height": 2.6,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 77.4,
+   "Z": 17.4,
+   "Yaw": 0,
+   "Height": 3.0,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 78.0,
+   "Z": 10.8,
+   "Yaw": 0,
+   "Height": 3.4000000000000004,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 78.3,
+   "Z": 4.3,
+   "Yaw": 0,
+   "Height": 2.6,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 78.2,
+   "Z": -2.1,
+   "Yaw": 0,
+   "Height": 3.0,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 77.8,
+   "Z": -8.4,
+   "Yaw": 0,
+   "Height": 3.4000000000000004,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 81.5,
+   "Z": 24.2,
+   "Yaw": 0,
+   "Height": 2.6,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 82.3,
+   "Z": 18.0,
+   "Yaw": 0,
+   "Height": 3.0,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 83.0,
+   "Z": 11.1,
+   "Yaw": 0,
+   "Height": 3.4000000000000004,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 83.3,
+   "Z": 4.4,
+   "Yaw": 0,
+   "Height": 2.6,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 83.2,
+   "Z": -2.3,
+   "Yaw": 0,
+   "Height": 3.0,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 82.8,
+   "Z": -8.8,
+   "Yaw": 0,
+   "Height": 3.4000000000000004,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 86.4,
+   "Z": 24.9,
+   "Yaw": 0,
+   "Height": 2.6,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 87.3,
+   "Z": 18.5,
+   "Yaw": 0,
+   "Height": 3.0,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 88.0,
+   "Z": 11.5,
+   "Yaw": 0,
+   "Height": 3.4000000000000004,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 88.3,
+   "Z": 4.5,
+   "Yaw": 0,
+   "Height": 2.6,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 88.2,
+   "Z": -2.4,
+   "Yaw": 0,
+   "Height": 3.0,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": 87.8,
+   "Z": -9.3,
+   "Yaw": 0,
+   "Height": 3.4000000000000004,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "WarBanner",
+   "X": 58.9,
+   "Z": -69.6,
+   "Yaw": 35.5,
+   "Height": 6.5,
+   "Tint": "#7A6A9A"
+  },
+  {
+   "Name": "WarBanner",
+   "X": 40.4,
+   "Z": -84.4,
+   "Yaw": 64.7,
+   "Height": 6.5,
+   "Tint": "#7A6A9A"
+  },
+  {
+   "Name": "WarBanner",
+   "X": 20.3,
+   "Z": -91.2,
+   "Yaw": 81.5,
+   "Height": 6.5,
+   "Tint": "#7A6A9A"
+  },
+  {
+   "Name": "Palisade",
+   "X": -62.2,
+   "Z": -69.4,
+   "Yaw": 128.7,
+   "Height": 3.6,
+   "Tint": "#6A6070"
+  },
+  {
+   "Name": "Palisade",
+   "X": -69.0,
+   "Z": -64.2,
+   "Yaw": 135.0,
+   "Height": 3.4,
+   "Tint": "#6A6070"
+  },
+  {
+   "Name": "Watchtower",
+   "X": -83.9,
+   "Z": 27.7,
+   "Yaw": 207.8,
+   "Height": 9.5,
+   "Tint": "#7A7488"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -36.0,
+   "Z": 73.9,
+   "Yaw": 0,
+   "Height": 2.8,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -30.8,
+   "Z": 76.9,
+   "Yaw": 0,
+   "Height": 2.8,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -26.0,
+   "Z": 79.7,
+   "Yaw": 0,
+   "Height": 2.8,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -22.0,
+   "Z": 82.2,
+   "Yaw": 0,
+   "Height": 2.8,
+   "Tint": "#8A80A0"
+  },
+  {
+   "Name": "SteppeStone",
+   "X": -16.7,
+   "Z": 85.7,
+   "Yaw": 0,
+   "Height": 2.8,
+   "Tint": "#8A80A0"
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Trooper Lines",
+   "X": 39.7,
+   "Z": 81.7
+  },
+  {
+   "Name": "Marker Rows",
+   "X": 74.7,
+   "Z": 7.4
+  },
+  {
+   "Name": "Broken Standard",
+   "X": 39.7,
+   "Z": -83.0
+  },
+  {
+   "Name": "Rider Barrows",
+   "X": -50.6,
+   "Z": -72.8
+  },
+  {
+   "Name": "Captain's Mound",
+   "X": -82.9,
+   "Z": 3.4
+  },
+  {
+   "Name": "Violet Field",
+   "X": -43.0,
+   "Z": 65.3
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Thousand Markers",
+   "X": 98.3,
+   "Z": 2.1
+  },
+  {
+   "Name": "Varkesh's Mound",
+   "X": -101.5,
+   "Z": 21.9
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBoulder",
+   "X": 70.6,
+   "Z": 69.4,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.4,
+   "Tint": "#7A7488"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -16.1,
+   "Z": -100.1,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.4,
+   "Tint": "#7A7488"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -93.4,
+   "Z": -30.4,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.4,
+   "Tint": "#7A7488"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "ash",
+   "X": 71.2,
+   "Z": 55.0,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 20
+  },
+  {
+   "Name": "ash",
+   "X": 8.4,
+   "Z": -67.6,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 60
+  },
+  {
+   "Name": "ash",
+   "X": -64.9,
+   "Z": 55.8,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 10
+  }
+ ]
+}

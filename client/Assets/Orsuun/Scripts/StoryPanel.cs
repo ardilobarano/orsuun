@@ -135,10 +135,14 @@ namespace Orsuun.Client
             }
             // Not over another screen, a replay (the win's banner comes first) or the guide.
             bool busy = _root.Replaying || _root.PushBusy || _root.Title.Showing || _root.Account.Showing || _root.Oath.Showing
-                        || _root.Characters.IsOpen || _root.Tutorial.Running || server.WaitingForHero;
+                        || _root.Characters.IsOpen || _root.Tutorial.Running || server.WaitingForHero || QuietForShot;
             if (busy || _shown >= Beats.Length * 2 || !Reached(_shown, cleared, guideDone)) return;
             Show(_shown);
         }
+
+        /// <summary>Screenshots (-shot) tell no story on their own, like the title and the guide: only -story shows one.</summary>
+        private static readonly bool QuietForShot = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-shot") >= 0
+                                                    && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-story") < 0;
 
         /// <summary>Screenshots: -story n shows beat n (0 the Oathfields opening, 1 Greyjaw falling, ...).</summary>
         public void ShowForShot(int beat) => Show(Mathf.Clamp(beat, 0, Beats.Length * 2 - 1));

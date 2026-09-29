@@ -25,6 +25,8 @@ namespace Orsuun.Client
             public string Name;
             public float X, Z, Yaw, Height, Radius;
             public int Count;
+            /// <summary>A model's colour ("#RRGGBB", multiplied into its paint), so one model serves several maps.</summary>
+            public string Tint;
             public Vector2 At => new Vector2(X, Z);
         }
 
@@ -43,6 +45,11 @@ namespace Orsuun.Client
             /// <summary>The trail's control points, a closed loop (smoothed through them), and the river's course (open).</summary>
             public Vector2[] Trail, River;
             public float RiverWidth = 7f;
+            /// <summary>The river's water and bank colours (a frozen stream, a lava channel).</summary>
+            public string WaterColor = "#3D667A", BankColor = "#5C4D33";
+            /// <summary>Flat patches on the ground, Name their kind (salt, snow, ice, water, mud, ash, lava, moss): an uneven
+            /// ellipse of Radius by Height metres turned by Yaw. Water and ice lie in a rim of bank.</summary>
+            public Spot[] Patches;
             /// <summary>Models from Content/Scenery/Models; where monsters wait and other players hunt; named places for the
             /// full map; groves of 3D props.</summary>
             public Spot[] Landmarks, Camps, Places, Groves;
@@ -82,6 +89,7 @@ namespace Orsuun.Client
         private const float TurnAhead = 6f, TrailWidth = 3.4f, Spacing = 1f;
 
         private Layout _layout;
+        private string _key;
         private Transform _root;
         private readonly List<Vector3> _trail = new List<Vector3>();
         private readonly List<float> _along = new List<float>();
@@ -106,6 +114,7 @@ namespace Orsuun.Client
         {
             _hero = hero;
             if (layout == _layout && _root != null) { _root.gameObject.SetActive(true); return; }
+            _key = backdropKey;
             Clear();
             _layout = layout;
             if (layout == null) return;
@@ -116,6 +125,7 @@ namespace Orsuun.Client
             BuildGround(backdropKey);
             BuildTrailMesh(backdropKey);
             if (layout.River != null && layout.River.Length >= 2) BuildRiver(layout);
+            if (layout.Patches != null) foreach (Spot patch in layout.Patches) Patch(patch);
             BuildLandmarks(layout);
             Scatter(layout);
             _s = float.TryParse(Arg("-mapat"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
@@ -327,12 +337,8 @@ namespace Orsuun.Client
                 }
             }
             course.Add(new Vector3(p[p.Length - 1].x, 0f, p[p.Length - 1].y));
-            var water = NewLit();
-            water.SetColor("_BaseColor", new Color(0.24f, 0.4f, 0.48f));
-            water.SetFloat("_Smoothness", 0.92f);
-            var bank = NewLit();
-            bank.SetColor("_BaseColor", new Color(0.36f, 0.3f, 0.2f));
-            bank.SetFloat("_Smoothness", 0.1f);
+            Material water = Flat(ColorUtility.TryParseHtmlString(layout.WaterColor, out Color waterColor) ? waterColor : new Color(0.24f, 0.4f, 0.48f), 0.92f);
+            Material bank = Flat(ColorUtility.TryParseHtmlString(layout.BankColor, out Color bankColor) ? bankColor : new Color(0.36f, 0.3f, 0.2f), 0.1f);
             Part("RiverBank", Strip(course, layout.RiverWidth + 2.4f, 0.01f), bank);
             Part("River", Strip(course, layout.RiverWidth, 0.03f), water);
             Reeds(course, layout.RiverWidth);
@@ -436,24 +442,28 @@ namespace Orsuun.Client
         private void BuildLandmarks(Layout layout)
         {
             foreach (Spot spot in layout.Landmarks ?? new Spot[0])
-                Model(spot.Name, new Vector3(spot.X, 0f, spot.Z), spot.Yaw, spot.Height);
+                Model(spot.Name, new Vector3(spot.X, 0f, spot.Z), spot.Yaw, spot.Height, spot.Tint);
             var rng = new System.Random(Seed(layout.Name));
             foreach (Spot grove in layout.Groves ?? new Spot[0])
                 for (int i = 0; i < grove.Count; i++)
                 {
                     float a = (float)rng.NextDouble() * Mathf.PI * 2f, r = grove.Radius * Mathf.Sqrt((float)rng.NextDouble());
-                    Model(grove.Name, new Vector3(grove.X + Mathf.Cos(a) * r, 0f, grove.Z + Mathf.Sin(a) * r), (float)rng.NextDouble() * 360f,
-                        grove.Height * (0.8f + (float)rng.NextDouble() * 0.4f));
+                    var at = new Vector3(grove.X + Mathf.Cos(a) * r, 0f, grove.Z + Mathf.Sin(a) * r);
+                    float yaw = (float)rng.NextDouble() * 360f, grown = grove.Height * (0.8f + (float)rng.NextDouble() * 0.4f);
+                    // No tree in the river or on the trail.
+                    if (NearRiver(layout, at) || NearTrail(at, 3f)) continue;
+                    Model(grove.Name, at, yaw, grown, grove.Tint);
                 }
         }
 
         /// <summary>A model standing on the map (a metre tall at scale 1, like the scenery's), or nothing without its art.</summary>
-        private void Model(string name, Vector3 at, float yaw, float height) => PlaceModel(_root, name, at, yaw, height);
+        private void Model(string name, Vector3 at, float yaw, float height, string tint = null) => PlaceModel(_root, name, at, yaw, height, tint);
 
         /// <summary>A scenery model (Content/Scenery/Models, a metre tall at scale 1) under <paramref name="parent"/>, or null
         /// without its art.</summary>
-        internal static Transform PlaceModel(Transform parent, string name, Vector3 at, float yaw, float height)
+        internal static Transform PlaceModel(Transform parent, string name, Vector3 at, float yaw, float height, string tint = null)
         {
+            Color? shade = !string.IsNullOrEmpty(tint) && ColorUtility.TryParseHtmlString(tint, out Color c) ? c : (Color?)null;
             var prefab = Art.Load<GameObject>("Scenery/Models/" + name);
             if (prefab == null) return null;
             GameObject go = Instantiate(prefab, parent);
@@ -467,6 +477,13 @@ namespace Orsuun.Client
                 if (material != null) r.sharedMaterial = material;
                 r.shadowCastingMode = ShadowCastingMode.Off;
                 r.receiveShadows = false;
+                if (shade.HasValue)
+                {
+                    _tintBlock ??= new MaterialPropertyBlock();
+                    r.GetPropertyBlock(_tintBlock);
+                    _tintBlock.SetColor("_BaseColor", shade.Value);
+                    r.SetPropertyBlock(_tintBlock);
+                }
             }
             return go.transform;
         }
@@ -535,6 +552,100 @@ namespace Orsuun.Client
             for (int i = 0; i < _trail.Count; i += 2)
                 if ((_trail[i] - at).sqrMagnitude < c2) return true;
             return false;
+        }
+
+        private static MaterialPropertyBlock _tintBlock;
+
+        // ------------------------------------------------------------------ patches on the ground
+
+        /// <summary>A patch kind's colour and gloss.</summary>
+        private static (Color color, float gloss) PatchLook(string kind) => kind switch
+        {
+            "salt" => (new Color(0.93f, 0.92f, 0.88f), 0.3f),
+            "snow" => (new Color(0.92f, 0.95f, 1f), 0.2f),
+            "ice" => (new Color(0.66f, 0.82f, 0.93f), 0.9f),
+            "water" => (new Color(0.22f, 0.38f, 0.46f), 0.92f),
+            "mud" => (new Color(0.3f, 0.24f, 0.18f), 0.35f),
+            "ash" => (new Color(0.2f, 0.19f, 0.19f), 0.1f),
+            "lava" => (new Color(1f, 0.42f, 0.08f), 0.6f),
+            "moss" => (new Color(0.34f, 0.42f, 0.2f), 0.1f),
+            _ => (new Color(0.5f, 0.45f, 0.35f), 0.1f),
+        };
+
+        /// <summary>A dry patch's tint over the map's own ground (so a salt pan or a mud patch keeps the ground's grain).</summary>
+        private static Color GroundTint(string kind) => kind switch
+        {
+            "salt" => new Color(1.3f, 1.27f, 1.2f),
+            "snow" => new Color(1.25f, 1.28f, 1.35f),
+            "mud" => new Color(0.55f, 0.45f, 0.38f),
+            "ash" => new Color(0.32f, 0.3f, 0.3f),
+            "moss" => new Color(0.55f, 0.78f, 0.4f),
+            _ => new Color(0.8f, 0.75f, 0.65f),
+        };
+
+        /// <summary>A flat patch: an uneven ellipse (its edge wanders, so it reads as a pan or a pool, not a disc). Water, ice
+        /// and lava are smooth colour in a rim of bank; dry kinds are the map's ground, tinted.</summary>
+        private void Patch(Spot spot)
+        {
+            (Color color, float gloss) = PatchLook(spot.Name);
+            bool wet = spot.Name == "water" || spot.Name == "ice" || spot.Name == "lava";
+            if (wet)
+            {
+                string rimKind = spot.Name == "ice" ? "snow" : spot.Name == "lava" ? "ash" : "mud";
+                Part("PatchRim", Ellipse(spot, 1.15f, 0.012f), Ground(rimKind));
+                Part("Patch", Ellipse(spot, 1f, 0.03f), Flat(color, gloss));
+                return;
+            }
+            Part("Patch", Ellipse(spot, 1f, 0.015f), Ground(spot.Name));
+        }
+
+        private Material Ground(string kind)
+        {
+            var tex = Art.Load<Texture2D>("Floors/" + _key + "Field");
+            if (tex == null) return Flat(PatchLook(kind).color, 0.1f);
+            Material m = NewLit();
+            m.SetTexture("_BaseMap", tex);
+            m.SetColor("_BaseColor", GroundTint(kind));
+            m.SetFloat("_Smoothness", kind == "snow" || kind == "salt" ? 0.25f : 0.06f);
+            return m;
+        }
+
+        private static Material Flat(Color color, float gloss)
+        {
+            Material m = NewLit();
+            m.SetColor("_BaseColor", color);
+            m.SetFloat("_Smoothness", gloss);
+            return m;
+        }
+
+        private static Mesh Ellipse(Spot spot, float grow, float y)
+        {
+            const int n = 40;
+            var vs = new Vector3[n + 1];
+            var tris = new int[n * 3];
+            var q = Quaternion.Euler(0f, spot.Yaw, 0f);
+            float rx = Mathf.Max(0.5f, spot.Radius) * grow, rz = Mathf.Max(0.5f, spot.Height > 0f ? spot.Height : spot.Radius) * grow;
+            vs[0] = new Vector3(spot.X, y, spot.Z);
+            for (int i = 0; i < n; i++)
+            {
+                float a = i * Mathf.PI * 2f / n;
+                // A wandering edge, the same each time the map is built.
+                float wobble = 0.86f + 0.14f * Mathf.Sin(a * 3f + spot.X) * Mathf.Cos(a * 5f + spot.Z);
+                vs[i + 1] = vs[0] + q * new Vector3(Mathf.Cos(a) * rx * wobble, 0f, Mathf.Sin(a) * rz * wobble);
+                tris[i * 3] = 0;
+                tris[i * 3 + 1] = (i + 1) % n + 1;
+                tris[i * 3 + 2] = i + 1;
+            }
+            // The ground's texture lies on it at the ground's own scale (a tile every 6 m).
+            var uv = new Vector2[vs.Length];
+            for (int i = 0; i < vs.Length; i++) uv[i] = new Vector2(vs[i].x / 6f, vs[i].z / 6f);
+            var mesh = new Mesh { name = "Patch" };
+            mesh.vertices = vs;
+            mesh.uv = uv;
+            mesh.triangles = tris;
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            return mesh;
         }
 
         private static bool NearRiver(Layout layout, Vector3 at)

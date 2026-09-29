@@ -2666,3 +2666,83 @@ Birch Wood	Pădurea de Mesteceni
 You	Tu
 Monster camp	Tabără de monștri
 Heroes hunting	Eroi la vânătoare
+# Big maps: Gorak Pass, the Salt Sea and Whitefang Range (camps and places).
+Hound Pens	Țarcurile Câinilor
+Raider Camp	Tabăra Prădătorilor
+The Drum Ground	Locul Tobei
+Marauder Ridge	Creasta Jefuitorilor
+Skull Rocks	Stâncile Craniului
+Burnt Ford	Vadul Ars
+Tul-Gorak's War Camp	Tabăra de Război a lui Tul-Gorak
+The Palisade	Palisada
+Bone Ridge	Creasta Oaselor
+Wreck of the Last Caravan	Epava Ultimei Caravane
+Pillar Field	Câmpul Stâlpilor
+Oasis Shrine	Altarul Oazei
+Glass Dunes	Dunele de Sticlă
+Scorpion Flats	Câmpia Scorpionilor
+The Oasis	Oaza
+The Last Caravan	Ultima Caravană
+Pillars of Salt	Stâlpii de Sare
+Pine Hollow	Scobitura Pinilor
+Whitefang Hamlet	Cătunul Colț-Alb
+Bear Caves	Peșterile Urșilor
+Shrine Pass	Trecătoarea Altarului
+Frozen Lake	Lacul Înghețat
+Hag's Hollow	Scobitura Babei
+The Wolf Shrine	Altarul Lupului
+# Big maps 5-12 (camps and places).
+Red Grove	Crângul Roșu
+Stalker Trail	Cărarea Pânditorilor
+Root Hollow	Scobitura Rădăcinilor
+Birch Circle	Cercul Mestecenilor
+Sap Pools	Bălțile de Sevă
+Bleeding Ford	Vadul Sângerând
+The Rootfather's Grove	Crângul Tatălui Rădăcinilor
+Ash Fields	Câmpiile de Cenușă
+Hound Craters	Craterele Câinilor
+Obsidian Spires	Turlele de Obsidian
+The Burnt Watch	Straja Arsă
+Cultist Pyres	Rugurile Sectanților
+Lava Ford	Vadul de Lavă
+The Burnt Watchtower	Turnul de Veghe Ars
+Grave Steps	Treptele Mormintelor
+Field of Ribs	Câmpul Coastelor
+Bone Pickers' Nest	Cuibul Culegătorilor de Oase
+The Broken Colossus	Colosul Frânt
+Siege Yard	Curtea Asediului
+Giant's Rest	Odihna Uriașului
+Reed Beds	Stufărișuri
+Serpent Pools	Bălțile Șerpilor
+The Sunken Yurts	Iurtele Scufundate
+Leech Marsh	Mlaștina Lipitorilor
+Bog Rider Camp	Tabăra Călăreților Mlaștinii
+Drowned Ford	Vadul Înecat
+Coil Mother's Pool	Iazul Mamei Colacilor
+Golden Road	Drumul de Aur
+Guard Barracks	Cazarma Gărzii
+Hound Kennels	Cotețele Câinilor
+Throne Steps	Treptele Tronului
+Oath Stones	Pietrele Jurământului
+Chanters' Ring	Cercul Descântătorilor
+The Khan's Standards	Stindardele Hanului
+Palm Court	Curtea Palmierilor
+Drowned Market	Piața Înecată
+Gilded Stalls	Tarabele Aurite
+Debtors' Row	Șirul Datornicilor
+Cultist Steps	Treptele Sectanților
+Flooded Plaza	Piața Inundată
+The Old Bazaar	Vechiul Bazar
+Trooper Lines	Rândurile Soldaților
+Marker Rows	Șirurile de Borne
+Broken Standard	Stindardul Frânt
+Rider Barrows	Movilele Călăreților
+Captain's Mound	Movila Căpitanului
+Violet Field	Câmpul Violet
+Varkesh's Mound	Movila lui Varkesh
+Crooked Path	Cărarea Strâmbă
+Old Graves	Mormintele Vechi
+Hanging Tree	Copacul Spânzuraților
+The Forgotten Shrine	Altarul Uitat
+Widow's Pond	Iazul Văduvei
+Mist Hollow	Scobitura Ceții

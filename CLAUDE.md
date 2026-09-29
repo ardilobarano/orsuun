@@ -328,9 +328,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - The Bannerkin (`Rules.Bannerkin`): her pieces are items with `Kin`; the ones she wears have `KinWorn` (out of the bag,
   never `Equipped`), so hero queries on `Equipped` stay the hero's. SQL bag counts add `!i.KinWorn`; a broken piece goes
   through `BreakPiece`. Her stats reach combat only as `HeroStats.Kin` from `FromEquipment(..., kin:)` on both sides.
-- Big maps (`FieldMap`, 28 Sep 2026; the Oathfields first): a layout per map in `Resources/FieldMaps/<Name>.json` (its
+- Big maps (`FieldMap`, 28-29 Sep 2026; every campaign map): a layout per map in `Resources/FieldMaps/<Name>.json` (its
   `Map` id; trail clockwise, so the camera, which looks across the hero's left, sees the loop's outside: landmarks and
-  camps go there, 7-25 m off the trail). The map moves and turns under the fixed hero (camera, fights and ring unchanged);
+  camps go there, 7-25 m off the trail). Maps 2-12 are written by `tools/art/field_layouts.py` (edit it, not the JSON);
+  models take a `Tint`, the ground `Patches`, the river its colours, each map its `KorstoneRing` model. The map moves and turns under the fixed hero (camera, fights and ring unchanged);
   presentation only. Its full map is `Content/FieldMaps/<Name>.jpg`: `tools/art/field_map.py <Name>` draws the sketch,
   GPT Image 2.5 paints over it, `--finish` writes the game's copy and a check overlay. Camp and place names need Loc lines.
   `-mapat <m>` holds the hero on the trail, `-mapview` looks down on the whole map, `-mapshow` opens the full map.

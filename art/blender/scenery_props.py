@@ -21,6 +21,19 @@ PROPS = {
     "Watchtower": ("watchtower-tripo.glb", 5000, -90),
     "Tent": ("tent-tripo.glb", 3500, -90),
     "WolfDen": ("wolfden-tripo.glb", 5000, -90),
+    # Gorak Pass, the Salt Sea and Whitefang Range (29 Sep 2026), from docs/concept/scenery/landmarks.
+    "GorakTent": ("gorak-tent-tripo.glb", 5000, -90),
+    "WarDrum": ("war-drum-tripo.glb", 5000, -90),
+    "Palisade": ("palisade-tripo.glb", 3500, -90),
+    "WarBanner": ("war-banner-tripo.glb", 3000, -90),
+    "DatePalm": ("date-palm-tripo.glb", 5000, -90),
+    "CaravanWreck": ("caravan-wreck-tripo.glb", 5000, -90),
+    "SaltPillar": ("salt-pillar-tripo.glb", 3500, -90),
+    "DesertShrine": ("desert-shrine-tripo.glb", 5000, -90),
+    "MountainHut": ("mountain-hut-tripo.glb", 5000, -90),
+    "IceShrine": ("ice-shrine-tripo.glb", 4000, -90),
+    "FrostPine": ("frost-pine-tripo.glb", 5000, -90),
+    "IceCrag": ("ice-crag-tripo.glb", 4000, -90),
 }
 names = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv and sys.argv.index("--") + 1 < len(sys.argv) else list(PROPS)
 for name in names:

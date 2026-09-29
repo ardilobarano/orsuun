@@ -2672,3 +2672,83 @@ Birch Wood	Bosque das Bétulas
 You	Você
 Monster camp	Acampamento de monstros
 Heroes hunting	Heróis caçando
+# Big maps: Gorak Pass, the Salt Sea and Whitefang Range (camps and places).
+Hound Pens	Canis dos Cães
+Raider Camp	Acampamento dos Saqueadores
+The Drum Ground	O Campo do Tambor
+Marauder Ridge	Crista dos Saqueadores
+Skull Rocks	Rochas da Caveira
+Burnt Ford	Vau Queimado
+Tul-Gorak's War Camp	Acampamento de Guerra de Tul-Gorak
+The Palisade	A Paliçada
+Bone Ridge	Crista dos Ossos
+Wreck of the Last Caravan	Destroços da Última Caravana
+Pillar Field	Campo dos Pilares
+Oasis Shrine	Santuário do Oásis
+Glass Dunes	Dunas de Vidro
+Scorpion Flats	Planície dos Escorpiões
+The Oasis	O Oásis
+The Last Caravan	A Última Caravana
+Pillars of Salt	Pilares de Sal
+Pine Hollow	Vale dos Pinheiros
+Whitefang Hamlet	Aldeia Presa-Branca
+Bear Caves	Cavernas dos Ursos
+Shrine Pass	Passo do Santuário
+Frozen Lake	Lago Congelado
+Hag's Hollow	Vale da Bruxa
+The Wolf Shrine	O Santuário do Lobo
+# Big maps 5-12 (camps and places).
+Red Grove	Bosque Vermelho
+Stalker Trail	Trilha do Rondador
+Root Hollow	Vale das Raízes
+Birch Circle	Círculo das Bétulas
+Sap Pools	Poças de Seiva
+Bleeding Ford	Vau Sangrento
+The Rootfather's Grove	O Bosque do Pai-Raiz
+Ash Fields	Campos de Cinza
+Hound Craters	Crateras dos Cães
+Obsidian Spires	Agulhas de Obsidiana
+The Burnt Watch	A Vigia Queimada
+Cultist Pyres	Piras dos Cultistas
+Lava Ford	Vau de Lava
+The Burnt Watchtower	A Torre de Vigia Queimada
+Grave Steps	Degraus das Covas
+Field of Ribs	Campo das Costelas
+Bone Pickers' Nest	Ninho dos Catadores de Ossos
+The Broken Colossus	O Colosso Partido
+Siege Yard	Pátio de Cerco
+Giant's Rest	Repouso do Gigante
+Reed Beds	Canaviais
+Serpent Pools	Poças das Serpentes
+The Sunken Yurts	As Iurtas Afundadas
+Leech Marsh	Pântano das Sanguessugas
+Bog Rider Camp	Acampamento dos Cavaleiros do Brejo
+Drowned Ford	Vau Afogado
+Coil Mother's Pool	A Poça da Mãe das Espirais
+Golden Road	Estrada Dourada
+Guard Barracks	Quartel da Guarda
+Hound Kennels	Canil dos Cães
+Throne Steps	Degraus do Trono
+Oath Stones	Pedras do Juramento
+Chanters' Ring	Círculo dos Entoadores
+The Khan's Standards	Os Estandartes do Khan
+Palm Court	Pátio das Palmeiras
+Drowned Market	Mercado Afogado
+Gilded Stalls	Bancas Douradas
+Debtors' Row	Fileira dos Devedores
+Cultist Steps	Degraus dos Cultistas
+Flooded Plaza	Praça Inundada
+The Old Bazaar	O Velho Bazar
+Trooper Lines	Fileiras dos Soldados
+Marker Rows	Fileiras de Marcos
+Broken Standard	Estandarte Partido
+Rider Barrows	Túmulos dos Cavaleiros
+Captain's Mound	Monte do Capitão
+Violet Field	Campo Violeta
+Varkesh's Mound	O Monte de Varkesh
+Crooked Path	Trilha Torta
+Old Graves	Covas Antigas
+Hanging Tree	Árvore da Forca
+The Forgotten Shrine	O Santuário Esquecido
+Widow's Pond	A Lagoa da Viúva
+Mist Hollow	Vale da Névoa

@@ -1,0 +1,302 @@
+{
+ "Name": "The Cinder Marches",
+ "Map": 5,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": -85.6,
+   "y": 13.8
+  },
+  {
+   "x": -60.0,
+   "y": 51.2
+  },
+  {
+   "x": -17.8,
+   "y": 64.5
+  },
+  {
+   "x": 23.8,
+   "y": 65.3
+  },
+  {
+   "x": 66.5,
+   "y": 50.2
+  },
+  {
+   "x": 81.6,
+   "y": 10.6
+  },
+  {
+   "x": 73.4,
+   "y": -30.4
+  },
+  {
+   "x": 48.8,
+   "y": -67.7
+  },
+  {
+   "x": -3.3,
+   "y": -74.8
+  },
+  {
+   "x": -44.4,
+   "y": -51.6
+  },
+  {
+   "x": -70.3,
+   "y": -20.1
+  }
+ ],
+ "ScenerySet": "Desert",
+ "KorstoneRing": "SaltPillar",
+ "GrassCards": 700,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "SaltPillar",
+   "X": -54.8,
+   "Z": 72.1,
+   "Yaw": 249.8,
+   "Height": 9,
+   "Tint": "#5C3A34"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": -46.1,
+   "Z": 81.3,
+   "Yaw": 256.0,
+   "Height": 7,
+   "Tint": "#5C3A34"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 66.3,
+   "Z": -77.0,
+   "Yaw": 49.2,
+   "Height": 10,
+   "Tint": "#5C3A34"
+  },
+  {
+   "Name": "SaltPillar",
+   "X": 49.3,
+   "Z": -93.7,
+   "Yaw": 68.7,
+   "Height": 7.5,
+   "Tint": "#5C3A34"
+  },
+  {
+   "Name": "IceCrag",
+   "X": 14.1,
+   "Z": 86.5,
+   "Yaw": 272.9,
+   "Height": 8,
+   "Tint": "#6A5A52"
+  },
+  {
+   "Name": "IceCrag",
+   "X": -57.2,
+   "Z": -67.0,
+   "Yaw": 131.2,
+   "Height": 9,
+   "Tint": "#6A5A52"
+  },
+  {
+   "Name": "Watchtower",
+   "X": 97.8,
+   "Z": 8.1,
+   "Yaw": 360.0,
+   "Height": 10,
+   "Tint": "#5A4A40"
+  },
+  {
+   "Name": "Palisade",
+   "X": 92.2,
+   "Z": -3.5,
+   "Yaw": 5.7,
+   "Height": 3.8,
+   "Tint": "#5A4A40"
+  },
+  {
+   "Name": "Palisade",
+   "X": 91.9,
+   "Z": -11.5,
+   "Yaw": 11.9,
+   "Height": 3.6,
+   "Tint": "#5A4A40"
+  },
+  {
+   "Name": "WarBanner",
+   "X": -2.5,
+   "Z": 75.4,
+   "Yaw": 264.3,
+   "Height": 6.5,
+   "Tint": "#8A5A48"
+  },
+  {
+   "Name": "WarBanner",
+   "X": -71.4,
+   "Z": -34.9,
+   "Yaw": 145.5,
+   "Height": 6.5,
+   "Tint": "#8A5A48"
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Ash Fields",
+   "X": -84.5,
+   "Z": 35.2
+  },
+  {
+   "Name": "Hound Craters",
+   "X": -17.1,
+   "Z": 73.2
+  },
+  {
+   "Name": "Obsidian Spires",
+   "X": 69.2,
+   "Z": 57.8
+  },
+  {
+   "Name": "The Burnt Watch",
+   "X": 87.8,
+   "Z": -14.1
+  },
+  {
+   "Name": "Cultist Pyres",
+   "X": 38.7,
+   "Z": -79.8
+  },
+  {
+   "Name": "Lava Ford",
+   "X": -14.9,
+   "Z": -80.4
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Burnt Watchtower",
+   "X": 107.8,
+   "Z": 8.3
+  },
+  {
+   "Name": "Obsidian Spires",
+   "X": -54.6,
+   "Z": 87.1
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBoulder",
+   "X": -87.8,
+   "Z": 51.8,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A5A52"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 94.0,
+   "Z": 44.0,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A5A52"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -5.7,
+   "Z": -94.7,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A5A52"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -94.0,
+   "Z": -20.8,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#6A5A52"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "ash",
+   "X": -77.0,
+   "Z": 57.6,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 20
+  },
+  {
+   "Name": "ash",
+   "X": 48.1,
+   "Z": 40.7,
+   "Radius": 14,
+   "Height": 9.1,
+   "Yaw": 60
+  },
+  {
+   "Name": "ash",
+   "X": 78.0,
+   "Z": -54.5,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 100
+  },
+  {
+   "Name": "ash",
+   "X": -34.2,
+   "Z": -39.3,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 30
+  },
+  {
+   "Name": "lava",
+   "X": 26.4,
+   "Z": 87.2,
+   "Radius": 6,
+   "Height": 3.9000000000000004,
+   "Yaw": 40
+  },
+  {
+   "Name": "lava",
+   "X": -21.1,
+   "Z": -96.7,
+   "Radius": 7,
+   "Height": 4.55,
+   "Yaw": 80
+  }
+ ],
+ "River": [
+  {
+   "x": 120,
+   "y": 160
+  },
+  {
+   "x": 60,
+   "y": 80
+  },
+  {
+   "x": 20,
+   "y": 0
+  },
+  {
+   "x": -40,
+   "y": -80
+  },
+  {
+   "x": -100,
+   "y": -160
+  }
+ ],
+ "RiverWidth": 5,
+ "WaterColor": "#FF6A1A",
+ "BankColor": "#2E2826"
+}

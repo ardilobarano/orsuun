@@ -1,0 +1,261 @@
+{
+ "Name": "The Hollow Throne",
+ "Map": 12,
+ "Size": 300,
+ "Trail": [
+  {
+   "x": 43.7,
+   "y": -67.0
+  },
+  {
+   "x": -5.5,
+   "y": -69.2
+  },
+  {
+   "x": -44.8,
+   "y": -53.8
+  },
+  {
+   "x": -76.2,
+   "y": -27.7
+  },
+  {
+   "x": -85.3,
+   "y": 11.9
+  },
+  {
+   "x": -58.8,
+   "y": 45.4
+  },
+  {
+   "x": -21.6,
+   "y": 71.0
+  },
+  {
+   "x": 28.5,
+   "y": 79.6
+  },
+  {
+   "x": 64.7,
+   "y": 44.4
+  },
+  {
+   "x": 71.1,
+   "y": 3.5
+  },
+  {
+   "x": 66.3,
+   "y": -35.9
+  }
+ ],
+ "ScenerySet": "Ruins",
+ "KorstoneRing": "IceShrine",
+ "GrassCards": 700,
+ "Stones": 0,
+ "Landmarks": [
+  {
+   "Name": "DesertShrine",
+   "X": -47.1,
+   "Z": 73.1,
+   "Yaw": 235.5,
+   "Height": 7,
+   "Tint": "#8A7050"
+  },
+  {
+   "Name": "GorakTent",
+   "X": -91.7,
+   "Z": -32.9,
+   "Yaw": 152.1,
+   "Height": 6,
+   "Tint": "#6A5030"
+  },
+  {
+   "Name": "GorakTent",
+   "X": -104.4,
+   "Z": -18.4,
+   "Yaw": 160.7,
+   "Height": 5.5,
+   "Tint": "#6A5030"
+  },
+  {
+   "Name": "WarBanner",
+   "X": -67.9,
+   "Z": 49.2,
+   "Yaw": 227.0,
+   "Height": 7.5,
+   "Tint": "#C8A040"
+  },
+  {
+   "Name": "WarBanner",
+   "X": -56.7,
+   "Z": 59.3,
+   "Yaw": 229.1,
+   "Height": 7.5,
+   "Tint": "#C8A040"
+  },
+  {
+   "Name": "WarBanner",
+   "X": -30.0,
+   "Z": 77.2,
+   "Yaw": 247.2,
+   "Height": 7.5,
+   "Tint": "#C8A040"
+  },
+  {
+   "Name": "WarBanner",
+   "X": -16.3,
+   "Z": 82.6,
+   "Yaw": 250.7,
+   "Height": 7.5,
+   "Tint": "#C8A040"
+  },
+  {
+   "Name": "IceShrine",
+   "X": 57.7,
+   "Z": 72.2,
+   "Yaw": 318.8,
+   "Height": 3.6,
+   "Tint": "#8A8070"
+  },
+  {
+   "Name": "IceShrine",
+   "X": 64.7,
+   "Z": 64.1,
+   "Yaw": 320.9,
+   "Height": 3.6,
+   "Tint": "#8A8070"
+  },
+  {
+   "Name": "IceShrine",
+   "X": 70.6,
+   "Z": 55.9,
+   "Yaw": 328.0,
+   "Height": 3.6,
+   "Tint": "#8A8070"
+  },
+  {
+   "Name": "Palisade",
+   "X": -16.6,
+   "Z": -79.2,
+   "Yaw": 106.7,
+   "Height": 3.8,
+   "Tint": "#5A4A30"
+  },
+  {
+   "Name": "Palisade",
+   "X": -24.4,
+   "Z": -77.4,
+   "Yaw": 111.3,
+   "Height": 3.6,
+   "Tint": "#5A4A30"
+  }
+ ],
+ "Camps": [
+  {
+   "Name": "Golden Road",
+   "X": 25.9,
+   "Z": -78.3
+  },
+  {
+   "Name": "Guard Barracks",
+   "X": -44.8,
+   "Z": -63.6
+  },
+  {
+   "Name": "Hound Kennels",
+   "X": -93.0,
+   "Z": -3.8
+  },
+  {
+   "Name": "Throne Steps",
+   "X": -44.0,
+   "Z": 68.5
+  },
+  {
+   "Name": "Oath Stones",
+   "X": 61.9,
+   "Z": 61.9
+  },
+  {
+   "Name": "Chanters' Ring",
+   "X": 79.0,
+   "Z": -17.7
+  }
+ ],
+ "Places": [
+  {
+   "Name": "The Hollow Throne",
+   "X": -55.0,
+   "Z": 84.6
+  },
+  {
+   "Name": "The Khan's Standards",
+   "X": -67.9,
+   "Z": 64.2
+  }
+ ],
+ "Groves": [
+  {
+   "Name": "SteppeBoulder",
+   "X": 3.4,
+   "Z": -90.4,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A7A60"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": -90.3,
+   "Z": 42.3,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A7A60"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 14.4,
+   "Z": 100.8,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A7A60"
+  },
+  {
+   "Name": "SteppeBoulder",
+   "X": 78.3,
+   "Z": -58.2,
+   "Radius": 8,
+   "Count": 5,
+   "Height": 2.6,
+   "Tint": "#8A7A60"
+  }
+ ],
+ "Patches": [
+  {
+   "Name": "ash",
+   "X": -28.1,
+   "Z": -77.6,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 20
+  },
+  {
+   "Name": "ash",
+   "X": 9.1,
+   "Z": 63.9,
+   "Radius": 12,
+   "Height": 7.800000000000001,
+   "Yaw": 60
+  },
+  {
+   "Name": "ash",
+   "X": 85.1,
+   "Z": -7.0,
+   "Radius": 10,
+   "Height": 6.5,
+   "Yaw": 10
+  }
+ ]
+}

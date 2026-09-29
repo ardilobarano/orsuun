@@ -2658,3 +2658,83 @@ Birch Wood	Brzozowy Gaj
 You	Ty
 Monster camp	Obóz potworów
 Heroes hunting	Polujący bohaterowie
+# Big maps: Gorak Pass, the Salt Sea and Whitefang Range (camps and places).
+Hound Pens	Psiarnie
+Raider Camp	Obóz Najeźdźców
+The Drum Ground	Plac Bębna
+Marauder Ridge	Grzbiet Maruderów
+Skull Rocks	Czaszkowe Skały
+Burnt Ford	Spalony Bród
+Tul-Gorak's War Camp	Obóz Wojenny Tul-Goraka
+The Palisade	Palisada
+Bone Ridge	Kościany Grzbiet
+Wreck of the Last Caravan	Wrak Ostatniej Karawany
+Pillar Field	Pole Filarów
+Oasis Shrine	Kapliczka Oazy
+Glass Dunes	Szklane Wydmy
+Scorpion Flats	Równina Skorpionów
+The Oasis	Oaza
+The Last Caravan	Ostatnia Karawana
+Pillars of Salt	Filary Soli
+Pine Hollow	Sosnowa Kotlina
+Whitefang Hamlet	Osada Białego Kła
+Bear Caves	Niedźwiedzie Jaskinie
+Shrine Pass	Przełęcz Kapliczki
+Frozen Lake	Zamarznięte Jezioro
+Hag's Hollow	Kotlina Wiedźmy
+The Wolf Shrine	Wilcza Kapliczka
+# Big maps 5-12 (camps and places).
+Red Grove	Czerwony Gaj
+Stalker Trail	Szlak Tropicieli
+Root Hollow	Kotlina Korzeni
+Birch Circle	Brzozowy Krąg
+Sap Pools	Stawy Soku
+Bleeding Ford	Krwawiący Bród
+The Rootfather's Grove	Gaj Ojca Korzeni
+Ash Fields	Popielne Pola
+Hound Craters	Kratery Ogarów
+Obsidian Spires	Obsydianowe Iglice
+The Burnt Watch	Spalona Strażnica
+Cultist Pyres	Stosy Kultystów
+Lava Ford	Lawowy Bród
+The Burnt Watchtower	Spalona Wieża Strażnicza
+Grave Steps	Grobowe Stopnie
+Field of Ribs	Pole Żeber
+Bone Pickers' Nest	Gniazdo Ogryzaczy
+The Broken Colossus	Rozbity Kolos
+Siege Yard	Plac Oblężniczy
+Giant's Rest	Spoczynek Olbrzyma
+Reed Beds	Trzcinowiska
+Serpent Pools	Wężowe Stawy
+The Sunken Yurts	Zatopione Jurty
+Leech Marsh	Pijawkowe Bagno
+Bog Rider Camp	Obóz Bagiennych Jeźdźców
+Drowned Ford	Zatopiony Bród
+Coil Mother's Pool	Staw Matki Splotów
+Golden Road	Złota Droga
+Guard Barracks	Koszary Straży
+Hound Kennels	Psiarnie Chana
+Throne Steps	Stopnie Tronu
+Oath Stones	Kamienie Przysięgi
+Chanters' Ring	Krąg Śpiewaków
+The Khan's Standards	Sztandary Chana
+Palm Court	Palmowy Dziedziniec
+Drowned Market	Zatopiony Targ
+Gilded Stalls	Złocone Kramy
+Debtors' Row	Zaułek Dłużników
+Cultist Steps	Stopnie Kultystów
+Flooded Plaza	Zalany Plac
+The Old Bazaar	Stary Bazar
+Trooper Lines	Szeregi Żołnierzy
+Marker Rows	Rzędy Znaczników
+Broken Standard	Złamany Sztandar
+Rider Barrows	Kurhany Jeźdźców
+Captain's Mound	Kopiec Kapitana
+Violet Field	Fioletowe Pole
+Varkesh's Mound	Kopiec Varkesha
+Crooked Path	Kręta Ścieżka
+Old Graves	Stare Groby
+Hanging Tree	Wisielcze Drzewo
+The Forgotten Shrine	Zapomniana Kapliczka
+Widow's Pond	Staw Wdowy
+Mist Hollow	Mglista Kotlina
