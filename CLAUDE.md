@@ -83,7 +83,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Skinned meshes only deform in the player loop: headless editor renders must bake them (`RenderingSetup.CaptureSkinned`).
 - `Ui.Icon` fits its parent; give each icon its own box rect, never the canvas.
 - Cinzel's 1 reads as a Roman I: use it only for screen titles without digits (`carved: true`); buttons use Philosopher.
-- The playtest server runs in Development mode (dev endpoints open): share the URL with trusted testers only.
+- The playtest server runs in Development mode, but since the repository went public (29 Sep 2026) its `/v1/dev/*` tools
+  answer only loopback (this Mac, the smoke tests) or a moderator login (`GameService.SignedInAs`, Admin:Emails), and
+  `/v1/dev/mail` only loopback: put new dev endpoints in that `dev` group. Keep keys, device ids and player data out of git.
 - Panels hide by deactivating their canvas; a component that must keep updating while hidden (the `Tutorial`) lives
   off its canvas.
 - Store-release blockers that need the owner's accounts are listed in HANDOFF.md ("Store release").

@@ -1,97 +1,85 @@
 # Orsuun: War of Banners
 
-Side-scrolling idle auto-battler with a risky upgrade economy. Design lives in the GDD; this repo holds the code.
+An online mobile RPG for iOS and Android: an idle auto-battler on open 3D steppe maps, with risky gear upgrades in the
+spirit of classic Korean MMOs, three rival Banners, guilds, trading and world bosses. Original setting and art.
 
-## Layout
+The server decides every roll; the phone only shows the fight and sends what the player did. Built as a solo project,
+it runs on a live playtest server with Android and iOS test builds.
+
+| | | | |
+| --- | --- | --- | --- |
+| ![Hunting in the Cinder Marches](docs/readme/1-hunt-cinder-marches.jpg) | ![Nine-Winters, a world boss, at Whitefang Range](docs/readme/2-world-boss-whitefang.jpg) | ![Hunting on the Oathfields with a party](docs/readme/3-hunt-oathfields.jpg) | ![The full map of the Oathfields](docs/readme/4-full-map.jpg) |
+| Hunting in the Cinder Marches | A world boss at Whitefang Range | A party on the Oathfields | The full map |
+| ![The Forge](docs/readme/5-forge.jpg) | ![The hunting party](docs/readme/6-party.jpg) | ![The party board](docs/readme/7-party-board.jpg) | ![Bounties](docs/readme/8-bounties.jpg) |
+| The Forge: risky upgrades | A hunting party | The party finder | Daily and weekly bounties |
+
+## The game
+
+- **The hunt.** Your hero hunts on its own across twelve campaign maps and their zones, on open 3D maps with camps,
+  landmarks, weather and other players. Packs, Korstones and map bosses drop gear; hunting continues while you are away.
+- **The Forge.** Every piece can be forged to +9 with growing risk: a failed attempt can cost levels or break the piece
+  unless a Scroll of Mercy protects it. Weapons and armour change their look every ten levels and glow from +7.
+- **The world.** Three Banners fight weekly wars; guilds hold fortresses, wage guild wars and raid a boss together. World
+  bosses (Commanders) rise on every map with a shared health pool that every hero there chips away at.
+- **Together.** Hunting parties walk and fight side by side and share a bonus; a party board per map finds strangers.
+  World, guild and party chat, private messages, a marketplace, direct trades and a mailbox.
+- **And more.** Ranked arena seasons, dungeons with a mid-run smith or riddle, fishing and a weekly contest, a town square
+  where other players stand, a season pass, achievements, cosmetics held for days, four classes with five skills each.
+
+## Engineering highlights
+
+- **One rules library, two runtimes.** `src/Orsuun.Rules` is engine-free C# (netstandard2.1) used by both the Unity client
+  and the ASP.NET Core server. The server makes every random roll; the client runs the same code to show and predict.
+- **Replay-verified play.** The hunt runs in deterministic, seeded loops. The phone reports each loop's length and the
+  skill taps in it; the server replays it and pays the pace it proves. A forged report earns nothing, a mismatch never
+  costs anything.
+- **Shared state under locks.** World-boss pools, guild treasuries, fortress keeps and the marketplace change only inside
+  transactions that lock their rows (`SELECT ... FOR UPDATE`), or through single atomic `UPDATE`s, so concurrent players
+  can never spend the same health or the same coin twice.
+- **A live service.** PostgreSQL with EF Core migrations, 160+ endpoints, a background world clock (war nights, fortress
+  sieges, weekend events, world-boss alerts), push notifications (APNs, Firebase), store receipt validation (Apple,
+  Google), Google and Apple sign-in, email recovery, and a moderation console with reports, mutes and bans.
+- **A phone client built in code.** Unity 6 (URP); every screen is built by code from a painted UI kit. 3D models, maps
+  and music are downloaded per platform as asset bundles on first launch. Translated into six languages. Phone
+  performance tuning (render scale, frame rate, merged scenery).
+- **A content pipeline.** Concept sheets and painted maps from image models, image-to-3D models cut, rigged, decimated and
+  exported by a Blender Python pipeline (`art/blender`), music and sound effects from audio models, and Python tools for
+  map layouts, UI kits and atlases (`tools/`).
+- **Tests pin the rules.** 348 xUnit tests guard the published numbers (upgrade odds, drop rates, bosses as power checks,
+  season pacing) and the determinism the replays rely on; shell smoke tests walk the live endpoints.
+
+## How it was built
+
+I designed the game and directed its development with an AI coding agent (Claude Code): I decided the game loop, the
+economy and every feature, and each one was checked through playtests on phones, screenshots and the test suite before
+it shipped. The design decisions and their reasons are logged in [HANDOFF.md](HANDOFF.md); the project's working rules
+are in [CLAUDE.md](CLAUDE.md).
+
+## Repository layout
 
 | Path | What it is |
 | --- | --- |
-| `src/Orsuun.Rules` | Engine-free game rules: Forge, etchings and Turnstones, offline rewards. `netstandard2.1`, C# 9, no Unity or server dependencies. Also a Unity local package (`package.json` + `.asmdef`). |
-| `tests/Orsuun.Rules.Tests` | xUnit tests. They pin the numbers the GDD publishes to players. |
-| `tools/Orsuun.Sim` | Monte Carlo balance simulator. Run it after every rate change. |
-| `src/Orsuun.Server` | ASP.NET Core 8 game API on PostgreSQL 16. Owns accounts, inventory, the weapon and an append-only ledger; runs the same rules library with a cryptographic RNG. |
-| `client/` | Unity 6 (6000.0.32f1) grey-box: one lane, a Vanguard, mob packs, a Korstone with waves, and the Forge screen. Everything is built in code by `GameRoot`; the scene is empty on purpose. |
-| `tools/screenshot.ps1` | Launches the Windows build and saves a PNG of its window. |
+| `src/Orsuun.Rules` | The game rules: combat lane, Forge, loot, bosses, guilds, parties, events. Also a Unity local package. |
+| `src/Orsuun.Server` | ASP.NET Core 8 game server on PostgreSQL 16 (EF Core migrations, moderation page in `Admin/`). |
+| `client/` | Unity 6000.0.32f1 (URP) client; everything is built in code by `GameRoot`. |
+| `tests/Orsuun.Rules.Tests` | xUnit tests for the rules. |
+| `tools/` | Balance simulator, Unity type check, smoke tests, build scripts, art and sound tools. |
+| `art/blender` | Blender Python pipeline for hero looks, monsters, mounts and scenery. |
+| `deploy/` | Docker Compose and Caddy for the playtest server. |
 
-## Rules of the rules library
+## Running it
 
-- **Server authority.** The server runs this code to decide outcomes. The client runs the same code only to display and predict.
-- **No floats in gameplay.** Chances are basis points (10000 = 100%), sorn is `long`. `ForgeAnalysis` uses doubles and is for balance work only.
-- **No hidden randomness.** Every roll takes an `IRandom`. The server passes a cryptographic generator, tests and replays pass `XorShiftRandom` with a seed.
-- **Rules decide, callers pay.** `ForgeService.Attempt` returns the outcome; charging sorn, materials and the scroll is an inventory transaction in the caller.
-
-## Commands
-
-The .NET 8 SDK is installed per user in `%LOCALAPPDATA%\Microsoft\dotnet`. If `dotnet` on PATH reports no SDK, call that one directly or put it first on PATH.
-
-```powershell
-$dotnet = "$env:LOCALAPPDATA\Microsoft\dotnet\dotnet.exe"
-& $dotnet test -c Release
-& $dotnet run --project tools/Orsuun.Sim -c Release            # 200,000 runs, fixed seed
-& $dotnet run --project tools/Orsuun.Sim -c Release 50000 42   # runs, seed
+```bash
+export PATH="$HOME/.dotnet:$PATH"                     # .NET 8 SDK
+dotnet test -c Release                                 # the rules tests
+ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/Orsuun.Server   # http://localhost:5080 (PostgreSQL 16 needed)
+bash tools/smoke.sh                                    # walks every endpoint against it
 ```
 
-## Server
+Open `client/` in Unity 6000.0.32f1 and press Play, or build with `ProjectSetup.BuildMac`. See [CLAUDE.md](CLAUDE.md) for
+the full command list.
 
-PostgreSQL 16 runs as a user process (no Windows service, no admin): `tools\pg.ps1 start|stop|status|psql`. Data lives in `%LOCALAPPDATA%\Orsuun\pgdata`; the dev database is `orsuun` / user `orsuun` / password `orsuun-dev` (local only, see `appsettings.Development.json`).
+## Rights
 
-```powershell
-tools\pg.ps1 start
-$env:ASPNETCORE_ENVIRONMENT = 'Development'
-& $dotnet run --project src/Orsuun.Server          # http://localhost:5080
-```
-
-| Endpoint | What it does |
-| --- | --- |
-| `POST /v1/auth/guest {deviceToken}` | Creates or finds the account, returns a session token for the `X-Session` header |
-| `GET /v1/me` | Full state: inventory, weapon, Forge preview |
-| `POST /v1/heartbeat` | Settles hunting time since the last heartbeat: live rate up to 3 min, offline rate (60%) up to 12 h beyond that |
-| `POST /v1/forge {requestId, method}` | One Forge attempt. `requestId` makes retries safe; a repeat returns 409 |
-| `POST /v1/turn {requestId}` | Turnstone reroll |
-| `POST /v1/equip {requestId, itemId}` | Equips an owned piece; the old one returns to the loot list (capped at 60 loose pieces, best kept) |
-| `POST /v1/park {stage}` | Moves the farm lane to a cleared stage; settles time on the old stage first |
-| `POST /v1/push {requestId}` | Scores the next stage with a fresh seed and returns it; the client replays the seed so it shows the fight that was scored |
-| `POST /v1/boss/fight {requestId, bossId}` | One Commander fight per spawn: scored with a seed, ranked against simulated rivals, chest by damage bracket. `/me` and `/heartbeat` carry the boss clocks |
-| `POST /v1/dev/grant`, `/v1/dev/bosses-up` | Playtest grant and instant boss spawns, Development environment only |
-
-Zones (GDD section 13) are park ids 100+: Hunting Grounds 101-103, Korstone Fields 111-115, Gorak War Camp 121. Campaign stages are 1-10. Fields IV-V and Commander Grounds never settle offline.
-
-Content (maps, stages, item names, drop weights) lives in `Orsuun.Rules/Content.cs`, compiled into both sides. `ORSUUN_RESET_DB=1` on a Development start drops and recreates the schema; use it after model changes until migrations exist.
-
-`dotnet build tools/ClientCheck` compiles the Unity scripts against the editor's assemblies, a type check that works while the editor holds the project lock.
-
-Every roll and currency change lands in the `Ledger` table with the chance rolled against and the outcome. Concurrency is optimistic via PostgreSQL's `xmin`; a clash returns 409 and the client refreshes.
-
-The client connects to `http://localhost:5080` by default (`-server http://host:port` to override, `-local` to skip). When the server is unreachable the HUD shows LOCAL MODE and rolls locally.
-
-Schema changes: edit the entities, then `dotnet ef migrations add <Name> --project src/Orsuun.Server --startup-project src/Orsuun.Server --output-dir Migrations --msbuildprojectextensionspath artifacts/obj/Orsuun.Server` (dotnet-ef is a local tool, `dotnet tool restore` once). The server applies pending migrations on start. Hosting: see `deploy/README.md`.
-
-Known gaps before alpha: the live lane's loot is display-only and gets replaced by the server's settlement on each heartbeat; manual skill timing does not yet earn the active-play bonus server-side (needs an input log the server can replay).
-
-## Playing the grey-box
-
-- Double-click `client\Builds\Windows\Orsuun.exe` (not in git; rebuild with the command below), or open `client/` in Unity Hub and press Play in `Assets/Orsuun/Scenes/Main.unity`.
-- Skills are the three big buttons, each with its own AUTO toggle. FORGE opens the Forge while the hunt continues behind it; GEAR shows the 8 slots and the best loose drops with EQUIP buttons. PUSH scores the next stage on the server and replays the fight; `<` `>` park the farm lane on any cleared stage. SPEED cycles x1, x3, x8. DEV grants sorn and consumables so a tester can reach +7 to +9 in one sitting.
-- `Orsuun.exe -forge` starts with the Forge open.
-
-```powershell
-$unity = "C:\Program Files\Unity\Hub\Editor\6000.0.32f1\Editor\Unity.exe"
-# First-time setup (scene, player settings, GreyBox material):
-& $unity -batchmode -quit -projectPath client -executeMethod Orsuun.Client.EditorTools.ProjectSetup.Run -logFile artifacts\unity-setup.log
-# Play-mode smoke tests:
-& $unity -batchmode -projectPath client -runTests -testPlatform PlayMode -testResults artifacts\playmode-results.xml -logFile artifacts\unity-playmode.log
-# Windows playtest build:
-& $unity -batchmode -quit -projectPath client -executeMethod Orsuun.Client.EditorTools.ProjectSetup.BuildWindows -logFile artifacts\unity-build.log
-```
-
-Grey-box shortcuts that are not the final design: built-in render pipeline instead of URP, a time-seeded local RNG instead of server rolls, a weapon that arrives with 5 etchings, and one hard-coded stage.
-
-## Using the rules in Unity
-
-In the client project's `Packages/manifest.json`:
-
-```json
-"com.orsuun.rules": "file:../../src/Orsuun.Rules"
-```
-
-Build output goes to `/artifacts` (see `Directory.Build.props`), so the package folder contains only source.
+Copyright © 2026 the author (github.com/ardilobarano). All rights reserved. The code, art, music and sounds are published
+to be read as a portfolio piece; no licence to copy, modify, distribute or use them is granted. See [LICENSE](LICENSE).

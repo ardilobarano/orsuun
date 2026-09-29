@@ -25,6 +25,10 @@ public sealed partial class GameService
     }
 
     /// <summary>The moderator behind an admin session token, or null.</summary>
+    /// <summary>The request's player is a moderator (its login's email is in Admin:Emails): the playtest tools let them in.</summary>
+    public bool SignedInAs(string[] moderatorEmails) =>
+        _login?.Email is string email && moderatorEmails.Contains(AccountRules.NormaliseEmail(email));
+
     public static string? AdminFor(string? token)
     {
         if (string.IsNullOrEmpty(token) || !AdminSessions.TryGetValue(token, out var session)) return null;

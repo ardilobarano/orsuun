@@ -490,22 +490,30 @@ mod.MapGet("/errors", (GameService game, CancellationToken ct) => game.AdminErro
 
 if (app.Environment.IsDevelopment())
 {
-    v1.MapPost("/dev/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
+    // Playtest tools (since 29 Sep 2026, when the repository went public): only this machine (loopback: local runs and the
+    // smoke tests) or a moderator (Admin:Emails, signed in) may call them; everyone else is refused.
+    static bool Loopback(HttpContext http) => http.Connection.RemoteIpAddress is { } ip && System.Net.IPAddress.IsLoopback(ip);
+    RouteGroupBuilder dev = v1.MapGroup("/dev").AddEndpointFilter(async (ctx, next) =>
+        Loopback(ctx.HttpContext) || ctx.HttpContext.RequestServices.GetRequiredService<GameService>().SignedInAs(admins)
+            ? await next(ctx) : throw new GameException("forbidden", "The playtest tools are for moderators."));
+    dev.MapPost("/grant", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevGrantAsync(Me(ctx), ct));
     // Development without SMTP: the last email kept for an address (the recovery smoke test reads its code).
-    app.MapGet("/v1/dev/mail", (string email, MailSender mail) => mail.Kept.TryGetValue(email, out string? text) ? Results.Ok(new { text }) : Results.NotFound());
-    v1.MapPost("/dev/event", (HttpContext ctx, DevEventRequest req, GameService game, CancellationToken ct) => game.DevEventAsync(Me(ctx), req.Kind, req.Minutes, ct));
-    v1.MapPost("/dev/level", (HttpContext ctx, int level, GameService game, CancellationToken ct) => game.DevLevelAsync(Me(ctx), level, ct));
-    v1.MapPost("/dev/pit-season-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevPitSeasonEndAsync(Me(ctx), ct));
-    v1.MapPost("/dev/skill", (HttpContext ctx, int book, int grade, GameService game, CancellationToken ct) => game.DevSkillAsync(Me(ctx), book, grade, ct));
-    v1.MapPost("/dev/trail", (HttpContext ctx, int? xp, bool? lastSeason, GameService game, CancellationToken ct) =>
+    // It shows sign-in codes, so only this machine may read it.
+    app.MapGet("/v1/dev/mail", (HttpContext http, string email, MailSender mail) => !Loopback(http) ? Results.NotFound()
+        : mail.Kept.TryGetValue(email, out string? text) ? Results.Ok(new { text }) : Results.NotFound());
+    dev.MapPost("/event", (HttpContext ctx, DevEventRequest req, GameService game, CancellationToken ct) => game.DevEventAsync(Me(ctx), req.Kind, req.Minutes, ct));
+    dev.MapPost("/level", (HttpContext ctx, int level, GameService game, CancellationToken ct) => game.DevLevelAsync(Me(ctx), level, ct));
+    dev.MapPost("/pit-season-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevPitSeasonEndAsync(Me(ctx), ct));
+    dev.MapPost("/skill", (HttpContext ctx, int book, int grade, GameService game, CancellationToken ct) => game.DevSkillAsync(Me(ctx), book, grade, ct));
+    dev.MapPost("/trail", (HttpContext ctx, int? xp, bool? lastSeason, GameService game, CancellationToken ct) =>
         game.DevTrailAsync(Me(ctx), xp ?? 0, lastSeason ?? false, ct));
-    v1.MapPost("/dev/stage", (HttpContext ctx, int cleared, GameService game, CancellationToken ct) => game.DevStageAsync(Me(ctx), cleared, ct));
-    v1.MapPost("/dev/gear", (HttpContext ctx, int level, int upgrade, GameService game, CancellationToken ct) => game.DevGearAsync(Me(ctx), level, upgrade, ct));
-    v1.MapPost("/dev/war-night", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevWarNightAsync(Me(ctx), minutes ?? 15, ct));
-    v1.MapPost("/dev/war-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevWarEndAsync(Me(ctx), ct));
-    v1.MapPost("/dev/keep-siege", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevKeepSiegeAsync(Me(ctx), minutes ?? 15, ct));
-    v1.MapPost("/dev/keep-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevKeepEndAsync(Me(ctx), ct));
-    v1.MapPost("/dev/bosses-up", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.DevBossesUpAsync(Me(ctx), ct), ct));
+    dev.MapPost("/stage", (HttpContext ctx, int cleared, GameService game, CancellationToken ct) => game.DevStageAsync(Me(ctx), cleared, ct));
+    dev.MapPost("/gear", (HttpContext ctx, int level, int upgrade, GameService game, CancellationToken ct) => game.DevGearAsync(Me(ctx), level, upgrade, ct));
+    dev.MapPost("/war-night", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevWarNightAsync(Me(ctx), minutes ?? 15, ct));
+    dev.MapPost("/war-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevWarEndAsync(Me(ctx), ct));
+    dev.MapPost("/keep-siege", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevKeepSiegeAsync(Me(ctx), minutes ?? 15, ct));
+    dev.MapPost("/keep-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevKeepEndAsync(Me(ctx), ct));
+    dev.MapPost("/bosses-up", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.DevBossesUpAsync(Me(ctx), ct), ct));
 }
 
 app.Run();
