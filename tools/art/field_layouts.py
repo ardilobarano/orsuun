@@ -95,7 +95,7 @@ def gorak():
     marks += [spot('SteppeBoulder', t.at(0.62, 14), Yaw=20, Height=3.2, Tint='#8A8078'), spot('SteppeBoulder', t.at(0.64, 20), Yaw=140, Height=4.4, Tint='#8A8078'),
               spot('SteppeBoulder', t.at(0.66, 13), Yaw=260, Height=2.6, Tint='#8A8078')]
     marks += [spot('WarBanner', t.at(s, 9), Yaw=round(t.heading(s) + 90, 1), Height=6.5) for s in (0.70, 0.90)]
-    d = layout('Gorak Pass', 2, t, ScenerySet='Steppe', KorstoneRing='SteppeStone', GrassCards=700, Stones=110,
+    d = layout('Gorak Pass', 2, t, ScenerySet='Steppe', KorstoneRing='SteppeStone', GrassCards=700, Stones=110, Weather='embers', Birds=True,
                River=[{'x': x, 'y': z} for x, z in [(-44, 160), (-48, 90), (-30, 30), (-44, -30), (-34, -90), (-40, -160)]],
                RiverWidth=5, WaterColor='#3E6B78', BankColor='#4A3B2C',
                Landmarks=marks,
@@ -120,7 +120,7 @@ def saltsea():
               ((0.40, 24, 30, 11), (0.44, 28, 150, 9), (0.90, 24, 80, 12), (0.03, 26, 10, 10))]
     oasis = t.at(0.50, 22)
     marks += [spot('DesertShrine', t.at(0.50, 12), Yaw=round(t.heading(0.5) + 180, 1), Height=5)]
-    d = layout('The Salt Sea', 3, t, ScenerySet='Desert', KorstoneRing='SaltPillar', GrassCards=520, Stones=0,
+    d = layout('The Salt Sea', 3, t, ScenerySet='Desert', KorstoneRing='SaltPillar', GrassCards=520, Stones=0, Weather='dust', Birds=True,
                Landmarks=marks,
                Camps=[spot('Bone Ridge', t.at(0.05, 8)), spot('Wreck of the Last Caravan', t.at(0.15, 7.5)),
                       spot('Pillar Field', t.at(0.30, 8)), spot('Oasis Shrine', t.at(0.47, 7.5)), spot('Glass Dunes', t.at(0.65, 8)),
@@ -142,7 +142,7 @@ def whitefang():
     marks += [spot('IceCrag', t.at(s, l), Yaw=y, Height=h) for s, l, y, h in
               ((0.22, 18, 0, 7), (0.25, 24, 80, 9), (0.55, 16, 200, 6), (0.58, 22, 40, 8.5), (0.84, 20, 120, 7.5), (0.97, 24, 300, 6.5))]
     lake = t.at(0.70, 24)
-    d = layout('Whitefang Range', 4, t, ScenerySet='Mountain', KorstoneRing='IceCrag', GrassCards=620, Stones=0,
+    d = layout('Whitefang Range', 4, t, ScenerySet='Mountain', KorstoneRing='IceCrag', GrassCards=620, Stones=0, Weather='snow',
                River=[{'x': x, 'y': z} for x, z in [(40, 160), (46, 90), (36, 20), (48, -40), (40, -160)]],
                RiverWidth=6, WaterColor='#A8CCE0', BankColor='#E4ECF4',
                Landmarks=marks,
@@ -173,7 +173,7 @@ def shape(turn, stretch=1.0, wobble=0):
 
 
 def budget(title, map_id, points, scenery, ring, marks, camps, places, groves=(), patches=(), river=None, river_width=5,
-           water='#3D667A', bank='#5C4D33', grass=700, stones=0):
+           water='#3D667A', bank='#5C4D33', grass=700, stones=0, weather='', birds=False):
     """A budget map: landmarks (model, share, left, height, tint[, yaw]) reuse the models in the map's colours."""
     t = Trail(points)
     landmarks = []
@@ -185,6 +185,7 @@ def budget(title, map_id, points, scenery, ring, marks, camps, places, groves=()
             d['Tint'] = tint
         landmarks.append(d)
     d = layout(title, map_id, t, ScenerySet=scenery, KorstoneRing=ring, GrassCards=grass, Stones=stones, Landmarks=landmarks,
+               Weather=weather, Birds=birds,
                Camps=[spot(n, t.at(sh, 7.5 + (k % 2))) for k, (n, sh) in enumerate(camps)],
                Places=[spot(n, t.at(sh, l)) for n, sh, l in places],
                Groves=[dict(spot(m, t.at(sh, l), Radius=r, Count=c, Height=h), **({'Tint': tint} if tint else {})) for m, sh, l, r, c, h, tint in groves],
@@ -207,7 +208,7 @@ def cinder():
         groves=[('SteppeBoulder', s, 20, 8, 5, 2.6, dark) for s in (0.06, 0.40, 0.74, 0.95)],
         patches=[('ash', s, l, r, a) for s, l, r, a in ((0.08, 16, 12, 20), (0.34, -18, 14, 60), (0.58, 14, 10, 100), (0.84, -16, 12, 30))]
                 + [('lava', 0.27, 22, 6, 40), ('lava', 0.76, 26, 7, 80)],
-        river=[(120, 160), (60, 80), (20, 0), (-40, -80), (-100, -160)], river_width=5, water='#FF6A1A', bank='#2E2826')
+        river=[(120, 160), (60, 80), (20, 0), (-40, -80), (-100, -160)], river_width=5, water='#FF6A1A', bank='#2E2826', weather='embers+ash', birds=False)
 
 
 def whisper():
@@ -221,7 +222,7 @@ def whisper():
                + [('FrostPine', s, -16, 8, 5, 8, pine) for s in (0.15, 0.5, 0.85)]
                + [('SteppeBirch', s, 14, 6, 4, 6, birch) for s in (0.25, 0.64)],
         patches=[('water', 0.70, 20, 8, 20)] + [('moss', s, l, r, a) for s, l, r, a in ((0.12, 14, 10, 30), (0.42, -16, 12, 70), (0.88, 14, 9, 10))],
-        river=[(120, 160), (60, 80), (20, 0), (-40, -80), (-100, -160)], water='#2E4442', bank='#3A3A2C')
+        river=[(120, 160), (60, 80), (20, 0), (-40, -80), (-100, -160)], water='#2E4442', bank='#3A3A2C', weather='fireflies', birds=False)
 
 
 def bloodbirch():
@@ -234,7 +235,7 @@ def bloodbirch():
         groves=[('SteppeBirch', s, l, 11, 9, 6.5, red) for s, l in ((0.0, 18), (0.08, 22), (0.24, 20), (0.30, 24), (0.46, 20), (0.64, 20), (0.82, 22), (0.94, 20))]
                + [('SteppeBirch', s, -16, 9, 6, 6, red) for s in (0.12, 0.42, 0.66, 0.9)],
         patches=[('water', 0.74, 18, 6, 30), ('water', 0.76, 26, 5, 70)] + [('mud', s, l, r, a) for s, l, r, a in ((0.1, 14, 10, 20), (0.5, -16, 12, 60))],
-        river=[(-160, 20), (-80, 30), (0, 10), (80, 30), (160, 20)], water='#6A2420', bank='#3E2A22')
+        river=[(-160, 20), (-80, 30), (0, 10), (80, 30), (160, 20)], water='#6A2420', bank='#3E2A22', weather='leaves', birds=False)
 
 
 def drowned():
@@ -248,7 +249,7 @@ def drowned():
         patches=[('water', s, l, r, a) for s, l, r, a in ((0.20, 24, 10, 20), (0.08, 18, 6, 60), (0.46, 20, 8, 110), (0.52, -18, 9, 30),
                                                            (0.78, 18, 7, 70), (0.9, -20, 10, 10), (0.26, -16, 6, 40))]
                 + [('moss', s, l, r, a) for s, l, r, a in ((0.14, 14, 10, 20), (0.58, 14, 9, 80))],
-        river=[(-160, -40), (-80, -30), (0, -46), (80, -28), (160, -40)], river_width=7, water='#3A5048', bank='#4A4A36')
+        river=[(-160, -40), (-80, -30), (0, -46), (80, -28), (160, -40)], river_width=7, water='#3A5048', bank='#4A4A36', weather='midges', birds=True)
 
 
 def graves():
@@ -262,7 +263,7 @@ def graves():
         [('Field of Ribs', 0.24, 30), ('The Broken Colossus', 0.51, 32)],
         groves=[('SteppeBoulder', s, 20, 9, 5, 3, stone) for s in (0.10, 0.36, 0.62, 0.95)],
         patches=[('ash', s, l, r, a) for s, l, r, a in ((0.14, 16, 12, 20), (0.44, -16, 12, 70), (0.78, 14, 10, 30))]
-                + [('mud', 0.6, -18, 11, 50)])
+                + [('mud', 0.6, -18, 11, 50)], weather='dust', birds=True)
 
 
 def bazaar():
@@ -275,7 +276,7 @@ def bazaar():
         [('The Old Bazaar', 0.32, 28), ('Palm Court', 0.02, 24)],
         groves=[('DatePalm', s, l, 9, 5, 7, None) for s, l in ((0.02, 20), (0.22, 22), (0.56, 22), (0.92, 20))],
         patches=[('water', s, l, r, a) for s, l, r, a in ((0.16, 20, 9, 20), (0.84, 22, 11, 60), (0.40, -18, 8, 30))]
-                + [('salt', s, l, r, a) for s, l, r, a in ((0.26, -18, 12, 10), (0.66, -20, 12, 80))])
+                + [('salt', s, l, r, a) for s, l, r, a in ((0.26, -18, 12, 10), (0.66, -20, 12, 80))], weather='dust+gold', birds=False)
 
 
 def markers():
@@ -291,7 +292,7 @@ def markers():
         [('Trooper Lines', 0.05), ('Marker Rows', 0.21), ('Broken Standard', 0.40), ('Rider Barrows', 0.58), ("Captain's Mound", 0.74), ('Violet Field', 0.88)],
         [('The Thousand Markers', 0.22, 32), ("Varkesh's Mound", 0.76, 30)],
         groves=[('SteppeBoulder', s, 20, 8, 5, 2.4, '#7A7488') for s in (0.10, 0.50, 0.68)],
-        patches=[('ash', s, l, r, a) for s, l, r, a in ((0.12, 14, 12, 20), (0.46, -16, 12, 60), (0.84, 16, 10, 10))])
+        patches=[('ash', s, l, r, a) for s, l, r, a in ((0.12, 14, 12, 20), (0.46, -16, 12, 60), (0.84, 16, 10, 10))], weather='wisps', birds=False)
 
 
 def throne():
@@ -304,7 +305,7 @@ def throne():
         [('Golden Road', 0.04), ('Guard Barracks', 0.18), ('Hound Kennels', 0.33), ('Throne Steps', 0.50), ('Oath Stones', 0.72), ("Chanters' Ring", 0.88)],
         [('The Hollow Throne', 0.50, 28), ("The Khan's Standards", 0.46, 20)],
         groves=[('SteppeBoulder', s, 20, 8, 5, 2.6, '#8A7A60') for s in (0.08, 0.40, 0.62, 0.95)],
-        patches=[('ash', s, l, r, a) for s, l, r, a in ((0.14, 14, 12, 20), (0.60, -16, 12, 60), (0.86, 14, 10, 10))])
+        patches=[('ash', s, l, r, a) for s, l, r, a in ((0.14, 14, 12, 20), (0.60, -16, 12, 60), (0.86, 14, 10, 10))], weather='gold+ash', birds=False)
 
 
 MAPS = {'GorakPass': gorak, 'SaltSea': saltsea, 'Whitefang': whitefang, 'CinderMarches': cinder, 'Whisperwood': whisper,

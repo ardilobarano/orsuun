@@ -286,6 +286,8 @@
    "Tint": "#8A80A0"
   }
  ],
+ "Weather": "wisps",
+ "Birds": false,
  "Camps": [
   {
    "Name": "Trooper Lines",

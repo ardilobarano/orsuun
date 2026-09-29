@@ -102,6 +102,8 @@
    "Tint": "#707870"
   }
  ],
+ "Weather": "fireflies",
+ "Birds": false,
  "Camps": [
   {
    "Name": "Crooked Path",

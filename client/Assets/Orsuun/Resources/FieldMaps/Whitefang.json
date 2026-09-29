@@ -44,6 +44,7 @@
  "KorstoneRing": "IceCrag",
  "GrassCards": 620,
  "Stones": 0,
+ "Weather": "snow",
  "River": [
   {
    "x": 40,

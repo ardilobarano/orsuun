@@ -325,6 +325,7 @@ namespace Orsuun.Client
         private string _backdropKey;
         private LaneScenery _scenery;
         private FieldMap _map;
+        private MapWeather _weather;
         /// <summary>The big map the lane shows now (or an inactive one on the road field).</summary>
         public FieldMap Map => _map;
 
@@ -401,6 +402,15 @@ namespace Orsuun.Client
             bool map = layout != null;
             if (map) _map.Show(layout, key, new Vector3(HeroX, 0f, 0f));
             else _map.Hide();
+            if (Application.isPlaying)
+            {
+                if (_weather == null)
+                {
+                    _weather = new GameObject("Weather").AddComponent<MapWeather>();
+                    _weather.transform.SetParent(transform, false);
+                }
+                _weather.Show(map ? _map : null);
+            }
             _ground.enabled = !map;
             if (_field != null) _field.enabled = !map;
             _backdrop.gameObject.SetActive(!map);

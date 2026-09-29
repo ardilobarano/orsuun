@@ -110,6 +110,8 @@
    "Tint": "#6A7060"
   }
  ],
+ "Weather": "midges",
+ "Birds": true,
  "Camps": [
   {
    "Name": "Reed Beds",

@@ -122,6 +122,8 @@
    "Tint": "#D8B070"
   }
  ],
+ "Weather": "dust+gold",
+ "Birds": false,
  "Camps": [
   {
    "Name": "Palm Court",

@@ -102,6 +102,8 @@
    "Tint": "#B07060"
   }
  ],
+ "Weather": "leaves",
+ "Birds": false,
  "Camps": [
   {
    "Name": "Red Grove",

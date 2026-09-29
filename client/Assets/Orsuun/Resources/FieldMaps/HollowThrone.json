@@ -150,6 +150,8 @@
    "Tint": "#5A4A30"
   }
  ],
+ "Weather": "gold+ash",
+ "Birds": false,
  "Camps": [
   {
    "Name": "Golden Road",

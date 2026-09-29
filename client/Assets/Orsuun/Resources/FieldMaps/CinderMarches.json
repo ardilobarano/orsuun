@@ -142,6 +142,8 @@
    "Tint": "#8A5A48"
   }
  ],
+ "Weather": "embers+ash",
+ "Birds": false,
  "Camps": [
   {
    "Name": "Ash Fields",

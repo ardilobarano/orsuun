@@ -44,6 +44,8 @@
  "KorstoneRing": "SaltPillar",
  "GrassCards": 520,
  "Stones": 0,
+ "Weather": "dust",
+ "Birds": true,
  "Landmarks": [
   {
    "Name": "CaravanWreck",

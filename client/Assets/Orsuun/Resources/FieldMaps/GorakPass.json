@@ -44,6 +44,8 @@
  "KorstoneRing": "SteppeStone",
  "GrassCards": 700,
  "Stones": 110,
+ "Weather": "embers",
+ "Birds": true,
  "River": [
   {
    "x": -44,

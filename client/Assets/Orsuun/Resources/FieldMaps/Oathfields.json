@@ -320,5 +320,7 @@
    "Count": 4,
    "Height": 1.6
   }
- ]
+ ],
+ "Weather": "motes",
+ "Birds": true
 }

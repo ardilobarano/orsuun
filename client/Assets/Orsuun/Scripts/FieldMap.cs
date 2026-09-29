@@ -54,6 +54,10 @@ namespace Orsuun.Client
             /// full map; groves of 3D props.</summary>
             public Spot[] Landmarks, Camps, Places, Groves;
             public string ScenerySet = "Steppe";
+            /// <summary>The map's air (MapWeather: motes, snow, embers, ash, fireflies, leaves, dust, midges, wisps, gold, or two
+            /// joined by '+') and whether flocks of birds cross it.</summary>
+            public string Weather = "";
+            public bool Birds;
             /// <summary>The scenery model that rises in a ring round each Korstone on this map.</summary>
             public string KorstoneRing = "SteppeStone";
             /// <summary>Grass cards and stone models, scattered within <see cref="ScatterReach"/> metres of the trail (the
