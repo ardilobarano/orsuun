@@ -2854,3 +2854,24 @@ There is no party board in a dungeon.	Zindanda grup panosu yok.
 Only friends, guildmates and heroes on this map's party board can join your party.	Grubuna yalnızca dostlar, lonca arkadaşları ve bu haritanın grup panosundaki kahramanlar katılabilir.
 # Commander pushes (29 Sep 2026).
 COMMANDER ALERTS	KOMUTAN UYARILARI
+# Bounties and achievements for the open maps (29 Sep 2026).
+Beat 3 elite packs	3 seçkin sürüyü yen
+Hunt 20 minutes with a party	Bir grupla 20 dakika avlan
+Fight 3 map Commanders	3 harita Komutanıyla dövüş
+Elite Slayer	Seçkin Avcısı
+Beat 25 elite packs.	25 seçkin sürüyü yen.
+Golden Hunter	Altın Avcı
+Beat 250 elite packs.	250 seçkin sürüyü yen.
+Shield-Brothers	Kalkan Kardeşleri
+Hunt 10 hours with a party.	Bir grupla 10 saat avlan.
+Warband	Savaş Çetesi
+Hunt 100 hours with a party.	Bir grupla 100 saat avlan.
+Warband Captain	Çete Yüzbaşısı
+Map Commander	Harita Komutanı
+Fight the maps' Commanders 10 times.	Haritaların Komutanlarıyla 10 kez dövüş.
+Scourge of Commanders	Komutanların Belası
+Fight all twelve Commanders.	On iki Komutanın hepsiyle dövüş.
+Wayfinder	Yol Bulucu
+Open trail caches on 5 maps.	5 haritada yol sandığı aç.
+Cartographer	Haritacı
+Open trail caches on all twelve maps.	On iki haritanın hepsinde yol sandığı aç.

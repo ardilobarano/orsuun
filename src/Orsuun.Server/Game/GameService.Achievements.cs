@@ -7,6 +7,18 @@ namespace Orsuun.Server.Game;
 public sealed partial class GameService
 {
     /// <summary>Adds to a hero's lifetime counter (Count does this for every bounty metric too).</summary>
+    /// <summary>Sets a bit of one of the hero's masks (Commanders fought, maps with a cache opened); a new one raises the
+    /// feat by one.</summary>
+    private void MarkNew(Account account, FeatMetric metric, int bit, bool cacheMaps)
+    {
+        if (bit < 0 || bit > 30) return;
+        int mask = cacheMaps ? account.CacheMapsMask : account.CommandersMask;
+        if ((mask & (1 << bit)) != 0) return;
+        if (cacheMaps) account.CacheMapsMask = mask | (1 << bit);
+        else account.CommandersMask = mask | (1 << bit);
+        Feat(account, metric, 1);
+    }
+
     private void Feat(Account account, FeatMetric metric, long amount)
     {
         if (amount <= 0) return;

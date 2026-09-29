@@ -197,6 +197,10 @@ public sealed class Account
     /// <summary>Trail caches (Rules.TrailCaches): the bounty day of the last one opened, how many that day, and when.</summary>
     public string? CacheDay { get; set; }
     public int CachesToday { get; set; }
+    /// <summary>"How many different" achievements (29 Sep 2026): Commanders fought (bit id - 1) and campaign maps a trail
+    /// cache was opened on (bit map - 1); a new bit raises FeatMetric.CommandersMet / CacheMaps.</summary>
+    public int CommandersMask { get; set; }
+    public int CacheMapsMask { get; set; }
     public DateTime? CacheOpenedUtc { get; set; }
     /// <summary>Hunting parties (Rules.Parties): the leader of this hero's party (the leader's own id for the leader), when
     /// it joined, and the last invite waiting (who asked, their name, when).</summary>

@@ -34,6 +34,8 @@ public sealed partial class GameService
         account.CachesToday = opened + 1;
         account.CacheOpenedUtc = DateTime.UtcNow;
         Count(account, BountyMetric.CachesOpened, 1);
+        // A cache on a campaign map not opened on before counts toward Wayfinder and Cartographer.
+        if (!Content.IsZone(account.ParkedStage)) MarkNew(account, FeatMetric.CacheMaps, Content.MapOfStage(account.ParkedStage).Id - 1, cacheMaps: true);
         _db.Ledger.Add(Entry(account.Id, null, "cache", reward.Text, reward.Sorn, request.RequestId));
         await SaveAsync(ct);
         return new CacheOpenDto(ToState(account), reward.Text);

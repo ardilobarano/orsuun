@@ -34,6 +34,13 @@ namespace Orsuun.Rules
         PitWins = 16,
         /// <summary>Trail caches opened (29 Sep 2026; BountyMetric.CachesOpened counts it through Bounties.FeatOf).</summary>
         CachesOpened = 17,
+        // Since 29 Sep 2026 ("Bounties and achievements"): elite packs beaten, seconds hunted with a partymate alongside,
+        // map Commander fights, and two "how many different" counts raised once for each new one (the hero's masks).
+        ElitePacks = 18,
+        PartySeconds = 19,
+        MapCommanderFights = 20,
+        CommandersMet = 21,
+        CacheMaps = 22,
     }
 
     /// <summary>What an achievement measures: a lifetime counter, or the hero as it stands.</summary>
@@ -195,6 +202,15 @@ namespace Orsuun.Rules
                 new AchievementDef(66, "Patron", "Give 1,000,000 sorn to your guild.", FeatSource.Counter, 1000000, 60, 300, "Patron", FeatMetric.SornDonated),
                 new AchievementDef(70, "Mastered", "Raise a skill to M10.", FeatSource.BestSkillGrade, SkillGrades.MasteredSteps, 30, 150),
                 new AchievementDef(71, "Peerless", "Raise a skill to Peerless.", FeatSource.BestSkillGrade, SkillGrades.Max, 150, 800, "Peerless"),
+                // The open maps (29 Sep 2026): elite packs, parties, the maps' Commanders, trail caches.
+                new AchievementDef(80, "Elite Slayer", "Beat 25 elite packs.", FeatSource.Counter, 25, 20, 100, metric: FeatMetric.ElitePacks),
+                new AchievementDef(81, "Golden Hunter", "Beat 250 elite packs.", FeatSource.Counter, 250, 80, 400, "Golden Hunter", FeatMetric.ElitePacks),
+                new AchievementDef(82, "Shield-Brothers", "Hunt 10 hours with a party.", FeatSource.Counter, 10 * 3600, 20, 100, metric: FeatMetric.PartySeconds),
+                new AchievementDef(83, "Warband", "Hunt 100 hours with a party.", FeatSource.Counter, 100 * 3600, 80, 400, "Warband Captain", FeatMetric.PartySeconds),
+                new AchievementDef(84, "Map Commander", "Fight the maps' Commanders 10 times.", FeatSource.Counter, 10, 30, 150, metric: FeatMetric.MapCommanderFights),
+                new AchievementDef(85, "Scourge of Commanders", "Fight all twelve Commanders.", FeatSource.Counter, 12, 120, 600, "Scourge of Commanders", FeatMetric.CommandersMet),
+                new AchievementDef(86, "Wayfinder", "Open trail caches on 5 maps.", FeatSource.Counter, 5, 20, 100, metric: FeatMetric.CacheMaps),
+                new AchievementDef(87, "Cartographer", "Open trail caches on all twelve maps.", FeatSource.Counter, 12, 100, 500, "Cartographer", FeatMetric.CacheMaps),
             };
             // The campaign: every map's last stage (100 + map).
             foreach (MapDef map in Content.Maps)

@@ -141,51 +141,51 @@ namespace Orsuun.Client
             Ui.Framed("Box", s, 0.06f, 0.1f, 0.94f, 0.88f, new Color(0.07f, 0.06f, 0.05f, 0.97f));
             Ui.Title("Title", s, 0.1f, 0.800f, 0.9f, 0.865f, "SETTINGS", 38, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             string[] quality = { "LOW", "MEDIUM", "HIGH" }, effects = { "ALL", "FEWER" }, text = { "NORMAL", "LARGE", "LARGER" };
-            Ui.Section("GraphicsHead", s, 0.15f, 0.735f, 0.85f, 0.780f, "GRAPHICS", 26);
+            Ui.Section("GraphicsHead", s, 0.15f, 0.745f, 0.85f, 0.785f, "GRAPHICS", 26);
             for (int i = 0; i < 3; i++)
             {
                 var q = (GameSettings.Quality)i;
                 float x0 = 0.1f + i * 0.27f;
-                _graphicsButtons[i] = Ui.Button("Graphics" + i, s, x0, 0.665f, x0 + 0.26f, 0.725f, quality[i], 24, Palette.ButtonIdle, () => { GameSettings.SetGraphics(q); FillSettings(); }, out _)
+                _graphicsButtons[i] = Ui.Button("Graphics" + i, s, x0, 0.68f, x0 + 0.26f, 0.735f, quality[i], 24, Palette.ButtonIdle, () => { GameSettings.SetGraphics(q); FillSettings(); }, out _)
                     .GetComponent<Image>();
             }
-            Ui.Label("GraphicsNote", s, 0.1f, 0.625f, 0.9f, 0.660f, "LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.", 20,
+            Ui.Label("GraphicsNote", s, 0.1f, 0.643f, 0.9f, 0.675f, "LOW saves battery: 30 frames a second, the lane drawn smaller, no glow haze.", 20,
                 TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Section("EffectsHead", s, 0.15f, 0.565f, 0.85f, 0.610f, "SKILL EFFECTS", 26);
+            Ui.Section("EffectsHead", s, 0.15f, 0.595f, 0.85f, 0.635f, "SKILL EFFECTS", 26);
             for (int i = 0; i < 2; i++)
             {
                 bool fewer = i == 1;
                 float x0 = 0.1f + i * 0.41f;
-                _effectButtons[i] = Ui.Button("Effects" + i, s, x0, 0.495f, x0 + 0.39f, 0.555f, effects[i], 24, Palette.ButtonIdle, () => { GameSettings.SetFewerEffects(fewer); FillSettings(); }, out _)
+                _effectButtons[i] = Ui.Button("Effects" + i, s, x0, 0.53f, x0 + 0.39f, 0.585f, effects[i], 24, Palette.ButtonIdle, () => { GameSettings.SetFewerEffects(fewer); FillSettings(); }, out _)
                     .GetComponent<Image>();
             }
-            Ui.Label("EffectsNote", s, 0.1f, 0.455f, 0.9f, 0.490f, "FEWER draws each skill without the extra layers of its grade.", 20, TextAnchor.MiddleCenter, Palette.Muted);
-            Ui.Section("TextHead", s, 0.15f, 0.395f, 0.85f, 0.440f, "TEXT SIZE", 26);
+            Ui.Label("EffectsNote", s, 0.1f, 0.493f, 0.9f, 0.525f, "FEWER draws each skill without the extra layers of its grade.", 20, TextAnchor.MiddleCenter, Palette.Muted);
+            Ui.Section("TextHead", s, 0.15f, 0.445f, 0.85f, 0.485f, "TEXT SIZE", 26);
             for (int i = 0; i < 3; i++)
             {
                 int size = i;
                 float x0 = 0.1f + i * 0.27f;
-                _textButtons[i] = Ui.Button("Text" + i, s, x0, 0.325f, x0 + 0.26f, 0.385f, text[i], 24, Palette.ButtonIdle, () => { GameSettings.SetTextSize(size); FillSettings(); }, out _)
+                _textButtons[i] = Ui.Button("Text" + i, s, x0, 0.38f, x0 + 0.26f, 0.435f, text[i], 24, Palette.ButtonIdle, () => { GameSettings.SetTextSize(size); FillSettings(); }, out _)
                     .GetComponent<Image>();
             }
             // The frame rate in the corner (the phone speed pass, 29 Sep 2026).
-            Ui.Section("FpsHead", s, 0.15f, 0.295f, 0.85f, 0.340f, "FRAME RATE", 26);
+            Ui.Section("FpsHead", s, 0.15f, 0.33f, 0.85f, 0.37f, "FRAME RATE", 26);
             string[] fps = { "HIDE", "SHOW" };
             for (int i = 0; i < 2; i++)
             {
                 bool show = i == 1;
                 float x0 = 0.1f + i * 0.41f;
-                _fpsButtons[i] = Ui.Button("Fps" + i, s, x0, 0.230f, x0 + 0.39f, 0.285f, fps[i], 24, Palette.ButtonIdle, () => { GameSettings.SetShowFps(show); FillSettings(); }, out _)
+                _fpsButtons[i] = Ui.Button("Fps" + i, s, x0, 0.265f, x0 + 0.39f, 0.32f, fps[i], 24, Palette.ButtonIdle, () => { GameSettings.SetShowFps(show); FillSettings(); }, out _)
                     .GetComponent<Image>();
             }
             // Commander pushes (29 Sep 2026): a phone notification when a Commander rises where the hero (or its party) hunts.
-            Ui.Section("AlertsHead", s, 0.15f, 0.175f, 0.85f, 0.22f, "COMMANDER ALERTS", 26);
+            Ui.Section("AlertsHead", s, 0.15f, 0.215f, 0.85f, 0.255f, "COMMANDER ALERTS", 26);
             string[] alerts = { "ON", "OFF" };
             for (int i = 0; i < 2; i++)
             {
                 bool on = i == 0;
                 float x0 = 0.1f + i * 0.41f;
-                _alertButtons[i] = Ui.Button("Alerts" + i, s, x0, 0.11f, x0 + 0.39f, 0.165f, alerts[i], 24, Palette.ButtonIdle, () => SetAlerts(on), out _)
+                _alertButtons[i] = Ui.Button("Alerts" + i, s, x0, 0.15f, x0 + 0.39f, 0.205f, alerts[i], 24, Palette.ButtonIdle, () => SetAlerts(on), out _)
                     .GetComponent<Image>();
             }
             Ui.Button("Close", s, 0.3f, 0.02f, 0.7f, 0.08f, "CLOSE", 26, Palette.ButtonIdle, () => _settings.SetActive(false), out _);

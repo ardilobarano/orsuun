@@ -2892,3 +2892,24 @@ There is no party board in a dungeon.	Într-o temniță nu există panou de grup
 Only friends, guildmates and heroes on this map's party board can join your party.	Doar prietenii, colegii de breaslă și eroii de pe panoul grupurilor acestei hărți pot intra în grupul tău.
 # Commander pushes (29 Sep 2026).
 COMMANDER ALERTS	ALERTE PENTRU COMANDANȚI
+# Bounties and achievements for the open maps (29 Sep 2026).
+Beat 3 elite packs	Învinge 3 haite de elită
+Hunt 20 minutes with a party	Vânează 20 de minute cu un grup
+Fight 3 map Commanders	Luptă cu 3 Comandanți de hartă
+Elite Slayer	Ucigașul Elitelor
+Beat 25 elite packs.	Învinge 25 de haite de elită.
+Golden Hunter	Vânătorul de Aur
+Beat 250 elite packs.	Învinge 250 de haite de elită.
+Shield-Brothers	Frați de Scut
+Hunt 10 hours with a party.	Vânează 10 ore cu un grup.
+Warband	Ceată de Război
+Hunt 100 hours with a party.	Vânează 100 de ore cu un grup.
+Warband Captain	Căpitanul Cetei
+Map Commander	Comandant de Hartă
+Fight the maps' Commanders 10 times.	Luptă de 10 ori cu Comandanții hărților.
+Scourge of Commanders	Flagelul Comandanților
+Fight all twelve Commanders.	Luptă cu toți cei doisprezece Comandanți.
+Wayfinder	Călăuza
+Open trail caches on 5 maps.	Deschide cufere de drum pe 5 hărți.
+Cartographer	Cartograful
+Open trail caches on all twelve maps.	Deschide cufere de drum pe toate cele douăsprezece hărți.

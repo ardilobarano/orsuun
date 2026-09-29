@@ -2930,3 +2930,24 @@ There is no party board in a dungeon.	In einem Verlies gibt es kein Gruppenbrett
 Only friends, guildmates and heroes on this map's party board can join your party.	Nur Freunde, Gildengefährten und Helden vom Gruppenbrett dieser Karte können deiner Gruppe beitreten.
 # Commander pushes (29 Sep 2026).
 COMMANDER ALERTS	KOMMANDANTEN-HINWEISE
+# Bounties and achievements for the open maps (29 Sep 2026).
+Beat 3 elite packs	Besiege 3 Elite-Rudel
+Hunt 20 minutes with a party	Jage 20 Minuten mit einer Gruppe
+Fight 3 map Commanders	Kämpfe gegen 3 Karten-Kommandanten
+Elite Slayer	Elitenbezwinger
+Beat 25 elite packs.	Besiege 25 Elite-Rudel.
+Golden Hunter	Goldener Jäger
+Beat 250 elite packs.	Besiege 250 Elite-Rudel.
+Shield-Brothers	Schildbrüder
+Hunt 10 hours with a party.	Jage 10 Stunden mit einer Gruppe.
+Warband	Kriegsschar
+Hunt 100 hours with a party.	Jage 100 Stunden mit einer Gruppe.
+Warband Captain	Hauptmann der Kriegsschar
+Map Commander	Karten-Kommandant
+Fight the maps' Commanders 10 times.	Kämpfe 10-mal gegen die Kommandanten der Karten.
+Scourge of Commanders	Geißel der Kommandanten
+Fight all twelve Commanders.	Kämpfe gegen alle zwölf Kommandanten.
+Wayfinder	Pfadfinder
+Open trail caches on 5 maps.	Öffne Wegtruhen auf 5 Karten.
+Cartographer	Kartograf
+Open trail caches on all twelve maps.	Öffne Wegtruhen auf allen zwölf Karten.

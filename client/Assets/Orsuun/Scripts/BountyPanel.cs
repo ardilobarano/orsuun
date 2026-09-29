@@ -11,7 +11,8 @@ namespace Orsuun.Client
     public sealed class BountyPanel : MonoBehaviour
     {
         /// <summary>Six daily rows (the trail-cache bounty since 29 Sep 2026) and four weekly.</summary>
-        private const int Rows = 10, DailyRows = 6;
+        private const int Rows = 13, DailyRows = 8;
+        private const float RowStep = 0.037f, RowHeight = 0.034f;
 
         private sealed class Row
         {
@@ -59,33 +60,34 @@ namespace Orsuun.Client
             _marks = Ui.Title("Marks", canvas, 0.05f, 0.895f, 0.95f, 0.935f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
 
             _dailyTitle = Ui.Title("DailyTitle", canvas, 0.04f, 0.855f, 0.96f, 0.89f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
-            _weeklyTitle = Ui.Title("WeeklyTitle", canvas, 0.04f, 0.535f, 0.96f, 0.567f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            _weeklyTitle = Ui.Title("WeeklyTitle", canvas, 0.04f, 0.52f, 0.96f, 0.552f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
             for (int i = 0; i < Rows; i++)
             {
                 int index = i;
-                // Six daily rows under the first title, four weekly rows under the second.
-                float y1 = i < DailyRows ? 0.85f - i * 0.047f : 0.53f - (i - DailyRows) * 0.047f;
-                float y0 = y1 - 0.043f;
+                // Eight daily rows under the first title, five weekly rows under the second (29 Sep 2026: elite packs,
+                // parties and the maps' Commanders joined them).
+                float y1 = i < DailyRows ? 0.85f - i * RowStep : 0.515f - (i - DailyRows) * RowStep;
+                float y0 = y1 - RowHeight;
                 var r = new Row();
                 r.Back = Ui.Framed("Back" + i, canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);
                 Ui.Panel("Bar" + i, canvas, 0.045f, y0 + 0.004f, 0.735f, y0 + 0.012f, new Color(0f, 0f, 0f, 0.4f)).raycastTarget = false;
                 r.Fill = Ui.Panel("Fill" + i, canvas, 0.045f, y0 + 0.004f, 0.735f, y0 + 0.012f, Palette.Sorn).rectTransform;
-                r.Label = Ui.Label("Label" + i, canvas, 0.06f, y0 + 0.012f, 0.73f, y1, "", 24, TextAnchor.MiddleLeft, Palette.Parchment);
-                r.Claim = Ui.Button("Claim" + i, canvas, 0.76f, y0, 0.96f, y1, "", 22, Palette.Safe, () => Claim(index), out r.ClaimLabel);
+                r.Label = Ui.Label("Label" + i, canvas, 0.06f, y0 + 0.011f, 0.73f, y1, "", 21, TextAnchor.MiddleLeft, Palette.Parchment);
+                r.Claim = Ui.Button("Claim" + i, canvas, 0.76f, y0, 0.96f, y1, "", 20, Palette.Safe, () => Claim(index), out r.ClaimLabel);
                 _rows[i] = r;
             }
 
-            Ui.Section("ShopTitle", canvas, 0.08f, 0.31f, 0.92f, 0.345f, "HUNT MARKS SHOP", 24);
+            Ui.Section("ShopTitle", canvas, 0.08f, 0.295f, 0.92f, 0.328f, "HUNT MARKS SHOP", 24);
             for (int i = 0; i < HuntShop.Items.Length; i++)
             {
                 ShopItem item = HuntShop.Items[i];
                 float x0 = 0.04f + (i % 3) * 0.31f;
-                float y1 = i < 3 ? 0.305f : 0.215f;
+                float y1 = i < 3 ? 0.29f : 0.2f;
                 _buy[i] = Ui.Button("Buy" + i, canvas, x0, y1 - 0.085f, x0 + 0.3f, y1, $"{item.Name}\n<size=18>{item.Detail}</size>\n{item.Marks} MARKS", 22,
                     Palette.ButtonIdle, () => Buy(item.Id), out _);
             }
 
-            _message = Ui.Label("Message", canvas, 0.05f, 0.08f, 0.95f, 0.125f, "", 24, TextAnchor.MiddleCenter, Palette.Muted);
+            _message = Ui.Label("Message", canvas, 0.05f, 0.077f, 0.95f, 0.113f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
             // Bounties pay the Campaign Trail's XP (GDD section 3): its screen is a tap away.
             Ui.Button("Trail", canvas, 0.03f, 0.015f, 0.47f, 0.075f, "CAMPAIGN TRAIL", 26, Palette.Alloy, () => { _canvas.SetActive(false); _root.Trail.Open(); }, out _);
             Ui.Button("Close", canvas, 0.5f, 0.015f, 0.97f, 0.075f, "BACK TO THE HUNT", 26, Palette.ButtonIdle, () => _canvas.SetActive(false), out _);
@@ -157,7 +159,7 @@ namespace Orsuun.Client
                 r.Back.gameObject.SetActive(true);
                 r.Fill.gameObject.SetActive(true);
                 r.Claim.gameObject.SetActive(true);
-                bool hunt = b.title.StartsWith("Hunt for");
+                bool hunt = b.title.StartsWith("Hunt ");   // "Hunt for 30 minutes", "Hunt 20 minutes with a party": seconds
                 string count = hunt ? $"{b.count / 60}/{b.target / 60} min" : $"{b.count}/{b.target}";
                 BountyDef def = Bounties.Find(b.id);
                 int trailXp = def != null ? CampaignTrail.BountyXp(def) : b.period == "Daily" ? CampaignTrail.DailyBountyXp : CampaignTrail.WeeklyBountyXp;

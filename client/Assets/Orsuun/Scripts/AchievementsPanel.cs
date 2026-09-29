@@ -151,7 +151,8 @@ namespace Orsuun.Client
         {
             string state = a.claimed ? ConfirmDialog.Tint("CLAIMED", Palette.Muted)
                 : a.done ? ConfirmDialog.Tint("DONE: TAP TO CLAIM", Palette.Good)
-                : ConfirmDialog.Tint($"{Count(a.progress)} / {Count(a.target)}", Palette.Parchment);
+                : ConfirmDialog.Tint(a.text.StartsWith("Hunt ") ? $"{a.progress / 3600}h / {a.target / 3600}h"   // hunting time is kept in seconds
+                    : $"{Count(a.progress)} / {Count(a.target)}", Palette.Parchment);
             string reward = $"+{a.honor} Honor  ·  +{a.sorn.ToString("N0", CultureInfo.InvariantCulture)} sorn"
                             + (string.IsNullOrEmpty(a.title) ? "" : "  ·  " + ConfirmDialog.Tint("title: " + a.title, Palette.Sorn));
             string name = a.claimed ? $"<color=#B9B3A8>{a.name}</color>" : $"<color=#FFD66B>{a.name}</color>";

@@ -2884,3 +2884,24 @@ There is no party board in a dungeon.	W lochu nie ma tablicy drużyn.
 Only friends, guildmates and heroes on this map's party board can join your party.	Do twojej drużyny mogą dołączyć tylko przyjaciele, członkowie gildii i bohaterowie z tablicy drużyn tej mapy.
 # Commander pushes (29 Sep 2026).
 COMMANDER ALERTS	POWIADOMIENIA O DOWÓDCACH
+# Bounties and achievements for the open maps (29 Sep 2026).
+Beat 3 elite packs	Pokonaj 3 elitarne stada
+Hunt 20 minutes with a party	Poluj 20 minut z drużyną
+Fight 3 map Commanders	Walcz z 3 Dowódcami map
+Elite Slayer	Pogromca Elit
+Beat 25 elite packs.	Pokonaj 25 elitarnych stad.
+Golden Hunter	Złoty Łowca
+Beat 250 elite packs.	Pokonaj 250 elitarnych stad.
+Shield-Brothers	Bracia Tarczy
+Hunt 10 hours with a party.	Poluj 10 godzin z drużyną.
+Warband	Drużyna Wojenna
+Hunt 100 hours with a party.	Poluj 100 godzin z drużyną.
+Warband Captain	Kapitan Drużyny
+Map Commander	Dowódca Mapy
+Fight the maps' Commanders 10 times.	Walcz z Dowódcami map 10 razy.
+Scourge of Commanders	Plaga Dowódców
+Fight all twelve Commanders.	Walcz ze wszystkimi dwunastoma Dowódcami.
+Wayfinder	Tropiciel
+Open trail caches on 5 maps.	Otwórz skrzynie przy szlaku na 5 mapach.
+Cartographer	Kartograf
+Open trail caches on all twelve maps.	Otwórz skrzynie przy szlaku na wszystkich dwunastu mapach.

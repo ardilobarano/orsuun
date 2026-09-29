@@ -2898,3 +2898,24 @@ There is no party board in a dungeon.	Não há quadro de grupos numa masmorra.
 Only friends, guildmates and heroes on this map's party board can join your party.	Só amigos, companheiros de guilda e heróis do quadro de grupos deste mapa podem entrar no teu grupo.
 # Commander pushes (29 Sep 2026).
 COMMANDER ALERTS	ALERTAS DE COMANDANTES
+# Bounties and achievements for the open maps (29 Sep 2026).
+Beat 3 elite packs	Derrota 3 matilhas de elite
+Hunt 20 minutes with a party	Caça 20 minutos com um grupo
+Fight 3 map Commanders	Luta contra 3 Comandantes de mapa
+Elite Slayer	Matador de Elites
+Beat 25 elite packs.	Derrota 25 matilhas de elite.
+Golden Hunter	Caçador Dourado
+Beat 250 elite packs.	Derrota 250 matilhas de elite.
+Shield-Brothers	Irmãos de Escudo
+Hunt 10 hours with a party.	Caça 10 horas com um grupo.
+Warband	Bando de Guerra
+Hunt 100 hours with a party.	Caça 100 horas com um grupo.
+Warband Captain	Capitão do Bando
+Map Commander	Comandante de Mapa
+Fight the maps' Commanders 10 times.	Luta 10 vezes contra os Comandantes dos mapas.
+Scourge of Commanders	Flagelo dos Comandantes
+Fight all twelve Commanders.	Luta contra os doze Comandantes.
+Wayfinder	Desbravador
+Open trail caches on 5 maps.	Abre baús do trilho em 5 mapas.
+Cartographer	Cartógrafo
+Open trail caches on all twelve maps.	Abre baús do trilho nos doze mapas.

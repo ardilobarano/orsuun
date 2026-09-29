@@ -214,6 +214,8 @@ public sealed partial class GameService
         MarkVisit(account, settlement.CountedSeconds, now);
         Count(account, BountyMetric.Korstones, settlement.Korstones);
         if (!settlement.Offline) Count(account, BountyMetric.HuntSeconds, settlement.CountedSeconds);
+        // Hunting with a partymate alongside (Rules.Parties) counts for the party bounty and achievements.
+        if (!settlement.Offline && partyBp > 0) Count(account, BountyMetric.PartySeconds, settlement.CountedSeconds);
         await SaveAsync(ct);
         await AddPointsAsync(account.Banner, settlement.Korstones * Banners.PointsPerKorstone, ct);
         return ToState(account, settlement: settlement);
@@ -680,6 +682,9 @@ public sealed partial class GameService
         _db.BossHits.Add(new BossHit { BossId = boss.Id, SpawnUtc = clock.SpawnUtc, AccountId = account.Id, Name = name, Banner = account.Banner, Damage = run.Damage, Utc = now });
         Apply(account, inventory, hunt: true);
         Count(account, BountyMetric.CommanderFights, 1);
+        // The maps' Commanders have a bounty of their own, and every Commander fought counts toward Scourge of Commanders.
+        if (Content.OnMap(boss)) Count(account, BountyMetric.MapCommanderFights, 1);
+        MarkNew(account, FeatMetric.CommandersMet, boss.Id - 1, cacheMaps: false);
 
         _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} pool={clock.HpLeft}/{clock.HpMax} slew={slew} bell={bell} chest={chest}", 0, request.RequestId));
         await SaveAsync(ct);
@@ -838,6 +843,7 @@ public sealed partial class GameService
             long bannerUp = EliteCamps.SecondsUp(Parties.Place(account.ParkedStage), now.AddSeconds(-s.CountedSeconds), now);
             elitePacks = EliteCamps.ElitePacks(s.Packs, s.CountedSeconds, bannerUp, _rng);
             eliteLoot = EliteCamps.Loot(stage, inventory, _rng, elitePacks);
+            if (elitePacks > 0) Count(account, BountyMetric.ElitePacks, elitePacks);
         }
         // A fish eaten (Rules.Fishing) and partymates hunting alongside (Rules.Parties) add to the hunt's XP and sorn.
         (long xpBp, long sornBp) meal = Fishing.MealBonusBp(account.LastHeartbeatUtc, now, MealsOf(account));
