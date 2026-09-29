@@ -94,20 +94,18 @@
    "Tint": "#E0D6C4"
   },
   {
-   "Name": "IceCrag",
+   "Name": "GiantSkull",
    "X": 57.3,
    "Z": -94.1,
    "Yaw": 59.9,
-   "Height": 10,
-   "Tint": "#9A9080"
+   "Height": 6
   },
   {
-   "Name": "IceCrag",
-   "X": 41.6,
-   "Z": -108.4,
-   "Yaw": 72.5,
-   "Height": 8,
-   "Tint": "#9A9080"
+   "Name": "ColossusHand",
+   "X": 38.9,
+   "Z": -110.3,
+   "Yaw": 74.5,
+   "Height": 9
   },
   {
    "Name": "Watchtower",

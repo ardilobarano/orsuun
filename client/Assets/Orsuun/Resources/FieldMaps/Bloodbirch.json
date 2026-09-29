@@ -54,12 +54,11 @@
  "Stones": 0,
  "Landmarks": [
   {
-   "Name": "DesertShrine",
+   "Name": "RootThrone",
    "X": 89.6,
    "Z": -8.4,
    "Yaw": 360.0,
-   "Height": 5,
-   "Tint": "#9A6A60"
+   "Height": 5.5
   },
   {
    "Name": "IceCrag",
@@ -70,12 +69,11 @@
    "Tint": "#7A5048"
   },
   {
-   "Name": "IceCrag",
-   "X": -26.4,
-   "Z": -85.3,
+   "Name": "SapWell",
+   "X": -24.0,
+   "Z": -82.1,
    "Yaw": 123.7,
-   "Height": 8,
-   "Tint": "#7A5048"
+   "Height": 3.6
   },
   {
    "Name": "SteppeStone",

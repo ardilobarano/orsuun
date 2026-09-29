@@ -54,28 +54,25 @@
  "Stones": 0,
  "Landmarks": [
   {
-   "Name": "DesertShrine",
+   "Name": "KhanThrone",
    "X": -47.1,
    "Z": 73.1,
    "Yaw": 235.5,
-   "Height": 7,
-   "Tint": "#8A7050"
+   "Height": 6.5
   },
   {
-   "Name": "GorakTent",
+   "Name": "GoldenStatue",
    "X": -91.7,
    "Z": -32.9,
    "Yaw": 152.1,
-   "Height": 6,
-   "Tint": "#6A5030"
+   "Height": 2.6
   },
   {
-   "Name": "GorakTent",
+   "Name": "GoldenStatue",
    "X": -104.4,
    "Z": -18.4,
    "Yaw": 160.7,
-   "Height": 5.5,
-   "Tint": "#6A5030"
+   "Height": 2.4
   },
   {
    "Name": "WarBanner",

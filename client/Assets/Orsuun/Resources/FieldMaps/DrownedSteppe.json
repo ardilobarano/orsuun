@@ -62,12 +62,11 @@
    "Tint": "#7C8C80"
   },
   {
-   "Name": "Yurt",
-   "X": -33.9,
-   "Z": 87.0,
+   "Name": "SunkenBellTower",
+   "X": -34.2,
+   "Z": 87.9,
    "Yaw": 252.5,
-   "Height": 3.4,
-   "Tint": "#7C8C80"
+   "Height": 8
   },
   {
    "Name": "Yurt",
@@ -102,12 +101,11 @@
    "Tint": "#6A7060"
   },
   {
-   "Name": "WarBanner",
-   "X": -80.2,
-   "Z": -9.6,
+   "Name": "BogShrine",
+   "X": -80.7,
+   "Z": -9.7,
    "Yaw": 163.3,
-   "Height": 6,
-   "Tint": "#6A7060"
+   "Height": 5.5
   }
  ],
  "Weather": "midges",

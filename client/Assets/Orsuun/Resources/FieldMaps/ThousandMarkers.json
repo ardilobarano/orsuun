@@ -198,28 +198,25 @@
    "Tint": "#8A80A0"
   },
   {
-   "Name": "WarBanner",
+   "Name": "MarkerObelisk",
    "X": 58.9,
    "Z": -69.6,
    "Yaw": 35.5,
-   "Height": 6.5,
-   "Tint": "#7A6A9A"
+   "Height": 6.5
   },
   {
-   "Name": "WarBanner",
+   "Name": "MarkerObelisk",
    "X": 40.4,
    "Z": -84.4,
    "Yaw": 64.7,
-   "Height": 6.5,
-   "Tint": "#7A6A9A"
+   "Height": 6.5
   },
   {
-   "Name": "WarBanner",
+   "Name": "MarkerObelisk",
    "X": 20.3,
    "Z": -91.2,
    "Yaw": 81.5,
-   "Height": 6.5,
-   "Tint": "#7A6A9A"
+   "Height": 6.5
   },
   {
    "Name": "Palisade",
@@ -238,12 +235,11 @@
    "Tint": "#6A6070"
   },
   {
-   "Name": "Watchtower",
+   "Name": "BurialMound",
    "X": -83.9,
    "Z": 27.7,
    "Yaw": 207.8,
-   "Height": 9.5,
-   "Tint": "#7A7488"
+   "Height": 5
   },
   {
    "Name": "SteppeStone",

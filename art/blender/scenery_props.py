@@ -34,6 +34,23 @@ PROPS = {
     "IceShrine": ("ice-shrine-tripo.glb", 4000, -90),
     "FrostPine": ("frost-pine-tripo.glb", 5000, -90),
     "IceCrag": ("ice-crag-tripo.glb", 4000, -90),
+    # Maps 5-12's own landmarks (29 Sep 2026).
+    "AshShrine": ("ash-shrine-tripo.glb", 4500, -90),
+    "LavaForge": ("lava-forge-tripo.glb", 4500, -90),
+    "HangingTree": ("hanging-tree-tripo.glb", 5000, -90),
+    "LanternShrine": ("lantern-shrine-tripo.glb", 4000, -90),
+    "RootThrone": ("root-throne-tripo.glb", 5000, -90),
+    "SapWell": ("sap-well-tripo.glb", 4500, -90),
+    "SunkenBellTower": ("sunken-bell-tower-tripo.glb", 4500, -90),
+    "BogShrine": ("bog-shrine-tripo.glb", 4000, -90),
+    "GiantSkull": ("giant-skull-tripo.glb", 4500, -90),
+    "ColossusHand": ("colossus-hand-tripo.glb", 4500, -90),
+    "MerchantStall": ("merchant-stall-tripo.glb", 5000, -90),
+    "SunkenArch": ("sunken-arch-tripo.glb", 4500, -90),
+    "BurialMound": ("burial-mound-tripo.glb", 4500, -90),
+    "MarkerObelisk": ("marker-obelisk-tripo.glb", 3000, -90),
+    "KhanThrone": ("khan-throne-tripo.glb", 5000, -90),
+    "GoldenStatue": ("golden-statue-tripo.glb", 5000, -90),
 }
 names = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv and sys.argv.index("--") + 1 < len(sys.argv) else list(PROPS)
 for name in names:

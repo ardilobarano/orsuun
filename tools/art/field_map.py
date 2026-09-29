@@ -28,7 +28,13 @@ PICTO = {'Yurt': ('disc', (236, 226, 204), 11), 'Tent': ('tri', (150, 60, 40), 1
          'WarBanner': ('tri', (170, 30, 30), 7), 'DatePalm': ('disc', (70, 120, 50), 8), 'CaravanWreck': ('square', (130, 95, 60), 9),
          'SaltPillar': ('tri', (245, 225, 225), 9), 'DesertShrine': ('disc', (80, 170, 160), 10), 'MountainHut': ('square', (90, 60, 40), 10),
          'IceShrine': ('square', (150, 160, 170), 7), 'FrostPine': ('tri', (40, 80, 55), 8), 'IceCrag': ('tri', (120, 135, 150), 12),
-         'SteppeBirch': ('disc', (74, 110, 52), 7), 'SteppeCairn': ('disc', (128, 124, 116), 4)}
+         'SteppeBirch': ('disc', (74, 110, 52), 7), 'SteppeCairn': ('disc', (128, 124, 116), 4),
+         'AshShrine': ('square', (60, 40, 36), 9), 'LavaForge': ('square', (200, 90, 30), 9), 'HangingTree': ('disc', (80, 70, 60), 9),
+         'LanternShrine': ('square', (90, 120, 80), 7), 'RootThrone': ('square', (150, 40, 36), 9), 'SapWell': ('disc', (120, 30, 30), 8),
+         'SunkenBellTower': ('square', (130, 130, 110), 9), 'BogShrine': ('tri', (70, 100, 60), 7), 'GiantSkull': ('oval', (200, 196, 180), 11),
+         'ColossusHand': ('tri', (150, 150, 140), 10), 'MerchantStall': ('square', (200, 150, 60), 8), 'SunkenArch': ('square', (200, 170, 110), 9),
+         'BurialMound': ('disc', (90, 110, 70), 12), 'MarkerObelisk': ('tri', (110, 100, 140), 7), 'KhanThrone': ('square', (180, 150, 70), 11),
+         'GoldenStatue': ('oval', (190, 150, 60), 9)}
 
 
 def catmull(a, b, c, d, t):

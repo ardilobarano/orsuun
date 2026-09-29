@@ -78,12 +78,18 @@
    "Tint": "#7C8878"
   },
   {
-   "Name": "DesertShrine",
-   "X": 88.9,
-   "Z": 14.8,
+   "Name": "LanternShrine",
+   "X": 88.0,
+   "Z": 14.6,
    "Yaw": 342.5,
-   "Height": 4.8,
-   "Tint": "#8C9090"
+   "Height": 4.5
+  },
+  {
+   "Name": "HangingTree",
+   "X": 4.7,
+   "Z": 97.0,
+   "Yaw": 270.0,
+   "Height": 7
   },
   {
    "Name": "WarBanner",

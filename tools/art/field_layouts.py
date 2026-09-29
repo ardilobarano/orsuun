@@ -210,8 +210,8 @@ def cinder():
     obsidian, burnt, dark = '#5C3A34', '#5A4A40', '#6A5A52'
     return 'CinderMarches', budget('The Cinder Marches', 5, shape(20, 1.05, 1), 'Desert', 'SaltPillar',
         [('SaltPillar', 0.12, 16, 9, obsidian), ('SaltPillar', 0.14, 22, 7, obsidian), ('SaltPillar', 0.62, 18, 10, obsidian),
-         ('SaltPillar', 0.65, 24, 7.5, obsidian), ('IceCrag', 0.25, 20, 8, dark), ('IceCrag', 0.84, 20, 9, dark),
-         ('Watchtower', 0.46, 16, 10, burnt), ('Palisade', 0.48, 11, 3.8, burnt), ('Palisade', 0.495, 12, 3.6, burnt),
+         ('SaltPillar', 0.65, 24, 7.5, obsidian), ('IceCrag', 0.25, 20, 8, dark), ('LavaForge', 0.84, 18, 5, None),
+         ('AshShrine', 0.46, 16, 6, None), ('Palisade', 0.48, 11, 3.8, burnt), ('Palisade', 0.495, 12, 3.6, burnt),
          ('WarBanner', 0.22, 9, 6.5, '#8A5A48'), ('WarBanner', 0.90, 9, 6.5, '#8A5A48')],
         [('Ash Fields', 0.04), ('Hound Craters', 0.19), ('Obsidian Spires', 0.36), ('The Burnt Watch', 0.50), ('Cultist Pyres', 0.66), ('Lava Ford', 0.76)],
         [('The Burnt Watchtower', 0.46, 26), ('Obsidian Spires', 0.13, 30)],
@@ -225,7 +225,8 @@ def whisper():
     pine, birch, stone = '#6E7E70', '#A8B0A0', '#7C8878'
     return 'Whisperwood', budget('Whisperwood', 6, shape(-15, 0.95, 2), 'Forest', 'SteppeStone',
         [('IceShrine', 0.18, 11, 3.6, stone), ('IceShrine', 0.20, 14, 3.2, stone), ('IceShrine', 0.22, 11, 3.4, stone),
-         ('DesertShrine', 0.55, 14, 4.8, '#8C9090'), ('WarBanner', 0.40, 8.5, 5.5, '#707870'), ('WarBanner', 0.78, 8.5, 5.5, '#707870')],
+         ('LanternShrine', 0.55, 13, 4.5, None), ('HangingTree', 0.33, 12, 7, None), ('WarBanner', 0.40, 8.5, 5.5, '#707870'),
+         ('WarBanner', 0.78, 8.5, 5.5, '#707870')],
         [('Crooked Path', 0.04), ('Old Graves', 0.19), ('Hanging Tree', 0.33), ('The Forgotten Shrine', 0.52), ("Widow's Pond", 0.68), ('Mist Hollow', 0.84)],
         [('Old Graves', 0.20, 22), ("Widow's Pond", 0.70, 22)],
         groves=[('FrostPine', s, l, 10, 8, 8.5, pine) for s, l in ((0.02, 20), (0.10, 22), (0.28, 20), (0.36, 24), (0.46, 20), (0.60, 22), (0.80, 20), (0.92, 22))]
@@ -238,7 +239,7 @@ def whisper():
 def bloodbirch():
     red, rock = '#D05A48', '#7A5048'
     return 'Bloodbirch', budget('The Bloodbirch', 7, shape(45, 1.1, 3), 'Forest', 'SteppeStone',
-        [('DesertShrine', 0.40, 14, 5, '#9A6A60'), ('IceCrag', 0.15, 20, 7, rock), ('IceCrag', 0.70, 22, 8, rock),
+        [('RootThrone', 0.40, 14, 5.5, None), ('IceCrag', 0.15, 20, 7, rock), ('SapWell', 0.70, 18, 3.6, None),
          ('SteppeStone', 0.56, 10, 3.2, '#B07060'), ('SteppeStone', 0.58, 13, 3.4, '#B07060'), ('SteppeStone', 0.60, 10, 3, '#B07060')],
         [('Red Grove', 0.05), ('Stalker Trail', 0.20), ('Root Hollow', 0.37), ('Birch Circle', 0.55), ('Sap Pools', 0.72), ('Bleeding Ford', 0.88)],
         [("The Rootfather's Grove", 0.40, 26), ('Sap Pools', 0.74, 22)],
@@ -251,8 +252,8 @@ def bloodbirch():
 def drowned():
     reed, sunk = '#8A9A7A', '#7C8C80'
     return 'DrownedSteppe', budget('The Drowned Steppe', 8, shape(-40, 1.0, 4), 'Forest', 'SteppeStone',
-        [('Yurt', 0.30, 14, 3.8, sunk), ('Yurt', 0.32, 20, 3.4, sunk), ('Yurt', 0.34, 13, 3.6, sunk), ('Tent', 0.62, 12, 3.4, '#6A7A6A'),
-         ('Tent', 0.64, 16, 3.2, '#6A7A6A'), ('WarBanner', 0.61, 8.5, 6, '#6A7060'), ('WarBanner', 0.12, 8.5, 6, '#6A7060')],
+        [('Yurt', 0.30, 14, 3.8, sunk), ('SunkenBellTower', 0.32, 21, 8, None), ('Yurt', 0.34, 13, 3.6, sunk), ('Tent', 0.62, 12, 3.4, '#6A7A6A'),
+         ('Tent', 0.64, 16, 3.2, '#6A7A6A'), ('WarBanner', 0.61, 8.5, 6, '#6A7060'), ('BogShrine', 0.12, 9, 5.5, None)],
         [('Reed Beds', 0.03), ('Serpent Pools', 0.17), ('The Sunken Yurts', 0.33), ('Leech Marsh', 0.48), ('Bog Rider Camp', 0.63), ('Drowned Ford', 0.84)],
         [('The Sunken Yurts', 0.32, 28), ("Coil Mother's Pool", 0.20, 26)],
         groves=[('SteppeBirch', s, l, 9, 5, 5.5, reed) for s, l in ((0.06, 20), (0.40, 22), (0.72, 20), (0.92, 22))],
@@ -267,7 +268,7 @@ def graves():
     return 'ColossusGraves', budget('Colossus Graves', 9, shape(70, 1.05, 5), 'Ruins', 'SaltPillar',
         [('SaltPillar', s, l, h, bone, y) for s, l, h, y in ((0.20, 14, 9, 30), (0.22, 18, 11, 60), (0.24, 14, 10, 90), (0.26, 18, 12, 120),
                                                             (0.28, 14, 9, 150))]
-        + [('IceCrag', 0.50, 20, 10, stone), ('IceCrag', 0.53, 26, 8, stone), ('Watchtower', 0.70, 16, 9, '#A09888'),
+        + [('GiantSkull', 0.50, 20, 6, None), ('ColossusHand', 0.535, 27, 9, None), ('Watchtower', 0.70, 16, 9, '#A09888'),
            ('SteppeStone', 0.86, 10, 3, '#B0A898'), ('SteppeStone', 0.875, 12, 3.2, '#B0A898'), ('SteppeStone', 0.89, 10, 2.8, '#B0A898')],
         [('Grave Steps', 0.05), ('Field of Ribs', 0.22), ('Bone Pickers\' Nest', 0.38), ('The Broken Colossus', 0.52), ('Siege Yard', 0.70), ('Giant\'s Rest', 0.87)],
         [('Field of Ribs', 0.24, 30), ('The Broken Colossus', 0.51, 32)],
@@ -279,8 +280,8 @@ def graves():
 def bazaar():
     gold = '#D8B060'
     return 'SunkenBazaar', budget('The Sunken Bazaar', 10, shape(-70, 1.0, 6), 'Desert', 'SaltPillar',
-        [('DesertShrine', 0.10, 14, 5.5, None), ('DesertShrine', 0.60, 14, 5, None), ('Tent', 0.30, 12, 3.4, gold), ('Tent', 0.32, 16, 3.2, gold),
-         ('Tent', 0.34, 12, 3.6, gold), ('CaravanWreck', 0.46, 13, 3, None), ('CaravanWreck', 0.80, 14, 2.8, None),
+        [('DesertShrine', 0.10, 14, 5.5, None), ('SunkenArch', 0.60, 14, 6.5, None), ('MerchantStall', 0.30, 12, 3.8, None),
+         ('MerchantStall', 0.32, 16, 3.6, None), ('MerchantStall', 0.34, 12, 3.8, None), ('CaravanWreck', 0.46, 13, 3, None), ('CaravanWreck', 0.80, 14, 2.8, None),
          ('SaltPillar', 0.70, 20, 7, '#D8B070'), ('SaltPillar', 0.72, 25, 5.5, '#D8B070')],
         [('Palm Court', 0.04), ('Drowned Market', 0.18), ('Gilded Stalls', 0.33), ("Debtors' Row", 0.48), ('Cultist Steps', 0.63), ('Flooded Plaza', 0.84)],
         [('The Old Bazaar', 0.32, 28), ('Palm Court', 0.02, 24)],
@@ -296,8 +297,8 @@ def markers():
         for k in range(6):
             rows.append(('SteppeStone', 0.18 + k * 0.012, 12 + r * 5, 2.6 + (k % 3) * 0.4, violet, 0))
     return 'ThousandMarkers', budget('The Thousand Markers', 11, shape(110, 1.05, 7), 'Ruins', 'SteppeStone',
-        rows + [('WarBanner', s, 9, 6.5, '#7A6A9A') for s in (0.36, 0.40, 0.44)]
-        + [('Palisade', 0.60, 12, 3.6, '#6A6070'), ('Palisade', 0.615, 12.5, 3.4, '#6A6070'), ('Watchtower', 0.78, 16, 9.5, '#7A7488')]
+        rows + [('MarkerObelisk', s, 9, 6.5, None) for s in (0.36, 0.40, 0.44)]
+        + [('Palisade', 0.60, 12, 3.6, '#6A6070'), ('Palisade', 0.615, 12.5, 3.4, '#6A6070'), ('BurialMound', 0.78, 16, 5, None)]
         + [('SteppeStone', 0.9 + k * 0.012, 12, 2.8, violet, 0) for k in range(5)],
         [('Trooper Lines', 0.05), ('Marker Rows', 0.21), ('Broken Standard', 0.40), ('Rider Barrows', 0.58), ("Captain's Mound", 0.74), ('Violet Field', 0.88)],
         [('The Thousand Markers', 0.22, 32), ("Varkesh's Mound", 0.76, 30)],
@@ -308,7 +309,7 @@ def markers():
 def throne():
     gold, dark = '#C8A040', '#6A5030'
     return 'HollowThrone', budget('The Hollow Throne', 12, shape(-110, 0.95, 8), 'Ruins', 'IceShrine',
-        [('DesertShrine', 0.50, 14, 7, '#8A7050'), ('GorakTent', 0.28, 16, 6, dark), ('GorakTent', 0.31, 22, 5.5, dark)]
+        [('KhanThrone', 0.50, 14, 6.5, None), ('GoldenStatue', 0.28, 16, 2.6, None), ('GoldenStatue', 0.31, 22, 2.4, None)]
         + [('WarBanner', s, 9, 7.5, gold) for s in (0.44, 0.47, 0.53, 0.56)]
         + [('IceShrine', s, 11, 3.6, '#8A8070') for s in (0.70, 0.72, 0.74)]
         + [('Palisade', 0.12, 12, 3.8, '#5A4A30'), ('Palisade', 0.135, 12.5, 3.6, '#5A4A30')],

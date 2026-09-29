@@ -61,35 +61,32 @@
    "Height": 5.5
   },
   {
-   "Name": "DesertShrine",
+   "Name": "SunkenArch",
    "X": 59.3,
    "Z": 68.0,
    "Yaw": 317.1,
-   "Height": 5
+   "Height": 6.5
   },
   {
-   "Name": "Tent",
+   "Name": "MerchantStall",
    "X": -73.2,
    "Z": 36.7,
    "Yaw": 191.3,
-   "Height": 3.4,
-   "Tint": "#D8B060"
+   "Height": 3.8
   },
   {
-   "Name": "Tent",
+   "Name": "MerchantStall",
    "X": -74.9,
    "Z": 47.2,
    "Yaw": 194.7,
-   "Height": 3.2,
-   "Tint": "#D8B060"
+   "Height": 3.6
   },
   {
-   "Name": "Tent",
+   "Name": "MerchantStall",
    "X": -67.4,
    "Z": 57.4,
    "Yaw": 204.0,
-   "Height": 3.6,
-   "Tint": "#D8B060"
+   "Height": 3.8
   },
   {
    "Name": "CaravanWreck",
