@@ -2784,3 +2784,7 @@ Hanging Tree	Galgenbaum
 The Forgotten Shrine	Der Vergessene Schrein
 Widow's Pond	Witwenteich
 Mist Hollow	Nebelmulde
+# SETTINGS: the frame-rate readout (29 Sep 2026).
+FRAME RATE	BILDRATE
+HIDE	AUSBLENDEN
+SHOW	ANZEIGEN

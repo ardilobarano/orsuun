@@ -2738,3 +2738,7 @@ Hanging Tree	Wisielcze Drzewo
 The Forgotten Shrine	Zapomniana Kapliczka
 Widow's Pond	Staw Wdowy
 Mist Hollow	Mglista Kotlina
+# SETTINGS: the frame-rate readout (29 Sep 2026).
+FRAME RATE	LICZBA KLATEK
+HIDE	UKRYJ
+SHOW	POKAŻ

@@ -128,7 +128,7 @@ namespace Orsuun.Client
         }
 
         private GameObject _settings;
-        private readonly Image[] _graphicsButtons = new Image[3], _effectButtons = new Image[2], _textButtons = new Image[3];
+        private readonly Image[] _graphicsButtons = new Image[3], _effectButtons = new Image[2], _textButtons = new Image[3], _fpsButtons = new Image[2];
 
         /// <summary>SETTINGS (owner, 28 Sep 2026: "Graphics & text settings"; GameSettings): graphics, skill effects, text size.</summary>
         private void BuildSettings(Transform canvas)
@@ -136,7 +136,7 @@ namespace Orsuun.Client
             _settings = Ui.Rect("Settings", canvas, 0f, 0f, 1f, 1f).gameObject;
             Transform s = _settings.transform;
             Ui.Panel("Shade", s, 0f, 0f, 1f, 1f, new Color(0f, 0f, 0f, 0.7f)).gameObject.AddComponent<Button>().onClick.AddListener(() => _settings.SetActive(false));
-            Ui.Framed("Box", s, 0.06f, 0.2f, 0.94f, 0.8f, new Color(0.07f, 0.06f, 0.05f, 0.97f));
+            Ui.Framed("Box", s, 0.06f, 0.1f, 0.94f, 0.8f, new Color(0.07f, 0.06f, 0.05f, 0.97f));
             Ui.Title("Title", s, 0.1f, 0.72f, 0.9f, 0.785f, "SETTINGS", 38, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             string[] quality = { "LOW", "MEDIUM", "HIGH" }, effects = { "ALL", "FEWER" }, text = { "NORMAL", "LARGE", "LARGER" };
             Ui.Section("GraphicsHead", s, 0.15f, 0.655f, 0.85f, 0.7f, "GRAPHICS", 26);
@@ -166,7 +166,17 @@ namespace Orsuun.Client
                 _textButtons[i] = Ui.Button("Text" + i, s, x0, 0.245f, x0 + 0.26f, 0.305f, text[i], 24, Palette.ButtonIdle, () => { GameSettings.SetTextSize(size); FillSettings(); }, out _)
                     .GetComponent<Image>();
             }
-            Ui.Button("Close", s, 0.3f, 0.12f, 0.7f, 0.18f, "CLOSE", 26, Palette.ButtonIdle, () => _settings.SetActive(false), out _);
+            // The frame rate in the corner (the phone speed pass, 29 Sep 2026).
+            Ui.Section("FpsHead", s, 0.15f, 0.215f, 0.85f, 0.26f, "FRAME RATE", 26);
+            string[] fps = { "HIDE", "SHOW" };
+            for (int i = 0; i < 2; i++)
+            {
+                bool show = i == 1;
+                float x0 = 0.1f + i * 0.41f;
+                _fpsButtons[i] = Ui.Button("Fps" + i, s, x0, 0.15f, x0 + 0.39f, 0.205f, fps[i], 24, Palette.ButtonIdle, () => { GameSettings.SetShowFps(show); FillSettings(); }, out _)
+                    .GetComponent<Image>();
+            }
+            Ui.Button("Close", s, 0.3f, 0.02f, 0.7f, 0.08f, "CLOSE", 26, Palette.ButtonIdle, () => _settings.SetActive(false), out _);
             _settings.SetActive(false);
         }
 
@@ -175,6 +185,7 @@ namespace Orsuun.Client
             for (int i = 0; i < 3; i++) _graphicsButtons[i].color = (int)GameSettings.Graphics == i ? Palette.ButtonForge : Palette.ButtonIdle;
             for (int i = 0; i < 2; i++) _effectButtons[i].color = GameSettings.FewerEffects == (i == 1) ? Palette.ButtonForge : Palette.ButtonIdle;
             for (int i = 0; i < 3; i++) _textButtons[i].color = GameSettings.TextSize == i ? Palette.ButtonForge : Palette.ButtonIdle;
+            for (int i = 0; i < 2; i++) _fpsButtons[i].color = GameSettings.ShowFps == (i == 1) ? Palette.ButtonForge : Palette.ButtonIdle;
         }
 
         /// <summary>Screenshots: -settings opens the SETTINGS card over MENU.</summary>

@@ -1222,6 +1222,8 @@ namespace Orsuun.Client
             cam.tag = "MainCamera";
             cam.rect = new Rect(0f, LaneViewportBottom, 1f, 1f - LaneViewportBottom);
             cam.fieldOfView = LaneView.CameraFov;
+            // Nothing past the haze is drawn (the backdrop stands at 62 m).
+            cam.farClipPlane = LaneView.FogEnd + 25f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.16f, 0.19f, 0.24f);
             // The field (LaneView.CameraFrom, 28 Sep 2026): behind the hero, up and to his left, looking up the road.

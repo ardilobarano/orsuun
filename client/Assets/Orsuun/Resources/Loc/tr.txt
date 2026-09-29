@@ -2708,3 +2708,7 @@ Hanging Tree	Asılı Ağaç
 The Forgotten Shrine	Unutulmuş Tapınak
 Widow's Pond	Dul Kadının Gölü
 Mist Hollow	Sis Çukuru
+# SETTINGS: the frame-rate readout (29 Sep 2026).
+FRAME RATE	KARE HIZI
+HIDE	GİZLE
+SHOW	GÖSTER

@@ -402,9 +402,11 @@ namespace Orsuun.Client.EditorTools
                 mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                 EditorUtility.SetDirty(mat);
             }
-            // The 3D props (art/blender/scenery_props.py): a Lit material on each model's base colour.
+            // The 3D props (art/blender/scenery_props.py): a Lit material on each model's base colour. Readable, since a big
+            // map merges them into its batches (FieldMap.Batch).
             string models = dir + "Models/";
             if (!Directory.Exists(models)) return;
+            foreach (string fbx in Directory.GetFiles(models, "*.fbx")) EnsureReadable(fbx.Replace('\\', '/'));
             foreach (string file in Directory.GetFiles(models, "*BaseColor.png"))
             {
                 string name = Path.GetFileNameWithoutExtension(file).Replace("BaseColor", "");

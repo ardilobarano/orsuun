@@ -15,7 +15,7 @@ namespace Orsuun.Client
     /// turns under him so the trail ahead always runs up the screen (the camera follows behind him round each bend).
     /// Presentation only: the lane's rules (LaneSim) and the server's replay are untouched.
     /// </summary>
-    public sealed class FieldMap : MonoBehaviour
+    public sealed partial class FieldMap : MonoBehaviour
     {
         /// <summary>A place on a map (its own metres, x east, z north): a landmark's model, turn and height, a camp's or a
         /// named place's label (English, translated where shown), a grove's model, radius and count.</summary>
@@ -93,12 +93,9 @@ namespace Orsuun.Client
         private Transform _root;
         private readonly List<Vector3> _trail = new List<Vector3>();
         private readonly List<float> _along = new List<float>();
-        private float _length, _s, _cardsYaw = 999f;
+        private float _length, _s;
         private Vector3 _heading = Vector3.right;
         private Vector3 _hero;
-        private readonly List<Transform> _cards = new List<Transform>();
-        private MaterialPropertyBlock _block;
-        private static readonly int BaseMapSt = Shader.PropertyToID("_BaseMap_ST");
 
         public bool Active => _root != null && _root.gameObject.activeSelf;
         public Layout Current => _layout;
@@ -118,7 +115,6 @@ namespace Orsuun.Client
             Clear();
             _layout = layout;
             if (layout == null) return;
-            _block = new MaterialPropertyBlock();
             _root = new GameObject("Map " + layout.Name).transform;
             _root.SetParent(transform, false);
             BuildTrail(layout);
@@ -128,6 +124,7 @@ namespace Orsuun.Client
             if (layout.Patches != null) foreach (Spot patch in layout.Patches) Patch(patch);
             BuildLandmarks(layout);
             Scatter(layout);
+            FlushBatches();
             _s = float.TryParse(Arg("-mapat"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
                 out float startAt) ? Mathf.Repeat(startAt, _length) : 0f;
             _heading = Heading(_s);
@@ -157,15 +154,18 @@ namespace Orsuun.Client
             _layout = null;
             _trail.Clear();
             _along.Clear();
-            _cards.Clear();
+            // The meshes and materials made for the map go with it (they are not the scene's to free).
+            foreach (Object made in _made) if (made != null) Destroy(made);
+            _made.Clear();
+            _batches.Clear();
         }
 
-        /// <summary>A frame: on the run the hero walks on; the map slides and turns under him; the cards face the camera.</summary>
         /// <summary>A point on the trail <paramref name="ahead"/> metres on from the hero, and the way it runs there (map space).</summary>
         internal Vector3 OnTrail(float ahead) => At(_s + ahead);
         internal Vector3 AlongTrail(float ahead) => Heading(_s + ahead - TurnAhead);
 
-        /// <summary><paramref name="pace"/> is the hunt's speed (MENU's HUNT SPEED), so a walk between packs is as long at any speed.</summary>
+        /// <summary>A frame: on the run the hero walks on and the map slides and turns under him.
+        /// <paramref name="pace"/> is the hunt's speed (MENU's HUNT SPEED), so a walk between packs is as long at any speed.</summary>
         public void Tick(float dt, bool running, float pace = 1f)
         {
             if (!Active) return;
@@ -184,17 +184,6 @@ namespace Orsuun.Client
                 cam.transform.SetPositionAndRotation(_hero - At(_s) + new Vector3(0f, 330f, 0f), Quaternion.Euler(90f, 0f, 0f));
                 cam.farClipPlane = 600f;
                 RenderSettings.fog = false;
-            }
-            // The cards turn with the map: face them again only when it has turned (never on a straight).
-            float yaw = _root.eulerAngles.y;
-            if (Mathf.Abs(Mathf.DeltaAngle(yaw, _cardsYaw)) < 0.5f && !Overview) return;
-            _cardsYaw = yaw;
-            Vector3 eye = cam.transform.position;
-            foreach (Transform card in _cards)
-            {
-                Vector3 away = card.position - eye;
-                away.y = 0f;
-                if (away.sqrMagnitude > 0.01f) card.rotation = Quaternion.LookRotation(away, Vector3.up);
             }
         }
 
@@ -367,7 +356,7 @@ namespace Orsuun.Client
                     var side = new Vector3(-dir.z, 0f, dir.x) * (k == 0 ? 1f : -1f);
                     Vector3 at = course[j] + side * (width / 2f + 0.3f + (float)rng.NextDouble() * 1.4f) + dir * (float)rng.NextDouble() * 2f;
                     if (NearTrail(at, 5f)) continue;
-                    Card(reeds, whole, at, 1.1f + (float)rng.NextDouble() * 0.6f, rng.Next(2) == 0);
+                    Card(reeds, whole, at, 1.1f + (float)rng.NextDouble() * 0.6f, rng.Next(2) == 0, (float)rng.NextDouble() * 180f);
                 }
         }
 
@@ -387,30 +376,18 @@ namespace Orsuun.Client
         private void Bridge(Vector3 at, Vector3 along, float length)
         {
             var wood = Art.Load<Material>("River/Wood");
-            var root = new GameObject("Bridge").transform;
-            root.SetParent(_root, false);
-            root.localPosition = at;
-            root.localRotation = Quaternion.LookRotation(along, Vector3.up);
+            Matrix4x4 bridge = Matrix4x4.TRS(at, Quaternion.LookRotation(along, Vector3.up), Vector3.one);
+            Batch b = BatchFor(wood, null, at);
+            void Box(Vector3 local, Vector3 size) =>
+                b.Parts.Add(new CombineInstance { mesh = Cube, transform = bridge * Matrix4x4.TRS(local, Quaternion.identity, size) });
             for (float z = -length / 2f; z < length / 2f; z += 0.32f)
-                Box(root, new Vector3(0f, 0.12f, z), new Vector3(TrailWidth + 0.6f, 0.08f, 0.28f), wood);
+                Box(new Vector3(0f, 0.12f, z), new Vector3(TrailWidth + 0.6f, 0.08f, 0.28f));
             foreach (float x in new[] { -(TrailWidth / 2f + 0.25f), TrailWidth / 2f + 0.25f })
             {
-                Box(root, new Vector3(x, 0.7f, 0f), new Vector3(0.12f, 0.1f, length), wood);
+                Box(new Vector3(x, 0.7f, 0f), new Vector3(0.12f, 0.1f, length));
                 for (float z = -length / 2f; z <= length / 2f + 0.01f; z += length / 4f)
-                    Box(root, new Vector3(x, 0.35f, z), new Vector3(0.16f, 0.8f, 0.16f), wood);
+                    Box(new Vector3(x, 0.35f, z), new Vector3(0.16f, 0.8f, 0.16f));
             }
-        }
-
-        private static void Box(Transform parent, Vector3 at, Vector3 size, Material material)
-        {
-            GameObject box = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Object.Destroy(box.GetComponent<Collider>());
-            box.transform.SetParent(parent, false);
-            box.transform.localPosition = at;
-            box.transform.localScale = size;
-            var r = box.GetComponent<Renderer>();
-            if (material != null) r.sharedMaterial = material;
-            r.shadowCastingMode = ShadowCastingMode.Off;
         }
 
         private static Mesh Strip(List<Vector3> course, float width, float y)
@@ -442,7 +419,7 @@ namespace Orsuun.Client
         private void BuildLandmarks(Layout layout)
         {
             foreach (Spot spot in layout.Landmarks ?? new Spot[0])
-                Model(spot.Name, new Vector3(spot.X, 0f, spot.Z), spot.Yaw, spot.Height, spot.Tint);
+                BatchModel(spot.Name, new Vector3(spot.X, 0f, spot.Z), spot.Yaw, spot.Height, spot.Tint);
             var rng = new System.Random(Seed(layout.Name));
             foreach (Spot grove in layout.Groves ?? new Spot[0])
                 for (int i = 0; i < grove.Count; i++)
@@ -452,13 +429,11 @@ namespace Orsuun.Client
                     float yaw = (float)rng.NextDouble() * 360f, grown = grove.Height * (0.8f + (float)rng.NextDouble() * 0.4f);
                     // No tree in the river or on the trail.
                     if (NearRiver(layout, at) || NearTrail(at, 3f)) continue;
-                    Model(grove.Name, at, yaw, grown, grove.Tint);
+                    BatchModel(grove.Name, at, yaw, grown, grove.Tint);
                 }
         }
 
         /// <summary>A model standing on the map (a metre tall at scale 1, like the scenery's), or nothing without its art.</summary>
-        private void Model(string name, Vector3 at, float yaw, float height, string tint = null) => PlaceModel(_root, name, at, yaw, height, tint);
-
         /// <summary>A scenery model (Content/Scenery/Models, a metre tall at scale 1) under <paramref name="parent"/>, or null
         /// without its art.</summary>
         internal static Transform PlaceModel(Transform parent, string name, Vector3 at, float yaw, float height, string tint = null)
@@ -503,7 +478,7 @@ namespace Orsuun.Client
                 Vector3 at = BesideTrail(rng, 2.6f, layout.ScatterReach);
                 if (NearTrail(at, 2.6f) || NearRiver(layout, at)) continue;
                 LaneScenery.Rect r = cards[rng.Next(cards.Count)];
-                Card(material, r, at, r.height * (0.8f + (float)rng.NextDouble() * 0.5f), rng.Next(2) == 0);
+                Card(material, r, at, r.height * (0.8f + (float)rng.NextDouble() * 0.5f), rng.Next(2) == 0, (float)rng.NextDouble() * 180f);
                 placed++;
             }
             placed = tries = 0;
@@ -512,7 +487,7 @@ namespace Orsuun.Client
                 Vector3 at = BesideTrail(rng, 3.5f, layout.ScatterReach);
                 if (NearTrail(at, 3.5f) || NearRiver(layout, at)) continue;
                 LaneScenery.Rect r = models[rng.Next(models.Count)];
-                Model(r.model, at, (float)rng.NextDouble() * 360f, r.height * 1.3f * (0.8f + (float)rng.NextDouble() * 0.4f));
+                BatchModel(r.model, at, (float)rng.NextDouble() * 360f, r.height * 1.3f * (0.8f + (float)rng.NextDouble() * 0.4f), null);
                 placed++;
             }
         }
@@ -528,22 +503,29 @@ namespace Orsuun.Client
             return _trail[i] + side * (rng.Next(2) == 0 ? off : -off) + dir * (float)(rng.NextDouble() - 0.5) * 2f;
         }
 
-        private void Card(Material material, LaneScenery.Rect r, Vector3 at, float height, bool flip)
+        /// <summary>A painted card (grass, a shrub, reeds) as two crossed quads in its cell's batch: seen from any side, and
+        /// never turned to the camera, so it draws with the rest.</summary>
+        private void Card(Material material, LaneScenery.Rect r, Vector3 at, float height, bool flip, float yaw)
         {
-            var go = new GameObject("Card");
-            go.transform.SetParent(_root, false);
-            go.transform.localPosition = at;
-            float width = height / Mathf.Max(0.2f, r.aspect);
-            go.transform.localScale = new Vector3(width * (flip ? -1f : 1f), height, 1f);
-            go.AddComponent<MeshFilter>().sharedMesh = LaneScenery.Quad;
-            var mr = go.AddComponent<MeshRenderer>();
-            mr.sharedMaterial = material;
-            mr.shadowCastingMode = ShadowCastingMode.Off;
-            mr.receiveShadows = false;
-            mr.GetPropertyBlock(_block);
-            _block.SetVector(BaseMapSt, new Vector4(r.u1 - r.u0, r.v1 - r.v0, r.u0, r.v0));
-            mr.SetPropertyBlock(_block);
-            _cards.Add(go.transform);
+            Batch b = BatchFor(material, null, at);
+            float half = height / Mathf.Max(0.2f, r.aspect) / 2f;
+            float u0 = flip ? r.u1 : r.u0, u1 = flip ? r.u0 : r.u1;
+            for (int k = 0; k < 2; k++)
+            {
+                Vector3 side = Quaternion.Euler(0f, yaw + k * 90f, 0f) * Vector3.right * half, up = Vector3.up * height;
+                int i0 = b.Verts.Count;
+                b.Verts.Add(at - side);
+                b.Verts.Add(at + side);
+                b.Verts.Add(at + side + up);
+                b.Verts.Add(at - side + up);
+                b.Uvs.Add(new Vector2(u0, r.v0));
+                b.Uvs.Add(new Vector2(u1, r.v0));
+                b.Uvs.Add(new Vector2(u1, r.v1));
+                b.Uvs.Add(new Vector2(u0, r.v1));
+                // Lit from above like the ground they grow from, whichever side the camera sees.
+                for (int v = 0; v < 4; v++) b.Normals.Add(Vector3.up);
+                b.Tris.AddRange(new[] { i0, i0 + 2, i0 + 1, i0, i0 + 3, i0 + 2 });
+            }
         }
 
         private bool NearTrail(Vector3 at, float clear)
@@ -610,7 +592,7 @@ namespace Orsuun.Client
             return m;
         }
 
-        private static Material Flat(Color color, float gloss)
+        private Material Flat(Color color, float gloss)
         {
             Material m = NewLit();
             m.SetColor("_BaseColor", color);
@@ -671,17 +653,19 @@ namespace Orsuun.Client
         }
 
         /// <summary>A fresh Lit material, copied from one the art already carries (so the shader is in every build).</summary>
-        private static Material NewLit()
+        private Material NewLit()
         {
             Material template = Art.Load<Material>("River/Ground");
             var m = template != null ? new Material(template) : new Material(Shader.Find("Universal Render Pipeline/Lit"));
             m.SetTexture("_BaseMap", null);
             m.SetTextureScale("_BaseMap", Vector2.one);
+            _made.Add(m);
             return m;
         }
 
         private void Part(string name, Mesh mesh, Material material)
         {
+            _made.Add(mesh);
             var go = new GameObject(name);
             go.transform.SetParent(_root, false);
             go.AddComponent<MeshFilter>().sharedMesh = mesh;

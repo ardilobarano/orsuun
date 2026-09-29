@@ -335,5 +335,7 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   presentation only. Its full map is `Content/FieldMaps/<Name>.jpg`: `tools/art/field_map.py <Name>` draws the sketch,
   GPT Image 2.5 paints over it, `--finish` writes the game's copy and a check overlay. Camp and place names need Loc lines.
   `-mapat <m>` holds the hero on the trail, `-mapview` looks down on the whole map, `-mapshow` opens the full map.
+  A map's static scenery is merged per material, tint and 40 m cell (`FieldMap.Batch`, so scenery models must import
+  readable); only animated things (ring stones, camp monsters, other players) stand as objects of their own.
   On a big map the next pack waits up the trail (`LaneView.Field`, sized by `LaneSim.PeekPackSize`, which copies the
   lane's generator and draws nothing: keep it that way, or replays drift) and Korstones rise in a ring of stones.

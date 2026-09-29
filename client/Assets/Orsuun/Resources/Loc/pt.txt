@@ -2752,3 +2752,7 @@ Hanging Tree	Árvore da Forca
 The Forgotten Shrine	O Santuário Esquecido
 Widow's Pond	A Lagoa da Viúva
 Mist Hollow	Vale da Névoa
+# SETTINGS: the frame-rate readout (29 Sep 2026).
+FRAME RATE	TAXA DE QUADROS
+HIDE	OCULTAR
+SHOW	MOSTRAR

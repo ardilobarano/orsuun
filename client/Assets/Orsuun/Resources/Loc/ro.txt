@@ -2746,3 +2746,7 @@ Hanging Tree	Copacul Spânzuraților
 The Forgotten Shrine	Altarul Uitat
 Widow's Pond	Iazul Văduvei
 Mist Hollow	Scobitura Ceții
+# SETTINGS: the frame-rate readout (29 Sep 2026).
+FRAME RATE	CADENȚĂ
+HIDE	ASCUNDE
+SHOW	ARATĂ
