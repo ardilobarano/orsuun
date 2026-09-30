@@ -73,6 +73,9 @@ namespace Orsuun.Client
         public PartyPanel Party { get; private set; }
         /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND and INVITE TO PARTY for a hero met in the world.</summary>
         public HeroActions HeroCard { get; private set; }
+        /// <summary>A screenshot run (-shot) or a recording (-clip): the sign-in, the guide and the story cards stay away.</summary>
+        internal static readonly bool ShotRun = Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") >= 0
+                                                || Array.IndexOf(Environment.GetCommandLineArgs(), "-clip") >= 0;
         /// <summary>Another hero's gear and standing (from chat, the leaderboards and the Pits' board).</summary>
         public InspectPanel Inspect { get; private set; }
         /// <summary>The story cards: a map opening, its boss falling.</summary>
@@ -233,9 +236,9 @@ namespace Orsuun.Client
             Title.Init(this);
             // Screenshots and demos skip the title unless asked for it, and the tutorial unless -tutorial.
             string[] cmd = Environment.GetCommandLineArgs();
-            if (Array.IndexOf(cmd, "-notitle") >= 0 || (Array.IndexOf(cmd, "-shot") >= 0 && Array.IndexOf(cmd, "-title") < 0)) Title.Skip();
+            if (Array.IndexOf(cmd, "-notitle") >= 0 || (ShotRun && Array.IndexOf(cmd, "-title") < 0)) Title.Skip();
             _tutorialPending = Array.IndexOf(cmd, "-tutorial") >= 0 || Array.IndexOf(cmd, "-tutorialStep") >= 0
-                               || (!Tutorial.Finished && Array.IndexOf(cmd, "-shot") < 0);
+                               || (!Tutorial.Finished && !ShotRun);
 
             // Dev switch for screenshots and demos: Orsuun.exe -forge
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-forge") >= 0) Forge.Open();
@@ -382,6 +385,31 @@ namespace Orsuun.Client
             if (every >= 0 && every + 2 < cmd.Length && float.TryParse(cmd[every + 1], System.Globalization.NumberStyles.Float,
                     System.Globalization.CultureInfo.InvariantCulture, out float period) && period > 0f)
                 StartCoroutine(ShotEvery(period, cmd[every + 2]));
+            // Dev switch: -clip <start> <seconds> <fps> <folder> saves numbered JPEG frames from <start> s for <seconds> s,
+            // then quits: the README's gameplay clip (tools/art/make_clip.swift joins them into a GIF).
+            int clip = Array.IndexOf(cmd, "-clip");
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
+            if (clip >= 0 && clip + 4 < cmd.Length && float.TryParse(cmd[clip + 1], System.Globalization.NumberStyles.Float, inv, out float clipStart)
+                && float.TryParse(cmd[clip + 2], System.Globalization.NumberStyles.Float, inv, out float clipSeconds) && int.TryParse(cmd[clip + 3], out int clipFps))
+                StartCoroutine(Clip(clipStart, clipSeconds, Mathf.Clamp(clipFps, 1, 30), cmd[clip + 4]));
+        }
+
+        private static IEnumerator Clip(float start, float seconds, int fps, string folder)
+        {
+            System.IO.Directory.CreateDirectory(folder);
+            yield return new WaitForSecondsRealtime(start);
+            int frames = Mathf.CeilToInt(seconds * fps);
+            float next = Time.realtimeSinceStartup;
+            for (int i = 0; i < frames; i++)
+            {
+                yield return new WaitForEndOfFrame();
+                Texture2D shot = ScreenCapture.CaptureScreenshotAsTexture();
+                System.IO.File.WriteAllBytes(System.IO.Path.Combine(folder, $"{i:00000}.jpg"), shot.EncodeToJPG(90));
+                Destroy(shot);
+                next += 1f / fps;
+                while (Time.realtimeSinceStartup < next) yield return null;
+            }
+            Application.Quit();
         }
 
         private string _messagesTo;
@@ -496,7 +524,7 @@ namespace Orsuun.Client
                 _oathAsked = false;
                 _accountShown = false;
             }
-            bool shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") >= 0 && _firstRun == null;
+            bool shot = ShotRun && _firstRun == null;
             // The way in (owner, 25 Sep 2026): a new install (or a phone signed out) starts at the sign-in screen, the
             // oath follows for an account not yet sworn, then the character screen. -account forces the sign-in screen.
             if (!Title.Waiting && Server.Connected && !Account.Showing && !_accountShown
@@ -534,7 +562,7 @@ namespace Orsuun.Client
             if (!_dailyShown && Server.Online && !Server.WaitingForHero && Server.Daily != null && Server.Daily.claimable
                 && !Title.Showing && !Account.Showing && !Oath.Showing && !Characters.IsOpen && !_tutorialPending
                 && (Array.IndexOf(Environment.GetCommandLineArgs(), "-daily") >= 0
-                    || (Tutorial.Finished && Array.IndexOf(Environment.GetCommandLineArgs(), "-shot") < 0)))
+                    || (Tutorial.Finished && !ShotRun)))
             {
                 _dailyShown = true;
                 Daily.Open();

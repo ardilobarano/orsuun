@@ -141,7 +141,7 @@ namespace Orsuun.Client
         }
 
         /// <summary>Screenshots (-shot) tell no story on their own, like the title and the guide: only -story shows one.</summary>
-        private static readonly bool QuietForShot = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-shot") >= 0
+        private static readonly bool QuietForShot = GameRoot.ShotRun
                                                     && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-story") < 0;
 
         /// <summary>Screenshots: -story n shows beat n (0 the Oathfields opening, 1 Greyjaw falling, ...).</summary>

@@ -137,13 +137,15 @@ namespace Orsuun.Client
             BuildLandmarks(layout);
             Scatter(layout);
             FlushBatches();
-            _s = float.TryParse(Arg("-mapat"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
+            // -mapat holds the hero there; -mapstart only starts him there (the README's gameplay clip walks on).
+            _s = float.TryParse(Arg("-mapat") ?? Arg("-mapstart"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
                 out float startAt) ? Mathf.Repeat(startAt, _length) : 0f;
             _heading = Heading(_s);
             Place();
         }
 
-        /// <summary>Screenshots: -mapat &lt;m&gt; holds the hero that far along the trail; -mapview looks straight down on the map.</summary>
+        /// <summary>Screenshots: -mapat &lt;m&gt; holds the hero that far along the trail (-mapstart only starts him there); -mapview
+        /// looks straight down on the map.</summary>
         private static string Arg(string name)
         {
             string[] args = System.Environment.GetCommandLineArgs();

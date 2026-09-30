@@ -30,6 +30,7 @@
     <Reference Include="$(UnityManaged)\UnityEngine.IMGUIModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.JSONSerializeModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.ScreenCaptureModule.dll" />
+    <Reference Include="$(UnityManaged)\UnityEngine.ImageConversionModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.AnimationModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.ParticleSystemModule.dll" />
     <Reference Include="$(UnityManaged)\UnityEngine.AssetBundleModule.dll" />

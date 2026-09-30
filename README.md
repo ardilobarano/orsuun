@@ -8,6 +8,8 @@ spirit of classic Korean MMOs, three rival Banners, guilds, trading and world bo
 The server decides every roll; the phone only shows the fight and sends what the player did. Built as a solo project,
 it runs on a live playtest server with Android and iOS test builds.
 
+<p align="center"><img src="docs/readme/gameplay.gif" width="300" alt="Gameplay: a hunting party walks the Oathfields past Old Greyjaw, the Cinder Marches, then the Forge"></p>
+
 | | | | |
 | --- | --- | --- | --- |
 | ![Hunting in the Cinder Marches](docs/readme/1-hunt-cinder-marches.jpg) | ![Nine-Winters, a world boss, at Whitefang Range](docs/readme/2-world-boss-whitefang.jpg) | ![Hunting on the Oathfields with a party](docs/readme/3-hunt-oathfields.jpg) | ![The full map of the Oathfields](docs/readme/4-full-map.jpg) |
