@@ -2913,3 +2913,10 @@ Wayfinder	Călăuza
 Open trail caches on 5 maps.	Deschide cufere de drum pe 5 hărți.
 Cartographer	Cartograful
 Open trail caches on all twelve maps.	Deschide cufere de drum pe toate cele douăsprezece hărți.
+# What's new tips: parties, world bosses, golden banners (30 Sep 2026).
+HUNTING PARTIES	GRUPURI DE VÂNĂTOARE
+WORLD BOSSES	BOȘII LUMII
+GOLDEN BANNERS	STEAGURI AURII
+Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	Vânează cu până la trei alții: prieteni, colegi de breaslă sau eroi de pe PANOUL GRUPURILOR acestei hărți. Tovarășii de pe harta ta merg și luptă alături de tine, iar fiecare adaugă 5% XP și sorn. CHATUL GRUPULUI ajunge la ei oriunde.
+Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	Din când în când, Comandantul unei hărți se ridică lângă reperul ei timp de zece minute. Fiecare erou de pe hartă poate lupta cu el o dată: atinge chemarea roșie sau numele lui pe harta completă. Viața lui e comună, deci fiecare lovitură contează. ALERTELE PENTRU COMANDANȚI din SETĂRI îți anunță telefonul.
+A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	O tabără sub un steag auriu adăpostește haite de elită timp de zece minute: mai rezistente și lovesc mai tare, iar prada lor se plătește de încă două ori, uneori cu echipament. Vânează pe lângă ea cât flutură steagul.

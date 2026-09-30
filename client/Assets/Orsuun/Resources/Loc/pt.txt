@@ -2919,3 +2919,10 @@ Wayfinder	Desbravador
 Open trail caches on 5 maps.	Abre baús do trilho em 5 mapas.
 Cartographer	Cartógrafo
 Open trail caches on all twelve maps.	Abre baús do trilho nos doze mapas.
+# What's new tips: parties, world bosses, golden banners (30 Sep 2026).
+HUNTING PARTIES	GRUPOS DE CAÇA
+WORLD BOSSES	CHEFES DO MUNDO
+GOLDEN BANNERS	ESTANDARTES DOURADOS
+Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	Caça com até três outros: amigos, companheiros de guilda ou heróis do QUADRO DE GRUPOS deste mapa. Os companheiros no teu mapa andam e lutam ao teu lado, e cada um junta 5% de XP e sorn. O CHAT DO GRUPO chega a eles em qualquer lado.
+Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	De vez em quando o Comandante de um mapa ergue-se junto ao seu marco durante dez minutos. Cada herói do mapa pode lutar contra ele uma vez: toca no chamado vermelho ou no seu nome no mapa completo. A vida dele é partilhada, por isso cada golpe conta. Os ALERTAS DE COMANDANTES nas DEFINIÇÕES avisam o teu telemóvel.
+A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	Um acampamento sob um estandarte dourado guarda matilhas de elite durante dez minutos: mais duras e a bater mais forte, e pagam o saque mais duas vezes, às vezes com equipamento. Caça junto a ele enquanto o estandarte ondula.

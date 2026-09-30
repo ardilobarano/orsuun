@@ -115,6 +115,7 @@ namespace Orsuun.Client
             _showBoard = false;
             _polledAt = -100f;
             _canvas.SetActive(true);
+            _root.Tips.Offer(TipCard.Tip.Party);
         }
 
         public void Close() => _canvas.SetActive(false);

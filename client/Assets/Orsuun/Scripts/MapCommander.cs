@@ -55,6 +55,7 @@ namespace Orsuun.Client
         private Text _callLabel;
         private string _announced = "";
         private float _nextRoar;
+        private bool _tipOffered;
 
         /// <summary>Its call is on the HUD's call line now.</summary>
         public bool Calling => _call != null && _call.gameObject.activeSelf;
@@ -101,6 +102,12 @@ namespace Orsuun.Client
             bool call = show && !_root.Hud.TradeCalling;
             if (_call.gameObject.activeSelf != call) _call.gameObject.SetActive(call);
             if (!show) return;
+            // The first Commander a hero meets on a map explains itself (once the guide and any story card are done).
+            if (!_tipOffered && !_root.Tips.Showing && !_root.Tutorial.Running && !_root.Story.Showing)
+            {
+                _tipOffered = true;
+                _root.Tips.Offer(TipCard.Tip.Commander);
+            }
             (int id, string name, int camp, long left, bool fought) = Here.Value;
             string where = map.Current.Camps[camp].Name;
             string state = fought ? ConfirmDialog.Tint(Loc.T("FOUGHT"), Palette.Muted)

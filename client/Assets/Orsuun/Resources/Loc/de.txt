@@ -2951,3 +2951,10 @@ Wayfinder	Pfadfinder
 Open trail caches on 5 maps.	Öffne Wegtruhen auf 5 Karten.
 Cartographer	Kartograf
 Open trail caches on all twelve maps.	Öffne Wegtruhen auf allen zwölf Karten.
+# What's new tips: parties, world bosses, golden banners (30 Sep 2026).
+HUNTING PARTIES	JAGDGRUPPEN
+WORLD BOSSES	WELTBOSSE
+GOLDEN BANNERS	GOLDENE BANNER
+Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	Jage mit bis zu drei anderen: Freunden, Gildengefährten oder Helden vom GRUPPENBRETT dieser Karte. Gruppenmitglieder auf deiner Karte gehen und kämpfen neben dir, und jedes bringt 5 % EP und Sorn. Der GRUPPENCHAT erreicht sie überall.
+Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	Hin und wieder erhebt sich der Kommandant einer Karte für zehn Minuten an ihrem Wahrzeichen. Jeder Held der Karte darf einmal gegen ihn kämpfen: tippe auf den roten Ruf oder auf seinen Namen auf der großen Karte. Seine Lebenspunkte sind geteilt, jeder Schlag zählt. KOMMANDANTEN-HINWEISE in den EINSTELLUNGEN melden es deinem Telefon.
+A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	Ein Lager unter einem goldenen Banner beherbergt zehn Minuten lang Elite-Rudel: zäher und härter zuschlagend, und sie zahlen ihre Beute zweimal mehr, manchmal mit Ausrüstung. Jage an ihm vorbei, solange das Banner weht.

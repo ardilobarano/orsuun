@@ -224,6 +224,7 @@ namespace Orsuun.Client
                     FieldMap.Spot spot = layout.Camps[elite];
                     _eliteBanner = FieldMap.PlaceModel(map.Root, "WarBanner", new Vector3(spot.X + 2.6f, 0f, spot.Z + 1.4f), 25f, 5.5f, "#FFC23A");
                     _root.Hud.Log($"A golden banner flies over {spot.Name}: an elite pack waits there.");
+                    if (!_root.Tutorial.Running && !_root.Story.Showing) _root.Tips.Offer(TipCard.Tip.Elite);
                 }
             }
             for (int c = 0; c < _camps.Length; c++)

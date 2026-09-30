@@ -2905,3 +2905,10 @@ Wayfinder	Tropiciel
 Open trail caches on 5 maps.	Otwórz skrzynie przy szlaku na 5 mapach.
 Cartographer	Kartograf
 Open trail caches on all twelve maps.	Otwórz skrzynie przy szlaku na wszystkich dwunastu mapach.
+# What's new tips: parties, world bosses, golden banners (30 Sep 2026).
+HUNTING PARTIES	DRUŻYNY ŁOWIECKIE
+WORLD BOSSES	BOSSOWIE ŚWIATA
+GOLDEN BANNERS	ZŁOTE SZTANDARY
+Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	Poluj z maksymalnie trzema innymi: przyjaciółmi, członkami gildii lub bohaterami z TABLICY DRUŻYN tej mapy. Członkowie drużyny na twojej mapie idą i walczą obok ciebie, a każdy dodaje 5% PD i sornu. CZAT DRUŻYNY dociera do nich wszędzie.
+Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	Od czasu do czasu Dowódca mapy powstaje przy jej punkcie orientacyjnym na dziesięć minut. Każdy bohater na mapie może z nim walczyć raz: stuknij czerwone wezwanie lub jego imię na pełnej mapie. Jego zdrowie jest wspólne, więc liczy się każdy cios. POWIADOMIENIA O DOWÓDCACH w USTAWIENIACH powiadomią telefon.
+A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	Obóz pod złotym sztandarem przez dziesięć minut skrywa elitarne stada: twardsze i mocniej bijące, a płacą łupem dwa razy więcej, czasem z ekwipunkiem. Poluj obok niego, póki sztandar powiewa.

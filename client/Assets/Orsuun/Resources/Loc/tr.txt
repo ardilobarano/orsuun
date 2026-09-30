@@ -2875,3 +2875,10 @@ Wayfinder	Yol Bulucu
 Open trail caches on 5 maps.	5 haritada yol sandığı aç.
 Cartographer	Haritacı
 Open trail caches on all twelve maps.	On iki haritanın hepsinde yol sandığı aç.
+# What's new tips: parties, world bosses, golden banners (30 Sep 2026).
+HUNTING PARTIES	AV GRUPLARI
+WORLD BOSSES	DÜNYA BOSSLARI
+GOLDEN BANNERS	ALTIN SANCAKLAR
+Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	En fazla üç kişiyle avlan: dostlar, lonca arkadaşları ya da bu haritanın GRUP PANOSU'ndaki kahramanlar. Haritandaki grup arkadaşları yanında yürüyüp savaşır, her biri %5 TP ve sorn ekler. GRUP SOHBETİ onlara her yerden ulaşır.
+Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	Ara sıra bir haritanın Komutanı kendi simgesinin yanında on dakikalığına uyanır. Haritadaki her kahraman onunla bir kez dövüşebilir: kırmızı çağrıya ya da tam haritadaki adına dokun. Canı ortaktır, her darbe sayılır. AYARLAR'daki KOMUTAN UYARILARI biri uyandığında telefonuna haber verir.
+A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	Altın sancaklı bir kamp on dakika boyunca seçkin sürüler barındırır: daha dayanıklı, daha sert vururlar ve ganimetlerini iki kez daha verirler, bazen teçhizatla. Sancak dalgalanırken yanından geçerek avlan.
