@@ -57,6 +57,8 @@ namespace Orsuun.Client
         private float _nextRoar;
         private bool _tipOffered;
 
+        private long _labelKey = -1;
+
         /// <summary>Its call is on the HUD's call line now.</summary>
         public bool Calling => _call != null && _call.gameObject.activeSelf;
 
@@ -110,9 +112,16 @@ namespace Orsuun.Client
             }
             (int id, string name, int camp, long left, bool fought) = Here.Value;
             string where = map.Current.Camps[camp].Name;
-            string state = fought ? ConfirmDialog.Tint(Loc.T("FOUGHT"), Palette.Muted)
-                : !_root.Unlocked(Feature.Commanders) ? Loc.T("LV " + Unlocks.Level(Feature.Commanders)) : "<b>" + Loc.T("FIGHT") + "</b>";
-            _callLabel.text = $"{Loc.ToUpper(Loc.T(name))}  ·  {Loc.ToUpper(Loc.T(where))}  ·  {left / 60}:{left % 60:00}  ·  {state}";
+            bool open = _root.Unlocked(Feature.Commanders);
+            // The call's words change once a second: made again only then (strings made every frame are garbage to collect).
+            long labelKey = ((((long)id * 64 + camp) * 100_000 + left) * 4 + (fought ? 2 : 0) + (open ? 1 : 0)) * 8 + (int)Loc.Current;
+            if (labelKey != _labelKey)
+            {
+                _labelKey = labelKey;
+                string state = fought ? ConfirmDialog.Tint(Loc.T("FOUGHT"), Palette.Muted)
+                    : !open ? Loc.T("LV " + Unlocks.Level(Feature.Commanders)) : "<b>" + Loc.T("FIGHT") + "</b>";
+                _callLabel.text = $"{Loc.ToUpper(Loc.T(name))}  ·  {Loc.ToUpper(Loc.T(where))}  ·  {left / 60}:{left % 60:00}  ·  {state}";
+            }
 
             // Once a spawn: a card and a horn for every hero on the map.
             string key = id + "@" + Mathf.RoundToInt((Time.realtimeSinceStartup + left) / 60f);
@@ -125,6 +134,14 @@ namespace Orsuun.Client
             GameAudio.Instance?.Play("BossSlam", 0.4f, 0.2f, 0f);
         }
 
+        /// <summary>A camp of the layout by name (-1: none); a plain loop, since this runs every frame (no closures to collect).</summary>
+        public static int CampIndex(FieldMap.Layout layout, string name)
+        {
+            if (layout?.Camps == null) return -1;
+            for (int i = 0; i < layout.Camps.Length; i++) if (layout.Camps[i].Name == name) return i;
+            return -1;
+        }
+
         /// <summary>The Commander up on this layout now, from the server's last word on the Commanders.</summary>
         private (int, string, int, long, bool)? Find(FieldMap.Layout layout)
         {
@@ -135,7 +152,7 @@ namespace Orsuun.Client
             foreach ((int boss, string key, string campName) in Sightings)
             {
                 if (key != layout.Key) continue;
-                int camp = System.Array.FindIndex(layout.Camps, c => c.Name == campName);
+                int camp = CampIndex(layout, campName);
                 if (camp < 0) continue;
                 foreach (BossStatusDto s in bosses)
                 {

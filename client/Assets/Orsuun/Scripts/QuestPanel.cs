@@ -24,6 +24,7 @@ namespace Orsuun.Client
         private bool _busy, _fetching, _showOnce, _tipOffered;
         private Net.ServerLink.QuestsDto _all;
         private float _allAt = -100f;
+        private long _chipKey = -1;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -130,8 +131,15 @@ namespace Orsuun.Client
             if (chip)
             {
                 bool done = q.step >= q.steps;
-                _chipLabel.text = done ? Loc.T("QUESTS") : q.ready ? "<b>" + Loc.T("QUEST: CLAIM") + "</b>"
-                    : Loc.T($"QUEST {q.step + 1}/{q.steps}") + "  " + (q.target > 0 ? q.progress * 100 / q.target : 0) + "%";
+                long percent = q.target > 0 ? q.progress * 100 / q.target : 0;
+                // Made again only when it changes (not every frame).
+                long chipKey = ((((q.map * 8L + q.step) * 8 + q.steps) * 2 + (q.ready ? 1 : 0)) * 101 + percent) * 8 + (int)Loc.Current;
+                if (chipKey != _chipKey)
+                {
+                    _chipKey = chipKey;
+                    _chipLabel.text = done ? Loc.T("QUESTS") : q.ready ? "<b>" + Loc.T("QUEST: CLAIM") + "</b>"
+                        : Loc.T($"QUEST {q.step + 1}/{q.steps}") + "  " + percent + "%";
+                }
                 // A step waiting to be claimed glows on the chip.
                 _chipImage.color = q.ready ? Color.Lerp(Palette.Good, Palette.Sorn, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 4f)) : Palette.Alloy;
                 // The first time the chip shows, a card explains quests (once the guide and any story card are done).

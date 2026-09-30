@@ -410,27 +410,55 @@ namespace Orsuun.Client
         private readonly (GameObject plate, Text left)[] _mealChips = new (GameObject, Text)[Fishing.Fish.Length];
 
         /// <summary>The fish boosts running, left to right in the order they will end.</summary>
+        /// <summary>What each HUD label last showed, as a key of what went into it: its words are made again only when that
+        /// changes (made every frame, the same strings were garbage for a phone to collect; the phone performance pass, 30 Sep 2026).</summary>
+        private float _linkAt;
+        private readonly System.Collections.Generic.Dictionary<Text, int> _drawn = new System.Collections.Generic.Dictionary<Text, int>();
+
+        private bool Changed(Text label, int key)
+        {
+            if (_drawn.TryGetValue(label, out int was) && was == key) return false;
+            _drawn[label] = key;
+            return true;
+        }
+
+        private bool Changed(Text label, long value) => Changed(label, value.GetHashCode());
+
+        private readonly System.Collections.Generic.List<(int fish, long left)> _mealOrder = new System.Collections.Generic.List<(int fish, long left)>();
+        private int _mealsShown = -1;
+
         private void UpdateMeals()
         {
             int shown = 0;
-            var order = new System.Collections.Generic.List<(int fish, long left)>();
+            var order = _mealOrder;
+            order.Clear();
             for (int i = 0; i < Fishing.Fish.Length; i++)
             {
                 long left = _root.Server.Online ? _root.Server.MealSecondsLeft(i) : 0;
                 if (left > 0) order.Add((i, left));
             }
             order.Sort((a, b) => a.left.CompareTo(b.left));
-            for (int i = 0; i < _mealChips.Length; i++) _mealChips[i].plate.SetActive(false);
+            // The chips shown (a bit per fish, and their order): switched only when that changes, not every frame.
+            int mask = 0;
+            foreach ((int fish, long _) in order) mask = mask * 8 + fish + 1;
+            if (mask != _mealsShown)
+            {
+                _mealsShown = mask;
+                for (int i = 0; i < _mealChips.Length; i++)
+                {
+                    bool eaten = order.Exists(o => o.fish == i);
+                    if (_mealChips[i].plate.activeSelf != eaten) _mealChips[i].plate.SetActive(eaten);
+                }
+            }
             foreach ((int fish, long left) in order)
             {
                 // Chips are made one per fish; each moves to its place in the row.
                 (GameObject plate, Text text) = _mealChips[fish];
-                plate.SetActive(true);
                 var rect = (RectTransform)plate.transform;
                 float x0 = 0.02f + shown * 0.135f;
                 rect.anchorMin = new Vector2(x0, rect.anchorMin.y);
                 rect.anchorMax = new Vector2(x0 + 0.128f, rect.anchorMax.y);
-                text.text = left >= 3600 ? $"{left / 3600}h {left % 3600 / 60:00}m" : $"{left / 60}:{left % 60:00}";
+                if (Changed(text, left)) text.text = left >= 3600 ? $"{left / 3600}h {left % 3600 / 60:00}m" : $"{left / 60}:{left % 60:00}";
                 shown++;
             }
         }
@@ -443,34 +471,45 @@ namespace Orsuun.Client
             LaneSim lane = _root.ActiveLane;
             Inventory inv = session.Inventory;
 
-            _level.text = inv.Level.ToString();
-            _currencies[0].text = inv.Sorn.ToString("N0");
-            _currencies[1].text = inv.Potions.ToString();
-            _currencies[2].text = inv.Materials.ToString();
-            _currencies[3].text = inv.ScrollsOfMercy.ToString();
-            _currencies[4].text = inv.KhansAlloys.ToString();
-            _currencies[5].text = inv.Turnstones.ToString();
-            _currencies[6].text = (inv.Korshards[0] + inv.Korshards[1] + inv.Korshards[2] + inv.Korshards[3] + inv.Korshards[4]).ToString();
+            if (Changed(_level, inv.Level)) _level.text = inv.Level.ToString();
+            if (Changed(_currencies[0], inv.Sorn)) _currencies[0].text = inv.Sorn.ToString("N0");
+            if (Changed(_currencies[1], inv.Potions)) _currencies[1].text = inv.Potions.ToString();
+            if (Changed(_currencies[2], inv.Materials)) _currencies[2].text = inv.Materials.ToString();
+            if (Changed(_currencies[3], inv.ScrollsOfMercy)) _currencies[3].text = inv.ScrollsOfMercy.ToString();
+            if (Changed(_currencies[4], inv.KhansAlloys)) _currencies[4].text = inv.KhansAlloys.ToString();
+            if (Changed(_currencies[5], inv.Turnstones)) _currencies[5].text = inv.Turnstones.ToString();
+            long shardCount = inv.Korshards[0] + inv.Korshards[1] + inv.Korshards[2] + inv.Korshards[3] + inv.Korshards[4];
+            if (Changed(_currencies[6], shardCount)) _currencies[6].text = shardCount.ToString();
 
-            string encounter = lane.IsBossEncounter ? lane.Stage.BossName.ToUpperInvariant()
-                : lane.IsKorstoneEncounter ? (lane.IsElderNext ? "ELDER KORSTONE" : "KORSTONE")
-                : lane.Stage.FinalEncounter == FinalEncounter.None ? "Pack" : $"Pack {lane.EncounterIndex + 1}/{lane.Stage.PacksBeforeKorstone}";
             // The farm lane counts across its loops (a new lane each one online); a boss or dungeon lane counts its own.
             bool farm = lane == session.Lane;
-            _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {(farm ? session.HuntKorstones : lane.KorstonesDestroyed)}  ·  Deaths {(farm ? session.HuntDeaths : lane.Deaths)}";
+            int korstonesNow = farm ? session.HuntKorstones : lane.KorstonesDestroyed, deathsNow = farm ? session.HuntDeaths : lane.Deaths;
+            if (Changed(_stage, System.HashCode.Combine(System.HashCode.Combine(lane.Stage.StageNumber, lane.IsBossEncounter, lane.IsKorstoneEncounter, lane.IsElderNext),
+                    lane.EncounterIndex, lane.Stage.FinalEncounter, korstonesNow, deathsNow, farm)))
+            {
+                string encounter = lane.IsBossEncounter ? lane.Stage.BossName.ToUpperInvariant()
+                    : lane.IsKorstoneEncounter ? (lane.IsElderNext ? "ELDER KORSTONE" : "KORSTONE")
+                    : lane.Stage.FinalEncounter == FinalEncounter.None ? "Pack" : $"Pack {lane.EncounterIndex + 1}/{lane.Stage.PacksBeforeKorstone}";
+                _stage.text = $"{Content.StageName(lane.Stage.StageNumber)}  ·  {encounter}  ·  Korstones {korstonesNow}  ·  Deaths {deathsNow}";
+            }
             _stage.color = lane.IsKorstoneEncounter ? Palette.Warn : Palette.Parchment;
             Bell bell = _root.LocalBell;
-            string bellText;
-            if (bell != Bell.None) bellText = "  ·  " + EveningBells.Name(bell).ToUpperInvariant();
-            else if (_root.Server.Online && _root.Server.Bell != null) bellText = $"  ·  next bell in {_root.Server.Bell.minutesUntilNext / 60}h {_root.Server.Bell.minutesUntilNext % 60:00}m";
-            else { EveningBells.Next(System.DateTime.Now, out int mins); bellText = $"  ·  next bell in {mins / 60}h {mins % 60:00}m"; }
-            // Weekend events (Rules.WorldEvents) that run now, with the time they have left.
-            string eventText = "";
-            foreach (Net.ServerLink.WorldEventDto e in _root.Server.Events)
-                if (_root.Server.EventRunning(e)) eventText += "  ·  " + e.name.ToUpperInvariant() + "  ·  " + Span(_root.Server.EventEndsIn(e));
-            // A running event takes the server's address and the bell countdown's place, or the line runs over.
-            _link.text = eventText.Length > 0 ? eventText.Substring(5) + (bell != Bell.None ? bellText : "") : _root.Server.Status + bellText;
-            _link.color = bell != Bell.None || eventText.Length > 0 ? Palette.Sorn : _root.Server.Online ? Palette.Good : Palette.Warn;
+            // The server line, the bell's countdown and the running events: made again once a second.
+            if (Time.unscaledTime >= _linkAt)
+            {
+                _linkAt = Time.unscaledTime + 1f;
+                string bellText;
+                if (bell != Bell.None) bellText = "  ·  " + EveningBells.Name(bell).ToUpperInvariant();
+                else if (_root.Server.Online && _root.Server.Bell != null) bellText = $"  ·  next bell in {_root.Server.Bell.minutesUntilNext / 60}h {_root.Server.Bell.minutesUntilNext % 60:00}m";
+                else { EveningBells.Next(System.DateTime.Now, out int mins); bellText = $"  ·  next bell in {mins / 60}h {mins % 60:00}m"; }
+                // Weekend events (Rules.WorldEvents) that run now, with the time they have left.
+                string eventText = "";
+                foreach (Net.ServerLink.WorldEventDto e in _root.Server.Events)
+                    if (_root.Server.EventRunning(e)) eventText += "  ·  " + e.name.ToUpperInvariant() + "  ·  " + Span(_root.Server.EventEndsIn(e));
+                // A running event takes the server's address and the bell countdown's place, or the line runs over.
+                _link.text = eventText.Length > 0 ? eventText.Substring(5) + (bell != Bell.None ? bellText : "") : _root.Server.Status + bellText;
+                _link.color = bell != Bell.None || eventText.Length > 0 ? Palette.Sorn : _root.Server.Online ? Palette.Good : Palette.Warn;
+            }
             _banner.text = _root.ReplayBanner;
             string shown = _root.ReplayBanner;
             _banner.color = shown.StartsWith("CLEARED") || shown.StartsWith("FELLED") || shown.EndsWith("CLEARED") || shown.StartsWith("THE SMITH STRUCK") || shown.StartsWith("VICTORY") ? Palette.Good
@@ -498,13 +537,19 @@ namespace Orsuun.Client
 
             float hp = Mathf.Clamp01(lane.HeroHp / (float)lane.HeroMaxHp);
             _hpFill.anchorMax = new Vector2(hp, 1f);
-            _hpText.text = lane.Phase == LanePhase.Dead ? "DEFEATED — respawning" : $"{lane.HeroHp} / {lane.HeroMaxHp}";
+            if (Changed(_hpText, System.HashCode.Combine(lane.HeroHp, lane.HeroMaxHp, lane.Phase == LanePhase.Dead)))
+                _hpText.text = lane.Phase == LanePhase.Dead ? "DEFEATED — respawning" : $"{lane.HeroHp} / {lane.HeroMaxHp}";
 
             HeroStats stats = session.Hero;
-            _weapon.text = $"{session.Weapon.DisplayName} +{session.Weapon.UpgradeLevel}\n<size=20><color=#C2BAAD>Attack {stats.Attack}   ·   Defense {stats.Defense}   ·   Crit {stats.CritChanceBp / 100}%</color></size>";
-            _weapon.color = ForgePanel.LevelColor(session.Weapon.UpgradeLevel);
-            _bagFull.gameObject.SetActive(session.Inventory.Loot.Count >= Bag.Size);
-            Ui.SetIcon(_weaponIcon, Ui.ItemIcon(session.Weapon));   // the weapon's own picture for its level band and the class
+            if (Changed(_weapon, System.HashCode.Combine(session.Weapon, session.Weapon.UpgradeLevel, session.Weapon.ItemLevel, stats.Attack, stats.Defense,
+                    stats.CritChanceBp, Ui.IconClass)))
+            {
+                _weapon.text = $"{session.Weapon.DisplayName} +{session.Weapon.UpgradeLevel}\n<size=20><color=#C2BAAD>Attack {stats.Attack}   ·   Defense {stats.Defense}   ·   Crit {stats.CritChanceBp / 100}%</color></size>";
+                _weapon.color = ForgePanel.LevelColor(session.Weapon.UpgradeLevel);
+                Ui.SetIcon(_weaponIcon, Ui.ItemIcon(session.Weapon));   // the weapon's own picture for its level band and the class
+            }
+            bool bagFull = session.Inventory.Loot.Count >= Bag.Size;
+            if (_bagFull.gameObject.activeSelf != bagFull) _bagFull.gameObject.SetActive(bagFull);
 
             _logAge += Time.deltaTime;
             Color logColor = Palette.Sorn;
@@ -526,14 +571,17 @@ namespace Orsuun.Client
                 }
                 int book = Books.Id(session.Class, i);
                 int grade = book < session.SkillGradeList.Count ? session.SkillGradeList[book] : 0;
-                _skillNames[i].text = skill.Name.ToUpperInvariant() + (grade > 0 ? "  " + ConfirmDialog.Tint(SkillGrades.Name(grade), Palette.Sorn) : "");
+                int skillState = unlocked && lane.Mounted ? 1 : !unlocked ? 2 : 0;
+                bool renamed = Changed(_skillNames[i], System.HashCode.Combine(skill.Name, grade, skillState));
+                if (renamed && skillState == 0) _skillNames[i].text = skill.Name.ToUpperInvariant() + (grade > 0 ? "  " + ConfirmDialog.Tint(SkillGrades.Name(grade), Palette.Sorn) : "");
                 if (unlocked && lane.Mounted)
                 {
                     // In the saddle: plain attacks only until he dismounts.
                     _skillArt[i].color = new Color(0.55f, 0.52f, 0.5f, 0.75f);
                     _skillSweeps[i].fillAmount = 1f;
                     _skillLabels[i].text = "";
-                    _skillNames[i].text = ConfirmDialog.Tint(skill.Name.ToUpperInvariant(), Palette.Muted);
+                    _drawn.Remove(_skillLabels[i]);
+                    if (renamed) _skillNames[i].text = ConfirmDialog.Tint(skill.Name.ToUpperInvariant(), Palette.Muted);
                     _autoLabels[i].text = "RIDING";
                     _autoImages[i].color = Palette.ButtonIdle;
                     _autoLamps[i].color = new Color(0.25f, 0.24f, 0.27f);
@@ -544,8 +592,8 @@ namespace Orsuun.Client
                     // Locked: dark art under a full sweep, the level it opens at in the middle.
                     _skillArt[i].color = new Color(0.45f, 0.45f, 0.5f, 0.6f);
                     _skillSweeps[i].fillAmount = 1f;
-                    _skillLabels[i].text = "LV " + skill.UnlockLevel;
-                    _skillNames[i].text = ConfirmDialog.Tint(skill.Name.ToUpperInvariant(), Palette.Muted);
+                    if (Changed(_skillLabels[i], -1 - skill.UnlockLevel)) _skillLabels[i].text = "LV " + skill.UnlockLevel;
+                    if (renamed) _skillNames[i].text = ConfirmDialog.Tint(skill.Name.ToUpperInvariant(), Palette.Muted);
                     _autoLabels[i].text = "LOCKED";
                     _autoImages[i].color = Palette.ButtonIdle;
                     _autoLamps[i].color = new Color(0.25f, 0.24f, 0.27f);
@@ -553,7 +601,8 @@ namespace Orsuun.Client
                 }
                 _skillArt[i].color = Color.white;
                 _skillSweeps[i].fillAmount = skill.CooldownTicks > 0 ? Mathf.Clamp01(ticksLeft / (float)skill.CooldownTicks) : 0f;
-                _skillLabels[i].text = ticksLeft == 0 ? "" : $"{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}";
+                int tenths = Mathf.RoundToInt(ticksLeft * 10f / LaneSim.TicksPerSecond);
+                if (Changed(_skillLabels[i], ticksLeft == 0 ? 0 : tenths + 1)) _skillLabels[i].text = ticksLeft == 0 ? "" : $"{ticksLeft / (float)LaneSim.TicksPerSecond:0.0}";
                 _autoLabels[i].text = lane.AutoCast[i] ? "AUTO ON" : "AUTO OFF";
                 _autoImages[i].color = lane.AutoCast[i] ? Palette.Safe : Palette.ButtonIdle;
                 _autoLamps[i].color = lane.AutoCast[i] ? new Color(0.45f, 1f, 0.4f) : new Color(0.35f, 0.33f, 0.36f);
@@ -566,12 +615,14 @@ namespace Orsuun.Client
             _mountButton.interactable = !_mountBusy;
 
             bool allCleared = session.HighestStageCleared >= Content.TotalStages;
-            _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n<size=15>{Content.StageName(session.PushTarget)}</size>";
+            if (Changed(_pushLabel, allCleared ? -1 : session.PushTarget))
+                _pushLabel.text = allCleared ? "ALL CLEARED" : $"PUSH\n<size=15>{Content.StageName(session.PushTarget)}</size>";
             _pushButton.interactable = !_root.Replaying && !_root.PushBusy && !allCleared;
             _stageLabel.text = "ZONES";
             Net.ServerLink.GuildBriefDto guild = _root.Server.Guild;
             bool inGuild = _root.Server.InGuild;
-            _guildLabel.text = inGuild ? "[" + guild.tag + "]" : "GUILD";
+            int guildKey = inGuild ? System.HashCode.Combine(guild.tag) : 0;
+            if (Changed(_guildLabel, guildKey)) _guildLabel.text = inGuild ? "[" + guild.tag + "]" : "GUILD";
             _navLabels[1].text = "WAR";
             _bountyLabel.text = "BOUNTIES";
             _navLabels[4].text = "TRADE";
@@ -580,23 +631,26 @@ namespace Orsuun.Client
                 if (NavLocks[i] == null) continue;
                 bool open = _root.Unlocked(NavLocks[i].Value);
                 _navGroups[i].alpha = open ? 1f : 0.45f;
-                if (!open) _navLabels[i].text = "LV " + Unlocks.Level(NavLocks[i].Value);
+                if (!open && Changed(_navLabels[i], -Unlocks.Level(NavLocks[i].Value))) _navLabels[i].text = "LV " + Unlocks.Level(NavLocks[i].Value);
+                else if (open) _drawn.Remove(_navLabels[i]);
             }
             bool shards = _root.Unlocked(Feature.Shards);
             _shardsGroup.alpha = shards ? 1f : 0.45f;
-            _shardsLabel.text = shards ? "SHARDS" : "LV " + Unlocks.Level(Feature.Shards);
-            _guildTag.text = inGuild ? "[" + guild.tag + "]" : "";
-            _ticker.text = _root.Chat.Ticker.Length > 0 ? _root.Chat.Ticker : ConfirmDialog.Tint(_root.Server.Online ? "Tap to talk with the steppe." : "Chat needs the server.", Palette.Muted);
+            if (Changed(_shardsLabel, shards ? 1 : 0)) _shardsLabel.text = shards ? "SHARDS" : "LV " + Unlocks.Level(Feature.Shards);
+            if (Changed(_guildTag, guildKey)) _guildTag.text = inGuild ? "[" + guild.tag + "]" : "";
+            string ticker = _root.Chat.Ticker;
+            if (Changed(_ticker, System.HashCode.Combine(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(ticker), ticker.Length, _root.Server.Online)))
+                _ticker.text = ticker.Length > 0 ? ticker : ConfirmDialog.Tint(_root.Server.Online ? "Tap to talk with the steppe." : "Chat needs the server.", Palette.Muted);
             if (inGuild) _guildTag.color = GuildPanel.ColorOf(guild.color);
-            _amber.text = _root.Server.Online ? _root.Server.Amber.ToString("N0") : "";
+            if (Changed(_amber, _root.Server.Online ? _root.Server.Amber : -1L)) _amber.text = _root.Server.Online ? _root.Server.Amber.ToString("N0") : "";
             Net.ServerLink.TrailDto trail = _root.Server.Online ? _root.Server.Trail : null;
             bool trailReady = trail != null && TrailPanel.AnyReady(trail);
-            _trailTier.text = trail == null ? "" : trailReady ? "CLAIM" : "TIER " + trail.tier;
+            if (Changed(_trailTier, trail == null ? -1 : trailReady ? -2 : trail.tier)) _trailTier.text = trail == null ? "" : trailReady ? "CLAIM" : "TIER " + trail.tier;
             _trailTier.color = trailReady ? Palette.Sorn : Palette.Parchment;
             Net.ServerLink.TradeBriefDto trade = _root.Server.Online ? _root.Server.TradeBrief : null;
             bool calling = trade != null && !_root.Trade.IsOpen && (trade.state == "Open" || trade.incoming);
             if (_tradeCall.gameObject.activeSelf != calling) _tradeCall.gameObject.SetActive(calling);
-            if (calling) _tradeCallLabel.text = trade.state == "Open" ? $"TRADE WITH {trade.otherName.ToUpperInvariant()}: BACK TO THE WINDOW" : $"{trade.otherName.ToUpperInvariant()} ASKS TO TRADE: ANSWER";
+            if (calling && Changed(_tradeCallLabel, System.HashCode.Combine(trade.state, trade.otherName))) _tradeCallLabel.text = trade.state == "Open" ? $"TRADE WITH {trade.otherName.ToUpperInvariant()}: BACK TO THE WINDOW" : $"{trade.otherName.ToUpperInvariant()} ASKS TO TRADE: ANSWER";
             int asks = _root.Server.Online ? _root.Server.FriendAsks : 0;
             int invites = _root.Server.Online ? _root.Server.GuildInvites : 0;
             if (_root.Guild.IsOpen) _seenGuildInvites = invites;
@@ -610,7 +664,7 @@ namespace Orsuun.Client
             // a trade before all.
             bool social = !calling && !(_root.Commander != null && _root.Commander.Calling) && !(_root.Party != null && _root.Party.Calling) && (newAsks || newInvites || whispers > 0 || letters > 0);
             if (_socialCall.gameObject.activeSelf != social) _socialCall.gameObject.SetActive(social);
-            if (social) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
+            if (social && Changed(_socialCallLabel, System.HashCode.Combine(newInvites, newAsks, asks, whispers, letters))) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
                 : newAsks ? (asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER")
                 : whispers > 0 ? (whispers == 1 ? "A NEW MESSAGE: READ IT" : $"{whispers} NEW MESSAGES: READ THEM")
                 : letters == 1 ? "A LETTER HAS COME: OPEN THE MAILBOX" : $"{letters} LETTERS HAVE COME: OPEN THE MAILBOX";
@@ -721,7 +775,8 @@ namespace Orsuun.Client
                 return;
             }
             _goalText.text = _goal.Text;
-            _goalCount.text = _goal.Target > 1 ? $"{Mathf.Min(_goal.Current, _goal.Target)}/{_goal.Target}" : "";
+            if (Changed(_goalCount, System.HashCode.Combine(_goal.Current, _goal.Target)))
+                _goalCount.text = _goal.Target > 1 ? $"{Mathf.Min(_goal.Current, _goal.Target)}/{_goal.Target}" : "";
             string icon = GoalIcon(_goal.Screen);
             if (_goalIcon.texture == null || _goalIcon.texture.name != icon)
             {

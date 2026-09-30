@@ -103,8 +103,6 @@ namespace Orsuun.Client
 
             FieldMap.Layout layout = map.Current;
             Vector2 hero = map.HeroOnMap;
-            var hunted = new HashSet<int>();
-            foreach ((string _, string _, int camp) in _root.Field.AtCamps) hunted.Add(camp);
             var commander = _root.Commander != null ? _root.Commander.Here : null;
             int bossCamp = commander?.Camp ?? -1;
 
@@ -121,7 +119,7 @@ namespace Orsuun.Client
                 if (!inside) continue;
                 Place(_miniCamps[i].rectTransform, c);
                 bool boss = bossCamp == i;
-                _miniCamps[i].color = boss || i == _root.Lane.EliteCamp ? MapCommander.Gold : hunted.Contains(i) ? HeroBlue : CampRed;
+                _miniCamps[i].color = boss || i == _root.Lane.EliteCamp ? MapCommander.Gold : _root.Field.HuntedAt(i) ? HeroBlue : CampRed;
                 _miniCamps[i].rectTransform.sizeDelta = boss ? new Vector2(30f, 30f) * (1f + 0.15f * Mathf.Sin(Time.unscaledTime * 5f)) : new Vector2(18f, 18f);
             }
             int questCamp = QuestCamp(layout);
@@ -142,7 +140,7 @@ namespace Orsuun.Client
             Place(_fullArrow, at);
             _fullArrow.localRotation = Quaternion.Euler(0f, 0f, -map.HeadingDegrees);
             // A camp flying the golden banner (Rules.EliteCamps) shows gold.
-            for (int i = 0; i < _fullCamps.Count; i++) _fullCamps[i].color = i == _root.Lane.EliteCamp ? MapCommander.Gold : hunted.Contains(i) ? HeroBlue : CampRed;
+            for (int i = 0; i < _fullCamps.Count; i++) _fullCamps[i].color = i == _root.Lane.EliteCamp ? MapCommander.Gold : _root.Field.HuntedAt(i) ? HeroBlue : CampRed;
             // The Commander's gold mark and name (tap it to fight), with its time left.
             bool up = commander != null && _fullBoss != null && bossCamp < layout.Camps.Length;
             _fullBoss.gameObject.SetActive(up);
@@ -309,7 +307,7 @@ namespace Orsuun.Client
         {
             Net.ServerLink.MapQuestDto q = _root.Server.Online ? _root.Server.Quest : null;
             if (q == null || q.map != layout.Map || q.step >= q.steps || layout.Camps == null || !_root.Unlocked(Rules.Feature.Quests)) return -1;
-            return System.Array.FindIndex(layout.Camps, c => c.Name == q.camp);
+            return MapCommander.CampIndex(layout, q.camp);
         }
 
         /// <summary>A place's name on the full map (translated), <paramref name="below"/> pixels under its point.</summary>

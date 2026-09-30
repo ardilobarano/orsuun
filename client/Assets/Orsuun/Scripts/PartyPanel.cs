@@ -39,6 +39,7 @@ namespace Orsuun.Client
         private bool _boardOnce = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-partyboard") >= 0;
 
         public bool IsOpen => _canvas.activeSelf;
+        private int _chipKey = -1;
 
         /// <summary>The call to join a partymate's dungeon run is on the HUD's call line now.</summary>
         public bool Calling => _join != null && _join.gameObject.activeSelf;
@@ -249,10 +250,16 @@ namespace Orsuun.Client
             // The chip stays on the lane while online, so the board can be found without a party.
             bool chip = online && !_root.Server.WaitingForHero && !_root.Server.AtRiver && !_root.Town.IsOpen;
             if (_chip.gameObject.activeSelf != chip) _chip.gameObject.SetActive(chip);
-            if (chip)
+            // The chip's words, made again only when what they say changes (not every frame).
+            int chipUnread = inParty ? _root.Chat.PartyUnread : 0;
+            int chipKey = chip ? (((((inviting ? 1 : 0) * 2 + (inParty ? 1 : 0)) * 2 + (looking ? 1 : 0)) * 8 + (party?.members?.Length ?? 0)) * 64
+                                  + (party?.bonusPercent ?? 0)) * 1000 + Mathf.Min(chipUnread, 999) + 1 : 0;
+            chipKey = chipKey * 8 + (int)Loc.Current;
+            if (chip && chipKey != _chipKey)
                 _chipLabel.text = Loc.T(inviting && !inParty ? "PARTY INVITE" : party != null ? $"PARTY {party.members?.Length ?? 1}  +{party.bonusPercent}%"
                                       : inParty ? "PARTY" : looking ? "LOOKING FOR A PARTY" : "PARTY")
-                                  + (inParty && _root.Chat.PartyUnread > 0 ? "  " + ConfirmDialog.Tint("(" + _root.Chat.PartyUnread + ")", Palette.Sorn) : "");
+                                  + (chipUnread > 0 ? "  " + ConfirmDialog.Tint("(" + chipUnread + ")", Palette.Sorn) : "");
+            _chipKey = chipKey;
             UpdateJoinCall(party);
             if (!_canvas.activeSelf) return;
 

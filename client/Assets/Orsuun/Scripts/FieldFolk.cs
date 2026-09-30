@@ -150,6 +150,13 @@ namespace Orsuun.Client
             }
         }
 
+        /// <summary>Another player hunts at this camp of the big map now.</summary>
+        public bool HuntedAt(int camp)
+        {
+            foreach (Hunter h in _hunters) if (h != null && h.Root != null && h.OnMap && h.Camp == camp) return true;
+            return false;
+        }
+
         /// <summary>The other players hunting at the big map's camps now, by id, name and camp (the full map shows them).</summary>
         public IEnumerable<(string id, string name, int camp)> AtCamps
         {
@@ -251,8 +258,7 @@ namespace Orsuun.Client
             {
                 if (_camps[c] == null) continue;
                 // A Commander standing at a camp (MapCommander) has sent its monsters off.
-                bool hunted = System.Array.Exists(_hunters, h => h != null && h.OnMap && h.Camp == c)
-                              || (_root.Commander != null && _root.Commander.Here is { } boss && boss.Camp == c);
+                bool hunted = HuntedAt(c) || (_root.Commander != null && _root.Commander.Here is { } boss && boss.Camp == c);
                 if (_camps[c].gameObject.activeSelf == hunted) _camps[c].gameObject.SetActive(!hunted);
             }
         }
@@ -318,7 +324,7 @@ namespace Orsuun.Client
             h.Figure.Stand(h.Root.position);
             foreach (Renderer r in h.Figure.Renderers) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             h.Figure.Idle(always: false);
-            HeroFigure.Glow(h.Figure.Pieces, _block, UpgradeGlow.ForLevel(dto.armorPlus), UpgradeGlow.ForLevel(dto.weaponPlus));
+            HeroFigure.Glow(h.Figure.Pieces, _block, UpgradeGlow.ForLevel(dto.armorPlus), UpgradeGlow.ForLevel(dto.weaponPlus), GameSettings.OthersSparkle(dto.party));
             h.Name = NameTag(h.Root, dto.name);
             h.NextBlow = Time.time + Random.Range(0.3f, 1.2f);
             if (h.Mate)

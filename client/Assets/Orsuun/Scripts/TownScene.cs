@@ -266,7 +266,7 @@ namespace Orsuun.Client
             if (v.Figure != null)
             {
                 _glowBlock ??= new MaterialPropertyBlock();
-                HeroFigure.Glow(v.Figure.Pieces, _glowBlock, armorGlow, weaponGlow);
+                HeroFigure.Glow(v.Figure.Pieces, _glowBlock, armorGlow, weaponGlow, GameSettings.OthersSparkle(false));
             }
         }
 

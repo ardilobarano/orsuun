@@ -268,6 +268,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   (`Mail:Host/Port/User/Password/From`, from `MAIL_*` in `deploy/.env`); only a hash is stored. A Development server with
   no SMTP keeps each email for `/v1/dev/mail?email=` (the smoke test reads codes there); elsewhere "forgot" answers
   "mail_off". FORGOT answers the same whether or not the email has an account; a reset binds the device like a sign-in.
+- Phone performance pass 2 (30 Sep 2026): skinning is on the GPU (`PlayerSettings.meshDeformation`, set in `ProjectSetup.Run`); HUD
+  labels that change often are set through `Hud.Changed(label, key)` so their strings are made only when the key changes (strings built
+  every frame were most of the garbage); `GearSparkle` bursts on skinned pieces and pauses off screen. `-perflog` writes `perf.log`
+  (persistentDataPath) with frame times, draw counters, garbage collections and the CPU/GPU split; `-fpscap n` holds a rate.
 - Phone performance (`Performance`, on GameRoot): the URP asset's `renderScale` is set at runtime (the lane at most 1800 px
   tall; BATTERY SAVER draws it smaller and turns off bloom), 60 fps while touched and 30 when left alone. Never switch
   MSAA at runtime: on Metal it turns the frame upside down and blacks the lane.

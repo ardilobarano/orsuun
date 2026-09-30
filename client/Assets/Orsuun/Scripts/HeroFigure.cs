@@ -80,7 +80,9 @@ namespace Orsuun.Client
         }
 
         /// <summary>Lights the pieces by their glow through property blocks (the looks' materials are shared) and sparkles.</summary>
-        public static void Glow(List<(Renderer renderer, bool weapon)> pieces, MaterialPropertyBlock block, float armorGlow, float weaponGlow)
+        /// <summary>The pieces' glow; <paramref name="sparkles"/> false keeps the shader's shine without the stars (other heroes
+        /// on MEDIUM or LOW graphics: GameSettings.OthersSparkle).</summary>
+        public static void Glow(List<(Renderer renderer, bool weapon)> pieces, MaterialPropertyBlock block, float armorGlow, float weaponGlow, bool sparkles = true)
         {
             foreach ((Renderer r, bool weapon) in pieces)
             {
@@ -89,7 +91,7 @@ namespace Orsuun.Client
                 r.GetPropertyBlock(block);
                 block.SetFloat(UpgradeGlow.GlowId, glow);
                 r.SetPropertyBlock(block);
-                if (glow > 0f || r.GetComponentInChildren<GearSparkle>() != null) GearSparkle.On(r, weapon).Set(glow);
+                if ((glow > 0f && sparkles) || r.GetComponentInChildren<GearSparkle>() != null) GearSparkle.On(r, weapon).Set(sparkles ? glow : 0f);
             }
         }
 

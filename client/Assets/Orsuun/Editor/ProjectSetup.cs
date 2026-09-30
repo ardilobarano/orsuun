@@ -26,6 +26,11 @@ namespace Orsuun.Client.EditorTools
             PlayerSettings.defaultScreenHeight = 960;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
             PlayerSettings.resizableWindow = true;
+            // -perflog's CPU / GPU split (FrameTimingManager; the phone performance pass, 30 Sep 2026).
+            PlayerSettings.enableFrameTimingStats = true;
+            // Skinned heroes, partymates, camp monsters and Commanders are skinned on the GPU in batches (they were skinned on
+            // the phone's CPU; the phone performance pass, 30 Sep 2026).
+            PlayerSettings.meshDeformation = MeshDeformation.GPUBatched;
 
             if (!File.Exists(ScenePath))
             {

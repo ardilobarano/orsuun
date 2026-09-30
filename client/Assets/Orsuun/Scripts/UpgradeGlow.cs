@@ -41,7 +41,14 @@ namespace Orsuun.Client
         private ParticleSystem _ps;
         private ParticleSystem _halo;
         private float _glow = -1f;
-        private bool _weapon;
+        private bool _weapon, _skinned;
+        private Renderer _piece;
+        private float _checkAt, _phase;
+        private bool _emitting = true;
+        /// <summary>A skinned piece's shape is skinned again on the CPU for every frame that emits (the phone performance
+        /// pass, 30 Sep 2026): such a piece emits its stars in small bursts ten times a second instead of a few each frame,
+        /// which looks the same and skins the piece a sixth as often.</summary>
+        private const float BurstSeconds = 0.1f;
         private static Material _material;
         private static Material _haloMaterial;
 
@@ -54,6 +61,10 @@ namespace Orsuun.Client
             go.transform.SetParent(piece.transform, false);
             sparkle = go.AddComponent<GearSparkle>();
             sparkle._weapon = weapon;
+            sparkle._skinned = piece is SkinnedMeshRenderer;
+            sparkle._piece = piece;
+            // Each piece bursts at its own moment of the tenth, so heroes' pieces are not all skinned in the same frame.
+            sparkle._phase = Random.value * BurstSeconds;
             sparkle.Build(piece);
             return sparkle;
         }
@@ -154,6 +165,43 @@ namespace Orsuun.Client
             renderer.receiveShadows = false;
         }
 
+        /// <summary>No stars while the piece is off screen (another hero at a far camp, the stage behind a screen): its stars
+        /// live in the world, so the system is never culled by itself and a skinned piece would be skinned for nothing.
+        /// Checked four times a second; the stars already out finish their twinkle.</summary>
+        private void Update()
+        {
+            if (_ps == null || Time.unscaledTime < _checkAt) return;
+            _checkAt = Time.unscaledTime + 0.25f;
+            bool seen = _piece != null && _piece.isVisible;
+            if (seen == _emitting) return;
+            _emitting = seen;
+            ParticleSystem.EmissionModule emission = _ps.emission;
+            emission.enabled = seen;
+            if (_halo == null) return;
+            ParticleSystem.EmissionModule halo = _halo.emission;
+            halo.enabled = seen;
+        }
+
+        /// <summary>A system's stars a second: as a rate, or for a skinned piece as a burst every BurstSeconds (a whole
+        /// count, and the part left over as the chance of one more).</summary>
+        private void Emit(ParticleSystem system, float perSecond)
+        {
+            ParticleSystem.EmissionModule emission = system.emission;
+            if (!_skinned)
+            {
+                emission.rateOverTime = perSecond;
+                return;
+            }
+            emission.rateOverTime = 0f;
+            float each = perSecond * BurstSeconds;
+            short whole = (short)Mathf.FloorToInt(each);
+            var bursts = new System.Collections.Generic.List<ParticleSystem.Burst>();
+            if (whole > 0) bursts.Add(new ParticleSystem.Burst(_phase, whole, whole, 0, BurstSeconds));
+            float rest = each - whole;
+            if (rest > 0.01f) bursts.Add(new ParticleSystem.Burst((_phase + BurstSeconds * 0.5f) % BurstSeconds, 1, 1, 0, BurstSeconds) { probability = rest });
+            emission.SetBursts(bursts.ToArray());
+        }
+
         /// <summary>Sets the piece's glow (UpgradeGlow.ForLevel): 0 stops the sparkles.</summary>
         public void Set(float glow)
         {
@@ -172,8 +220,7 @@ namespace Orsuun.Client
                     : glow < 0.8f ? new Color(1.5f, 1.05f, 0.45f, 0.5f) : new Color(1.8f, 0.72f, 0.38f, 0.7f);
                 ParticleSystem.MainModule haloMain = _halo.main;
                 haloMain.startColor = new ParticleSystem.MinMaxGradient(haloColor, new Color(1f, 0.85f, 0.6f, haloColor.a * 0.8f));
-                ParticleSystem.EmissionModule haloRate = _halo.emission;
-                haloRate.rateOverTime = glow < 0.5f ? 22f : glow < 0.8f ? 45f : 90f;
+                Emit(_halo, glow < 0.5f ? 22f : glow < 0.8f ? 45f : 90f);
                 ParticleSystem.MainModule haloSize = _halo.main;
                 haloSize.startSize = glow < 0.5f ? new ParticleSystem.MinMaxCurve(0.2f, 0.4f)
                     : glow < 0.8f ? new ParticleSystem.MinMaxCurve(0.3f, 0.6f) : new ParticleSystem.MinMaxCurve(0.4f, 0.85f);
@@ -183,9 +230,8 @@ namespace Orsuun.Client
             Color level = glow < 0.5f ? new Color(1f, 0.95f, 0.8f) : glow < 0.8f ? new Color(1f, 0.82f, 0.4f) : new Color(1f, 0.6f, 0.22f);
             ParticleSystem.MainModule main = _ps.main;
             main.startColor = new ParticleSystem.MinMaxGradient(Color.Lerp(level, Color.white, 0.5f) * 1.6f, level * 1.3f);
-            ParticleSystem.EmissionModule emission = _ps.emission;
             float rate = glow < 0.5f ? 8f : glow < 0.8f ? 16f : 30f;
-            emission.rateOverTime = _weapon ? rate * 0.8f : rate;
+            Emit(_ps, _weapon ? rate * 0.8f : rate);
             ParticleSystem.VelocityOverLifetimeModule rise = _ps.velocityOverLifetime;
             rise.enabled = glow >= 0.8f;
             rise.space = ParticleSystemSimulationSpace.World;

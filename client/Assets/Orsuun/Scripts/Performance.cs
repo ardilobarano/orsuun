@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
@@ -28,6 +30,10 @@ namespace Orsuun.Client
         /// <summary>A frame-rate readout in the corner (29 Sep 2026, with the phone speed pass).</summary>
         public static bool ShowFps { get; private set; }
         public static float TextScale => TextScales[Mathf.Clamp(TextSize, 0, TextScales.Length - 1)];
+
+        /// <summary>Other heroes' +7..+9 stars (the phone performance pass, 30 Sep 2026): on HIGH everyone's; on MEDIUM only
+        /// partymates' (they walk beside the hero); on LOW nobody's but the hero's own. The shader's shine stays on all.</summary>
+        public static bool OthersSparkle(bool partymate) => Graphics == Quality.High || (partymate && Graphics == Quality.Medium);
 
         /// <summary>Raised on any change: Performance applies the graphics, every LocText its size.</summary>
         public static event Action Changed;
@@ -93,6 +99,21 @@ namespace Orsuun.Client
         private int _fps = -1, _frames;
         private bool _log;
         private float _builtScale = -1f;
+        private ProfilerRecorder _batches, _setPass, _triangles, _shadowCasters, _gcAlloc;
+        private long _gcBytes, _gcFrames;
+        private int _gcCount;
+        private readonly List<float> _frameMs = new List<float>(1024);
+        private readonly FrameTiming[] _timings = new FrameTiming[8];
+        private string _logPath;
+        /// <summary>-fpscap n: the frame-rate target while measuring (0: uncapped), instead of 60 touched / 30 idle.</summary>
+        private static readonly int FpsCap = ArgInt("-fpscap", -1);
+
+        private static int ArgInt(string name, int fallback)
+        {
+            string[] args = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(args, name);
+            return i >= 0 && i + 1 < args.Length && int.TryParse(args[i + 1], out int v) ? v : fallback;
+        }
 
         public void Init(Camera lane)
         {
@@ -100,6 +121,19 @@ namespace Orsuun.Client
             GameSettings.Changed += Apply;
             _lastInput = _logAt = Time.realtimeSinceStartup;
             _log = Array.IndexOf(Environment.GetCommandLineArgs(), "-perflog") >= 0;
+            if (_log)
+            {
+                // The rendering counters (Release players have them) and a file beside the save data, so a phone's log can be
+                // copied off it (xcrun devicectl device copy from ... --domain-type appDataContainer).
+                _batches = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Batches Count");
+                _setPass = ProfilerRecorder.StartNew(ProfilerCategory.Render, "SetPass Calls Count");
+                _triangles = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Triangles Count");
+                _shadowCasters = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Shadow Casters Count");
+                _gcAlloc = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame");
+                _gcCount = GC.CollectionCount(0);
+                _logPath = System.IO.Path.Combine(Application.persistentDataPath, "perf.log");
+                try { System.IO.File.WriteAllText(_logPath, $"# {SystemInfo.deviceModel} {SystemInfo.graphicsDeviceName} {Application.version} {DateTime.UtcNow:u}\n"); } catch { _logPath = null; }
+            }
             // Phones ignore vsync and follow targetFrameRate; on the Mac vsync would override it.
             QualitySettings.vSyncCount = 0;
             Apply();
@@ -127,6 +161,7 @@ namespace Orsuun.Client
         private void OnDestroy()
         {
             GameSettings.Changed -= Apply;
+            _batches.Dispose(); _setPass.Dispose(); _triangles.Dispose(); _shadowCasters.Dispose(); _gcAlloc.Dispose();
             if (_builtScale > 0f && GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset urp) urp.renderScale = _builtScale;
         }
 
@@ -163,7 +198,7 @@ namespace Orsuun.Client
             float now = Time.realtimeSinceStartup;
             Readout(now);
             if (Input.touchCount > 0 || Input.GetMouseButton(0) || Input.anyKeyDown) _lastInput = now;
-            int fps = Saver || now - _lastInput > IdleSeconds ? 30 : 60;
+            int fps = FpsCap >= 0 ? (FpsCap == 0 ? 1000 : FpsCap) : Saver || now - _lastInput > IdleSeconds ? 30 : 60;
             if (fps != _fps)
             {
                 _fps = fps;
@@ -171,9 +206,38 @@ namespace Orsuun.Client
             }
             if (!_log) return;
             _frames++;
+            _frameMs.Add(Time.unscaledDeltaTime * 1000f);
+            FrameTimingManager.CaptureFrameTimings();
+            if (_gcAlloc.Valid) { _gcBytes += _gcAlloc.LastValue; _gcFrames++; }
             if (now - _logAt < 10f) return;
             float urpScale = GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset u ? u.renderScale : 1f;
-            Debug.Log($"PERF fps={_frames / (now - _logAt):0.0} target={_fps} scale={urpScale:0.00} screen={Screen.width}x{Screen.height} saver={Saver}");
+            _frameMs.Sort();
+            float p95 = _frameMs.Count > 0 ? _frameMs[Mathf.Min(_frameMs.Count - 1, (int)(_frameMs.Count * 0.95f))] : 0f;
+            float median = _frameMs.Count > 0 ? _frameMs[_frameMs.Count / 2] : 0f;
+            _frameMs.Clear();
+            // What the scene holds now: skinned meshes drawn, particle systems playing and their particles, renderers drawn.
+            int skinned = 0, systems = 0, particles = 0, drawn = 0;
+            foreach (SkinnedMeshRenderer r in FindObjectsByType<SkinnedMeshRenderer>(FindObjectsSortMode.None)) if (r.isVisible) skinned++;
+            foreach (ParticleSystem ps in FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None))
+                if (ps.isPlaying) { systems++; particles += ps.particleCount; }
+            foreach (Renderer r in FindObjectsByType<Renderer>(FindObjectsSortMode.None)) if (r.isVisible) drawn++;
+            // The CPU's and GPU's share of a frame (FrameTimingManager: Frame Timing Stats is on in the player settings).
+            FrameTimingManager.CaptureFrameTimings();
+            uint got = FrameTimingManager.GetLatestTimings((uint)_timings.Length, _timings);
+            double cpuMain = 0, cpuRender = 0, gpu = 0;
+            for (int i = 0; i < got; i++) { cpuMain += _timings[i].cpuMainThreadFrameTime; cpuRender += _timings[i].cpuRenderThreadFrameTime; gpu += _timings[i].gpuFrameTime; }
+            // Garbage made a frame (a phone pauses to collect it) and the collections in the window.
+            int collections = GC.CollectionCount(0) - _gcCount;
+            _gcCount += collections;
+            string gc = $" gc={(_gcFrames > 0 ? _gcBytes / _gcFrames / 1024f : -1f):0.0}KB/frame collections={collections}";
+            _gcBytes = 0;
+            _gcFrames = 0;
+            string split = gc + (got > 0 ? $" cpu={cpuMain / got:0.0}ms render={cpuRender / got:0.0}ms gpu={gpu / got:0.0}ms" : " (no frame timings)");
+            string line = $"PERF fps={_frames / (now - _logAt):0.0} median={median:0.0}ms p95={p95:0.0}ms target={_fps} scale={urpScale:0.00} screen={Screen.width}x{Screen.height} "
+                          + $"graphics={GameSettings.Graphics} batches={_batches.LastValue} setpass={_setPass.LastValue} tris={_triangles.LastValue / 1000}k "
+                          + $"shadowcasters={_shadowCasters.LastValue} renderers={drawn} skinned={skinned} particlesystems={systems} particles={particles}{split}";
+            Debug.Log(line);
+            if (_logPath != null) try { System.IO.File.AppendAllText(_logPath, line + "\n"); } catch { }
             _frames = 0;
             _logAt = now;
         }

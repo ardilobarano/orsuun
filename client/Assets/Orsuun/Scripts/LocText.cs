@@ -24,6 +24,8 @@ namespace Orsuun.Client
             get => base.text;
             set
             {
+                // The same words again (screens set their labels every frame): nothing to translate or draw anew.
+                if (_source != null && _shownIn == Loc.Current && string.Equals(value, _source, System.StringComparison.Ordinal)) return;
                 _source = value;
                 _shownIn = Loc.Current;
                 base.text = ScaleTags(Raw ? value : Loc.T(value));
