@@ -1,3 +1,4 @@
+using System.Linq;
 using Orsuun.Rules;
 using Xunit;
 
@@ -31,5 +32,32 @@ public class PartyTests
         int floor = Dungeons.FloorStageBase + 10 + 1;
         Assert.True(Dungeons.IsFloor(floor));
         Assert.False(Parties.Together(floor, floor));
+    }
+}
+
+public class PartyDungeonTests
+{
+    [Fact]
+    public void The_party_chest_is_one_wardens_chest_a_clearer_dealt_out_evenly()
+    {
+        DungeonDef spire = Dungeons.Find(1)!;
+        for (int clearers = 1; clearers <= 4; clearers++)
+        {
+            PartyDungeons.Share[] shares = PartyDungeons.Pool(spire, 30, clearers, new XorShiftRandom((ulong)(7 + clearers)));
+            Assert.Equal(clearers, shares.Length);
+            // The same pool rolled again, whole.
+            var pool = new Inventory();
+            var rng = new XorShiftRandom((ulong)(7 + clearers));
+            for (int i = 0; i < clearers; i++) Dungeons.WardenChest(pool, 30, rng, spire);
+            for (int good = 0; good < TradeGoods.Count; good++)
+            {
+                int[] got = shares.Select(s => s.Goods.TryGetValue(good, out int n) ? n : 0).ToArray();
+                Assert.Equal(TradeGoods.Held(pool, good), got.Sum());
+                Assert.True(got.Max() - got.Min() <= 1, $"good {good}: {string.Join(",", got)}");
+            }
+            Assert.Equal(pool.Books.Sum(), shares.Sum(s => s.Books.Values.Sum()));
+            Assert.All(shares, s => Assert.False(s.Empty));
+        }
+        Assert.Empty(PartyDungeons.Pool(spire, 30, 0, new XorShiftRandom(1)));
     }
 }

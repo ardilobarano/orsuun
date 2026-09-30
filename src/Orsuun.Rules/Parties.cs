@@ -32,4 +32,49 @@ namespace Orsuun.Rules
 
         public static bool Together(int stageA, int stageB) => Place(stageA) >= 0 && Place(stageA) == Place(stageB);
     }
+
+    /// <summary>
+    /// Party dungeons (owner, 30 Sep 2026: "Enter a dungeon together: partymates fight each floor beside you (each hero's own
+    /// run on the server) and the party shares the end chest."). A partymate opens a dungeon for the party; the others join
+    /// for JoinSeconds, each with a key and a run of their own. When it closes, the party's chest is shared: one Warden's chest
+    /// for each member who cleared, pooled and dealt out evenly among them (its goods and Technique Scrolls, which letters
+    /// carry). It needs at least MinJoined heroes in the run.
+    /// </summary>
+    public static class PartyDungeons
+    {
+        public const int JoinSeconds = 180, SettleAfterMinutes = 30, MinJoined = 2;
+
+        /// <summary>A member's part of the party's chest: goods (TradeGoods id to count) and Technique Scrolls (book id to count).</summary>
+        public sealed class Share
+        {
+            public readonly System.Collections.Generic.SortedDictionary<int, int> Goods = new System.Collections.Generic.SortedDictionary<int, int>();
+            public readonly System.Collections.Generic.SortedDictionary<int, int> Books = new System.Collections.Generic.SortedDictionary<int, int>();
+            public bool Empty => Goods.Count == 0 && Books.Count == 0;
+        }
+
+        /// <summary>The party's chest for <paramref name="clearers"/> heroes: that many Warden's chests pooled, each good and
+        /// scroll dealt one at a time round the members (the leftovers of one kind start where the last kind's stopped).</summary>
+        public static Share[] Pool(DungeonDef dungeon, int level, int clearers, IRandom rng)
+        {
+            var shares = new Share[Math.Max(0, clearers)];
+            for (int i = 0; i < shares.Length; i++) shares[i] = new Share();
+            if (shares.Length == 0) return shares;
+            var pool = new Inventory();
+            for (int i = 0; i < shares.Length; i++) Dungeons.WardenChest(pool, level, rng, dungeon);
+            int next = 0;
+            for (int good = 0; good < TradeGoods.Count; good++)
+                for (int n = TradeGoods.Held(pool, good); n > 0; n--)
+                {
+                    Share s = shares[next++ % shares.Length];
+                    s.Goods[good] = (s.Goods.TryGetValue(good, out int had) ? had : 0) + 1;
+                }
+            for (int book = 0; book < pool.Books.Length; book++)
+                for (int n = pool.Books[book]; n > 0; n--)
+                {
+                    Share s = shares[next++ % shares.Length];
+                    s.Books[book] = (s.Books.TryGetValue(book, out int had) ? had : 0) + 1;
+                }
+            return shares;
+        }
+    }
 }

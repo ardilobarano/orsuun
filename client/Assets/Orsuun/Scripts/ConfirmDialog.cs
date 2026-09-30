@@ -16,7 +16,8 @@ namespace Orsuun.Client
         private Text _body;
         private Text _confirmLabel;
         private Image _confirmImage;
-        private Action _onConfirm;
+        private Action _onConfirm, _onCancel;
+        private Text _cancelLabel;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -39,19 +40,30 @@ namespace Orsuun.Client
             _body.supportRichText = true;
             Button confirm = Ui.Button("Confirm", b, 0.05f, 0.05f, 0.62f, 0.25f, "", 36, Palette.Danger, Confirm, out _confirmLabel);
             _confirmImage = confirm.GetComponent<Image>();
-            Ui.Button("Cancel", b, 0.65f, 0.05f, 0.95f, 0.25f, "CANCEL", 32, Palette.ButtonIdle, Cancel, out _);
+            Ui.Button("Cancel", b, 0.65f, 0.05f, 0.95f, 0.25f, "CANCEL", 32, Palette.ButtonIdle, CancelPressed, out _cancelLabel);
 
             _canvas.SetActive(false);
         }
 
-        public void Show(string title, string body, string confirmLabel, Color confirmColor, Action onConfirm)
+        /// <summary>The box; <paramref name="cancelLabel"/> and <paramref name="onCancel"/> make the second button a choice of its
+        /// own (a tap outside the box still only closes it).</summary>
+        public void Show(string title, string body, string confirmLabel, Color confirmColor, Action onConfirm, string cancelLabel = "CANCEL", Action onCancel = null)
         {
             _title.text = title;
             _body.text = body;
             _confirmLabel.text = confirmLabel;
             _confirmImage.color = confirmColor;
             _onConfirm = onConfirm;
+            _cancelLabel.text = cancelLabel;
+            _onCancel = onCancel;
             _canvas.SetActive(true);
+        }
+
+        private void CancelPressed()
+        {
+            Action action = _onCancel;
+            Cancel();
+            action?.Invoke();
         }
 
         private void Confirm()
@@ -65,6 +77,7 @@ namespace Orsuun.Client
         private void Cancel()
         {
             _onConfirm = null;
+            _onCancel = null;
             _canvas.SetActive(false);
         }
 

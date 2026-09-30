@@ -1243,11 +1243,14 @@ namespace Orsuun.Client.Net
         public int DungeonPausedId { get; private set; }
 
         /// <summary>Enters a dungeon: the floors up to the smith (or a fall) come back to be replayed.</summary>
-        public IEnumerator DungeonEnter(int dungeonId, Action<DungeonResultDto, string> done)
+        /// <summary>Enters a dungeon (partyDungeonId joins a run a partymate opened; openForParty opens one for the party and
+        /// goes in): the floors up to the smith (or a fall) come back to be replayed.</summary>
+        public IEnumerator DungeonEnter(int dungeonId, Action<DungeonResultDto, string> done, string partyDungeonId = null, bool openForParty = false)
         {
             DungeonResultDto result = null;
             string failure = null;
-            yield return Post("/v1/dungeon/enter", JsonUtility.ToJson(new DungeonEnterRequest { requestId = NewRequestId(), dungeonId = dungeonId }), true, json =>
+            var request = new DungeonEnterRequest { requestId = NewRequestId(), dungeonId = dungeonId, partyDungeonId = IsNoGuid(partyDungeonId) ? NoGuid : partyDungeonId };
+            yield return Post(openForParty ? "/v1/party/dungeon" : "/v1/dungeon/enter", JsonUtility.ToJson(request), true, json =>
             {
                 result = JsonUtility.FromJson<DungeonResultDto>(json);
                 Apply(result.state);
@@ -1568,6 +1571,10 @@ namespace Orsuun.Client.Net
         private float _eliteAt;
 
         public static bool IsNoGuid(string id) => string.IsNullOrEmpty(id) || id == Guid.Empty.ToString();
+        private static readonly string NoGuid = Guid.Empty.ToString();
+
+        /// <summary>When the party was last fetched (its open dungeon run counts down from then).</summary>
+        public float PartyFetchedAt { get; private set; }
 
         public IEnumerator FetchParty(Action<PartyDto, string> done) => PartyCall("GET", "/v1/party", null, done);
 
@@ -1623,6 +1630,7 @@ namespace Orsuun.Client.Net
             if (result != null)
             {
                 Party = result;
+                PartyFetchedAt = Time.realtimeSinceStartup;
                 PartyLeader = result.leaderId ?? "";
                 PartyInviteName = IsNoGuid(result.inviteFrom) ? "" : result.inviteName ?? "";
             }
@@ -2058,7 +2066,8 @@ namespace Orsuun.Client.Net
         [Serializable] public class PartyLookRequest { public bool look; }
         /// <summary>A hunting party (Rules.Parties): members, the hunt's bonus now (percent) and an invite waiting.</summary>
         [Serializable] public class PartyMemberDto { public string id; public string name; public string @class; public int level; public bool online; public bool together; public bool leader; public string hunting; }
-        [Serializable] public class PartyDto { public string leaderId; public PartyMemberDto[] members; public int bonusPercent; public string inviteFrom; public string inviteName; public int maxMembers; public string message; }
+        [Serializable] public class PartyDto { public string leaderId; public PartyMemberDto[] members; public int bonusPercent; public string inviteFrom; public string inviteName; public int maxMembers; public string message;
+            public string openDungeonId; public int openDungeon; public long openDungeonLeft; public string openedBy; public bool openJoined; public string[] openJoinedNames; }
         [Serializable] public class PartyInviteRequest { public string accountId; public string name; }
         [Serializable] public class PartyAnswerRequest { public bool accept; }
         [Serializable] public class PartyKickRequest { public string accountId; }
@@ -2139,10 +2148,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class PitFightRequest { public string requestId; public string opponentId; }
         [Serializable] public class PitShopRequest { public string requestId; public int itemId; }
         [Serializable] public class PitFightDto { public StateDto state; public DuelResultDto duel; public PitsDto pits; public int ratingBefore; public int ratingAfter; public int laurelsGained; }
-        [Serializable] public class DungeonEnterRequest { public string requestId; public int dungeonId; }
+        [Serializable] public class DungeonEnterRequest { public string requestId; public int dungeonId; public string partyDungeonId; }
         [Serializable] public class DungeonSmithRequest { public string requestId; public long runId; public string itemId; public string rune; }
         [Serializable] public class DungeonFloorDto { public int floor; public ulong seed; public int potionsAtStart; public bool cleared; }
-        [Serializable] public class DungeonResultDto { public StateDto state; public long runId; public int dungeonId; public int level; public DungeonFloorDto[] floors; public bool atSmith; public bool cleared; public int fellOn; public string chest; public ForgeResultDto smith; public string smithItem; public string text; public string pause; public string riddle; public string[] runes; }
+        [Serializable] public class DungeonResultDto { public StateDto state; public long runId; public int dungeonId; public int level; public DungeonFloorDto[] floors; public bool atSmith; public bool cleared; public int fellOn; public string chest; public ForgeResultDto smith; public string smithItem; public string text; public string pause; public string riddle; public string[] runes; public TownHeroDto[] mates; }
         [Serializable] public class ProvidersDto { public string[] providers; }
         [Serializable] public class ExternalBeginRequest { public string provider; }
         [Serializable] public class ExternalBeginDto { public string url; }

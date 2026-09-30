@@ -949,10 +949,10 @@ namespace Orsuun.Client
         }
 
         /// <summary>Enters a dungeon: the server fights the floors, the lane replays them; the Chained Smith asks halfway.</summary>
-        public void EnterDungeon(int dungeonId)
+        public void EnterDungeon(int dungeonId, string partyDungeonId = null, bool openForParty = false)
         {
             if (Replaying || PushBusy || !Server.Online) return;
-            StartCoroutine(DungeonSequence(dungeonId));
+            StartCoroutine(DungeonSequence(dungeonId, partyDungeonId, openForParty));
         }
 
         /// <summary>Goes back to a run left waiting at the Chained Smith.</summary>
@@ -962,12 +962,12 @@ namespace Orsuun.Client
             StartCoroutine(SmithSequence(Server.DungeonRunAtSmith, Server.DungeonPausedId));
         }
 
-        private IEnumerator DungeonSequence(int dungeonId)
+        private IEnumerator DungeonSequence(int dungeonId, string partyDungeonId = null, bool openForParty = false)
         {
             PushBusy = true;
             Net.ServerLink.DungeonResultDto result = null;
             string failure = null;
-            yield return Server.DungeonEnter(dungeonId, (r, e) => { result = r; failure = e; });
+            yield return Server.DungeonEnter(dungeonId, (r, e) => { result = r; failure = e; }, partyDungeonId, openForParty);
             if (result == null)
             {
                 Hud.Log(failure ?? "No answer from the server.");
@@ -993,6 +993,8 @@ namespace Orsuun.Client
             DungeonDef dungeon = Dungeons.Find(run.dungeonId);
             if (dungeon == null || run.floors == null) yield break;
             HeroStats hero = Session.Hero;
+            // A party run (Rules.PartyDungeons): the partymates walk and fight each floor beside the hero.
+            Field.DungeonMates = run.mates != null && run.mates.Length > 0 ? run.mates : null;
             foreach (Net.ServerLink.DungeonFloorDto floor in run.floors)
             {
                 _replay = StageRun.Create(Dungeons.Floor(dungeon, floor.floor, run.level), hero, new Inventory { Potions = floor.potionsAtStart }, floor.seed);
@@ -1004,6 +1006,7 @@ namespace Orsuun.Client
             }
             _replay = null;
             ReplayBanner = "";
+            Field.DungeonMates = null;
         }
 
         /// <summary>The Chained Smith: the player's choice goes to the server, then the rest of the run is replayed.</summary>

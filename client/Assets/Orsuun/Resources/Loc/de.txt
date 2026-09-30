@@ -2958,3 +2958,24 @@ GOLDEN BANNERS	GOLDENE BANNER
 Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	Jage mit bis zu drei anderen: Freunden, Gildengefährten oder Helden vom GRUPPENBRETT dieser Karte. Gruppenmitglieder auf deiner Karte gehen und kämpfen neben dir, und jedes bringt 5 % EP und Sorn. Der GRUPPENCHAT erreicht sie überall.
 Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	Hin und wieder erhebt sich der Kommandant einer Karte für zehn Minuten an ihrem Wahrzeichen. Jeder Held der Karte darf einmal gegen ihn kämpfen: tippe auf den roten Ruf oder auf seinen Namen auf der großen Karte. Seine Lebenspunkte sind geteilt, jeder Schlag zählt. KOMMANDANTEN-HINWEISE in den EINSTELLUNGEN melden es deinem Telefon.
 A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	Ein Lager unter einem goldenen Banner beherbergt zehn Minuten lang Elite-Rudel: zäher und härter zuschlagend, und sie zahlen ihre Beute zweimal mehr, manchmal mit Ausrüstung. Jage an ihm vorbei, solange das Banner weht.
+Take your party?	Deine Gruppe mitnehmen?
+Partymates can join for three minutes, each with a key of their own, and fight beside you. Those who clear it together share an extra Warden's chest.	Gruppenmitglieder können drei Minuten lang beitreten, jedes mit einem eigenen Schlüssel, und an deiner Seite kämpfen. Wer das Verlies gemeinsam abschließt, teilt eine zusätzliche Wächtertruhe.
+PARTY RUN	GRUPPENLAUF
+ALONE	ALLEIN
+{0} opened {1} for the party	{0} hat {1} für die Gruppe geöffnet
+Your last run is still waiting on its pause floor.	Dein letzter Durchlauf wartet noch auf seiner Pausenetage.
+Your party has a dungeon open already: join it.	Deine Gruppe hat schon ein Verlies offen: tritt ihm bei.
+{0} opened {1} for the party: join within three minutes.	{0} hat {1} für die Gruppe geöffnet: tritt innerhalb von drei Minuten bei.
+That party run is gone.	Dieser Gruppenlauf ist nicht mehr da.
+That party run has closed.	Dieser Gruppenlauf ist geschlossen.
+That run is another party's.	Dieser Lauf gehört einer anderen Gruppe.
+That party run is for another dungeon.	Dieser Gruppenlauf ist für ein anderes Verlies.
+You are in that party run already.	Du bist schon in diesem Gruppenlauf.
+{0} cleared {1}.	{0} hat {1} abgeschlossen.
+{0} fell on floor {1#} of {2}.	{0} ist auf Etage {1#} von {2} gefallen.
+The party's run of {0} closed with one hero in it: no shared chest.	Der Gruppenlauf durch {0} endete mit nur einem Helden: keine geteilte Truhe.
+The party's run of {0} closed with nobody clearing it: no shared chest.	Der Gruppenlauf durch {0} endete, ohne dass jemand ihn abschloss: keine geteilte Truhe.
+The party's chest: {0}	Die Truhe der Gruppe: {0}
+Shared among the {0#} heroes who cleared {1} together.	Geteilt unter den {0#} Helden, die {1} gemeinsam abgeschlossen haben.
+The party	Die Gruppe
+The party's chest from {0} is shared among {1#} heroes: see your mailbox.	Die Truhe der Gruppe aus {0} wird unter {1#} Helden geteilt: sieh in deinen Briefkasten.

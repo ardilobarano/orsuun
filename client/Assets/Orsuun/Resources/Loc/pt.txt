@@ -2926,3 +2926,24 @@ GOLDEN BANNERS	ESTANDARTES DOURADOS
 Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	Caça com até três outros: amigos, companheiros de guilda ou heróis do QUADRO DE GRUPOS deste mapa. Os companheiros no teu mapa andam e lutam ao teu lado, e cada um junta 5% de XP e sorn. O CHAT DO GRUPO chega a eles em qualquer lado.
 Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	De vez em quando o Comandante de um mapa ergue-se junto ao seu marco durante dez minutos. Cada herói do mapa pode lutar contra ele uma vez: toca no chamado vermelho ou no seu nome no mapa completo. A vida dele é partilhada, por isso cada golpe conta. Os ALERTAS DE COMANDANTES nas DEFINIÇÕES avisam o teu telemóvel.
 A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	Um acampamento sob um estandarte dourado guarda matilhas de elite durante dez minutos: mais duras e a bater mais forte, e pagam o saque mais duas vezes, às vezes com equipamento. Caça junto a ele enquanto o estandarte ondula.
+Take your party?	Levar o seu grupo?
+Partymates can join for three minutes, each with a key of their own, and fight beside you. Those who clear it together share an extra Warden's chest.	Os companheiros de grupo podem entrar durante três minutos, cada um com a sua própria chave, e lutar ao seu lado. Quem o concluir em conjunto partilha um baú do Guardião extra.
+PARTY RUN	INCURSÃO EM GRUPO
+ALONE	SOZINHO
+{0} opened {1} for the party	{0} abriu {1} para o grupo
+Your last run is still waiting on its pause floor.	A sua última incursão ainda espera no andar de pausa.
+Your party has a dungeon open already: join it.	O seu grupo já tem uma masmorra aberta: entre nela.
+{0} opened {1} for the party: join within three minutes.	{0} abriu {1} para o grupo: entre em até três minutos.
+That party run is gone.	Essa incursão do grupo já não existe.
+That party run has closed.	Essa incursão do grupo fechou.
+That run is another party's.	Essa incursão é de outro grupo.
+That party run is for another dungeon.	Essa incursão do grupo é de outra masmorra.
+You are in that party run already.	Você já está nessa incursão do grupo.
+{0} cleared {1}.	{0} concluiu {1}.
+{0} fell on floor {1#} of {2}.	{0} caiu no andar {1#} de {2}.
+The party's run of {0} closed with one hero in it: no shared chest.	A incursão do grupo em {0} fechou com um só herói: sem baú partilhado.
+The party's run of {0} closed with nobody clearing it: no shared chest.	A incursão do grupo em {0} fechou sem que ninguém a concluísse: sem baú partilhado.
+The party's chest: {0}	O baú do grupo: {0}
+Shared among the {0#} heroes who cleared {1} together.	Partilhado entre os {0#} heróis que concluíram {1} juntos.
+The party	O grupo
+The party's chest from {0} is shared among {1#} heroes: see your mailbox.	O baú do grupo de {0} foi partilhado entre {1#} heróis: veja o seu correio.

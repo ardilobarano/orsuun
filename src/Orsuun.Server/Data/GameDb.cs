@@ -38,6 +38,7 @@ public sealed class GameDb : DbContext
     public DbSet<GuildWarEntry> GuildWarEntries => Set<GuildWarEntry>();
     public DbSet<FortressBid> FortressBids => Set<FortressBid>();
     public DbSet<DungeonRun> DungeonRuns => Set<DungeonRun>();
+    public DbSet<PartyDungeon> PartyDungeons => Set<PartyDungeon>();
     public DbSet<Login> Logins => Set<Login>();
     public DbSet<TradeSession> Trades => Set<TradeSession>();
     public DbSet<WorldEvent> WorldEvents => Set<WorldEvent>();

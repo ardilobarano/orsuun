@@ -30,8 +30,8 @@ public sealed partial class GameService
             }
         }
         bool invited = account.PartyInviteFrom != null && account.PartyInviteUtc > now.AddMinutes(-Parties.InviteMinutes);
-        return new PartyDto(account.PartyLeaderId ?? Guid.Empty, members.ToArray(), Parties.BonusBp(together) / 100,
-            invited ? account.PartyInviteFrom!.Value : Guid.Empty, invited ? account.PartyInviteName ?? "" : "", Parties.MaxMembers);
+        return await WithOpenRunAsync(account, new PartyDto(account.PartyLeaderId ?? Guid.Empty, members.ToArray(), Parties.BonusBp(together) / 100,
+            invited ? account.PartyInviteFrom!.Value : Guid.Empty, invited ? account.PartyInviteName ?? "" : "", Parties.MaxMembers), ct);
     }
 
     /// <summary>The hunt's bonus now: partymates online and hunting the same place (heartbeat, online only).</summary>

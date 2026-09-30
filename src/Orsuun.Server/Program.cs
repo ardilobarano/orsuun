@@ -293,6 +293,7 @@ v1.MapGet("/depot", (HttpContext ctx, GameService game, CancellationToken ct) =>
 v1.MapPost("/depot/put", (HttpContext ctx, DepotRequest req, GameService game, CancellationToken ct) => game.DepotPutAsync(Me(ctx), req, ct));
 v1.MapPost("/depot/take", (HttpContext ctx, DepotRequest req, GameService game, CancellationToken ct) => game.DepotTakeAsync(Me(ctx), req, ct));
 v1.MapPost("/dungeon/enter", (HttpContext ctx, DungeonEnterRequest req, GameService game, CancellationToken ct) => game.EnterDungeonAsync(Me(ctx), req, ct));
+v1.MapPost("/party/dungeon", (HttpContext ctx, DungeonEnterRequest req, GameService game, CancellationToken ct) => game.OpenPartyDungeonAsync(Me(ctx), req, ct));
 v1.MapPost("/dungeon/smith", (HttpContext ctx, DungeonSmithRequest req, GameService game, CancellationToken ct) => game.DungeonSmithAsync(Me(ctx), req, ct));
 v1.MapPost("/keep/bid", (HttpContext ctx, KeepBidRequest req, GameService game, CancellationToken ct) => game.KeepBidAsync(Me(ctx), req, ct));
 v1.MapPost("/keep/fight", (HttpContext ctx, KeepFightRequest req, GameService game, CancellationToken ct) => game.KeepFightAsync(Me(ctx), req, ct));
@@ -513,6 +514,7 @@ if (app.Environment.IsDevelopment())
     dev.MapPost("/war-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevWarEndAsync(Me(ctx), ct));
     dev.MapPost("/keep-siege", (HttpContext ctx, int? minutes, GameService game, CancellationToken ct) => game.DevKeepSiegeAsync(Me(ctx), minutes ?? 15, ct));
     dev.MapPost("/keep-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevKeepEndAsync(Me(ctx), ct));
+    dev.MapPost("/party-dungeon-close", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevClosePartyDungeonAsync(Me(ctx), ct));
     dev.MapPost("/bosses-up", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.DevBossesUpAsync(Me(ctx), ct), ct));
 }
 

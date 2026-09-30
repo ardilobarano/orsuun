@@ -155,9 +155,28 @@ namespace Orsuun.Client
         private void EnterDungeon(int id)
         {
             if (_root.Replaying || _root.PushBusy) return;
+            if (_root.Server.DungeonRunAtSmith != 0) { _canvas.SetActive(false); _root.ContinueDungeon(); return; }
+            // In a party the dungeon can be opened for it (Rules.PartyDungeons), or entered alone.
+            if (_root.Server.InParty)
+            {
+                _confirm ??= NewConfirm();
+                _confirm.Show("Take your party?", "Partymates can join for three minutes, each with a key of their own, and fight beside you. " +
+                    "Those who clear it together share an extra Warden's chest.", "PARTY RUN", Palette.Safe,
+                    () => { _canvas.SetActive(false); _root.EnterDungeon(id, openForParty: true); }, "ALONE",
+                    () => { _canvas.SetActive(false); _root.EnterDungeon(id); });
+                return;
+            }
             _canvas.SetActive(false);
-            if (_root.Server.DungeonRunAtSmith != 0) _root.ContinueDungeon();
-            else _root.EnterDungeon(id);
+            _root.EnterDungeon(id);
+        }
+
+        private ConfirmDialog _confirm;
+
+        private static ConfirmDialog NewConfirm()
+        {
+            var dialog = new GameObject("ZoneConfirm").AddComponent<ConfirmDialog>();
+            dialog.Init();
+            return dialog;
         }
 
         /// <summary>What a dungeon's card says it holds (Rules.Dungeons): its floors, its pause and its Warden's prize.</summary>

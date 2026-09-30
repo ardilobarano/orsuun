@@ -2920,3 +2920,24 @@ GOLDEN BANNERS	STEAGURI AURII
 Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	Vânează cu până la trei alții: prieteni, colegi de breaslă sau eroi de pe PANOUL GRUPURILOR acestei hărți. Tovarășii de pe harta ta merg și luptă alături de tine, iar fiecare adaugă 5% XP și sorn. CHATUL GRUPULUI ajunge la ei oriunde.
 Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	Din când în când, Comandantul unei hărți se ridică lângă reperul ei timp de zece minute. Fiecare erou de pe hartă poate lupta cu el o dată: atinge chemarea roșie sau numele lui pe harta completă. Viața lui e comună, deci fiecare lovitură contează. ALERTELE PENTRU COMANDANȚI din SETĂRI îți anunță telefonul.
 A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	O tabără sub un steag auriu adăpostește haite de elită timp de zece minute: mai rezistente și lovesc mai tare, iar prada lor se plătește de încă două ori, uneori cu echipament. Vânează pe lângă ea cât flutură steagul.
+Take your party?	Îți iei grupul?
+Partymates can join for three minutes, each with a key of their own, and fight beside you. Those who clear it together share an extra Warden's chest.	Tovarășii din grup se pot alătura timp de trei minute, fiecare cu propria cheie, și luptă alături de tine. Cei care o termină împreună împart un cufăr al Paznicului în plus.
+PARTY RUN	INCURSIUNE ÎN GRUP
+ALONE	SINGUR
+{0} opened {1} for the party	{0} a deschis {1} pentru grup
+Your last run is still waiting on its pause floor.	Ultima ta incursiune încă așteaptă la etajul de pauză.
+Your party has a dungeon open already: join it.	Grupul tău are deja o temniță deschisă: alătură-te.
+{0} opened {1} for the party: join within three minutes.	{0} a deschis {1} pentru grup: alătură-te în trei minute.
+That party run is gone.	Incursiunea aceea a grupului nu mai există.
+That party run has closed.	Incursiunea aceea a grupului s-a închis.
+That run is another party's.	Incursiunea aceea e a altui grup.
+That party run is for another dungeon.	Incursiunea aceea a grupului e pentru altă temniță.
+You are in that party run already.	Ești deja în incursiunea aceea a grupului.
+{0} cleared {1}.	{0} a terminat {1}.
+{0} fell on floor {1#} of {2}.	{0} a căzut la etajul {1#} din {2}.
+The party's run of {0} closed with one hero in it: no shared chest.	Incursiunea grupului în {0} s-a închis cu un singur erou: niciun cufăr comun.
+The party's run of {0} closed with nobody clearing it: no shared chest.	Incursiunea grupului în {0} s-a închis fără ca cineva să o termine: niciun cufăr comun.
+The party's chest: {0}	Cufărul grupului: {0}
+Shared among the {0#} heroes who cleared {1} together.	Împărțit între cei {0#} eroi care au terminat împreună {1}.
+The party	Grupul
+The party's chest from {0} is shared among {1#} heroes: see your mailbox.	Cufărul grupului din {0} a fost împărțit între {1#} eroi: vezi poșta.

@@ -27,8 +27,8 @@ namespace Orsuun.Client
         private readonly Text[] _boardRows = new Text[BoardRows];
         private readonly Button[] _boardButtons = new Button[BoardRows];
         private Text _bonus, _chatLabel, _lookLabel, _boardLookLabel;
-        private Button _chip;
-        private Text _chipLabel;
+        private Button _chip, _join;
+        private Text _chipLabel, _joinLabel;
         private ConfirmDialog _confirm;
         private bool _busy, _fetching, _boardFetching, _showBoard;
         private float _polledAt = -100f, _boardAt = -100f;
@@ -39,6 +39,9 @@ namespace Orsuun.Client
         private bool _boardOnce = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-partyboard") >= 0;
 
         public bool IsOpen => _canvas.activeSelf;
+
+        /// <summary>The call to join a partymate's dungeon run is on the HUD's call line now.</summary>
+        public bool Calling => _join != null && _join.gameObject.activeSelf;
 
         public void Init(GameRoot root)
         {
@@ -102,6 +105,13 @@ namespace Orsuun.Client
             _chipLabel = Ui.Raw(_chipLabel);
             _chipLabel.supportRichText = true;
             _chip.gameObject.SetActive(false);
+            // A partymate opened a dungeon for the party (Rules.PartyDungeons): the call to join, on the HUD's call line
+            // (Hud.CallLine) before the Commander and the social calls, after a trade.
+            Rect line = Hud.CallLine;
+            _join = Ui.Button("PartyDungeonCall", root.Hud.Canvas, line.xMin, line.yMin, line.xMax, line.yMax, "", 18, Palette.Safe, JoinDungeon, out _joinLabel);
+            _joinLabel = Ui.Raw(_joinLabel);
+            _joinLabel.supportRichText = true;
+            _join.gameObject.SetActive(false);
             _confirm = new GameObject("PartyConfirm").AddComponent<ConfirmDialog>();
             _confirm.Init();
         }
@@ -243,6 +253,7 @@ namespace Orsuun.Client
                 _chipLabel.text = Loc.T(inviting && !inParty ? "PARTY INVITE" : party != null ? $"PARTY {party.members?.Length ?? 1}  +{party.bonusPercent}%"
                                       : inParty ? "PARTY" : looking ? "LOOKING FOR A PARTY" : "PARTY")
                                   + (inParty && _root.Chat.PartyUnread > 0 ? "  " + ConfirmDialog.Tint("(" + _root.Chat.PartyUnread + ")", Palette.Sorn) : "");
+            UpdateJoinCall(party);
             if (!_canvas.activeSelf) return;
 
             bool board = _showBoard && !(inviting && !inParty);
@@ -327,6 +338,37 @@ namespace Orsuun.Client
                 _boardRows[i].text = $"{title}<b>{h.name}</b>   <color=#C2BAAD>{Loc.T("Lv " + h.level)} {h.@class}</color>   "
                                      + ConfirmDialog.Tint(Loc.T("ASK TO JOIN"), Palette.Good);
             }
+        }
+
+        /// <summary>Seconds the party's open dungeon run still takes joiners (0: none, or joined already).</summary>
+        private long JoinLeft(PartyDto party)
+        {
+            if (party == null || string.IsNullOrEmpty(party.openDungeonId) || party.openJoined) return 0;
+            return party.openDungeonLeft - (long)(Time.realtimeSinceStartup - _root.Server.PartyFetchedAt);
+        }
+
+        private string _joinCalledFor = "";
+
+        private void UpdateJoinCall(PartyDto party)
+        {
+            long left = JoinLeft(party);
+            DungeonDef dungeon = left > 0 ? Dungeons.Find(party.openDungeon) : null;
+            bool call = dungeon != null && !_root.Replaying && !_root.PushBusy && !_root.Hud.TradeCalling && !_root.Town.IsOpen && !_root.Server.AtRiver;
+            if (_join.gameObject.activeSelf != call) _join.gameObject.SetActive(call);
+            if (!call) return;
+            _joinLabel.text = $"{Loc.ToUpper(Loc.T($"{party.openedBy} opened {dungeon.Name} for the party"))}  ·  {left / 60}:{left % 60:00}  ·  <b>{Loc.T("JOIN")}</b>";
+            if (party.openDungeonId == _joinCalledFor) return;
+            _joinCalledFor = party.openDungeonId;
+            GameAudio.Instance?.Play("CommanderHorn", 0.6f, 5f, 0f);
+        }
+
+        private void JoinDungeon()
+        {
+            PartyDto party = _root.Server.Party;
+            if (JoinLeft(party) <= 0 || _root.Replaying || _root.PushBusy) return;
+            if (!_root.Unlocked(Feature.Dungeons)) { _root.Hud.Log(Unlocks.Locked(Feature.Dungeons)); return; }
+            _join.gameObject.SetActive(false);
+            _root.EnterDungeon(party.openDungeon, party.openDungeonId);
         }
 
         /// <summary>The invite call on the HUD (a new invite: once).</summary>

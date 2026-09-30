@@ -606,8 +606,9 @@ namespace Orsuun.Client
             bool newInvites = invites > _seenGuildInvites && !_root.Guild.IsOpen;
             int whispers = _root.Server.Online && !_root.Messages.IsOpen ? _root.Server.WhisperUnread : 0;
             int letters = _root.Server.Online && !_root.Mail.IsOpen ? _root.Server.MailUnread : 0;
-            // The Commander's call (MapCommander) goes before friends and letters; a trade before both.
-            bool social = !calling && !(_root.Commander != null && _root.Commander.Calling) && (newAsks || newInvites || whispers > 0 || letters > 0);
+            // A partymate's open dungeon (PartyPanel), then the Commander's call (MapCommander), go before friends and letters;
+            // a trade before all.
+            bool social = !calling && !(_root.Commander != null && _root.Commander.Calling) && !(_root.Party != null && _root.Party.Calling) && (newAsks || newInvites || whispers > 0 || letters > 0);
             if (_socialCall.gameObject.activeSelf != social) _socialCall.gameObject.SetActive(social);
             if (social) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
                 : newAsks ? (asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER")
@@ -697,7 +698,8 @@ namespace Orsuun.Client
             bool celebrating = now - _goalMetAt < 2.4f;
             bool tutorialGoal = _root.Tutorial != null && _root.Tutorial.ShowsGoal;
             // A call waiting takes the line (the guide's goal step keeps it).
-            bool call = _tradeCall.gameObject.activeSelf || _socialCall.gameObject.activeSelf || (_root.Commander != null && _root.Commander.Calling);
+            bool call = _tradeCall.gameObject.activeSelf || _socialCall.gameObject.activeSelf || (_root.Commander != null && _root.Commander.Calling)
+                        || (_root.Party != null && _root.Party.Calling);
             bool show = _goalKey != null && !_root.Replaying && !_root.PushBusy
                         && (tutorialGoal || (!(_root.Tutorial != null && _root.Tutorial.Running) && !call && (_goal != null || celebrating)));
             if (_goalPlate.gameObject.activeSelf != show) _goalPlate.gameObject.SetActive(show);

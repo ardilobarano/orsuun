@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Hunting parties smoke test (29 Sep 2026, Rules.Parties). Five fresh heroes: A befriends B, C and D; E is a stranger. A asks
 # B, B joins (A leads); a stranger is refused; C joins; D's invite is declined. The party shows on /me, /v1/party and first
-# on /v1/field. Party chat: lines and system lines, read from joining. A leaves: B, who joined first, leads. B sends C away and the party of one ends. Deletes all five.
+# on /v1/field. Party chat: lines and system lines, read from joining. A party dungeon: opened, joined, its chest shared. A leaves: B, who joined first, leads. B sends C away and the party of one ends. Deletes all five.
 # Needs curl, jq; a local Development server.
 #   tools/smoke-party.sh [http://localhost:5080]
 set -u
@@ -54,5 +54,23 @@ echo "F asks H (not listed): $(p "$F" /v1/party/invite "$(j --arg i "$IH" '{acco
 echo "F asks G from the board: $(p "$F" /v1/party/invite "$(j --arg i "$IG" '{accountId:$i}')" | jq -c .message)"
 echo "G joins: $(p "$G" /v1/party/answer '{"accept":true}' | jq -c "$P")"
 echo "G off the board: $(g "$F" /v1/party/board | jq -c --arg g "$IG" '[.heroes[] | select(.id == $g)] | length')  G lists again: $(p "$G" /v1/party/look '{"look":true}' | jq -c .code)"
+# Party dungeons (30 Sep 2026): F (leading F and G) opens the Hollow Spire for the party; G joins; both walk past the smith;
+# the run is closed now (dev) and the party's chest is shared by letter among those who cleared.
+for S in "$F" "$G"; do p "$S" "/v1/dev/stage?cleared=40" '{}' > /dev/null; p "$S" "/v1/dev/gear?level=40&upgrade=9" '{}' > /dev/null; done
+NOID=00000000-0000-0000-0000-000000000000
+R=$(p "$F" /v1/party/dungeon "$(j --arg r "$(rid)" --arg n "$NOID" '{requestId:$r, dungeonId:1, partyDungeonId:$n}')")
+echo "F opens the Spire for the party: $(echo "$R" | jq -c '{atSmith, fellOn, floors: (.floors | length), mates: [(.mates // [])[] | .name], code}')"
+RUN=$(echo "$R" | jq -r .runId)
+[ "$(echo "$R" | jq -r .atSmith)" = "true" ] && echo "F past the smith: $(p "$F" /v1/dungeon/smith "$(j --arg r "$(rid)" --argjson run "$RUN" '{requestId:$r, runId:$run, itemId:""}')" | jq -c '{cleared, fellOn}')"
+PD=$(g "$G" /v1/party | jq -r .openDungeonId)
+echo "G's party card: $(g "$G" /v1/party | jq -c '{openDungeon, openedBy, left: (.openDungeonLeft > 0), openJoined, joined: .openJoinedNames}')"
+R2=$(p "$G" /v1/dungeon/enter "$(j --arg r "$(rid)" --arg pd "$PD" '{requestId:$r, dungeonId:1, partyDungeonId:$pd}')")
+echo "G joins: $(echo "$R2" | jq -c '{atSmith, fellOn, mates: [(.mates // [])[] | .name], code}')"
+RUN2=$(echo "$R2" | jq -r .runId)
+[ "$(echo "$R2" | jq -r .atSmith)" = "true" ] && echo "G past the smith: $(p "$G" /v1/dungeon/smith "$(j --arg r "$(rid)" --argjson run "$RUN2" '{requestId:$r, runId:$run, itemId:""}')" | jq -c '{cleared, fellOn}')"
+echo "G joins again: $(p "$G" /v1/dungeon/enter "$(j --arg r "$(rid)" --arg pd "$PD" '{requestId:$r, dungeonId:1, partyDungeonId:$pd}')" | jq -c .code)"
+echo "the run closes: $(p "$F" /v1/dev/party-dungeon-close '{}' | jq -c '{openDungeon}')"
+for S in "$F" "$G"; do echo "party letters: $(g "$S" /v1/mail | jq -c '[.letters[] | select(.kind == "party") | .title] | length')"; done
+echo "party chat: $(g "$F" '/v1/chat?channel=party&after=0' | jq -c '[.lines[] | select(.system) | .text] | .[-3:]')"
 for S in "$H" "$G" "$F" "$E" "$D" "$C" "$B" "$A"; do curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $S" > /dev/null; done
 echo "deleted eight"

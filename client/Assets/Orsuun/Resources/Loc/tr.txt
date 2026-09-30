@@ -2882,3 +2882,24 @@ GOLDEN BANNERS	ALTIN SANCAKLAR
 Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.	En fazla üç kişiyle avlan: dostlar, lonca arkadaşları ya da bu haritanın GRUP PANOSU'ndaki kahramanlar. Haritandaki grup arkadaşları yanında yürüyüp savaşır, her biri %5 TP ve sorn ekler. GRUP SOHBETİ onlara her yerden ulaşır.
 Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.	Ara sıra bir haritanın Komutanı kendi simgesinin yanında on dakikalığına uyanır. Haritadaki her kahraman onunla bir kez dövüşebilir: kırmızı çağrıya ya da tam haritadaki adına dokun. Canı ortaktır, her darbe sayılır. AYARLAR'daki KOMUTAN UYARILARI biri uyandığında telefonuna haber verir.
 A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.	Altın sancaklı bir kamp on dakika boyunca seçkin sürüler barındırır: daha dayanıklı, daha sert vururlar ve ganimetlerini iki kez daha verirler, bazen teçhizatla. Sancak dalgalanırken yanından geçerek avlan.
+Take your party?	Grubunu da götürecek misin?
+Partymates can join for three minutes, each with a key of their own, and fight beside you. Those who clear it together share an extra Warden's chest.	Grup arkadaşların üç dakika boyunca, her biri kendi anahtarıyla katılıp yanında savaşabilir. Zindanı birlikte temizleyenler fazladan bir Muhafız sandığını paylaşır.
+PARTY RUN	GRUP AKINI
+ALONE	TEK BAŞINA
+{0} opened {1} for the party	{0} grup için {1} kapısını açtı
+Your last run is still waiting on its pause floor.	Son akının hâlâ mola katında bekliyor.
+Your party has a dungeon open already: join it.	Grubunun zaten açık bir zindanı var: ona katıl.
+{0} opened {1} for the party: join within three minutes.	{0} grup için {1} kapısını açtı: üç dakika içinde katıl.
+That party run is gone.	O grup akını artık yok.
+That party run has closed.	O grup akını kapandı.
+That run is another party's.	O akın başka bir grubun.
+That party run is for another dungeon.	O grup akını başka bir zindan için.
+You are in that party run already.	O grup akınında zaten varsın.
+{0} cleared {1}.	{0}, {1} zindanını temizledi.
+{0} fell on floor {1#} of {2}.	{0}, {2} zindanının {1#}. katında düştü.
+The party's run of {0} closed with one hero in it: no shared chest.	{0} grup akını tek bir kahramanla kapandı: ortak sandık yok.
+The party's run of {0} closed with nobody clearing it: no shared chest.	{0} grup akını kimse temizleyemeden kapandı: ortak sandık yok.
+The party's chest: {0}	Grubun sandığı: {0}
+Shared among the {0#} heroes who cleared {1} together.	{1} zindanını birlikte temizleyen {0#} kahraman arasında paylaşıldı.
+The party	Grup
+The party's chest from {0} is shared among {1#} heroes: see your mailbox.	Grubun {0} sandığı {1#} kahraman arasında paylaşıldı: posta kutuna bak.

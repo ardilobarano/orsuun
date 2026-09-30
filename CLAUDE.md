@@ -353,6 +353,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   single UPDATEs, and code that deletes a hero calls `LeavePartyCoreAsync`. The bonus reaches only the live hunt (the
   heartbeat's meal bp); partymates are presentation (`FieldFolk`, `TownHeroDto.Party`). Party chat is channel `p:<leader id>`
   (it passes with the lead), read from each member's `PartyJoinedUtc`.
+- Party dungeons (`Rules.PartyDungeons`, 30 Sep 2026): a `PartyDungeons` row per opened run (keyed by the party's leader
+  id); each joiner's own `DungeonRun` carries `PartyDungeonId` and goes through `EnterDungeonAsync`'s usual checks and key.
+  `WorldClock` settles a closed run once (`SettlePartyDungeonsAsync`, after any member's pause floor) and pays the pooled
+  chest by letter; partymates in the replay (`FieldFolk.DungeonMates`) are presentation.
 - Elite camps (`Rules.EliteCamps`) are rolled from the server's clock per place (`Parties.Place`) and paid in `Settle` (live
   hunting only). An elite pack is tougher in the lane (`LaneSim.ElitePacks`, marked before it spawns and drawing nothing):
   the phone marks packs near the banner camp (`LaneView.MayMarkElite`: the online farm lane only, never a replay) and each

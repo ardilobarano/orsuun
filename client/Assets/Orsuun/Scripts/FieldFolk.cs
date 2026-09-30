@@ -67,6 +67,11 @@ namespace Orsuun.Client
         private int _eliteShown = -2;
         private Transform _eliteBanner;
 
+        /// <summary>A party dungeon's replay (GameRoot): the partymates to show beside the hero on its floors (null: none), in
+        /// place of the field's hunters.</summary>
+        public TownHeroDto[] DungeonMates;
+        private TownHeroDto[] _matesShown;
+
         public void Init(GameRoot root, LaneView lane)
         {
             _root = root;
@@ -88,16 +93,31 @@ namespace Orsuun.Client
                 _campsOf = null;   // the new stage's own monsters
             }
             Camps();
+            // A party dungeon's floors: its partymates beside the hero, and no field poll while it plays.
+            if (DungeonMates != _matesShown || (DungeonMates != null && System.Array.TrueForAll(_hunters, h => h == null)))
+            {
+                _matesShown = DungeonMates;
+                if (DungeonMates != null)
+                {
+                    foreach (TownHeroDto mate in DungeonMates) mate.party = true;
+                    Receive(DungeonMates);
+                }
+                else
+                {
+                    for (int i = 0; i < _hunters.Length; i++) Clear(i);
+                    _polledAt = -100f;
+                }
+            }
             // In town or at the river the lane is not on screen: no need to ask.
             bool away = _root.Town.IsOpen || server.AtRiver;
-            if (server.Online && !server.WaitingForHero && !away && !_fetching && Time.time - _polledAt > PollSeconds)
+            if (DungeonMates == null && server.Online && !server.WaitingForHero && !away && !_fetching && Time.time - _polledAt > PollSeconds)
             {
                 _fetching = true;
                 _polledAt = Time.time;
                 StartCoroutine(server.FetchField((field, error) =>
                 {
                     _fetching = false;
-                    if (field != null) Receive(field.heroes ?? new TownHeroDto[0]);
+                    if (field != null && DungeonMates == null) Receive(field.heroes ?? new TownHeroDto[0]);
                 }));
             }
             if (!server.Online) { for (int i = 0; i < _hunters.Length; i++) Clear(i); return; }

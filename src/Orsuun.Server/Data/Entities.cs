@@ -485,6 +485,23 @@ public sealed class DungeonRun
     public int FloorsCleared { get; set; }
     public int State { get; set; }
     public DateTime StartedUtc { get; set; }
+    /// <summary>The party dungeon this run joined (Rules.PartyDungeons), if any.</summary>
+    public Guid? PartyDungeonId { get; set; }
+}
+
+/// <summary>A dungeon opened for a hunting party (Rules.PartyDungeons): partymates join for a few minutes, each with a run
+/// of their own; when it closes the world clock shares the party's chest among those who cleared (SettledUtc, claimed once).</summary>
+public sealed class PartyDungeon
+{
+    public Guid Id { get; set; }
+    /// <summary>The party (its leader's id when it was opened).</summary>
+    public Guid PartyLeaderId { get; set; }
+    public int DungeonId { get; set; }
+    public Guid OpenedById { get; set; }
+    [MaxLength(48)] public string OpenedByName { get; set; } = "";
+    public DateTime OpenedUtc { get; set; }
+    public DateTime ClosesUtc { get; set; }
+    public DateTime? SettledUtc { get; set; }
 }
 
 /// <summary>A guild's bid on a fortress keep for a bounty week (one per guild a week), and its keep damage if it contends.</summary>

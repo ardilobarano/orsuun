@@ -50,6 +50,8 @@ public sealed partial class GameService
             throw new GameException("run_open", (Dungeons.Find(account.DungeonPausedId)?.Pause == DungeonPause.RuneLock ? "A rune lock" : "The Chained Smith")
                 + " is still waiting for your last run.");
         if (DungeonRunsLeft(account) <= 0) throw new GameException("no_keys", "Today's dungeon keys are used. New ones come at 20:00.");
+        // Joining a partymate's run (Rules.PartyDungeons): open, this party's, this dungeon, once.
+        PartyDungeon? partyRun = await PartyRunToJoinAsync(account, dungeon, request.PartyDungeonId, ct);
 
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
         string day = Rules.Bounties.DayKey(_bells.LocalNow);
@@ -58,7 +60,7 @@ public sealed partial class GameService
         int level = Dungeons.Level(dungeon, account.HighestStageCleared);
         int until = dungeon.SmithFloor > 0 ? dungeon.SmithFloor - 1 : dungeon.Floors;
         List<DungeonFloorDto> floors = FightFloors(account, dungeon, level, 1, until, out int fellOn);
-        var run = new DungeonRun { AccountId = account.Id, DungeonId = dungeon.Id, Level = level, StartedUtc = DateTime.UtcNow, State = 1 };
+        var run = new DungeonRun { AccountId = account.Id, DungeonId = dungeon.Id, Level = level, StartedUtc = DateTime.UtcNow, State = 1, PartyDungeonId = partyRun?.Id };
         run.FloorsCleared = fellOn > 0 ? fellOn - 1 : until;
         _db.DungeonRuns.Add(run);
 
@@ -85,11 +87,12 @@ public sealed partial class GameService
             account.DungeonRunAtSmith = run.Id;
             account.DungeonPausedId = dungeon.Id;
         }
-        _db.Ledger.Add(Entry(account.Id, null, "dungeon", $"run={run.Id} dungeon={dungeon.Id} level={level} floors={run.FloorsCleared} fell={fellOn} smith={atSmith}", 0, request.RequestId));
+        _db.Ledger.Add(Entry(account.Id, null, "dungeon", $"run={run.Id} dungeon={dungeon.Id} level={level} floors={run.FloorsCleared} fell={fellOn} smith={atSmith} party={partyRun?.Id}", 0, request.RequestId));
+        TownHeroDto[]? mates = await PartyRunEndAsync(account, run, dungeon, atSmith ? 0 : fellOn, fellOn == 0 && !atSmith, ct);
         await SaveAsync(ct);
         await tx.CommitAsync(ct);
         return WithPause(new DungeonResultDto(ToState(account), run.Id, dungeon.Id, level, floors.ToArray(), atSmith, fellOn == 0 && !atSmith, fellOn, chest, null, "", text),
-            atSmith ? dungeon : null);
+            atSmith ? dungeon : null) with { Mates = mates };
     }
 
     /// <summary>
@@ -211,7 +214,8 @@ public sealed partial class GameService
             Feat(account, FeatMetric.DungeonClears, 1);
         }
         _db.Ledger.Add(Entry(account.Id, null, "dungeon-end", $"run={run.Id} floors={run.FloorsCleared} fell={fellOn}", 0, request.RequestId));
+        TownHeroDto[]? mates = await PartyRunEndAsync(account, run, dungeon, fellOn, fellOn == 0, ct);
         await SaveAsync(ct);
-        return new DungeonResultDto(ToState(account), run.Id, dungeon.Id, run.Level, floors.ToArray(), false, fellOn == 0, fellOn, chest, smith, smithItem, text);
+        return new DungeonResultDto(ToState(account), run.Id, dungeon.Id, run.Level, floors.ToArray(), false, fellOn == 0, fellOn, chest, smith, smithItem, text, Mates: mates);
     }
 }

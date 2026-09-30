@@ -302,7 +302,8 @@ public sealed record CommanderPushRequest(bool On);
 /// <summary>A hunting party (Rules.Parties): its members, the hunt's bonus now (percent), an invite waiting.</summary>
 public sealed record PartyMemberDto(Guid Id, string Name, HeroClass Class, int Level, bool Online, bool Together, bool Leader, string Hunting);
 public sealed record PartyDto(Guid LeaderId, PartyMemberDto[] Members, int BonusPercent, Guid InviteFrom, string InviteName, int MaxMembers,
-    string? Message = null);
+    string? Message = null,
+    Guid OpenDungeonId = default, int OpenDungeon = 0, long OpenDungeonLeft = 0, string OpenedBy = "", bool OpenJoined = false, string[]? OpenJoinedNames = null);
 public sealed record PartyInviteRequest(Guid AccountId, string? Name = null);
 /// <summary>The party board of the hero's place: heroes looking for a party, and how long the hero's own listing lasts.</summary>
 public sealed record PartyBoardEntryDto(Guid Id, string Name, HeroClass Class, int Level, string? Title, int MinutesListed);
@@ -444,7 +445,8 @@ public sealed record PitShopRequest(string RequestId, int ItemId);
 public sealed record PitFightDto(StateDto State, DuelResultDto Duel, PitsDto Pits, int RatingBefore, int RatingAfter, int LaurelsGained);
 
 /// <summary>Dungeons (Rules.Dungeons): enter a run, and answer the Chained Smith.</summary>
-public sealed record DungeonEnterRequest(string RequestId, int DungeonId);
+/// <summary>PartyDungeonId joins a dungeon a partymate opened (the empty Guid: none; Unity's JSON cannot leave it out).</summary>
+public sealed record DungeonEnterRequest(string RequestId, int DungeonId, Guid? PartyDungeonId = null);
 /// <summary>ItemId empty walks past the smith; otherwise that piece is forged with ForgeMethod.ChainedSmith (a string: Unity's
 /// JSON writes a missing id as "").</summary>
 public sealed record DungeonSmithRequest(string RequestId, long RunId, string? ItemId, string? Rune = null);
@@ -456,7 +458,8 @@ public sealed record DungeonFloorDto(int Floor, ulong Seed, int PotionsAtStart, 
 /// </summary>
 /// At a rune lock (Pause "RuneLock") Riddle and Runes are its riddle; the answer comes back as DungeonSmithRequest.Rune.
 public sealed record DungeonResultDto(StateDto State, long RunId, int DungeonId, int Level, DungeonFloorDto[] Floors, bool AtSmith, bool Cleared,
-    int FellOn, string Chest, ForgeResultDto? Smith, string SmithItem, string Text, string Pause = "", string Riddle = "", string[]? Runes = null);
+    int FellOn, string Chest, ForgeResultDto? Smith, string SmithItem, string Text, string Pause = "", string Riddle = "", string[]? Runes = null,
+    TownHeroDto[]? Mates = null);
 
 public sealed record ForgeResultDto(ForgeOutcome Outcome, int ChanceBp, int LevelBefore, int LevelAfter);
 
