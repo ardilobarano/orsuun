@@ -684,6 +684,7 @@ public sealed partial class GameService
         Count(account, BountyMetric.CommanderFights, 1);
         // The maps' Commanders have a bounty of their own, and every Commander fought counts toward Scourge of Commanders.
         if (Content.OnMap(boss)) Count(account, BountyMetric.MapCommanderFights, 1);
+        CountQuest(account, MapQuests.MapOfCommander(boss.Id), QuestKind.Commander, 1);
         MarkNew(account, FeatMetric.CommandersMet, boss.Id - 1, cacheMaps: false);
 
         _db.Ledger.Add(Entry(account.Id, null, spawnKey, $"seed={seed} damage={run.Damage} killed={run.Killed} rank={rank} pool={clock.HpLeft}/{clock.HpMax} slew={slew} bell={bell} chest={chest}", 0, request.RequestId));
@@ -845,6 +846,10 @@ public sealed partial class GameService
             eliteLoot = EliteCamps.Loot(stage, inventory, _rng, elitePacks);
             if (elitePacks > 0) Count(account, BountyMetric.ElitePacks, elitePacks);
         }
+        // Map quests (Rules.MapQuests): the live hunt's time and every Korstone broken on the map count toward its chain.
+        int questMap = MapQuests.MapOfPlace(account.ParkedStage);
+        if (!offline) CountQuest(account, questMap, QuestKind.Hunt, s.CountedSeconds);
+        CountQuest(account, questMap, QuestKind.Korstones, s.Korstones);
         // A fish eaten (Rules.Fishing) and partymates hunting alongside (Rules.Parties) add to the hunt's XP and sorn.
         (long xpBp, long sornBp) meal = Fishing.MealBonusBp(account.LastHeartbeatUtc, now, MealsOf(account));
         Apply(account, inventory, hunt: true, meal: (meal.xpBp + partyBp, meal.sornBp + partyBp));
@@ -1016,6 +1021,7 @@ public sealed partial class GameService
             EliteLeft: eliteLeft,
             PartyLookLeft: LookLeft(account, DateTime.UtcNow),
             CommanderPushes: !(_login?.NoCommanderPushes ?? false),
+            Quest: QuestDtoOf(account, MapQuests.MapOfPlace(account.ParkedStage)),
             PartyLeader: account.PartyLeaderId ?? Guid.Empty,
             PartyInvite: account.PartyInviteFrom != null && account.PartyInviteUtc > DateTime.UtcNow.AddMinutes(-Parties.InviteMinutes) ? account.PartyInviteName : null);
     }

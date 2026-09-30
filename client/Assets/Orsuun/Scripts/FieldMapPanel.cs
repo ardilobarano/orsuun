@@ -19,6 +19,9 @@ namespace Orsuun.Client
         /// <summary>A Commander up at a camp (MapCommander): a larger gold mark, and its name to tap on the full map.</summary>
         private RawImage _fullBoss;
         private Text _fullBossName;
+        /// <summary>A map quest's camp (Rules.MapQuests): a scroll on both maps, and QUEST under it on the full map (tap: the card).</summary>
+        private RawImage _miniQuest, _fullQuest, _fullQuestBack;
+        private Text _fullQuestName;
 
         private GameRoot _root;
         private GameObject _mini, _canvas;
@@ -121,6 +124,19 @@ namespace Orsuun.Client
                 _miniCamps[i].color = boss || i == _root.Lane.EliteCamp ? MapCommander.Gold : hunted.Contains(i) ? HeroBlue : CampRed;
                 _miniCamps[i].rectTransform.sizeDelta = boss ? new Vector2(30f, 30f) * (1f + 0.15f * Mathf.Sin(Time.unscaledTime * 5f)) : new Vector2(18f, 18f);
             }
+            int questCamp = QuestCamp(layout);
+            bool miniQuest = false;
+            if (questCamp >= 0)
+            {
+                Vector2 c = (layout.Camps[questCamp].At - hero) / MiniSpan + new Vector2(0.5f, 0.5f);
+                miniQuest = c.x > 0.05f && c.x < 0.95f && c.y > 0.05f && c.y < 0.95f;
+                if (miniQuest)
+                {
+                    Place(_miniQuest.rectTransform, c);
+                    _miniQuest.rectTransform.anchoredPosition = new Vector2(0f, 22f);
+                }
+            }
+            if (_miniQuest.gameObject.activeSelf != miniQuest) _miniQuest.gameObject.SetActive(miniQuest);
 
             if (!IsOpen) return;
             Place(_fullArrow, at);
@@ -140,6 +156,25 @@ namespace Orsuun.Client
                 _fullBossName.rectTransform.anchoredPosition = new Vector2(0f, 64f);   // over a hunter's name at the camp
                 long left = commander.Value.Left;
                 _fullBossName.text = $"{Loc.ToUpper(Loc.T(commander.Value.Name))}  {left / 60}:{left % 60:00}";
+            }
+            // The quest's scroll over its camp, and QUEST (or CLAIM) under it.
+            bool fullQuest = questCamp >= 0;
+            _fullQuest.gameObject.SetActive(fullQuest);
+            _fullQuestBack.gameObject.SetActive(fullQuest);
+            _fullQuestName.gameObject.SetActive(fullQuest);
+            if (fullQuest)
+            {
+                Vector2 spot = Uv(layout, layout.Camps[questCamp].At);
+                float pulse = 1f + 0.06f * Mathf.Sin(Time.unscaledTime * 3f);
+                Place(_fullQuest.rectTransform, spot);
+                _fullQuest.rectTransform.anchoredPosition = new Vector2(0f, 66f);
+                _fullQuest.rectTransform.sizeDelta = new Vector2(112f, 112f) * pulse;
+                Place(_fullQuestBack.rectTransform, spot);
+                _fullQuestBack.rectTransform.anchoredPosition = new Vector2(0f, 66f);
+                _fullQuestBack.rectTransform.sizeDelta = new Vector2(118f, 118f) * pulse;
+                Place(_fullQuestName.rectTransform, spot);
+                _fullQuestName.rectTransform.anchoredPosition = new Vector2(-132f, 66f);
+                _fullQuestName.text = Loc.T(_root.Server.Quest.ready ? "CLAIM" : "QUEST");
             }
             // Each other hero's name over his camp's (blue) dot.
             int shown = 0;
@@ -236,7 +271,45 @@ namespace Orsuun.Client
             _fullArrow.sizeDelta = new Vector2(46f, 46f);
             _fullArrow.GetComponent<RawImage>().color = Palette.Sorn;
             _miniArrow.GetComponent<RawImage>().color = Palette.Sorn;
+            // The quest's scroll on both maps (Rules.MapQuests); on the full map it and its word open the quest card.
+            if (_miniQuest != null) Destroy(_miniQuest.gameObject);
+            // (Raw images, not Ui.Icon: an icon fits its parent box, and these stand at a point.)
+            Texture2D scroll = Resources.Load<Texture2D>("Icons/" + QuestPanel.IconName);
+            _miniQuest = Raw("Quest", _miniClip, 0f, 0f, 0f, 0f, scroll);
+            _miniQuest.rectTransform.sizeDelta = new Vector2(46f, 46f);
+            _miniQuest.gameObject.SetActive(false);
+            // A dark disc under the scroll keeps it apart from the painted map's own tents and trees.
+            _fullQuestBack = Raw("QuestBack", _fullSquare, 0f, 0f, 0f, 0f, Dot());
+            _fullQuestBack.color = new Color(0.05f, 0.04f, 0.03f, 0.6f);
+            _fullLabels.Add(_fullQuestBack.gameObject);
+            _fullQuest = Raw("Quest", _fullSquare, 0f, 0f, 0f, 0f, scroll);
+            _fullQuest.raycastTarget = true;
+            _fullQuest.gameObject.AddComponent<Button>().onClick.AddListener(OpenQuest);
+            _fullLabels.Add(_fullQuest.gameObject);
+            _fullQuestName = Ui.Raw(Ui.Label("QuestName", _fullSquare, 0f, 0f, 0f, 0f, "", 30, TextAnchor.MiddleRight, Palette.Sorn));
+            _fullQuestName.rectTransform.sizeDelta = new Vector2(150f, 44f);
+            _fullQuestName.fontStyle = FontStyle.Bold;
+            _fullQuestName.raycastTarget = true;
+            _fullQuestName.gameObject.AddComponent<Button>().onClick.AddListener(OpenQuest);
+            _fullQuestName.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.9f);
+            _fullQuestName.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.6f);
+            _fullLabels.Add(_fullQuestName.gameObject);
+            _fullArrow.SetAsLastSibling();
             _miniArrow.SetAsLastSibling();
+        }
+
+        private void OpenQuest()
+        {
+            Close();
+            _root.Quests.Open();
+        }
+
+        /// <summary>The camp of this map's quest step (-1: none here, done, or quests not open yet).</summary>
+        private int QuestCamp(FieldMap.Layout layout)
+        {
+            Net.ServerLink.MapQuestDto q = _root.Server.Online ? _root.Server.Quest : null;
+            if (q == null || q.map != layout.Map || q.step >= q.steps || layout.Camps == null || !_root.Unlocked(Rules.Feature.Quests)) return -1;
+            return System.Array.FindIndex(layout.Camps, c => c.Name == q.camp);
         }
 
         /// <summary>A place's name on the full map (translated), <paramref name="below"/> pixels under its point.</summary>

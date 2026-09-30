@@ -296,7 +296,8 @@ public sealed record StateDto(
     int EliteCamp = -1,
     long EliteLeft = 0,
     long PartyLookLeft = 0,
-    bool CommanderPushes = true);
+    bool CommanderPushes = true,
+    MapQuestDto? Quest = null);
 public sealed record CommanderPushRequest(bool On);
 
 /// <summary>A hunting party (Rules.Parties): its members, the hunt's bonus now (percent), an invite waiting.</summary>
@@ -315,6 +316,14 @@ public sealed record PartyKickRequest(Guid AccountId);
 /// <summary>A trail cache opened (Rules.TrailCaches): the hero after, and what it held.</summary>
 public sealed record CacheOpenRequest(string RequestId);
 public sealed record CacheOpenDto(StateDto State, string Found);
+
+/// <summary>A map's quest chain (Rules.MapQuests) for a hero: the step being worked on (Step = Steps: the chain is done), the
+/// giver's words, what it asks, how far along, where on the map (a camp of its layout), the step's pay, and the campaign stage
+/// to clear before the map (and its chain) opens.</summary>
+public sealed record MapQuestDto(int Map, string MapName, string Giver, string Title, int Step, int Steps, string Ask, string Task, long Progress,
+    long Target, string Camp, bool Ready, bool Open, long Sorn, long Xp, int Materials, bool Piece, string Ending, int OpensAfter);
+public sealed record QuestsDto(MapQuestDto[] Maps, int Hunting);
+public sealed record QuestClaimRequest(string RequestId, int Map);
 
 /// <summary>The townsfolk's errands today (Rules.Errands): each townsman's, how far along, whether paid, and the pay.</summary>
 public sealed record ErrandDto(int Giver, int Id, string Text, long Progress, long Target, bool Paid);

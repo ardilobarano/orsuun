@@ -1603,6 +1603,27 @@ namespace Orsuun.Client.Net
             done(result, failure);
         }
 
+        /// <summary>The quest chain of the map the hero hunts (Rules.MapQuests), from the last state (null: a zone, or none yet).</summary>
+        public MapQuestDto Quest { get; private set; }
+
+        /// <summary>Every map's quest chain. Completes with (chains, error).</summary>
+        public IEnumerator FetchQuests(Action<QuestsDto, string> done)
+        {
+            QuestsDto result = null;
+            string failure = null;
+            yield return Send("GET", "/v1/quests", null, true, json => result = JsonUtility.FromJson<QuestsDto>(json), error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
+        /// <summary>Claims a map quest's finished step; the state comes back paid and the chain moved on. Completes with an error or null.</summary>
+        public IEnumerator ClaimQuest(int map, Action<string> done)
+        {
+            string failure = null;
+            yield return Post("/v1/quests/claim", JsonUtility.ToJson(new QuestClaimRequest { requestId = NewRequestId(), map = map }), true,
+                json => Apply(JsonUtility.FromJson<StateDto>(json)), error => failure = error ?? "No answer from the server.");
+            done(failure);
+        }
+
         /// <summary>Commander pushes (SETTINGS): the login's switch, as the server last said.</summary>
         public bool CommanderPushes { get; private set; } = true;
 
@@ -1900,6 +1921,7 @@ namespace Orsuun.Client.Net
             _lookLeft = s.partyLookLeft;
             _lookAt = Time.realtimeSinceStartup;
             CommanderPushes = s.commanderPushes;
+            Quest = s.quest != null && s.quest.map > 0 ? s.quest : null;
             if (IsNoGuid(PartyLeader)) Party = null;
 
             // The Bannerkin's pieces (Rules.Bannerkin): its own, out of the bag; they still go on the anvil by their id.
@@ -2058,7 +2080,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; public long partyLookLeft; public bool commanderPushes = true; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; public long partyLookLeft; public bool commanderPushes = true; public MapQuestDto quest; }
         [Serializable] public class CommanderPushRequest { public bool on; }
         /// <summary>The party board (Party finder): heroes of the place looking for a party.</summary>
         [Serializable] public class PartyBoardEntryDto { public string id; public string name; public string @class; public int level; public string title; public int minutesListed; }
@@ -2075,6 +2097,10 @@ namespace Orsuun.Client.Net
         [Serializable] public class ErrandDto { public int giver; public int id; public string text; public long progress; public long target; public bool paid; }
         [Serializable] public class ErrandsDto { public ErrandDto[] list; public long sorn; public int materials; public long secondsToReset; }
         [Serializable] public class ErrandRequest { public string requestId; public int giver; }
+        /// <summary>A map's quest chain (Rules.MapQuests): step = steps when it is done.</summary>
+        [Serializable] public class MapQuestDto { public int map; public string mapName; public string giver; public string title; public int step; public int steps; public string ask; public string task; public long progress; public long target; public string camp; public bool ready; public bool open; public long sorn; public long xp; public int materials; public bool piece; public string ending; public int opensAfter; }
+        [Serializable] public class QuestsDto { public MapQuestDto[] maps; public int hunting; }
+        [Serializable] public class QuestClaimRequest { public string requestId; public int map; }
         [Serializable] public class CacheOpenRequest { public string requestId; }
         [Serializable] public class CacheOpenDto { public StateDto state; public string found; }
         [Serializable] public class RiverDto { public bool atRiver; public long[] mealSeconds; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }

@@ -357,6 +357,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   id); each joiner's own `DungeonRun` carries `PartyDungeonId` and goes through `EnterDungeonAsync`'s usual checks and key.
   `WorldClock` settles a closed run once (`SettlePartyDungeonsAsync`, after any member's pause floor) and pays the pooled
   chest by letter; partymates in the replay (`FieldFolk.DungeonMates`) are presentation.
+- Map quests (`Rules.MapQuests`, 30 Sep 2026): a chain per campaign map, kept in `Account.MapQuests` (`QuestProgress`,
+  "map:step:progress"). Steps count through `CountQuest` only where the deed happens: `Settle` (hunting, Korstones, on the
+  parked stage's map) and the Commander fight (`MapQuests.CommanderOf`). A step's `Camp` must be a camp name of the map's layout
+  (the scroll marker finds it by name); a new kind of step needs its count where its deed happens on the server.
 - Elite camps (`Rules.EliteCamps`) are rolled from the server's clock per place (`Parties.Place`) and paid in `Settle` (live
   hunting only). An elite pack is tougher in the lane (`LaneSim.ElitePacks`, marked before it spawns and drawing nothing):
   the phone marks packs near the banner camp (`LaneView.MayMarkElite`: the online farm lane only, never a replay) and each

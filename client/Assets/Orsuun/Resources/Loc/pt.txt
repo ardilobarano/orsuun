@@ -2947,3 +2947,100 @@ The party's chest: {0}	O baú do grupo: {0}
 Shared among the {0#} heroes who cleared {1} together.	Partilhado entre os {0#} heróis que concluíram {1} juntos.
 The party	O grupo
 The party's chest from {0} is shared among {1#} heroes: see your mailbox.	O baú do grupo de {0} foi partilhado entre {1#} heróis: veja o seu correio.
+MAP QUESTS	MISSÕES DOS MAPAS
+The folk of each map need a hero: QUEST under the map gives their quest, for sorn, XP and a piece at its end.	O povo de cada mapa precisa de um herói: MISSÃO, sob o mapa, dá a missão deles, por sorn, XP e uma peça no final.
+Someone on every map needs a hero: hunt there, break its Korstones, then face its Commander. Tap QUEST under the map for the story and your pay, and claim each step when it is done. The last step pays an Epic piece.	Em cada mapa alguém precisa de um herói: cace lá, quebre as Pedras Kor dele e depois enfrente o seu Comandante. Toque em MISSÃO sob o mapa para ver a história e a recompensa, e resgate cada etapa quando terminar. A última etapa dá uma peça épica.
+Quests need the server.	As missões precisam do servidor.
+EVERY MAP'S QUEST	A MISSÃO DE CADA MAPA
+The quest is done!	A missão foi cumprida!
+Step done!	Etapa concluída!
+Quest done: {0}.	Missão cumprida: {0}.
+Quest step done.	Etapa da missão concluída.
+{0} XP	{0} XP
+{0} materials	{0} materiais
+an Epic piece	uma peça épica
+QUESTS	MISSÕES
+QUEST: CLAIM	MISSÃO: RESGATAR
+QUEST {0#}/{1#}	MISSÃO {0#}/{1#}
+QUEST	MISSÃO
+MAP	MAPA
+Hunt on one of the campaign's maps to take its folk's quest.	Cace em um dos mapas da campanha para aceitar a missão do seu povo.
+Every step is done.	Todas as etapas foram concluídas.
+(Commanders open at level {0#})	(Comandantes a partir do nível {0#})
+Pay:	Pagamento:
+stage {0#}	etapa {0#}
+Hunt {0#} minutes on {1}	{1}: cace por {0#} minutos
+Break {0#} Korstones on {1}	{1}: quebre {0#} Pedras Kor
+Fight {0} when it rises	Lute contra {0} quando surgir
+That map has no quest.	Esse mapa não tem missão.
+That quest is finished.	Essa missão já terminou.
+Your bag was full, so it came by letter.	Sua bolsa estava cheia, então veio por carta.
+Headwoman Saruul of Yurt Village	Saruul, chefe da Aldeia das Iurtas
+Scout Arslan of the Palisade	Arslan, batedor da Paliçada
+Caravan Master Dilek	Dilek, mestra de caravanas
+Elder Oyun of Whitefang Hamlet	Oyun, anciã da Aldeia Presa-Branca
+Watch Captain Kerem of the Burnt Watchtower	Kerem, capitão da Torre de Vigia Queimada
+Grave-Keeper Nomin	Nomin, guardiã das covas
+Woodcutter Temur	Temur, o lenhador
+Ferryman Baatar of the Sunken Yurts	Baatar, barqueiro das Iurtas Afundadas
+Stone-Singer Altan	Altan, cantor das pedras
+Moneychanger Esen	Esen, o cambista
+Standard-Bearer Tsogt	Tsogt, o porta-estandarte
+The Last Oathkeeper	O Último Guardião do Juramento
+Smoke over the Oathfields	Fumaça sobre os Campos do Juramento
+The Drums of Gorak Pass	Os Tambores do Passo de Gorak
+Nine Winters Long	Nove Invernos
+Lanterns in the Mist	Lanternas na Névoa
+The Bleeding Wood	O Bosque que Sangra
+Under the Reeds	Sob os Juncos
+The Unburied	Os Insepultos
+Debts of the Drowned	Dívidas dos Afogados
+The Left Wing Rides Again	A Ala Esquerda Cavalga de Novo
+Deserters hold the Bandit Camp and raid our herds by night. Hunt the fields around it until they think twice.	Desertores tomaram o Acampamento dos Bandidos e atacam nossos rebanhos à noite. Cace nos campos ao redor até que pensem duas vezes.
+The Korstones by Watchtower Hill hum louder every night, and the wolves come out of them hollow. Break them before more wake.	As Pedras Kor junto à Colina da Torre de Vigia zumbem mais alto a cada noite, e os lobos saem delas ocos. Quebre-as antes que mais despertem.
+Old Greyjaw leads the hollow packs from the Wolf Den. When he rises, face him, and the Oathfields will sleep again.	O Velho Mandíbula-Cinza guia as matilhas ocas desde o Covil dos Lobos. Quando ele surgir, enfrente-o, e os Campos do Juramento voltarão a dormir.
+The herds graze in peace tonight. Take this, rider: the Oathfields will remember your name.	Os rebanhos pastam em paz esta noite. Tome isto, cavaleiro: os Campos do Juramento vão lembrar o seu nome.
+Gorak's war hounds are loosed from the Hound Pens at dusk. Thin them out, or no rider crosses the pass.	Os cães de guerra de Gorak são soltos dos Canis dos Cães ao anoitecer. Diminua o número deles, ou nenhum cavaleiro atravessa o passo.
+Their shamans feed the Korstones at Skull Rocks with blood. Break every stone you find in the pass.	Os xamãs deles alimentam com sangue as Pedras Kor nas Rochas da Caveira. Quebre cada pedra que encontrar no passo.
+When the drums beat on the Drum Ground, Tul-Gorak himself comes down. Meet him there.	Quando os tambores soam no Campo do Tambor, o próprio Tul-Gorak desce. Enfrente-o lá.
+The drums are quiet. The Palisade owes you a debt, and I pay mine.	Os tambores se calaram. A Paliçada lhe deve uma, e eu pago as minhas dívidas.
+My brother's caravan never left the salt. Its drivers still walk the wreck, hollow and hungry. Give them rest.	A caravana do meu irmão nunca saiu do sal. Seus condutores ainda vagam pelos destroços, ocos e famintos. Dê-lhes descanso.
+Korstones grow in the Pillar Field like salt crystals. Break them, and the mirages thin.	No Campo dos Pilares, as Pedras Kor crescem como cristais de sal. Quebre-as, e as miragens enfraquecem.
+The Mirage Queen drank the Oasis Shrine dry. When she shows her true face, strike it.	A Rainha Miragem bebeu o Santuário do Oásis até secar. Quando ela mostrar o verdadeiro rosto, golpeie-o.
+Water runs at the Oasis again. My brother can rest, and so can I.	A água voltou a correr no Oásis. Meu irmão pode descansar, e eu também.
+The bears of the Bear Caves woke mad in midwinter, and our hunters no longer come home. Hunt them back into the dark.	Os ursos das Cavernas dos Ursos acordaram enlouquecidos no meio do inverno, e nossos caçadores não voltam mais. Cace-os de volta para a escuridão.
+The snow hags of Hag's Hollow sing over Korstones to keep the cold. Break their stones.	As bruxas da neve do Vale da Bruxa cantam sobre Pedras Kor para manter o frio. Quebre as pedras delas.
+Nine-Winters walks down Shrine Pass when the wind turns. Face him, and spring may find us.	Nine-Winters desce o Passo do Santuário quando o vento vira. Enfrente-o, e talvez a primavera nos encontre.
+The ice on the lake is cracking. Nine winters were enough. Thank you, rider.	O gelo do lago está rachando. Nove invernos bastaram. Obrigada, cavaleiro.
+Flame cultists light new pyres every night to call the wyrm. Hunt them at the Cultist Pyres before the fires join.	Cultistas da chama acendem novas piras toda noite para chamar o dragão. Cace-os nas Piras dos Cultistas antes que os fogos se juntem.
+The Korstones among the Obsidian Spires glow like coals. The cultists feed them: break them.	As Pedras Kor entre as Agulhas de Obsidiana brilham como brasas. Os cultistas as alimentam: quebre-as.
+Azhdar crawls up from the Lava Ford when the ground shakes. Hold the ford against it.	Azhdar rasteja para fora do Vau de Lava quando o chão treme. Defenda o vau contra ele.
+The watch fires burn for us again, not for the wyrm. The Marches are yours to walk.	As fogueiras de vigia voltaram a arder por nós, não pelo dragão. As Fronteiras são suas para percorrer.
+The dead of the Old Graves no longer stay under their stones. Walk among them and put them down.	Os mortos das Covas Antigas não ficam mais sob suas pedras. Ande entre eles e derrube-os.
+Korstones have grown through the floor of the Forgotten Shrine. Their whispers keep the dead awake.	Pedras Kor atravessaram o chão do Santuário Esquecido. Os sussurros delas mantêm os mortos acordados.
+The Lantern Widow waits at her pond for a husband who never came home. Answer her in his place.	A Viúva da Lanterna espera em sua lagoa por um marido que nunca voltou. Responda a ela no lugar dele.
+The lanterns have gone out over the pond. Let the Whisperwood be quiet a while.	As lanternas sobre a lagoa se apagaram. Deixe o Bosque dos Sussurros em silêncio por um tempo.
+Something follows the woodcutters home along the Stalker Trail. Hunt the trail until it stops following.	Algo segue os lenhadores até em casa pela Trilha do Rondador. Cace na trilha até que pare de segui-los.
+The Sap Pools boil red where Korstones sit under them. Break the stones, and the sap may run clear.	As Poças de Seiva fervem vermelhas onde há Pedras Kor por baixo. Quebre as pedras, e a seiva pode voltar a correr limpa.
+The Rootfather wakes in Root Hollow, and the whole wood bleeds. Face him when he rises.	O Pai-Raiz desperta no Vale das Raízes, e o bosque inteiro sangra. Enfrente-o quando ele surgir.
+The birches weep no more. I will cut only dead wood from now on: you have my word.	As bétulas não choram mais. De agora em diante só corto madeira morta: você tem a minha palavra.
+The bog riders were our herders once, before the water rose. Their camp still rides out at night: hunt it.	Os cavaleiros do brejo já foram nossos pastores, antes de a água subir. O acampamento deles ainda cavalga à noite: cace-os.
+The leeches swarm thickest where Korstones lie in the Leech Marsh. Break them, and the swarms will scatter.	As sanguessugas se juntam mais onde há Pedras Kor no Pântano das Sanguessugas. Quebre-as, e os enxames vão se espalhar.
+The Coil Mother drowned our steppe from the Serpent Pools. When she surfaces, strike.	A Mãe das Espirais afogou nossa estepe a partir das Poças das Serpentes. Quando ela emergir, ataque.
+The water is going down: I can see the old yurt roofs. My ferry may soon be a cart again.	A água está baixando: já vejo os telhados das velhas iurtas. Minha balsa logo pode voltar a ser uma carroça.
+The bone pickers strip the old giants bare from their nest. Drive them off before nothing is left to bury.	Os catadores de ossos, do seu ninho, descarnam os velhos gigantes. Expulse-os antes que não sobre nada para enterrar.
+Korstones sprout between the ribs in the Field of Ribs, and the giants stir. Break them.	No Campo das Costelas, Pedras Kor brotam entre as costelas, e os gigantes se mexem. Quebre-as.
+Hurm will not stay in his grave. When he stands up by the Broken Colossus, lay him down again.	Hurm não quer ficar no túmulo. Quando ele se erguer junto ao Colosso Partido, deite-o de novo.
+I will sing the old giants to sleep tonight. Hurm too, if he lets me.	Esta noite vou cantar para os velhos gigantes dormirem. Para Hurm também, se ele deixar.
+The debt wraiths of Debtors' Row still count what they owe. Settle their accounts with steel.	Os espectros da dívida da Fileira dos Devedores ainda contam o que devem. Acerte as contas deles com aço.
+The constructs of the Gilded Stalls are wound with Korstones. Break the stones, and they will stop.	Os constructos das Bancas Douradas funcionam a Pedras Kor. Quebre as pedras, e eles vão parar.
+The Last Merchant-Prince still keeps court in the Drowned Market. Close his last sale.	O Último Príncipe-Mercador ainda mantém sua corte no Mercado Afogado. Feche a última venda dele.
+Every debt in the Bazaar is paid. A moneychanger rarely says this: keep the change.	Toda dívida do Bazar está paga. Um cambista raramente diz isto: fique com o troco.
+My old comrades rise from the Rider Barrows and form up as if the war never ended. Send them back to rest.	Meus velhos camaradas se erguem dos Túmulos dos Cavaleiros e entram em formação como se a guerra nunca tivesse acabado. Mande-os de volta ao descanso.
+The Violet Field glows with Korstones where the Left Wing fell. Break them: they are what calls the dead.	O Campo Violeta brilha com Pedras Kor onde a Ala Esquerda caiu. Quebre-as: são elas que chamam os mortos.
+Varkesh led us once. He still commands from the Captain's Mound. Face him, and tell him the war is over.	Varkesh já nos liderou. Ele ainda comanda do Monte do Capitão. Enfrente-o e diga a ele que a guerra acabou.
+I carried this standard for Varkesh. Now I will plant it on his mound and go home.	Carreguei este estandarte por Varkesh. Agora vou fincá-lo no monte dele e voltar para casa.
+The oath chanters in their ring still swear the old oaths to an empty throne. Silence them.	Os entoadores de juramentos em seu círculo ainda juram os velhos juramentos a um trono vazio. Silencie-os.
+Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	Pedras Kor cresceram ao redor das Pedras do Juramento e dão voz aos entoadores. Quebre-as.
+The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	A Sombra do Khan se senta nos Degraus do Trono, onde o Khan um dia se sentou. Acabe com ela, e a estepe estará livre.
+The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	O trono enfim está vazio, e assim vai ficar. Parta, herói: a estepe é sua.

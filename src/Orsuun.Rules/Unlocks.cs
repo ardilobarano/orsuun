@@ -16,6 +16,8 @@ namespace Orsuun.Rules
         Pits,
         Fishing,
         Bannerkin,
+        /// <summary>Map quests (Rules.MapQuests, 30 Sep 2026).</summary>
+        Quests,
     }
 
     /// <summary>
@@ -29,12 +31,13 @@ namespace Orsuun.Rules
     {
         public static readonly Feature[] All =
         {
-            Feature.Bounties, Feature.Shards, Feature.Fishing, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Dungeons, Feature.Pits, Feature.Bannerkin,
+            Feature.Bounties, Feature.Quests, Feature.Shards, Feature.Fishing, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Dungeons, Feature.Pits, Feature.Bannerkin,
         };
 
         public static int Level(Feature feature) => feature switch
         {
             Feature.Bounties => 3,
+            Feature.Quests => 4,
             Feature.Shards => 5,
             Feature.Commanders => 8,
             Feature.Guild => 10,
@@ -62,6 +65,7 @@ namespace Orsuun.Rules
             Feature.Pits => "THE PITS",
             Feature.Fishing => "OLD NERGUI'S RIVER",
             Feature.Bannerkin => "THE BANNERKIN",
+            Feature.Quests => "MAP QUESTS",
             _ => "",
         };
 
@@ -77,6 +81,7 @@ namespace Orsuun.Rules
             Feature.Dungeons => "Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.",
             Feature.Pits => "Duel other heroes in the Pits, from WAR, for Laurels and a season title.",
             Feature.Fishing => "Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.",
+            Feature.Quests => "The folk of each map need a hero: QUEST under the map gives their quest, for sorn, XP and a piece at its end.",
             Feature.Bannerkin => "A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.",
             _ => "",
         };

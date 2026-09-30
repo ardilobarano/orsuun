@@ -2941,3 +2941,100 @@ The party's chest: {0}	Cufărul grupului: {0}
 Shared among the {0#} heroes who cleared {1} together.	Împărțit între cei {0#} eroi care au terminat împreună {1}.
 The party	Grupul
 The party's chest from {0} is shared among {1#} heroes: see your mailbox.	Cufărul grupului din {0} a fost împărțit între {1#} eroi: vezi poșta.
+MAP QUESTS	MISIUNILE HĂRȚILOR
+The folk of each map need a hero: QUEST under the map gives their quest, for sorn, XP and a piece at its end.	Oamenii fiecărei hărți au nevoie de un erou: MISIUNE, sub hartă, îți dă misiunea lor, pentru sorn, XP și o piesă la final.
+Someone on every map needs a hero: hunt there, break its Korstones, then face its Commander. Tap QUEST under the map for the story and your pay, and claim each step when it is done. The last step pays an Epic piece.	Pe fiecare hartă cineva are nevoie de un erou: vânează acolo, sparge-i Pietrele Kor, apoi înfruntă-i Comandantul. Atinge MISIUNE sub hartă pentru poveste și plată, și primește fiecare pas când e gata. Ultimul pas îți dă o piesă epică.
+Quests need the server.	Misiunile au nevoie de server.
+EVERY MAP'S QUEST	MISIUNEA FIECĂREI HĂRȚI
+The quest is done!	Misiunea e îndeplinită!
+Step done!	Pas încheiat!
+Quest done: {0}.	Misiune îndeplinită: {0}.
+Quest step done.	Pas de misiune încheiat.
+{0} XP	{0} XP
+{0} materials	{0} materiale
+an Epic piece	o piesă epică
+QUESTS	MISIUNI
+QUEST: CLAIM	MISIUNE: PRIMEȘTE
+QUEST {0#}/{1#}	MISIUNE {0#}/{1#}
+QUEST	MISIUNE
+MAP	HARTĂ
+Hunt on one of the campaign's maps to take its folk's quest.	Vânează pe una dintre hărțile campaniei ca să primești misiunea oamenilor ei.
+Every step is done.	Toți pașii sunt încheiați.
+(Commanders open at level {0#})	(Comandanții se deschid la nivelul {0#})
+Pay:	Plată:
+stage {0#}	etapa {0#}
+Hunt {0#} minutes on {1}	{1}: vânează {0#} minute
+Break {0#} Korstones on {1}	{1}: sparge {0#} Pietre Kor
+Fight {0} when it rises	Luptă cu {0} când se ridică
+That map has no quest.	Harta aceea nu are misiune.
+That quest is finished.	Misiunea aceea s-a încheiat.
+Your bag was full, so it came by letter.	Traista era plină, așa că a venit prin scrisoare.
+Headwoman Saruul of Yurt Village	Saruul, căpetenia Satului de Iurte
+Scout Arslan of the Palisade	Iscoada Arslan de la Palisadă
+Caravan Master Dilek	Dilek, stăpâna caravanelor
+Elder Oyun of Whitefang Hamlet	Oyun, bătrâna Cătunului Colț-Alb
+Watch Captain Kerem of the Burnt Watchtower	Kerem, căpitanul Turnului de Veghe Ars
+Grave-Keeper Nomin	Nomin, paznica mormintelor
+Woodcutter Temur	Temur, tăietorul de lemne
+Ferryman Baatar of the Sunken Yurts	Baatar, luntrașul Iurtelor Scufundate
+Stone-Singer Altan	Altan, cântărețul pietrelor
+Moneychanger Esen	Esen, zaraful
+Standard-Bearer Tsogt	Tsogt, stegarul
+The Last Oathkeeper	Ultimul Păzitor al Jurământului
+Smoke over the Oathfields	Fum peste Câmpiile Jurământului
+The Drums of Gorak Pass	Tobele Trecătorii Gorak
+Nine Winters Long	Nouă ierni
+Lanterns in the Mist	Felinare în ceață
+The Bleeding Wood	Pădurea care Sângerează
+Under the Reeds	Sub trestii
+The Unburied	Neîngropații
+Debts of the Drowned	Datoriile înecaților
+The Left Wing Rides Again	Aripa Stângă călărește din nou
+Deserters hold the Bandit Camp and raid our herds by night. Hunt the fields around it until they think twice.	Dezertorii țin Tabăra Bandiților și ne atacă turmele noaptea. Vânează pe câmpurile din jur până se gândesc de două ori.
+The Korstones by Watchtower Hill hum louder every night, and the wolves come out of them hollow. Break them before more wake.	Pietrele Kor de lângă Dealul Turnului de Veghe zumzăie tot mai tare în fiecare noapte, iar lupii ies din ele goi pe dinăuntru. Sparge-le înainte să se trezească mai mulți.
+Old Greyjaw leads the hollow packs from the Wolf Den. When he rises, face him, and the Oathfields will sleep again.	Bătrânul Falcă-Sură conduce haitele goale din Vizuina Lupilor. Când se ridică, înfruntă-l, și Câmpiile Jurământului vor dormi din nou.
+The herds graze in peace tonight. Take this, rider: the Oathfields will remember your name.	Turmele pasc în pace în noaptea asta. Ia asta, călărețule: Câmpiile Jurământului îți vor ține minte numele.
+Gorak's war hounds are loosed from the Hound Pens at dusk. Thin them out, or no rider crosses the pass.	Dulăii de război ai lui Gorak sunt slobozi din Țarcurile Câinilor la amurg. Rărește-i, altfel niciun călăreț nu trece trecătoarea.
+Their shamans feed the Korstones at Skull Rocks with blood. Break every stone you find in the pass.	Șamanii lor hrănesc cu sânge Pietrele Kor de la Stâncile Craniului. Sparge fiecare piatră pe care o găsești în trecătoare.
+When the drums beat on the Drum Ground, Tul-Gorak himself comes down. Meet him there.	Când bat tobele la Locul Tobei, coboară chiar Tul-Gorak. Întâmpină-l acolo.
+The drums are quiet. The Palisade owes you a debt, and I pay mine.	Tobele au tăcut. Palisada îți e datoare, iar eu îmi plătesc datoriile.
+My brother's caravan never left the salt. Its drivers still walk the wreck, hollow and hungry. Give them rest.	Caravana fratelui meu n-a mai ieșit din sare. Căruțașii ei încă bântuie epava, goi și flămânzi. Dă-le odihnă.
+Korstones grow in the Pillar Field like salt crystals. Break them, and the mirages thin.	În Câmpul Stâlpilor, Pietrele Kor cresc ca niște cristale de sare. Sparge-le, și mirajele se vor subția.
+The Mirage Queen drank the Oasis Shrine dry. When she shows her true face, strike it.	Regina Mirajelor a secat Altarul Oazei. Când își arată adevărata față, lovește-o.
+Water runs at the Oasis again. My brother can rest, and so can I.	La Oază curge din nou apă. Fratele meu se poate odihni, și eu la fel.
+The bears of the Bear Caves woke mad in midwinter, and our hunters no longer come home. Hunt them back into the dark.	Urșii din Peșterile Urșilor s-au trezit turbați în miez de iarnă, iar vânătorii noștri nu se mai întorc acasă. Vânează-i înapoi în întuneric.
+The snow hags of Hag's Hollow sing over Korstones to keep the cold. Break their stones.	Babele zăpezii din Scobitura Babei cântă deasupra Pietrelor Kor ca să țină gerul. Sparge-le pietrele.
+Nine-Winters walks down Shrine Pass when the wind turns. Face him, and spring may find us.	Nine-Winters coboară pe Trecătoarea Altarului când se întoarce vântul. Înfruntă-l, și poate ne găsește primăvara.
+The ice on the lake is cracking. Nine winters were enough. Thank you, rider.	Gheața de pe lac crapă. Nouă ierni au fost de ajuns. Mulțumesc, călărețule.
+Flame cultists light new pyres every night to call the wyrm. Hunt them at the Cultist Pyres before the fires join.	Sectanții flăcării aprind ruguri noi în fiecare noapte ca să cheme balaurul. Vânează-i la Rugurile Sectanților înainte să se unească focurile.
+The Korstones among the Obsidian Spires glow like coals. The cultists feed them: break them.	Pietrele Kor dintre Turlele de Obsidian mocnesc ca jarul. Sectanții le hrănesc: sparge-le.
+Azhdar crawls up from the Lava Ford when the ground shakes. Hold the ford against it.	Azhdar se târăște din Vadul de Lavă când se cutremură pământul. Ține vadul în fața lui.
+The watch fires burn for us again, not for the wyrm. The Marches are yours to walk.	Focurile de veghe ard din nou pentru noi, nu pentru balaur. Hotarele sunt ale tale de străbătut.
+The dead of the Old Graves no longer stay under their stones. Walk among them and put them down.	Morții din Mormintele Vechi nu mai stau sub pietrele lor. Umblă printre ei și culcă-i la pământ.
+Korstones have grown through the floor of the Forgotten Shrine. Their whispers keep the dead awake.	Pietrele Kor au crescut prin podeaua Altarului Uitat. Șoaptele lor îi țin pe morți treji.
+The Lantern Widow waits at her pond for a husband who never came home. Answer her in his place.	Văduva Felinarului așteaptă la iazul ei un soț care nu s-a mai întors. Răspunde-i tu în locul lui.
+The lanterns have gone out over the pond. Let the Whisperwood be quiet a while.	Felinarele de deasupra iazului s-au stins. Lasă Codrul Șoaptelor să tacă o vreme.
+Something follows the woodcutters home along the Stalker Trail. Hunt the trail until it stops following.	Ceva îi urmărește pe tăietorii de lemne până acasă pe Cărarea Pânditorilor. Vânează pe cărare până se oprește.
+The Sap Pools boil red where Korstones sit under them. Break the stones, and the sap may run clear.	Bălțile de Sevă clocotesc roșii acolo unde zac Pietre Kor sub ele. Sparge pietrele, și poate seva va curge iar limpede.
+The Rootfather wakes in Root Hollow, and the whole wood bleeds. Face him when he rises.	Tatăl Rădăcinilor se trezește în Scobitura Rădăcinilor, și toată pădurea sângerează. Înfruntă-l când se ridică.
+The birches weep no more. I will cut only dead wood from now on: you have my word.	Mestecenii nu mai plâng. De acum încolo tai doar lemn uscat: ai cuvântul meu.
+The bog riders were our herders once, before the water rose. Their camp still rides out at night: hunt it.	Călăreții mlaștinii ne-au fost cândva păstori, înainte să crească apa. Tabăra lor încă pornește la drum noaptea: vânează-i.
+The leeches swarm thickest where Korstones lie in the Leech Marsh. Break them, and the swarms will scatter.	Lipitorile roiesc cel mai des acolo unde zac Pietre Kor în Mlaștina Lipitorilor. Sparge-le, și roiurile se vor risipi.
+The Coil Mother drowned our steppe from the Serpent Pools. When she surfaces, strike.	Mama Colacilor ne-a înecat stepa din Bălțile Șerpilor. Când iese la suprafață, lovește.
+The water is going down: I can see the old yurt roofs. My ferry may soon be a cart again.	Apa scade: văd acoperișurile vechilor iurte. Bacul meu ar putea fi curând iar căruță.
+The bone pickers strip the old giants bare from their nest. Drive them off before nothing is left to bury.	Culegătorii de oase jupoaie uriașii bătrâni din cuibul lor. Alungă-i înainte să nu mai rămână nimic de îngropat.
+Korstones sprout between the ribs in the Field of Ribs, and the giants stir. Break them.	În Câmpul Coastelor răsar Pietre Kor printre coaste, iar uriașii se foiesc. Sparge-le.
+Hurm will not stay in his grave. When he stands up by the Broken Colossus, lay him down again.	Hurm nu vrea să stea în mormânt. Când se ridică lângă Colosul Frânt, culcă-l la loc.
+I will sing the old giants to sleep tonight. Hurm too, if he lets me.	Diseară o să le cânt uriașilor bătrâni să adoarmă. Și lui Hurm, dacă mă lasă.
+The debt wraiths of Debtors' Row still count what they owe. Settle their accounts with steel.	Stafiile datoriei din Șirul Datornicilor încă își numără datoriile. Încheie-le socotelile cu oțel.
+The constructs of the Gilded Stalls are wound with Korstones. Break the stones, and they will stop.	Golemii de la Tarabele Aurite sunt întorși cu Pietre Kor. Sparge pietrele, și se vor opri.
+The Last Merchant-Prince still keeps court in the Drowned Market. Close his last sale.	Ultimul Prinț-Negustor încă ține curte în Piața Înecată. Încheie-i ultima vânzare.
+Every debt in the Bazaar is paid. A moneychanger rarely says this: keep the change.	Fiecare datorie din Bazar e plătită. Un zaraf rar spune asta: păstrează restul.
+My old comrades rise from the Rider Barrows and form up as if the war never ended. Send them back to rest.	Vechii mei tovarăși se ridică din Movilele Călăreților și se așază în rânduri de parcă războiul nu s-ar fi terminat niciodată. Trimite-i înapoi la odihnă.
+The Violet Field glows with Korstones where the Left Wing fell. Break them: they are what calls the dead.	Câmpul Violet strălucește de Pietre Kor acolo unde a căzut Aripa Stângă. Sparge-le: ele îi cheamă pe morți.
+Varkesh led us once. He still commands from the Captain's Mound. Face him, and tell him the war is over.	Varkesh ne-a condus cândva. Încă poruncește de pe Movila Căpitanului. Înfruntă-l și spune-i că războiul s-a terminat.
+I carried this standard for Varkesh. Now I will plant it on his mound and go home.	Am purtat acest steag pentru Varkesh. Acum îl înfig pe movila lui și plec acasă.
+The oath chanters in their ring still swear the old oaths to an empty throne. Silence them.	Descântătorii jurământului din cercul lor încă jură vechile jurăminte unui tron gol. Fă-i să tacă.
+Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	În jurul Pietrelor Jurământului au crescut Pietre Kor, care le dau glas descântătorilor. Sparge-le.
+The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	Umbra Hanului stă pe Treptele Tronului, unde stătea odinioară Hanul. Pune-i capăt, și stepa va fi liberă.
+The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	Tronul e în sfârșit gol și așa va rămâne. Pornește la drum, erou: stepa e a ta.

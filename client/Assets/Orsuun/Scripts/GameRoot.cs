@@ -71,6 +71,7 @@ namespace Orsuun.Client
         public MapCommander Commander { get; private set; }
         /// <summary>The hunting party: an invite waiting, the members, LEAVE (Rules.Parties).</summary>
         public PartyPanel Party { get; private set; }
+        public QuestPanel Quests { get; private set; }
         /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND and INVITE TO PARTY for a hero met in the world.</summary>
         public HeroActions HeroCard { get; private set; }
         /// <summary>A screenshot run (-shot) or a recording (-clip): the sign-in, the guide and the story cards stay away.</summary>
@@ -220,6 +221,8 @@ namespace Orsuun.Client
             // The hunting party's card and its chip under the minimap (Rules.Parties).
             Party = new GameObject("PartyPanel").AddComponent<PartyPanel>();
             Party.Init(this);
+            Quests = new GameObject("QuestPanel").AddComponent<QuestPanel>();
+            Quests.Init(this);
             // A Commander up on a big map stands at its landmark and calls every hero there (MapCommander).
             Commander = new GameObject("MapCommander").AddComponent<MapCommander>();
             Commander.Init(this, Lane);

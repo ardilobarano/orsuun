@@ -2903,3 +2903,100 @@ The party's chest: {0}	Grubun sandığı: {0}
 Shared among the {0#} heroes who cleared {1} together.	{1} zindanını birlikte temizleyen {0#} kahraman arasında paylaşıldı.
 The party	Grup
 The party's chest from {0} is shared among {1#} heroes: see your mailbox.	Grubun {0} sandığı {1#} kahraman arasında paylaşıldı: posta kutuna bak.
+MAP QUESTS	HARİTA GÖREVLERİ
+The folk of each map need a hero: QUEST under the map gives their quest, for sorn, XP and a piece at its end.	Her haritanın halkının bir kahramana ihtiyacı var: haritanın altındaki GÖREV onların görevini verir; karşılığı sorn, TP ve sonunda bir parça.
+Someone on every map needs a hero: hunt there, break its Korstones, then face its Commander. Tap QUEST under the map for the story and your pay, and claim each step when it is done. The last step pays an Epic piece.	Her haritada bir kahramana ihtiyaç duyan biri var: orada avlan, Kortaşlarını kır, sonra Komutanı'nın karşısına çık. Hikâye ve ödülün için haritanın altındaki GÖREV'e dokun, her adım bitince ödülünü al. Son adım bir Destansı parça verir.
+Quests need the server.	Görevler için sunucu gerekiyor.
+EVERY MAP'S QUEST	HER HARİTANIN GÖREVİ
+The quest is done!	Görev tamamlandı!
+Step done!	Adım tamam!
+Quest done: {0}.	Görev tamamlandı: {0}.
+Quest step done.	Görev adımı tamamlandı.
+{0} XP	{0} TP
+{0} materials	{0} malzeme
+an Epic piece	bir Destansı parça
+QUESTS	GÖREVLER
+QUEST: CLAIM	GÖREV: AL
+QUEST {0#}/{1#}	GÖREV {0#}/{1#}
+QUEST	GÖREV
+MAP	HARİTA
+Hunt on one of the campaign's maps to take its folk's quest.	Halkının görevini almak için seferin haritalarından birinde avlan.
+Every step is done.	Her adım tamamlandı.
+(Commanders open at level {0#})	(Komutanlar {0#}. seviyede açılır)
+Pay:	Ödül:
+stage {0#}	aşama {0#}
+Hunt {0#} minutes on {1}	{1}: {0#} dakika avlan
+Break {0#} Korstones on {1}	{1}: {0#} Kortaşı kır
+Fight {0} when it rises	{0} yükseldiğinde onunla dövüş
+That map has no quest.	O haritanın görevi yok.
+That quest is finished.	O görev bitti.
+Your bag was full, so it came by letter.	Çantan doluydu, bu yüzden mektupla geldi.
+Headwoman Saruul of Yurt Village	Yurt Köyü'nün Kâhyası Saruul
+Scout Arslan of the Palisade	Kazıklı Çit'in Gözcüsü Arslan
+Caravan Master Dilek	Kervanbaşı Dilek
+Elder Oyun of Whitefang Hamlet	Akdiş Köyü'nün Yaşlısı Oyun
+Watch Captain Kerem of the Burnt Watchtower	Yanık Gözcü Kulesi'nin Nöbet Yüzbaşısı Kerem
+Grave-Keeper Nomin	Mezar Bekçisi Nomin
+Woodcutter Temur	Oduncu Temur
+Ferryman Baatar of the Sunken Yurts	Batık Yurtlar'ın Salcısı Baatar
+Stone-Singer Altan	Taş Ozanı Altan
+Moneychanger Esen	Sarraf Esen
+Standard-Bearer Tsogt	Sancaktar Tsogt
+The Last Oathkeeper	Son Ant Bekçisi
+Smoke over the Oathfields	Ant Ovaları'nda Duman
+The Drums of Gorak Pass	Gorak Geçidi'nin Davulları
+Nine Winters Long	Dokuz Kış Boyu
+Lanterns in the Mist	Siste Fenerler
+The Bleeding Wood	Kanayan Orman
+Under the Reeds	Sazların Altında
+The Unburied	Gömülmemişler
+Debts of the Drowned	Boğulanların Borçları
+The Left Wing Rides Again	Sol Kanat Yeniden Atlanıyor
+Deserters hold the Bandit Camp and raid our herds by night. Hunt the fields around it until they think twice.	Kaçaklar Haydut Kampı'nı tutmuş, geceleri sürülerimize baskın yapıyorlar. İki kez düşünene dek çevresindeki ovalarda avlan.
+The Korstones by Watchtower Hill hum louder every night, and the wolves come out of them hollow. Break them before more wake.	Gözcü Kulesi Tepesi'ndeki Kortaşları her gece daha yüksek uğulduyor ve kurtlar onlardan içi boşalmış çıkıyor. Daha fazlası uyanmadan onları kır.
+Old Greyjaw leads the hollow packs from the Wolf Den. When he rises, face him, and the Oathfields will sleep again.	Yaşlı Boziçene içi boş sürüleri Kurt İni'nden yönetiyor. O yükseldiğinde karşısına çık, Ant Ovaları yeniden uyusun.
+The herds graze in peace tonight. Take this, rider: the Oathfields will remember your name.	Sürüler bu gece huzur içinde otluyor. Al bunu, atlı: Ant Ovaları adını hatırlayacak.
+Gorak's war hounds are loosed from the Hound Pens at dusk. Thin them out, or no rider crosses the pass.	Gorak'ın savaş köpekleri alacakaranlıkta Tazı Ağılları'ndan salınıyor. Onları azalt, yoksa hiçbir atlı geçidi aşamaz.
+Their shamans feed the Korstones at Skull Rocks with blood. Break every stone you find in the pass.	Şamanları Kafatası Kayaları'ndaki Kortaşlarını kanla besliyor. Geçitte bulduğun her taşı kır.
+When the drums beat on the Drum Ground, Tul-Gorak himself comes down. Meet him there.	Davul Meydanı'nda davullar çaldığında Tul-Gorak bizzat iner. Onu orada karşıla.
+The drums are quiet. The Palisade owes you a debt, and I pay mine.	Davullar sustu. Kazıklı Çit sana borçlu, ben de borcumu öderim.
+My brother's caravan never left the salt. Its drivers still walk the wreck, hollow and hungry. Give them rest.	Kardeşimin kervanı tuzdan hiç çıkamadı. Sürücüleri hâlâ enkazda dolaşıyor, içi boş ve aç. Onlara huzur ver.
+Korstones grow in the Pillar Field like salt crystals. Break them, and the mirages thin.	Sütunlar Ovası'nda Kortaşları tuz kristalleri gibi büyüyor. Onları kır, seraplar incelsin.
+The Mirage Queen drank the Oasis Shrine dry. When she shows her true face, strike it.	Serap Kraliçesi Vaha Tapınağı'nı kurutana dek içti. Gerçek yüzünü gösterdiğinde, ona vur.
+Water runs at the Oasis again. My brother can rest, and so can I.	Vaha'da su yeniden akıyor. Kardeşim artık huzur bulabilir, ben de.
+The bears of the Bear Caves woke mad in midwinter, and our hunters no longer come home. Hunt them back into the dark.	Ayı Mağaraları'nın ayıları karakışta kudurmuş uyandı ve avcılarımız artık eve dönmüyor. Onları avlayıp karanlığa geri sür.
+The snow hags of Hag's Hollow sing over Korstones to keep the cold. Break their stones.	Cadı Çukuru'nun kar cadıları soğuğu tutmak için Kortaşlarının başında şarkı söylüyor. Taşlarını kır.
+Nine-Winters walks down Shrine Pass when the wind turns. Face him, and spring may find us.	Rüzgâr döndüğünde Nine-Winters Tapınak Geçidi'nden iner. Karşısına çık, belki bahar bizi bulur.
+The ice on the lake is cracking. Nine winters were enough. Thank you, rider.	Göldeki buz çatlıyor. Dokuz kış yeterdi. Sağ ol, atlı.
+Flame cultists light new pyres every night to call the wyrm. Hunt them at the Cultist Pyres before the fires join.	Alev tarikatçıları ejderi çağırmak için her gece yeni odun yığınları yakıyor. Ateşler birleşmeden onları Tarikatçı Odun Yığınları'nda avla.
+The Korstones among the Obsidian Spires glow like coals. The cultists feed them: break them.	Obsidyen Sivri Kayalar arasındaki Kortaşları kor gibi parlıyor. Tarikatçılar onları besliyor: kır onları.
+Azhdar crawls up from the Lava Ford when the ground shakes. Hold the ford against it.	Yer sarsıldığında Azhdar Lav Geçidi'nden sürünerek çıkar. Geçidi ona karşı tut.
+The watch fires burn for us again, not for the wyrm. The Marches are yours to walk.	Nöbet ateşleri yeniden ejder için değil, bizim için yanıyor. Kül Uçları'nda dilediğin gibi dolaş.
+The dead of the Old Graves no longer stay under their stones. Walk among them and put them down.	Eski Mezarlar'ın ölüleri artık taşlarının altında durmuyor. Aralarında dolaş ve onları yere ser.
+Korstones have grown through the floor of the Forgotten Shrine. Their whispers keep the dead awake.	Kortaşları Unutulmuş Tapınak'ın zemininden fışkırmış. Fısıltıları ölüleri uyanık tutuyor.
+The Lantern Widow waits at her pond for a husband who never came home. Answer her in his place.	Fenerli Dul, hiç eve dönmeyen bir kocayı gölünün başında bekliyor. Onun yerine sen karşılık ver.
+The lanterns have gone out over the pond. Let the Whisperwood be quiet a while.	Gölün üstündeki fenerler söndü. Bırak Fısıltıorman bir süre sessiz kalsın.
+Something follows the woodcutters home along the Stalker Trail. Hunt the trail until it stops following.	Sinsi Patikası boyunca bir şey oduncuları evlerine kadar izliyor. İzlemeyi bırakana dek patikada avlan.
+The Sap Pools boil red where Korstones sit under them. Break the stones, and the sap may run clear.	Özsu Gölleri, altlarında Kortaşları olan yerlerde kıpkırmızı kaynıyor. Taşları kır, belki özsu yeniden berraklaşır.
+The Rootfather wakes in Root Hollow, and the whole wood bleeds. Face him when he rises.	Kökbaba Kök Çukuru'nda uyanıyor ve bütün orman kanıyor. Yükseldiğinde karşısına çık.
+The birches weep no more. I will cut only dead wood from now on: you have my word.	Kayınlar artık ağlamıyor. Bundan sonra yalnızca kuru odun keseceğim: söz veriyorum.
+The bog riders were our herders once, before the water rose. Their camp still rides out at night: hunt it.	Bataklık süvarileri bir zamanlar bizim çobanlarımızdı, sular yükselmeden önce. Kampları hâlâ geceleri akına çıkıyor: onları avla.
+The leeches swarm thickest where Korstones lie in the Leech Marsh. Break them, and the swarms will scatter.	Sülükler, Sülük Bataklığı'nda Kortaşlarının yattığı yerlerde en yoğun kaynaşıyor. Onları kır, sürüler dağılsın.
+The Coil Mother drowned our steppe from the Serpent Pools. When she surfaces, strike.	Halka Ana bozkırımızı Yılan Gölleri'nden boğdu. Yüzeye çıktığında vur.
+The water is going down: I can see the old yurt roofs. My ferry may soon be a cart again.	Su çekiliyor: eski yurtların damlarını görebiliyorum. Salım yakında yeniden araba olabilir.
+The bone pickers strip the old giants bare from their nest. Drive them off before nothing is left to bury.	Kemik toplayıcılar yuvalarından çıkıp eski devleri çırılçıplak soyuyor. Gömecek bir şey kalmadan onları kov.
+Korstones sprout between the ribs in the Field of Ribs, and the giants stir. Break them.	Kaburga Tarlası'nda kaburgaların arasından Kortaşları filizleniyor ve devler kıpırdanıyor. Onları kır.
+Hurm will not stay in his grave. When he stands up by the Broken Colossus, lay him down again.	Hurm mezarında durmayacak. Kırık Dev'in yanında ayağa kalktığında onu yeniden yatır.
+I will sing the old giants to sleep tonight. Hurm too, if he lets me.	Bu gece eski devleri şarkılarla uyutacağım. Hurm'ü de, izin verirse.
+The debt wraiths of Debtors' Row still count what they owe. Settle their accounts with steel.	Borçlular Sırası'nın borç hortlakları hâlâ borçlarını sayıyor. Hesaplarını çelikle kapat.
+The constructs of the Gilded Stalls are wound with Korstones. Break the stones, and they will stop.	Yaldızlı Tezgâhlar'ın kurguları Kortaşlarıyla kuruluyor. Taşları kır, dursunlar.
+The Last Merchant-Prince still keeps court in the Drowned Market. Close his last sale.	Son Tüccar Prens hâlâ Boğulmuş Pazar'da divan kuruyor. Son satışını sen kapat.
+Every debt in the Bazaar is paid. A moneychanger rarely says this: keep the change.	Çarşıdaki her borç ödendi. Bir sarraf bunu pek söylemez: üstü kalsın.
+My old comrades rise from the Rider Barrows and form up as if the war never ended. Send them back to rest.	Eski yoldaşlarım Süvari Höyükleri'nden kalkıp sanki savaş hiç bitmemiş gibi saf tutuyor. Onları huzura geri gönder.
+The Violet Field glows with Korstones where the Left Wing fell. Break them: they are what calls the dead.	Menekşe Ovası, Sol Kanat'ın düştüğü yerde Kortaşlarıyla parlıyor. Onları kır: ölüleri çağıran onlar.
+Varkesh led us once. He still commands from the Captain's Mound. Face him, and tell him the war is over.	Varkesh bir zamanlar bize önderlik etti. Hâlâ Yüzbaşı Höyüğü'nden emir veriyor. Karşısına çık ve ona savaşın bittiğini söyle.
+I carried this standard for Varkesh. Now I will plant it on his mound and go home.	Bu sancağı Varkesh için taşıdım. Şimdi onu höyüğüne dikip evime döneceğim.
+The oath chanters in their ring still swear the old oaths to an empty throne. Silence them.	Halkalarındaki ant okuyucular hâlâ boş bir tahta eski antları içiyor. Onları sustur.
+Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	Ant Taşları'nın çevresinde Kortaşları büyümüş ve okuyuculara seslerini veriyor. Onları kır.
+The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	Han'ın Gölgesi, bir zamanlar Han'ın oturduğu Taht Basamakları'nda oturuyor. Onu bitir, bozkır özgür kalsın.
+The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	Taht sonunda boş ve öyle kalacak. Yola çık, kahraman: bozkır senin.

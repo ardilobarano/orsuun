@@ -2979,3 +2979,100 @@ The party's chest: {0}	Die Truhe der Gruppe: {0}
 Shared among the {0#} heroes who cleared {1} together.	Geteilt unter den {0#} Helden, die {1} gemeinsam abgeschlossen haben.
 The party	Die Gruppe
 The party's chest from {0} is shared among {1#} heroes: see your mailbox.	Die Truhe der Gruppe aus {0} wird unter {1#} Helden geteilt: sieh in deinen Briefkasten.
+MAP QUESTS	KARTENAUFTRÄGE
+The folk of each map need a hero: QUEST under the map gives their quest, for sorn, XP and a piece at its end.	Die Leute jeder Karte brauchen einen Helden: AUFTRAG unter der Karte gibt ihren Auftrag, für Sorn, EP und am Ende ein Teil.
+Someone on every map needs a hero: hunt there, break its Korstones, then face its Commander. Tap QUEST under the map for the story and your pay, and claim each step when it is done. The last step pays an Epic piece.	Auf jeder Karte braucht jemand einen Helden: Jage dort, zerbrich ihre Korsteine und stell dich dann ihrem Kommandanten. Tippe auf AUFTRAG unter der Karte für die Geschichte und deinen Lohn, und hol dir jeden Schritt ab, wenn er erledigt ist. Der letzte Schritt bringt ein episches Teil.
+Quests need the server.	Aufträge brauchen den Server.
+EVERY MAP'S QUEST	DER AUFTRAG JEDER KARTE
+The quest is done!	Der Auftrag ist erfüllt!
+Step done!	Schritt erledigt!
+Quest done: {0}.	Auftrag erfüllt: {0}.
+Quest step done.	Auftragsschritt erledigt.
+{0} XP	{0} EP
+{0} materials	{0} Materialien
+an Epic piece	ein episches Teil
+QUESTS	AUFTRÄGE
+QUEST: CLAIM	AUFTRAG: ABHOLEN
+QUEST {0#}/{1#}	AUFTRAG {0#}/{1#}
+QUEST	AUFTRAG
+MAP	KARTE
+Hunt on one of the campaign's maps to take its folk's quest.	Jage auf einer der Karten des Feldzugs, um den Auftrag ihrer Leute anzunehmen.
+Every step is done.	Jeder Schritt ist erledigt.
+(Commanders open at level {0#})	(Kommandanten ab Stufe {0#})
+Pay:	Lohn:
+stage {0#}	Stufe {0#}
+Hunt {0#} minutes on {1}	{1}: {0#} Minuten jagen
+Break {0#} Korstones on {1}	{1}: {0#} Korsteine zerbrechen
+Fight {0} when it rises	Kämpfe gegen {0}, wenn der Kommandant erscheint
+That map has no quest.	Diese Karte hat keinen Auftrag.
+That quest is finished.	Dieser Auftrag ist erfüllt.
+Your bag was full, so it came by letter.	Deine Tasche war voll, darum kam es per Brief.
+Headwoman Saruul of Yurt Village	Dorfälteste Saruul aus dem Jurtendorf
+Scout Arslan of the Palisade	Späher Arslan vom Palisadenwall
+Caravan Master Dilek	Karawanenmeisterin Dilek
+Elder Oyun of Whitefang Hamlet	Älteste Oyun aus dem Weißzahn-Weiler
+Watch Captain Kerem of the Burnt Watchtower	Wachhauptmann Kerem vom Verbrannten Wachturm
+Grave-Keeper Nomin	Grabhüterin Nomin
+Woodcutter Temur	Holzfäller Temur
+Ferryman Baatar of the Sunken Yurts	Fährmann Baatar von den Versunkenen Jurten
+Stone-Singer Altan	Steinsänger Altan
+Moneychanger Esen	Geldwechsler Esen
+Standard-Bearer Tsogt	Bannerträger Tsogt
+The Last Oathkeeper	Der Letzte Eidhüter
+Smoke over the Oathfields	Rauch über den Eidfeldern
+The Drums of Gorak Pass	Die Trommeln des Gorak-Passes
+Nine Winters Long	Neun Winter lang
+Lanterns in the Mist	Laternen im Nebel
+The Bleeding Wood	Der Blutende Wald
+Under the Reeds	Unter dem Schilf
+The Unburied	Die Unbegrabenen
+Debts of the Drowned	Die Schulden der Ertrunkenen
+The Left Wing Rides Again	Der Linke Flügel reitet wieder
+Deserters hold the Bandit Camp and raid our herds by night. Hunt the fields around it until they think twice.	Deserteure halten das Banditenlager und überfallen nachts unsere Herden. Jage auf den Feldern ringsum, bis sie es sich zweimal überlegen.
+The Korstones by Watchtower Hill hum louder every night, and the wolves come out of them hollow. Break them before more wake.	Die Korsteine am Wachturmhügel summen jede Nacht lauter, und die Wölfe kommen hohl aus ihnen hervor. Zerbrich sie, bevor mehr erwachen.
+Old Greyjaw leads the hollow packs from the Wolf Den. When he rises, face him, and the Oathfields will sleep again.	Alter Graukiefer führt die hohlen Rudel vom Wolfsbau aus. Wenn er sich erhebt, stell dich ihm, und die Eidfelder werden wieder schlafen.
+The herds graze in peace tonight. Take this, rider: the Oathfields will remember your name.	Die Herden grasen heute Nacht in Frieden. Nimm das, Reiter: Die Eidfelder werden sich an deinen Namen erinnern.
+Gorak's war hounds are loosed from the Hound Pens at dusk. Thin them out, or no rider crosses the pass.	Goraks Kriegshunde werden in der Dämmerung aus den Hundezwingern gelassen. Dünne sie aus, sonst kommt kein Reiter über den Pass.
+Their shamans feed the Korstones at Skull Rocks with blood. Break every stone you find in the pass.	Ihre Schamanen füttern die Korsteine an den Schädelfelsen mit Blut. Zerbrich jeden Stein, den du im Pass findest.
+When the drums beat on the Drum Ground, Tul-Gorak himself comes down. Meet him there.	Wenn auf dem Trommelplatz die Trommeln schlagen, kommt Tul-Gorak selbst herab. Stell dich ihm dort.
+The drums are quiet. The Palisade owes you a debt, and I pay mine.	Die Trommeln schweigen. Der Palisadenwall steht in deiner Schuld, und ich begleiche meine.
+My brother's caravan never left the salt. Its drivers still walk the wreck, hollow and hungry. Give them rest.	Die Karawane meines Bruders hat das Salz nie verlassen. Ihre Treiber wandeln noch immer durch das Wrack, hohl und hungrig. Gib ihnen Ruhe.
+Korstones grow in the Pillar Field like salt crystals. Break them, and the mirages thin.	Im Säulenfeld wachsen Korsteine wie Salzkristalle. Zerbrich sie, und die Trugbilder werden dünner.
+The Mirage Queen drank the Oasis Shrine dry. When she shows her true face, strike it.	Die Trugbildkönigin hat den Oasenschrein leergetrunken. Wenn sie ihr wahres Gesicht zeigt, schlag zu.
+Water runs at the Oasis again. My brother can rest, and so can I.	An der Oase fließt wieder Wasser. Mein Bruder kann ruhen, und ich auch.
+The bears of the Bear Caves woke mad in midwinter, and our hunters no longer come home. Hunt them back into the dark.	Die Bären der Bärenhöhlen sind mitten im Winter wahnsinnig erwacht, und unsere Jäger kehren nicht mehr heim. Jage sie zurück in die Dunkelheit.
+The snow hags of Hag's Hollow sing over Korstones to keep the cold. Break their stones.	Die Schneevetteln der Vettelmulde singen über Korsteinen, um die Kälte zu halten. Zerbrich ihre Steine.
+Nine-Winters walks down Shrine Pass when the wind turns. Face him, and spring may find us.	Nine-Winters steigt den Schreinpass herab, wenn der Wind dreht. Stell dich ihm, und vielleicht findet uns der Frühling.
+The ice on the lake is cracking. Nine winters were enough. Thank you, rider.	Das Eis auf dem See bricht. Neun Winter waren genug. Danke, Reiter.
+Flame cultists light new pyres every night to call the wyrm. Hunt them at the Cultist Pyres before the fires join.	Flammenkultisten entzünden jede Nacht neue Feuer, um den Wurm zu rufen. Jage sie bei den Kultistenfeuern, bevor sich die Feuer vereinen.
+The Korstones among the Obsidian Spires glow like coals. The cultists feed them: break them.	Die Korsteine zwischen den Obsidianspitzen glühen wie Kohlen. Die Kultisten nähren sie: Zerbrich sie.
+Azhdar crawls up from the Lava Ford when the ground shakes. Hold the ford against it.	Azhdar kriecht aus der Lavafurt herauf, wenn der Boden bebt. Halte die Furt gegen ihn.
+The watch fires burn for us again, not for the wyrm. The Marches are yours to walk.	Die Wachfeuer brennen wieder für uns, nicht für den Wurm. Die Marken stehen dir offen.
+The dead of the Old Graves no longer stay under their stones. Walk among them and put them down.	Die Toten der Alten Gräber bleiben nicht mehr unter ihren Steinen. Geh zwischen ihnen umher und streck sie nieder.
+Korstones have grown through the floor of the Forgotten Shrine. Their whispers keep the dead awake.	Korsteine sind durch den Boden des Vergessenen Schreins gewachsen. Ihr Flüstern hält die Toten wach.
+The Lantern Widow waits at her pond for a husband who never came home. Answer her in his place.	Die Laternenwitwe wartet an ihrem Teich auf einen Mann, der nie heimkam. Antworte ihr an seiner Stelle.
+The lanterns have gone out over the pond. Let the Whisperwood be quiet a while.	Die Laternen über dem Teich sind erloschen. Lass den Flüsterwald eine Weile still sein.
+Something follows the woodcutters home along the Stalker Trail. Hunt the trail until it stops following.	Etwas folgt den Holzfällern auf dem Pirscherpfad nach Hause. Jage auf dem Pfad, bis es aufhört zu folgen.
+The Sap Pools boil red where Korstones sit under them. Break the stones, and the sap may run clear.	Die Saftteiche kochen rot, wo Korsteine unter ihnen liegen. Zerbrich die Steine, und der Saft fließt vielleicht wieder klar.
+The Rootfather wakes in Root Hollow, and the whole wood bleeds. Face him when he rises.	Der Wurzelvater erwacht in der Wurzelmulde, und der ganze Wald blutet. Stell dich ihm, wenn er sich erhebt.
+The birches weep no more. I will cut only dead wood from now on: you have my word.	Die Birken weinen nicht mehr. Von nun an schlage ich nur noch totes Holz: Du hast mein Wort.
+The bog riders were our herders once, before the water rose. Their camp still rides out at night: hunt it.	Die Moorreiter waren einst unsere Hirten, bevor das Wasser stieg. Ihr Lager reitet noch immer nachts aus: Jage es.
+The leeches swarm thickest where Korstones lie in the Leech Marsh. Break them, and the swarms will scatter.	Die Egel schwärmen am dichtesten, wo im Egelsumpf Korsteine liegen. Zerbrich sie, und die Schwärme zerstreuen sich.
+The Coil Mother drowned our steppe from the Serpent Pools. When she surfaces, strike.	Die Ringelmutter hat unsere Steppe von den Schlangenteichen aus ertränkt. Wenn sie auftaucht, schlag zu.
+The water is going down: I can see the old yurt roofs. My ferry may soon be a cart again.	Das Wasser sinkt: Ich sehe die alten Jurtendächer. Meine Fähre wird vielleicht bald wieder ein Karren.
+The bone pickers strip the old giants bare from their nest. Drive them off before nothing is left to bury.	Die Knochenklauber nagen die alten Riesen von ihrem Nest aus blank. Vertreibe sie, bevor nichts mehr zu begraben bleibt.
+Korstones sprout between the ribs in the Field of Ribs, and the giants stir. Break them.	Im Rippenfeld sprießen Korsteine zwischen den Rippen, und die Riesen regen sich. Zerbrich sie.
+Hurm will not stay in his grave. When he stands up by the Broken Colossus, lay him down again.	Hurm will nicht in seinem Grab bleiben. Wenn er sich beim Zerbrochenen Koloss aufrichtet, leg ihn wieder nieder.
+I will sing the old giants to sleep tonight. Hurm too, if he lets me.	Heute Nacht singe ich die alten Riesen in den Schlaf. Auch Hurm, wenn er mich lässt.
+The debt wraiths of Debtors' Row still count what they owe. Settle their accounts with steel.	Die Schuldengeister der Schuldnerreihe zählen noch immer, was sie schulden. Begleiche ihre Rechnungen mit Stahl.
+The constructs of the Gilded Stalls are wound with Korstones. Break the stones, and they will stop.	Die Konstrukte der Vergoldeten Stände werden mit Korsteinen aufgezogen. Zerbrich die Steine, und sie bleiben stehen.
+The Last Merchant-Prince still keeps court in the Drowned Market. Close his last sale.	Der Letzte Kaufmannsprinz hält noch immer Hof auf dem Ertrunkenen Markt. Schließ seinen letzten Handel ab.
+Every debt in the Bazaar is paid. A moneychanger rarely says this: keep the change.	Jede Schuld im Basar ist beglichen. Ein Geldwechsler sagt das selten: Stimmt so.
+My old comrades rise from the Rider Barrows and form up as if the war never ended. Send them back to rest.	Meine alten Kameraden erheben sich aus den Reiterhügelgräbern und treten an, als wäre der Krieg nie zu Ende gegangen. Schick sie zurück zur Ruhe.
+The Violet Field glows with Korstones where the Left Wing fell. Break them: they are what calls the dead.	Das Violette Feld glüht von Korsteinen, wo der Linke Flügel fiel. Zerbrich sie: Sie rufen die Toten.
+Varkesh led us once. He still commands from the Captain's Mound. Face him, and tell him the war is over.	Varkesh hat uns einst geführt. Er befiehlt noch immer vom Hügel des Hauptmanns aus. Stell dich ihm und sag ihm, dass der Krieg vorbei ist.
+I carried this standard for Varkesh. Now I will plant it on his mound and go home.	Ich habe dieses Banner für Varkesh getragen. Jetzt pflanze ich es auf seinen Hügel und gehe heim.
+The oath chanters in their ring still swear the old oaths to an empty throne. Silence them.	Die Eidsänger in ihrem Ring schwören einem leeren Thron noch immer die alten Eide. Bring sie zum Schweigen.
+Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	Um die Eidsteine sind Korsteine gewachsen und geben den Sängern ihre Stimme. Zerbrich sie.
+The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	Der Schatten des Khans sitzt auf den Thronstufen, wo einst der Khan saß. Mach ihm ein Ende, und die Steppe ist frei.
+The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	Der Thron ist endlich leer, und er bleibt es. Reite hinaus, Held: Die Steppe gehört dir.

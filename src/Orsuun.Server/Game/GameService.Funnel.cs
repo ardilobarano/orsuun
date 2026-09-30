@@ -25,6 +25,7 @@ public sealed partial class GameService
         ("level-5", "Level 5"),
         ("stage-5", "Cleared stage 5"),
         ("first-BountiesClaimed", "Claimed a bounty"),
+        ("quest", "Claimed a map quest step"),
         ("level-10", "Level 10"),
         ("stage-10", "Cleared stage 10"),
         ("first-CommanderFights", "Fought a Commander"),

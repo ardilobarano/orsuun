@@ -12,10 +12,10 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class TipCard : MonoBehaviour
     {
-        public enum Tip { Town, Bazaar, Catch, Bannerkin, Map, Party, Commander, Elite }
+        public enum Tip { Town, Bazaar, Catch, Bannerkin, Map, Party, Commander, Elite, Quest }
 
         private static readonly string[] Titles = { "THE TOWN SQUARE", "THE BAZAAR CALL", "THE CATCH", "THE BANNERKIN", "THE OPEN MAP", "HUNTING PARTIES", "WORLD BOSSES",
-            "GOLDEN BANNERS" };
+            "GOLDEN BANNERS", "MAP QUESTS" };
         private static readonly string[] Bodies =
         {
             "Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skills and Bora runs the Pits. Each gives an errand a day. Heroes who are in town stand here too, and the hunt goes on while you visit.",
@@ -27,8 +27,10 @@ namespace Orsuun.Client
             "Hunt with up to three others: friends, guildmates, or heroes on this map's PARTY BOARD. Partymates on your map walk and fight beside you, and each adds 5% XP and sorn. PARTY CHAT reaches them anywhere.",
             "Now and then a map's Commander rises at its landmark for ten minutes. Every hero on the map may fight it once: tap the red call, or its name on the full map. Its health is shared, so every blow counts. COMMANDER ALERTS in SETTINGS tells your phone when one rises.",
             "A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.",
+            // Map quests (30 Sep 2026).
+            "Someone on every map needs a hero: hunt there, break its Korstones, then face its Commander. Tap QUEST under the map for the story and your pay, and claim each step when it is done. The last step pays an Epic piece.",
         };
-        private static readonly string[] Icons = { "Caravan", "NavTrade", "FishTaimen", "BookDrumcaller", "NavZones", "NavGuild", "NavWar", "KhansAlloy" };
+        private static readonly string[] Icons = { "Caravan", "NavTrade", "FishTaimen", "BookDrumcaller", "NavZones", "NavGuild", "NavWar", "KhansAlloy", QuestPanel.IconName };
 
         private GameRoot _root;
         private GameObject _canvas;

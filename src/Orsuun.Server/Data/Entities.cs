@@ -127,6 +127,8 @@ public sealed class Account
     [MaxLength(256)] public string Feats { get; set; } = "";
     /// <summary>The day's errands (Rules.ErrandProgress): the day, what each counter did in it, the townsfolk who paid.</summary>
     [MaxLength(256)] public string Errands { get; set; } = "";
+    /// <summary>Map quests (Rules.QuestProgress): "map:step:progress;..." for each map begun.</summary>
+    [MaxLength(256)] public string MapQuests { get; set; } = "";
     [MaxLength(512)] public string FeatsClaimed { get; set; } = "";
     public int TitleId { get; set; }
     /// <summary>

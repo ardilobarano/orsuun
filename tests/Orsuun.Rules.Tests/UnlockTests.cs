@@ -28,7 +28,7 @@ public class UnlockTests
     {
         Assert.Empty(Unlocks.Between(1, 2));
         Assert.Equal(new[] { Feature.Bounties }, Unlocks.Between(2, 3));
-        Assert.Equal(new[] { Feature.Bounties, Feature.Shards }, Unlocks.Between(1, 5));
+        Assert.Equal(new[] { Feature.Bounties, Feature.Quests, Feature.Shards }, Unlocks.Between(1, 5));
         Assert.Empty(Unlocks.Between(3, 3));
         Assert.Equal(Unlocks.All.Length, Unlocks.Between(0, Content.MaxLevel).Count);
     }
