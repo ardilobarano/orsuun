@@ -1,0 +1,76 @@
+# CI (29 Sep 2026): on every push and pull request, build the solution (rules, server, balance simulator; warnings are
+# errors) and run the rules tests; then start the server against a real PostgreSQL, let it apply every migration, walk the
+# main endpoints with the smoke scripts and fail on any unhandled server error. Only the code is checked out: the repo's
+# art (client/, docs/, art/) is most of its size and nothing here needs it.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            src
+            tests
+            tools
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Build
+        run: dotnet build Orsuun.sln -c Release
+      - name: Rules tests
+        run: dotnet test Orsuun.sln -c Release --no-build
+
+  smoke:
+    name: Server smoke test
+    needs: test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: orsuun
+          POSTGRES_PASSWORD: orsuun-dev
+          POSTGRES_DB: orsuun
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U orsuun"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            src
+            tools
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Start the server (Development, local PostgreSQL; migrations apply at startup)
+        run: |
+          dotnet build src/Orsuun.Server -c Release
+          ASPNETCORE_ENVIRONMENT=Development nohup dotnet run --project src/Orsuun.Server -c Release --no-build > server.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:5080/health > /dev/null && exit 0; sleep 2; done
+          cat server.log; exit 1
+      - name: Smoke scripts
+        run: |
+          for s in smoke smoke-social smoke-friends smoke-party smoke-mail smoke-trail smoke-daily smoke-achievements; do
+            echo "::group::$s"; bash tools/$s.sh http://localhost:5080; echo "::endgroup::"
+          done
+      - name: No unhandled server errors
+        if: always()
+        run: |
+          if grep -nE "fail:|crit:|Unhandled exception" server.log; then echo "The server logged errors."; exit 1; fi
+          echo "No server errors."

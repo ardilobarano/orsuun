@@ -1,5 +1,7 @@
 # Orsuun: War of Banners
 
+[![CI](https://github.com/ardilobarano/orsuun/actions/workflows/ci.yml/badge.svg)](https://github.com/ardilobarano/orsuun/actions/workflows/ci.yml)
+
 An online mobile RPG for iOS and Android: an idle auto-battler on open 3D steppe maps, with risky gear upgrades in the
 spirit of classic Korean MMOs, three rival Banners, guilds, trading and world bosses. Original setting and art.
 
@@ -46,7 +48,9 @@ it runs on a live playtest server with Android and iOS test builds.
   exported by a Blender Python pipeline (`art/blender`), music and sound effects from audio models, and Python tools for
   map layouts, UI kits and atlases (`tools/`).
 - **Tests pin the rules.** 348 xUnit tests guard the published numbers (upgrade odds, drop rates, bosses as power checks,
-  season pacing) and the determinism the replays rely on; shell smoke tests walk the live endpoints.
+  season pacing) and the determinism the replays rely on. CI (GitHub Actions) builds everything and runs them on every
+  push, then starts the server on a fresh PostgreSQL, applies every migration and walks the main endpoints with the
+  smoke scripts, failing on any unhandled server error.
 
 ## How it was built
 
