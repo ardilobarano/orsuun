@@ -11,8 +11,8 @@ namespace Orsuun.Client
     public sealed class BountyPanel : MonoBehaviour
     {
         /// <summary>Six daily rows (the trail-cache bounty since 29 Sep 2026) and four weekly.</summary>
-        private const int Rows = 13, DailyRows = 8;
-        private const float RowStep = 0.037f, RowHeight = 0.034f;
+        private const int Rows = 14, DailyRows = 9;
+        private const float RowStep = 0.0335f, RowHeight = 0.0305f;
 
         private sealed class Row
         {
@@ -60,13 +60,13 @@ namespace Orsuun.Client
             _marks = Ui.Title("Marks", canvas, 0.05f, 0.895f, 0.95f, 0.935f, "", 30, TextAnchor.MiddleCenter, Palette.Parchment);
 
             _dailyTitle = Ui.Title("DailyTitle", canvas, 0.04f, 0.855f, 0.96f, 0.89f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
-            _weeklyTitle = Ui.Title("WeeklyTitle", canvas, 0.04f, 0.52f, 0.96f, 0.552f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
+            _weeklyTitle = Ui.Title("WeeklyTitle", canvas, 0.04f, 0.515f, 0.96f, 0.547f, "", 24, TextAnchor.MiddleLeft, Palette.Sorn);
             for (int i = 0; i < Rows; i++)
             {
                 int index = i;
-                // Eight daily rows under the first title, five weekly rows under the second (29 Sep 2026: elite packs,
-                // parties and the maps' Commanders joined them).
-                float y1 = i < DailyRows ? 0.85f - i * RowStep : 0.515f - (i - DailyRows) * RowStep;
+                // Nine daily rows under the first title, five weekly rows under the second (29 Sep 2026: elite packs,
+                // parties and the maps' Commanders joined them; 30 Sep: party dungeons).
+                float y1 = i < DailyRows ? 0.85f - i * RowStep : 0.51f - (i - DailyRows) * RowStep;
                 float y0 = y1 - RowHeight;
                 var r = new Row();
                 r.Back = Ui.Framed("Back" + i, canvas, 0.04f, y0, 0.74f, y1, Palette.PanelDark);

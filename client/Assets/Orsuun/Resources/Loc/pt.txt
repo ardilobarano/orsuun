@@ -3044,3 +3044,16 @@ The oath chanters in their ring still swear the old oaths to an empty throne. Si
 Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	Pedras Kor cresceram ao redor das Pedras do Juramento e dão voz aos entoadores. Quebre-as.
 The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	A Sombra do Khan se senta nos Degraus do Trono, onde o Khan um dia se sentou. Acabe com ela, e a estepe estará livre.
 The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	O trono enfim está vazio, e assim vai ficar. Parta, herói: a estepe é sua.
+Clear a dungeon with your party	Conclua uma masmorra com o seu grupo
+Fellowship	Companheirismo
+Hunt an hour with a party.	Cace uma hora com um grupo.
+Delving Together	Juntos nas Profundezas
+Clear a dungeon with your party.	Conclua uma masmorra com o seu grupo.
+Delving Band	O Bando das Profundezas
+Clear 25 dungeons with your party.	Conclua 25 masmorras com o seu grupo.
+Delve-Captain	Capitão das Profundezas
+Open Hands	Mãos Abertas
+Share a party chest.	Partilhe um baú do grupo.
+Spoils of the Band	Os Despojos do Bando
+Share 50 party chests.	Partilhe 50 baús do grupo.
+Keeper of the Spoils	Guardião dos Despojos

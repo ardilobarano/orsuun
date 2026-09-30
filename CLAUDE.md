@@ -361,6 +361,9 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   id); each joiner's own `DungeonRun` carries `PartyDungeonId` and goes through `EnterDungeonAsync`'s usual checks and key.
   `WorldClock` settles a closed run once (`SettlePartyDungeonsAsync`, after any member's pause floor) and pays the pooled
   chest by letter; partymates in the replay (`FieldFolk.DungeonMates`) are presentation.
+- Party bounties and achievements (30 Sep 2026): `BountyMetric.PartyDungeonClears` is counted in `PartyRunEndAsync`; a party chest
+  share's first letter has kind `GameService.PartyChestKind` ("party-chest") and taking it raises `FeatMetric.PartyChests` (the
+  WorldClock that shares the chest never touches heroes' counters).
 - Map quests (`Rules.MapQuests`, 30 Sep 2026): a chain per campaign map, kept in `Account.MapQuests` (`QuestProgress`,
   "map:step:progress"). Steps count through `CountQuest` only where the deed happens: `Settle` (hunting, Korstones, on the
   parked stage's map) and the Commander fight (`MapQuests.CommanderOf`). A step's `Camp` must be a camp name of the map's layout

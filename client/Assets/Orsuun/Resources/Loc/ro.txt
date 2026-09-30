@@ -3038,3 +3038,16 @@ The oath chanters in their ring still swear the old oaths to an empty throne. Si
 Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	În jurul Pietrelor Jurământului au crescut Pietre Kor, care le dau glas descântătorilor. Sparge-le.
 The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	Umbra Hanului stă pe Treptele Tronului, unde stătea odinioară Hanul. Pune-i capăt, și stepa va fi liberă.
 The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	Tronul e în sfârșit gol și așa va rămâne. Pornește la drum, erou: stepa e a ta.
+Clear a dungeon with your party	Curăță o temniță cu grupul tău
+Fellowship	Frăție
+Hunt an hour with a party.	Vânează o oră cu un grup.
+Delving Together	Împreună în adâncuri
+Clear a dungeon with your party.	Curăță o temniță cu grupul tău.
+Delving Band	Ceata adâncurilor
+Clear 25 dungeons with your party.	Curăță 25 de temnițe cu grupul tău.
+Delve-Captain	Căpitanul Adâncurilor
+Open Hands	Mâini Deschise
+Share a party chest.	Împarte un cufăr al grupului.
+Spoils of the Band	Prada cetei
+Share 50 party chests.	Împarte 50 de cufere ale grupului.
+Keeper of the Spoils	Păzitorul Prăzii

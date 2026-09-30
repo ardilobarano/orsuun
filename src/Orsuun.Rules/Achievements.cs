@@ -41,6 +41,10 @@ namespace Orsuun.Rules
         MapCommanderFights = 20,
         CommandersMet = 21,
         CacheMaps = 22,
+        // Since 30 Sep 2026 ("Party bounties and achievements"): dungeons cleared on a party run, and party chests shared (counted
+        // as the hero takes a chest's first letter).
+        PartyDungeonClears = 23,
+        PartyChests = 24,
     }
 
     /// <summary>What an achievement measures: a lifetime counter, or the hero as it stands.</summary>
@@ -211,6 +215,12 @@ namespace Orsuun.Rules
                 new AchievementDef(85, "Scourge of Commanders", "Fight all twelve Commanders.", FeatSource.Counter, 12, 120, 600, "Scourge of Commanders", FeatMetric.CommandersMet),
                 new AchievementDef(86, "Wayfinder", "Open trail caches on 5 maps.", FeatSource.Counter, 5, 20, 100, metric: FeatMetric.CacheMaps),
                 new AchievementDef(87, "Cartographer", "Open trail caches on all twelve maps.", FeatSource.Counter, 12, 100, 500, "Cartographer", FeatMetric.CacheMaps),
+                // Parties (30 Sep 2026: "Party bounties and achievements"): an hour together, dungeons cleared together, chests shared.
+                new AchievementDef(88, "Fellowship", "Hunt an hour with a party.", FeatSource.Counter, 3600, 10, 50, metric: FeatMetric.PartySeconds),
+                new AchievementDef(89, "Delving Together", "Clear a dungeon with your party.", FeatSource.Counter, 1, 15, 75, metric: FeatMetric.PartyDungeonClears),
+                new AchievementDef(90, "Delving Band", "Clear 25 dungeons with your party.", FeatSource.Counter, 25, 80, 400, "Delve-Captain", FeatMetric.PartyDungeonClears),
+                new AchievementDef(91, "Open Hands", "Share a party chest.", FeatSource.Counter, 1, 15, 75, metric: FeatMetric.PartyChests),
+                new AchievementDef(92, "Spoils of the Band", "Share 50 party chests.", FeatSource.Counter, 50, 100, 500, "Keeper of the Spoils", FeatMetric.PartyChests),
             };
             // The campaign: every map's last stage (100 + map).
             foreach (MapDef map in Content.Maps)

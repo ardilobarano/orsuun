@@ -60,4 +60,19 @@ public class PartyDungeonTests
         }
         Assert.Empty(PartyDungeons.Pool(spire, 30, 0, new XorShiftRandom(1)));
     }
+
+    [Fact]
+    public void Party_play_has_a_daily_bounty_and_achievements_with_titles_for_the_long_ones()
+    {
+        BountyDef bounty = Bounties.Find(9)!;
+        Assert.Equal(BountyPeriod.Daily, bounty.Period);
+        Assert.Equal(FeatMetric.PartyDungeonClears, Bounties.FeatOf(bounty.Metric));
+        Assert.False(CampaignTrail.PaysTrail(bounty));   // only the first seven metrics' bounties pay Trail XP
+        Assert.Equal(FeatMetric.PartySeconds, Achievements.Find(88)!.Metric);
+        Assert.Equal(FeatMetric.PartyDungeonClears, Achievements.Find(89)!.Metric);
+        Assert.Equal(FeatMetric.PartyChests, Achievements.Find(91)!.Metric);
+        Assert.Null(Achievements.Find(89)!.Title);
+        Assert.Equal("Delve-Captain", Achievements.Find(90)!.Title);
+        Assert.Equal("Keeper of the Spoils", Achievements.Find(92)!.Title);
+    }
 }

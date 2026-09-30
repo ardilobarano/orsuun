@@ -23,6 +23,8 @@ namespace Orsuun.Rules
         ElitePacks,
         PartySeconds,
         MapCommanderFights,
+        /// <summary>Party dungeons cleared (30 Sep 2026, "Party bounties and achievements"): FeatMetric.PartyDungeonClears.</summary>
+        PartyDungeonClears,
     }
 
     public enum BountyPeriod
@@ -70,6 +72,7 @@ namespace Orsuun.Rules
             new BountyDef(6, BountyPeriod.Daily, BountyMetric.CachesOpened, 2, 2, "Open 2 trail caches"),
             new BountyDef(7, BountyPeriod.Daily, BountyMetric.ElitePacks, 3, 2, "Beat 3 elite packs"),
             new BountyDef(8, BountyPeriod.Daily, BountyMetric.PartySeconds, 20 * 60, 2, "Hunt 20 minutes with a party"),
+            new BountyDef(9, BountyPeriod.Daily, BountyMetric.PartyDungeonClears, 1, 3, "Clear a dungeon with your party"),
             new BountyDef(11, BountyPeriod.Weekly, BountyMetric.Korstones, 200, 12, "Break 200 Korstones"),
             new BountyDef(12, BountyPeriod.Weekly, BountyMetric.CommanderFights, 5, 10, "Fight 5 Commanders"),
             new BountyDef(13, BountyPeriod.Weekly, BountyMetric.Pushes, 10, 8, "Push 10 times"),
@@ -85,6 +88,7 @@ namespace Orsuun.Rules
             BountyMetric.ElitePacks => FeatMetric.ElitePacks,
             BountyMetric.PartySeconds => FeatMetric.PartySeconds,
             BountyMetric.MapCommanderFights => FeatMetric.MapCommanderFights,
+            BountyMetric.PartyDungeonClears => FeatMetric.PartyDungeonClears,
             _ => (FeatMetric)(int)metric,
         };
 

@@ -3000,3 +3000,16 @@ The oath chanters in their ring still swear the old oaths to an empty throne. Si
 Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	Ant Taşları'nın çevresinde Kortaşları büyümüş ve okuyuculara seslerini veriyor. Onları kır.
 The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	Han'ın Gölgesi, bir zamanlar Han'ın oturduğu Taht Basamakları'nda oturuyor. Onu bitir, bozkır özgür kalsın.
 The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	Taht sonunda boş ve öyle kalacak. Yola çık, kahraman: bozkır senin.
+Clear a dungeon with your party	Grubunla bir zindan temizle
+Fellowship	Yoldaşlık
+Hunt an hour with a party.	Bir grupla bir saat avlan.
+Delving Together	Birlikte Derinlere
+Clear a dungeon with your party.	Grubunla bir zindan temizle.
+Delving Band	Derinlerin Çetesi
+Clear 25 dungeons with your party.	Grubunla 25 zindan temizle.
+Delve-Captain	Derinlik Yüzbaşısı
+Open Hands	Açık Eller
+Share a party chest.	Bir grup sandığını paylaş.
+Spoils of the Band	Çetenin Ganimeti
+Share 50 party chests.	50 grup sandığını paylaş.
+Keeper of the Spoils	Ganimet Bekçisi

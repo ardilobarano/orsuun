@@ -99,6 +99,7 @@ public sealed partial class GameService
             if (letter.BookId >= 0) AddBooks(account, letter.BookId, letter.BookCount);
             letter.TakenUtc = now;
             letter.Read = true;
+            if (letter.Kind == PartyChestKind) Feat(account, FeatMetric.PartyChests, 1);
             taken++;
             ids.Add(letter.Id);
         }

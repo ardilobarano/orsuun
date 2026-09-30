@@ -70,7 +70,11 @@ RUN2=$(echo "$R2" | jq -r .runId)
 [ "$(echo "$R2" | jq -r .atSmith)" = "true" ] && echo "G past the smith: $(p "$G" /v1/dungeon/smith "$(j --arg r "$(rid)" --argjson run "$RUN2" '{requestId:$r, runId:$run, itemId:""}')" | jq -c '{cleared, fellOn}')"
 echo "G joins again: $(p "$G" /v1/dungeon/enter "$(j --arg r "$(rid)" --arg pd "$PD" '{requestId:$r, dungeonId:1, partyDungeonId:$pd}')" | jq -c .code)"
 echo "the run closes: $(p "$F" /v1/dev/party-dungeon-close '{}' | jq -c '{openDungeon}')"
-for S in "$F" "$G"; do echo "party letters: $(g "$S" /v1/mail | jq -c '[.letters[] | select(.kind == "party") | .title] | length')"; done
+for S in "$F" "$G"; do echo "party letters: $(g "$S" /v1/mail | jq -c '[.letters[] | select(.kind | startswith("party")) | .kind]')"; done
+# Party bounties and achievements (30 Sep 2026): G cleared on a party run (the daily bounty) and takes the chest (a chest shared).
+echo "G's party bounty: $(g "$G" /v1/me | jq -c '[.bounties.items[] | select(.id == 9) | {count, target}]')"
+p "$G" /v1/mail/take "$(j --arg r "$(rid)" '{requestId:$r, letterId:0}')" > /dev/null
+echo "G's party achievements: $(g "$G" /v1/achievements | jq -c '[.list[] | select(.id == 89 or .id == 91) | {id, progress, target}]')"
 echo "party chat: $(g "$F" '/v1/chat?channel=party&after=0' | jq -c '[.lines[] | select(.system) | .text] | .[-3:]')"
 for S in "$H" "$G" "$F" "$E" "$D" "$C" "$B" "$A"; do curl -s -X DELETE "$BASE/v1/account" -H "X-Session: $S" > /dev/null; done
 echo "deleted eight"

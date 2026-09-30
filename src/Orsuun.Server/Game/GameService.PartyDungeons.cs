@@ -12,6 +12,9 @@ namespace Orsuun.Server.Game;
 /// </summary>
 public sealed partial class GameService
 {
+    /// <summary>The kind of a party chest share's first letter (the mailbox counts a chest shared when it is taken).</summary>
+    public const string PartyChestKind = "party-chest";
+
     /// <summary>Opens a dungeon for the hero's party and enters it (the opener's own run).</summary>
     public async Task<DungeonResultDto> OpenPartyDungeonAsync(Account account, DungeonEnterRequest request, CancellationToken ct)
     {
@@ -54,7 +57,12 @@ public sealed partial class GameService
     private async Task<TownHeroDto[]?> PartyRunEndAsync(Account account, DungeonRun run, DungeonDef dungeon, int fellOn, bool cleared, CancellationToken ct)
     {
         if (run.PartyDungeonId == null || account.PartyLeaderId is not Guid leader) return null;
-        if (cleared) SystemLine(PartyChannel(leader), $"{NameOf(account)} cleared {dungeon.Name}.");
+        if (cleared)
+        {
+            SystemLine(PartyChannel(leader), $"{NameOf(account)} cleared {dungeon.Name}.");
+            // Party bounties and achievements (30 Sep 2026): a dungeon cleared on a party run.
+            Count(account, BountyMetric.PartyDungeonClears, 1);
+        }
         else if (fellOn > 0) SystemLine(PartyChannel(leader), $"{NameOf(account)} fell on floor {fellOn} of {dungeon.Name}.");
         DateTime present = DateTime.UtcNow.AddSeconds(-Parties.PresentSeconds);
         List<Account> mates = await _db.Accounts.AsNoTracking()
@@ -124,8 +132,10 @@ public sealed partial class GameService
         {
             var goods = shares[i].Goods.ToList();
             var books = shares[i].Books.ToList();
+            // The first letter of each share is the chest's own ("party-chest"): taking it counts a chest shared (FeatMetric.PartyChests)
+            // on the hero's own request, where its counters may change.
             for (int k = 0; k < Math.Max(goods.Count, books.Count); k++)
-                SendLetter(clearers[i].AccountId, "party", "The party", title, body,
+                SendLetter(clearers[i].AccountId, k == 0 ? PartyChestKind : "party", "The party", title, body,
                     goodId: k < goods.Count ? goods[k].Key : -1, goodCount: k < goods.Count ? goods[k].Value : 0,
                     bookId: k < books.Count ? books[k].Key : -1, bookCount: k < books.Count ? books[k].Value : 0);
         }

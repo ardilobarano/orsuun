@@ -3076,3 +3076,16 @@ The oath chanters in their ring still swear the old oaths to an empty throne. Si
 Korstones have grown round the Oath Stones and give the chanters their voice. Break them.	Um die Eidsteine sind Korsteine gewachsen und geben den Sängern ihre Stimme. Zerbrich sie.
 The Khan's Shadow sits on the Throne Steps where the Khan once sat. End it, and the steppe is free.	Der Schatten des Khans sitzt auf den Thronstufen, wo einst der Khan saß. Mach ihm ein Ende, und die Steppe ist frei.
 The throne is empty at last, and it will stay so. Ride out, hero: the steppe is yours.	Der Thron ist endlich leer, und er bleibt es. Reite hinaus, Held: Die Steppe gehört dir.
+Clear a dungeon with your party	Säubere ein Verlies mit deiner Gruppe
+Fellowship	Gefährten
+Hunt an hour with a party.	Jage eine Stunde mit einer Gruppe.
+Delving Together	Gemeinsam in die Tiefe
+Clear a dungeon with your party.	Säubere ein Verlies mit deiner Gruppe.
+Delving Band	Die Tiefenschar
+Clear 25 dungeons with your party.	Säubere 25 Verliese mit deiner Gruppe.
+Delve-Captain	Tiefenhauptmann
+Open Hands	Offene Hände
+Share a party chest.	Teile eine Gruppentruhe.
+Spoils of the Band	Die Beute der Schar
+Share 50 party chests.	Teile 50 Gruppentruhen.
+Keeper of the Spoils	Hüter der Beute
