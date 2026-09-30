@@ -36,7 +36,7 @@ namespace Orsuun.Client
             get
             {
                 if (_cube != null) return _cube;
-                GameObject box = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                GameObject box = LaneView.MakePrimitive(PrimitiveType.Cube);
                 _cube = box.GetComponent<MeshFilter>().sharedMesh;
                 Destroy(box);
                 return _cube;

@@ -106,7 +106,7 @@ namespace Orsuun.Client
         private readonly FrameTiming[] _timings = new FrameTiming[8];
         private string _logPath;
         /// <summary>-fpscap n: the frame-rate target while measuring (0: uncapped), instead of 60 touched / 30 idle.</summary>
-        private static readonly int FpsCap = ArgInt("-fpscap", -1);
+        private static readonly int FpsCap = ArgInt("-fpscap", int.TryParse(Environment.GetEnvironmentVariable("ORSUUN_FPSCAP"), out int cap) ? cap : -1);
 
         private static int ArgInt(string name, int fallback)
         {
@@ -120,7 +120,9 @@ namespace Orsuun.Client
             _lane = lane;
             GameSettings.Changed += Apply;
             _lastInput = _logAt = Time.realtimeSinceStartup;
-            _log = Array.IndexOf(Environment.GetCommandLineArgs(), "-perflog") >= 0;
+            // A phone gets no launch arguments: ORSUUN_PERFLOG=1 in the launch's environment does the same
+            // (xcrun devicectl device process launch --environment-variables '{"ORSUUN_PERFLOG":"1"}' ...).
+            _log = Array.IndexOf(Environment.GetCommandLineArgs(), "-perflog") >= 0 || Environment.GetEnvironmentVariable("ORSUUN_PERFLOG") == "1";
             if (_log)
             {
                 // The rendering counters (Release players have them) and a file beside the save data, so a phone's log can be

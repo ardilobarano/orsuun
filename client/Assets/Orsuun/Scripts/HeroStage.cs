@@ -303,14 +303,11 @@ namespace Orsuun.Client
 
         private Transform MakePart(PrimitiveType type, string name, Color color)
         {
-            GameObject go = GameObject.CreatePrimitive(type);
-            go.name = name;
-            Destroy(go.GetComponent<Collider>());
+            GameObject go = LaneView.MakePrimitive(type, name);
             go.transform.SetParent(_model.transform, false);
             var r = go.GetComponent<Renderer>();
             var grey = Art.Load<Material>("GreyBox");
-            if (grey != null) r.sharedMaterial = grey;
-            r.material.color = color;
+            if (grey != null) r.sharedMaterial = LaneView.Tinted(grey, color);
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             return go.transform;
         }

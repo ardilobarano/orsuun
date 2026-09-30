@@ -407,9 +407,7 @@ namespace Orsuun.Client
             _flames = new Transform[3];
             for (int i = 0; i < 3; i++)
             {
-                var flame = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                Destroy(flame.GetComponent<Collider>());
-                flame.name = "Flame";
+                var flame = LaneView.MakePrimitive(PrimitiveType.Quad, "Flame");
                 flame.transform.SetParent(_root, false);
                 var r = flame.GetComponent<Renderer>();
                 if (spark != null)

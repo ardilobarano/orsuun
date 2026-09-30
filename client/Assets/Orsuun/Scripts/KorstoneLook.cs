@@ -90,9 +90,7 @@ namespace Orsuun.Client
             _heightFrac = new float[count];
             for (int i = 0; i < count; i++)
             {
-                GameObject shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                if (Application.isPlaying) Destroy(shard.GetComponent<Collider>()); else DestroyImmediate(shard.GetComponent<Collider>());
-                shard.name = "Shard";
+                GameObject shard = LaneView.MakePrimitive(PrimitiveType.Cube, "Shard");
                 shard.transform.SetParent(transform, false);
                 float s = Random.Range(0.10f, 0.26f);
                 shard.transform.localScale = new Vector3(s, s * Random.Range(1.4f, 2.6f), s) / transform.localScale.x;
@@ -107,9 +105,7 @@ namespace Orsuun.Client
             if (spark != null)
             {
                 // Ground glow: a flat additive disc under the stone.
-                GameObject disc = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                if (Application.isPlaying) Destroy(disc.GetComponent<Collider>()); else DestroyImmediate(disc.GetComponent<Collider>());
-                disc.name = "GroundGlow";
+                GameObject disc = LaneView.MakePrimitive(PrimitiveType.Quad, "GroundGlow");
                 disc.transform.SetParent(transform, false);
                 disc.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
                 disc.transform.localPosition = new Vector3(0f, 0.03f, 0f);

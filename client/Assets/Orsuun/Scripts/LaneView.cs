@@ -1886,10 +1886,7 @@ namespace Orsuun.Client
                     art.Height = top;
                 }
                 foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
-                {
-                    r.sharedMaterial = art.Material;
-                    if (artTint.HasValue) r.material.color = artTint.Value;
-                }
+                    r.sharedMaterial = artTint.HasValue ? Tinted(art.Material, artTint.Value) : art.Material;
                 s = Vector3.one * artScale;
                 barHeight = art.Height + 0.3f / artScale;
                 root.rotation = Quaternion.Euler(0f, EnemyYaw, 0f);
@@ -2263,8 +2260,7 @@ namespace Orsuun.Client
             Transform root = Instantiate(art.Model).transform;
             foreach (Renderer r in root.GetComponentsInChildren<Renderer>())
             {
-                r.sharedMaterial = art.Material;
-                if (tint.HasValue) r.material.color = tint.Value;
+                r.sharedMaterial = tint.HasValue ? Tinted(art.Material, tint.Value) : art.Material;
                 r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
             root.localScale = Vector3.one * MobScale;
@@ -2371,16 +2367,50 @@ namespace Orsuun.Client
 
         private static Transform Primitive(PrimitiveType type, string name, Color color)
         {
-            GameObject go = GameObject.CreatePrimitive(type);
-            go.name = name;
-            if (Application.isPlaying) Destroy(go.GetComponent<Collider>());
-            else DestroyImmediate(go.GetComponent<Collider>());
-
+            GameObject go = MakePrimitive(type, name);
             var renderer = go.GetComponent<Renderer>();
             _greyBox ??= Art.Load<Material>("GreyBox");
-            if (_greyBox != null) renderer.sharedMaterial = _greyBox;
-            renderer.material.color = color;
+            renderer.sharedMaterial = _greyBox != null ? Tinted(_greyBox, color) : renderer.sharedMaterial;
             return go.transform;
+        }
+
+        private static readonly Dictionary<PrimitiveType, (Mesh Mesh, Material Material)> Shapes = new Dictionary<PrimitiveType, (Mesh, Material)>();
+
+        /// <summary>
+        /// A primitive shape with no collider (the phone performance pass, 30 Sep 2026). GameObject.CreatePrimitive adds a
+        /// collider, and the phone builds strip the physics module the game never uses: every call (two a monster, for its
+        /// health bar) logged an error with its stack trace. Each shape's mesh is taken from one CreatePrimitive, once.
+        /// </summary>
+        internal static GameObject MakePrimitive(PrimitiveType type, string name = null)
+        {
+            if (!Shapes.TryGetValue(type, out (Mesh Mesh, Material Material) shape) || shape.Mesh == null)
+            {
+                GameObject probe = GameObject.CreatePrimitive(type);
+                shape = (probe.GetComponent<MeshFilter>().sharedMesh, probe.GetComponent<Renderer>().sharedMaterial);
+                if (Application.isPlaying) Destroy(probe); else DestroyImmediate(probe);
+                Shapes[type] = shape;
+            }
+            var go = new GameObject(name ?? type.ToString());
+            go.AddComponent<MeshFilter>().sharedMesh = shape.Mesh;
+            go.AddComponent<MeshRenderer>().sharedMaterial = shape.Material;
+            return go;
+        }
+
+        private static readonly Dictionary<(Material, Color), Material> Tints = new Dictionary<(Material, Color), Material>();
+
+        /// <summary>
+        /// A shared copy of a material in a colour, made once for each material and colour. Renderer.material made a copy for
+        /// every renderer (each monster, each health bar) that was never freed: an idle session kept growing (the phone
+        /// performance pass, 30 Sep 2026).
+        /// </summary>
+        internal static Material Tinted(Material shared, Color color)
+        {
+            if (shared == null) return null;
+            if (Tints.TryGetValue((shared, color), out Material made) && made != null) return made;
+            made = new Material(shared) { name = shared.name + " tinted" };
+            made.color = color;
+            Tints[(shared, color)] = made;
+            return made;
         }
     }
 }

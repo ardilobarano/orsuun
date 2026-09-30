@@ -172,8 +172,7 @@ namespace Orsuun.Client
 
         private static void Box(Transform parent, Vector3 at, Vector3 size, Material material)
         {
-            GameObject box = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Destroy(box.GetComponent<Collider>());
+            GameObject box = LaneView.MakePrimitive(PrimitiveType.Cube);
             box.transform.SetParent(parent, false);
             box.transform.localPosition = at;
             box.transform.localScale = size;

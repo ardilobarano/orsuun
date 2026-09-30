@@ -42,7 +42,8 @@ namespace Orsuun.Client
         internal static void DressElite(Transform mob, bool grow = true)
         {
             if (grow) mob.localScale *= EliteSize;
-            foreach (Renderer r in mob.GetComponentsInChildren<Renderer>()) r.material.color *= EliteGold;
+            foreach (Renderer r in mob.GetComponentsInChildren<Renderer>())
+                if (r.sharedMaterial != null) r.sharedMaterial = Tinted(r.sharedMaterial, r.sharedMaterial.color * EliteGold);
         }
 
         private readonly List<Transform> _waiting = new List<Transform>();
