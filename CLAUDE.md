@@ -369,6 +369,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   replays the last `Tower.ReplayFloors` with `StageRun.Create(Tower.Floor(f), ...)`. The week's ladder is the hero's
   `TowerSeason`/`TowerBest`, settled by `WorldClock` through a `TowerSeasons` row; the week's title is `Account.TowerTitle`
   (`TitleOf`: worn, then the Pits', then the tower's). Never call `/v1/dev/tower-week-end` on the playtest server.
+- Korstone Rain (`Rules.KorstoneRain`, 7 Oct 2026): `KorstoneFalls` rows dropped by `WorldClock` (`TickRainAsync`); the
+  latest lives on `EventCalendar.Rain` so `ToState` reads it without a query (set by the clock and every strike). A strike
+  locks the fall's row (`FOR UPDATE`); its lane is `BossRun.Create(KorstoneRain.Stage(map), ...)` run for `StrikeTicks` on
+  both sides (`LaneSim.CurrentTick`), its boss drawn as a giant Elder Korstone (`LaneView` checks `KorstoneRain.StoneName`).
 - Map quests (`Rules.MapQuests`, 30 Sep 2026): a chain per campaign map, kept in `Account.MapQuests` (`QuestProgress`,
   "map:step:progress"). Steps count through `CountQuest` only where the deed happens: `Settle` (hunting, Korstones, on the
   parked stage's map) and the Commander fight (`MapQuests.CommanderOf`). A step's `Camp` must be a camp name of the map's layout

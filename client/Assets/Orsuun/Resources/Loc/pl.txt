@@ -3090,3 +3090,31 @@ Reach floor 100 of the Endless Tower.	Dotrzyj na piętro 100 Niekończącej się
 The Tower's Shadow	Cień Wieży
 The Endless Tower, floor {0}	Niekończąca się Wieża, piętro {0}
 Nobody has climbed yet this week: be the first.	W tym tygodniu nikt jeszcze się nie wspinał: bądź pierwszy.
+Giant Korstone	Olbrzymi Korkamień
+GIANT KORSTONE	OLBRZYMI KORKAMIEŃ
+KORSTONE RAIN	DESZCZ KORKAMIENI
+Korstone Rain	Deszcz Korkamieni
+STRIKE ×{0}	UDERZ ×{0}
+NO STRIKES LEFT	BRAK UDERZEŃ
+A GIANT KORSTONE FALLS	SPADA OLBRZYMI KORKAMIEŃ
+At {0}: every hero on {1} may strike it three times. Break it together for a shower of loot and rare Korshards.	Przy {0}: każdy bohater na mapie {1} może uderzyć w niego trzy razy. Rozbijcie go razem, a spadnie deszcz łupów i rzadkich Korodłamków.
+THE GIANT KORSTONE BREAKS	OLBRZYMI KORKAMIEŃ PĘKA
+THE GIANT KORSTONE BREAKS!	OLBRZYMI KORKAMIEŃ PĘKA!
+{0} struck the last blow: its shower comes to every striker and hunter here by letter.	{0} zadał ostatni cios: deszcz łupów trafi listem do każdego, kto uderzał lub tu poluje.
+It broke: its shower comes to every striker and hunter here by letter.	Pękł: deszcz łupów trafi listem do każdego, kto uderzał lub tu poluje.
+You have struck this stone three times: watch the others break it.	Uderzyłeś w ten kamień trzy razy: patrz, jak inni go rozbijają.
+STRUCK FOR {0}	ZADANO {0}
+No Giant Korstone stands now.	Teraz nie stoi żaden Olbrzymi Korkamień.
+The Giant Korstone fell on {0}: hunt there to strike it.	Olbrzymi Korkamień spadł na {0}: poluj tam, by w niego uderzyć.
+You have struck this stone three times.	Uderzyłeś w ten kamień trzy razy.
+You broke the Giant Korstone with {0} damage! Its shower comes to everyone by letter.	Rozbiłeś Olbrzymi Korkamień, zadając {0} obrażeń! Deszcz łupów trafi do wszystkich listem.
+You struck the Giant Korstone for {0} damage: {1}% of it stands.	Uderzyłeś Olbrzymi Korkamień za {0} obrażeń: zostało {1}%.
+A Giant Korstone falls from the sky on {0}! Every hero hunting there may strike it {1} times in the next {2} minutes.	Olbrzymi Korkamień spada z nieba na {0}! Każdy bohater, który tam poluje, może uderzyć w niego {1} razy w ciągu {2} minut.
+{0} broke the Giant Korstone on {1}! Its shower falls on {2} heroes.	{0} rozbił Olbrzymi Korkamień na {1}! Deszcz łupów spada na {2} bohaterów.
+The Giant Korstone on {0} sank back into the earth unbroken.	Olbrzymi Korkamień na {0} zapadł się z powrotem w ziemię, nierozbity.
+The Giant Korstone broke!	Olbrzymi Korkamień pękł!
+The stone on {0} broke under {1} heroes' blows, and you dealt {2}% of them. Its shower falls on you.	Kamień na {0} pękł pod ciosami {1} bohaterów, a ty zadałeś {2}% z nich. Jego deszcz spada na ciebie.
+Turnstones from the stone	Kamienie Przemiany z kamienia
+Shards of the Giant Korstone, good for turning etchings.	Odłamki Olbrzymiego Korkamienia, dobre do obracania grawerów.
+The stone on {0} broke while you hunted there, and its shower reached you too.	Kamień na {0} pękł, gdy tam polowałeś, i jego deszcz dosięgnął i ciebie.
+Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	Od czasu do czasu na mapę spada z nieba Olbrzymi Korkamień. Każdy bohater, który tam poluje, może uderzyć w niego trzy razy, a jego zdrowie jest wspólne: uderzajcie razem. Gdy pęknie, każdy uderzający dostaje według swojego udziału sorn, Kamienie Przemiany i Korodłamki, czasem rzadszej rangi, a każdy inny łowca na mapie też trochę.

@@ -3098,3 +3098,31 @@ Reach floor 100 of the Endless Tower.	Ajunge la etajul 100 al Turnului Fără Sf
 The Tower's Shadow	Umbra Turnului
 The Endless Tower, floor {0}	Turnul Fără Sfârșit, etajul {0}
 Nobody has climbed yet this week: be the first.	Nimeni nu a urcat încă săptămâna aceasta: fii primul.
+Giant Korstone	Piatră Kor Uriașă
+GIANT KORSTONE	PIATRĂ KOR URIAȘĂ
+KORSTONE RAIN	PLOAIA DE PIETRE KOR
+Korstone Rain	Ploaia de Pietre Kor
+STRIKE ×{0}	LOVEȘTE ×{0}
+NO STRIKES LEFT	NICIO LOVITURĂ RĂMASĂ
+A GIANT KORSTONE FALLS	CADE O PIATRĂ KOR URIAȘĂ
+At {0}: every hero on {1} may strike it three times. Break it together for a shower of loot and rare Korshards.	La {0}: fiecare erou din {1} o poate lovi de trei ori. Spargeți-o împreună pentru o ploaie de pradă și Cioburi Kor rare.
+THE GIANT KORSTONE BREAKS	PIATRA KOR URIAȘĂ SE SPARGE
+THE GIANT KORSTONE BREAKS!	PIATRA KOR URIAȘĂ SE SPARGE!
+{0} struck the last blow: its shower comes to every striker and hunter here by letter.	{0} a dat lovitura finală: ploaia ajunge prin scrisoare la fiecare care a lovit sau vânează aici.
+It broke: its shower comes to every striker and hunter here by letter.	S-a spart: ploaia ajunge prin scrisoare la fiecare care a lovit sau vânează aici.
+You have struck this stone three times: watch the others break it.	Ai lovit piatra aceasta de trei ori: privește-i pe ceilalți cum o sparg.
+STRUCK FOR {0}	LOVITURĂ DE {0}
+No Giant Korstone stands now.	Acum nu stă nicio Piatră Kor Uriașă.
+The Giant Korstone fell on {0}: hunt there to strike it.	Piatra Kor Uriașă a căzut în {0}: vânează acolo ca s-o lovești.
+You have struck this stone three times.	Ai lovit piatra aceasta de trei ori.
+You broke the Giant Korstone with {0} damage! Its shower comes to everyone by letter.	Ai spart Piatra Kor Uriașă cu {0} daune! Ploaia ajunge la toți prin scrisoare.
+You struck the Giant Korstone for {0} damage: {1}% of it stands.	Ai lovit Piatra Kor Uriașă cu {0} daune: {1}% din ea încă stă.
+A Giant Korstone falls from the sky on {0}! Every hero hunting there may strike it {1} times in the next {2} minutes.	O Piatră Kor Uriașă cade din cer în {0}! Fiecare erou care vânează acolo o poate lovi de {1} ori în următoarele {2} minute.
+{0} broke the Giant Korstone on {1}! Its shower falls on {2} heroes.	{0} a spart Piatra Kor Uriașă din {1}! Ploaia cade peste {2} eroi.
+The Giant Korstone on {0} sank back into the earth unbroken.	Piatra Kor Uriașă din {0} s-a scufundat înapoi în pământ, nespartă.
+The Giant Korstone broke!	Piatra Kor Uriașă s-a spart!
+The stone on {0} broke under {1} heroes' blows, and you dealt {2}% of them. Its shower falls on you.	Piatra din {0} s-a spart sub loviturile a {1} eroi, iar tu ai dat {2}% din ele. Ploaia cade peste tine.
+Turnstones from the stone	Pietre de Răsucire din piatră
+Shards of the Giant Korstone, good for turning etchings.	Așchii din Piatra Kor Uriașă, bune pentru întoarcerea gravurilor.
+The stone on {0} broke while you hunted there, and its shower reached you too.	Piatra din {0} s-a spart în timp ce vânai acolo, iar ploaia a ajuns și la tine.
+Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	Din când în când, o Piatră Kor Uriașă cade din cer pe o hartă. Fiecare erou care vânează acolo o poate lovi de trei ori, iar viața ei e comună: loviți împreună. Când se sparge, fiecare care a lovit primește după partea lui sorn, Pietre de Răsucire și Cioburi Kor, uneori de rang mai rar, iar fiecare alt vânător de pe hartă primește și el puțin.

@@ -139,6 +139,10 @@ public sealed class Account
     [MaxLength(16)] public string TowerClimbDay { get; set; } = "";
     public int TowerClimbs { get; set; }
     [MaxLength(32)] public string? TowerTitle { get; set; }
+    /// <summary>Korstone Rain (Rules.KorstoneRain): the fall the hero last struck, the strikes and damage on it.</summary>
+    public long RainFallId { get; set; }
+    public int RainStrikes { get; set; }
+    public long RainDamage { get; set; }
     [MaxLength(512)] public string FeatsClaimed { get; set; } = "";
     public int TitleId { get; set; }
     /// <summary>
@@ -668,6 +672,34 @@ public sealed class PitSeasonRecord
     public DateTime SettledUtc { get; set; }
     public int Fighters { get; set; }
     [MaxLength(256)] public string Champions { get; set; } = "";
+}
+
+/// <summary>A Giant Korstone of Korstone Rain (Rules.KorstoneRain): where it fell, its shared health, and its end.</summary>
+public sealed class KorstoneFall
+{
+    public long Id { get; set; }
+    public int Map { get; set; }
+    public int Camp { get; set; }
+    public DateTime FellUtc { get; set; }
+    public DateTime EndsUtc { get; set; }
+    public int Heroes { get; set; }
+    public long HpMax { get; set; }
+    public long HpLeft { get; set; }
+    public DateTime? BrokenUtc { get; set; }
+    [MaxLength(32)] public string BrokenBy { get; set; } = "";
+    /// <summary>An unbroken stone's end has been said in world chat.</summary>
+    public bool Settled { get; set; }
+}
+
+/// <summary>A hero's strikes on a Giant Korstone: the damage dealt, which shares the shower when it breaks.</summary>
+public sealed class KorstoneStrike
+{
+    public long FallId { get; set; }
+    public Guid AccountId { get; set; }
+    [MaxLength(32)] public string Name { get; set; } = "";
+    public long Damage { get; set; }
+    public int Strikes { get; set; }
+    public DateTime Utc { get; set; }
 }
 
 /// <summary>A settled week of the Endless Tower's ladder (Rules.Tower): its key is the week, so it is settled once.</summary>

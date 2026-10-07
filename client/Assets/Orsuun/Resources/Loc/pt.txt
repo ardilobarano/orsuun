@@ -3104,3 +3104,31 @@ Reach floor 100 of the Endless Tower.	Chegue ao andar 100 da Torre Sem Fim.
 The Tower's Shadow	A Sombra da Torre
 The Endless Tower, floor {0}	A Torre Sem Fim, andar {0}
 Nobody has climbed yet this week: be the first.	Ninguém escalou ainda esta semana: seja o primeiro.
+Giant Korstone	Pedra Kor Gigante
+GIANT KORSTONE	PEDRA KOR GIGANTE
+KORSTONE RAIN	CHUVA DE PEDRAS KOR
+Korstone Rain	Chuva de Pedras Kor
+STRIKE ×{0}	GOLPEAR ×{0}
+NO STRIKES LEFT	SEM GOLPES
+A GIANT KORSTONE FALLS	UMA PEDRA KOR GIGANTE CAI
+At {0}: every hero on {1} may strike it three times. Break it together for a shower of loot and rare Korshards.	Em {0}: cada herói em {1} pode golpeá-la três vezes. Quebrem-na juntos para uma chuva de saque e Fragmentos Kor raros.
+THE GIANT KORSTONE BREAKS	A PEDRA KOR GIGANTE SE PARTE
+THE GIANT KORSTONE BREAKS!	A PEDRA KOR GIGANTE SE PARTE!
+{0} struck the last blow: its shower comes to every striker and hunter here by letter.	{0} deu o último golpe: a chuva chega por carta a cada um que golpeou ou caça aqui.
+It broke: its shower comes to every striker and hunter here by letter.	Partiu-se: a chuva chega por carta a cada um que golpeou ou caça aqui.
+You have struck this stone three times: watch the others break it.	Você golpeou esta pedra três vezes: veja os outros a quebrarem.
+STRUCK FOR {0}	GOLPE DE {0}
+No Giant Korstone stands now.	Nenhuma Pedra Kor Gigante está de pé agora.
+The Giant Korstone fell on {0}: hunt there to strike it.	A Pedra Kor Gigante caiu em {0}: cace lá para golpeá-la.
+You have struck this stone three times.	Você golpeou esta pedra três vezes.
+You broke the Giant Korstone with {0} damage! Its shower comes to everyone by letter.	Você quebrou a Pedra Kor Gigante com {0} de dano! A chuva chega a todos por carta.
+You struck the Giant Korstone for {0} damage: {1}% of it stands.	Você golpeou a Pedra Kor Gigante com {0} de dano: {1}% dela ainda está de pé.
+A Giant Korstone falls from the sky on {0}! Every hero hunting there may strike it {1} times in the next {2} minutes.	Uma Pedra Kor Gigante cai do céu em {0}! Cada herói que caça lá pode golpeá-la {1} vezes nos próximos {2} minutos.
+{0} broke the Giant Korstone on {1}! Its shower falls on {2} heroes.	{0} quebrou a Pedra Kor Gigante em {1}! A chuva cai sobre {2} heróis.
+The Giant Korstone on {0} sank back into the earth unbroken.	A Pedra Kor Gigante em {0} afundou de volta na terra, inteira.
+The Giant Korstone broke!	A Pedra Kor Gigante se partiu!
+The stone on {0} broke under {1} heroes' blows, and you dealt {2}% of them. Its shower falls on you.	A pedra em {0} se partiu sob os golpes de {1} heróis, e você deu {2}% deles. A chuva cai sobre você.
+Turnstones from the stone	Pedras de Giro da pedra
+Shards of the Giant Korstone, good for turning etchings.	Lascas da Pedra Kor Gigante, boas para virar entalhes.
+The stone on {0} broke while you hunted there, and its shower reached you too.	A pedra em {0} se partiu enquanto você caçava lá, e a chuva também chegou até você.
+Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	De vez em quando uma Pedra Kor Gigante cai do céu num mapa. Cada herói que caça lá pode golpeá-la três vezes, e a vida dela é partilhada: golpeiem juntos. Quando se parte, cada um que golpeou recebe pela sua parte sorn, Pedras de Giro e Fragmentos Kor, às vezes de patente mais rara, e cada outro caçador do mapa também recebe um pouco.

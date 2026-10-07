@@ -15,6 +15,14 @@ public sealed class EventCalendar
 
     private volatile Entry[] _events = Array.Empty<Entry>();
 
+    /// <summary>The Giant Korstone of Korstone Rain (Rules.KorstoneRain) as last loaded: falling or broken (null: none of
+    /// late). The world clock and every strike set it, so a state is built without asking the database.</summary>
+    public sealed record RainEntry(long Id, int Map, int Camp, DateTime FellUtc, DateTime EndsUtc, long HpMax, long HpLeft, DateTime? BrokenUtc, string BrokenBy);
+
+    private volatile RainEntry? _rain;
+    public RainEntry? Rain => _rain;
+    public void SetRain(RainEntry? rain) => _rain = rain;
+
     public async Task ReloadAsync(GameDb db, CancellationToken ct)
     {
         DateTime now = DateTime.UtcNow, from = now.AddDays(-30), to = now.AddDays(8);

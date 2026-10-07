@@ -101,7 +101,7 @@ namespace Orsuun.Client
             if (show && _model == null) Stand(map, Here.Value.Boss, Here.Value.Camp);
             if (_model != null) Animate();
 
-            bool call = show && !_root.Hud.TradeCalling && !(_root.Party != null && _root.Party.Calling);
+            bool call = show && !_root.Hud.TradeCalling && !(_root.Party != null && _root.Party.Calling) && !(_root.Rain != null && _root.Rain.Calling);
             if (_call.gameObject.activeSelf != call) _call.gameObject.SetActive(call);
             if (!show) return;
             // The first Commander a hero meets on a map explains itself (once the guide and any story card are done).

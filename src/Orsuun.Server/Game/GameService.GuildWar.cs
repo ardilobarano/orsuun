@@ -381,6 +381,7 @@ public sealed partial class GameService
         foreach (FortressDef def in Fortresses.All) await AdvanceKeepAsync(def.Id, ct);
         await SettlePitSeasonAsync(ct);
         await SettleTowerSeasonAsync(ct);
+        await TickRainAsync(ct);
         await AnnounceCommandersAsync(ct);
         await SettlePartyDungeonsAsync(ct);
     }

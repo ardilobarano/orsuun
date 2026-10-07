@@ -73,6 +73,7 @@ namespace Orsuun.Client
         public PartyPanel Party { get; private set; }
         public QuestPanel Quests { get; private set; }
         public TowerPanel TowerScreen { get; private set; }
+        public KorstoneRainView Rain { get; private set; }
         /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND and INVITE TO PARTY for a hero met in the world.</summary>
         public HeroActions HeroCard { get; private set; }
         /// <summary>A screenshot run (-shot) or a recording (-clip): the sign-in, the guide and the story cards stay away.</summary>
@@ -229,6 +230,8 @@ namespace Orsuun.Client
             // A Commander up on a big map stands at its landmark and calls every hero there (MapCommander).
             Commander = new GameObject("MapCommander").AddComponent<MapCommander>();
             Commander.Init(this, Lane);
+            Rain = new GameObject("KorstoneRain").AddComponent<KorstoneRainView>();
+            Rain.Init(this, Lane);
             Oath = new GameObject("BannerOath").AddComponent<BannerOath>();
             Oath.Init(this);
             Account = new GameObject("AccountPanel").AddComponent<AccountPanel>();
@@ -959,6 +962,42 @@ namespace Orsuun.Client
         {
             if (Replaying || PushBusy || !Server.Online) return;
             StartCoroutine(DungeonSequence(dungeonId, partyDungeonId, openForParty));
+        }
+
+        /// <summary>Strikes the Giant Korstone of Korstone Rain (Rules.KorstoneRain): the server scores the strike, the lane
+        /// replays it (the stone and the monsters it calls) for its StrikeSeconds.</summary>
+        public void StrikeRain()
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(RainSequence());
+        }
+
+        private IEnumerator RainSequence()
+        {
+            PushBusy = true;
+            Net.ServerLink.RainStrikeDto strike = null;
+            string failure = null;
+            yield return Server.StrikeRain((r, e) => { strike = r; failure = e; });
+            if (strike == null)
+            {
+                Hud.Log(failure ?? "No answer from the server.");
+                PushBusy = false;
+                yield break;
+            }
+            _replay = BossRun.Create(KorstoneRain.Stage(strike.map), Session.Hero, new Inventory { Potions = strike.potionsAtStart }, strike.seed);
+            ReplayBanner = "GIANT KORSTONE";
+            while (_replay.CurrentTick < KorstoneRain.StrikeTicks && _replay.Deaths == 0) yield return null;
+            ReplayBanner = strike.broke ? "THE GIANT KORSTONE BREAKS!" : $"STRUCK FOR {strike.damage:N0}";
+            if (strike.broke)
+            {
+                Victory();
+                GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.5f, 0f);
+            }
+            Hud.Log(strike.text);
+            yield return new WaitForSecondsRealtime(2.5f);
+            _replay = null;
+            ReplayBanner = "";
+            PushBusy = false;
         }
 
         /// <summary>Climbs the Endless Tower (Rules.Tower): the server scores every floor from the first until the fall; the

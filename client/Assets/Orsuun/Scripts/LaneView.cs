@@ -1862,6 +1862,9 @@ namespace Orsuun.Client
             EnemyKind kind = EnemyKind.Mob;
             foreach (Enemy enemy in _sim.Enemies)
                 if (enemy.Id == enemyId) { korstone = enemy.IsKorstone; boss = enemy.IsBoss; kind = enemy.Kind; elite = enemy.IsElite; }
+            // A Giant Korstone (Rules.KorstoneRain) is a strike's boss in the lane: drawn as an Elder Korstone grown huge.
+            bool giant = boss && _sim.Stage.BossName == KorstoneRain.StoneName;
+            if (giant) korstone = true;
 
             Color color = korstone ? KorstoneColor : boss ? BossColor
                 : kind == EnemyKind.Captain ? new Color(0.85f, 0.55f, 0.15f)
@@ -1897,9 +1900,14 @@ namespace Orsuun.Client
                     s = Vector3.Scale(s, VanguardBuild);   // as broad as the hero Vanguard
                 }
             }
-            else if (korstone && TryKorstone(kind == EnemyKind.ElderKorstone, _sim.Stage.GearItemLevel, out root, out korstoneFx, out korstoneHeight))
+            else if (korstone && TryKorstone(kind == EnemyKind.ElderKorstone || giant, _sim.Stage.GearItemLevel, out root, out korstoneFx, out korstoneHeight))
             {
                 model = root.gameObject;
+                if (giant)
+                {
+                    root.localScale *= GiantScale;
+                    korstoneHeight *= GiantScale;
+                }
                 s = root.localScale;
                 barHeight = korstoneHeight / s.y + 0.35f / s.y;
             }
@@ -2098,6 +2106,23 @@ namespace Orsuun.Client
             height = top * scale;
             fx = root.gameObject.AddComponent<KorstoneFx>();
             return true;
+        }
+
+        /// <summary>How much bigger than an Elder Korstone a Giant Korstone stands (Rules.KorstoneRain).</summary>
+        internal const float GiantScale = 2.2f;
+
+        /// <summary>A Giant Korstone standing on the field (KorstoneRainView): an Elder Korstone of the level grown GiantScale
+        /// times, under <paramref name="parent"/> at a spot, its effects alive; null without the art.</summary>
+        internal Transform GiantKorstone(Transform parent, Vector3 at, int level, out KorstoneFx fx, out float height)
+        {
+            height = 0f;
+            if (!TryKorstone(true, level, out Transform root, out fx, out float h)) return null;
+            root.SetParent(parent, false);
+            root.localPosition = at;
+            root.localScale *= GiantScale / Mathf.Max(0.01f, parent.lossyScale.x);
+            height = h * GiantScale;
+            fx.Init(_korstoneStone, KorstoneLook.Tiers[_korstoneTier], height, _korstoneTier, Art.Load<Material>("FxSpark"));
+            return root;
         }
 
         /// <summary>Editor preview: a Korstone of the given level standing at a spot, effects settled for a still.</summary>

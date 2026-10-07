@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Orsuun.Rules;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,9 @@ namespace Orsuun.Client
         private Text _fullBossName;
         /// <summary>A map quest's camp (Rules.MapQuests): a scroll on both maps, and QUEST under it on the full map (tap: the card).</summary>
         private RawImage _miniQuest, _fullQuest, _fullQuestBack;
+        /// <summary>A Giant Korstone (Korstone Rain) standing at a camp: a violet mark, and its name and health to tap.</summary>
+        private RawImage _fullRain;
+        private Text _fullRainName;
         private Text _fullQuestName;
 
         private GameRoot _root;
@@ -105,6 +109,8 @@ namespace Orsuun.Client
             Vector2 hero = map.HeroOnMap;
             var commander = _root.Commander != null ? _root.Commander.Here : null;
             int bossCamp = commander?.Camp ?? -1;
+            var rain = _root.Rain != null ? _root.Rain.Here : null;
+            int rainCamp = rain != null && !rain.Value.Rain.broken ? rain.Value.Camp : -1;
 
             // The minimap: the painted map round the hero, north up.
             float span = MiniSpan / layout.Size;
@@ -118,9 +124,9 @@ namespace Orsuun.Client
                 _miniCamps[i].gameObject.SetActive(inside);
                 if (!inside) continue;
                 Place(_miniCamps[i].rectTransform, c);
-                bool boss = bossCamp == i;
-                _miniCamps[i].color = boss || i == _root.Lane.EliteCamp ? MapCommander.Gold : _root.Field.HuntedAt(i) ? HeroBlue : CampRed;
-                _miniCamps[i].rectTransform.sizeDelta = boss ? new Vector2(30f, 30f) * (1f + 0.15f * Mathf.Sin(Time.unscaledTime * 5f)) : new Vector2(18f, 18f);
+                bool boss = bossCamp == i, stone = rainCamp == i;
+                _miniCamps[i].color = stone ? KorstoneRainView.Violet : boss || i == _root.Lane.EliteCamp ? MapCommander.Gold : _root.Field.HuntedAt(i) ? HeroBlue : CampRed;
+                _miniCamps[i].rectTransform.sizeDelta = boss || stone ? new Vector2(30f, 30f) * (1f + 0.15f * Mathf.Sin(Time.unscaledTime * 5f)) : new Vector2(18f, 18f);
             }
             int questCamp = QuestCamp(layout);
             bool miniQuest = false;
@@ -173,6 +179,20 @@ namespace Orsuun.Client
                 Place(_fullQuestName.rectTransform, spot);
                 _fullQuestName.rectTransform.anchoredPosition = new Vector2(-132f, 66f);
                 _fullQuestName.text = Loc.T(_root.Server.Quest.ready ? "CLAIM" : "QUEST");
+            }
+            // The Giant Korstone's violet mark and name (tap it to strike), with its health left.
+            bool stoneUp = rainCamp >= 0 && rainCamp < layout.Camps.Length && _fullRain != null;
+            _fullRain.gameObject.SetActive(stoneUp);
+            _fullRainName.gameObject.SetActive(stoneUp);
+            if (stoneUp)
+            {
+                Vector2 spot = Uv(layout, layout.Camps[rainCamp].At);
+                Place(_fullRain.rectTransform, spot);
+                _fullRain.rectTransform.sizeDelta = new Vector2(56f, 56f) * (1f + 0.14f * Mathf.Sin(Time.unscaledTime * 4f));
+                Place(_fullRainName.rectTransform, spot);
+                _fullRainName.rectTransform.anchoredPosition = new Vector2(0f, -40f);
+                Net.ServerLink.RainDto r = rain.Value.Rain;
+                _fullRainName.text = $"{Loc.ToUpper(Loc.T(KorstoneRain.StoneName))}  {r.hpLeft * 100 / System.Math.Max(1, r.hpMax)}%";
             }
             // Each other hero's name over his camp's (blue) dot.
             int shown = 0;
@@ -269,6 +289,18 @@ namespace Orsuun.Client
             _fullArrow.sizeDelta = new Vector2(46f, 46f);
             _fullArrow.GetComponent<RawImage>().color = Palette.Sorn;
             _miniArrow.GetComponent<RawImage>().color = Palette.Sorn;
+            // A Giant Korstone's mark and name (shown while one stands here); its name strikes it.
+            _fullRain = Raw("GiantKorstone", _fullSquare, 0f, 0f, 0f, 0f, Dot());
+            _fullRain.color = KorstoneRainView.Violet;
+            _fullLabels.Add(_fullRain.gameObject);
+            _fullRainName = Ui.Raw(Ui.Label("GiantKorstoneName", _fullSquare, 0f, 0f, 0f, 0f, "", 26, TextAnchor.MiddleCenter, KorstoneRainView.Violet));
+            _fullRainName.rectTransform.sizeDelta = new Vector2(420f, 46f);
+            _fullRainName.fontStyle = FontStyle.Bold;
+            _fullRainName.raycastTarget = true;
+            _fullRainName.gameObject.AddComponent<Button>().onClick.AddListener(() => _root.Rain.Strike());
+            _fullRainName.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.9f);
+            _fullRainName.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.6f);
+            _fullLabels.Add(_fullRainName.gameObject);
             // The quest's scroll on both maps (Rules.MapQuests); on the full map it and its word open the quest card.
             if (_miniQuest != null) Destroy(_miniQuest.gameObject);
             // (Raw images, not Ui.Icon: an icon fits its parent box, and these stand at a point.)

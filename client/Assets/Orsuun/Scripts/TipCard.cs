@@ -12,10 +12,10 @@ namespace Orsuun.Client
     /// </summary>
     public sealed class TipCard : MonoBehaviour
     {
-        public enum Tip { Town, Bazaar, Catch, Bannerkin, Map, Party, Commander, Elite, Quest }
+        public enum Tip { Town, Bazaar, Catch, Bannerkin, Map, Party, Commander, Elite, Quest, Rain }
 
         private static readonly string[] Titles = { "THE TOWN SQUARE", "THE BAZAAR CALL", "THE CATCH", "THE BANNERKIN", "THE OPEN MAP", "HUNTING PARTIES", "WORLD BOSSES",
-            "GOLDEN BANNERS", "MAP QUESTS" };
+            "GOLDEN BANNERS", "MAP QUESTS", "KORSTONE RAIN" };
         private static readonly string[] Bodies =
         {
             "Walk to the townsfolk: Dorun forges, Ilke keeps the Caravan, Tamir teaches skills and Bora runs the Pits. Each gives an errand a day. Heroes who are in town stand here too, and the hunt goes on while you visit.",
@@ -29,8 +29,10 @@ namespace Orsuun.Client
             "A camp under a golden banner holds elite packs for ten minutes: tougher and harder-hitting, and they pay their loot twice more, sometimes with gear. Hunt past it while the banner flies.",
             // Map quests (30 Sep 2026).
             "Someone on every map needs a hero: hunt there, break its Korstones, then face its Commander. Tap QUEST under the map for the story and your pay, and claim each step when it is done. The last step pays an Epic piece.",
+            // Korstone Rain (7 Oct 2026).
+            "Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.",
         };
-        private static readonly string[] Icons = { "Caravan", "NavTrade", "FishTaimen", "BookDrumcaller", "NavZones", "NavGuild", "NavWar", "KhansAlloy", QuestPanel.IconName };
+        private static readonly string[] Icons = { "Caravan", "NavTrade", "FishTaimen", "BookDrumcaller", "NavZones", "NavGuild", "NavWar", "KhansAlloy", QuestPanel.IconName, "ShardCommander" };
 
         private GameRoot _root;
         private GameObject _canvas;

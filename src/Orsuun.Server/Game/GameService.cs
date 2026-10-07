@@ -1022,6 +1022,7 @@ public sealed partial class GameService
             PartyLookLeft: LookLeft(account, DateTime.UtcNow),
             CommanderPushes: !(_login?.NoCommanderPushes ?? false),
             Quest: QuestDtoOf(account, MapQuests.MapOfPlace(account.ParkedStage)),
+            Rain: RainOf(account),
             PartyLeader: account.PartyLeaderId ?? Guid.Empty,
             PartyInvite: account.PartyInviteFrom != null && account.PartyInviteUtc > DateTime.UtcNow.AddMinutes(-Parties.InviteMinutes) ? account.PartyInviteName : null);
     }

@@ -3136,3 +3136,31 @@ Reach floor 100 of the Endless Tower.	Erreiche Etage 100 des Endlosen Turms.
 The Tower's Shadow	Der Schatten des Turms
 The Endless Tower, floor {0}	Der Endlose Turm, Etage {0}
 Nobody has climbed yet this week: be the first.	Diese Woche ist noch niemand geklettert: sei der Erste.
+Giant Korstone	Riesiger Korstein
+GIANT KORSTONE	RIESIGER KORSTEIN
+KORSTONE RAIN	KORSTEINREGEN
+Korstone Rain	Korsteinregen
+STRIKE ×{0}	SCHLAGEN ×{0}
+NO STRIKES LEFT	KEINE SCHLÄGE MEHR
+A GIANT KORSTONE FALLS	EIN RIESIGER KORSTEIN FÄLLT
+At {0}: every hero on {1} may strike it three times. Break it together for a shower of loot and rare Korshards.	Bei {0}: Jeder Held in {1} darf dreimal zuschlagen. Zerbrecht ihn gemeinsam für einen Regen aus Beute und seltenen Korsplittern.
+THE GIANT KORSTONE BREAKS	DER RIESIGE KORSTEIN ZERBRICHT
+THE GIANT KORSTONE BREAKS!	DER RIESIGE KORSTEIN ZERBRICHT!
+{0} struck the last blow: its shower comes to every striker and hunter here by letter.	{0} hat den letzten Schlag geführt: Der Regen kommt per Brief zu jedem, der zuschlug oder hier jagt.
+It broke: its shower comes to every striker and hunter here by letter.	Er ist zerbrochen: Der Regen kommt per Brief zu jedem, der zuschlug oder hier jagt.
+You have struck this stone three times: watch the others break it.	Du hast diesen Stein dreimal geschlagen: Sieh zu, wie die anderen ihn zerbrechen.
+STRUCK FOR {0}	{0} SCHADEN
+No Giant Korstone stands now.	Gerade steht kein Riesiger Korstein.
+The Giant Korstone fell on {0}: hunt there to strike it.	Der Riesige Korstein fiel in {0}: Jage dort, um ihn zu schlagen.
+You have struck this stone three times.	Du hast diesen Stein dreimal geschlagen.
+You broke the Giant Korstone with {0} damage! Its shower comes to everyone by letter.	Du hast den Riesigen Korstein mit {0} Schaden zerbrochen! Der Regen kommt zu allen per Brief.
+You struck the Giant Korstone for {0} damage: {1}% of it stands.	Du hast den Riesigen Korstein mit {0} Schaden getroffen: {1} % stehen noch.
+A Giant Korstone falls from the sky on {0}! Every hero hunting there may strike it {1} times in the next {2} minutes.	Ein Riesiger Korstein fällt vom Himmel auf {0}! Jeder Held, der dort jagt, darf ihn in den nächsten {2} Minuten {1} Mal schlagen.
+{0} broke the Giant Korstone on {1}! Its shower falls on {2} heroes.	{0} hat den Riesigen Korstein in {1} zerbrochen! Sein Regen fällt auf {2} Helden.
+The Giant Korstone on {0} sank back into the earth unbroken.	Der Riesige Korstein in {0} ist ungebrochen in die Erde zurückgesunken.
+The Giant Korstone broke!	Der Riesige Korstein ist zerbrochen!
+The stone on {0} broke under {1} heroes' blows, and you dealt {2}% of them. Its shower falls on you.	Der Stein in {0} ist unter den Schlägen von {1} Helden zerbrochen, und du hast {2} % davon geführt. Sein Regen fällt auf dich.
+Turnstones from the stone	Wendesteine aus dem Stein
+Shards of the Giant Korstone, good for turning etchings.	Splitter des Riesigen Korsteins, gut zum Wenden von Gravuren.
+The stone on {0} broke while you hunted there, and its shower reached you too.	Der Stein in {0} ist zerbrochen, während du dort gejagt hast, und sein Regen hat auch dich erreicht.
+Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	Ab und zu fällt ein Riesiger Korstein vom Himmel auf eine Karte. Jeder Held, der dort jagt, darf ihn dreimal schlagen, und seine Gesundheit ist geteilt: Schlagt gemeinsam zu. Zerbricht er, regnet es für jeden nach seinem Anteil Sorn, Wendesteine und Korsplitter, manchmal von seltenerem Rang, und jeder andere Jäger der Karte bekommt auch ein wenig.

@@ -297,7 +297,8 @@ public sealed record StateDto(
     long EliteLeft = 0,
     long PartyLookLeft = 0,
     bool CommanderPushes = true,
-    MapQuestDto? Quest = null);
+    MapQuestDto? Quest = null,
+    RainDto? Rain = null);
 public sealed record CommanderPushRequest(bool On);
 
 /// <summary>A hunting party (Rules.Parties): its members, the hunt's bonus now (percent), an invite waiting.</summary>
@@ -331,6 +332,13 @@ public sealed record TowerRowDto(int Rank, Guid Id, string Name, HeroClass Class
 public sealed record TowerDto(int Best, int ClimbsLeft, int ClimbsPerDay, int NextChest, string NextChestHolds, TowerRowDto[] Ladder, int Rank,
     long WeekEndsIn, string? Title, int BestEver, string? Message = null);
 public sealed record TowerClimbRequest(string RequestId);
+/// <summary>The Giant Korstone of Korstone Rain (Rules.KorstoneRain): its map and camp, its shared health, how long it
+/// stands, the hero's strikes left, and whether (and by whom) it broke.</summary>
+public sealed record RainDto(long Id, int Map, string MapName, int Camp, long HpLeft, long HpMax, long SecondsLeft, long SecondsSinceFall,
+    int StrikesLeft, long MyDamage, bool Broken, string BrokenBy);
+public sealed record RainStrikeRequest(string RequestId);
+/// <summary>A strike: its seed and the draughts at its start (the lane replays it), the damage, the stone after, the line.</summary>
+public sealed record RainStrikeDto(StateDto State, int Map, ulong Seed, int PotionsAtStart, long Damage, long HpLeft, long HpMax, bool Broke, string Text);
 /// <summary>A climb: the last floors to replay (each with its seed and the draughts at its start), the floor reached, where the
 /// hero fell, a new best, the chests opened on the way, and the line to show.</summary>
 public sealed record TowerClimbDto(StateDto State, DungeonFloorDto[] Floors, int Reached, int FellOn, bool NewBest, string Chests, string Text, TowerDto Tower);

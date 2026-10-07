@@ -28,6 +28,8 @@ public sealed class GameDb : DbContext
     public DbSet<Friendship> Friendships => Set<Friendship>();
     public DbSet<PitSeasonRecord> PitSeasons => Set<PitSeasonRecord>();
     public DbSet<TowerSeasonRecord> TowerSeasons => Set<TowerSeasonRecord>();
+    public DbSet<KorstoneFall> KorstoneFalls => Set<KorstoneFall>();
+    public DbSet<KorstoneStrike> KorstoneStrikes => Set<KorstoneStrike>();
     public DbSet<BookStack> BookStacks => Set<BookStack>();
     public DbSet<MarketListing> MarketListings => Set<MarketListing>();
     public DbSet<Device> Devices => Set<Device>();
@@ -195,6 +197,8 @@ public sealed class GameDb : DbContext
             e.HasKey(x => new { x.Week, x.GuildId });
             e.HasIndex(x => new { x.Week, x.FortressId });
         });
+        // Korstone Rain (Rules.KorstoneRain): a hero's strikes on one fall.
+        b.Entity<KorstoneStrike>(e => e.HasKey(x => new { x.FallId, x.AccountId }));
 
         b.Entity<DungeonRun>(e => e.HasIndex(r => new { r.AccountId, r.State }));
 
