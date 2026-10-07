@@ -3088,3 +3088,52 @@ Turnstones from the stone	Taştan Dönüş Taşları
 Shards of the Giant Korstone, good for turning etchings.	Dev Kortaşı'nın parçaları; kazımaları döndürmeye yarar.
 The stone on {0} broke while you hunted there, and its shower reached you too.	{0} bölgesindeki taş sen orada avlanırken kırıldı; ganimet yağmuru sana da ulaştı.
 Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	Ara sıra bir haritaya gökten bir Dev Kortaşı düşer. Orada avlanan her kahraman ona üç kez vurabilir; canı ortaktır, birlikte vurun. Kırıldığında her vuran payına göre sorn, Dönüş Taşı ve Korparçası yağmuruna tutulur, bazen daha nadir bir rütbeden; haritadaki diğer avcılara da biraz düşer.
+SWORN BOND	YEMİN BAĞI
+BOND	BAĞ
+SWEAR A BOND	YEMİN BAĞI KUR
+BOND CHAT	BAĞ SOHBETİ
+BREAK	BOZ
+Bonds need the server.	Bağlar için sunucu gerekiyor.
+Bonds are sworn from level {0}.	Bağlar {0}. seviyeden itibaren kurulur.
+Break the bond?	Bağ bozulsun mu?
+Your Bond Ring is lost, and both of you wait three days before another bond.	Bağ Yüzüğün kaybolur ve ikiniz de yeni bir bağ için üç gün beklersiniz.
+hunting beside you	yanında avlanıyor
+online, not beside you	çevrimiçi, yanında değil
+Bond Ring	Bağ Yüzüğü
+Bond Ring +{0}	Bağ Yüzüğü +{0}
+XP together +{0}%	Birlikte TP +%{0}
+Hunt the same map in one party to earn the bonus and grow the ring.	Bonusu kazanmak ve yüzüğü büyütmek için aynı grupta aynı haritada avlanın.
+{0} together	birlikte {0}
+next ring at {0}h	sonraki yüzük {0} saatte
+the ring is at its height	yüzük doruğunda
+An ask waits	Bir teklif bekliyor
+No bond yet	Henüz bağ yok
+{0} asks you to swear a bond. Hunt together in one party for more XP, and a Bond Ring that grows with every hour.	{0} seninle yemin bağı kurmak istiyor. Daha fazla TP için aynı grupta birlikte avlanın; Bağ Yüzüğü her saatle büyür.
+After a bond ends, wait {0} before another.	Bir bağ bittikten sonra yenisi için {0} bekle.
+Swear a bond with a friend of level 15 or more: while you hunt the same map in one party, both earn more XP, and your Bond Ring grows with every hour together. Ask from FRIENDS: tap a friend, SWEAR A BOND.	15. seviye ve üstü bir dostunla yemin bağı kur: aynı grupta aynı haritada avlandıkça ikiniz de daha fazla TP kazanırsınız ve Bağ Yüzüğünüz birlikte geçen her saatle büyür. DOSTLAR'dan iste: bir dosta dokun, YEMİN BAĞI KUR.
+Swear a bond to talk with your sworn companion.	Yemin arkadaşınla konuşmak için bir bağ kur.
+Your bond's line is quiet. Say hello.	Bağının hattı sessiz. Merhaba de.
+{0} ASKS TO SWEAR A BOND: ANSWER	{0} YEMİN BAĞI İSTİYOR: CEVAPLA
+You are sworn to a bond already.	Zaten bir yemin bağın var.
+After a bond ends, {0} days pass before another.	Bir bağ bittikten sonra yenisine kadar {0} gün geçer.
+You cannot ask them.	Ondan isteyemezsin.
+Only a friend can be asked to swear a bond.	Yalnızca bir dosttan yemin bağı istenebilir.
+{0} is below level {1}.	{0}, {1}. seviyenin altında.
+{0} is sworn to a bond already.	{0} zaten bir yemin bağına sahip.
+{0} asks you to swear a bond	{0} seninle yemin bağı istiyor
+{0} asks you to swear a bond: hunt together in a party for more XP, and a Bond Ring that grows with every hour. Answer on BOND in FRIENDS within {1} minutes.	{0} seninle yemin bağı istiyor: daha fazla TP için bir grupta birlikte avlanın; Bağ Yüzüğü her saatle büyür. {1} dakika içinde DOSTLAR'daki BAĞ'dan cevap ver.
+You asked {0} to swear a bond.	{0} kişisinden yemin bağı istedin.
+No one asks you to swear a bond now.	Şu an kimse senden yemin bağı istemiyor.
+{0} declined your bond	{0} bağını reddetti
+{0} did not swear the bond you asked for.	{0} istediğin bağı kurmadı.
+You let the ask go.	Teklifi geri çevirdin.
+{0} is sworn to another bond now.	{0} artık başka bir bağa yeminli.
+{0} and {1} swore a bond.	{0} ve {1} yemin bağı kurdu.
+{0} and {1} have sworn a bond under the Eternal Sky.	{0} ve {1}, Sonsuz Gök'ün altında yemin bağı kurdu.
+{0} swore your bond	{0} bağına yemin etti
+{0} and you are sworn now. Hunt together in a party for more XP, and your Bond Ring grows with every hour together.	{0} ile artık yeminlisiniz. Daha fazla TP için bir grupta birlikte avlanın; Bağ Yüzüğünüz birlikte geçen her saatle büyür.
+You and {0} are sworn.	Sen ve {0} artık yeminlisiniz.
+You are not sworn to a bond.	Bir yemin bağın yok.
+The bond is broken.	Bağ bozuldu.
+{0} broke your bond	{0} bağınızı bozdu
+{0} broke the bond between you. After {1} days you may swear another.	{0} aranızdaki bağı bozdu. {1} gün sonra yenisini kurabilirsin.

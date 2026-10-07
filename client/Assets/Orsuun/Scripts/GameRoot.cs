@@ -74,6 +74,7 @@ namespace Orsuun.Client
         public QuestPanel Quests { get; private set; }
         public TowerPanel TowerScreen { get; private set; }
         public KorstoneRainView Rain { get; private set; }
+        public BondPanel Bond { get; private set; }
         /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND and INVITE TO PARTY for a hero met in the world.</summary>
         public HeroActions HeroCard { get; private set; }
         /// <summary>A screenshot run (-shot) or a recording (-clip): the sign-in, the guide and the story cards stay away.</summary>
@@ -227,6 +228,8 @@ namespace Orsuun.Client
             Quests.Init(this);
             TowerScreen = new GameObject("TowerPanel").AddComponent<TowerPanel>();
             TowerScreen.Init(this);
+            Bond = new GameObject("BondPanel").AddComponent<BondPanel>();
+            Bond.Init(this);
             // A Commander up on a big map stands at its landmark and calls every hero there (MapCommander).
             Commander = new GameObject("MapCommander").AddComponent<MapCommander>();
             Commander.Init(this, Lane);

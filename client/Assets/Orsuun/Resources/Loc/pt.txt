@@ -3132,3 +3132,52 @@ Turnstones from the stone	Pedras de Giro da pedra
 Shards of the Giant Korstone, good for turning etchings.	Lascas da Pedra Kor Gigante, boas para virar entalhes.
 The stone on {0} broke while you hunted there, and its shower reached you too.	A pedra em {0} se partiu enquanto você caçava lá, e a chuva também chegou até você.
 Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	De vez em quando uma Pedra Kor Gigante cai do céu num mapa. Cada herói que caça lá pode golpeá-la três vezes, e a vida dela é partilhada: golpeiem juntos. Quando se parte, cada um que golpeou recebe pela sua parte sorn, Pedras de Giro e Fragmentos Kor, às vezes de patente mais rara, e cada outro caçador do mapa também recebe um pouco.
+SWORN BOND	LAÇO JURADO
+BOND	LAÇO
+SWEAR A BOND	JURAR UM LAÇO
+BOND CHAT	CHAT DO LAÇO
+BREAK	ROMPER
+Bonds need the server.	Os laços precisam do servidor.
+Bonds are sworn from level {0}.	Os laços são jurados a partir do nível {0}.
+Break the bond?	Romper o laço?
+Your Bond Ring is lost, and both of you wait three days before another bond.	Seu Anel do Laço se perde, e os dois esperam três dias por outro laço.
+hunting beside you	caça ao seu lado
+online, not beside you	online, não ao seu lado
+Bond Ring	Anel do Laço
+Bond Ring +{0}	Anel do Laço +{0}
+XP together +{0}%	XP juntos +{0}%
+Hunt the same map in one party to earn the bonus and grow the ring.	Cacem no mesmo mapa num só grupo para ganhar o bônus e fazer o anel crescer.
+{0} together	{0} juntos
+next ring at {0}h	próximo anel às {0} h
+the ring is at its height	o anel está no auge
+An ask waits	Um pedido espera
+No bond yet	Nenhum laço ainda
+{0} asks you to swear a bond. Hunt together in one party for more XP, and a Bond Ring that grows with every hour.	{0} pede para jurar um laço com você. Cacem juntos num só grupo por mais XP, e um Anel do Laço cresce a cada hora.
+After a bond ends, wait {0} before another.	Depois que um laço termina, espere {0} por outro.
+Swear a bond with a friend of level 15 or more: while you hunt the same map in one party, both earn more XP, and your Bond Ring grows with every hour together. Ask from FRIENDS: tap a friend, SWEAR A BOND.	Jure um laço com um amigo de nível 15 ou mais: enquanto caçam no mesmo mapa num só grupo, ambos ganham mais XP, e seu Anel do Laço cresce a cada hora juntos. Peça em AMIGOS: toque num amigo, JURAR UM LAÇO.
+Swear a bond to talk with your sworn companion.	Jure um laço para falar com seu companheiro jurado.
+Your bond's line is quiet. Say hello.	A linha do seu laço está quieta. Diga olá.
+{0} ASKS TO SWEAR A BOND: ANSWER	{0} PEDE UM LAÇO: RESPONDER
+You are sworn to a bond already.	Você já jurou um laço.
+After a bond ends, {0} days pass before another.	Depois que um laço termina, passam {0} dias até outro.
+You cannot ask them.	Você não pode pedir a essa pessoa.
+Only a friend can be asked to swear a bond.	Só um amigo pode ser convidado a jurar um laço.
+{0} is below level {1}.	{0} está abaixo do nível {1}.
+{0} is sworn to a bond already.	{0} já jurou um laço.
+{0} asks you to swear a bond	{0} pede um laço com você
+{0} asks you to swear a bond: hunt together in a party for more XP, and a Bond Ring that grows with every hour. Answer on BOND in FRIENDS within {1} minutes.	{0} pede um laço com você: cacem juntos num grupo por mais XP, e um Anel do Laço cresce a cada hora. Responda em LAÇO, em AMIGOS, dentro de {1} minutos.
+You asked {0} to swear a bond.	Você pediu um laço a {0}.
+No one asks you to swear a bond now.	Ninguém pede um laço com você agora.
+{0} declined your bond	{0} recusou o seu laço
+{0} did not swear the bond you asked for.	{0} não jurou o laço que você pediu.
+You let the ask go.	Você deixou o pedido passar.
+{0} is sworn to another bond now.	{0} agora jurou outro laço.
+{0} and {1} swore a bond.	{0} e {1} juraram um laço.
+{0} and {1} have sworn a bond under the Eternal Sky.	{0} e {1} juraram um laço sob o Céu Eterno.
+{0} swore your bond	{0} jurou o seu laço
+{0} and you are sworn now. Hunt together in a party for more XP, and your Bond Ring grows with every hour together.	{0} e você estão jurados agora. Cacem juntos num grupo por mais XP, e seu Anel do Laço cresce a cada hora juntos.
+You and {0} are sworn.	Você e {0} estão jurados.
+You are not sworn to a bond.	Você não jurou nenhum laço.
+The bond is broken.	O laço está rompido.
+{0} broke your bond	{0} rompeu o seu laço
+{0} broke the bond between you. After {1} days you may swear another.	{0} rompeu o laço entre vocês. Depois de {1} dias você pode jurar outro.

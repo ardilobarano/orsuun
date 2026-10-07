@@ -298,7 +298,8 @@ public sealed record StateDto(
     long PartyLookLeft = 0,
     bool CommanderPushes = true,
     MapQuestDto? Quest = null,
-    RainDto? Rain = null);
+    RainDto? Rain = null,
+    BondBriefDto? Bond = null);
 public sealed record CommanderPushRequest(bool On);
 
 /// <summary>A hunting party (Rules.Parties): its members, the hunt's bonus now (percent), an invite waiting.</summary>
@@ -337,6 +338,15 @@ public sealed record TowerClimbRequest(string RequestId);
 public sealed record RainDto(long Id, int Map, string MapName, int Camp, long HpLeft, long HpMax, long SecondsLeft, long SecondsSinceFall,
     int StrikesLeft, long MyDamage, bool Broken, string BrokenBy);
 public sealed record RainStrikeRequest(string RequestId);
+/// <summary>A sworn bond (Rules.Bonds): the partner and whether they hunt beside the hero now, the time together and the ring,
+/// the XP bonus, an ask waiting, and whether the hero may ask (the wait after a bond ended).</summary>
+public sealed record BondDto(Guid PartnerId, string PartnerName, HeroClass PartnerClass, int PartnerLevel, bool PartnerOnline, bool Together,
+    DateTime? SinceUtc, long SecondsTogether, int Ring, string RingName, long NextRingSeconds, int XpBonusBp, Guid AskFrom, string AskName,
+    long WaitSeconds, string? Message = null);
+/// <summary>The bond as the state carries it: the partner and the ring, and an ask waiting.</summary>
+public sealed record BondBriefDto(Guid Partner, string PartnerName, int Ring, string AskName);
+public sealed record BondAskRequest(Guid AccountId, string? Name = null);
+public sealed record BondAnswerRequest(bool Accept);
 /// <summary>A strike: its seed and the draughts at its start (the lane replays it), the damage, the stone after, the line.</summary>
 public sealed record RainStrikeDto(StateDto State, int Map, ulong Seed, int PotionsAtStart, long Damage, long HpLeft, long HpMax, bool Broke, string Text);
 /// <summary>A climb: the last floors to replay (each with its seed and the draughts at its start), the floor reached, where the

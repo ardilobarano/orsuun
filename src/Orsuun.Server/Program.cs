@@ -243,6 +243,11 @@ v1.MapGet("/tower", (HttpContext ctx, GameService game, CancellationToken ct) =>
 v1.MapPost("/tower/climb", (HttpContext ctx, TowerClimbRequest req, GameService game, CancellationToken ct) => game.ClimbTowerAsync(Me(ctx), req, ct));
 // Korstone Rain (Rules.KorstoneRain, 7 Oct 2026): a strike on the Giant Korstone (the state carries where it stands).
 v1.MapPost("/rain/strike", (HttpContext ctx, RainStrikeRequest req, GameService game, CancellationToken ct) => game.StrikeRainAsync(Me(ctx), req, ct));
+// Sworn bonds (Rules.Bonds, 7 Oct 2026): the card, an ask, the answer, and breaking it.
+v1.MapGet("/bond", (HttpContext ctx, GameService game, CancellationToken ct) => game.BondAsync(Me(ctx), ct, null));
+v1.MapPost("/bond/ask", (HttpContext ctx, BondAskRequest req, GameService game, CancellationToken ct) => game.BondAskAsync(Me(ctx), req, ct));
+v1.MapPost("/bond/answer", (HttpContext ctx, BondAnswerRequest req, GameService game, CancellationToken ct) => game.BondAnswerAsync(Me(ctx), req, ct));
+v1.MapPost("/bond/break", (HttpContext ctx, GameService game, CancellationToken ct) => game.BondBreakAsync(Me(ctx), ct));
 v1.MapGet("/party", (HttpContext ctx, GameService game, CancellationToken ct) => game.PartyAsync(Me(ctx), ct));
 v1.MapPost("/party/invite", (HttpContext ctx, PartyInviteRequest req, GameService game, CancellationToken ct) => game.PartyInviteAsync(Me(ctx), req, ct));
 v1.MapPost("/party/answer", (HttpContext ctx, PartyAnswerRequest req, GameService game, CancellationToken ct) => game.PartyAnswerAsync(Me(ctx), req, ct));

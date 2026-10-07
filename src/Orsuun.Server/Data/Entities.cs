@@ -143,6 +143,16 @@ public sealed class Account
     public long RainFallId { get; set; }
     public int RainStrikes { get; set; }
     public long RainDamage { get; set; }
+    /// <summary>Sworn bonds (Rules.Bonds): the partner (on both rows), since when, the time hunted together (the ring), an ask
+    /// waiting from another hero, and when the hero last broke or lost a bond (the wait before another).</summary>
+    public Guid? BondPartnerId { get; set; }
+    [MaxLength(32)] public string BondPartnerName { get; set; } = "";
+    public DateTime? BondSinceUtc { get; set; }
+    public long BondSeconds { get; set; }
+    public Guid? BondAskFrom { get; set; }
+    [MaxLength(32)] public string? BondAskName { get; set; }
+    public DateTime? BondAskUtc { get; set; }
+    public DateTime? BondEndedUtc { get; set; }
     [MaxLength(512)] public string FeatsClaimed { get; set; } = "";
     public int TitleId { get; set; }
     /// <summary>

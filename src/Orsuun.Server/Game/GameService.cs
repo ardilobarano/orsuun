@@ -209,7 +209,10 @@ public sealed partial class GameService
         int bonus = await SornBonusPercentAsync(account.Banner, ct) + await GuildBonusPercentAsync(account, ct)
             + _events.SornBonusPercent(account.LastHeartbeatUtc, now);
         int partyBp = online ? await PartyBonusBpAsync(account, now, ct) : 0;
-        SettlementDto settlement = Settle(account, now, activeBp, verified, bonus, partyBp) with { ActiveBp = activeBp, LoopsVerified = verified };
+        // A sworn partner hunting beside the hero (Rules.Bonds): more XP, and the time grows their Bond Ring.
+        (int bondBp, bool bonded) = online ? await BondBonusAsync(account, now, ct) : (0, false);
+        SettlementDto settlement = Settle(account, now, activeBp, verified, bonus, partyBp, bondBp) with { ActiveBp = activeBp, LoopsVerified = verified };
+        if (bonded && !settlement.Offline) account.BondSeconds += settlement.CountedSeconds;
         account.LastHeartbeatUtc = now;
         MarkVisit(account, settlement.CountedSeconds, now);
         Count(account, BountyMetric.Korstones, settlement.Korstones);
@@ -400,6 +403,10 @@ public sealed partial class GameService
         }
         await _db.Accounts.Where(a => a.PartyInviteFrom == account.Id)
             .ExecuteUpdateAsync(s => s.SetProperty(a => a.PartyInviteFrom, (Guid?)null).SetProperty(a => a.PartyInviteName, (string?)null), ct);
+        // A sworn bond (Rules.Bonds) ends with the hero, and an ask from them is gone.
+        if (account.BondPartnerId is Guid partner) await BreakBondCoreAsync(account, partner, ct);
+        await _db.Accounts.Where(a => a.BondAskFrom == account.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.BondAskFrom, (Guid?)null).SetProperty(a => a.BondAskName, (string?)null), ct);
         if (account.GuildId != null)
         {
             await using var tx = await _db.Database.BeginTransactionAsync(ct);
@@ -807,7 +814,7 @@ public sealed partial class GameService
     private int LeftBehind { get; set; }
 
     private SettlementDto Settle(Account account, DateTime now, int onlineEfficiencyBp = RandomExtensions.FullBp, int loopsVerified = 0, int sornBonusPercent = 0,
-        int partyBp = 0)
+        int partyBp = 0, int bondBp = 0)
     {
         int leftBefore = LeftBehind;
         TimeSpan gap = now - account.LastHeartbeatUtc;
@@ -852,7 +859,7 @@ public sealed partial class GameService
         CountQuest(account, questMap, QuestKind.Korstones, s.Korstones);
         // A fish eaten (Rules.Fishing) and partymates hunting alongside (Rules.Parties) add to the hunt's XP and sorn.
         (long xpBp, long sornBp) meal = Fishing.MealBonusBp(account.LastHeartbeatUtc, now, MealsOf(account));
-        Apply(account, inventory, hunt: true, meal: (meal.xpBp + partyBp, meal.sornBp + partyBp));
+        Apply(account, inventory, hunt: true, meal: (meal.xpBp + partyBp + bondBp, meal.sornBp + partyBp));
 
         if (s.CountedSeconds > 0)
             _db.Ledger.Add(Entry(account.Id, null, offline ? "settle-offline" : "settle-online",
@@ -1023,6 +1030,7 @@ public sealed partial class GameService
             CommanderPushes: !(_login?.NoCommanderPushes ?? false),
             Quest: QuestDtoOf(account, MapQuests.MapOfPlace(account.ParkedStage)),
             Rain: RainOf(account),
+            Bond: BondBriefOf(account),
             PartyLeader: account.PartyLeaderId ?? Guid.Empty,
             PartyInvite: account.PartyInviteFrom != null && account.PartyInviteUtc > DateTime.UtcNow.AddMinutes(-Parties.InviteMinutes) ? account.PartyInviteName : null);
     }

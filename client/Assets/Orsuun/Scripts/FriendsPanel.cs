@@ -63,9 +63,11 @@ namespace Orsuun.Client
             Ui.Backdrop(canvas, "Chat");
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "FRIENDS", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
             _count = Ui.Label("Count", canvas, 0.05f, 0.895f, 0.95f, 0.93f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
-            _name = Ui.Input("Name", canvas, 0.04f, 0.835f, 0.7f, 0.885f, "A hero's name", 28, Characters.NameMax);
+            _name = Ui.Input("Name", canvas, 0.04f, 0.835f, 0.5f, 0.885f, "A hero's name", 28, Characters.NameMax);
             _name.lineType = InputField.LineType.SingleLine;
-            _add = Ui.Button("Add", canvas, 0.72f, 0.835f, 0.96f, 0.885f, "ADD", 28, Palette.Safe, AddByName, out _);
+            _add = Ui.Button("Add", canvas, 0.52f, 0.835f, 0.72f, 0.885f, "ADD", 28, Palette.Safe, AddByName, out _);
+            // The sworn bond's card (Rules.Bonds): the partner and the ring, or how one is sworn.
+            Ui.Button("Bond", canvas, 0.74f, 0.835f, 0.96f, 0.885f, "BOND", 28, new Color(0.42f, 0.22f, 0.6f), () => _root.Bond.Open(), out _);
             Ui.Scroll("List", canvas, 0.04f, 0.2f, 0.96f, 0.825f, out _content);
             _message = Ui.Label("Message", canvas, 0.05f, 0.13f, 0.95f, 0.19f, "", 22, TextAnchor.MiddleCenter, Palette.Muted);
             _message.supportRichText = true;
@@ -86,7 +88,8 @@ namespace Orsuun.Client
             _invite = Ui.Button("Invite", _friendActions.transform, 0.06f, 0.31f, 0.48f, 0.5f, "GUILD INVITE", 24, Palette.ButtonForge, InvitePicked, out _);
             Ui.Button("Remove", _friendActions.transform, 0.52f, 0.31f, 0.94f, 0.5f, "TAKE OFF", 24, Palette.Danger, AskRemovePicked, out _);
             Ui.Button("Party", _friendActions.transform, 0.06f, 0.07f, 0.48f, 0.26f, "PARTY INVITE", 24, Palette.ButtonForge, PartyPicked, out _);
-            Ui.Button("Cancel", _friendActions.transform, 0.52f, 0.07f, 0.94f, 0.26f, "CLOSE", 24, Palette.ButtonIdle, () => _actions.SetActive(false), out _);
+            // A sworn bond (Rules.Bonds) is asked of a friend; a tap outside the box closes it.
+            Ui.Button("Bond", _friendActions.transform, 0.52f, 0.07f, 0.94f, 0.26f, "SWEAR A BOND", 22, new Color(0.42f, 0.22f, 0.6f), BondPicked, out _);
 
             _askingActions = Ui.Rect("Asking", box, 0f, 0f, 1f, 1f).gameObject;
             Ui.Button("Take", _askingActions.transform, 0.06f, 0.46f, 0.48f, 0.7f, "BE FRIENDS", 24, Palette.Safe, () => AnswerPicked(true), out _);
@@ -190,6 +193,14 @@ namespace Orsuun.Client
         }
 
         /// <summary>Asks the friend picked to join the hero's hunting party (PartyPanel).</summary>
+        private void BondPicked()
+        {
+            FriendDto hero = _picked?.Hero;
+            _actions.SetActive(false);
+            if (hero == null) return;
+            _root.Bond.Ask(hero.accountId, hero.name);
+        }
+
         private void PartyPicked()
         {
             FriendDto hero = _picked?.Hero;

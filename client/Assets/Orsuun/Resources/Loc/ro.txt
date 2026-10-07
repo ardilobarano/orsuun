@@ -3126,3 +3126,52 @@ Turnstones from the stone	Pietre de Răsucire din piatră
 Shards of the Giant Korstone, good for turning etchings.	Așchii din Piatra Kor Uriașă, bune pentru întoarcerea gravurilor.
 The stone on {0} broke while you hunted there, and its shower reached you too.	Piatra din {0} s-a spart în timp ce vânai acolo, iar ploaia a ajuns și la tine.
 Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	Din când în când, o Piatră Kor Uriașă cade din cer pe o hartă. Fiecare erou care vânează acolo o poate lovi de trei ori, iar viața ei e comună: loviți împreună. Când se sparge, fiecare care a lovit primește după partea lui sorn, Pietre de Răsucire și Cioburi Kor, uneori de rang mai rar, iar fiecare alt vânător de pe hartă primește și el puțin.
+SWORN BOND	LEGĂMÂNT
+BOND	LEGĂMÂNT
+SWEAR A BOND	FĂ UN LEGĂMÂNT
+BOND CHAT	CHATUL LEGĂMÂNTULUI
+BREAK	RUPE
+Bonds need the server.	Legămintele au nevoie de server.
+Bonds are sworn from level {0}.	Legămintele se fac de la nivelul {0}.
+Break the bond?	Rupi legământul?
+Your Bond Ring is lost, and both of you wait three days before another bond.	Inelul Legământului se pierde, iar amândoi așteptați trei zile până la alt legământ.
+hunting beside you	vânează lângă tine
+online, not beside you	online, nu lângă tine
+Bond Ring	Inelul Legământului
+Bond Ring +{0}	Inelul Legământului +{0}
+XP together +{0}%	XP împreună +{0}%
+Hunt the same map in one party to earn the bonus and grow the ring.	Vânați pe aceeași hartă în același grup ca să câștigați bonusul și să crească inelul.
+{0} together	{0} împreună
+next ring at {0}h	următorul inel la {0} h
+the ring is at its height	inelul e la apogeu
+An ask waits	O cerere așteaptă
+No bond yet	Niciun legământ încă
+{0} asks you to swear a bond. Hunt together in one party for more XP, and a Bond Ring that grows with every hour.	{0} îți cere să faceți un legământ. Vânați împreună în același grup pentru mai mult XP, iar Inelul Legământului crește cu fiecare oră.
+After a bond ends, wait {0} before another.	După ce un legământ se încheie, așteaptă {0} până la altul.
+Swear a bond with a friend of level 15 or more: while you hunt the same map in one party, both earn more XP, and your Bond Ring grows with every hour together. Ask from FRIENDS: tap a friend, SWEAR A BOND.	Fă un legământ cu un prieten de nivel 15 sau mai mare: cât vânați pe aceeași hartă în același grup, amândoi câștigați mai mult XP, iar Inelul Legământului crește cu fiecare oră împreună. Cere din PRIETENI: atinge un prieten, FĂ UN LEGĂMÂNT.
+Swear a bond to talk with your sworn companion.	Fă un legământ ca să vorbești cu tovarășul tău.
+Your bond's line is quiet. Say hello.	Linia legământului tău e liniștită. Salută.
+{0} ASKS TO SWEAR A BOND: ANSWER	{0} CERE UN LEGĂMÂNT: RĂSPUNDE
+You are sworn to a bond already.	Ai deja un legământ.
+After a bond ends, {0} days pass before another.	După ce un legământ se încheie, trec {0} zile până la altul.
+You cannot ask them.	Nu-i poți cere.
+Only a friend can be asked to swear a bond.	Doar unui prieten i se poate cere un legământ.
+{0} is below level {1}.	{0} e sub nivelul {1}.
+{0} is sworn to a bond already.	{0} are deja un legământ.
+{0} asks you to swear a bond	{0} îți cere un legământ
+{0} asks you to swear a bond: hunt together in a party for more XP, and a Bond Ring that grows with every hour. Answer on BOND in FRIENDS within {1} minutes.	{0} îți cere un legământ: vânați împreună într-un grup pentru mai mult XP, iar Inelul Legământului crește cu fiecare oră. Răspunde la LEGĂMÂNT din PRIETENI în {1} minute.
+You asked {0} to swear a bond.	I-ai cerut lui {0} un legământ.
+No one asks you to swear a bond now.	Nimeni nu-ți cere acum un legământ.
+{0} declined your bond	{0} ți-a refuzat legământul
+{0} did not swear the bond you asked for.	{0} nu a făcut legământul cerut.
+You let the ask go.	Ai lăsat cererea să treacă.
+{0} is sworn to another bond now.	{0} are acum alt legământ.
+{0} and {1} swore a bond.	{0} și {1} au făcut un legământ.
+{0} and {1} have sworn a bond under the Eternal Sky.	{0} și {1} au făcut un legământ sub Cerul Veșnic.
+{0} swore your bond	{0} a făcut legământul cu tine
+{0} and you are sworn now. Hunt together in a party for more XP, and your Bond Ring grows with every hour together.	Tu și {0} aveți acum un legământ. Vânați împreună într-un grup pentru mai mult XP, iar Inelul Legământului crește cu fiecare oră împreună.
+You and {0} are sworn.	Tu și {0} aveți un legământ.
+You are not sworn to a bond.	Nu ai niciun legământ.
+The bond is broken.	Legământul e rupt.
+{0} broke your bond	{0} a rupt legământul vostru
+{0} broke the bond between you. After {1} days you may swear another.	{0} a rupt legământul dintre voi. După {1} zile poți face altul.

@@ -62,7 +62,10 @@ namespace Orsuun.Client
         private readonly Channel _trade = new Channel(Chat.Trade);
         /// <summary>The hunting party's channel (Rules.Parties; owner, 29 Sep 2026: "Party chat"), read from when the hero joined.</summary>
         private readonly Channel _party = new Channel("party");
-        private Button _partyTab;
+        /// <summary>A sworn bond's own line (Rules.Bonds): the two heroes' alone.</summary>
+        private readonly Channel _bond = new Channel("bond");
+        private Button _partyTab, _bondTab;
+        private string _bondKey = "";
         private string _partyKey = "";
         private long _partySeen;
         private const float PartyPollClosed = 10f;
@@ -121,10 +124,12 @@ namespace Orsuun.Client
 
             Ui.Backdrop(canvas, "Chat");
             Ui.Title("Title", canvas, 0.05f, 0.935f, 0.95f, 0.98f, "CHAT", 44, TextAnchor.MiddleCenter, Palette.Sorn, carved: true);
-            _worldTab = Ui.Button("WorldTab", canvas, 0.04f, 0.875f, 0.26f, 0.925f, "WORLD", 24, Palette.ButtonIdle, () => Show(_world), out _);
-            _guildTab = Ui.Button("GuildTab", canvas, 0.27f, 0.875f, 0.49f, 0.925f, "GUILD", 24, Palette.ButtonIdle, () => Show(_guild), out _);
-            _partyTab = Ui.Button("PartyTab", canvas, 0.5f, 0.875f, 0.72f, 0.925f, "PARTY", 24, Palette.ButtonIdle, () => Show(_party), out _);
-            _tradeTab = Ui.Button("TradeTab", canvas, 0.73f, 0.875f, 0.96f, 0.925f, "BAZAAR", 24, Palette.ButtonIdle, () => Show(_trade), out _);
+            // Five tabs across: the world, the guild, the party, the sworn bond (Rules.Bonds), the Bazaar Call.
+            _worldTab = Ui.Button("WorldTab", canvas, 0.04f, 0.875f, 0.215f, 0.925f, "WORLD", 22, Palette.ButtonIdle, () => Show(_world), out _);
+            _guildTab = Ui.Button("GuildTab", canvas, 0.222f, 0.875f, 0.397f, 0.925f, "GUILD", 22, Palette.ButtonIdle, () => Show(_guild), out _);
+            _partyTab = Ui.Button("PartyTab", canvas, 0.404f, 0.875f, 0.579f, 0.925f, "PARTY", 22, Palette.ButtonIdle, () => Show(_party), out _);
+            _bondTab = Ui.Button("BondTab", canvas, 0.586f, 0.875f, 0.761f, 0.925f, "BOND", 22, Palette.ButtonIdle, () => Show(_bond), out _);
+            _tradeTab = Ui.Button("TradeTab", canvas, 0.768f, 0.875f, 0.96f, 0.925f, "BAZAAR", 22, Palette.ButtonIdle, () => Show(_trade), out _);
             _scroll = Ui.Scroll("Lines", canvas, 0.04f, 0.2f, 0.96f, 0.865f, out _content);
             _input = Ui.Input("Input", canvas, 0.04f, 0.135f, 0.74f, 0.19f, "Say something", 28, Chat.MaxLength);
             _input.lineType = InputField.LineType.SingleLine;
@@ -262,14 +267,14 @@ namespace Orsuun.Client
             _card.SetActive(true);
         }
 
-        public void Open(bool guild = false, bool party = false)
+        public void Open(bool guild = false, bool party = false, bool bond = false)
         {
             _message.text = "";
             _actions.SetActive(false);
             _picker.SetActive(false);
             _card.SetActive(false);
             _canvas.SetActive(true);
-            Show(party && _root.Server.InParty ? _party : guild && _root.Server.InGuild ? _guild : _world);
+            Show(bond && _root.Server.Bonded ? _bond : party && _root.Server.InParty ? _party : guild && _root.Server.InGuild ? _guild : _world);
         }
 
         /// <summary>Party lines by others not read yet (the party's chip and card count them).</summary>
@@ -293,6 +298,11 @@ namespace Orsuun.Client
             if (channel == _party && !_root.Server.InParty)
             {
                 _message.text = "Join a party to talk with it.";
+                return;
+            }
+            if (channel == _bond && !_root.Server.Bonded)
+            {
+                _message.text = "Swear a bond to talk with your sworn companion.";
                 return;
             }
             _shown = channel;
@@ -445,7 +455,8 @@ namespace Orsuun.Client
                     _guild.Lines.RemoveAll(l => l.accountId == line.accountId);
                     _trade.Lines.RemoveAll(l => l.accountId == line.accountId);
                     _party.Lines.RemoveAll(l => l.accountId == line.accountId);
-                    _world.Dirty = _guild.Dirty = _trade.Dirty = _party.Dirty = true;
+                    _bond.Lines.RemoveAll(l => l.accountId == line.accountId);
+                    _world.Dirty = _guild.Dirty = _trade.Dirty = _party.Dirty = _bond.Dirty = true;
                     _message.text = line.name + " is blocked.";
                 })));
         }
@@ -462,6 +473,7 @@ namespace Orsuun.Client
                     _guild.Clear();
                     _trade.Clear();
                     _party.Clear();
+                    _bond.Clear();
                 })));
         }
 
@@ -510,6 +522,7 @@ namespace Orsuun.Client
                 _guild.Clear();
                 _trade.Clear();
                 _party.Clear();
+                _bond.Clear();
                 Ticker = "";
             }
             if (tag != _guildTag)
@@ -526,11 +539,20 @@ namespace Orsuun.Client
                 _partySeen = 0;
             }
 
+            // A new bond starts its lines again.
+            string bond = _root.Server.Bonded ? _root.Server.BondBrief.partner : "";
+            if (bond != _bondKey)
+            {
+                _bondKey = bond;
+                _bond.Clear();
+            }
+
             if (_root.Server.Online)
             {
                 Poll(_world, IsOpen && _shown == _world ? PollOpen : WorldPollClosed);
                 if (IsOpen && _shown == _guild && _root.Server.InGuild) Poll(_guild, PollOpen);
                 if (IsOpen && _shown == _trade) Poll(_trade, PollOpen);
+                if (IsOpen && _shown == _bond && _root.Server.Bonded) Poll(_bond, PollOpen);
                 // The party's lines are fetched now and then while closed too: its chip counts the new ones.
                 if (_root.Server.InParty) Poll(_party, IsOpen && _shown == _party ? PollOpen : PartyPollClosed);
             }
@@ -544,9 +566,12 @@ namespace Orsuun.Client
             if (!IsOpen) return;
             if (_shown == _guild && !_root.Server.InGuild) _shown = _world;
             if (_shown == _party && !_root.Server.InParty) _shown = _world;
+            if (_shown == _bond && !_root.Server.Bonded) _shown = _world;
             if (_shown == _party && _party.Lines.Count > 0) _partySeen = Math.Max(_partySeen, _party.Lines[_party.Lines.Count - 1].id);
             _partyTab.GetComponent<Image>().color = _shown == _party ? Palette.Safe : Palette.ButtonIdle;
             _partyTab.interactable = _root.Server.InParty;
+            _bondTab.GetComponent<Image>().color = _shown == _bond ? Palette.Safe : Palette.ButtonIdle;
+            _bondTab.interactable = _root.Server.Bonded;
             _worldTab.GetComponent<Image>().color = _shown == _world ? Palette.Safe : Palette.ButtonIdle;
             _guildTab.GetComponent<Image>().color = _shown == _guild ? Palette.Safe : Palette.ButtonIdle;
             _tradeTab.GetComponent<Image>().color = _shown == _trade ? Palette.Safe : Palette.ButtonIdle;
@@ -599,6 +624,7 @@ namespace Orsuun.Client
                 if (_rows[0] is LocText quiet) quiet.Raw = false;
                 _rows[0].text = ConfirmDialog.Tint(_shown == _guild ? "The guild is quiet. Say hello." : _shown == _trade ? "The bazaar is quiet. Call your wares."
                     : _shown == _party ? "The party is quiet. Say hello."
+                    : _shown == _bond ? "Your bond's line is quiet. Say hello."
                     : "The steppe is quiet. Say hello.", Palette.Muted);
             }
             if (atBottom)

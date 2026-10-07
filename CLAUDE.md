@@ -373,6 +373,10 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   latest lives on `EventCalendar.Rain` so `ToState` reads it without a query (set by the clock and every strike). A strike
   locks the fall's row (`FOR UPDATE`); its lane is `BossRun.Create(KorstoneRain.Stage(map), ...)` run for `StrikeTicks` on
   both sides (`LaneSim.CurrentTick`), its boss drawn as a giant Elder Korstone (`LaneView` checks `KorstoneRain.StoneName`).
+- Sworn bonds (`Rules.Bonds`, 7 Oct 2026): the partner's id on both heroes' rows (`Account.BondPartnerId`); the other row changes
+  only through conditional single UPDATEs (`... && BondPartnerId == null`), so two swears cannot both win. The bonus is XP only
+  in the heartbeat (`Settle(..., bondBp)`), never combat stats (replays). Code that deletes a hero breaks the bond
+  (`BreakBondCoreAsync`), as blocking the partner does. The pair's chat channel is "b:" + both ids' first 16 hex (a channel is 40 long).
 - Map quests (`Rules.MapQuests`, 30 Sep 2026): a chain per campaign map, kept in `Account.MapQuests` (`QuestProgress`,
   "map:step:progress"). Steps count through `CountQuest` only where the deed happens: `Settle` (hunting, Korstones, on the
   parked stage's map) and the Commander fight (`MapQuests.CommanderOf`). A step's `Camp` must be a camp name of the map's layout

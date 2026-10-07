@@ -1606,6 +1606,33 @@ namespace Orsuun.Client.Net
         /// <summary>The quest chain of the map the hero hunts (Rules.MapQuests), from the last state (null: a zone, or none yet).</summary>
         public MapQuestDto Quest { get; private set; }
 
+        /// <summary>The hero's sworn bond and an ask waiting, as the last state told it (null: neither).</summary>
+        public BondBriefDto BondBrief { get; private set; }
+        public bool Bonded => Online && BondBrief != null && !IsNoGuid(BondBrief.partner);
+        public string BondAskName => Online && BondBrief != null && !string.IsNullOrEmpty(BondBrief.askName) ? BondBrief.askName : "";
+
+        /// <summary>The bond card. Completes with (bond, error).</summary>
+        public IEnumerator FetchBond(Action<BondDto, string> done) => BondCall("GET", "/v1/bond", null, done);
+
+        /// <summary>Asks a friend (by id) to swear a bond.</summary>
+        public IEnumerator BondAsk(string accountId, Action<BondDto, string> done) =>
+            BondCall("POST", "/v1/bond/ask", JsonUtility.ToJson(new BondAskRequest { accountId = accountId, name = "" }), done);
+
+        public IEnumerator BondAnswer(bool accept, Action<BondDto, string> done) =>
+            BondCall("POST", "/v1/bond/answer", JsonUtility.ToJson(new BondAnswerRequest { accept = accept }), done);
+
+        public IEnumerator BondBreak(Action<BondDto, string> done) => BondCall("POST", "/v1/bond/break", "{}", done);
+
+        private IEnumerator BondCall(string method, string path, string body, Action<BondDto, string> done)
+        {
+            BondDto result = null;
+            string failure = null;
+            yield return Send(method, path, body, true, json => result = JsonUtility.FromJson<BondDto>(json), error => failure = error ?? "No answer from the server.");
+            // The state's brief follows what the card says (the next heartbeat would anyway).
+            if (result != null) BondBrief = new BondBriefDto { partner = result.partnerId, partnerName = result.partnerName, ring = result.ring, askName = result.askName };
+            done(result, failure);
+        }
+
         /// <summary>The Giant Korstone standing (or just broken) as the last state told it, and when that came.</summary>
         public RainDto Rain { get; private set; }
         public float RainAt { get; private set; }
@@ -1967,6 +1994,7 @@ namespace Orsuun.Client.Net
             CommanderPushes = s.commanderPushes;
             Quest = s.quest != null && s.quest.map > 0 ? s.quest : null;
             Rain = s.rain != null && s.rain.id > 0 ? s.rain : null;
+            BondBrief = s.bond;
             RainAt = Time.realtimeSinceStartup;
             if (IsNoGuid(PartyLeader)) Party = null;
 
@@ -2126,7 +2154,7 @@ namespace Orsuun.Client.Net
         [Serializable] public class HeartbeatRequest { public LoopReportDto[] loops; }
         [Serializable] public class ForgeResultDto { public string outcome; public int chanceBp; public int levelBefore; public int levelAfter; }
         [Serializable] public class PushResultDto { public int stage; public bool cleared; public ulong seed; public int ticks; public int newHighestStageCleared; public int potionsAtStart; public string bell; }
-        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; public long partyLookLeft; public bool commanderPushes = true; public MapQuestDto quest; public RainDto rain; }
+        [Serializable] public class StateDto { public string accountId; public InventoryDto inventory; public ItemDto[] items; public int weaponsBroken; public int highestStageCleared; public int parkedStage; public BossStatusDto[] bosses; public BellDto bell; public SettlementDto settlement; public ForgeResultDto lastForge; public PushResultDto lastPush; public BossFightResultDto lastBossFight; public SocketResultDto lastSocket; public TurnResultDto lastTurn; public LaneDto lane; public string heroClass; public BountyBoardDto bounties; public string banner; public string name; public SiegeResultDto lastSiege; public EtchResultDto lastEtch; public GuildBriefDto guild; public string email; public string[] logins; public int dungeonRunsLeft; public long dungeonRunAtSmith; public WardrobeDto wardrobe; public TrailDto trail; public TradeBriefDto trade; public int dungeonPausedId; public int friendAsks; public int guildInvites; public int renewals; public int[] skillGrades; public int[] skillProgress; public long[] skillReadySeconds; public long honor; public int whispers; public string figure; public DailyDto daily; public int mail; public WorldEventDto[] events; public int achievementsReady; public string title; public bool emailVerified; public GoalCountsDto goalCounts; public RiverDto river; public KinDto kin; public ErrandsDto errands; public long cacheIn = -1; public string partyLeader; public string partyInvite; public int eliteCamp = -1; public long eliteLeft; public long partyLookLeft; public bool commanderPushes = true; public MapQuestDto quest; public RainDto rain; public BondBriefDto bond; }
         [Serializable] public class CommanderPushRequest { public bool on; }
         /// <summary>The party board (Party finder): heroes of the place looking for a party.</summary>
         [Serializable] public class PartyBoardEntryDto { public string id; public string name; public string @class; public int level; public string title; public int minutesListed; }
@@ -2154,6 +2182,11 @@ namespace Orsuun.Client.Net
         /// <summary>The Giant Korstone of Korstone Rain (Rules.KorstoneRain), as the state carries it.</summary>
         [Serializable] public class RainDto { public long id; public int map; public string mapName; public int camp; public long hpLeft; public long hpMax; public long secondsLeft; public long secondsSinceFall; public int strikesLeft; public long myDamage; public bool broken; public string brokenBy; }
         [Serializable] public class RainStrikeRequest { public string requestId; }
+        /// <summary>Sworn bonds (Rules.Bonds): the card, and the brief the state carries.</summary>
+        [Serializable] public class BondDto { public string partnerId; public string partnerName; public string partnerClass; public int partnerLevel; public bool partnerOnline; public bool together; public string sinceUtc; public long secondsTogether; public int ring; public string ringName; public long nextRingSeconds; public int xpBonusBp; public string askFrom; public string askName; public long waitSeconds; public string message; }
+        [Serializable] public class BondBriefDto { public string partner; public string partnerName; public int ring; public string askName; }
+        [Serializable] public class BondAskRequest { public string accountId; public string name; }
+        [Serializable] public class BondAnswerRequest { public bool accept; }
         [Serializable] public class RainStrikeDto { public StateDto state; public int map; public ulong seed; public int potionsAtStart; public long damage; public long hpLeft; public long hpMax; public bool broke; public string text; }
         [Serializable] public class TowerClimbDto { public StateDto state; public DungeonFloorDto[] floors; public int reached; public int fellOn; public bool newBest; public string chests; public string text; public TowerDto tower; }
         [Serializable] public class CacheOpenRequest { public string requestId; }

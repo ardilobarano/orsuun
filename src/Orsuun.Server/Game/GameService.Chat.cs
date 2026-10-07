@@ -22,6 +22,8 @@ public sealed partial class GameService
         "guild" => account.GuildId is Guid g ? Chat.GuildChannel(g) : throw new GameException("no_guild", "You are not in a guild."),
         // The hunting party's own channel (Rules.Parties), keyed by its leader.
         "party" => account.PartyLeaderId is Guid p ? PartyChannel(p) : throw new GameException("no_party", "You are not in a party."),
+        // A sworn bond's own line (Rules.Bonds), the two heroes' alone.
+        "bond" => account.BondPartnerId is Guid b ? BondChannel(account.Id, b) : throw new GameException("no_bond", "You are not sworn to a bond."),
         _ => throw new GameException("bad_channel", "Unknown chat channel."),
     };
 
@@ -50,6 +52,12 @@ public sealed partial class GameService
             DateTime joined = account.PartyJoinedUtc ?? DateTime.UtcNow;
             query = query.Where(m => m.Utc >= joined);
         }
+        // The pair reads their line from the day they swore (a bond sworn again starts clean).
+        if (IsBondChannel(stored))
+        {
+            DateTime sworn = account.BondSinceUtc ?? DateTime.UtcNow;
+            query = query.Where(m => m.Utc >= sworn);
+        }
         List<ChatMessage> rows = await query.OrderByDescending(m => m.Id).Take(Chat.PageSize).ToListAsync(ct);
         rows.Reverse();
         // The Bazaar Call's links, as the pieces are now: a piece its sender no longer has shows as gone.
@@ -66,7 +74,8 @@ public sealed partial class GameService
             })
             .ToArray();
         long latest = rows.Count > 0 ? rows[^1].Id : after;
-        return new ChatDto(stored == Chat.World ? Chat.World : stored == Chat.Trade ? Chat.Trade : IsPartyChannel(stored) ? "party" : "guild", lines, latest, blocked.Count);
+        return new ChatDto(stored == Chat.World ? Chat.World : stored == Chat.Trade ? Chat.Trade : IsPartyChannel(stored) ? "party" : IsBondChannel(stored) ? "bond" : "guild",
+            lines, latest, blocked.Count);
     }
 
     public async Task<ChatDto> SayAsync(Account account, ChatSayRequest request, CancellationToken ct)
@@ -151,6 +160,13 @@ public sealed partial class GameService
                 // Blocking a friend (or one asking) ends it.
                 await _db.Friendships.Where(f => (f.FromId == account.Id && f.ToId == request.AccountId) || (f.FromId == request.AccountId && f.ToId == account.Id))
                     .ExecuteDeleteAsync(ct);
+                // A sworn bond with them (Rules.Bonds) breaks too, and their ask is gone.
+                if (account.BondPartnerId == request.AccountId) await BreakBondCoreAsync(account, request.AccountId, ct);
+                if (account.BondAskFrom == request.AccountId)
+                {
+                    account.BondAskFrom = null;
+                    account.BondAskName = null;
+                }
             }
         }
         else if (request.AccountId == Guid.Empty) blocked.Clear();

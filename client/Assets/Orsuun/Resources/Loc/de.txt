@@ -3164,3 +3164,52 @@ Turnstones from the stone	Wendesteine aus dem Stein
 Shards of the Giant Korstone, good for turning etchings.	Splitter des Riesigen Korsteins, gut zum Wenden von Gravuren.
 The stone on {0} broke while you hunted there, and its shower reached you too.	Der Stein in {0} ist zerbrochen, während du dort gejagt hast, und sein Regen hat auch dich erreicht.
 Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	Ab und zu fällt ein Riesiger Korstein vom Himmel auf eine Karte. Jeder Held, der dort jagt, darf ihn dreimal schlagen, und seine Gesundheit ist geteilt: Schlagt gemeinsam zu. Zerbricht er, regnet es für jeden nach seinem Anteil Sorn, Wendesteine und Korsplitter, manchmal von seltenerem Rang, und jeder andere Jäger der Karte bekommt auch ein wenig.
+SWORN BOND	SCHWURBUND
+BOND	BUND
+SWEAR A BOND	BUND SCHWÖREN
+BOND CHAT	BUNDCHAT
+BREAK	LÖSEN
+Bonds need the server.	Bünde brauchen den Server.
+Bonds are sworn from level {0}.	Bünde werden ab Stufe {0} geschworen.
+Break the bond?	Den Bund lösen?
+Your Bond Ring is lost, and both of you wait three days before another bond.	Dein Bundring geht verloren, und ihr beide wartet drei Tage bis zu einem neuen Bund.
+hunting beside you	jagt neben dir
+online, not beside you	online, nicht neben dir
+Bond Ring	Bundring
+Bond Ring +{0}	Bundring +{0}
+XP together +{0}%	EP gemeinsam +{0} %
+Hunt the same map in one party to earn the bonus and grow the ring.	Jagt im selben Trupp auf derselben Karte, um den Bonus zu verdienen und den Ring wachsen zu lassen.
+{0} together	{0} gemeinsam
+next ring at {0}h	nächster Ring bei {0} h
+the ring is at its height	der Ring ist auf seiner Höhe
+An ask waits	Eine Bitte wartet
+No bond yet	Noch kein Bund
+{0} asks you to swear a bond. Hunt together in one party for more XP, and a Bond Ring that grows with every hour.	{0} bittet dich, einen Bund zu schwören. Jagt gemeinsam in einem Trupp für mehr EP, und ein Bundring wächst mit jeder Stunde.
+After a bond ends, wait {0} before another.	Nach dem Ende eines Bundes warte {0} bis zum nächsten.
+Swear a bond with a friend of level 15 or more: while you hunt the same map in one party, both earn more XP, and your Bond Ring grows with every hour together. Ask from FRIENDS: tap a friend, SWEAR A BOND.	Schwöre einen Bund mit einem Freund ab Stufe 15: Solange ihr im selben Trupp auf derselben Karte jagt, verdient ihr beide mehr EP, und euer Bundring wächst mit jeder gemeinsamen Stunde. Bitte unter FREUNDE: tippe einen Freund an, BUND SCHWÖREN.
+Swear a bond to talk with your sworn companion.	Schwöre einen Bund, um mit deinem Schwurgefährten zu sprechen.
+Your bond's line is quiet. Say hello.	Die Leitung eures Bundes ist still. Sag hallo.
+{0} ASKS TO SWEAR A BOND: ANSWER	{0} BITTET UM EINEN BUND: ANTWORTEN
+You are sworn to a bond already.	Du bist schon durch einen Bund gebunden.
+After a bond ends, {0} days pass before another.	Nach dem Ende eines Bundes vergehen {0} Tage bis zum nächsten.
+You cannot ask them.	Du kannst ihn nicht fragen.
+Only a friend can be asked to swear a bond.	Nur ein Freund kann um einen Bund gebeten werden.
+{0} is below level {1}.	{0} ist unter Stufe {1}.
+{0} is sworn to a bond already.	{0} ist schon durch einen Bund gebunden.
+{0} asks you to swear a bond	{0} bittet dich um einen Bund
+{0} asks you to swear a bond: hunt together in a party for more XP, and a Bond Ring that grows with every hour. Answer on BOND in FRIENDS within {1} minutes.	{0} bittet dich um einen Bund: Jagt gemeinsam in einem Trupp für mehr EP, und ein Bundring wächst mit jeder Stunde. Antworte innerhalb von {1} Minuten unter BUND in FREUNDE.
+You asked {0} to swear a bond.	Du hast {0} um einen Bund gebeten.
+No one asks you to swear a bond now.	Gerade bittet dich niemand um einen Bund.
+{0} declined your bond	{0} hat deinen Bund abgelehnt
+{0} did not swear the bond you asked for.	{0} hat den erbetenen Bund nicht geschworen.
+You let the ask go.	Du hast die Bitte ziehen lassen.
+{0} is sworn to another bond now.	{0} ist nun durch einen anderen Bund gebunden.
+{0} and {1} swore a bond.	{0} und {1} haben einen Bund geschworen.
+{0} and {1} have sworn a bond under the Eternal Sky.	{0} und {1} haben unter dem Ewigen Himmel einen Bund geschworen.
+{0} swore your bond	{0} hat euren Bund geschworen
+{0} and you are sworn now. Hunt together in a party for more XP, and your Bond Ring grows with every hour together.	{0} und du seid nun verbunden. Jagt gemeinsam in einem Trupp für mehr EP, und euer Bundring wächst mit jeder gemeinsamen Stunde.
+You and {0} are sworn.	Du und {0} seid verbunden.
+You are not sworn to a bond.	Du bist durch keinen Bund gebunden.
+The bond is broken.	Der Bund ist gelöst.
+{0} broke your bond	{0} hat euren Bund gelöst
+{0} broke the bond between you. After {1} days you may swear another.	{0} hat den Bund zwischen euch gelöst. Nach {1} Tagen darfst du einen neuen schwören.

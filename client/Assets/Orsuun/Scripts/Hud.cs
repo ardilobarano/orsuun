@@ -320,7 +320,8 @@ namespace Orsuun.Client
 
         private void OpenSocial()
         {
-            if (_root.Server.GuildInvites > _seenGuildInvites) _root.Guild.Open();
+            if (_root.Server.BondAskName.Length > 0) _root.Bond.Open();
+            else if (_root.Server.GuildInvites > _seenGuildInvites) _root.Guild.Open();
             else if (_root.Server.FriendAsks > _root.Friends.SeenAsks) _root.Friends.Open();
             else if (_root.Server.WhisperUnread > 0) _root.Messages.Open();
             else _root.Mail.Open();
@@ -660,12 +661,14 @@ namespace Orsuun.Client
             bool newInvites = invites > _seenGuildInvites && !_root.Guild.IsOpen;
             int whispers = _root.Server.Online && !_root.Messages.IsOpen ? _root.Server.WhisperUnread : 0;
             int letters = _root.Server.Online && !_root.Mail.IsOpen ? _root.Server.MailUnread : 0;
+            // Someone asks to swear a bond (Rules.Bonds): first among the social calls.
+            string bondAsk = !_root.Bond.IsOpen ? _root.Server.BondAskName : "";
             // A partymate's open dungeon (PartyPanel), a Giant Korstone (KorstoneRainView), then the Commander's call
             // (MapCommander), go before friends and letters; a trade before all.
             // Friends, letters and messages wait while a dungeon or the tower replays: its banner stands on the same line.
-            bool social = !calling && !_root.Replaying && !(_root.Commander != null && _root.Commander.Calling) && !(_root.Party != null && _root.Party.Calling) && !(_root.Rain != null && _root.Rain.Calling) && (newAsks || newInvites || whispers > 0 || letters > 0);
+            bool social = !calling && !_root.Replaying && !(_root.Commander != null && _root.Commander.Calling) && !(_root.Party != null && _root.Party.Calling) && !(_root.Rain != null && _root.Rain.Calling) && (bondAsk.Length > 0 || newAsks || newInvites || whispers > 0 || letters > 0);
             if (_socialCall.gameObject.activeSelf != social) _socialCall.gameObject.SetActive(social);
-            if (social && Changed(_socialCallLabel, System.HashCode.Combine(newInvites, newAsks, asks, whispers, letters))) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
+            if (social && Changed(_socialCallLabel, System.HashCode.Combine(bondAsk, newInvites, newAsks, asks, whispers, letters))) _socialCallLabel.text = bondAsk.Length > 0 ? $"{bondAsk.ToUpperInvariant()} ASKS TO SWEAR A BOND: ANSWER" : newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
                 : newAsks ? (asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER")
                 : whispers > 0 ? (whispers == 1 ? "A NEW MESSAGE: READ IT" : $"{whispers} NEW MESSAGES: READ THEM")
                 : letters == 1 ? "A LETTER HAS COME: OPEN THE MAILBOX" : $"{letters} LETTERS HAVE COME: OPEN THE MAILBOX";

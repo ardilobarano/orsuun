@@ -3118,3 +3118,52 @@ Turnstones from the stone	Kamienie Przemiany z kamienia
 Shards of the Giant Korstone, good for turning etchings.	Odłamki Olbrzymiego Korkamienia, dobre do obracania grawerów.
 The stone on {0} broke while you hunted there, and its shower reached you too.	Kamień na {0} pękł, gdy tam polowałeś, i jego deszcz dosięgnął i ciebie.
 Now and then a Giant Korstone falls from the sky on a map. Every hero hunting there may strike it three times, and its health is shared: strike it together. When it breaks, every striker is showered by their share of sorn, Turnstones and Korshards, sometimes of a rarer rank, and every other hunter on the map gets a little too.	Od czasu do czasu na mapę spada z nieba Olbrzymi Korkamień. Każdy bohater, który tam poluje, może uderzyć w niego trzy razy, a jego zdrowie jest wspólne: uderzajcie razem. Gdy pęknie, każdy uderzający dostaje według swojego udziału sorn, Kamienie Przemiany i Korodłamki, czasem rzadszej rangi, a każdy inny łowca na mapie też trochę.
+SWORN BOND	WIĘŹ PRZYSIĘGI
+BOND	WIĘŹ
+SWEAR A BOND	ZAPRZYSIĘŻ WIĘŹ
+BOND CHAT	CZAT WIĘZI
+BREAK	ZERWIJ
+Bonds need the server.	Więzi wymagają serwera.
+Bonds are sworn from level {0}.	Więzi zaprzysięga się od poziomu {0}.
+Break the bond?	Zerwać więź?
+Your Bond Ring is lost, and both of you wait three days before another bond.	Pierścień Więzi przepada, a oboje czekacie trzy dni na nową więź.
+hunting beside you	poluje obok ciebie
+online, not beside you	online, nie obok ciebie
+Bond Ring	Pierścień Więzi
+Bond Ring +{0}	Pierścień Więzi +{0}
+XP together +{0}%	PD razem +{0}%
+Hunt the same map in one party to earn the bonus and grow the ring.	Polujcie na tej samej mapie w jednej drużynie, by zdobyć premię i rozwinąć pierścień.
+{0} together	{0} razem
+next ring at {0}h	następny pierścień po {0} h
+the ring is at its height	pierścień jest u szczytu
+An ask waits	Czeka prośba
+No bond yet	Jeszcze bez więzi
+{0} asks you to swear a bond. Hunt together in one party for more XP, and a Bond Ring that grows with every hour.	{0} prosi cię o zaprzysiężenie więzi. Polujcie razem w jednej drużynie po więcej PD, a Pierścień Więzi rośnie z każdą godziną.
+After a bond ends, wait {0} before another.	Po końcu więzi odczekaj {0} przed następną.
+Swear a bond with a friend of level 15 or more: while you hunt the same map in one party, both earn more XP, and your Bond Ring grows with every hour together. Ask from FRIENDS: tap a friend, SWEAR A BOND.	Zaprzysięż więź z przyjacielem z poziomem 15 lub wyższym: gdy polujecie na tej samej mapie w jednej drużynie, oboje zdobywacie więcej PD, a wasz Pierścień Więzi rośnie z każdą wspólną godziną. Poproś w ZNAJOMYCH: stuknij przyjaciela, ZAPRZYSIĘŻ WIĘŹ.
+Swear a bond to talk with your sworn companion.	Zaprzysięż więź, by rozmawiać ze swoim towarzyszem.
+Your bond's line is quiet. Say hello.	Linia waszej więzi milczy. Przywitaj się.
+{0} ASKS TO SWEAR A BOND: ANSWER	{0} PROSI O WIĘŹ: ODPOWIEDZ
+You are sworn to a bond already.	Masz już zaprzysiężoną więź.
+After a bond ends, {0} days pass before another.	Po końcu więzi mija {0} dni do następnej.
+You cannot ask them.	Nie możesz go poprosić.
+Only a friend can be asked to swear a bond.	Tylko przyjaciela można poprosić o więź.
+{0} is below level {1}.	{0} ma poziom niższy niż {1}.
+{0} is sworn to a bond already.	{0} ma już zaprzysiężoną więź.
+{0} asks you to swear a bond	{0} prosi cię o więź
+{0} asks you to swear a bond: hunt together in a party for more XP, and a Bond Ring that grows with every hour. Answer on BOND in FRIENDS within {1} minutes.	{0} prosi cię o więź: polujcie razem w drużynie po więcej PD, a Pierścień Więzi rośnie z każdą godziną. Odpowiedz w WIĘZI w ZNAJOMYCH w ciągu {1} minut.
+You asked {0} to swear a bond.	Poprosiłeś {0} o więź.
+No one asks you to swear a bond now.	Nikt teraz nie prosi cię o więź.
+{0} declined your bond	{0} odrzucił twoją więź
+{0} did not swear the bond you asked for.	{0} nie zaprzysiągł więzi, o którą prosiłeś.
+You let the ask go.	Odrzuciłeś prośbę.
+{0} is sworn to another bond now.	{0} ma teraz inną więź.
+{0} and {1} swore a bond.	{0} i {1} zaprzysięgli więź.
+{0} and {1} have sworn a bond under the Eternal Sky.	{0} i {1} zaprzysięgli więź pod Wiecznym Niebem.
+{0} swore your bond	{0} zaprzysiągł waszą więź
+{0} and you are sworn now. Hunt together in a party for more XP, and your Bond Ring grows with every hour together.	{0} i ty jesteście teraz związani przysięgą. Polujcie razem w drużynie po więcej PD, a wasz Pierścień Więzi rośnie z każdą wspólną godziną.
+You and {0} are sworn.	Ty i {0} jesteście związani przysięgą.
+You are not sworn to a bond.	Nie masz zaprzysiężonej więzi.
+The bond is broken.	Więź zerwana.
+{0} broke your bond	{0} zerwał waszą więź
+{0} broke the bond between you. After {1} days you may swear another.	{0} zerwał łączącą was więź. Po {1} dniach możesz zaprzysiąc nową.
