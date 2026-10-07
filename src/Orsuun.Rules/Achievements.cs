@@ -45,6 +45,8 @@ namespace Orsuun.Rules
         // as the hero takes a chest's first letter).
         PartyDungeonClears = 23,
         PartyChests = 24,
+        /// <summary>The highest floor of the Endless Tower ever reached (a best, raised: Rules.Tower, 7 Oct 2026).</summary>
+        TowerFloor = 25,
     }
 
     /// <summary>What an achievement measures: a lifetime counter, or the hero as it stands.</summary>
@@ -221,6 +223,9 @@ namespace Orsuun.Rules
                 new AchievementDef(90, "Delving Band", "Clear 25 dungeons with your party.", FeatSource.Counter, 25, 80, 400, "Delve-Captain", FeatMetric.PartyDungeonClears),
                 new AchievementDef(91, "Open Hands", "Share a party chest.", FeatSource.Counter, 1, 15, 75, metric: FeatMetric.PartyChests),
                 new AchievementDef(92, "Spoils of the Band", "Share 50 party chests.", FeatSource.Counter, 50, 100, 500, "Keeper of the Spoils", FeatMetric.PartyChests),
+                // The Endless Tower (7 Oct 2026): the highest floor ever reached.
+                new AchievementDef(93, "Tower Climber", "Reach floor 30 of the Endless Tower.", FeatSource.Counter, 30, 20, 100, metric: FeatMetric.TowerFloor),
+                new AchievementDef(94, "Above the Clouds", "Reach floor 100 of the Endless Tower.", FeatSource.Counter, 100, 120, 600, "Cloud-Walker", FeatMetric.TowerFloor),
             };
             // The campaign: every map's last stage (100 + map).
             foreach (MapDef map in Content.Maps)

@@ -34,7 +34,7 @@ namespace Orsuun.Client
         private Row[] _zoneRows;
         private readonly Row[] _dungeonRows = new Row[Dungeons.All.Length];
         private readonly Row[] _bossRows = new Row[BossRows];
-        private Row _riverRow, _townRow;
+        private Row _riverRow, _townRow, _towerRow;
 
         public bool IsOpen => _canvas.activeSelf;
 
@@ -62,6 +62,11 @@ namespace Orsuun.Client
             riverCard.SetParent(content, false);
             riverCard.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
             _riverRow = MakeCard(riverCard, "River", 1.33f, Palette.Alloy, GoFishing);
+            // The Endless Tower (Rules.Tower): its own screen, with the week's ladder.
+            RectTransform towerCard = new GameObject("Tower", typeof(RectTransform)).GetComponent<RectTransform>();
+            towerCard.SetParent(content, false);
+            towerCard.gameObject.AddComponent<LayoutElement>().preferredHeight = 124f;
+            _towerRow = MakeCard(towerCard, "Tower", 1.33f, Palette.Danger, OpenTower);
             for (int d = 0; d < Dungeons.All.Length; d++)
             {
                 RectTransform dungeonCard = new GameObject("Dungeon" + d, typeof(RectTransform)).GetComponent<RectTransform>();
@@ -219,6 +224,34 @@ namespace Orsuun.Client
         {
             _message.text = "";
             _canvas.SetActive(true);
+            // The tower's card shows the week's best: asked again when it is a minute old.
+            if (_root.Server.Online && _root.Unlocked(Feature.Tower) && Time.realtimeSinceStartup - _root.Server.TowerAt > 60f)
+                StartCoroutine(_root.Server.FetchTower((_, _) => { }));
+        }
+
+        private void OpenTower()
+        {
+            if (!_root.Unlocked(Feature.Tower)) { _message.text = Unlocks.Locked(Feature.Tower); return; }
+            _canvas.SetActive(false);
+            _root.TowerScreen.Open();
+        }
+
+        /// <summary>The Endless Tower's card: the week's best floor and the climbs left, or the level it opens at.</summary>
+        private void UpdateTower()
+        {
+            bool online = _root.Server.Online, open = _root.Unlocked(Feature.Tower);
+            Net.ServerLink.TowerDto tower = online ? _root.Server.Tower : null;
+            Ui.SetPicture(_towerRow.Picture, "Thumbs/Tower");
+            _towerRow.Name.text = Tower.Name;
+            _towerRow.Label.text = !online ? "The tower needs the server."
+                : !open ? $"Opens at level {Unlocks.Level(Feature.Tower)}"
+                : tower == null ? "Climb as high as you can: every floor harder, a weekly ladder"
+                : (tower.best > 0 ? $"Best this week: floor {tower.best}" : "No climb yet this week") + $"  ·  climbs today {tower.climbsLeft}/{tower.climbsPerDay}";
+            _towerRow.Name.color = open ? Palette.Parchment : Palette.Muted;
+            _towerRow.Picture.color = open ? Color.white : new Color(0.45f, 0.45f, 0.5f);
+            _towerRow.ButtonLabel.text = open ? "OPEN" : "LV " + Unlocks.Level(Feature.Tower);
+            _towerRow.ButtonImage.color = open && online ? Palette.Danger : Palette.ButtonIdle;
+            _towerRow.Button.interactable = online && !_root.Replaying && !_root.PushBusy;
         }
 
         private void DevBossesUp()
@@ -233,6 +266,7 @@ namespace Orsuun.Client
             PlayerSession session = _root.Session;
 
             UpdateDungeon(session);
+            UpdateTower();
             UpdateTown();
             UpdateRiver();
 

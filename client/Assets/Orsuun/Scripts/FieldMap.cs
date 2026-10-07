@@ -90,7 +90,7 @@ namespace Orsuun.Client
                     foreach (int zone in layout.Zones ?? new int[0]) _layouts["z" + zone] = layout;
                 }
             }
-            string key = Orsuun.Rules.Dungeons.IsFloor(stageNumber) ? "d" + (stageNumber - Orsuun.Rules.Dungeons.FloorStageBase) / 10
+            string key = Orsuun.Rules.Tower.DungeonLook(stageNumber) != 0 ? "d" + Orsuun.Rules.Tower.DungeonLook(stageNumber)
                 : Orsuun.Rules.Content.IsZone(stageNumber) ? "z" + stageNumber
                 : "m" + Orsuun.Rules.Content.MapOfStage(stageNumber).Id;
             return _layouts.TryGetValue(key, out Layout found) ? found : null;

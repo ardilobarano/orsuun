@@ -238,6 +238,9 @@ v1.MapPost("/errand", (HttpContext ctx, ErrandRequest req, GameService game, Can
 // Map quests (Rules.MapQuests, 30 Sep 2026): every map's chain, and claiming a finished step.
 v1.MapGet("/quests", (HttpContext ctx, GameService game) => game.Quests(Me(ctx)));
 v1.MapPost("/quests/claim", (HttpContext ctx, QuestClaimRequest req, GameService game, CancellationToken ct) => game.ClaimQuestAsync(Me(ctx), req, ct));
+// The Endless Tower (Rules.Tower, 7 Oct 2026): the week's ladder, and a climb.
+v1.MapGet("/tower", (HttpContext ctx, GameService game, CancellationToken ct) => game.TowerAsync(Me(ctx), ct, null));
+v1.MapPost("/tower/climb", (HttpContext ctx, TowerClimbRequest req, GameService game, CancellationToken ct) => game.ClimbTowerAsync(Me(ctx), req, ct));
 v1.MapGet("/party", (HttpContext ctx, GameService game, CancellationToken ct) => game.PartyAsync(Me(ctx), ct));
 v1.MapPost("/party/invite", (HttpContext ctx, PartyInviteRequest req, GameService game, CancellationToken ct) => game.PartyInviteAsync(Me(ctx), req, ct));
 v1.MapPost("/party/answer", (HttpContext ctx, PartyAnswerRequest req, GameService game, CancellationToken ct) => game.PartyAnswerAsync(Me(ctx), req, ct));
@@ -519,6 +522,7 @@ if (app.Environment.IsDevelopment())
     dev.MapPost("/keep-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevKeepEndAsync(Me(ctx), ct));
     dev.MapPost("/party-dungeon-close", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevClosePartyDungeonAsync(Me(ctx), ct));
     dev.MapPost("/quest", (HttpContext ctx, int map, long amount, GameService game, CancellationToken ct) => game.DevQuestAsync(Me(ctx), map, amount, ct));
+    dev.MapPost("/tower-week-end", (HttpContext ctx, GameService game, CancellationToken ct) => game.DevTowerWeekEndAsync(Me(ctx), ct));
     dev.MapPost("/bosses-up", async (HttpContext ctx, GameService game, CancellationToken ct) => await game.WithBossesAsync(Me(ctx), await game.DevBossesUpAsync(Me(ctx), ct), ct));
 }
 

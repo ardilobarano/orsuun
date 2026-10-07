@@ -3043,3 +3043,50 @@ Share a party chest.	Podziel się skrzynią drużyny.
 Spoils of the Band	Łupy Drużyny
 Share 50 party chests.	Podziel się 50 skrzyniami drużyny.
 Keeper of the Spoils	Strażnik Łupów
+THE ENDLESS TOWER	NIEKOŃCZĄCA SIĘ WIEŻA
+The Endless Tower	Niekończąca się Wieża
+Climb the Endless Tower in ZONES: every floor harder, a chest every ten floors and a weekly ladder.	Wspinaj się na Niekończącą się Wieżę w STREFACH: każde piętro trudniejsze, co dziesięć pięter skrzynia i cotygodniowy ranking.
+Every climb starts at floor 1 and goes on until you fall. Every tenth floor a guardian, and a chest the first time each week.	Każda wspinaczka zaczyna się na piętrze 1 i trwa, aż upadniesz. Na co dziesiątym piętrze strażnik, a za pierwszym razem w tygodniu skrzynia.
+CLIMB	WSPINAJ SIĘ
+NO CLIMBS LEFT	BRAK WSPINACZEK
+THIS WEEK'S CLIMBERS	WSPINACZE TEGO TYGODNIA
+Chests opened	Otwarte skrzynie
+The tower needs the server.	Wieża wymaga serwera.
+Best this week: floor {0}	Najlepsze w tym tygodniu: piętro {0}
+No climb yet this week	W tym tygodniu jeszcze bez wspinaczki
+Rank {0}	Miejsce {0}
+the week ends in {0}	tydzień kończy się za {0}
+highest ever: floor {0}	najwyżej kiedykolwiek: piętro {0}
+Climbs today: {0}/{1}	Wspinaczki dziś: {0}/{1}
+new climbs at 20:00	nowe wspinaczki o 20:00
+Next chest at floor {0}	Następna skrzynia na piętrze {0}
+floor {0}	piętro {0}
+a Khan's Alloy	Stop Chana
+a Technique Scroll of your class	Zwój Techniki twojej klasy
+floor {0}: {1}	piętro {0}: {1}
+Climb as high as you can: every floor harder, a weekly ladder	Wspinaj się jak najwyżej: każde piętro trudniejsze, cotygodniowy ranking
+climbs today {0}/{1}	wspinaczki dziś {0}/{1}
+FLOORS 1-{0} CLEARED	PIĘTRA 1-{0} OCZYSZCZONE
+FLOOR {0}	PIĘTRO {0}
+FLOOR {0} REACHED	OSIĄGNIĘTO PIĘTRO {0}
+THE TOWER IS TOPPED	WIEŻA ZDOBYTA
+Tower chests: {0}	Skrzynie wieży: {0}
+You reached floor {0} of the Endless Tower and fell on floor {1}.	Dotarłeś do piętra {0} Niekończącej się Wieży i padłeś na piętrze {1}.
+You topped the Endless Tower: all {0} floors!	Zdobyłeś Niekończącą się Wieżę: wszystkie {0} pięter!
+A new best this week!	Nowy rekord tygodnia!
+Today's climbs are used. New ones come at 20:00.	Dzisiejsze wspinaczki wykorzystane. Nowe o 20:00.
+Leave the river first.	Najpierw opuść rzekę.
+The tower's week: rank {0}	Tydzień wieży: miejsce {0}
+The week is over. You climbed to floor {0} and finished {1} of every climber, and you wear the title {2} through the new week.	Tydzień dobiegł końca. Wspiąłeś się na piętro {0}, zająłeś {1}. miejsce wśród wszystkich wspinaczy i przez nowy tydzień nosisz tytuł {2}.
+The week is over. You climbed to floor {0} and finished {1} of every climber.	Tydzień dobiegł końca. Wspiąłeś się na piętro {0} i zająłeś {1}. miejsce wśród wszystkich wspinaczy.
+The Endless Tower's week is over: {0} climbed highest (floor {1}) and is Lord of the Endless Tower.	Tydzień Niekończącej się Wieży dobiegł końca: {0} wspiął się najwyżej (piętro {1}) i jest Panem Niekończącej się Wieży.
+Lord of the Endless Tower	Pan Niekończącej się Wieży
+Tower Veteran	Weteran Wieży
+Cloud-Walker	Wędrowiec Chmur
+Tower Climber	Wspinacz Wieży
+Reach floor 30 of the Endless Tower.	Dotrzyj na piętro 30 Niekończącej się Wieży.
+Above the Clouds	Ponad chmurami
+Reach floor 100 of the Endless Tower.	Dotrzyj na piętro 100 Niekończącej się Wieży.
+The Tower's Shadow	Cień Wieży
+The Endless Tower, floor {0}	Niekończąca się Wieża, piętro {0}
+Nobody has climbed yet this week: be the first.	W tym tygodniu nikt jeszcze się nie wspinał: bądź pierwszy.

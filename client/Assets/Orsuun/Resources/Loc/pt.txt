@@ -3057,3 +3057,50 @@ Share a party chest.	Partilhe um baú do grupo.
 Spoils of the Band	Os Despojos do Bando
 Share 50 party chests.	Partilhe 50 baús do grupo.
 Keeper of the Spoils	Guardião dos Despojos
+THE ENDLESS TOWER	A TORRE SEM FIM
+The Endless Tower	A Torre Sem Fim
+Climb the Endless Tower in ZONES: every floor harder, a chest every ten floors and a weekly ladder.	Escale a Torre Sem Fim em ZONAS: cada andar mais difícil, um baú a cada dez andares e um ranking semanal.
+Every climb starts at floor 1 and goes on until you fall. Every tenth floor a guardian, and a chest the first time each week.	Cada escalada começa no andar 1 e continua até você cair. A cada dez andares, um guardião, e um baú na primeira vez de cada semana.
+CLIMB	ESCALAR
+NO CLIMBS LEFT	SEM ESCALADAS
+THIS WEEK'S CLIMBERS	OS ESCALADORES DA SEMANA
+Chests opened	Baús abertos
+The tower needs the server.	A torre precisa do servidor.
+Best this week: floor {0}	Melhor da semana: andar {0}
+No climb yet this week	Nenhuma escalada esta semana
+Rank {0}	Posição {0}
+the week ends in {0}	a semana termina em {0}
+highest ever: floor {0}	o mais alto: andar {0}
+Climbs today: {0}/{1}	Escaladas hoje: {0}/{1}
+new climbs at 20:00	novas escaladas às 20:00
+Next chest at floor {0}	Próximo baú no andar {0}
+floor {0}	andar {0}
+a Khan's Alloy	uma Liga do Khan
+a Technique Scroll of your class	um Pergaminho de Técnica da sua classe
+floor {0}: {1}	andar {0}: {1}
+Climb as high as you can: every floor harder, a weekly ladder	Escale o mais alto que puder: cada andar mais difícil, um ranking semanal
+climbs today {0}/{1}	escaladas hoje {0}/{1}
+FLOORS 1-{0} CLEARED	ANDARES 1-{0} CONCLUÍDOS
+FLOOR {0}	ANDAR {0}
+FLOOR {0} REACHED	ANDAR {0} ALCANÇADO
+THE TOWER IS TOPPED	A TORRE FOI VENCIDA
+Tower chests: {0}	Baús da torre: {0}
+You reached floor {0} of the Endless Tower and fell on floor {1}.	Você chegou ao andar {0} da Torre Sem Fim e caiu no andar {1}.
+You topped the Endless Tower: all {0} floors!	Você venceu a Torre Sem Fim: todos os {0} andares!
+A new best this week!	Um novo recorde da semana!
+Today's climbs are used. New ones come at 20:00.	As escaladas de hoje acabaram. Novas chegam às 20:00.
+Leave the river first.	Saia do rio primeiro.
+The tower's week: rank {0}	A semana da torre: posição {0}
+The week is over. You climbed to floor {0} and finished {1} of every climber, and you wear the title {2} through the new week.	A semana acabou. Você escalou até o andar {0}, terminou em {1}º entre todos os escaladores e usa o título {2} durante a nova semana.
+The week is over. You climbed to floor {0} and finished {1} of every climber.	A semana acabou. Você escalou até o andar {0} e terminou em {1}º entre todos os escaladores.
+The Endless Tower's week is over: {0} climbed highest (floor {1}) and is Lord of the Endless Tower.	A semana da Torre Sem Fim acabou: {0} escalou mais alto (andar {1}) e é Senhor da Torre Sem Fim.
+Lord of the Endless Tower	Senhor da Torre Sem Fim
+Tower Veteran	Veterano da Torre
+Cloud-Walker	Andarilho das Nuvens
+Tower Climber	Escalador da Torre
+Reach floor 30 of the Endless Tower.	Chegue ao andar 30 da Torre Sem Fim.
+Above the Clouds	Acima das Nuvens
+Reach floor 100 of the Endless Tower.	Chegue ao andar 100 da Torre Sem Fim.
+The Tower's Shadow	A Sombra da Torre
+The Endless Tower, floor {0}	A Torre Sem Fim, andar {0}
+Nobody has climbed yet this week: be the first.	Ninguém escalou ainda esta semana: seja o primeiro.

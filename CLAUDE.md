@@ -364,6 +364,11 @@ iOS device install, server deploy/update and the EF migration command are in HAN
 - Party bounties and achievements (30 Sep 2026): `BountyMetric.PartyDungeonClears` is counted in `PartyRunEndAsync`; a party chest
   share's first letter has kind `GameService.PartyChestKind` ("party-chest") and taking it raises `FeatMetric.PartyChests` (the
   WorldClock that shares the chest never touches heroes' counters).
+- The Endless Tower (`Rules.Tower`, 7 Oct 2026): floors carry StageNumber 2000 + floor and borrow a dungeon's look
+  (`Tower.DungeonLook`, used by `LaneView.DungeonOf` and `FieldMap`); the climb is scored by the server and the client
+  replays the last `Tower.ReplayFloors` with `StageRun.Create(Tower.Floor(f), ...)`. The week's ladder is the hero's
+  `TowerSeason`/`TowerBest`, settled by `WorldClock` through a `TowerSeasons` row; the week's title is `Account.TowerTitle`
+  (`TitleOf`: worn, then the Pits', then the tower's). Never call `/v1/dev/tower-week-end` on the playtest server.
 - Map quests (`Rules.MapQuests`, 30 Sep 2026): a chain per campaign map, kept in `Account.MapQuests` (`QuestProgress`,
   "map:step:progress"). Steps count through `CountQuest` only where the deed happens: `Settle` (hunting, Korstones, on the
   parked stage's map) and the Commander fight (`MapQuests.CommanderOf`). A step's `Camp` must be a camp name of the map's layout

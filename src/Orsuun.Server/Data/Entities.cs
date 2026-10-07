@@ -129,6 +129,16 @@ public sealed class Account
     [MaxLength(256)] public string Errands { get; set; } = "";
     /// <summary>Map quests (Rules.QuestProgress): "map:step:progress;..." for each map begun.</summary>
     [MaxLength(256)] public string MapQuests { get; set; } = "";
+    /// <summary>The Endless Tower (Rules.Tower): the week (Bounties.WeekKey) of TowerBest, the best floor that week and when it
+    /// was reached (ties go to the first), the milestone floor last paid that week, the climbs of the bounty day TowerClimbDay,
+    /// and the title won by last week's ladder (worn through this week).</summary>
+    [MaxLength(16)] public string TowerSeason { get; set; } = "";
+    public int TowerBest { get; set; }
+    public DateTime TowerBestUtc { get; set; }
+    public int TowerPaid { get; set; }
+    [MaxLength(16)] public string TowerClimbDay { get; set; } = "";
+    public int TowerClimbs { get; set; }
+    [MaxLength(32)] public string? TowerTitle { get; set; }
     [MaxLength(512)] public string FeatsClaimed { get; set; } = "";
     public int TitleId { get; set; }
     /// <summary>
@@ -657,6 +667,15 @@ public sealed class PitSeasonRecord
     [Key, MaxLength(16)] public string Season { get; set; } = "";
     public DateTime SettledUtc { get; set; }
     public int Fighters { get; set; }
+    [MaxLength(256)] public string Champions { get; set; } = "";
+}
+
+/// <summary>A settled week of the Endless Tower's ladder (Rules.Tower): its key is the week, so it is settled once.</summary>
+public sealed class TowerSeasonRecord
+{
+    [Key, MaxLength(16)] public string Season { get; set; } = "";
+    public DateTime SettledUtc { get; set; }
+    public int Climbers { get; set; }
     [MaxLength(256)] public string Champions { get; set; } = "";
 }
 

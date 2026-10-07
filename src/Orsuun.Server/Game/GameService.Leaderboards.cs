@@ -40,7 +40,7 @@ public sealed partial class GameService
             _ => heroes.OrderByDescending(a => a.PitRating).ThenByDescending(a => a.PitWins),
         };
         var top = await ordered.Take(BoardRows)
-            .Select(a => new { a.Id, a.Name, a.Class, a.Xp, a.Banner, a.TitleId, a.PitTitle, a.HighestStageCleared, a.PitRating, a.BoardWeekXp, a.BoardWeekStage, a.GuildId })
+            .Select(a => new { a.Id, a.Name, a.Class, a.Xp, a.Banner, a.TitleId, a.PitTitle, a.TowerTitle, a.HighestStageCleared, a.PitRating, a.BoardWeekXp, a.BoardWeekStage, a.GuildId })
             .ToListAsync(ct);
         var guildIds = top.Where(t => t.GuildId != null).Select(t => t.GuildId).Distinct().ToList();
         var tags = await _db.Guilds.AsNoTracking().Where(g => guildIds.Contains(g.Id)).ToDictionaryAsync(g => g.Id, g => g.Tag, ct);
@@ -52,7 +52,7 @@ public sealed partial class GameService
             ("stage", true) => stage - weekStage,
             _ => rating,
         };
-        var rows = top.Select((t, i) => new LeaderRowDto(i + 1, t.Id, ShownName(t.Id, t.Name), Achievements.TitleOf(t.TitleId) ?? t.PitTitle ?? "",
+        var rows = top.Select((t, i) => new LeaderRowDto(i + 1, t.Id, ShownName(t.Id, t.Name), Achievements.TitleOf(t.TitleId) ?? t.PitTitle ?? t.TowerTitle ?? "",
             t.Class.ToString(), Content.LevelFor(t.Xp), t.Banner, ValueOf(t.Xp, t.HighestStageCleared, t.PitRating, t.BoardWeekXp, t.BoardWeekStage),
             t.GuildId is Guid g && tags.TryGetValue(g, out string? tag) ? tag : "")).ToArray();
 

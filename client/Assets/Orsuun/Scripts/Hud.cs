@@ -662,7 +662,8 @@ namespace Orsuun.Client
             int letters = _root.Server.Online && !_root.Mail.IsOpen ? _root.Server.MailUnread : 0;
             // A partymate's open dungeon (PartyPanel), then the Commander's call (MapCommander), go before friends and letters;
             // a trade before all.
-            bool social = !calling && !(_root.Commander != null && _root.Commander.Calling) && !(_root.Party != null && _root.Party.Calling) && (newAsks || newInvites || whispers > 0 || letters > 0);
+            // Friends, letters and messages wait while a dungeon or the tower replays: its banner stands on the same line.
+            bool social = !calling && !_root.Replaying && !(_root.Commander != null && _root.Commander.Calling) && !(_root.Party != null && _root.Party.Calling) && (newAsks || newInvites || whispers > 0 || letters > 0);
             if (_socialCall.gameObject.activeSelf != social) _socialCall.gameObject.SetActive(social);
             if (social && Changed(_socialCallLabel, System.HashCode.Combine(newInvites, newAsks, asks, whispers, letters))) _socialCallLabel.text = newInvites ? "A GUILD INVITES YOU: ANSWER ON THE GUILD SCREEN"
                 : newAsks ? (asks == 1 ? "A HERO ASKS TO BE FRIENDS: ANSWER" : $"{asks} HEROES ASK TO BE FRIENDS: ANSWER")

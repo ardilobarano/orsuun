@@ -3089,3 +3089,50 @@ Share a party chest.	Teile eine Gruppentruhe.
 Spoils of the Band	Die Beute der Schar
 Share 50 party chests.	Teile 50 Gruppentruhen.
 Keeper of the Spoils	Hüter der Beute
+THE ENDLESS TOWER	DER ENDLOSE TURM
+The Endless Tower	Der Endlose Turm
+Climb the Endless Tower in ZONES: every floor harder, a chest every ten floors and a weekly ladder.	Erklimme den Endlosen Turm in GEBIETE: jede Etage schwerer, alle zehn Etagen eine Truhe und eine Wochenrangliste.
+Every climb starts at floor 1 and goes on until you fall. Every tenth floor a guardian, and a chest the first time each week.	Jeder Aufstieg beginnt auf Etage 1 und geht weiter, bis du fällst. Auf jeder zehnten Etage ein Wächter und beim ersten Mal jede Woche eine Truhe.
+CLIMB	KLETTERN
+NO CLIMBS LEFT	KEINE AUFSTIEGE MEHR
+THIS WEEK'S CLIMBERS	DIE KLETTERER DIESER WOCHE
+Chests opened	Geöffnete Truhen
+The tower needs the server.	Der Turm braucht den Server.
+Best this week: floor {0}	Bestes dieser Woche: Etage {0}
+No climb yet this week	Diese Woche noch kein Aufstieg
+Rank {0}	Rang {0}
+the week ends in {0}	die Woche endet in {0}
+highest ever: floor {0}	höchste je: Etage {0}
+Climbs today: {0}/{1}	Aufstiege heute: {0}/{1}
+new climbs at 20:00	neue Aufstiege um 20:00
+Next chest at floor {0}	Nächste Truhe auf Etage {0}
+floor {0}	Etage {0}
+a Khan's Alloy	eine Khanslegierung
+a Technique Scroll of your class	eine Technikrolle deiner Klasse
+floor {0}: {1}	Etage {0}: {1}
+Climb as high as you can: every floor harder, a weekly ladder	Klettere so hoch du kannst: jede Etage schwerer, eine Wochenrangliste
+climbs today {0}/{1}	Aufstiege heute {0}/{1}
+FLOORS 1-{0} CLEARED	ETAGEN 1-{0} GESÄUBERT
+FLOOR {0}	ETAGE {0}
+FLOOR {0} REACHED	ETAGE {0} ERREICHT
+THE TOWER IS TOPPED	DER TURM IST BEZWUNGEN
+Tower chests: {0}	Turmtruhen: {0}
+You reached floor {0} of the Endless Tower and fell on floor {1}.	Du hast Etage {0} des Endlosen Turms erreicht und bist auf Etage {1} gefallen.
+You topped the Endless Tower: all {0} floors!	Du hast den Endlosen Turm bezwungen: alle {0} Etagen!
+A new best this week!	Eine neue Bestleistung diese Woche!
+Today's climbs are used. New ones come at 20:00.	Die Aufstiege von heute sind verbraucht. Neue gibt es um 20:00.
+Leave the river first.	Verlass zuerst den Fluss.
+The tower's week: rank {0}	Die Turmwoche: Rang {0}
+The week is over. You climbed to floor {0} and finished {1} of every climber, and you wear the title {2} through the new week.	Die Woche ist vorbei. Du bist bis Etage {0} geklettert, hast unter allen Kletterern Platz {1} erreicht und trägst in der neuen Woche den Titel {2}.
+The week is over. You climbed to floor {0} and finished {1} of every climber.	Die Woche ist vorbei. Du bist bis Etage {0} geklettert und hast unter allen Kletterern Platz {1} erreicht.
+The Endless Tower's week is over: {0} climbed highest (floor {1}) and is Lord of the Endless Tower.	Die Woche des Endlosen Turms ist vorbei: {0} ist am höchsten geklettert (Etage {1}) und ist Herr des Endlosen Turms.
+Lord of the Endless Tower	Herr des Endlosen Turms
+Tower Veteran	Turmveteran
+Cloud-Walker	Wolkenwanderer
+Tower Climber	Turmkletterer
+Reach floor 30 of the Endless Tower.	Erreiche Etage 30 des Endlosen Turms.
+Above the Clouds	Über den Wolken
+Reach floor 100 of the Endless Tower.	Erreiche Etage 100 des Endlosen Turms.
+The Tower's Shadow	Der Schatten des Turms
+The Endless Tower, floor {0}	Der Endlose Turm, Etage {0}
+Nobody has climbed yet this week: be the first.	Diese Woche ist noch niemand geklettert: sei der Erste.

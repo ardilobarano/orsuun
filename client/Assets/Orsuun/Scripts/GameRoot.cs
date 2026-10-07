@@ -72,6 +72,7 @@ namespace Orsuun.Client
         /// <summary>The hunting party: an invite waiting, the members, LEAVE (Rules.Parties).</summary>
         public PartyPanel Party { get; private set; }
         public QuestPanel Quests { get; private set; }
+        public TowerPanel TowerScreen { get; private set; }
         /// <summary>INSPECT, WHISPER, TRADE, ADD FRIEND and INVITE TO PARTY for a hero met in the world.</summary>
         public HeroActions HeroCard { get; private set; }
         /// <summary>A screenshot run (-shot) or a recording (-clip): the sign-in, the guide and the story cards stay away.</summary>
@@ -223,6 +224,8 @@ namespace Orsuun.Client
             Party.Init(this);
             Quests = new GameObject("QuestPanel").AddComponent<QuestPanel>();
             Quests.Init(this);
+            TowerScreen = new GameObject("TowerPanel").AddComponent<TowerPanel>();
+            TowerScreen.Init(this);
             // A Commander up on a big map stands at its landmark and calls every hero there (MapCommander).
             Commander = new GameObject("MapCommander").AddComponent<MapCommander>();
             Commander.Init(this, Lane);
@@ -956,6 +959,57 @@ namespace Orsuun.Client
         {
             if (Replaying || PushBusy || !Server.Online) return;
             StartCoroutine(DungeonSequence(dungeonId, partyDungeonId, openForParty));
+        }
+
+        /// <summary>Climbs the Endless Tower (Rules.Tower): the server scores every floor from the first until the fall; the
+        /// lane replays the last few, and the tower's screen comes back with the ladder.</summary>
+        public void ClimbTower()
+        {
+            if (Replaying || PushBusy || !Server.Online) return;
+            StartCoroutine(TowerSequence());
+        }
+
+        private IEnumerator TowerSequence()
+        {
+            PushBusy = true;
+            Net.ServerLink.TowerClimbDto climb = null;
+            string failure = null;
+            yield return Server.ClimbTower((r, e) => { climb = r; failure = e; });
+            if (climb == null)
+            {
+                Hud.Log(failure ?? "No answer from the server.");
+                PushBusy = false;
+                yield break;
+            }
+            HeroStats hero = Session.Hero;
+            Net.ServerLink.DungeonFloorDto[] floors = climb.floors ?? new Net.ServerLink.DungeonFloorDto[0];
+            if (floors.Length > 0 && floors[0].floor > 1)
+            {
+                ReplayBanner = $"THE ENDLESS TOWER  ·  FLOORS 1-{floors[0].floor - 1} CLEARED";
+                yield return new WaitForSecondsRealtime(1.8f);
+            }
+            foreach (Net.ServerLink.DungeonFloorDto floor in floors)
+            {
+                _replay = StageRun.Create(Tower.Floor(floor.floor), hero, new Inventory { Potions = floor.potionsAtStart }, floor.seed);
+                ReplayBanner = "THE ENDLESS TOWER  ·  FLOOR " + floor.floor;
+                int guard = StageRun.MaxTicks;
+                while (_replay.Clears == 0 && _replay.Deaths == 0 && guard-- > 0) yield return null;
+                ReplayBanner = floor.cleared ? $"FLOOR {floor.floor} CLEARED" : $"FELL ON FLOOR {floor.floor}";
+                yield return new WaitForSecondsRealtime(1.2f);
+            }
+            _replay = null;
+            ReplayBanner = climb.fellOn > 0 ? $"FLOOR {climb.reached} REACHED" : "THE TOWER IS TOPPED";
+            if (climb.newBest)
+            {
+                Victory();
+                GameAudio.Instance?.Play("LaneKorstoneBreak", 1f, 0.5f, 0f);
+            }
+            Hud.Log(climb.text);
+            yield return new WaitForSecondsRealtime(2.5f);
+            if (!string.IsNullOrEmpty(climb.chests)) Hud.Log("Tower chests: " + climb.chests);
+            ReplayBanner = "";
+            PushBusy = false;
+            TowerScreen.Open(climb.chests);
         }
 
         /// <summary>Goes back to a run left waiting at the Chained Smith.</summary>

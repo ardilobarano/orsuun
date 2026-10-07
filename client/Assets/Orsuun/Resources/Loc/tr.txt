@@ -3013,3 +3013,50 @@ Share a party chest.	Bir grup sandığını paylaş.
 Spoils of the Band	Çetenin Ganimeti
 Share 50 party chests.	50 grup sandığını paylaş.
 Keeper of the Spoils	Ganimet Bekçisi
+THE ENDLESS TOWER	SONSUZ KULE
+The Endless Tower	Sonsuz Kule
+Climb the Endless Tower in ZONES: every floor harder, a chest every ten floors and a weekly ladder.	BÖLGELER'de Sonsuz Kule'ye tırman: her kat daha zor, her on katta bir sandık ve haftalık bir sıralama.
+Every climb starts at floor 1 and goes on until you fall. Every tenth floor a guardian, and a chest the first time each week.	Her tırmanış 1. kattan başlar ve sen düşene kadar sürer. Her onuncu katta bir muhafız, her hafta ilk geçişte bir sandık.
+CLIMB	TIRMAN
+NO CLIMBS LEFT	TIRMANIŞ HAKKI KALMADI
+THIS WEEK'S CLIMBERS	BU HAFTANIN TIRMANANLARI
+Chests opened	Açılan sandıklar
+The tower needs the server.	Kule için sunucu gerekiyor.
+Best this week: floor {0}	Bu haftanın en iyisi: {0}. kat
+No climb yet this week	Bu hafta henüz tırmanış yok
+Rank {0}	{0}. sıra
+the week ends in {0}	hafta {0} sonra biter
+highest ever: floor {0}	en yükseği: {0}. kat
+Climbs today: {0}/{1}	Bugünkü tırmanışlar: {0}/{1}
+new climbs at 20:00	yeni tırmanışlar 20:00'de
+Next chest at floor {0}	Sonraki sandık {0}. katta
+floor {0}	{0}. kat
+a Khan's Alloy	bir Han Alaşımı
+a Technique Scroll of your class	sınıfından bir Teknik Parşömeni
+floor {0}: {1}	{0}. kat: {1}
+Climb as high as you can: every floor harder, a weekly ladder	Olabildiğince yükseğe tırman: her kat daha zor, haftalık bir sıralama
+climbs today {0}/{1}	bugünkü tırmanışlar {0}/{1}
+FLOORS 1-{0} CLEARED	1-{0}. KATLAR TEMİZLENDİ
+FLOOR {0}	{0}. KAT
+FLOOR {0} REACHED	{0}. KATA ULAŞILDI
+THE TOWER IS TOPPED	KULENİN ZİRVESİNE ÇIKILDI
+Tower chests: {0}	Kule sandıkları: {0}
+You reached floor {0} of the Endless Tower and fell on floor {1}.	Sonsuz Kule'nin {0}. katına ulaştın ve {1}. katta düştün.
+You topped the Endless Tower: all {0} floors!	Sonsuz Kule'nin zirvesine çıktın: {0} katın hepsi!
+A new best this week!	Bu haftanın yeni rekoru!
+Today's climbs are used. New ones come at 20:00.	Bugünün tırmanışları bitti. Yenileri 20:00'de gelir.
+Leave the river first.	Önce nehirden ayrıl.
+The tower's week: rank {0}	Kulenin haftası: {0}. sıra
+The week is over. You climbed to floor {0} and finished {1} of every climber, and you wear the title {2} through the new week.	Hafta bitti. {0}. kata kadar tırmandın ve tüm tırmananlar arasında {1}. oldun; yeni hafta boyunca {2} unvanını taşıyorsun.
+The week is over. You climbed to floor {0} and finished {1} of every climber.	Hafta bitti. {0}. kata kadar tırmandın ve tüm tırmananlar arasında {1}. oldun.
+The Endless Tower's week is over: {0} climbed highest (floor {1}) and is Lord of the Endless Tower.	Sonsuz Kule'nin haftası bitti: en yükseğe {0} tırmandı ({1}. kat) ve artık Sonsuz Kule'nin Efendisi.
+Lord of the Endless Tower	Sonsuz Kule'nin Efendisi
+Tower Veteran	Kule Kıdemlisi
+Cloud-Walker	Bulut Yürüyen
+Tower Climber	Kule Tırmanıcısı
+Reach floor 30 of the Endless Tower.	Sonsuz Kule'nin 30. katına ulaş.
+Above the Clouds	Bulutların Üstünde
+Reach floor 100 of the Endless Tower.	Sonsuz Kule'nin 100. katına ulaş.
+The Tower's Shadow	Kulenin Gölgesi
+The Endless Tower, floor {0}	Sonsuz Kule, {0}. kat
+Nobody has climbed yet this week: be the first.	Bu hafta henüz kimse tırmanmadı: ilk sen ol.

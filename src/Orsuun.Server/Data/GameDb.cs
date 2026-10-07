@@ -27,6 +27,7 @@ public sealed class GameDb : DbContext
     public DbSet<GuildInvite> GuildInvites => Set<GuildInvite>();
     public DbSet<Friendship> Friendships => Set<Friendship>();
     public DbSet<PitSeasonRecord> PitSeasons => Set<PitSeasonRecord>();
+    public DbSet<TowerSeasonRecord> TowerSeasons => Set<TowerSeasonRecord>();
     public DbSet<BookStack> BookStacks => Set<BookStack>();
     public DbSet<MarketListing> MarketListings => Set<MarketListing>();
     public DbSet<Device> Devices => Set<Device>();
@@ -55,6 +56,8 @@ public sealed class GameDb : DbContext
             e.HasIndex(a => new { a.CreatedIp, a.CreatedUtc });
             e.HasIndex(a => a.GuildId);
             e.HasIndex(a => a.PitRating);
+            // The Endless Tower's weekly ladder (Rules.Tower): the week's climbers by best floor.
+            e.HasIndex(a => new { a.TowerSeason, a.TowerBest });
             e.HasIndex(a => a.LoginId);
             e.HasIndex(a => a.NameKey).IsUnique().HasFilter("\"NameKey\" <> ''");
             e.HasIndex(a => a.InviteCode).IsUnique().HasFilter("\"InviteCode\" <> ''");

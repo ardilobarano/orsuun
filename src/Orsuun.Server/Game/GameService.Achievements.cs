@@ -56,8 +56,8 @@ public sealed partial class GameService
         };
     }
 
-    /// <summary>The title the hero wears, or the Pits' season title when he wears none.</summary>
-    private static string? TitleOf(Account account) => Achievements.TitleOf(account.TitleId) ?? account.PitTitle
+    /// <summary>The title the hero wears, or else the Pits' season title, the Endless Tower's week title, the angler's.</summary>
+    private static string? TitleOf(Account account) => Achievements.TitleOf(account.TitleId) ?? account.PitTitle ?? account.TowerTitle
         ?? (account.AnglerUntilUtc > DateTime.UtcNow ? Fishing.AnglerTitle : null);
 
     private static int AchievementsReady(Account account) =>

@@ -325,6 +325,16 @@ public sealed record MapQuestDto(int Map, string MapName, string Giver, string T
 public sealed record QuestsDto(MapQuestDto[] Maps, int Hunting);
 public sealed record QuestClaimRequest(string RequestId, int Map);
 
+/// <summary>The Endless Tower (Rules.Tower): the hero's week (best floor, climbs left, the next chest), the week's ladder and
+/// the hero's place on it, when the week ends, and the title the hero won last week.</summary>
+public sealed record TowerRowDto(int Rank, Guid Id, string Name, HeroClass Class, int Level, int Best, string Title);
+public sealed record TowerDto(int Best, int ClimbsLeft, int ClimbsPerDay, int NextChest, string NextChestHolds, TowerRowDto[] Ladder, int Rank,
+    long WeekEndsIn, string? Title, int BestEver, string? Message = null);
+public sealed record TowerClimbRequest(string RequestId);
+/// <summary>A climb: the last floors to replay (each with its seed and the draughts at its start), the floor reached, where the
+/// hero fell, a new best, the chests opened on the way, and the line to show.</summary>
+public sealed record TowerClimbDto(StateDto State, DungeonFloorDto[] Floors, int Reached, int FellOn, bool NewBest, string Chests, string Text, TowerDto Tower);
+
 /// <summary>The townsfolk's errands today (Rules.Errands): each townsman's, how far along, whether paid, and the pay.</summary>
 public sealed record ErrandDto(int Giver, int Id, string Text, long Progress, long Target, bool Paid);
 public sealed record ErrandsDto(ErrandDto[] List, long Sorn, int Materials, long SecondsToReset);

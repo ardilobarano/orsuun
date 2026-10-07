@@ -3051,3 +3051,50 @@ Share a party chest.	Împarte un cufăr al grupului.
 Spoils of the Band	Prada cetei
 Share 50 party chests.	Împarte 50 de cufere ale grupului.
 Keeper of the Spoils	Păzitorul Prăzii
+THE ENDLESS TOWER	TURNUL FĂRĂ SFÂRȘIT
+The Endless Tower	Turnul Fără Sfârșit
+Climb the Endless Tower in ZONES: every floor harder, a chest every ten floors and a weekly ladder.	Urcă în Turnul Fără Sfârșit din ZONE: fiecare etaj mai greu, un cufăr la fiecare zece etaje și un clasament săptămânal.
+Every climb starts at floor 1 and goes on until you fall. Every tenth floor a guardian, and a chest the first time each week.	Fiecare urcare începe de la etajul 1 și continuă până cazi. La fiecare al zecelea etaj, un paznic, iar prima dată în fiecare săptămână, un cufăr.
+CLIMB	URCĂ
+NO CLIMBS LEFT	NICIO URCARE RĂMASĂ
+THIS WEEK'S CLIMBERS	CĂȚĂRĂTORII SĂPTĂMÂNII
+Chests opened	Cufere deschise
+The tower needs the server.	Turnul are nevoie de server.
+Best this week: floor {0}	Cel mai bun săptămâna aceasta: etajul {0}
+No climb yet this week	Nicio urcare săptămâna aceasta
+Rank {0}	Locul {0}
+the week ends in {0}	săptămâna se încheie în {0}
+highest ever: floor {0}	cel mai sus vreodată: etajul {0}
+Climbs today: {0}/{1}	Urcări azi: {0}/{1}
+new climbs at 20:00	urcări noi la 20:00
+Next chest at floor {0}	Următorul cufăr la etajul {0}
+floor {0}	etajul {0}
+a Khan's Alloy	un Aliaj al Hanului
+a Technique Scroll of your class	un Pergament de Tehnică al clasei tale
+floor {0}: {1}	etajul {0}: {1}
+Climb as high as you can: every floor harder, a weekly ladder	Urcă cât de sus poți: fiecare etaj mai greu, un clasament săptămânal
+climbs today {0}/{1}	urcări azi {0}/{1}
+FLOORS 1-{0} CLEARED	ETAJELE 1-{0} CURĂȚATE
+FLOOR {0}	ETAJUL {0}
+FLOOR {0} REACHED	ETAJUL {0} ATINS
+THE TOWER IS TOPPED	TURNUL A FOST CUCERIT
+Tower chests: {0}	Cuferele turnului: {0}
+You reached floor {0} of the Endless Tower and fell on floor {1}.	Ai ajuns la etajul {0} al Turnului Fără Sfârșit și ai căzut la etajul {1}.
+You topped the Endless Tower: all {0} floors!	Ai cucerit Turnul Fără Sfârșit: toate cele {0} etaje!
+A new best this week!	Un nou record săptămâna aceasta!
+Today's climbs are used. New ones come at 20:00.	Urcările de azi s-au terminat. Altele noi vin la 20:00.
+Leave the river first.	Părăsește mai întâi râul.
+The tower's week: rank {0}	Săptămâna turnului: locul {0}
+The week is over. You climbed to floor {0} and finished {1} of every climber, and you wear the title {2} through the new week.	Săptămâna s-a încheiat. Ai urcat până la etajul {0}, ai terminat pe locul {1} dintre toți cățărătorii și porți titlul {2} în noua săptămână.
+The week is over. You climbed to floor {0} and finished {1} of every climber.	Săptămâna s-a încheiat. Ai urcat până la etajul {0} și ai terminat pe locul {1} dintre toți cățărătorii.
+The Endless Tower's week is over: {0} climbed highest (floor {1}) and is Lord of the Endless Tower.	Săptămâna Turnului Fără Sfârșit s-a încheiat: {0} a urcat cel mai sus (etajul {1}) și este Stăpânul Turnului Fără Sfârșit.
+Lord of the Endless Tower	Stăpânul Turnului Fără Sfârșit
+Tower Veteran	Veteranul Turnului
+Cloud-Walker	Călătorul Norilor
+Tower Climber	Cățărătorul Turnului
+Reach floor 30 of the Endless Tower.	Ajunge la etajul 30 al Turnului Fără Sfârșit.
+Above the Clouds	Deasupra norilor
+Reach floor 100 of the Endless Tower.	Ajunge la etajul 100 al Turnului Fără Sfârșit.
+The Tower's Shadow	Umbra Turnului
+The Endless Tower, floor {0}	Turnul Fără Sfârșit, etajul {0}
+Nobody has climbed yet this week: be the first.	Nimeni nu a urcat încă săptămâna aceasta: fii primul.

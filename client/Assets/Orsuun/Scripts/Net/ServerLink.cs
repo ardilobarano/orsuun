@@ -1606,6 +1606,33 @@ namespace Orsuun.Client.Net
         /// <summary>The quest chain of the map the hero hunts (Rules.MapQuests), from the last state (null: a zone, or none yet).</summary>
         public MapQuestDto Quest { get; private set; }
 
+        /// <summary>The Endless Tower as the server last told it (null before the first ask), and when that was.</summary>
+        public TowerDto Tower { get; private set; }
+        public float TowerAt { get; private set; }
+
+        /// <summary>The hero's week in the Endless Tower and its ladder. Completes with (tower, error).</summary>
+        public IEnumerator FetchTower(Action<TowerDto, string> done)
+        {
+            string failure = null;
+            yield return Send("GET", "/v1/tower", null, true, json => { Tower = JsonUtility.FromJson<TowerDto>(json); TowerAt = Time.realtimeSinceStartup; },
+                error => failure = error ?? "No answer from the server.");
+            done(failure == null ? Tower : null, failure);
+        }
+
+        /// <summary>Climbs the Endless Tower: the server scores every floor; completes with (climb, error).</summary>
+        public IEnumerator ClimbTower(Action<TowerClimbDto, string> done)
+        {
+            TowerClimbDto result = null;
+            string failure = null;
+            yield return Post("/v1/tower/climb", JsonUtility.ToJson(new TowerClimbRequest { requestId = NewRequestId() }), true, json =>
+            {
+                result = JsonUtility.FromJson<TowerClimbDto>(json);
+                if (result.state != null) Apply(result.state);
+                if (result.tower != null) { Tower = result.tower; TowerAt = Time.realtimeSinceStartup; }
+            }, error => failure = error ?? "No answer from the server.");
+            done(result, failure);
+        }
+
         /// <summary>Every map's quest chain. Completes with (chains, error).</summary>
         public IEnumerator FetchQuests(Action<QuestsDto, string> done)
         {
@@ -2101,6 +2128,11 @@ namespace Orsuun.Client.Net
         [Serializable] public class MapQuestDto { public int map; public string mapName; public string giver; public string title; public int step; public int steps; public string ask; public string task; public long progress; public long target; public string camp; public bool ready; public bool open; public long sorn; public long xp; public int materials; public bool piece; public string ending; public int opensAfter; }
         [Serializable] public class QuestsDto { public MapQuestDto[] maps; public int hunting; }
         [Serializable] public class QuestClaimRequest { public string requestId; public int map; }
+        /// <summary>The Endless Tower (Rules.Tower): the hero's week, the week's ladder, a climb.</summary>
+        [Serializable] public class TowerRowDto { public int rank; public string id; public string name; public string @class; public int level; public int best; public string title; }
+        [Serializable] public class TowerDto { public int best; public int climbsLeft; public int climbsPerDay; public int nextChest; public string nextChestHolds; public TowerRowDto[] ladder; public int rank; public long weekEndsIn; public string title; public int bestEver; public string message; }
+        [Serializable] public class TowerClimbRequest { public string requestId; }
+        [Serializable] public class TowerClimbDto { public StateDto state; public DungeonFloorDto[] floors; public int reached; public int fellOn; public bool newBest; public string chests; public string text; public TowerDto tower; }
         [Serializable] public class CacheOpenRequest { public string requestId; }
         [Serializable] public class CacheOpenDto { public StateDto state; public string found; }
         [Serializable] public class RiverDto { public bool atRiver; public long[] mealSeconds; public long rodSecondsLeft; public int[] autoFish; public int autoMussels; }

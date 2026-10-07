@@ -18,6 +18,8 @@ namespace Orsuun.Rules
         Bannerkin,
         /// <summary>Map quests (Rules.MapQuests, 30 Sep 2026).</summary>
         Quests,
+        /// <summary>The Endless Tower (Rules.Tower, 7 Oct 2026).</summary>
+        Tower,
     }
 
     /// <summary>
@@ -31,7 +33,7 @@ namespace Orsuun.Rules
     {
         public static readonly Feature[] All =
         {
-            Feature.Bounties, Feature.Quests, Feature.Shards, Feature.Fishing, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Dungeons, Feature.Pits, Feature.Bannerkin,
+            Feature.Bounties, Feature.Quests, Feature.Shards, Feature.Fishing, Feature.Commanders, Feature.Guild, Feature.Exchange, Feature.War, Feature.Tower, Feature.Dungeons, Feature.Pits, Feature.Bannerkin,
         };
 
         public static int Level(Feature feature) => feature switch
@@ -43,6 +45,7 @@ namespace Orsuun.Rules
             Feature.Guild => 10,
             Feature.Exchange => 12,
             Feature.War => 15,
+            Feature.Tower => 16,
             Feature.Dungeons => 18,
             Feature.Pits => 20,
             Feature.Fishing => 6,
@@ -66,6 +69,7 @@ namespace Orsuun.Rules
             Feature.Fishing => "OLD NERGUI'S RIVER",
             Feature.Bannerkin => "THE BANNERKIN",
             Feature.Quests => "MAP QUESTS",
+            Feature.Tower => "THE ENDLESS TOWER",
             _ => "",
         };
 
@@ -81,6 +85,7 @@ namespace Orsuun.Rules
             Feature.Dungeons => "Dungeons open in ZONES: deep floors, two keys a day and the Chained Smith.",
             Feature.Pits => "Duel other heroes in the Pits, from WAR, for Laurels and a season title.",
             Feature.Fishing => "Old Nergui fishes the river in ZONES: catch fish to eat for hunting boosts, and mussels with pearls inside.",
+            Feature.Tower => "Climb the Endless Tower in ZONES: every floor harder, a chest every ten floors and a weekly ladder.",
             Feature.Quests => "The folk of each map need a hero: QUEST under the map gives their quest, for sorn, XP and a piece at its end.",
             Feature.Bannerkin => "A Drumcaller walks the lane behind you, blessing and healing: dress and forge its gear in INVENTORY, BANNERKIN.",
             _ => "",

@@ -119,8 +119,9 @@ namespace Orsuun.Client
         /// <summary>The Carvers' Archive: stone sentinels, the vault's cold wights and the thieves who died in it.</summary>
         private static readonly string[] ArchiveMobs = { "StoneSentinel", "IceWight#9FB8D8", "Deserter#7F92B8" };
 
-        /// <summary>The dungeon a floor belongs to (Rules.Dungeons: stage 300 + id * 10 + floor), or 0.</summary>
-        private static int DungeonOf(int stageNumber) => Dungeons.IsFloor(stageNumber) ? (stageNumber - Dungeons.FloorStageBase) / 10 : 0;
+        /// <summary>The dungeon a floor belongs to (Rules.Dungeons: stage 300 + id * 10 + floor) or whose look an Endless Tower
+        /// floor borrows (Rules.Tower), or 0.</summary>
+        private static int DungeonOf(int stageNumber) => Tower.DungeonLook(stageNumber);
 
         /// <summary>The campaign map of a stage (1 the Oathfields .. 12 the Hollow Throne), or 0 for a zone or a dungeon floor.</summary>
         private static int CampaignMap(int stageNumber) => Content.IsZone(stageNumber) ? 0 : Content.MapOfStage(stageNumber).Id;
@@ -165,7 +166,7 @@ namespace Orsuun.Client
         {
             if (DungeonOf(stageNumber) == 2 && Art.Load<Material>("Backdrops/BackdropSilkWarren") != null) return "SilkWarren";
             if (DungeonOf(stageNumber) == 3 && Art.Load<Material>("Backdrops/BackdropCarversArchive") != null) return "CarversArchive";
-            if (Dungeons.IsFloor(stageNumber) && Art.Load<Material>("Backdrops/BackdropHollowSpire") != null) return "HollowSpire";
+            if (DungeonOf(stageNumber) != 0 && Art.Load<Material>("Backdrops/BackdropHollowSpire") != null) return "HollowSpire";
             int map = CampaignMap(stageNumber);
             if ((stageNumber == Content.SaltFlats || map == 3) && Art.Load<Material>("Backdrops/BackdropSaltFlats") != null) return "SaltFlats";
             if ((stageNumber == Content.FrostPasture || map == 4) && Art.Load<Material>("Backdrops/BackdropFrostPasture") != null) return "FrostPasture";
