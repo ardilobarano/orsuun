@@ -228,6 +228,8 @@ namespace Orsuun.Client
             if (_root == null || !_canvas.activeSelf) return;
             var server = _root.Server;
             var lobby = server.Lobby;
+            // Why the hero is back here (the server was full), said once.
+            if (server.LobbyNotice.Length > 0) _message.text = server.TakeLobbyNotice();
             // A new lobby (signed in again): start on the character played last.
             if (lobby != null && _lobbyGeneration != server.AccountGeneration)
             {

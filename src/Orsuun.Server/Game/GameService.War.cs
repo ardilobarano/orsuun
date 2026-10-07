@@ -121,6 +121,22 @@ public sealed partial class GameService
         return Math.Clamp(fighters, 1, 50);
     }
 
+    private sealed record PoolCount(DateTime Utc, long Fighters);
+    private static PoolCount? _poolShown;
+
+    /// <summary>
+    /// PoolFightersAsync for the Commanders' status on every heartbeat and /me, counted at most once a minute (a week of
+    /// hits each time was a heartbeat's slowest read; load test, 7 Oct 2026). A spawn's pool opens with a fresh count.
+    /// </summary>
+    private async Task<long> PoolFightersShownAsync(DateTime now, CancellationToken ct)
+    {
+        PoolCount? shown = _poolShown;
+        if (shown != null && now - shown.Utc < TimeSpan.FromMinutes(1)) return shown.Fighters;
+        long fighters = await PoolFightersAsync(now, ct);
+        _poolShown = new PoolCount(now, fighters);
+        return fighters;
+    }
+
     /// <summary>
     /// The Commander's clock row, locked for the rest of the transaction, rolled to the current spawn, with the spawn's
     /// pool opened on its first fight.

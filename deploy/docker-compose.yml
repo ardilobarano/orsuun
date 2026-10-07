@@ -36,6 +36,9 @@ services:
       Bells__TimeZone: ${BELLS_TIMEZONE:-Europe/Istanbul}
       # Moderators (the /admin page): comma-separated emails of game accounts. Empty = nobody can sign in there.
       Admin__Emails: ${ADMIN_EMAILS:-}
+      # The tester cap (Game/OnlineCap.cs): heroes hunting at once on this box; past it a hero coming online is asked to
+      # come back later. Measured with tools/loadtest.sh (HANDOFF.md, "Load test and tester cap"). 0 = no cap.
+      Playtest__MaxOnline: ${PLAYTEST_MAX_ONLINE:-200}
       # Sign in with Google / Apple (Game/ExternalAuth.cs). Empty = that button is not offered.
       Auth__PublicUrl: https://${DOMAIN}
       Auth__Google__ClientId: ${GOOGLE_CLIENT_ID:-}

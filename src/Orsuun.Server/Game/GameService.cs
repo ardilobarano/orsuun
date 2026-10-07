@@ -30,14 +30,16 @@ public sealed partial class GameService
     private readonly MailSender _mail;
     private readonly StoreReceipts _stores;
     private readonly PushSender _push;
+    private readonly OnlineCap _cap;
     /// <summary>Pushes this request owes, sent once its save has gone through.</summary>
     private readonly List<PushSender.Push> _pushes = new();
     private readonly ForgeService _forge;
     private readonly EtchingService _etchings = new();
     private readonly SocketService _sockets = new();
 
-    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events, MailSender mail, StoreReceipts stores, PushSender push)
+    public GameService(GameDb db, IRandom rng, BellClock bells, EventCalendar events, MailSender mail, StoreReceipts stores, PushSender push, OnlineCap cap)
     {
+        _cap = cap;
         _push = push;
         _mail = mail;
         _stores = stores;
@@ -101,7 +103,10 @@ public sealed partial class GameService
                 // Older clients have no character screen: their first character is made here with a generated name.
                 bool tokenTaken = await _db.Accounts.AnyAsync(a => a.DeviceToken == deviceToken, ct);
                 Guid id = Guid.NewGuid();
-                account = NewCharacter(login, Banners.GeneratedName(id), HeroClass.Vanguard, 0, id);
+                // A free one: generated names meet now and then once there are a thousand heroes (load test, 7 Oct 2026).
+                string name = Banners.GeneratedName(id);
+                for (int n = 2; await NameTakenAsync(name, ct); n++) name = Banners.GeneratedName(id) + " " + n;
+                account = NewCharacter(login, name, HeroClass.Vanguard, 0, id);
                 if (!tokenTaken) account.DeviceToken = deviceToken;
                 account.CreatedIp = clientIp;
             }
@@ -118,6 +123,12 @@ public sealed partial class GameService
         await _db.SaveChangesAsync(ct);
         int characters = await _db.Accounts.CountAsync(a => a.LoginId == login.Id, ct);
         return new GuestLoginResponse(account?.Id ?? Guid.Empty, session, created, login.Id, characters);
+    }
+
+    private Task<bool> NameTakenAsync(string name, CancellationToken ct)
+    {
+        string key = Characters.NameKey(name);
+        return _db.Accounts.AnyAsync(a => a.NameKey == key, ct);
     }
 
     /// <summary>A new character with the starter kit, the login's Banner, in the given slot.</summary>
@@ -160,9 +171,11 @@ public sealed partial class GameService
         // Sessions live on devices; sessions handed out before devices existed are still on the account.
         Device? device = await _db.Devices.AsNoTracking().FirstOrDefaultAsync(d => d.SessionToken == sessionToken, ct);
         if (device != null && device.AccountId == Guid.Empty) throw new GameException("no_character", "Choose a character first.");
+        // The hero with its pieces and scroll stacks in separate queries: one join would repeat the hero's row for every
+        // piece times every stack (a full bag and five stacks made 600 rows per request; load test, 7 Oct 2026).
         Account? account = device != null
-            ? await _db.Accounts.SingleOrDefaultAsync(a => a.Id == device.AccountId, ct)
-            : await _db.Accounts.SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
+            ? await _db.Accounts.AsSplitQuery().SingleOrDefaultAsync(a => a.Id == device.AccountId, ct)
+            : await _db.Accounts.AsSplitQuery().SingleOrDefaultAsync(a => a.SessionToken == sessionToken, ct);
         if (account != null) ThrowIfBanned(account);
         if (account?.GuildId is Guid guildId) _guild = await _db.Guilds.FindAsync(new object[] { guildId }, ct);
         if (account != null)
@@ -170,6 +183,22 @@ public sealed partial class GameService
             _login = await _db.Logins.SingleOrDefaultAsync(l => l.Id == account.LoginId, ct);
             await LoadLoginsAsync(account, ct);
         }
+        return account;
+    }
+
+    /// <summary>
+    /// The hero behind a session for a read-only poll (LightHero: world and party chat, the field, the party): the hero's
+    /// row alone, untracked, in one query, without its pieces, scroll stacks, login or guild. The polls are most of the
+    /// calls a phone makes, and the full load was most of their cost (load test, 7 Oct 2026). A session without a
+    /// character or from before devices takes the full way (which answers those).
+    /// </summary>
+    public async Task<Account?> AuthenticateLightAsync(string? sessionToken, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(sessionToken)) return null;
+        Account? account = await _db.Accounts.AsNoTracking().IgnoreAutoIncludes()
+            .Where(a => _db.Devices.Any(d => d.SessionToken == sessionToken && d.AccountId == a.Id)).FirstOrDefaultAsync(ct);
+        if (account == null) return await AuthenticateAsync(sessionToken, ct);
+        ThrowIfBanned(account);
         return account;
     }
 
@@ -202,6 +231,7 @@ public sealed partial class GameService
     public async Task<StateDto> HeartbeatAsync(Account account, HeartbeatRequest? request, CancellationToken ct)
     {
         DateTime now = DateTime.UtcNow;
+        await CheckRoomAsync(account, now, ct);
         RollBoardWeek(account);
         bool online = now - account.LastHeartbeatUtc <= OnlineGrace;
         LandAuto(account, now);
@@ -222,6 +252,20 @@ public sealed partial class GameService
         await SaveAsync(ct);
         await AddPointsAsync(account.Banner, settlement.Korstones * Banners.PointsPerKorstone, ct);
         return ToState(account, settlement: settlement);
+    }
+
+    /// <summary>
+    /// The tester cap (OnlineCap): a hero coming online is refused while Playtest:MaxOnline heroes hunt. Hunting means a
+    /// heartbeat within OnlineGrace since the hero was made (a new hero's heartbeat clock starts at its making, so a hero
+    /// made a minute ago and never played is still coming online, and does not count). Moderators always pass.
+    /// </summary>
+    private async Task CheckRoomAsync(Account account, DateTime now, CancellationToken ct)
+    {
+        bool hunting = now - account.LastHeartbeatUtc <= OnlineGrace && account.LastHeartbeatUtc > account.CreatedUtc;
+        if (_cap.Max <= 0 || hunting || SignedInAs(_push.ModeratorEmails)) return;
+        DateTime since = now - OnlineGrace;
+        if (await _db.Accounts.CountAsync(a => a.LastHeartbeatUtc > since && a.LastHeartbeatUtc > a.CreatedUtc, ct) >= _cap.Max)
+            throw new GameException("server_full", "The playtest server is full right now. Try again in a few minutes.");
     }
 
     /// <summary>
@@ -941,7 +985,7 @@ public sealed partial class GameService
         DateTime oldest = clocks.Values.Min(c => c.SpawnUtc);
         var hits = await _db.BossHits.AsNoTracking().Where(h => ids.Contains(h.BossId) && h.SpawnUtc >= oldest)
             .Select(h => new { h.BossId, h.SpawnUtc, h.Name, h.Banner, h.Damage }).ToListAsync(ct);
-        long freshPool = await PoolFightersAsync(now, ct);
+        long freshPool = await PoolFightersShownAsync(now, ct);
         foreach (BossDef boss in Content.Bosses)
         {
             BossClock clock = clocks[boss.Id];
@@ -1155,4 +1199,10 @@ public sealed partial class GameService
     };
 
     private static string NewToken() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+}
+
+/// <summary>Endpoint metadata: a read-only poll whose hero is loaded alone (GameService.AuthenticateLightAsync).</summary>
+public sealed class LightHero
+{
+    public static readonly LightHero Instance = new();
 }

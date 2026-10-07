@@ -3213,3 +3213,4 @@ You are not sworn to a bond.	Du bist durch keinen Bund gebunden.
 The bond is broken.	Der Bund ist gelöst.
 {0} broke your bond	{0} hat euren Bund gelöst
 {0} broke the bond between you. After {1} days you may swear another.	{0} hat den Bund zwischen euch gelöst. Nach {1} Tagen darfst du einen neuen schwören.
+The playtest server is full right now. Try again in a few minutes.	Der Testserver ist gerade voll. Versuche es in ein paar Minuten erneut.

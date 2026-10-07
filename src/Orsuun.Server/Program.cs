@@ -10,7 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 string connection = builder.Configuration.GetConnectionString("Game")
     ?? throw new InvalidOperationException("ConnectionStrings:Game is not configured.");
-builder.Services.AddDbContext<GameDb>(o => o.UseNpgsql(connection));
+// Npgsql prepares the statements requests run again and again (the polls, the heartbeat's reads), so PostgreSQL skips
+// parsing and planning them, and contexts are pooled rather than built per request (load test, 7 Oct 2026). A connection
+// string that sets Max Auto Prepare keeps its own value.
+var npgsql = new Npgsql.NpgsqlConnectionStringBuilder(connection);
+if (npgsql.MaxAutoPrepare == 0) npgsql.MaxAutoPrepare = 64;
+builder.Services.AddDbContextPool<GameDb>(o => o.UseNpgsql(npgsql.ConnectionString));
 builder.Services.AddSingleton<IRandom>(CryptoRandom.Instance);
 builder.Services.AddSingleton<BellClock>();
 builder.Services.AddSingleton<EventCalendar>();
@@ -18,6 +23,7 @@ builder.Services.AddSingleton<MailSender>();
 builder.Services.AddSingleton<StoreReceipts>();
 builder.Services.AddSingleton<PushSender>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<PushSender>());
+builder.Services.AddSingleton<OnlineCap>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ExternalAuth>();
@@ -77,6 +83,7 @@ app.Use(async (ctx, next) =>
             "unauthorized" => StatusCodes.Status401Unauthorized,
             "siege_cooldown" or "chat_cooldown" or "login_wait" => StatusCodes.Status429TooManyRequests,
             "banned" => StatusCodes.Status403Forbidden,
+            "server_full" => StatusCodes.Status503ServiceUnavailable,
             "admin_unauthorized" => StatusCodes.Status401Unauthorized,
             _ => StatusCodes.Status400BadRequest,
         };
@@ -208,7 +215,11 @@ lobby.MapPost("/external", async (HttpContext ctx, ExternalTokenRequest req, Ext
 RouteGroupBuilder v1 = app.MapGroup("/v1").AddEndpointFilter(async (ctx, next) =>
 {
     var game = ctx.HttpContext.RequestServices.GetRequiredService<GameService>();
-    Account? account = await game.AuthenticateAsync(ctx.HttpContext.Request.Headers["X-Session"], ctx.HttpContext.RequestAborted);
+    string? session = ctx.HttpContext.Request.Headers["X-Session"];
+    // Read-only polls load the hero alone (GameService.AuthenticateLightAsync); everything else loads it whole.
+    Account? account = ctx.HttpContext.GetEndpoint()?.Metadata.GetMetadata<LightHero>() != null
+        ? await game.AuthenticateLightAsync(session, ctx.HttpContext.RequestAborted)
+        : await game.AuthenticateAsync(session, ctx.HttpContext.RequestAborted);
     if (account == null) throw new GameException("unauthorized", "Missing or expired session.");
     ctx.HttpContext.Items["account"] = account;
     return await next(ctx);
@@ -248,7 +259,7 @@ v1.MapGet("/bond", (HttpContext ctx, GameService game, CancellationToken ct) => 
 v1.MapPost("/bond/ask", (HttpContext ctx, BondAskRequest req, GameService game, CancellationToken ct) => game.BondAskAsync(Me(ctx), req, ct));
 v1.MapPost("/bond/answer", (HttpContext ctx, BondAnswerRequest req, GameService game, CancellationToken ct) => game.BondAnswerAsync(Me(ctx), req, ct));
 v1.MapPost("/bond/break", (HttpContext ctx, GameService game, CancellationToken ct) => game.BondBreakAsync(Me(ctx), ct));
-v1.MapGet("/party", (HttpContext ctx, GameService game, CancellationToken ct) => game.PartyAsync(Me(ctx), ct));
+v1.MapGet("/party", (HttpContext ctx, GameService game, CancellationToken ct) => game.PartyAsync(Me(ctx), ct)).WithMetadata(LightHero.Instance);
 v1.MapPost("/party/invite", (HttpContext ctx, PartyInviteRequest req, GameService game, CancellationToken ct) => game.PartyInviteAsync(Me(ctx), req, ct));
 v1.MapPost("/party/answer", (HttpContext ctx, PartyAnswerRequest req, GameService game, CancellationToken ct) => game.PartyAnswerAsync(Me(ctx), req, ct));
 v1.MapPost("/party/leave", (HttpContext ctx, GameService game, CancellationToken ct) => game.PartyLeaveAsync(Me(ctx), ct));
@@ -341,7 +352,8 @@ v1.MapGet("/friends", (HttpContext ctx, GameService game, CancellationToken ct) 
 v1.MapPost("/friends/add", (HttpContext ctx, FriendAddRequest req, GameService game, CancellationToken ct) => game.AddFriendAsync(Me(ctx), req, ct));
 v1.MapPost("/friends/answer", (HttpContext ctx, FriendAnswerRequest req, GameService game, CancellationToken ct) => game.AnswerFriendAsync(Me(ctx), req, ct));
 v1.MapPost("/friends/remove", (HttpContext ctx, FriendRemoveRequest req, GameService game, CancellationToken ct) => game.RemoveFriendAsync(Me(ctx), req, ct));
-v1.MapGet("/chat", (HttpContext ctx, string? channel, long? after, GameService game, CancellationToken ct) => game.ChatAsync(Me(ctx), channel, after ?? 0, ct));
+v1.MapGet("/chat", (HttpContext ctx, string? channel, long? after, GameService game, CancellationToken ct) => game.ChatAsync(Me(ctx), channel, after ?? 0, ct))
+    .WithMetadata(LightHero.Instance);
 v1.MapPost("/chat", (HttpContext ctx, ChatSayRequest req, GameService game, CancellationToken ct) => game.SayAsync(Me(ctx), req, ct));
 v1.MapGet("/hero/{id:guid}", (HttpContext ctx, Guid id, GameService game, CancellationToken ct) => game.InspectAsync(Me(ctx), id, ct));
 v1.MapGet("/leaderboard", (HttpContext ctx, string? board, string? period, GameService game, CancellationToken ct) => game.LeaderboardAsync(Me(ctx), board, period, ct));
@@ -369,7 +381,7 @@ v1.MapGet("/market/history", (HttpContext ctx, string? kind, int? id, EquipSlot?
 v1.MapPost("/market/list", (HttpContext ctx, MarketListRequest req, GameService game, CancellationToken ct) => game.ListItemAsync(Me(ctx), req, ct));
 v1.MapGet("/rugs", (HttpContext ctx, GameService game, CancellationToken ct) => game.RugsAsync(Me(ctx), ct));
 v1.MapGet("/river/contest", (HttpContext ctx, GameService game, CancellationToken ct) => game.ContestAsync(Me(ctx), ct));
-v1.MapGet("/field", (HttpContext ctx, GameService game, CancellationToken ct) => game.FieldAsync(Me(ctx), ct));
+v1.MapGet("/field", (HttpContext ctx, GameService game, CancellationToken ct) => game.FieldAsync(Me(ctx), ct)).WithMetadata(LightHero.Instance);
 v1.MapPost("/town", (HttpContext ctx, TownVisitRequest req, GameService game, CancellationToken ct) => game.TownAsync(Me(ctx), req, ct));
 v1.MapGet("/rugs/{seller:guid}", (HttpContext ctx, Guid seller, GameService game, CancellationToken ct) => game.RugAsync(Me(ctx), seller, ct));
 v1.MapPost("/market/buy", (HttpContext ctx, MarketBuyRequest req, GameService game, CancellationToken ct) => game.BuyListingAsync(Me(ctx), req, ct));

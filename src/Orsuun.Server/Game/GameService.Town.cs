@@ -20,7 +20,7 @@ public sealed partial class GameService
         if (request.Leaving) return new TownDto(Array.Empty<TownHeroDto>());
         DateTime since = now.AddSeconds(-TownPresentSeconds);
         List<Guid> blocked = BlockedList(account);
-        List<Account> heroes = (await _db.Accounts.AsNoTracking()
+        List<Account> heroes = (await _db.Accounts.AsNoTracking().IgnoreAutoIncludes()
                 .Where(a => a.InTownUtc > since && a.Id != account.Id && a.BannedUtc == null && !a.AtRiver)
                 .OrderByDescending(a => a.InTownUtc).Take(TownShown + blocked.Count).ToListAsync(ct))
             .Where(a => !blocked.Contains(a.Id)).Take(TownShown).ToList();
@@ -49,7 +49,8 @@ public sealed partial class GameService
         List<Guid> blocked = BlockedList(account);
         // Partymates hunting here come first (they walk beside the hero, Rules.Parties), then whoever else is here.
         Guid? party = account.PartyLeaderId;
-        List<Account> heroes = (await _db.Accounts.AsNoTracking()
+        // The heroes' rows alone: DrawnAsync fetches the two worn pieces it draws.
+        List<Account> heroes = (await _db.Accounts.AsNoTracking().IgnoreAutoIncludes()
                 .Where(a => a.LastHeartbeatUtc > since && a.Id != account.Id && a.BannedUtc == null && !a.AtRiver
                             && a.ParkedStage >= first && a.ParkedStage <= last)
                 .OrderByDescending(a => party != null && a.PartyLeaderId == party).ThenByDescending(a => a.LastHeartbeatUtc)

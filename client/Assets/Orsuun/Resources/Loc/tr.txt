@@ -3137,3 +3137,4 @@ You are not sworn to a bond.	Bir yemin bağın yok.
 The bond is broken.	Bağ bozuldu.
 {0} broke your bond	{0} bağınızı bozdu
 {0} broke the bond between you. After {1} days you may swear another.	{0} aranızdaki bağı bozdu. {1} gün sonra yenisini kurabilirsin.
+The playtest server is full right now. Try again in a few minutes.	Test sunucusu şu an dolu. Birkaç dakika sonra yeniden dene.

@@ -3181,3 +3181,4 @@ You are not sworn to a bond.	Você não jurou nenhum laço.
 The bond is broken.	O laço está rompido.
 {0} broke your bond	{0} rompeu o seu laço
 {0} broke the bond between you. After {1} days you may swear another.	{0} rompeu o laço entre vocês. Depois de {1} dias você pode jurar outro.
+The playtest server is full right now. Try again in a few minutes.	O servidor de testes está cheio agora. Tente de novo daqui a alguns minutos.

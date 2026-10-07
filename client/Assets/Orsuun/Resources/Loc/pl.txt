@@ -3167,3 +3167,4 @@ You are not sworn to a bond.	Nie masz zaprzysiężonej więzi.
 The bond is broken.	Więź zerwana.
 {0} broke your bond	{0} zerwał waszą więź
 {0} broke the bond between you. After {1} days you may swear another.	{0} zerwał łączącą was więź. Po {1} dniach możesz zaprzysiąc nową.
+The playtest server is full right now. Try again in a few minutes.	Serwer testowy jest teraz pełny. Spróbuj ponownie za kilka minut.

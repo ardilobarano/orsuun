@@ -64,6 +64,8 @@ public sealed class GameDb : DbContext
             e.HasIndex(a => a.NameKey).IsUnique().HasFilter("\"NameKey\" <> ''");
             e.HasIndex(a => a.InviteCode).IsUnique().HasFilter("\"InviteCode\" <> ''");
             e.HasIndex(a => a.InvitedById);
+            // Who hunts now (the field, parties, Korstone Rain, the tester cap) is read by the last heartbeat.
+            e.HasIndex(a => a.LastHeartbeatUtc);
             // Optimistic concurrency on PostgreSQL's xmin system column: two requests for one account never both win.
             e.Property(a => a.Version).IsRowVersion();
             e.HasMany(a => a.Items).WithOne().HasForeignKey(i => i.OwnerId);
@@ -215,6 +217,9 @@ public sealed class GameDb : DbContext
         {
             e.HasIndex(l => new { l.AccountId, l.RequestId }).IsUnique();
             e.HasIndex(l => new { l.AccountId, l.Utc });
+            // A hero's entries of a kind (the Commanders fought this spawn, read on every heartbeat): every heartbeat adds
+            // an entry, so without it the read walks the hero's whole ledger.
+            e.HasIndex(l => new { l.AccountId, l.Kind });
         });
     }
 }

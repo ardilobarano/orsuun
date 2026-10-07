@@ -73,6 +73,7 @@ public sealed partial class GameService
         Account account = await _db.Accounts.SingleOrDefaultAsync(a => a.Id == request.CharacterId && a.LoginId == login.Id, ct)
             ?? throw new GameException("no_character", "No such character.");
         ThrowIfBanned(account);
+        await CheckRoomAsync(account, DateTime.UtcNow, ct);
         if (account.LaneSeed == 0) NewLane(account);
         // Coming back from the character screen counts as a return: time away settles like offline time.
         device.AccountId = account.Id;

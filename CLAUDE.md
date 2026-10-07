@@ -377,6 +377,13 @@ iOS device install, server deploy/update and the EF migration command are in HAN
   only through conditional single UPDATEs (`... && BondPartnerId == null`), so two swears cannot both win. The bonus is XP only
   in the heartbeat (`Settle(..., bondBp)`), never combat stats (replays). Code that deletes a hero breaks the bond
   (`BreakBondCoreAsync`), as blocking the partner does. The pair's chat channel is "b:" + both ids' first 16 hex (a channel is 40 long).
+- Load (7 Oct 2026, `tools/loadtest.sh`: `tools/LoadTest` against a server copy on port 5090, never the playtest server; the
+  box's one vCPU is about one Mac core). An `Account` auto-includes its pieces and scroll stacks (a tester's bag is ~100):
+  the full sign-in loads them by split query; the polls a phone repeats (world and party chat, the field, the party) carry
+  `LightHero` and get the hero's row alone, untracked (`AuthenticateLightAsync`), so their code must not read
+  `Items`/`Books`, the login or the guild, nor save. A new frequent read-only poll should be one too; account lists drawn
+  for others load with `IgnoreAutoIncludes()`. The tester cap is `Playtest:MaxOnline` (`OnlineCap`, `PLAYTEST_MAX_ONLINE`),
+  checked at character select and a hero's first heartbeat after `OnlineGrace` (`CheckRoomAsync`, "server_full", 503).
 - Map quests (`Rules.MapQuests`, 30 Sep 2026): a chain per campaign map, kept in `Account.MapQuests` (`QuestProgress`,
   "map:step:progress"). Steps count through `CountQuest` only where the deed happens: `Settle` (hunting, Korstones, on the
   parked stage's map) and the Commander fight (`MapQuests.CommanderOf`). A step's `Camp` must be a camp name of the map's layout

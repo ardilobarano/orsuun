@@ -282,6 +282,19 @@ namespace Orsuun.Client.Net
         public bool Connected => Online || InLobby && Lobby != null;
         /// <summary>Signing in or at the character screen: no hero is played yet (the game stays covered).</summary>
         public bool WaitingForHero => !Online && (InLobby || Status == "connecting");
+
+        /// <summary>The code of the last refusal, read inside its error callback (Send sets it just before calling it).</summary>
+        private string _lastErrorCode = "";
+
+        /// <summary>Why the hero is back at the character screen (the server was full), for that screen to say once.</summary>
+        public string LobbyNotice { get; private set; } = "";
+
+        public string TakeLobbyNotice()
+        {
+            string notice = LobbyNotice;
+            LobbyNotice = "";
+            return notice;
+        }
         /// <summary>The login's characters, Banner and Amber, from the last lobby call.</summary>
         public LobbyDto Lobby { get; private set; }
         private bool _chosen;
@@ -490,7 +503,7 @@ namespace Orsuun.Client.Net
                 CharacterSlotDto last = Lobby.characters[0];
                 foreach (CharacterSlotDto c in Lobby.characters)
                     if (string.CompareOrdinal(c.lastPlayedUtc, last.lastPlayedUtc) > 0) last = c;
-                yield return SelectCharacter(last.id, _ => { });
+                yield return SelectCharacter(last.id, error => { if (error != null) LobbyNotice = error; });
             }
             while (!_chosen) yield return null;
             InLobby = false;
@@ -498,15 +511,20 @@ namespace Orsuun.Client.Net
             while (true)
             {
                 List<LoopReport> reports = _player.TakeReports();
-                bool sent = false;
+                bool sent = false, full = false;
                 yield return Post("/v1/heartbeat", HeartbeatBody(reports), true, json =>
                 {
                     sent = true;
                     StateDto state = JsonUtility.FromJson<StateDto>(json);
                     if (state.settlement != null && state.settlement.countedSeconds > 0) LastSettlement = state.settlement;
                     Apply(state);
-                }, error => Status = "LOCAL MODE: " + error);
-                if (!sent && Status.Contains("Choose a character")) { Restart(); yield break; }   // deleted from another device
+                }, error =>
+                {
+                    Status = "LOCAL MODE: " + error;
+                    // The tester cap (server OnlineCap): back to the character screen, which says so.
+                    if (_lastErrorCode == "server_full") { full = true; LobbyNotice = error; }
+                });
+                if (!sent && (full || Status.Contains("Choose a character"))) { Restart(); yield break; }   // full, or deleted from another device
                 if (!sent) _player.RequeueReports(reports);
                 yield return new WaitForSecondsRealtime(HeartbeatSeconds);
             }
@@ -2079,9 +2097,9 @@ namespace Orsuun.Client.Net
                 yield break;
             }
 
-            string message = req.responseCode >= 400 && req.downloadHandler.text.Length > 0
-                ? JsonUtility.FromJson<ErrorDto>(req.downloadHandler.text).message
-                : req.error;
+            ErrorDto answer = req.responseCode >= 400 && req.downloadHandler.text.Length > 0 ? JsonUtility.FromJson<ErrorDto>(req.downloadHandler.text) : null;
+            string message = answer != null ? answer.message : req.error;
+            _lastErrorCode = answer?.code ?? "";
             // A rule refusal (400/409) is an answer, not an outage; only transport failures drop to local mode.
             if (req.responseCode < 400) Online = false;
             fail(message);
